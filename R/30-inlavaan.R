@@ -20,6 +20,21 @@ inlavaan <- function(model = NULL,
   PT <- lavaanify(model, auto = TRUE)
   PT <- cbind(PT, as.data.frame(lavaan:::lav_lisrel(PT)))
 
+  # Priors (default?)
+  PT <- PT |>
+    mutate(prior = case_when(
+      mat == "nu" ~ "normal(0,32)",
+      mat == "alpha" ~ "normal(0,10)",
+      mat == "lambda" ~ "normal(0,10)",
+      mat == "beta" ~ "normal(0,10)",
+      mat == "theta" ~ "gamma(1,.5)[sd])",
+      mat == "psi" ~ "gamma(1,.5)[sd]",
+      mat == "rho" ~ "beta(1,1)",
+      mat == "ibpsi" ~ "wishart(3,iden)",
+      mat == "tau" ~ "normal(0,1.5)"
+    ))
+
+
   # dat_inla <-
   #   dat |>
   #   mutate(id = row_number()) |>
