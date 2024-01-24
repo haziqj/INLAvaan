@@ -203,3 +203,7 @@ inlavaan <- function(model = NULL,
        verbose = FALSE)
 
 }
+
+# TODO:
+# - see any patterns in parameter table and CFA (1F, 2F, 3F) vs SEM
+#
