@@ -1,7 +1,21 @@
+cli_messages <- c(
+  "Laplace-ing through p dimensions...",
+  "Summoning Bayesian spirits...",
+  "Casting statistical spells...",
+  "Conjuring INLA magic...",
+  "Channeling Laplace's wizardry...",
+  "Harnessing the power of priors...",
+  "Diving into the probability pool...",
+  "Navigating the seas of stochasticity..."
+)
 
+#' @export
 inlavaan <- function(model = NULL, data = NULL) {
 
-  PT <- lavaan::lavaanify(model, auto = TRUE)
+  my_message <- sample(cli_messages, size = 1)
+  cli::cli_progress_bar(my_message, clear = FALSE)
+
+  PT <- lavaan::lavaanify(model, auto = TRUE, meanstructure = TRUE)
   # PT <- lavaan::lavaanify(
   #   model = model,
   #   int.ov.free = TRUE,
@@ -16,7 +30,7 @@ inlavaan <- function(model = NULL, data = NULL) {
   #   auto.efa = TRUE
   # )
   PT <- cbind(PT, as.data.frame(lavaan:::lav_lisrel(PT)))
-  PT$est <- PT$ustart
+  # PT$est <- PT$ustart
   PT <- as_tibble(PT)
 
   # Priors (default?)
@@ -32,6 +46,8 @@ inlavaan <- function(model = NULL, data = NULL) {
       mat == "ibpsi" ~ "wishart(3,iden)",
       mat == "tau" ~ "normal(0,1.5)"
     ))
+
+  cli::cli_progress_update(force = TRUE)
 
   # Figure out names of variables ----------------------------------------------
   ov_names <-
@@ -50,6 +66,8 @@ inlavaan <- function(model = NULL, data = NULL) {
     filter(op == "~~", lhs != rhs) |>
     pivot_longer(c(lhs, rhs)) |>
     pull(value)
+
+  cli::cli_progress_update(force = TRUE)
 
   # Formula for the measurement model ------------------------------------------
   form_measure <- function(y) {
@@ -95,9 +113,18 @@ inlavaan <- function(model = NULL, data = NULL) {
                                                     paste0("d", 2*x)))) |>
       unnest_longer(idx_name) |>
       group_by(id) |>
-      mutate(formula = form_measure(idx_name)) |>
+      mutate(formula = form_measure(idx_name),
+             mat = case_when(
+               mat == "theta" ~ "lambdaD",
+               mat == "psi" ~ "betaE",
+               TRUE ~ mat
+               # mat == "beta" ~ "psiD"
+             )) |>
       ungroup() |>
       mutate(copy = "")
+    tmp <- correlation_model[correlation_model$op == "~~", ]$free
+    tmp[seq(1, length(tmp), 2)] <- 0
+    correlation_model[correlation_model$op == "~~", ]$free <- tmp
   } else {
     correlation_model <- data.frame()
   }
@@ -112,6 +139,8 @@ inlavaan <- function(model = NULL, data = NULL) {
   # formula
   form <- as.formula(paste0("y ~ -1 + nu + ",
                             paste0(IT$formula, collapse = " + ")))
+
+  cli::cli_progress_update(force = TRUE)
 
   # Prepare the data -----------------------------------------------------------
   n <- nrow(data)
@@ -149,7 +178,7 @@ inlavaan <- function(model = NULL, data = NULL) {
   # build list of indices
   idx_all_list <- idxi_list
 
-  tmp <- idxl_list[structural_model$rhs]
+  tmp <- idxl_list[structural_model$lhs]
   names(tmp) <- structural_model$idx_name
   idx_all_list <- c(idx_all_list, tmp)
   rm(tmp)
@@ -178,16 +207,25 @@ inlavaan <- function(model = NULL, data = NULL) {
     idx_all_list
   )
 
-  # Fit INLA model -------------------------------------------------------------
-  fit_inla <- INLA::inla(form, data = datt, family = rep("gaussian", p))
-  fit_inla
-  # list(
-  #   PT = as_tibble(PT),
-  #   ov_names = ov_names,
-  #   lv_names = lv_names
-  # )
-}
+  cli::cli_progress_update(force = TRUE)
 
+  # Fit INLA model -------------------------------------------------------------
+  fit <- INLA::inla(form, data = datt, family = rep("gaussian", p))
+  cli::cli_progress_done()
+
+  out <-
+    list(
+      fit = fit,
+      PT = PT,
+      IT = IT,
+      ov_names = ov_names,
+      lv_names = lv_names,
+      n = n,
+      p = p
+    )
+  class(out) <- "inlavaan"
+  out
+}
 
 
 

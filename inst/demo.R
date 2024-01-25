@@ -16,7 +16,7 @@ true_model <- "
   # variance of the latent factor
   eta ~~ 1*eta
 "
-dat <- lavaan::simulateData(true_model, sample.nobs = 1000) |>
+dat <- lavaan::simulateData(true_model, sample.nobs = 500) |>
   as_tibble() |>
   mutate(y1 = y1 + 1,
          y2 = y2 + 0.7,
@@ -24,7 +24,7 @@ dat <- lavaan::simulateData(true_model, sample.nobs = 1000) |>
          y4 = y4 + 0.5,
          y5 = y5 + 0.4)
 
-inlavaan(model = "eta =~ y1 + y2 + y3 + y4 + y5", data = dat) |> summary()
+fit <- inlavaan(model = "eta =~ y1 + y2 + y3 + y4 + y5", data = dat)
 
 # 3-factor model ---------------------------------------------------------------
 true_model <- "
@@ -58,7 +58,7 @@ true_model <- "
   eta1 ~~ 0.4*eta3
   eta2 ~~ 0.3*eta3
 "
-dat <- lavaan::simulateData(true_model, sample.nobs = 2000)
+dat <- lavaan::simulateData(true_model, sample.nobs = 100)
 
 
 mod <- "
@@ -66,7 +66,7 @@ eta1 =~ y1 + y2 + y3 + y4 + y5
 eta2 =~ y6 + y7 + y8 + y9 + y10
 eta3 =~ y11 + y12 + y13 + y14 + y15
 "
-inlavaan(mod, dat) |> summary()
+fit <- inlavaan(mod, dat)
 
 # Political democracy SEM example ----------------------------------------------
 myModel <- '
@@ -88,4 +88,4 @@ myModel <- '
 '
 
 fit <- inlavaan(model = myModel, data = PoliticalDemocracy)
-
+summary(sem(myModel, PoliticalDemocracy))
