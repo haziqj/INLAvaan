@@ -1,5 +1,5 @@
 
-inlavaan <- function(model = NULL,
+inlavaanxxx <- function(model = NULL,
                      data = NULL) {
 
   PT <- lavaan::lavaanify(model, auto = TRUE)
@@ -19,8 +19,6 @@ inlavaan <- function(model = NULL,
       mat == "ibpsi" ~ "wishart(3,iden)",
       mat == "tau" ~ "normal(0,1.5)"
     ))
-
-  print(PT)
 
   n <- nrow(data)
   # Stretch the data
