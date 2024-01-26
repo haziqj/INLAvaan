@@ -50,6 +50,7 @@ print.inlavaan_summary <- function(x, ...) {
   cli::cli_h2(cli::col_blue("Intercepts"))
   cat(make_table(y, "intercepts"))
   cat("\n\n")
+
   cli::cli_h2(cli::col_blue("Variances"))
   cat(make_table(y, "variances"))
 }

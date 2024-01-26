@@ -30,10 +30,13 @@ The quintessential example of a structural equation model using Bollen's (1989) 
 This set includes data from 75 developing countries each assessed on four measures of democracy measured twice (1960 and 1965), and three measures of industrialization measured once (1960).
 The following model is theorised.
 
+```{r, echo = FALSE, out.width = "75%", fig.align = "center"}
+knitr::include_graphics("man/figures/politicaldemocracy1.png")
+```
 
-![](man/figures/politicaldemocracy1.png)
+<!-- ![](man/figures/politicaldemocracy1.png) -->
 
-We can fit this using `{INLAvaan}` as follows:
+We can fit this in `{INLAvaan}` using the usual `{lavaan}` syntax as follows:
 
 ```{r}
 myModel <- "
@@ -57,7 +60,7 @@ myModel <- "
 fit <- inlavaan(model = myModel, data = PoliticalDemocracy)
 ```
 
-The parameter estimates can be viewed using the summary method:
+The parameter estimates can then be viewed using the summary method:
 
 ```{r}
 summary(fit)
