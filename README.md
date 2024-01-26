@@ -4,6 +4,9 @@
 # `{INLAvaan}`
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 Bayesian structural equation modelling with INLA.
@@ -40,77 +43,83 @@ myModel <- "
 "
 
 fit <- inlavaan(model = myModel, data = PoliticalDemocracy)
-#> ⠙ Summoning Bayesian spirits... 1 done (55/s) | 19ms⠹ Summoning Bayesian spirits... 2 done (58/s) | 35ms⠸ Summoning Bayesian spirits... 3 done (43/s) | 71ms⠼ Summoning Bayesian spirits... 4 done (31/s) | 130msThe legacy packages maptools, rgdal, and rgeos, underpinning the sp package,
+#> ⠙ Diving into the probability pool... 1 done (53/s) | 20ms⠹ Diving into the probability pool... 2 done (55/s) | 37ms⠸ Diving into the probability pool... 3 done (52/s) | 58ms⠼ Diving into the probability pool... 4 done (42/s) | 97msThe legacy packages maptools, rgdal, and rgeos, underpinning the sp package,
 #> which was just loaded, were retired in October 2023.
 #> Please refer to R-spatial evolution reports for details, especially
 #> https://r-spatial.org/r/2023/05/15/evolution4.html.
 #> It may be desirable to make the sf package available;
 #> package maintainers should consider adding sf to Suggests:.
-#> ⠼ Summoning Bayesian spirits... 4 done (0.44/s) | 9.1s
+#> ⠼ Diving into the probability pool... 4 done (0.47/s) | 8.6s
+```
+
+The parameter estimates can be viewed using the summary method:
+
+``` r
 summary(fit)
 #> 
 #> ── INLAvaan fit ────────────────────────────────────────────────────────────────
-#> • Total time taken: 8.2s
+#> • Total time taken: 7.7s
 #> • Number of observations: 75
 #> • Number of model parameters: 42
-#> • Marginal log-likelihood: -1778.869
+#> • Marginal log-likelihood: -1778.837
 #> 
 #> ── Latent variables ──
+#> 
 #>                     Post. Mean   Post. SD   2.5% CI   97.5% CI
 #> dem60   =~   y1          1.000                                
-#>         =~   y2          1.131      0.151     0.834      1.428
-#>         =~   y3          1.028      0.130     0.773      1.285
-#>         =~   y4          1.102      0.123     0.860      1.346
+#>         =~   y2          1.129      0.151     0.833      1.426
+#>         =~   y3          1.027      0.130     0.772      1.284
+#>         =~   y4          1.103      0.123     0.861      1.346
 #> dem65   =~   y5          1.000                                
-#>         =~   y6          1.000      0.316     0.377      1.622
-#>         =~   y7          1.000      0.316     0.378      1.623
-#>         =~   y8          0.999      0.316     0.377      1.622
+#>         =~   y6          1.000      0.316     0.377      1.623
+#>         =~   y7          1.000      0.316     0.377      1.623
+#>         =~   y8          1.000      0.316     0.378      1.623
 #> ind60   =~   x1          1.000                                
-#>         =~   x2          2.083      0.097     1.893      2.275
+#>         =~   x2          2.083      0.097     1.893      2.274
 #>         =~   x3          1.571      0.126     1.324      1.821
 #> ── Covariances ──
 #>                  Post. Mean   Post. SD   2.5% CI   97.5% CI
 #> y1   ~~   y5          0.000                                
-#> y2   ~~   y4          2.662                                
-#>      ~~   y6          2.634                                
+#> y2   ~~   y4          2.663                                
+#>      ~~   y6          2.636                                
 #> y3   ~~   y7          0.000                                
 #> y4   ~~   y8          0.000                                
 #> y6   ~~   y8          2.012
 #> ── Regressions ──
 #>                       Post. Mean   Post. SD   2.5% CI   97.5% CI
-#> dem60   ~    ind60         0.959      0.221     0.524      1.392
-#> dem65   ~    ind60         1.386      0.211     0.971      1.801
-#>         ~    dem60         0.941      0.085     0.774      1.108
+#> dem60   ~    ind60         0.960      0.221     0.524      1.393
+#> dem65   ~    ind60         1.387      0.211     0.972      1.802
+#>         ~    dem60         0.941      0.084     0.775      1.108
 #> ── Intercepts ──
 #>                    Post. Mean   Post. SD   2.5% CI   97.5% CI
 #>           .y1           5.054      0.091     4.875      5.233
-#>           .y2           4.791      0.173     4.451      5.131
+#>           .y2           4.791      0.173     4.453      5.130
 #>           .y3           3.557      0.155     3.253      3.861
-#>           .y4           5.462      0.295     4.884      6.040
-#>           .y5           4.253      0.450     3.371      5.134
-#>           .y6           6.560      0.365     5.844      7.275
-#>           .y7           4.449      0.358     3.747      5.152
-#>           .y8           5.133      0.306     4.534      5.733
+#>           .y4           5.462      0.294     4.885      6.039
+#>           .y5           4.253      0.449     3.372      5.133
+#>           .y6           6.560      0.366     5.842      7.278
+#>           .y7           4.449      0.360     3.743      5.155
+#>           .y8           5.133      0.305     4.536      5.731
 #>           .x1           2.975      0.367     2.256      3.694
-#>           .x2           6.193      0.340     5.527      6.859
-#>           .x3           4.040      0.341     3.371      4.709
+#>           .x2           6.193      0.341     5.524      6.862
+#>           .x3           4.040      0.343     3.368      4.713
 #>           dem60         0.000                                
 #>           dem65         0.000                                
 #>           ind60         0.000
 #> ── Variances ──
 #>                    Post. Mean   Post. SD   2.5% CI   97.5% CI
-#>           .y1           1.559                                
-#>           .y2           9.300                                
-#>           .y3           4.879                                
-#>           .y4           3.912                                
-#>           .y5           2.057                                
-#>           .y6           5.520                                
-#>           .y7           3.760                                
-#>           .y8           4.125                                
+#>           .y1           1.558                                
+#>           .y2           9.303                                
+#>           .y3           4.877                                
+#>           .y4           3.917                                
+#>           .y5           2.056                                
+#>           .y6           5.510                                
+#>           .y7           3.768                                
+#>           .y8           4.138                                
 #>           .x1           0.112                                
 #>           .x2           0.000                                
 #>           .x3           0.548                                
-#>           dem60         4.637      0.980     3.023      4.527
+#>           dem60         4.646      0.981     3.029      4.538
 #>           dem65         0.000      0.000     0.000      0.000
 #>           ind60         0.524      0.098     0.358      0.514
 ```
