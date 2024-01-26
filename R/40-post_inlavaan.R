@@ -1,23 +1,61 @@
 #' @export
 print.inlavaan <- function(x, ...) {
+  after_inlavaan(x) |>
+    select(id:rhs, mat, all_of(c("mean", "sd", "0.025quant", "0.5quant",
+                                 "0.975quant", "mode"))) |>
+    print(n = Inf)
+}
+
+#' @export
+summary.inlavaan <- function(x, ...) {
   y <- after_inlavaan(x)
+  freeparam <- x$PT$id[x$PT$free > 0]
+  timetaken <- round(x$fit$cpu.used['Total'], 1)
+
+  res <- c(x, list(freeparam = freeparam, timetaken = timetaken, y = y))
+  class(res) <- "inlavaan_summary"
+  res
+
+}
+
+#' @export
+print.inlavaan_summary <- function(x, ...) {
+
+  y <- x$y
+  freeparam <- x$freeparam
+  timetaken <- x$timetaken
+
+  cli::cli_h1("INLAvaan fit")
+  cat("\n")
+
+  cli::cli_ul()
+  cli::cli_li("Total time taken: {lubridate::duration(timetaken, unit = 'sec')}")
+  cli::cli_li("Number of observations: {x$n}")
+  cli::cli_li("Number of model parameters: {length(freeparam)}")
+  cli::cli_li("Marginal log-likelihood: {round(x$fit$mlik[2,1], 3)}")
+  cli::cli_end()
 
   cli::cli_h2(cli::col_blue("Latent variables"))
   cat(make_table(y, "loadings"))
   cat("\n\n")
 
-  cli::cli_h2("Covariances")
+  cli::cli_h2(cli::col_blue("Covariances"))
+  cat(make_table(y, "covariances"))
+  cat("\n\n")
 
-  cli::cli_h2("Regressions")
+  cli::cli_h2(cli::col_blue("Regressions"))
+  cat(make_table(y, "regressions"))
+  cat("\n\n")
 
-  cli::cli_h2("Intercepts")
-
+  cli::cli_h2(cli::col_blue("Intercepts"))
+  cat(make_table(y, "intercepts"))
+  cat("\n\n")
   cli::cli_h2(cli::col_blue("Variances"))
   cat(make_table(y, "variances"))
-
 }
 
-make_table <- function(y = after_inlavaan(fit), what = "variances") {
+
+make_table <- function(y = after_inlavaan(fit), what = "covariances") {
   if (what == "loadings") {
     y <- y |> filter(mat == "lambda")
   }
@@ -28,6 +66,23 @@ make_table <- function(y = after_inlavaan(fit), what = "variances") {
     y2 <- y |>
       filter(mat %in% "psi", lhs == rhs) |>
       mutate(lhs = "", op = "", rhs = paste0(" ", rhs))
+    y <- bind_rows(y1, y2)
+  }
+  if (what == "covariances") {
+    y1 <- y |> filter(mat %in% "theta", lhs != rhs)
+    y2 <- y |> filter(mat %in% "psi", lhs != rhs)
+    y <- bind_rows(y1, y2)
+  }
+  if (what == "regressions") {
+    y <- y |> filter(mat == "beta")
+  }
+  if (what == "intercepts") {
+    y1 <- y |>
+      filter(mat == "nu") |>
+      mutate(rhs = paste0(".", lhs), lhs = "", op = "")
+    y2 <- y |>
+      filter(mat == "alpha") |>
+      mutate(rhs = paste0(" ", lhs), lhs = "", op = "")
     y <- bind_rows(y1, y2)
   }
 
@@ -42,8 +97,10 @@ make_table <- function(y = after_inlavaan(fit), what = "variances") {
     ) |>
     rename(" " = lhs, "  " = op, "   " = rhs)
 
-  tmp <- kableExtra::kbl(print_loadings, "rst", digits = 3)
-  tmp[2] <- gsub("\\\\", "", tmp[2])
+  tmp <- kableExtra::kbl(print_loadings, "simple", digits = 3)
+  # tmp[2] <- gsub("\\\\", "", tmp[2])
+  # tmp[2] <- paste(rep("─", 80), collapse = "")
+  tmp <- tmp[-2]
   tmp <- gsub(" NA", "   ", tmp)
   paste(as.character(tmp), collapse = "\n")
 }
