@@ -9,7 +9,23 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-Bayesian structural equation modelling with INLA.
+> Bayesian structural equation modelling with INLA.
+
+Features to add
+
+1. Dedicated sem, efa, cfa functions.
+2. Ability to specify priors.
+3. Ability to specify fixed parameter values. 
+4. Specify different families for different observed variable. 
+
+Experiments
+
+- Scalability (large n/large p)
+
+Long term plan
+
+1. New kinds of latent variables, such as hidden Markov models. 
+
 
 ## First impression
 
