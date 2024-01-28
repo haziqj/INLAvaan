@@ -14,9 +14,10 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 Features to add
 
 1. Dedicated sem, efa, cfa functions.
-2. Ability to specify priors.
-3. Ability to specify fixed parameter values. 
-4. Specify different families for different observed variable. 
+2. Model fit indices (xIC, RMSEA, etc.)
+3. Ability to specify priors.
+4. Ability to specify fixed parameter values. 
+5. Specify different families for different observed variable. 
 
 Experiments
 
