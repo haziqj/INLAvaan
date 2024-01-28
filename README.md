@@ -11,22 +11,24 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 > Bayesian structural equation modelling with INLA.
 
-Features to add
+Features to add (soon)
 
 1. Dedicated sem, efa, cfa functions.
 2. Model fit indices (xIC, RMSEA, etc.)
 3. Ability to specify priors.
 4. Ability to specify fixed parameter values. 
 5. Specify different families for different observed variable. 
+6. lavaan options like std.lv = TRUE and std.ov = TRUE and the like. 
 
 Experiments
 
 - Scalability (large n/large p)
 
-Long term plan
+Long term plan (which require modifying the parser)
 
 1. New kinds of latent variables, such as hidden Markov models. 
-
+2. Multilevel-ish kind of models (2-3 levels). 
+3. Add covariates 
 
 ## First impression
 
