@@ -2,14 +2,14 @@ inlavaan <- function(
     ..., # default lavaan arguments
 
     # INLA specific stuff
+    target = "INLA",
     dp = NULL,
     save.lvs = FALSE) {
 
-  # to play nice with blavaan code
-  target <- "INLA"
+  # To play nice with blavaan code
   cp                 = "srs"
   # dp                 = NULL
-  n.chains           = 3
+  n.chains           = 1
   burnin             = NA
   sample             = NA
   adapt              = NA
@@ -26,15 +26,13 @@ inlavaan <- function(
   seed               = NULL
   bcontrol         = list()
 
-  # start timer
+  ## start timer
   start.time0 <- proc.time()[3]
 
-  # store original call
-  mc <- match.call()
-
+  ## store original call
+  mc  <- match.call()
   # catch dot dot dot
-  dotdotdot <- list(...)
-  dotNames <- names(dotdotdot)
+  dotdotdot <- list(...); dotNames <- names(dotdotdot)
 
   ## catch vb target
   usevb <- FALSE
@@ -45,7 +43,7 @@ inlavaan <- function(
   }
 
   # default priors
-  if (length(dp) == 0) dp <- blavaan:::dpriors()
+  if(length(dp) == 0) dp <- blavaan:::dpriors(target = target)
 
   # burnin/sample/adapt if not supplied (should only occur for direct
   # blavaan call
@@ -105,7 +103,7 @@ inlavaan <- function(
 
   # ensure rstan/runjags are here. if target is not installed but
   # the other is, then use the other instead.
-  # FIXME: ENSURE INLA IS INSTALLED
+  # FIXME: Ensure INLA is intalled
   if(grepl("stan", target)){
     if(convergence == "auto") stop("blavaan ERROR: auto convergence is unavailable for Stan.")
 
@@ -133,7 +131,6 @@ inlavaan <- function(
   if(seedlen > 0 & target == "jags" & seedlen != n.chains){
     stop("blavaan ERROR: for JAGS, number of seeds must equal n.chains.")
   }
-
 
   # capture data augmentation/full information options
   blavmis <- "da"
@@ -194,10 +191,9 @@ inlavaan <- function(
     dotdotdot <- dotdotdot[-blocs]; dotNames <- dotNames[-blocs]
   }
 
-
   # which arguments do we override?
   lavArgsOverride <- c("missing", "estimator", "conditional.x", "parser")
-  # if(target != "stan") lavArgsOverride <- c(lavArgsOverride, "meanstructure")
+  if(target != "stan") lavArgsOverride <- c(lavArgsOverride, "meanstructure")
   # always warn?
   warn.idx <- which(lavArgsOverride %in% dotNames)
   if(length(warn.idx) > 0L) {
@@ -207,7 +203,7 @@ inlavaan <- function(
   }
 
   # if do.fit supplied, save it for jags stuff
-  jag.do.fit <- FALSE
+  jag.do.fit <- TRUE
   if("do.fit" %in% dotNames){
     jag.do.fit <- dotdotdot$do.fit
     if(!jag.do.fit){
@@ -226,15 +222,12 @@ inlavaan <- function(
     origtest <- "standard"
   }
   dotdotdot$do.fit <- FALSE
-  dotdotdot$se <- "none"
-  dotdotdot$test <- "none"
-
+  dotdotdot$se <- "none"; dotdotdot$test <- "none"
   # run for 1 iteration to obtain info about equality constraints, for npar
-  dotdotdot$control <- list(iter.max = 1, eval.max = 1)
-  dotdotdot$warn <- TRUE
+  dotdotdot$control <- list(iter.max = 1, eval.max = 1); dotdotdot$warn <- TRUE
   dotdotdot$optim.force.converged <- TRUE
   if(packageDescription("lavaan")$Version > "0.6-16") dotdotdot$parser <- "old"
-  dotdotdot$meanstructure <- TRUE
+  if(target != "stan") dotdotdot$meanstructure <- TRUE
   # dotdotdot$missing <- "direct"   # direct/ml creates error? (bug in lavaan?)
   ordmod <- FALSE
   if("ordered" %in% dotNames) ordmod <- TRUE
@@ -252,7 +245,6 @@ inlavaan <- function(
   dotdotdot$parameterization <- "theta"
   dotdotdot$estimator <- "default"
   dotdotdot$conditional.x <- FALSE
-
 
   # jags args
   if("debug" %in% dotNames) {
@@ -321,26 +313,24 @@ inlavaan <- function(
             paste(lavArgsRemove[warn.idx], collapse = " "), call. = FALSE)
   }
 
+
   if("sample.cov" %in% names(dotdotdot)) {
-    if(!("data" %in% names(dotdotdot))) stop('blavaan ERROR: sample.cov can only be used for target = "stan"')
+    if(!("data" %in% names(dotdotdot)) && target != "stan") stop('blavaan ERROR: sample.cov can only be used for target = "stan"')
     if("cluster" %in% names(dotdotdot)) stop('blavaan ERROR: sample.cov cannot be used for two-level models')
   }
   if("meanstructure" %in% names(dotdotdot) && "sample.cov" %in% names(dotdotdot)) stop('blavaan ERROR: meanstructure is not currently allowed when sample.cov is supplied')
 
-
-  # Call lavaan ----------------------------------------------------------------
+  # call lavaan
   mcdebug <- FALSE
   if("debug" %in% dotNames){
     ## only debug mcmc stuff
     mcdebug <- dotdotdot$debug
     dotdotdot <- dotdotdot[-which(dotNames == "debug")]
   }
-
-  # For warnings related to setting up model/data:
+  # for warnings related to setting up model/data:
   LAV <- do.call("lavaan", dotdotdot)
-  dotdotdot$do.fit <- TRUE
-  dotdotdot$warn <- FALSE
-  if(LAV@Data@data.type != "moment"){  #FIXME: What is this condition for??
+  dotdotdot$do.fit <- TRUE; dotdotdot$warn <- FALSE
+  if(LAV@Data@data.type != "moment" && target == "stan"){
     ## if no missing, set missing = "listwise" to avoid meanstructure if possible
     if(!any(is.na(unlist(lavInspect(LAV, 'data'))))){
       dotdotdot$missing <- "listwise"
@@ -386,7 +376,7 @@ inlavaan <- function(
   dotdotdot$test <- origtest
 
   # check for conflicting mv names
-  blavaan:::namecheck(LAV@Data@ov.names[[1]])
+  blavaan:::namecheck(LAV@Data@ov.names[[1]])  # FIXME: What's this for?
 
   # ordinal only for stan
   ordmod <- lavInspect(LAV, 'categorical')
@@ -414,9 +404,9 @@ inlavaan <- function(
   prispec <- "prior" %in% names(LAV@ParTable)
   # cannot currently use wishart prior with std.lv=TRUE
   if(LAV@Options$auto.cov.lv.x & LAV@Options$std.lv){
+    #warning("blavaan WARNING: cannot use Wishart prior with std.lv=TRUE. Reverting to 'srs' priors.")
     LAV@Options$auto.cov.lv.x <- FALSE
   }
-
   # Check whether there are user-specified priors or equality
   # constraints on lv.x or ov.x. If so, set auto.cov.lv.x = FALSE.
   lv.x <- LAV@pta$vnames$lv.x[[1]]
@@ -533,7 +523,7 @@ inlavaan <- function(
   lavoptions$dp        <- dp
   lavoptions$prisamp   <- prisamp
   lavoptions$target    <- target
-  lavoptions$optim.method <- "inla"
+  lavoptions$optim.method <- "INLA"
   lavoptions$burnin <- burnin
   lavoptions$sample <- sample
   lavoptions$n.chains <- n.chains
@@ -552,18 +542,16 @@ inlavaan <- function(
   # 6. estimate free parameters
   start.time <- proc.time()[3]
   x <- NULL
-
-
   if(lavmodel@nx.free > 0L) {
     if(!trans.exists){
       ## convert partable to mcmc syntax, then run
+
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       if (target == "INLA") {
-        # cat("FIXME!!!")
-        # HERE IS WHERE NEED TO GO TO INLA
-        jagtrans <- list()  # INLAFIX
+        jagtrans <- list()  # FIXME: Convert partable to INLA syntax
 
 
-
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       } else if(target == "jags") {
         jagtrans <- try(lav2mcmc(model = lavpartable, lavdata = lavdata,
                                  cp = cp, lv.x.wish = lavoptions$auto.cov.lv.x,
@@ -572,7 +560,7 @@ inlavaan <- function(
                                  blavmis = blavmis, wiggle = wiggle,
                                  wiggle.sd = wiggle.sd, target = "jags"),
                         silent = TRUE)
-      } else if(target == "stanclassic") {
+      } else if(target == "stanclassic"){
         jagtrans <- try(lav2stan(model = LAV,
                                  lavdata = lavdata,
                                  dp = dp, n.chains = n.chains,
@@ -728,9 +716,11 @@ inlavaan <- function(
         }
       }
 
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       if (target == "INLA") {
-        rjarg <- NULL  # INLAFIX
-        # So from jagtrans there needs to be a list of the data, the model, and the inits
+        rjarg <- NULL  # FIXME: from jagtrans output list of model, data, etc.
+
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       } else if(target == "jags"){
         rjarg <- with(jagtrans, list(model = paste(model),
                                      monitor = sampparms,
@@ -757,13 +747,17 @@ inlavaan <- function(
       ## user-supplied jags params
       rjarg <- c(rjarg, mfj, bcontrol)
 
-      if(target == "jags"){
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      if (target == "INLA") {
+        res <- NULL  # FIXME: INLA is run here
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      } else if(target == "jags"){
         ## obtain posterior modes
         if(suppressMessages(requireNamespace("modeest", quietly = TRUE))) runjags::runjags.options(mode.continuous = TRUE)
         runjags::runjags.options(force.summary = TRUE)
       }
 
-      if(jag.do.fit){
+      if(jag.do.fit & target != "INLA"){
         if(target == "jags"){
           rjcall <- "run.jags"
         } else if(target %in% c("stanclassic", "stancond")){
@@ -826,7 +820,7 @@ inlavaan <- function(
 
     timing$Estimate <- (proc.time()[3] - start.time)
     start.time <- proc.time()[3]
-    if(jag.do.fit) cat("Computing post-estimation metrics (including lvs if requested)...\n")
+    # if(jag.do.fit) cat("Computing post-estimation metrics (including lvs if requested)...\n")
 
     ## FIXME: there is no pars argument. this saves all parameters and uses unnecessary memory
     ## see res@sim and line 284 of stan_csv.R... might cut it down manually
@@ -834,14 +828,15 @@ inlavaan <- function(
       res <- rstan::read_stan_csv(res$output_files())
     }
 
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if (target == "INLA") {
-      # DO SOMETHING
-      parests <- NULL  # INLAFIX
+      parests <- NULL  # FIXME: Write coeffun_inla()
       stansumm <- NA
-    } else if(target == "jags") {
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    } else if(target == "jags"){
       parests <- coeffun(lavpartable, jagtrans$pxpartable, res)
       stansumm <- NA
-    } else if (target %in% c("stanclassic", "stancond")){
+    } else if(target %in% c("stanclassic", "stancond")){
       parests <- coeffun_stan(lavpartable, jagtrans$pxpartable,
                               res)
       stansumm <- parests$stansumm
@@ -876,8 +871,11 @@ inlavaan <- function(
       }
       stansumm <- parests$stansumm
     }
-    x <- parests$x
+
+    # FIXME: Update with INLA output
+    # x <- parests$x
     # lavpartable <- parests$lavpartable
+    x <- lavpartable$est[lavpartable$free > 0]
 
     if(jag.do.fit){
       lavmodel <- lav_model_set_parameters(lavmodel, x = x)
@@ -954,6 +952,7 @@ inlavaan <- function(
     ## FIXME: modify so that fx is commensurate with logl from Stan
     ##        for ystar, could take means of truncated normals
     attr(x, "fx") <- blavaan:::get_ll(lavobject = LAV, standata = rjarg$data)[1]
+    # FIXME: What likelihood exactly?
     LAV@Options$target <- target
 
     if(save.lvs && jag.do.fit && !ordmod && !lavoptions$.multilevel && lavInspect(LAV, "meanstructure")) {
@@ -972,114 +971,116 @@ inlavaan <- function(
   lavimplied <- NULL
   ## compute/store some model-implied statistics
   lavimplied <- lav_model_implied(lavmodel, delta = (lavmodel@parameterization == "delta"))
-  # if(jag.do.fit & n.chains > 1){
-  #   ## this also checks convergence of monitors from mcmcextra, which may not be optimal
-  #   psrfrows <- which(!is.na(lavpartable$psrf) &
-  #                       !is.na(lavpartable$free) &
-  #                       lavpartable$free > 0)
-  #   if(any(lavpartable$psrf[psrfrows] > 1.2)) attr(x, "converged") <- FALSE
-  #
-  #   ## warn if psrf is large and if we aren't getting the stan warnings
-  #   if(!attr(x, "converged") && lavoptions$warn && !grepl("stan", target)) {
-  #     warning("blavaan WARNING: at least one parameter has a rhat > 1.2.", call. = FALSE)
-  #   }
-  # }
-  #
-  # ## fx is mean ll, where ll is marginal log-likelihood (integrate out lvs)
-  # casells <- NULL
-  # if(lavoptions$test != "none") {
-  #   lavmcmc <- make_mcmc(res)
-  #   LAV@Options <- lavoptions
-  #
-  #   if(lavInspect(LAV, "categorical")) {
-  #     LAV@external$mcmcdata <- rjarg$data
-  #     casells <- case_lls(res, lavmcmc, lavobject = LAV)
-  #     samplls <- array(0, dim = c(sample, n.chains, 2))
-  #     samplls[,,1] <- rowSums(casells)
-  #   } else {
-  #     samplls <- samp_lls(res, lavmcmc, lavobject = LAV, standata = rjarg$data)
-  #   }
-  #
-  #   if(jags.ic) {
-  #     sampkls <- samp_kls(res, lavmodel, lavpartable,
-  #                         lavsamplestats, lavoptions, lavcache,
-  #                         lavdata, lavmcmc, conditional = FALSE)
-  #   } else {
-  #     sampkls <- NA
-  #   }
-  #
-  #   if(save.lvs && !ordmod && !lavoptions$.multilevel && lavInspect(LAV, "meanstructure")) {
-  #     if(target == "stan"){
-  #       lavmcmc <- make_mcmc(res, stanlvs) ## add on lvs
-  #     }
-  #     csamplls <- samp_lls(res, lavmcmc, lavobject = LAV, conditional = TRUE)
-  #     if(jags.ic) {
-  #       csampkls <- samp_kls(res, lavmodel, lavpartable,
-  #                            lavsamplestats, lavoptions, lavcache,
-  #                            lavdata, lavmcmc, lavobject = LAV,
-  #                            conditional = TRUE)
-  #     }
-  #   }
-  # } else {
-  #   samplls <- NA
-  #   sampkls <- NA
-  #   csamplls <- NA
-  #   csampkls <- NA
-  # }
-  #
-  # timing$PostPred <- (proc.time()[3] - start.time)
-  # start.time <- proc.time()[3]
-  #
-  # ## put runjags output in new blavaan slot
-  # lavjags <- res
-  #
+  if(jag.do.fit & n.chains > 1){
+    ## this also checks convergence of monitors from mcmcextra, which may not be optimal
+    psrfrows <- which(!is.na(lavpartable$psrf) &
+                        !is.na(lavpartable$free) &
+                        lavpartable$free > 0)
+    if(any(lavpartable$psrf[psrfrows] > 1.2)) attr(x, "converged") <- FALSE
+
+    ## warn if psrf is large and if we aren't getting the stan warnings
+    if(!attr(x, "converged") && lavoptions$warn && !grepl("stan", target)) {
+      warning("blavaan WARNING: at least one parameter has a rhat > 1.2.", call. = FALSE)
+    }
+  }
+
+  ## fx is mean ll, where ll is marginal log-likelihood (integrate out lvs)
+  casells <- NULL
+  if(lavoptions$test != "none" & target != "INLA") {  #FIXME: Figure out post processing for INLA
+    lavmcmc <- make_mcmc(res)
+    LAV@Options <- lavoptions
+
+    if(lavInspect(LAV, "categorical")) {
+      LAV@external$mcmcdata <- rjarg$data
+      casells <- case_lls(res, lavmcmc, lavobject = LAV)
+      samplls <- array(0, dim = c(sample, n.chains, 2))
+      samplls[,,1] <- rowSums(casells)
+    } else {
+      samplls <- samp_lls(res, lavmcmc, lavobject = LAV, standata = rjarg$data)
+    }
+
+    if(jags.ic) {
+      sampkls <- samp_kls(res, lavmodel, lavpartable,
+                          lavsamplestats, lavoptions, lavcache,
+                          lavdata, lavmcmc, conditional = FALSE)
+    } else {
+      sampkls <- NA
+    }
+
+    if(save.lvs && !ordmod && !lavoptions$.multilevel && lavInspect(LAV, "meanstructure")) {
+      if(target == "stan"){
+        lavmcmc <- make_mcmc(res, stanlvs) ## add on lvs
+      }
+      csamplls <- samp_lls(res, lavmcmc, lavobject = LAV, conditional = TRUE)
+      if(jags.ic) {
+        csampkls <- samp_kls(res, lavmodel, lavpartable,
+                             lavsamplestats, lavoptions, lavcache,
+                             lavdata, lavmcmc, lavobject = LAV,
+                             conditional = TRUE)
+      }
+    }
+  } else {
+    samplls <- NA
+    sampkls <- NA
+    csamplls <- NA
+    csampkls <- NA
+  }
+
+  timing$PostPred <- (proc.time()[3] - start.time)
+  start.time <- proc.time()[3]
+
+  ## put runjags output in new blavaan slot
+  lavjags <- res
+
   ## 7. VCOV is now simple
   lavvcov <- list()
   VCOV <- NULL
-  # if(jag.do.fit){
-  #   dsd <- parests$sd[names(parests$sd) %in% colnames(parests$vcorr)]
-  #   if(length(dsd) > 1) dsd <- diag(dsd)
-  #   VCOV <- dsd %*% parests$vcorr %*% dsd
-  #   rownames(VCOV) <- colnames(VCOV) <- colnames(parests$vcorr)
-  #   #lavjags <- c(lavjags, list(vcov = VCOV))
-  #
-  #   # store vcov in new @vcov slot
-  #   # strip all attributes but 'dim'
-  #   tmp.attr <- attributes(VCOV)
-  #   VCOV1 <- VCOV
-  #   attributes(VCOV1) <- tmp.attr["dim"]
-  #   lavvcov <- list(vcov = VCOV1)
-  # }
+  if(jag.do.fit & target != "INLA"){
+    # FIXME: VCOV for INLA?
+    dsd <- parests$sd[names(parests$sd) %in% colnames(parests$vcorr)]
+    if(length(dsd) > 1) dsd <- diag(dsd)
+    VCOV <- dsd %*% parests$vcorr %*% dsd
+    rownames(VCOV) <- colnames(VCOV) <- colnames(parests$vcorr)
+    #lavjags <- c(lavjags, list(vcov = VCOV))
+
+    # store vcov in new @vcov slot
+    # strip all attributes but 'dim'
+    tmp.attr <- attributes(VCOV)
+    VCOV1 <- VCOV
+    attributes(VCOV1) <- tmp.attr["dim"]
+    lavvcov <- list(vcov = VCOV1)
+  }
 
   timing$VCOV <- (proc.time()[3] - start.time)
   start.time <- proc.time()[3]
-  #
-  # ## 8. "test statistics": marginal log-likelihood, dic
+
+  ## 8. "test statistics": marginal log-likelihood, dic
   TEST <- list()
   domll <- TRUE
   covres <- blavaan:::checkcovs(LAV)
-  # ## in these cases, we cannot reliably evaluate the priors
-  # if(ordmod | !(covres$diagthet | covres$fullthet)) domll <- FALSE
-  # if(target == "stan" && !l2s$blkpsi) domll <- FALSE
-  # if(target != "stan" && !(covres$diagpsi | covres$fullpsi)) domll <- FALSE
-  #
-  # if(lavoptions$test != "none") { # && attr(x, "converged")) {
-  #   TEST <- blav_model_test(lavmodel            = lavmodel,
-  #                           lavpartable         = lavpartable,
-  #                           lavsamplestats      = lavsamplestats,
-  #                           lavoptions          = lavoptions,
-  #                           x                   = x,
-  #                           VCOV                = VCOV,
-  #                           lavdata             = lavdata,
-  #                           lavcache            = lavcache,
-  #                           lavjags             = lavjags,
-  #                           lavobject           = LAV,
-  #                           samplls             = samplls,
-  #                           jagextra            = mcmcextra,
-  #                           stansumm            = stansumm,
-  #                           domll               = domll)
-  #   if(verbose) cat(" done.\n")
-  # }
+  ## in these cases, we cannot reliably evaluate the priors
+  if(ordmod | !(covres$diagthet | covres$fullthet)) domll <- FALSE
+  if(target == "stan" && !l2s$blkpsi) domll <- FALSE
+  if(target != "stan" && !(covres$diagpsi | covres$fullpsi)) domll <- FALSE
+
+  if(lavoptions$test != "none" & target != "INLA") { # && attr(x, "converged")) {
+    # FIXME: Figure out what is this blav_model_test
+    TEST <- blav_model_test(lavmodel            = lavmodel,
+                            lavpartable         = lavpartable,
+                            lavsamplestats      = lavsamplestats,
+                            lavoptions          = lavoptions,
+                            x                   = x,
+                            VCOV                = VCOV,
+                            lavdata             = lavdata,
+                            lavcache            = lavcache,
+                            lavjags             = lavjags,
+                            lavobject           = LAV,
+                            samplls             = samplls,
+                            jagextra            = mcmcextra,
+                            stansumm            = stansumm,
+                            domll               = domll)
+    if(verbose) cat(" done.\n")
+  }
   timing$TEST <- (proc.time()[3] - start.time)
   start.time <- proc.time()[3]
 
@@ -1090,7 +1091,7 @@ inlavaan <- function(
   #                          x           = x,
   #                          VCOV        = VCOV,
   #                          TEST        = TEST)
-  lavfit <- LAV@Fit
+  lavfit <- LAV@Fit  # FIXME: Use blav_model_fit()
 
   ## add SE and SD-Bayes factor to lavpartable
   ## (code around line 270 of blav_object_methods
@@ -1118,30 +1119,26 @@ inlavaan <- function(
     }
   }
 
-
-  # FIXME
   ## 9b. move some stuff from lavfit to optim, for lavaan 0.5-21
   ##     also create external slot
   optnames <- c('x','npar','iterations','converged','fx','fx.group','logl.group',
                 'logl','control')
   lavoptim <- lapply(optnames, function(x) slot(lavfit, x))
   names(lavoptim) <- optnames
-  # lavoptim <- list(NULL)
 
-  extslot <- list()  #FIXME maybe inla??
-  # extslot <- list(mcmcout = lavjags, samplls = samplls, casells = casells,
-  #                 origpt = lavpartable, inits = jagtrans$inits,
-  #                 mcmcdata = jagtrans$data, pxpt = jagtrans$pxpartable,
-  #                 burnin = burnin, sample = sample)
-  # if(grepl("stan", target)){
-  #   extslot <- c(extslot, list(stansumm = stansumm))
-  #   if(save.lvs & target=="stan") extslot <- c(extslot, list(stanlvs = stanlvs))
-  # }
-  # if(jags.ic) extslot <- c(extslot, list(sampkls = sampkls))
-  # if(save.lvs && !ordmod && !lavoptions$.multilevel && lavInspect(LAV, "meanstructure")) {
-  #   extslot <- c(extslot, list(cfx = cfx, csamplls = csamplls))
-  #   if(jags.ic) extslot <- c(extslot, list(csampkls = csampkls))
-  # }
+  extslot <- list(mcmcout = lavjags, samplls = samplls, casells = casells,
+                  origpt = lavpartable, inits = jagtrans$inits,
+                  mcmcdata = jagtrans$data, pxpt = jagtrans$pxpartable,
+                  burnin = burnin, sample = sample)
+  if(grepl("stan", target)){
+    extslot <- c(extslot, list(stansumm = stansumm))
+    if(save.lvs & target=="stan") extslot <- c(extslot, list(stanlvs = stanlvs))
+  }
+  if(jags.ic) extslot <- c(extslot, list(sampkls = sampkls))
+  if(save.lvs && !ordmod && !lavoptions$.multilevel && lavInspect(LAV, "meanstructure")) {
+    extslot <- c(extslot, list(cfx = cfx, csamplls = csamplls))
+    if(jags.ic) extslot <- c(extslot, list(csampkls = csampkls))
+  }
 
   ## move total to the end
   timing$total <- (proc.time()[3] - start.time0)
@@ -1171,15 +1168,26 @@ inlavaan <- function(
   )
 
   # post-fitting checks
-  # if(attr(x, "converged")) {
-  #   lavInspect(out, "post.check")
+  if(attr(x, "converged")) {
+    lavInspect(out, "post.check")
+  }
+
+  if(!lavoptions$.multilevel) { # because checkcovs() has not been adapted to it
+    if( "psi" %in% lavpartable$mat &&
+        ( (target == "stan" && !l2s$blkpsi) ||
+          (target != "stan" && with(covres, !(diagpsi | fullpsi))) ) ) {
+      warning("blavaan WARNING: As specified, the psi covariance matrix is neither diagonal nor unrestricted, so the actual prior might differ from the stated prior. See\n https://arxiv.org/abs/2301.08667", call. = FALSE)
+    }
+    if( "theta" %in% lavpartable$mat && with(covres, !(diagthet | fullthet)) ) {
+      warning("blavaan WARNING: As specified, the theta covariance matrix is neither diagonal nor unrestricted, so the actual prior might differ from the stated prior. See\n https://arxiv.org/abs/2301.08667", call. = FALSE)
+    }
+  }
+
+  # if(jag.do.fit & lavoptions$warn & !prisamp & !usevb & !grepl("stan", target)){
+  #   if(any(blavInspect(blavaan, 'neff') < 100)){
+  #     warning("blavaan WARNING: Small effective sample sizes (< 100) for some parameters.", call. = FALSE)
+  #   }
   # }
 
   out
 }
-
-
-
-
-
-
