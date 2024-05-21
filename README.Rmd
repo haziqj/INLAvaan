@@ -22,9 +22,28 @@ library(tidyverse)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-Bayesian structural equation modelling with INLA.
+> Bayesian structural equation modelling with INLA.
 
-## First impression
+Features to add (soon)
+
+1. Dedicated `sem`, `efa`, `cfa` functions.
+2. Model fit indices (xIC, RMSEA, etc.)
+3. Ability to specify priors.
+4. Ability to specify fixed parameter values. 
+5. Specify different families for different observed variable. 
+6. `{lavaan}` options such as `std.lv = TRUE` and `std.ov = TRUE` and the like. 
+
+Experiments
+
+- Scalability (large n/large p)
+
+Long term plan (which require modifying the parser)
+
+1. New kinds of latent variables, such as hidden Markov models. 
+2. Multilevel-ish kind of models (2-3 levels). 
+3. Add covariates 
+
+## First impressions
 
 The quintessential example of a structural equation model using Bollen's (1989) political democracy data.
 This set includes data from 75 developing countries each assessed on four measures of democracy measured twice (1960 and 1965), and three measures of industrialization measured once (1960).
