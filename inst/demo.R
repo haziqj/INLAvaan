@@ -87,5 +87,17 @@ myModel <- '
   y6 ~~ y8
 '
 
-fit <- inlavaan(model = myModel, data = PoliticalDemocracy)
-summary(sem(myModel, PoliticalDemocracy))
+fit <- inlavaan(
+  model = myModel,
+  data = PoliticalDemocracy,
+  int.ov.free = TRUE,
+  int.lv.free = FALSE,
+  auto.fix.first = TRUE,
+  auto.fix.single = TRUE,
+  auto.var = TRUE,
+  auto.cov.lv.x = TRUE,
+  auto.efa = TRUE,
+  auto.th = TRUE,
+  auto.delta = TRUE,
+  auto.cov.y = TRUE
+)
