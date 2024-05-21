@@ -90,14 +90,5 @@ myModel <- '
 fit <- inlavaan(
   model = myModel,
   data = PoliticalDemocracy,
-  int.ov.free = TRUE,
-  int.lv.free = FALSE,
-  auto.fix.first = TRUE,
-  auto.fix.single = TRUE,
-  auto.var = TRUE,
-  auto.cov.lv.x = TRUE,
-  auto.efa = TRUE,
-  auto.th = TRUE,
-  auto.delta = TRUE,
-  auto.cov.y = TRUE
+  auto.var = TRUE
 )

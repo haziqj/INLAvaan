@@ -5,7 +5,6 @@ inlavaan <- function(
     dp = NULL,
     save.lvs = FALSE) {
 
-
   # to play nice with blavaan code
   target <- "INLA"
   cp                 = "srs"
@@ -106,6 +105,7 @@ inlavaan <- function(
 
   # ensure rstan/runjags are here. if target is not installed but
   # the other is, then use the other instead.
+  # FIXME: ENSURE INLA IS INSTALLED
   if(grepl("stan", target)){
     if(convergence == "auto") stop("blavaan ERROR: auto convergence is unavailable for Stan.")
 
@@ -144,6 +144,56 @@ inlavaan <- function(
       dotdotdot <- dotdotdot[-misloc]; dotNames <- dotNames[-misloc]
     }
   }
+
+  # covariance priors are now all srs or fa
+  cplocs <- match(c("ov.cp", "lv.cp"), dotNames, nomatch = 0)
+  if(any(cplocs > 0)){
+    cat("blavaan NOTE: Arguments ov.cp and lv.cp are deprecated. Use cp instead. \n")
+    if(any(dotdotdot[cplocs] == "fa")){
+      cp <- "fa"
+      cat("Using 'fa' approach for all covariances.\n")
+    } else {
+      cat("\n")
+    }
+    if(!all(dotdotdot[cplocs] %in% c("srs", "fa"))){
+      stop("blavaan ERROR: unknown argument to cp.")
+    }
+    dotdotdot <- dotdotdot[-cplocs]; dotNames <- dotNames[-cplocs]
+  }
+  ## cannot use lavaan inits with fa priors; FIXME?
+  if(cp == "fa" & inherits(inits, 'character')){
+    if(inits[1] %in% c("simple", "default")) inits <- "jags"
+  }
+  if(cp == "fa" & grepl("stan", target)){
+    cat("blavaan NOTE: fa priors are not available with stan. srs priors will be used. \n")
+  }
+
+  # 'jag' arguments are now mcmcfile, mcmcextra, bcontrol
+  jagargs <- c("jagfile", "jagextra")
+  barg <- "jagcontrol"
+  jaglocs <- match(jagargs, dotNames, nomatch = 0)
+  blocs <- match(barg, dotNames, nomatch = 0)
+  if(any(jaglocs > 0)){
+    cat(paste0("blavaan NOTE: the following argument(s) are deprecated: ",
+               paste(jagargs[jaglocs > 0], collapse=" "),
+               ".\n        the argument(s) now start with 'mcmc' instead of 'jag'. \n"))
+    newargs <- gsub("jag", "mcmc", jagargs[jaglocs > 0])
+    for(i in 1:length(newargs)){
+      assign(newargs[i], dotdotdot[[jaglocs[jaglocs > 0][i]]])
+    }
+    dotdotdot <- dotdotdot[-jaglocs]; dotNames <- dotNames[-jaglocs]
+  }
+  if(any(blocs > 0)){
+    cat(paste0("blavaan NOTE: the following argument is deprecated: ",
+               paste(barg[blocs > 0], collapse=" "),
+               ".\n        the argument now starts with 'b' instead of 'jag'. \n"))
+    newargs <- gsub("jag", "b", barg[blocs > 0])
+    for(i in 1:length(newargs)){
+      assign(newargs[i], dotdotdot[[blocs[blocs > 0][i]]])
+    }
+    dotdotdot <- dotdotdot[-blocs]; dotNames <- dotNames[-blocs]
+  }
+
 
   # which arguments do we override?
   lavArgsOverride <- c("missing", "estimator", "conditional.x", "parser")
@@ -185,7 +235,7 @@ inlavaan <- function(
   dotdotdot$optim.force.converged <- TRUE
   if(packageDescription("lavaan")$Version > "0.6-16") dotdotdot$parser <- "old"
   dotdotdot$meanstructure <- TRUE
-  dotdotdot$missing <- "direct"   # direct/ml creates error? (bug in lavaan?)
+  # dotdotdot$missing <- "direct"   # direct/ml creates error? (bug in lavaan?)
   ordmod <- FALSE
   if("ordered" %in% dotNames) ordmod <- TRUE
   if("data" %in% dotNames){
@@ -312,6 +362,15 @@ inlavaan <- function(
     }
   }
 
+  if(jag.do.fit){
+    LAV2 <- try(do.call("lavaan", dotdotdot), silent = TRUE)
+    if(!inherits(LAV2, 'try-error')) LAV <- LAV2
+  }
+
+  if(LAV@Data@data.type == "moment") {
+    if(target != "stan") stop('blavaan ERROR: full data are required for ', target, ' target.\n  Try target="stan", or consider using kd() from package semTools.')
+  }
+
   # save.lvs in a model with no lvs
   if(save.lvs){
     clv <- lavInspect(LAV, 'cov.lv')
@@ -332,8 +391,7 @@ inlavaan <- function(
   # ordinal only for stan
   ordmod <- lavInspect(LAV, 'categorical')
   if(ordmod) {
-    stop("FIXME")
-    # if(!(target %in% c("stan", "cmdstan"))) stop("blavaan ERROR: ordinal variables only work for target='stan' or 'cmdstan'.")
+    if(!(target %in% c("stan", "cmdstan"))) stop("blavaan ERROR: ordinal variables only work for target='stan' or 'cmdstan'.")
   }
 
   ineq <- which(LAV@ParTable$op %in% c("<",">"))
@@ -475,7 +533,7 @@ inlavaan <- function(
   lavoptions$dp        <- dp
   lavoptions$prisamp   <- prisamp
   lavoptions$target    <- target
-  lavoptions$optim.method <- "mcmc"
+  lavoptions$optim.method <- "inla"
   lavoptions$burnin <- burnin
   lavoptions$sample <- sample
   lavoptions$n.chains <- n.chains
