@@ -90,10 +90,24 @@ myModel <- '
 fit <- inlavaan(
   model = myModel,
   data = PoliticalDemocracy,
-  auto.var = TRUE
+  int.ov.free = TRUE,
+  int.lv.free = FALSE,
+  auto.fix.first = TRUE,
+  auto.fix.single = TRUE,
+  auto.var = TRUE,
+  auto.cov.lv.x = TRUE,
+  auto.efa = TRUE,
+  auto.th = TRUE,
+  auto.delta = TRUE,
+  auto.cov.y = TRUE
 )
 
-lav2inla(fit$lavobject)
+res <- lav2inla(fit$lavobject, fit$lavobject@Data)
+res$the_model$f$rgeneric$definition("initial")
+
+res$the_model <- NULL
+res$verbose <- TRUE
+inlares <- do.call("inla", res)
 
 # sem(myModel, PoliticalDemocracy)
 # tmp <- bsem(model = myModel, sample.cov = cov(PoliticalDemocracy), sample.nobs = nrow(PoliticalDemocracy), n.chains = 1)

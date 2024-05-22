@@ -4,7 +4,8 @@ inlavaan <- function(
     # INLA specific stuff
     target = "INLA",
     dp = NULL,
-    save.lvs = FALSE) {
+    save.lvs = FALSE,
+    bcontrol = list(verbose = TRUE)) {
 
   # To play nice with blavaan code
   cp                 = "srs"
@@ -24,7 +25,6 @@ inlavaan <- function(
   prisamp            = FALSE
   jags.ic            = FALSE
   seed               = NULL
-  bcontrol         = list()
 
   ## start timer
   start.time0 <- proc.time()[3]
@@ -548,18 +548,14 @@ inlavaan <- function(
 
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       if (target == "INLA") {
-        jagtrans <- list()  # FIXME: Convert partable to INLA syntax
-        return(list(
-          lavobject = LAV,
-          dp = dp,
-          # n.chains = n.chains,
-          # mcmcextra = mcmcextra,
-          inits = initsin
-          # wiggle = wiggle,
-          # wiggle.sd = wiggle.sd,
-          # prisamp = prisamp
-        ))
-
+        jagtrans <- try(
+          lav2inla(
+            lavobject = LAV,
+            lavdata = lavdata,
+            dp = dp
+            # inits = initsin
+          )
+        )
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       } else if(target == "jags") {
         jagtrans <- try(lav2mcmc(model = lavpartable, lavdata = lavdata,
@@ -728,7 +724,11 @@ inlavaan <- function(
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       if (target == "INLA") {
         rjarg <- NULL  # FIXME: from jagtrans output list of model, data, etc.
-
+        rjarg <- with(jagtrans, list(
+          formula = formula,
+          data = data,
+          control.family = control.family
+        ))
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       } else if(target == "jags"){
         rjarg <- with(jagtrans, list(model = paste(model),
@@ -754,18 +754,18 @@ inlavaan <- function(
       }
 
       ## user-supplied jags params
-      rjarg <- c(rjarg, mfj, bcontrol)
-
-      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       if (target == "INLA") {
-        res <- NULL  # FIXME: INLA is run here
-      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      } else if(target == "jags"){
+        rjarg <- c(rjarg, bcontrol)
+    } else {
+        rjarg <- c(rjarg, mfj, bcontrol)
+      }
+
+
+      if(target == "jags"){
         ## obtain posterior modes
         if(suppressMessages(requireNamespace("modeest", quietly = TRUE))) runjags::runjags.options(mode.continuous = TRUE)
         runjags::runjags.options(force.summary = TRUE)
       }
-
       if(jag.do.fit & target != "INLA"){
         if(target == "jags"){
           rjcall <- "run.jags"
@@ -802,7 +802,9 @@ inlavaan <- function(
         ## the model is run here:
         res <- try(do.call(rjcall, rjarg))
       } else {
-        res <- NULL
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        res <- do.call("inla", rjarg)
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       }
 
       if(inherits(res, "try-error")) {
@@ -839,6 +841,7 @@ inlavaan <- function(
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if (target == "INLA") {
+      return(list(lavpartable = lavpartable, pxpartable = jagtrans$pxpartable, res = res))
       parests <- NULL  # FIXME: Write coeffun_inla()
       stansumm <- NA
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

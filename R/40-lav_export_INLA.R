@@ -62,6 +62,11 @@ lav2inla <- function(
   ## convert covariances to corr * sd1 * sd2
   partable <- blavaan:::set_stancovs(partable, std.lv)
 
+  # # HJ: Get rid of the rho parameter
+  # partable <- partable[seq_len(nrow(parTable(lavobject))), ]
+  # partable$mat[partable$mat == "rho"] <- "theta"
+
+
   ## ensure group parameters are in order, for parameter indexing:
   partable <- partable[order(partable$group), ]
   ## get parameter table attributes
@@ -1247,9 +1252,64 @@ lav2inla <- function(
   #   )$model_code)
   # }
 
-  out <- c(out, list(monitors = NULL, pxpartable = partable))
+  # out <- c(out, list(monitors = NULL, pxpartable = partable))
 
-  out
+  # INLA Stuff -----------------------------------------------------------------
+  # Prepare the data (needs to be in long form)
+  dat_inla <- data.frame()
+  for (g in 1:ngroups) {
+    n_in_g <- lavdata@nobs[[g]]
+    tmp <- as.data.frame(lavdata@X[[g]])
+    colnames(tmp) <- lavdata@ov$name
+    dat_inla <- rbind(
+      dat_inla,
+      cbind(g = g, i = seq_len(n_in_g), tmp)
+    )
+  }
+
+  dat_inla <- tidyr::pivot_longer(
+    dat_inla,
+    cols = -c(g, i),
+    names_to = "ov",
+    values_to = "val"
+  )
+  dat_inla$ov.idx <- lavdata@ov$idx[match(dat_inla$ov, lavdata@ov$name)]
+  dat_inla$nu <- factor(dat_inla$ov.idx)  # used for the intercept
+
+  # Initial values
+  inlastart <-
+    partable |>
+    mutate(inlastart = case_when(
+      mat %in% c("theta", "psi") ~ log(start),
+      # mat %in% c("rho") ~ log(start / (1 - start)),
+      TRUE ~ start
+    )) |>
+    filter(
+      free > 0,
+      mat != "nu",
+    ) |>
+    arrange(free) |>
+    pull(inlastart)
+
+  # INLA formula
+  the_model <- INLA::inla.rgeneric.define(
+    inla_sem,  # see 20-rgeneric.R
+    n = lavdata@nobs[[1]],  # TODO: Multiple groups?
+    p = pta$nvar[[1]],
+    q = pta$nfac[[1]],
+    init = inlastart,
+    partable = partable
+  )
+  form <- val ~ -1 + nu + f(ov.idx, model = the_model, replicate = i)
+
+  list(
+    formula = form,
+    data = dat_inla,
+    the_model = the_model,
+    control.family = list(hyper = list(prec = list(initial = pta$nvar[[1]], fixed = TRUE))),
+    pxpartable = partable
+  )
+
 }
 
 coeffun_inla <- function(lavpartable, pxpartable, rsob, fun = "mean") {
