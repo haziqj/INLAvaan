@@ -92,3 +92,8 @@ fit <- inlavaan(
   data = PoliticalDemocracy,
   auto.var = TRUE
 )
+
+lav2inla(fit$lavobject)
+
+# sem(myModel, PoliticalDemocracy)
+# tmp <- bsem(model = myModel, sample.cov = cov(PoliticalDemocracy), sample.nobs = nrow(PoliticalDemocracy), n.chains = 1)

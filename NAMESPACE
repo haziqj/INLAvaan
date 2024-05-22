@@ -3,4 +3,5 @@
 S3method(print,inlavaan)
 S3method(print,inlavaan_summary)
 S3method(summary,inlavaan)
-export(inlavaan)
+exportClasses(INLAvaan)
+importFrom(lavaan,lavaan)

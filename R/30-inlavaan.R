@@ -549,7 +549,16 @@ inlavaan <- function(
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       if (target == "INLA") {
         jagtrans <- list()  # FIXME: Convert partable to INLA syntax
-
+        return(list(
+          lavobject = LAV,
+          dp = dp,
+          # n.chains = n.chains,
+          # mcmcextra = mcmcextra,
+          inits = initsin
+          # wiggle = wiggle,
+          # wiggle.sd = wiggle.sd,
+          # prisamp = prisamp
+        ))
 
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       } else if(target == "jags") {
