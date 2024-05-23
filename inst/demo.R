@@ -21,20 +21,7 @@ mod <- "
   eta2 =~ y4 + y5 + y6
   eta2 ~ eta1
 "
-fit <- inlavaan(
-  model = mod,
-  data = dat,
-  int.ov.free = TRUE,
-  int.lv.free = FALSE,
-  auto.fix.first = TRUE,
-  auto.fix.single = TRUE,
-  auto.var = TRUE,
-  auto.cov.lv.x = TRUE,
-  auto.efa = TRUE,
-  auto.th = TRUE,
-  auto.delta = TRUE,
-  auto.cov.y = TRUE
-); summary(fit)
+fit <- isem(model = mod, data = dat); summary(fit)
 
 # Political democracy SEM example ----------------------------------------------
 myModel <- '

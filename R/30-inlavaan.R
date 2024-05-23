@@ -1237,3 +1237,35 @@ inlavaan <- function(
 
   out
 }
+
+## cfa + sem
+icfa <- isem <- function(
+    ..., # default lavaan arguments
+
+    # INLA specific stuff
+    target = "INLA",
+    dp = NULL,
+    save.lvs = FALSE,
+    bcontrol = list(verbose = TRUE, num.threads = 6)) {
+
+  dotdotdot <- list(...)
+  std.lv <- ifelse(any(names(dotdotdot) == "std.lv"), dotdotdot$std.lv, FALSE)
+
+  mc <- match.call()
+  mc$model.type      = as.character( mc[[1L]] )
+  if(length(mc$model.type) == 3L) mc$model.type <- mc$model.type[3L]
+  mc$model.type <- gsub("^i", "", mc$model.type)
+  mc$int.ov.free     = TRUE
+  mc$int.lv.free     = FALSE
+  mc$auto.fix.first  = !std.lv
+  mc$auto.fix.single = TRUE
+  mc$auto.var        = TRUE
+  mc$auto.cov.lv.x   = TRUE
+  mc$auto.cov.y      = TRUE
+  mc$auto.th         = TRUE
+  mc$auto.delta      = TRUE
+  mc[[1L]] <- quote(inlavaan)
+
+  eval(mc, parent.frame())
+}
+
