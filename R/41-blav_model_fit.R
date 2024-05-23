@@ -1,4 +1,5 @@
-blav_model_fit <- function(
+# Modification of blav_model_fit() to work with inla output
+inlav_model_fit <- function(
     lavpartable = NULL,
     lavmodel    = NULL,
     lavjags     = NULL,
@@ -7,11 +8,11 @@ blav_model_fit <- function(
     TEST        = NULL) {
 
   stopifnot(is.list(lavpartable), inherits(lavmodel, c("Model", "lavModel")))
-  if(!inherits(lavjags, "NULL")){
-    lavmcmc <- make_mcmc(lavjags)
-  } else {
-    lavmcmc <- NULL
-  }
+  # if(!inherits(lavjags, "NULL")){
+  #   lavmcmc <- make_mcmc(lavjags)
+  # } else {
+  #   lavmcmc <- NULL
+  # }
 
   # extract information from 'x'
   iterations <- attr(x, "iterations")
@@ -30,9 +31,15 @@ blav_model_fit <- function(
   est <- lav_model_get_parameters(lavmodel = lavmodel, type = "user")
 
   # did we compute standard errors?
-  blaboot <- rearr_params(lavmcmc, lavpartable)
-  se <- lav_model_vcov_se(lavmodel = lavmodel, lavpartable = lavpartable,
-                          VCOV = VCOV, BOOT = blaboot)
+  # blaboot <- blavaan:::rearr_params(lavmcmc, lavpartable)
+
+  # FIXME: Something's not right here
+  se <- lav_model_vcov_se(
+    lavmodel = lavmodel,
+    lavpartable = lavpartable,
+    VCOV = VCOV,
+    BOOT = NULL
+  )
 
   # did we compute test statistics
   if(is.null(TEST)) {

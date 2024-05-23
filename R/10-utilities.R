@@ -1,12 +1,12 @@
 cli_messages <- c(
-  "Laplace-ing through p dimensions...",
-  "Summoning Bayesian spirits...",
-  "Casting statistical spells...",
-  "Conjuring INLA magic...",
-  "Channeling Laplace's wizardry...",
-  "Harnessing the power of priors...",
-  "Diving into the probability pool...",
-  "Navigating the seas of stochasticity..."
+  "Laplace-ing through p dimensions",
+  "Summoning Bayesian spirits",
+  "Casting statistical spells",
+  "Conjuring INLA magic",
+  "Channeling Laplace's wizardry",
+  "Harnessing the power of priors",
+  "Diving into the probability pool",
+  "Navigating the seas of stochasticity"
 )
 
 # 1. From theta to PT

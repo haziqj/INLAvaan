@@ -803,8 +803,29 @@ inlavaan <- function(
         res <- try(do.call(rjcall, rjarg))
       } else {
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+        # spinner <- cli::make_spinner(
+        #   # which = "simpleDotsScrolling",
+        #   template = paste(sample(cli_messages, 1), "{spin}")
+        # )
+        # spinner$spin()
+        #
+        # f <- future({
+        #   invisible({
+        #     sink(tempfile())  # Redirect output to a temporary file
+        #     require("INLA")
+        #     result <- do.call("inla", rjarg)
+        #     sink(NULL)
+        #     result
+        #   })
+        # }, seed = TRUE)
+        # while (!resolved(f)) {
+        #   Sys.sleep(0.1)  # Briefly pause to avoid hogging CPU
+        #   spinner$spin() # The spinner automatically updates
+        # }
+        # res <- value(f)
+        # spinner$finish()
         res <- do.call("inla", rjarg)
+
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       }
 
@@ -897,7 +918,11 @@ inlavaan <- function(
       LAV@Model <- lavmodel
       LAV@external$mcmcout <- res
 
-      if(target == "jags"){
+      if (target == "INLA") {
+        attr(x, "iterations") <- round(res$cpu.used[4], 2)
+        sample <- 0L
+        burnin <- 0L
+      } else if(target == "jags"){
         attr(x, "iterations") <- res$sample
         sample <- res$sample
         burnin <- res$burnin
@@ -1049,14 +1074,19 @@ inlavaan <- function(
   ## 7. VCOV is now simple
   lavvcov <- list()
   VCOV <- NULL
-  if(jag.do.fit & target != "INLA"){
-    # FIXME: VCOV for INLA?
-    dsd <- parests$sd[names(parests$sd) %in% colnames(parests$vcorr)]
-    if(length(dsd) > 1) dsd <- diag(dsd)
-    VCOV <- dsd %*% parests$vcorr %*% dsd
-    rownames(VCOV) <- colnames(VCOV) <- colnames(parests$vcorr)
-    #lavjags <- c(lavjags, list(vcov = VCOV))
-
+  if(jag.do.fit){
+    if (target == "INLA") {
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      # FIXME: VCOV for INLA?
+      VCOV <- diag(parests$sd ^ 2)
+      # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    } else {
+      dsd <- parests$sd[names(parests$sd) %in% colnames(parests$vcorr)]
+      if(length(dsd) > 1) dsd <- diag(dsd)
+      VCOV <- dsd %*% parests$vcorr %*% dsd
+      rownames(VCOV) <- colnames(VCOV) <- colnames(parests$vcorr)
+      #lavjags <- c(lavjags, list(vcov = VCOV))
+    }
     # store vcov in new @vcov slot
     # strip all attributes but 'dim'
     tmp.attr <- attributes(VCOV)
@@ -1099,21 +1129,13 @@ inlavaan <- function(
   start.time <- proc.time()[3]
 
   # 9. collect information about model fit (S4)
-  # lavfit <- blav_model_fit(lavpartable = lavpartable,
-  #                          lavmodel    = lavmodel,
-  #                          lavjags     = lavjags,
-  #                          x           = x,
-  #                          VCOV        = VCOV,
-  #                          TEST        = TEST)
-  return(list(
-    lavpartable = lavpartable,
-    lavmodel    = lavmodel,
-    lavjags     = lavjags,
-    x           = x,
-    VCOV        = VCOV,
-    TEST        = TEST
-  ))
-  lavfit <- LAV@Fit  # FIXME: Use blav_model_fit()
+  lavfit <- inlav_model_fit(lavpartable = lavpartable,
+                            lavmodel    = lavmodel,
+                            lavjags     = lavjags,
+                            x           = x,
+                            VCOV        = VCOV,
+                            TEST        = TEST)
+  # lavfit <- LAV@Fit  # FIXME: Use blav_model_fit()
 
 
 
@@ -1171,7 +1193,7 @@ inlavaan <- function(
   timing <- c(timing, list(total = tt))
 
   # 10. construct blavaan object
-  out <- new("INLAvaan",
+  out <- new("blavaan",
                  version      = as.character( packageVersion('INLAvaan') ),
                  call         = mc,                  # match.call
                  timing       = timing,              # list

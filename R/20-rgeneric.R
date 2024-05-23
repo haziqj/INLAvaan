@@ -19,7 +19,7 @@ inla_sem <- function(
 
     lambda <- theta[idx_lam]
     beta <- theta[idx_beta]
-    theta_e <- exp(theta[idx_theta])
+    theta_e <- sqrt(exp(theta[idx_theta]))  # actually SD
     psi <- exp(theta[idx_psi])
     rho <- exp(theta[idx_rho])
     rho <- rho / (1 + rho)

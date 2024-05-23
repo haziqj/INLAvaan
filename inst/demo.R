@@ -14,7 +14,7 @@ true_model <- "
   y5 ~~ 0.5*y5
   y6 ~~ 0.5*y6
 "
-dat <- lavaan::simulateData(true_model, sample.nobs = 2000)
+dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
 
 mod <- "
   eta1 =~ y1 + y2 + y3
@@ -34,7 +34,7 @@ fit <- inlavaan(
   auto.th = TRUE,
   auto.delta = TRUE,
   auto.cov.y = TRUE
-)
+); summary(fit)
 
 # Political democracy SEM example ----------------------------------------------
 myModel <- '

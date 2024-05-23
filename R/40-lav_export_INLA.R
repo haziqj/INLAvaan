@@ -1280,7 +1280,7 @@ lav2inla <- function(
   inlastart <-
     partable |>
     mutate(inlastart = case_when(
-      mat %in% c("theta", "psi") ~ log(start),
+      mat %in% c("theta", "psi") & free > 0 ~ log(start),
       # mat %in% c("rho") ~ log(start / (1 - start)),
       TRUE ~ start
     )) |>
@@ -1456,20 +1456,25 @@ coeffun_inla <- function(
     merged_df[, c("est", "se")]
   pxpartable
 
+  pxpartable$stanpnum <- rep(NA, length(pxpartable[[1]]))
+  pxpartable$stansumnum <- rep(NA, length(pxpartable[[1]]))
+  pxpartable$psrf <- rep(1, length(pxpartable[[1]]))
+
   ## now match it all to original partable
   ptmatch <- match(lavpartable$free[lavpartable$free > 0], pxpartable$free)
   if ("est" %in% names(pxpartable)) {
     ## to handle do.fit = FALSE
     lavpartable$est[lavpartable$free > 0] <- pxpartable$est[ptmatch]
   }
-  # lavpartable$psrf <- rep(NA, length(lavpartable$free))
+  lavpartable$psrf <- rep(1, length(lavpartable$free))
   # if (stanfit) {
-  #   lavpartable$psrf[lavpartable$free > 0] <- pxpartable$psrf[ptmatch]
+    # lavpartable$psrf[lavpartable$free > 0] <- pxpartable$psrf[ptmatch]
   # }
   lavpartable$prior[lavpartable$free > 0] <- pxpartable$prior[ptmatch]
   lavpartable$pxnames[lavpartable$free > 0] <- pxpartable$pxnames[ptmatch]
-  # lavpartable$stanpnum[lavpartable$free > 0] <- pxpartable$stanpnum[ptmatch]
-  # lavpartable$stansumnum[lavpartable$free > 0] <- pxpartable$stansumnum[ptmatch]
+  lavpartable$stanpnum[lavpartable$free > 0] <- pxpartable$stanpnum[ptmatch]
+  lavpartable$stansumnum[lavpartable$free > 0] <- pxpartable$stansumnum[ptmatch]
+
 
   list(
     x = lavpartable$est[lavpartable$free > 0],
