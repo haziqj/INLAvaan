@@ -5,7 +5,7 @@ inlavaan <- function(
     target = "INLA",
     dp = NULL,
     save.lvs = FALSE,
-    bcontrol = list(verbose = TRUE)) {
+    bcontrol = list(verbose = TRUE, num.threads = 6)) {
 
   # To play nice with blavaan code
   cp                 = "srs"
@@ -803,6 +803,7 @@ inlavaan <- function(
         res <- try(do.call(rjcall, rjarg))
       } else {
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
         res <- do.call("inla", rjarg)
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       }
@@ -841,8 +842,11 @@ inlavaan <- function(
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if (target == "INLA") {
-      return(list(lavpartable = lavpartable, pxpartable = jagtrans$pxpartable, res = res))
-      parests <- NULL  # FIXME: Write coeffun_inla()
+      parests <- coeffun_inla(
+        lavpartable = lavpartable,
+        pxpartable = jagtrans$pxpartable,
+        res = res
+      )
       stansumm <- NA
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     } else if(target == "jags"){
@@ -884,10 +888,8 @@ inlavaan <- function(
       stansumm <- parests$stansumm
     }
 
-    # FIXME: Update with INLA output
-    # x <- parests$x
-    # lavpartable <- parests$lavpartable
-    x <- lavpartable$est[lavpartable$free > 0]
+    x <- parests$x
+    lavpartable <- parests$lavpartable
 
     if(jag.do.fit){
       lavmodel <- lav_model_set_parameters(lavmodel, x = x)
@@ -1103,7 +1105,17 @@ inlavaan <- function(
   #                          x           = x,
   #                          VCOV        = VCOV,
   #                          TEST        = TEST)
+  return(list(
+    lavpartable = lavpartable,
+    lavmodel    = lavmodel,
+    lavjags     = lavjags,
+    x           = x,
+    VCOV        = VCOV,
+    TEST        = TEST
+  ))
   lavfit <- LAV@Fit  # FIXME: Use blav_model_fit()
+
+
 
   ## add SE and SD-Bayes factor to lavpartable
   ## (code around line 270 of blav_object_methods

@@ -49,12 +49,16 @@ inla_sem <- function(
     # B matrix
     B_df <- partable[partable$mat == "beta", ]
     B_df$est[B_df$free > 0] <- params$beta
-    B <- with(B_df, sparseMatrix(
-      i = row,
-      j = col,
-      x = est,
-      dims = rep(max(c(row, col)), 2)
-    ))
+    if (length(params$beta) > 0) {
+      B <- with(B_df, sparseMatrix(
+        i = row,
+        j = col,
+        x = est,
+        dims = rep(max(c(row, col)), 2)
+      ))
+    } else {
+      B <- 0
+    }
 
     # Theta matrix
     SD <- Diagonal(x = params$theta_e)
