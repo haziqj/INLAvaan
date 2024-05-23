@@ -21,7 +21,7 @@ mod <- "
   eta2 =~ y4 + y5 + y6
   eta2 ~ eta1
 "
-fit <- isem(model = mod, data = dat); summary(fit)
+fit <- icfa(model = mod, data = dat); summary(fit)
 
 # Political democracy SEM example ----------------------------------------------
 myModel <- '

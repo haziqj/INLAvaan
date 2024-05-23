@@ -1193,7 +1193,7 @@ inlavaan <- function(
   timing <- c(timing, list(total = tt))
 
   # 10. construct blavaan object
-  out <- new("blavaan",
+  out <- new("INLAvaan",
                  version      = as.character( packageVersion('INLAvaan') ),
                  call         = mc,                  # match.call
                  timing       = timing,              # list
