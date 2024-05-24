@@ -1397,8 +1397,15 @@ coeffun_inla <- function(
         .by = c(i, j)
       )
 
-    psi_tab$free <- c(idx_psi, idx_lvrho)
-    psi_tab$inlaname <- names(res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)])
+    psi_tab <-
+      psi_tab |>
+      left_join(
+        filter(pxpartable, mat %in% c("psi", "lvrho"), free > 0) |>
+          select(row, col, free),
+        by = join_by(i == row, j == col)
+      )
+
+    psi_tab$inlaname <- names(res$internal.marginals.hyperpar)[psi_tab$free]
     psi_tab$i <- psi_tab$j <- NULL
     rownames(psi_tab) <- NULL
   } else {
@@ -1434,7 +1441,7 @@ coeffun_inla <- function(
       rho <- exp(x[length(idx_theta) + seq_along(idx_rho)])
       rho <- rho / (1 + rho)
 
-      SD <- Diagonal(x = theta_e)
+      SD <- Diagonal(x = sqrt(theta_e))
       Rho_df <- pxpartable[pxpartable$mat == "rho", ]
       Rho_df$est[Rho_df$free > 0] <- rho
       Rho <- with(Rho_df, sparseMatrix(
@@ -1462,8 +1469,15 @@ coeffun_inla <- function(
         mat = "theta",
         .by = c(i, j)
       )
-    theta_tab$free <- c(idx_theta, idx_rho)
-    theta_tab$inlaname <- names(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)])
+    theta_tab <-
+      theta_tab |>
+      left_join(
+        filter(pxpartable, mat %in% c("theta", "rho"), free > 0) |>
+          select(row, col, free),
+        by = join_by(i == row, j == col)
+      )
+
+    theta_tab$inlaname <- names(res$internal.marginals.hyperpar)[theta_tab$free]
     theta_tab$i <- theta_tab$j <- NULL
     rownames(theta_tab) <- NULL
   } else {
@@ -1485,6 +1499,14 @@ coeffun_inla <- function(
     theta_tab$inlaname <- names(res$internal.marginals.hyperpar[c(idx_theta)])
     rownames(theta_tab) <- NULL
   }
+
+  # return(list(
+  #   nu = nu_tab,
+  #   lambda = lam_tab,
+  #   beta = beta_tab,
+  #   psi = psi_tab,
+  #   theta = theta_tab
+  # ))
 
   stansumm <-
     do.call("rbind", list(
@@ -1515,7 +1537,6 @@ coeffun_inla <- function(
                         pxpartable$group == pxpartable$group[idx])
 
       tmpfree <- pxpartable$free[idx]
-
       pxpartable$free[idx] <- 0L
       pxpartable$free[newidx] <- tmpfree
     }

@@ -863,8 +863,11 @@ inlavaan <- function(
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if (target == "INLA") {
-
-
+      # return(list(
+      #   lavpartable = lavpartable,
+      #   pxpartable = jagtrans$pxpartable,
+      #   res = res
+      # ))
       parests <- coeffun_inla(
         lavpartable = lavpartable,
         pxpartable = jagtrans$pxpartable,

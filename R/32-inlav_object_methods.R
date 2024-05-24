@@ -15,7 +15,15 @@ bl.short.summary <- function(object) {
   garb <- capture.output( tmp <- show(object) )
   # tmp$test <- NULL
   garb <- gsub("lavaan", "INLAvaan", garb)
-  garb <- gsub("iterations", "seconds", garb)
+  garb <- gsub(
+    "after.*",
+    paste0(
+      "after ",
+      gt::vec_fmt_duration(object@timing$total, input_units = "seconds",
+                           duration_style = "wide")
+    ),
+    garb
+  )
   cat(paste0(garb, collapse="\n"))
   cat("\n")
 
@@ -63,6 +71,8 @@ setMethod("show", "INLAvaan",
 
           })
 
+
+inlav_summary <-
 
 setMethod("summary", signature(object = "INLAvaan"),
           function(object, header       = TRUE,
@@ -150,17 +160,9 @@ setMethod("summary", signature(object = "INLAvaan"),
               peentry <- match(with(newpt, paste(lhs[pte2], op[pte2], rhs[pte2], group[pte2], level[pte2], sep="")),
                                paste(PE$lhs, PE$op, PE$rhs, PE$group, PE$level, sep=""))
               if(jagtarget){
-                PE$ci.lower[peentry] <- object@external$mcmcout$HPD[newpt$jagpnum[pte2],'Lower95']
-                PE$ci.upper[peentry] <- object@external$mcmcout$HPD[newpt$jagpnum[pte2],'Upper95']
+
               } else {
-                parsumm <- rstan::summary(object@external$mcmcout)
-                if('2.5%' %in% colnames(parsumm[[1]]) & '97.5%' %in% colnames(parsumm[[1]])){
-                  PE$ci.lower[peentry] <- parsumm$summary[newpt$stansumnum[pte2],'2.5%']
-                  PE$ci.upper[peentry] <- parsumm$summary[newpt$stansumnum[pte2],'97.5%']
-                } else {
-                  PE$ci.lower[peentry] <- rep(NA, length(peentry))
-                  PE$ci.upper[peentry] <- rep(NA, length(peentry))
-                }
+
               }
 
               ## NB This is done so that we can remove fixed parameter hpd intervals without
