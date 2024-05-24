@@ -1316,97 +1316,185 @@ coeffun_inla <- function(
     lavpartable,
     pxpartable,
     res,
-    fun = "mean") {
+    fun = "mean",
+    nsamp = 100) {
 
   # Get INLA estimates ---------------------------------------------------------
-  # Intercepts
-  nu_tab <- res$summary.fixed
-  nu_tab$mat <- "nu"
-  nu_tab$freeparnums <- seq_len(nrow(nu_tab))
-
+  idx_nu    <- pxpartable$free[pxpartable$mat == "nu" & pxpartable$free > 0]
   idx_lam   <- pxpartable$free[pxpartable$mat == "lambda" & pxpartable$free > 0]
   idx_beta  <- pxpartable$free[pxpartable$mat == "beta" & pxpartable$free > 0]
   idx_theta <- pxpartable$free[pxpartable$mat == "theta" & pxpartable$free > 0]
-  idx_psi   <- pxpartable$free[pxpartable$mat == "psi" & pxpartable$free > 0]
   idx_rho   <- pxpartable$free[pxpartable$mat == "rho" & pxpartable$free > 0]
+  idx_psi   <- pxpartable$free[pxpartable$mat == "psi" & pxpartable$free > 0]
+  idx_lvrho <- pxpartable$free[pxpartable$mat == "lvrho" & pxpartable$free > 0]
 
-  # Loadings and beta
-  lambeta_tab <- res$summary.hyperpar[c(idx_lam, idx_beta), ]
-  lambeta_tab$mat <- pxpartable$mat[pxpartable$free %in% c(idx_lam, idx_beta)]
+  # Intercepts
+  nu_tab <- res$summary.fixed
+  nu_tab$mat <- "nu"
+  nu_tab$free <- idx_nu
+  nu_tab$inlaname <- rownames(nu_tab)
+  rownames(nu_tab) <- NULL
 
-  # Psi
-  psi_tab <-
-    map(res$internal.marginals.hyperpar[c(idx_psi)], \(m) {
-      m.var <- INLA::inla.tmarginal(function(x) exp(x), m)
-      x <- INLA::inla.zmarginal(m.var, silent = TRUE)
-      x
-    }) |>
-    bind_rows()
-  psi_tab$mat <- "psi"
+  # Loadings
+  lam_tab <- res$summary.hyperpar[idx_lam, ]
+  lam_tab$kld <- NA
+  lam_tab$mat <- "lambda"
+  lam_tab$free <- idx_lam
+  lam_tab$inlaname <- rownames(lam_tab)
+  rownames(lam_tab) <- NULL
 
-
-  # Theta requires sampling
-  if (length(idx_rho) > 0) {
-    # Correlations
-
-      samps <-
-        map(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)], \(m) {
-          INLA::inla.rmarginal(500, m)
-        }) |>
-        as.data.frame()
-
-      samps <- apply(samps, 1, simplify = FALSE, \(x) {
-        theta_e <- exp(x[seq_along(idx_theta)])
-        rho <- exp(x[length(idx_theta) + seq_along(idx_rho)])
-        rho <- rho / (1 + rho)
-        SD <- Diagonal(x = theta_e)
-        Rho_df <- pxpartable[pxpartable$mat == "rho", ]
-        Rho_df$est[Rho_df$free > 0] <- rho
-        Rho <- with(Rho_df, sparseMatrix(
-          i = row,
-          j = col,
-          x = est,
-          dims = rep(length(theta_e), 2),
-          symmetric = TRUE
-        ))
-        Rho <- Rho + diag(1, nrow = length(theta_e))
-        Theta <- Matrix::forceSymmetric(SD %*% Rho %*% SD)
-        as.data.frame(Matrix::summary(Theta))
-      })
-
-      theta_tab <- bind_rows(samps) |>
-        summarise(
-          mean = mean(x),
-          sd = sd(x),
-          `0.025quant` = quantile(x, 0.025),
-          `0.5quant` = quantile(x, 0.5),
-          `0.975quant` = quantile(x, 0.975),
-          mode = modeest::mfv1(x),
-          mat = "theta",
-          .by = c(i, j)
-        )
-      names(theta_tab)[1:2] <- c("row", "col")
-
+  # Beta coefficients
+  if (length(idx_beta) > 0) {
+    beta_tab <- res$summary.hyperpar[idx_beta, ]
+    beta_tab$kld <- NA
+    beta_tab$mat <- "beta"
+    beta_tab$free <- idx_beta
+    beta_tab$inlaname <- rownames(beta_tab)
+    rownames(beta_tab) <- NULL
   } else {
-    theta_tab <-
-      map(res$internal.marginals.hyperpar[c(idx_theta)], \(m) {
-      m.var <- INLA::inla.tmarginal(function(x) exp(x), m)
-      x <- INLA::inla.zmarginal(m.var, silent = TRUE)
-      # tibble(mean = x$mean, sd = x$sd)
-      x
-    }) |>
-      bind_rows()
-    theta_tab$row <- theta_tab$col <- seq_along(idx_theta)
-
+    beta_tab <- NULL
   }
 
-#   return(list(
-#     nu = nu_tab,
-#     lambeta = lambeta_tab,
-#     psi = psi_tab,
-#     theta = theta_tab
-#   ))
+  # Psi (may require sampling)
+  if (length(idx_lvrho) > 0) {
+    samps <-
+      map(res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)], \(m) {
+        INLA::inla.rmarginal(nsamp, m)
+      }) |>
+      as.data.frame()
 
+    samps <- apply(samps, 1, simplify = FALSE, \(x) {
+      psi <- exp(x[seq_along(idx_psi)])
+      lvrho <- exp(x[length(idx_psi) + seq_along(idx_lvrho)])
+      lvrho <- lvrho / (1 + lvrho)
+
+      SD <- Diagonal(x = sqrt(psi))
+      Rho_df <- pxpartable[pxpartable$mat == "lvrho", ]
+      Rho_df$est[Rho_df$free > 0] <- lvrho
+      Rho <- with(Rho_df, sparseMatrix(
+        i = row,
+        j = col,
+        x = est,
+        dims = rep(length(psi), 2),
+        symmetric = TRUE
+      ))
+      Rho <- Rho + diag(1, nrow = length(psi))
+      Psi <- Matrix::forceSymmetric(SD %*% Rho %*% SD)
+      as.data.frame(Matrix::summary(Psi))
+    })
+
+    psi_tab <-
+      bind_rows(samps) |>
+      summarise(
+        mean = mean(x),
+        sd = sd(x),
+        `0.025quant` = quantile(x, 0.025),
+        `0.5quant` = quantile(x, 0.5),
+        `0.975quant` = quantile(x, 0.975),
+        mode = modeest::mlv1(x, method = "shorth"),
+        kld = NA,
+        mat = "psi",
+        .by = c(i, j)
+      )
+
+    psi_tab$free <- c(idx_psi, idx_lvrho)
+    psi_tab$inlaname <- names(res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)])
+    psi_tab$i <- psi_tab$j <- NULL
+    rownames(psi_tab) <- NULL
+  } else {
+    psi_tab <-
+      lapply(res$internal.marginals.hyperpar[c(idx_psi)], \(m) {
+        INLA::inla.tmarginal(function(x) exp(x), m) |>
+          INLA::inla.zmarginal(silent = TRUE) |>
+          as.data.frame()
+      }) |>
+      do.call(what = "rbind")
+    psi_tab$mode <- NA
+    psi_tab$quant0.25 <- psi_tab$quant0.75 <- NULL
+    names(psi_tab)[names(psi_tab) == "quant0.025"] <- "0.025quant"
+    names(psi_tab)[names(psi_tab) == "quant0.5"] <- "0.5quant"
+    names(psi_tab)[names(psi_tab) == "quant0.975"] <- "0.975quant"
+    psi_tab$kld <- NA
+    psi_tab$mat <- "psi"
+    psi_tab$free <- idx_psi
+    psi_tab$inlaname <- names(res$internal.marginals.hyperpar[c(idx_psi)])
+    rownames(psi_tab) <- NULL
+  }
+
+  # Theta may require sampling
+  if (length(idx_rho) > 0) {
+    samps <-
+      map(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)], \(m) {
+        INLA::inla.rmarginal(nsamp, m)
+      }) |>
+      as.data.frame()
+
+    samps <- apply(samps, 1, simplify = FALSE, \(x) {
+      theta_e <- exp(x[seq_along(idx_theta)])
+      rho <- exp(x[length(idx_theta) + seq_along(idx_rho)])
+      rho <- rho / (1 + rho)
+
+      SD <- Diagonal(x = theta_e)
+      Rho_df <- pxpartable[pxpartable$mat == "rho", ]
+      Rho_df$est[Rho_df$free > 0] <- rho
+      Rho <- with(Rho_df, sparseMatrix(
+        i = row,
+        j = col,
+        x = est,
+        dims = rep(length(theta_e), 2),
+        symmetric = TRUE
+      ))
+      Rho <- Rho + diag(1, nrow = length(theta_e))
+      Theta <- Matrix::forceSymmetric(SD %*% Rho %*% SD)
+      as.data.frame(Matrix::summary(Theta))
+    })
+
+    theta_tab <-
+      bind_rows(samps) |>
+      summarise(
+        mean = mean(x),
+        sd = sd(x),
+        `0.025quant` = quantile(x, 0.025),
+        `0.5quant` = quantile(x, 0.5),
+        `0.975quant` = quantile(x, 0.975),
+        mode = modeest::mlv1(x, method = "shorth"),
+        kld = NA,
+        mat = "theta",
+        .by = c(i, j)
+      )
+    theta_tab$free <- c(idx_theta, idx_rho)
+    theta_tab$inlaname <- names(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)])
+    theta_tab$i <- theta_tab$j <- NULL
+    rownames(theta_tab) <- NULL
+  } else {
+    theta_tab <-
+      lapply(res$internal.marginals.hyperpar[c(idx_theta)], \(m) {
+        INLA::inla.tmarginal(function(x) exp(x), m) |>
+          INLA::inla.zmarginal(silent = TRUE) |>
+          as.data.frame()
+      }) |>
+      do.call(what = "rbind")
+    theta_tab$mode <- NA
+    theta_tab$quant0.25 <- theta_tab$quant0.75 <- NULL
+    names(theta_tab)[names(theta_tab) == "quant0.025"] <- "0.025quant"
+    names(theta_tab)[names(theta_tab) == "quant0.5"] <- "0.5quant"
+    names(theta_tab)[names(theta_tab) == "quant0.975"] <- "0.975quant"
+    theta_tab$kld <- NA
+    theta_tab$mat <- "theta"
+    theta_tab$free <- idx_theta
+    theta_tab$inlaname <- names(res$internal.marginals.hyperpar[c(idx_theta)])
+    rownames(theta_tab) <- NULL
+  }
+
+  stansumm <-
+    do.call("rbind", list(
+      nu = nu_tab,
+      lambda = lam_tab,
+      beta = beta_tab,
+      psi = psi_tab,
+      theta = theta_tab
+    ))
+  stansumm <- stansumm[order(stansumm$free), ]
 
   # ----------------------------------------------------------------------------
 
@@ -1434,27 +1522,26 @@ coeffun_inla <- function(
   }
   lavord <- order(pxpartable$id)
   pxpartable <- lapply(pxpartable, function(x) x[lavord])
-
   pxpartable <- as.data.frame(pxpartable)
 
-  pxpartable[pxpartable$free > 0 & pxpartable$mat == "nu", c("est", "se")] <-
-    nu_tab[, c("mean", "sd")]
-  pxpartable[pxpartable$free > 0 & pxpartable$mat %in% c("lambda", "beta"), c("est", "se")] <-
-    lambeta_tab[, c("mean", "sd")]
-  pxpartable[pxpartable$free > 0 & pxpartable$mat == "psi", c("est", "se")] <-
-    psi_tab[, c("mean", "sd")]
+  # pxpartable[pxpartable$free > 0 & pxpartable$mat == "nu", c("est", "se")] <-
+  #   nu_tab[, c("mean", "sd")]
+  # pxpartable[pxpartable$free > 0 & pxpartable$mat == "lambda", c("est", "se")] <-
+  #   lam_tab[, c("mean", "sd")]
+  # pxpartable[pxpartable$free > 0 & pxpartable$mat == "beta", c("est", "se")] <-
+  #   beta_tab[, c("mean", "sd")]
+  # pxpartable[pxpartable$free > 0 & pxpartable$mat == "psi", c("est", "se")] <-
+  #   psi_tab[, c("mean", "sd")]
 
+  merged_df <- merge(
+    pxpartable[pxpartable$free > 0, ],
+    stansumm,
+    by = c("free"),
+    sort = FALSE
+  )
 
-  merged_df <- merge(pxpartable[pxpartable$free > 0 & pxpartable$mat == "theta", ], theta_tab[, c("row", "col", "mean", "sd")], by = c("row", "col"))
-  merged_df$est <- merged_df$mean
-  merged_df$se <- merged_df$sd
-  merged_df$mean <- NULL
-  merged_df$sd <- NULL
-  merged_df <- merged_df[order(merged_df$id), ]
-
-  pxpartable[pxpartable$free > 0 & pxpartable$mat == "theta", c("est", "se")] <-
-    merged_df[, c("est", "se")]
-  pxpartable
+  pxpartable$est[pxpartable$free > 0] <- merged_df$mean
+  pxpartable$se[pxpartable$free > 0] <- merged_df$sd
 
   pxpartable$stanpnum <- rep(NA, length(pxpartable[[1]]))
   pxpartable$stansumnum <- rep(NA, length(pxpartable[[1]]))
@@ -1465,6 +1552,7 @@ coeffun_inla <- function(
   if ("est" %in% names(pxpartable)) {
     ## to handle do.fit = FALSE
     lavpartable$est[lavpartable$free > 0] <- pxpartable$est[ptmatch]
+    lavpartable$se[lavpartable$free > 0] <- pxpartable$se[ptmatch]
   }
   lavpartable$psrf <- rep(1, length(lavpartable$free))
   # if (stanfit) {
@@ -1475,13 +1563,12 @@ coeffun_inla <- function(
   lavpartable$stanpnum[lavpartable$free > 0] <- pxpartable$stanpnum[ptmatch]
   lavpartable$stansumnum[lavpartable$free > 0] <- pxpartable$stansumnum[ptmatch]
 
-
   list(
     x = lavpartable$est[lavpartable$free > 0],
     lavpartable = lavpartable,
     vcorr = NULL,
     sd = lavpartable$se[lavpartable$free > 0],
-    stansumm = NULL
+    stansumm = stansumm
   )
 
 }

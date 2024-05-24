@@ -7,21 +7,24 @@ true_model <- "
   eta2 =~ 1*y4 + 1.2*y5 + 1.5*y6
   eta2 ~ 0.3*eta1
 
-  y1 ~~ 0.5*y1
-  y2 ~~ 0.5*y2
-  y3 ~~ 0.5*y3
-  y4 ~~ 0.5*y4
-  y5 ~~ 0.5*y5
-  y6 ~~ 0.5*y6
+  y1 ~~ y1
+  y2 ~~ y2
+  y3 ~~ y3
+  y4 ~~ y4
+  y5 ~~ y5
+  y6 ~~ y6
 "
 dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
 
 mod <- "
   eta1 =~ y1 + y2 + y3
   eta2 =~ y4 + y5 + y6
-  eta2 ~ eta1
+  eta1 ~ eta2
 "
-fit <- icfa(model = mod, data = dat); summary(fit)
+fit <- isem(model = mod, data = dat)
+
+# tmp <- fit
+# do.call("coeffun_inla", tmp)
 
 # Political democracy SEM example ----------------------------------------------
 myModel <- '

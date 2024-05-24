@@ -863,12 +863,14 @@ inlavaan <- function(
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if (target == "INLA") {
+
+
       parests <- coeffun_inla(
         lavpartable = lavpartable,
         pxpartable = jagtrans$pxpartable,
         res = res
       )
-      stansumm <- NA
+      stansumm <- parests$stansumm
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     } else if(target == "jags"){
       parests <- coeffun(lavpartable, jagtrans$pxpartable, res)
@@ -1176,6 +1178,10 @@ inlavaan <- function(
                   origpt = lavpartable, inits = jagtrans$inits,
                   mcmcdata = jagtrans$data, pxpt = jagtrans$pxpartable,
                   burnin = burnin, sample = sample)
+  if (target == "INLA") {
+    extslot <- c(extslot, list(stansumm = stansumm))
+    extslot$burnin <- extslot$sample <- NULL
+  }
   if(grepl("stan", target)){
     extslot <- c(extslot, list(stansumm = stansumm))
     if(save.lvs & target=="stan") extslot <- c(extslot, list(stanlvs = stanlvs))
