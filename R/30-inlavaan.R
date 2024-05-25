@@ -193,7 +193,7 @@ inlavaan <- function(
 
   # which arguments do we override?
   lavArgsOverride <- c("missing", "estimator", "conditional.x", "parser")
-  if(target != "stan") lavArgsOverride <- c(lavArgsOverride, "meanstructure")
+  if(target != "stan" && target != "INLA") lavArgsOverride <- c(lavArgsOverride, "meanstructure")
   # always warn?
   warn.idx <- which(lavArgsOverride %in% dotNames)
   if(length(warn.idx) > 0L) {
@@ -227,7 +227,7 @@ inlavaan <- function(
   dotdotdot$control <- list(iter.max = 1, eval.max = 1); dotdotdot$warn <- TRUE
   dotdotdot$optim.force.converged <- TRUE
   if(packageDescription("lavaan")$Version > "0.6-16") dotdotdot$parser <- "old"
-  if(target != "stan") dotdotdot$meanstructure <- TRUE
+  if(target != "stan" && target != "INLA") dotdotdot$meanstructure <- TRUE
   # dotdotdot$missing <- "direct"   # direct/ml creates error? (bug in lavaan?)
   ordmod <- FALSE
   if("ordered" %in% dotNames) ordmod <- TRUE

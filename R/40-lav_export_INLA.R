@@ -15,6 +15,8 @@ lav2inla <- function(
     stop("blavaan ERROR: model must be class lavaan")
   }
 
+  meanstructure <- lavaan:::lavInspect(lavobject, "meanstructure")
+
   eqop <- "="
   commop <- "// "
   eolop <- ";"
@@ -1260,6 +1262,7 @@ lav2inla <- function(
   for (g in 1:ngroups) {
     n_in_g <- lavdata@nobs[[g]]
     tmp <- as.data.frame(lavdata@X[[g]])
+    if (!meanstructure) tmp <- scale(tmp, center = TRUE, scale = FALSE)
     colnames(tmp) <- lavdata@ov$name
     dat_inla <- rbind(
       dat_inla,
@@ -1300,7 +1303,12 @@ lav2inla <- function(
     init = inlastart,
     partable = partable
   )
-  form <- val ~ -1 + nu + f(ov.idx, model = the_model, replicate = i)
+
+  if (isTRUE(meanstructure)) {
+    form <- val ~ -1 + nu + f(ov.idx, model = the_model, replicate = i)
+  } else {
+    form <- val ~ -1 + f(ov.idx, model = the_model, replicate = i)
+  }
 
   list(
     formula = form,
@@ -1321,6 +1329,7 @@ coeffun_inla <- function(
 
   # Get INLA estimates ---------------------------------------------------------
   idx_nu    <- pxpartable$free[pxpartable$mat == "nu" & pxpartable$free > 0]
+  idx_alpha <- pxpartable$free[pxpartable$mat == "alpha" & pxpartable$free > 0]
   idx_lam   <- pxpartable$free[pxpartable$mat == "lambda" & pxpartable$free > 0]
   idx_beta  <- pxpartable$free[pxpartable$mat == "beta" & pxpartable$free > 0]
   idx_theta <- pxpartable$free[pxpartable$mat == "theta" & pxpartable$free > 0]
@@ -1329,11 +1338,15 @@ coeffun_inla <- function(
   idx_lvrho <- pxpartable$free[pxpartable$mat == "lvrho" & pxpartable$free > 0]
 
   # Intercepts
-  nu_tab <- res$summary.fixed
-  nu_tab$mat <- "nu"
-  nu_tab$free <- idx_nu
-  nu_tab$inlaname <- rownames(nu_tab)
-  rownames(nu_tab) <- NULL
+  if (length(idx_nu) > 0) {
+    nu_tab <- res$summary.fixed
+    nu_tab$mat <- "nu"
+    nu_tab$free <- idx_nu
+    nu_tab$inlaname <- rownames(nu_tab)
+    rownames(nu_tab) <- NULL
+  } else {
+    nu_tab <- NULL
+  }
 
   # Loadings
   lam_tab <- res$summary.hyperpar[idx_lam, ]

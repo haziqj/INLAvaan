@@ -24,7 +24,7 @@ mod <- "
   eta1 ~ eta2
   y1 ~~ y4
 "
-fit <- isem(model = mod, data = dat)
+fit <- isem(model = mod, data = dat, meanstructure = FALSE)
 
 # tmp <- fit
 # do.call("coeffun_inla", tmp)
