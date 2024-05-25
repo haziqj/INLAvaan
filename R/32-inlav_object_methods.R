@@ -212,20 +212,11 @@ setMethod("summary", signature(object = "INLAvaan"),
               }
               if(postmedian){
                 PE$Post.Med <- rep(NA, nrow(PE))
-                if(jagtarget){
-                  PE$Post.Med[peentry] <- object@external$mcmcout$summaries[newpt$jagpnum[pte2],'Median']
-                } else {
-                  PE$Post.Med[peentry] <- parsumm$summary[newpt$stansumnum[pte2],'50%']
-                }
+                PE$Post.Med[peentry] <- parsumm$`0.5quant`[inlasumm_idx]
               }
               if(postmode){
                 PE$Post.Mode <- rep(NA, nrow(PE))
-                if(jagtarget){
-                  PE$Post.Mode[peentry] <- object@external$mcmcout$summaries[newpt$jagpnum[pte2],'Mode']
-                  if(all(is.na(PE$Post.Mode))) warning("blavaan WARNING: Posterior modes require installation of the modeest package.", call. = FALSE)
-                } else {
-                  PE$Post.Mode[peentry] <- blavInspect(object, "postmode")
-                }
+                PE$Post.Mode[peentry] <- parsumm$mode[inlasumm_idx]
               }
               if(bf){
                 ## we don't know whether priors=TRUE:
