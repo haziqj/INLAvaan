@@ -164,6 +164,19 @@ setMethod("summary", signature(object = "INLAvaan"),
               } else {
 
               }
+              # For INLA method ------------------------------------------------
+              parsumm <- object@external$stansumm
+              pte2 <- which(newpt$free > 0)
+              peentry <- match(
+                with(newpt, paste(
+                  lhs[pte2], op[pte2], rhs[pte2], group[pte2], level[pte2], sep = "")
+                ),
+                paste(PE$lhs, PE$op, PE$rhs, PE$group, PE$level, sep = "")
+              )
+              inlasumm_idx <- match(newpt$free[pte2], parsumm$free)
+
+              PE$ci.lower[peentry] <- parsumm$`0.025quant`[inlasumm_idx]
+              PE$ci.upper[peentry] <- parsumm$`0.975quant`[inlasumm_idx]
 
               ## NB This is done so that we can remove fixed parameter hpd intervals without
               ##    making changes to lavaan's print.lavaan.parameterEstimates(). But maybe

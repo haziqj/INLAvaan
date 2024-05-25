@@ -7,22 +7,24 @@ true_model <- "
   eta2 =~ 1*y4 + 1.2*y5 + 1.5*y6
   eta2 ~ 0.3*eta1
 
-  y1 ~~ y1
-  y2 ~~ y2
-  y3 ~~ y3
-  y4 ~~ y4
-  y5 ~~ y5
-  y6 ~~ y6
+  y1 ~~ 0.05*y4
+
+  y1 ~~ 0.1*y1
+  y2 ~~ 0.1*y2
+  y3 ~~ 0.1*y3
+  y4 ~~ 0.1*y4
+  y5 ~~ 0.1*y5
+  y6 ~~ 0.1*y6
 "
 dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
 
 mod <- "
   eta1 =~ y1 + y2 + y3
   eta2 =~ y4 + y5 + y6
-  # eta1 ~~ eta2
-  # y1 ~~ y2
+  eta1 ~ eta2
+  y1 ~~ y4
 "
-fit <- icfa(model = mod, data = dat)
+fit <- isem(model = mod, data = dat)
 
 # tmp <- fit
 # do.call("coeffun_inla", tmp)
@@ -46,24 +48,10 @@ myModel <- '
   y6 ~~ y8
 '
 
-fit <- inlavaan(
+fit <- isem(
   model = myModel,
-  data = PoliticalDemocracy,
-  int.ov.free = TRUE,
-  int.lv.free = FALSE,
-  auto.fix.first = TRUE,
-  auto.fix.single = TRUE,
-  auto.var = TRUE,
-  auto.cov.lv.x = TRUE,
-  auto.efa = TRUE,
-  auto.th = TRUE,
-  auto.delta = TRUE,
-  auto.cov.y = TRUE
+  data = PoliticalDemocracy
 )
+inla_coef <- coef(fit)
 
-
-coeffun_inla(
-  fit$lavpartable,
-  fit$pxpartable,
-  fit$res
-)
+lav_coef <- coef(sem(myModel, data = PoliticalDemocracy, meanstructure = TRUE))
