@@ -26,8 +26,10 @@ mod <- "
 "
 fit <- isem(model = mod, data = dat, meanstructure = FALSE)
 
-# tmp <- fit
-# do.call("coeffun_inla", tmp)
+
+
+tmp <- fit
+do.call("inlav_model_test", tmp)
 
 # Political democracy SEM example ----------------------------------------------
 myModel <- '

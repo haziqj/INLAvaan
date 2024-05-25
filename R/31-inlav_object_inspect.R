@@ -58,9 +58,10 @@ blavInspect <- function(blavobject, what, ...) {
       blavobject@external$inits
     } else if(what %in% c("psrf", "ac.10", "neff", "rhat", "n_eff")){
       if(jagtarget){
-        mcmcsumm <- blavobject@external$mcmcout$summaries
+        # mcmcsumm <- blavobject@external$mcmcout$summaries
       } else {
-        mcmcsumm <- rstan::summary(blavobject@external$mcmcout)$summary
+        # mcmcsumm <- rstan::summary(blavobject@external$mcmcout)$summary
+        mcmcsumm <- NULL
       }
       if(what %in% c("psrf", "rhat")){
         if(jagtarget){
@@ -217,7 +218,8 @@ blavInspect <- function(blavobject, what, ...) {
       if(jagtarget){
         mcmcsumm <- blavobject@external$mcmcout$summaries
       } else {
-        mcmcsumm <- rstan::summary(blavobject@external$mcmcout)$summary
+        # mcmcsumm <- rstan::summary(blavobject@external$mcmcout)$summary
+        mcmcsumm <- NULL
       }
 
       if(what == "postmean"){
@@ -250,7 +252,8 @@ blavInspect <- function(blavobject, what, ...) {
       OUT
     } else if(what == "stannames"){
       if(jagtarget) stop("blavaan ERROR: Stan was not used for model estimation.")
-      mcmcsumm <- rstan::summary(blavobject@external$mcmcout)$summary
+      # mcmcsumm <- rstan::summary(blavobject@external$mcmcout)$summary
+      mcmcsumm <- NULL
       OUT <- rownames(mcmcsumm)[idx]
       if(add.labels) names(OUT) <- labs
       OUT

@@ -31,7 +31,7 @@ inlav_model_fit <- function(
   est <- lav_model_get_parameters(lavmodel = lavmodel, type = "user")
 
   # did we compute standard errors?
-  # blaboot <- blavaan:::rearr_params(lavmcmc, lavpartable)
+  # blaboot <- rearr_params(lavmcmc, lavpartable)
 
   # FIXME: Something's not right here
   se <- lav_model_vcov_se(

@@ -43,7 +43,7 @@ inlavaan <- function(
   }
 
   # default priors
-  if(length(dp) == 0) dp <- blavaan:::dpriors(target = target)
+  if(length(dp) == 0) dp <- blavaan::dpriors(target = target)
 
   # burnin/sample/adapt if not supplied (should only occur for direct
   # blavaan call
@@ -376,7 +376,7 @@ inlavaan <- function(
   dotdotdot$test <- origtest
 
   # check for conflicting mv names
-  blavaan:::namecheck(LAV@Data@ov.names[[1]])  # FIXME: What's this for?
+  blavaan_namecheck(LAV@Data@ov.names[[1]])  # FIXME: What's this for?
 
   # ordinal only for stan
   ordmod <- lavInspect(LAV, 'categorical')
@@ -699,26 +699,26 @@ inlavaan <- function(
       }
 
       if(mcmcfile){
-        dir.create(path=jagdir, showWarnings=FALSE)
-        fext <- ifelse(target=="jags", "jag", "stan")
-        fnm <- paste0(jagdir, "/sem.", fext)
-        if(target %in% c("stan", "cmdstan")){
-          if(mcmcextra$dosam){
-            cat(bsam::stanmodels$stanmarg_bsam@model_code, file = fnm)
-          } else {
-            cat(stanmodels$stanmarg@model_code, file = fnm)
-          }
-        } else {
-          cat(jagtrans$model, file = fnm)
-        }
-        if(target=="jags"){
-          save(jagtrans, file = paste(jagdir, "/semjags.rda",
-                                      sep=""))
-        } else {
-          stantrans <- jagtrans
-          save(stantrans, file = paste(jagdir, "/semstan.rda",
-                                       sep=""))
-        }
+        # dir.create(path=jagdir, showWarnings=FALSE)
+        # fext <- ifelse(target=="jags", "jag", "stan")
+        # fnm <- paste0(jagdir, "/sem.", fext)
+        # if(target %in% c("stan", "cmdstan")){
+        #   if(mcmcextra$dosam){
+        #     cat(stanmodels$stanmarg_bsam@model_code, file = fnm)
+        #   } else {
+        #     cat(stanmodels$stanmarg@model_code, file = fnm)
+        #   }
+        # } else {
+        #   cat(jagtrans$model, file = fnm)
+        # }
+        # if(target=="jags"){
+        #   save(jagtrans, file = paste(jagdir, "/semjags.rda",
+        #                               sep=""))
+        # } else {
+        #   stantrans <- jagtrans
+        #   save(stantrans, file = paste(jagdir, "/semstan.rda",
+        #                                sep=""))
+        # }
       }
 
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -742,10 +742,10 @@ inlavaan <- function(
       } else if(target == "cmdstan"){
         rjarg <- with(jagtrans, list(data = data, init = inits))
       } else if(mcmcextra$dosam){
-        rjarg <- with(jagtrans, list(object = bsam::stanmodels$stanmarg_bsam,
-                                     data = data,
-                                     pars = sampparms,
-                                     init = inits))
+        # rjarg <- with(jagtrans, list(object = bsam::stanmodels$stanmarg_bsam,
+        #                              data = data,
+        #                              pars = sampparms,
+        #                              init = inits))
       } else {
         rjarg <- with(jagtrans, list(object = stanmodels$stanmarg,
                                      data = data,
@@ -762,9 +762,9 @@ inlavaan <- function(
 
 
       if(target == "jags"){
-        ## obtain posterior modes
-        if(suppressMessages(requireNamespace("modeest", quietly = TRUE))) runjags::runjags.options(mode.continuous = TRUE)
-        runjags::runjags.options(force.summary = TRUE)
+        # ## obtain posterior modes
+        # if(suppressMessages(requireNamespace("modeest", quietly = TRUE))) runjags::runjags.options(mode.continuous = TRUE)
+        # runjags::runjags.options(force.summary = TRUE)
       }
       if(jag.do.fit & target != "INLA"){
         if(target == "jags"){
@@ -776,12 +776,12 @@ inlavaan <- function(
           rjcall <- "vb"
           rjarg$init <- rjarg$init[[1]]
         } else if(target == "cmdstan"){
-          fname <- paste0("stanmarg_", packageDescription("blavaan")["Version"])
-          fdir <- paste0(cmdstanr::cmdstan_path(), "/")
-          blavmod <- cmdstanr::cmdstan_model(cmdstanr::write_stan_file(stanmodels$stanmarg@model_code,
-                                                                       dir = fdir,
-                                                                       basename = fname) )
-          rjcall <- blavmod$sample
+          # fname <- paste0("stanmarg_", packageDescription("blavaan")["Version"])
+          # fdir <- paste0(cmdstanr::cmdstan_path(), "/")
+          # blavmod <- cmdstanr::cmdstan_model(cmdstanr::write_stan_file(stanmodels$stanmarg@model_code,
+          #                                                              dir = fdir,
+          #                                                              basename = fname) )
+          # rjcall <- blavmod$sample
         } else {
           rjcall <- "sampling"
         }
@@ -858,7 +858,7 @@ inlavaan <- function(
     ## FIXME: there is no pars argument. this saves all parameters and uses unnecessary memory
     ## see res@sim and line 284 of stan_csv.R... might cut it down manually
     if(target == "cmdstan"){
-      res <- rstan::read_stan_csv(res$output_files())
+      # res <- read_stan_csv(res$output_files())
     }
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -952,7 +952,7 @@ inlavaan <- function(
 
           for(j in 1:(1 + lavoptions$.multilevel)){
             if(dim(stanlvs[[j]])[3L] > 0){
-              lvsumm <- as.matrix(rstan::monitor(stanlvs[[j]], print=FALSE))
+              lvsumm <- as.matrix(monitor(stanlvs[[j]], print=FALSE))
               cmatch <- match(colnames(stansumm), colnames(lvsumm))
               stansumm <- rbind(stansumm, lvsumm[,cmatch])
             }
@@ -995,7 +995,8 @@ inlavaan <- function(
     ## log-likehoods from Stan
     ## FIXME: modify so that fx is commensurate with logl from Stan
     ##        for ystar, could take means of truncated normals
-    attr(x, "fx") <- blavaan:::get_ll(lavobject = LAV, standata = rjarg$data)[1]
+    # attr(x, "fx") <- blavaan_get_ll(lavobject = LAV, standata = rjarg$data)[1]
+    attr(x, "fx") <- res$mlik[2, 1]
     # FIXME: What likelihood exactly?
     LAV@Options$target <- target
 
@@ -1106,15 +1107,15 @@ inlavaan <- function(
   ## 8. "test statistics": marginal log-likelihood, dic
   TEST <- list()
   domll <- TRUE
-  covres <- blavaan:::checkcovs(LAV)
+  covres <- blavaan_checkcovs(LAV)
   ## in these cases, we cannot reliably evaluate the priors
   if(ordmod | !(covres$diagthet | covres$fullthet)) domll <- FALSE
   if(target == "stan" && !l2s$blkpsi) domll <- FALSE
   if(target != "stan" && !(covres$diagpsi | covres$fullpsi)) domll <- FALSE
+  if (target == "INLA") domll <- TRUE
 
-  if(lavoptions$test != "none" & target != "INLA") { # && attr(x, "converged")) {
-    # FIXME: Figure out what is this blav_model_test
-    TEST <- blav_model_test(lavmodel            = lavmodel,
+  if(lavoptions$test != "none") { # && attr(x, "converged")) {
+    TEST <- inlav_model_test(lavmodel            = lavmodel,
                             lavpartable         = lavpartable,
                             lavsamplestats      = lavsamplestats,
                             lavoptions          = lavoptions,

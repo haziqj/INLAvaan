@@ -15,12 +15,12 @@ lav2inla <- function(
     stop("blavaan ERROR: model must be class lavaan")
   }
 
-  meanstructure <- lavaan:::lavInspect(lavobject, "meanstructure")
+  meanstructure <- lavaan::lavInspect(lavobject, "meanstructure")
 
   eqop <- "="
   commop <- "// "
   eolop <- ";"
-  if (length(dp) == 0) dp <- blavaan:::dpriors(target = "stan")
+  if (length(dp) == 0) dp <- blavaan::dpriors(target = "stan")
 
   ## get names of ovs before we add phantom variables
   old.pta <- lav_partable_attributes(partable = partable, pta = NULL)
@@ -60,9 +60,9 @@ lav2inla <- function(
   }
 
   ## set up mvs with fixed 0 variances (single indicators of lvs)
-  partable <- blavaan:::set_mv0(partable, orig.ov.names, ngroups)
+  partable <- blavaan_set_mv0(partable, orig.ov.names, ngroups)
   ## convert covariances to corr * sd1 * sd2
-  partable <- blavaan:::set_stancovs(partable, std.lv)
+  partable <- blavaan_set_stancovs(partable, std.lv)
 
   # # HJ: Get rid of the rho parameter
   # partable <- partable[seq_len(nrow(parTable(lavobject))), ]
@@ -576,7 +576,7 @@ lav2inla <- function(
       names(nfree)[psiidx] <- "psiUNC"
     }
   }
-  TXT2 <- blavaan:::set_stanpars(TXT2, partable, nfree, dp, orig.ov.names)
+  TXT2 <- blavaan_set_stanpars(TXT2, partable, nfree, dp, orig.ov.names)
   partable$prior <- TXT2$partable$prior
   partable$freeparnums <- TXT2$partable$freeparnums
   TXT3 <- TXT2$TXT3
@@ -597,7 +597,7 @@ lav2inla <- function(
   out <- list(lavobject = out, inits = NA)
 
   ## Initial values
-  inits <- blavaan:::set_inits_stan(partable, nfree, n.chains, inits)
+  inits <- blavaan_set_inits_stan(partable, nfree, n.chains, inits)
   out$inits <- inits
 
   datablk <- ""
@@ -1605,128 +1605,4 @@ coeffun_inla <- function(
     stansumm = stansumm
   )
 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.coeffun_inla <- function(lavpartable, pxpartable, rsob, fun = "mean") {
-  ## Extract posterior means from coda.samples() object.
-  ## rsob is the result of rstan().
-  stanfit <- !is.null(rsob)
-  if (stanfit) {
-    rssumm <- rstan::summary(rsob)
-    rsmcmc <- as.array(rsob)
-
-    ## posterior means:
-    if (fun == "mean") {
-      b.est <- rssumm$summary[, "mean"]
-    } else if (fun == "median") {
-      b.est <- rssumm$summary[, "50%"]
-    }
-  }
-
-  pxpartable$pxnames <- with(pxpartable, paste0(
-    mat, "[", row, ",", col, ",",
-    group, "]"
-  ))
-
-  ## move "free" parameters from rho to theta
-  rhopars <- grep("rho", pxpartable$mat)
-  if (length(rhopars) > 0) {
-    for (i in 1:length(rhopars)) {
-      idx <- rhopars[i]
-      matname <- ifelse(pxpartable$mat[idx] == "rho", "theta", "psi")
-      newidx <- which(pxpartable$mat == matname &
-        pxpartable$row == pxpartable$row[idx] &
-        pxpartable$col == pxpartable$col[idx] &
-        pxpartable$group == pxpartable$group[idx])
-
-      tmpfree <- pxpartable$free[idx]
-
-      pxpartable$free[idx] <- 0L
-      pxpartable$free[newidx] <- tmpfree
-    }
-  }
-  lavord <- order(pxpartable$id)
-  pxpartable <- lapply(pxpartable, function(x) x[lavord])
-
-  ## from stan to partable
-  ## NB: order of parameters in mcmc array differs from order
-  ##     of parameters in summary()
-  pxpartable$stanpnum <- rep(NA, length(pxpartable[[1]]))
-  pxpartable$stansumnum <- rep(NA, length(pxpartable[[1]]))
-  if (stanfit) {
-    ptnames <- pxpartable$pxnames
-    cmatch <- match(ptnames, names(b.est), nomatch = 0)
-    pxpartable$est[cmatch > 0] <- b.est[cmatch]
-    pxpartable$psrf[cmatch > 0] <- rssumm$summary[cmatch, "Rhat"]
-
-    sdvec <- rssumm$summary[cmatch, "sd"]
-
-    pxpartable$stanpnum <- match(ptnames, names(rsmcmc[1, 1, ]), nomatch = 0)
-    pxpartable$stansumnum <- match(ptnames, rownames(rssumm$summary), nomatch = 0)
-
-    ## vcorr
-    draw_mat <- as.matrix(rsob)
-    cmatch <- match(ptnames[pxpartable$free > 0][order(pxpartable$free[pxpartable$free > 0])], colnames(draw_mat))
-    vcorr <- cor(draw_mat[, cmatch, drop = FALSE])
-
-    svmatch <- match(colnames(vcorr), names(sdvec), nomatch = 0)
-    sdvec <- sdvec[svmatch]
-  } else {
-    sdvec <- NULL
-    vcorr <- NULL
-    rssumm <- list(summary = NULL)
-  }
-
-  ## now match it all to original partable
-  ptmatch <- match(lavpartable$free[lavpartable$free > 0], pxpartable$free)
-  if ("est" %in% names(pxpartable)) {
-    ## to handle do.fit = FALSE
-    lavpartable$est[lavpartable$free > 0] <- pxpartable$est[ptmatch]
-  }
-  lavpartable$psrf <- rep(NA, length(lavpartable$free))
-  if (stanfit) {
-    lavpartable$psrf[lavpartable$free > 0] <- pxpartable$psrf[ptmatch]
-  }
-  lavpartable$prior[lavpartable$free > 0] <- pxpartable$prior[ptmatch]
-  lavpartable$pxnames[lavpartable$free > 0] <- pxpartable$pxnames[ptmatch]
-  lavpartable$stanpnum[lavpartable$free > 0] <- pxpartable$stanpnum[ptmatch]
-  lavpartable$stansumnum[lavpartable$free > 0] <- pxpartable$stansumnum[ptmatch]
-
-  ## defined variables
-  defmatch <- which(pxpartable$op == ":=")
-  if (length(defmatch) > 0) {
-    lavpartable$est[lavpartable$op == ":="] <- pxpartable$est[defmatch]
-    lavpartable$pxnames[lavpartable$op == ":="] <- pxpartable$pxnames[defmatch]
-    lavpartable$stanpnum[lavpartable$op == ":="] <- pxpartable$stanpnum[defmatch]
-    lavpartable$stansumnum[lavpartable$op == ":="] <- pxpartable$stansumnum[defmatch]
-    ## will not exist if do.fit=FALSE
-    if ("psrf" %in% names(pxpartable)) {
-      lavpartable$psrf[lavpartable$op == ":="] <- pxpartable$psrf[defmatch]
-    }
-  }
-
-  list(
-    x = lavpartable$est[lavpartable$free > 0],
-    lavpartable = lavpartable,
-    vcorr = vcorr,
-    sd = sdvec,
-    stansumm = rssumm$summary
-  )
 }

@@ -13,7 +13,8 @@ bl.short.summary <- function(object) {
 
   class(object) <- "lavaan"
   garb <- capture.output( tmp <- show(object) )
-  # tmp$test <- NULL
+  tmp$test <- NULL
+  garb <- capture.output( tmp )
   garb <- gsub("lavaan", "INLAvaan", garb)
   garb <- gsub(
     "after.*",
@@ -25,8 +26,7 @@ bl.short.summary <- function(object) {
     garb
   )
   cat(paste0(garb, collapse="\n"))
-  cat("\n")
-
+  cat("\n\n")
 
   # Print margloglik + ppp
   ppp <- TRUE
@@ -62,7 +62,6 @@ bl.short.summary <- function(object) {
   #cat("\n")
 }
 
-
 setMethod("show", "INLAvaan",
           function(object) {
 
@@ -70,9 +69,6 @@ setMethod("show", "INLAvaan",
             bl.short.summary(object)
 
           })
-
-
-inlav_summary <-
 
 setMethod("summary", signature(object = "INLAvaan"),
           function(object, header       = TRUE,
