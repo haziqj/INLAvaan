@@ -1,3 +1,13 @@
+#' Title
+#'
+#' @param ... TBC
+#' @param target TBC
+#' @param dp TBC
+#' @param save.lvs TBC
+#' @param bcontrol TBC
+#'
+#' @return TBC
+#' @export
 inlavaan <- function(
     ..., # default lavaan arguments
 
@@ -1248,8 +1258,18 @@ inlavaan <- function(
   out
 }
 
-## cfa + sem
-icfa <- isem <- function(
+
+#' Title
+#'
+#' @param ... TBC
+#' @param target TBC
+#' @param dp TBC
+#' @param save.lvs TBC
+#' @param bcontrol TBC
+#'
+#' @return TBC
+#' @export
+isem <- function(
     ..., # default lavaan arguments
 
     # INLA specific stuff
@@ -1279,3 +1299,6 @@ icfa <- isem <- function(
   eval(mc, parent.frame())
 }
 
+#' @rdname isem
+#' @export
+icfa <- isem
