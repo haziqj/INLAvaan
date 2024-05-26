@@ -12,7 +12,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 > Bayesian structural equation modelling with INLA.
 
-Soon-ish features
+**Soon-ish features**
 
 1.  Model fit indices (PPP, xIC, RMSEA, etc.)
 2.  Prior specification.
@@ -20,9 +20,9 @@ Soon-ish features
 4.  Specify different families for different observed variable.
 5.  Standardised coefficients.
 
-Long term plan
+**Long term plan**
 
-1.  “non-iid” models, such as spatio-temporal models.
+1.  “Non-iid” models, such as spatio-temporal models.
 2.  Multilevel-ish kind of models (2-3 levels).
 3.  Covariates.
 4.  Multiple groups (yes, should be easy–but I’m lazy)
@@ -35,7 +35,10 @@ values of $k$th latent variable $\eta_{ki}$ for subject $i$, the six
 measurement model equations are
 
 <br>
+<p align="center">
 <img src="man/figures/measeqn.gif" width="40%" style="display: block; margin: auto;" />
+</p>
+
 <br> <!-- $$ --> <!-- \begin{gathered} -->
 <!-- y_{1i} = \lambda_{11} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{1i}, \quad \epsilon_{1i} \sim N(0, \theta_{11}) \\ -->
 <!-- y_{2i} = \lambda_{21} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{2i}, \quad \epsilon_{2i} \sim N(0, \theta_{22}) \\ -->
@@ -53,7 +56,10 @@ For identifiability, we set $\lambda_{11} = \lambda_{42} = 1$. The
 structural part of the model are given by these equations:
 
 <br>
+<p align="center">
 <img src="man/figures/struceqn.gif" width="30%" style="display: block; margin: auto;" />
+</p>
+
 <br> <!-- $$ --> <!-- \begin{gathered} -->
 <!-- \eta_{1i} = \phantom{b\eta_{1i} +} \zeta_{1i}, \quad \zeta_{1i} \sim N(0, \psi_1) \\ -->
 <!-- \eta_{2i} = b\eta_{1i} + \zeta_{2i}, \quad \zeta_{2i} \sim N(0, \psi_2) -->
@@ -81,13 +87,13 @@ mod <- "
 
 # Data set
 head(dat)
-#>           y1           y2         y3         y4          y5         y6
-#> 1 -0.3041244  0.004872561 -0.2987728 -2.2463465 -2.19308858 -2.3189130
-#> 2 -0.6868553 -1.181339961 -0.9664845  0.3086220  0.06721542  0.2099305
-#> 3 -1.5338212 -2.023561358 -2.0178936 -0.2827352 -0.27857286  0.1029242
-#> 4 -1.3763584 -0.981139168 -1.4097166 -2.3489787 -2.05263848 -2.4736151
-#> 5 -0.2351284 -0.968125141 -1.1305393 -0.6665993 -0.31054002 -1.0962937
-#> 6 -0.7041394 -0.109292347 -0.3494354 -0.4915613 -0.37362781 -0.7611681
+#>           y1         y2          y3         y4         y5         y6
+#> 1  0.7276611  0.7354784  1.47927478  0.1786767  0.1289186 -0.6247644
+#> 2  0.4159480  0.6250080  1.18575545 -0.3045053  0.5148818  0.9116586
+#> 3 -0.2526644 -0.6435350  0.04014478  1.6896423  2.4957241  2.8386022
+#> 4 -2.1038926 -2.0204938 -3.37776409 -0.2491211  0.6965661 -0.6834043
+#> 5  0.3604038  1.0746606  1.09895486 -1.9413157 -1.8333235 -2.0831125
+#> 6 -0.2370867 -0.5035508 -1.40864037  0.4525948  1.0609742  0.9288481
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -100,7 +106,7 @@ fit <- isem(model = mod, data = dat)
 summary(fit)
 ```
 
-    #> INLAvaan 0.1.0.9003 ended normally after 29 seconds
+    #> INLAvaan 0.1.0.9003 ended normally after 22 seconds
     #> 
     #>   Estimator                                      BAYES
     #>   Optimization method                             INLA
@@ -109,7 +115,7 @@ summary(fit)
     #>   Number of observations                          1000
     #> 
     #>   Statistic                                 MargLogLik         PPP
-    #>   Value                                      -5275.677          NA
+    #>   Value                                      -5236.883          NA
     #> 
     #> Parameter Estimates:
     #> 
@@ -118,37 +124,37 @@ summary(fit)
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta1 =~                                                             
     #>     y1                1.000                                           
-    #>     y2                1.212    0.014    1.185    1.239    normal(0,10)
-    #>     y3                1.526    0.016    1.495    1.557    normal(0,10)
+    #>     y2                1.203    0.015    1.174    1.231    normal(0,10)
+    #>     y3                1.510    0.016    1.477    1.542    normal(0,10)
     #>   eta2 =~                                                             
     #>     y4                1.000                                           
-    #>     y5                1.200    0.013    1.175    1.226    normal(0,10)
-    #>     y6                1.503    0.015    1.473    1.533    normal(0,10)
+    #>     y5                1.204    0.013    1.178    1.230    normal(0,10)
+    #>     y6                1.518    0.015    1.489    1.547    normal(0,10)
     #> 
     #> Regressions:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta2 ~                                                              
-    #>     eta1              0.297    0.032    0.235    0.360    normal(0,10)
+    #>     eta1              0.341    0.033    0.275    0.405    normal(0,10)
     #> 
     #> Covariances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>  .y1 ~~                                                               
-    #>    .y4                0.054    0.004    0.048    0.061       beta(1,1)
+    #>    .y4                0.058    0.004    0.050    0.065       beta(1,1)
     #>  .y2 ~~                                                               
-    #>    .y5                0.045    0.004    0.037    0.053       beta(1,1)
+    #>    .y5                0.049    0.004    0.040    0.057       beta(1,1)
     #>  .y3 ~~                                                               
-    #>    .y6                0.044    0.006    0.034    0.055       beta(1,1)
+    #>    .y6                0.038    0.005    0.028    0.047       beta(1,1)
     #> 
     #> Variances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
-    #>    .y1                0.099    0.006    0.089    0.108 gamma(1,.5)[sd]
-    #>    .y2                0.091    0.007    0.079    0.105 gamma(1,.5)[sd]
-    #>    .y3                0.093    0.009    0.078    0.110 gamma(1,.5)[sd]
-    #>    .y4                0.099    0.006    0.088    0.111 gamma(1,.5)[sd]
-    #>    .y5                0.097    0.007    0.084    0.110 gamma(1,.5)[sd]
-    #>    .y6                0.092    0.009    0.076    0.111 gamma(1,.5)[sd]
-    #>     eta1              1.055    0.050    0.960    1.158 gamma(1,.5)[sd]
-    #>    .eta2              1.030    0.049    0.937    1.129 gamma(1,.5)[sd]
+    #>    .y1                0.111    0.006    0.100    0.123 gamma(1,.5)[sd]
+    #>    .y2                0.102    0.008    0.088    0.120 gamma(1,.5)[sd]
+    #>    .y3                0.077    0.008    0.063    0.090 gamma(1,.5)[sd]
+    #>    .y4                0.095    0.005    0.084    0.104 gamma(1,.5)[sd]
+    #>    .y5                0.103    0.006    0.090    0.113 gamma(1,.5)[sd]
+    #>    .y6                0.089    0.008    0.072    0.105 gamma(1,.5)[sd]
+    #>     eta1              0.982    0.048    0.895    1.081 gamma(1,.5)[sd]
+    #>    .eta2              1.018    0.049    0.932    1.124 gamma(1,.5)[sd]
 
 Compare model fit to `{lavaan}`:
 

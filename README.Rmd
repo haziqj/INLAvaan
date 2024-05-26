@@ -29,7 +29,7 @@ library(semptools)
 
 > Bayesian structural equation modelling with INLA.
 
-Soon-ish features
+**Soon-ish features**
 
 1. Model fit indices (PPP, xIC, RMSEA, etc.)
 2. Prior specification.
@@ -37,9 +37,9 @@ Soon-ish features
 4. Specify different families for different observed variable. 
 5. Standardised coefficients.
 
-Long term plan
+**Long term plan**
 
-1. "non-iid" models, such as spatio-temporal models.
+1. "Non-iid" models, such as spatio-temporal models.
 2. Multilevel-ish kind of models (2-3 levels).
 3. Covariates.
 4. Multiple groups (yes, should be easy--but I'm lazy)
@@ -51,12 +51,9 @@ Let $i=1,\dots,n$ index the subjects.
 Conditional on the values of $k$th latent variable $\eta_{ki}$ for subject $i$, the six measurement model equations are
 
 <br>
-```{r}
-#| fig-align: center
-#| echo: false
-#| out-width: 40%
-knitr::include_graphics("man/figures/measeqn.gif")
-```
+<p align="center">
+  <img src="man/figures/measeqn.gif" width="40%" style="display: block; margin: auto;" />
+</p>
 <br>
 <!-- $$ -->
 <!-- \begin{gathered} -->
@@ -77,12 +74,9 @@ For identifiability, we set $\lambda_{11} = \lambda_{42} = 1$.
 The structural part of the model are given by these equations:
 
 <br>
-```{r}
-#| fig-align: center
-#| echo: false
-#| out-width: 30%
-knitr::include_graphics("man/figures/struceqn.gif")
-```
+<p align="center">
+  <img src="man/figures/struceqn.gif" width="30%" style="display: block; margin: auto;" />
+</p>
 <br>
 <!-- $$ -->
 <!-- \begin{gathered} -->
