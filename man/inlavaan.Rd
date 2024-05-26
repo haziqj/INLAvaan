@@ -9,7 +9,7 @@ inlavaan(
   target = "INLA",
   dp = NULL,
   save.lvs = FALSE,
-  bcontrol = list(verbose = TRUE, num.threads = 6)
+  bcontrol = list(num.threads = 6)
 )
 }
 \arguments{

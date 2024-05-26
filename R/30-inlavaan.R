@@ -15,7 +15,7 @@ inlavaan <- function(
     target = "INLA",
     dp = NULL,
     save.lvs = FALSE,
-    bcontrol = list(verbose = TRUE, num.threads = 6)) {
+    bcontrol = list(num.threads = 6)) {
 
   # To play nice with blavaan code
   cp                 = "srs"
@@ -707,6 +707,9 @@ inlavaan <- function(
           bcontrol <- c(bcontrol, list(seed = seed))
         }
       }
+
+      # Add INLA verbose
+      bcontrol <- c(bcontrol, verbose = verbose)
 
       if(mcmcfile){
         # dir.create(path=jagdir, showWarnings=FALSE)

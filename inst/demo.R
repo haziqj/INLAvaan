@@ -21,10 +21,8 @@ dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
 mod <- "
   eta1 =~ y1 + y2 + y3
   eta2 =~ y4 + y5 + y6
-  eta1 ~ eta2
-  y1 ~~ y4
 "
-fit <- isem(model = mod, data = dat, meanstructure = FALSE)
+fit <- isem(model = mod, data = dat, verbose = TRUE)
 
 
 
