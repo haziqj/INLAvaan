@@ -49,29 +49,48 @@ Long term plan
 A simple two-factor SEM with six observed, correlated Gaussian variables.
 Let $i=1,\dots,n$ index the subjects.
 Conditional on the values of $k$th latent variable $\eta_{ki}$ for subject $i$, the six measurement model equations are
-$$
-\begin{gathered}
-y_{1i} = \lambda_{11} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{1i}, \quad \epsilon_{1i} \sim N(0, \theta_{11}) \\
-y_{2i} = \lambda_{21} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{2i}, \quad \epsilon_{2i} \sim N(0, \theta_{22}) \\
-y_{3i} = \lambda_{31} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}}  + \epsilon_{3i}, \quad \epsilon_{3i} \sim N(0, \theta_{33}) \\
-y_{4i} = \phantom{\lambda_{11} \eta_{2i} +}  \lambda_{42} \eta_{2i} + \epsilon_{4i}, \quad \epsilon_{4i} \sim N(0, \theta_{44}) \\
-y_{5i} = \phantom{\lambda_{11} \eta_{2i} +} \lambda_{52} \eta_{2i} + \epsilon_{5i}, \quad \epsilon_{5i} \sim N(0, \theta_{55}) \\
-y_{6i} = \phantom{\lambda_{11} \eta_{2i} +} \lambda_{62} \eta_{2i} + \epsilon_{6i}, \quad \epsilon_{6i} \sim N(0, \theta_{66}) \\
-\\
-\operatorname{Cov}(\epsilon_{1i},\epsilon_{4i}) = \theta_{14} \\
-\operatorname{Cov}(\epsilon_{2i},\epsilon_{5i}) = \theta_{25} \\
-\operatorname{Cov}(\epsilon_{3i},\epsilon_{6i}) = \theta_{36} \\
-\end{gathered}
-$$
+
+<br>
+```{r}
+#| fig-align: center
+#| echo: false
+#| out-width: 40%
+knitr::include_graphics("man/figures/measeqn.gif")
+```
+<br>
+<!-- $$ -->
+<!-- \begin{gathered} -->
+<!-- y_{1i} = \lambda_{11} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{1i}, \quad \epsilon_{1i} \sim N(0, \theta_{11}) \\ -->
+<!-- y_{2i} = \lambda_{21} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{2i}, \quad \epsilon_{2i} \sim N(0, \theta_{22}) \\ -->
+<!-- y_{3i} = \lambda_{31} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}}  + \epsilon_{3i}, \quad \epsilon_{3i} \sim N(0, \theta_{33}) \\ -->
+<!-- y_{4i} = \phantom{\lambda_{11} \eta_{2i} +}  \lambda_{42} \eta_{2i} + \epsilon_{4i}, \quad \epsilon_{4i} \sim N(0, \theta_{44}) \\ -->
+<!-- y_{5i} = \phantom{\lambda_{11} \eta_{2i} +} \lambda_{52} \eta_{2i} + \epsilon_{5i}, \quad \epsilon_{5i} \sim N(0, \theta_{55}) \\ -->
+<!-- y_{6i} = \phantom{\lambda_{11} \eta_{2i} +} \lambda_{62} \eta_{2i} + \epsilon_{6i}, \quad \epsilon_{6i} \sim N(0, \theta_{66}) \\ -->
+<!-- \\ -->
+<!-- \operatorname{Cov}(\epsilon_{1i},\epsilon_{4i}) = \theta_{14} \\ -->
+<!-- \operatorname{Cov}(\epsilon_{2i},\epsilon_{5i}) = \theta_{25} \\ -->
+<!-- \operatorname{Cov}(\epsilon_{3i},\epsilon_{6i}) = \theta_{36} \\ -->
+<!-- \end{gathered} -->
+<!-- $$ -->
 
 For identifiability, we set $\lambda_{11} = \lambda_{42} = 1$.
 The structural part of the model are given by these equations:
-$$
-\begin{gathered}
-\eta_{1i} = \phantom{b\eta_{1i} +} \zeta_{1i}, \quad \zeta_{1i} \sim N(0, \psi_1) \\
-\eta_{2i} = b\eta_{1i} + \zeta_{2i}, \quad \zeta_{2i} \sim N(0, \psi_2)
-\end{gathered}
-$$
+
+<br>
+```{r}
+#| fig-align: center
+#| echo: false
+#| out-width: 30%
+knitr::include_graphics("man/figures/struceqn.gif")
+```
+<br>
+<!-- $$ -->
+<!-- \begin{gathered} -->
+<!-- \eta_{1i} = \phantom{b\eta_{1i} +} \zeta_{1i}, \quad \zeta_{1i} \sim N(0, \psi_1) \\ -->
+<!-- \eta_{2i} = b\eta_{1i} + \zeta_{2i}, \quad \zeta_{2i} \sim N(0, \psi_2) -->
+<!-- \end{gathered} -->
+<!-- $$ -->
+
 Graphically, we can plot the following path diagram.
 
 ```{r twofacsemsetup}
@@ -195,6 +214,7 @@ summary(fit)
 Compare model fit to `{lavaan}`:
 
 ```{r}
+#| label: fig-compare
 #| echo: false
 fit_lav <- sem(mod, dat)
 coef_lav <- lavaan::coef(fit_lav)
