@@ -234,3 +234,8 @@ lavaan::partable(fit_lav) |>
   )
 ```
 
+## Outro
+
+```{r}
+sessioninfo::session_info()
+```
