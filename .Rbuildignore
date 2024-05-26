@@ -5,3 +5,4 @@
 ^\.github$
 ^README\.qmd$
 ^README_files$
+^README_cache$
