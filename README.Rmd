@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 )
 library(INLAvaan)
 library(lavaan)
+library(blavaan)
 library(tidyverse)
 library(semPlot)
 library(semptools)
@@ -191,6 +192,9 @@ The `i` in `isem` stands for `INLA` (following the convention of `bsem` for `{bl
 #| include: false
 library(INLAvaan)
 fit <- isem(model = mod, data = dat)
+fit_lav <- sem(mod, dat)
+fit_blav <- bsem(mod, dat, n.chains = 1)
+fit_blavvb <- bsem(mod, dat, target = "vb")
 ```
 
 ```{r}
@@ -205,12 +209,12 @@ summary(fit)
 summary(fit)
 ```
 
-Compare model fit to `{lavaan}`:
+Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using Stan 1000 burnin and 2000 samples, as well as variational Bayes):
 
 ```{r}
 #| label: fig-compare
 #| echo: false
-fit_lav <- sem(mod, dat)
+#| cache: true
 coef_lav <- lavaan::coef(fit_lav)
 coef_inla <- lavaan::coef(fit)
 
@@ -218,13 +222,15 @@ lavaan::partable(fit_lav) |>
   select(id, op, lavaan = est) |>
   mutate(truth = true_vals) |>
   left_join(select(lavaan::partable(fit), id, INLAvaan = est, pxnames), by = "id") |>
+  left_join(select(lavaan::partable(fit_blav), id, blavaan = est), by = "id") |>
+  left_join(select(lavaan::partable(fit_blavvb), id, blavaan_vb = est), by = "id") |>
   mutate(type = gsub("\\[[^]]*\\]", "", pxnames)) |>
   drop_na() |>
-  pivot_longer(c(lavaan, INLAvaan)) |>
+  pivot_longer(c(lavaan, blavaan, blavaan_vb, INLAvaan)) |>
   ggplot(aes(value, truth)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_point(aes(col = type, shape = name), size = 3) +
-  scale_shape_manual(values = c(20, 2)) +
+  scale_shape_manual(values = c(0, 5, 1, 2)) +
   theme_bw() +
   labs(
     x = "Estimate",
@@ -232,6 +238,11 @@ lavaan::partable(fit_lav) |>
     color = "Parameter",
     shape = "Estimator"
   )
+
+cat("Timing\n")
+list(fit, fit_lav, fit_blav, fit_blavvb) |>
+  set_names(c("INLAvaan", "lavaan", "blavaan", "blavaan_vb")) |>
+  purrr::map_dbl(\(x) x@timing$total) 
 ```
 
 ## Outro
