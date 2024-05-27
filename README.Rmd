@@ -209,7 +209,7 @@ summary(fit)
 summary(fit)
 ```
 
-Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using Stan 1000 burnin and 2000 samples, as well as variational Bayes):
+Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using Stan 500 burnin and 1000 samples, as well as variational Bayes):
 
 ```{r}
 #| label: fig-compare
