@@ -736,7 +736,6 @@ inlavaan <- function(
 
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       if (target == "INLA") {
-        rjarg <- NULL  # FIXME: from jagtrans output list of model, data, etc.
         rjarg <- with(jagtrans, list(
           formula = formula,
           data = data,
@@ -1196,7 +1195,7 @@ inlavaan <- function(
                   mcmcdata = jagtrans$data, pxpt = jagtrans$pxpartable,
                   burnin = burnin, sample = sample)
   if (target == "INLA") {
-    extslot <- c(extslot, list(stansumm = stansumm))
+    extslot <- c(extslot, list(stansumm = stansumm, inlastart = jagtrans$inlastart))
     extslot$burnin <- extslot$sample <- NULL
   }
   if(grepl("stan", target)){

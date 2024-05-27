@@ -1262,13 +1262,14 @@ lav2inla <- function(
   for (g in 1:ngroups) {
     n_in_g <- lavdata@nobs[[g]]
     tmp <- as.data.frame(lavdata@X[[g]])
-    if (!meanstructure) tmp <- scale(tmp, center = TRUE, scale = FALSE)
     colnames(tmp) <- lavdata@ov$name
     dat_inla <- rbind(
       dat_inla,
       cbind(g = g, i = seq_len(n_in_g), tmp)
     )
   }
+
+  nu_off <- apply(dat_inla[, -c(1, 2)], 2, mean)
 
   dat_inla <- tidyr::pivot_longer(
     dat_inla,
@@ -1278,21 +1279,20 @@ lav2inla <- function(
   )
   dat_inla$ov.idx <- lavdata@ov$idx[match(dat_inla$ov, lavdata@ov$name)]
   dat_inla$nu <- factor(dat_inla$ov.idx)  # used for the intercept
+  dat_inla$nu_off <- nu_off[dat_inla$ov.idx]
 
   # Initial values
-  inlastart <-
-    partable |>
-    mutate(inlastart = case_when(
-      mat %in% c("theta", "psi") & free > 0 ~ log(start),
-      # mat %in% c("rho") ~ log(start / (1 - start)),
-      TRUE ~ start
-    )) |>
-    filter(
-      free > 0,
-      mat != "nu",
-    ) |>
-    arrange(free) |>
-    pull(inlastart)
+  partable$inlastart <- with(partable,
+                             ifelse(mat %in% c("theta", "psi") & free > 0,
+                                    log(start),
+                                    ifelse(mat %in% c("rho", "lvrho"),
+                                           log(start / (1 - start)),
+                                           start)))
+  filtered_partable <- subset(partable, free > 0 & mat != "nu")
+  sorted_partable <- filtered_partable[order(filtered_partable$free), ]
+  inlastart <- sorted_partable$inlastart
+  inlastart[inlastart == Inf] <- 3
+  inlastart[inlastart == -Inf] <- -3
 
   # INLA formula
   the_model <- INLA::inla.rgeneric.define(
@@ -1304,18 +1304,22 @@ lav2inla <- function(
     partable = partable
   )
 
+  control_fixed <- INLA::control.fixed()
   if (isTRUE(meanstructure)) {
     form <- val ~ -1 + nu + f(ov.idx, model = the_model, replicate = i)
   } else {
-    form <- val ~ -1 + f(ov.idx, model = the_model, replicate = i)
+    form <- val ~ -1 + offset(nu_off) + f(ov.idx, model = the_model, replicate = i)
+    control_fixed$prec <- 100
   }
 
   list(
     formula = form,
     data = dat_inla,
     the_model = the_model,
-    control.family = list(hyper = list(prec = list(initial = pta$nvar[[1]], fixed = TRUE))),
-    pxpartable = partable
+    control.family = list(hyper = list(prec = list(initial = 10, fixed = TRUE))),
+    control.fixed = control_fixed,
+    pxpartable = partable,
+    inlastart = inlastart
   )
 
 }
@@ -1371,7 +1375,7 @@ coeffun_inla <- function(
   # Psi (may require sampling)
   if (length(idx_lvrho) > 0) {
     samps <-
-      map(res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)], \(m) {
+      purrr::map(res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)], \(m) {
         INLA::inla.rmarginal(nsamp, m)
       }) |>
       as.data.frame()
@@ -1397,8 +1401,8 @@ coeffun_inla <- function(
     })
 
     psi_tab <-
-      bind_rows(samps) |>
-      summarise(
+      dplyr::bind_rows(samps) |>
+      dplyr::summarise(
         mean = mean(x),
         sd = sd(x),
         `0.025quant` = quantile(x, 0.025),
@@ -1412,10 +1416,10 @@ coeffun_inla <- function(
 
     psi_tab <-
       psi_tab |>
-      left_join(
-        filter(pxpartable, mat %in% c("psi", "lvrho"), free > 0) |>
-          select(row, col, free),
-        by = join_by(i == row, j == col)
+      dplyr::left_join(
+        dplyr::filter(pxpartable, mat %in% c("psi", "lvrho"), free > 0) |>
+          dplyr::select(row, col, free),
+        by = dplyr::join_by(i == row, j == col)
       )
 
     psi_tab$inlaname <- names(res$internal.marginals.hyperpar)[psi_tab$free]
@@ -1444,7 +1448,7 @@ coeffun_inla <- function(
   # Theta may require sampling
   if (length(idx_rho) > 0) {
     samps <-
-      map(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)], \(m) {
+      purrr::map(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)], \(m) {
         INLA::inla.rmarginal(nsamp, m)
       }) |>
       as.data.frame()
@@ -1470,8 +1474,8 @@ coeffun_inla <- function(
     })
 
     theta_tab <-
-      bind_rows(samps) |>
-      summarise(
+      dplyr::bind_rows(samps) |>
+      dplyr::summarise(
         mean = mean(x),
         sd = sd(x),
         `0.025quant` = quantile(x, 0.025),
@@ -1484,10 +1488,10 @@ coeffun_inla <- function(
       )
     theta_tab <-
       theta_tab |>
-      left_join(
-        filter(pxpartable, mat %in% c("theta", "rho"), free > 0) |>
-          select(row, col, free),
-        by = join_by(i == row, j == col)
+      dplyr::left_join(
+        dplyr::filter(pxpartable, mat %in% c("theta", "rho"), free > 0) |>
+          dplyr::select(row, col, free),
+        by = dplyr::join_by(i == row, j == col)
       )
 
     theta_tab$inlaname <- names(res$internal.marginals.hyperpar)[theta_tab$free]

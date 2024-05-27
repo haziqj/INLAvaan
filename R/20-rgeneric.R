@@ -21,11 +21,9 @@ inla_sem <- function(
     lambda <- theta[idx_lam]
     beta <- theta[idx_beta]
     sd_e <- sqrt(exp(theta[idx_theta]))  # sd_e = sd_e ^ 2 (item sd)
-    rho <- exp(theta[idx_rho])
-    rho <- rho / (1 + rho)
+    rho <- 1 / (1 + exp(-theta[idx_rho]))
     sd_z <- sqrt(exp(theta[idx_psi]))  # sd_z = sd_z ^ 2 (latent sd)
-    lvrho <- exp(theta[idx_lvrho])
-    lvrho <- lvrho / (1 + lvrho)
+    lvrho <- 1 / (1 + exp(-theta[idx_lvrho]))
 
     list(
       lambda = lambda,
@@ -127,7 +125,16 @@ inla_sem <- function(
 
     # If x ~ gamma(shape,rate) then this is the logpdf transform of y = log(x^2)
     log_pdf_scale <- function(y, shape = 1, rate = 0.5) {
-      - y / 2 - rate * exp(y / 2) + shape * log(rate) - lgamma(shape) + (shape - 1) * (y / 2)
+      - y / 2 - rate * exp(y / 2) + shape * log(rate) - lgamma(shape) +
+        (shape - 1) * (y / 2)
+    }
+
+    # If x ~ beta(a,b) then this is the logpdf of y = log(x / (1 - x))
+    log_pdf_rho <- function(y, shape1 = 1, shape2 = 1) {
+      ey <- exp(y)
+      one_plus_ey <- 1 + ey
+      lgamma(shape1 + shape2) - lgamma(shape1) - lgamma(shape2) +
+        shape1 * y - (shape1 + shape2 + 1) * log(one_plus_ey)
     }
 
     # FIXME: Adjust priors in the future
@@ -136,11 +143,13 @@ inla_sem <- function(
       sum(dnorm(params$beta, mean = 0, sd = 10, log = TRUE)) +
       # Variances
       # sum(dgamma(params$sd_e, shape = 1, rate = 5e-05, log = TRUE)) +
+      # sum(dbeta(params$rho, shape1 = 1, shape2 = 1, log = TRUE)) +
       sum(log_pdf_scale(params$sd_e, shape = 1, rate = 0.5)) +
-      sum(dbeta(params$rho, shape1 = 1, shape2 = 1, log = TRUE)) +
+      sum(log_pdf_rho(params$rho, shape1 = 1, shape2 = 1)) +
       # sum(dgamma(params$sd_z, shape = 1, rate = 5e-05, log = TRUE)) +
+      # sum(dbeta(params$lvrho, shape1 = 1, shape2 = 1, log = TRUE)) +
       sum(log_pdf_scale(params$sd_z, shape = 1, rate = 0.5)) +
-      sum(dbeta(params$lvrho, shape1 = 1, shape2 = 1, log = TRUE))
+      sum(log_pdf_rho(params$lvrho, shape1 = 1, shape2 = 1))
     res
   }
 

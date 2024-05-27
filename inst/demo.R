@@ -1,5 +1,6 @@
 library(tidyverse)
 library(lavaan)
+library(INLAvaan)
 
 # 2-factor SEM model -----------------------------------------------------------
 true_model <- "
@@ -22,7 +23,7 @@ mod <- "
   eta1 =~ y1 + y2 + y3
   eta2 =~ y4 + y5 + y6
 "
-fit <- isem(model = mod, data = dat, verbose = TRUE)
+fit <- isem(model = mod, data = dat, meanstructure = FALSE, verbose = TRUE)
 
 
 
@@ -50,8 +51,29 @@ myModel <- '
 
 fit <- isem(
   model = myModel,
-  data = PoliticalDemocracy
+  data = PoliticalDemocracy,
+  meanstructure = FALSE,
+  verbose = TRUE
 )
-inla_coef <- coef(fit)
 
-lav_coef <- coef(sem(myModel, data = PoliticalDemocracy, meanstructure = TRUE))
+fit_lav <- sem(myModel, data = PoliticalDemocracy)
+
+inla_coef <- coef(fit)
+lav_coef <- coef(sem(myModel, data = PoliticalDemocracy, meanstructure = FALSE))
+
+partable(fit) |>
+  filter(free > 0) |>
+  select(id, inla = est, pxnames, lhs, op, rhs) |>
+  mutate(type = gsub("\\[[^]]*\\]", "", pxnames)) |>
+  mutate(type = case_when(
+    type == "theta" & lhs != rhs ~ "theta_cov",
+    TRUE ~ type
+  )) |>
+  left_join(select(partable(fit_lav), id, lavaan = est), by = "id") |>
+  ggplot(aes(lavaan, inla)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  geom_point(aes(col = type), size = 3) +
+  theme_bw()
+
+
+
