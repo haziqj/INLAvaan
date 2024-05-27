@@ -106,7 +106,7 @@ true_model <- "
   y5 ~~ 0.1*y5
   y6 ~~ 0.1*y6
 "
-dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
+dat <- lavaan::simulateData(true_model, sample.nobs = 10000)
 
 mod <- "
   eta1 =~ y1 + y2 + y3
@@ -181,15 +181,16 @@ mod <- "
 "
 
 # Data set
-head(dat)
+dplyr::glimpse(dat)
 ```
 
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}` syntax. 
 The `i` in `isem` stands for `INLA` (following the convention of `bsem` for `{blavaan}`).
 
-```{r inlafit, cache = TRUE}
+```{r inlafit}
 #| include: false
+#| cache: true
 library(INLAvaan)
 fit <- isem(model = mod, data = dat)
 fit_lav <- sem(mod, dat)
@@ -214,7 +215,6 @@ Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using Stan 500 bu
 ```{r}
 #| label: fig-compare
 #| echo: false
-#| cache: true
 coef_lav <- lavaan::coef(fit_lav)
 coef_inla <- lavaan::coef(fit)
 
@@ -239,7 +239,7 @@ lavaan::partable(fit_lav) |>
     shape = "Estimator"
   )
 
-cat("Timing\n")
+cli::cli_h2("Compare timing")
 list(fit, fit_lav, fit_blav, fit_blavvb) |>
   set_names(c("INLAvaan", "lavaan", "blavaan", "blavaan_vb")) |>
   purrr::map_dbl(\(x) x@timing$total) 

@@ -87,14 +87,15 @@ mod <- "
 "
 
 # Data set
-head(dat)
-#>           y1         y2         y3         y4          y5          y6
-#> 1  0.4396009 -0.4500796 -0.5003570  0.1085300 -0.60497433 -1.09441225
-#> 2  0.7882377  0.4992226  0.1526592 -0.8768383 -0.68612004 -0.75620379
-#> 3 -0.1059629 -0.7128358 -0.2393616  0.5555858 -0.03833375  0.22922152
-#> 4  0.9534193  1.6775116  2.0166534 -0.3517691  0.42194061 -0.01908292
-#> 5  0.4214428  0.2413258  0.8466291 -0.3168804  0.22362254  0.21888632
-#> 6 -1.4059350 -0.7396260 -1.6943383 -0.5990613 -0.10141020 -0.46460978
+dplyr::glimpse(dat)
+#> Rows: 10,000
+#> Columns: 6
+#> $ y1 <dbl> 0.22414294, -0.72065271, -0.05790235, -0.49596159, -0.66835757, -0.…
+#> $ y2 <dbl> 0.38864849, -0.68200526, -0.01972678, -1.01807262, -0.95024278, 0.1…
+#> $ y3 <dbl> -0.0078741761, -0.4961304582, 0.1657180522, -0.9116505280, -0.83338…
+#> $ y4 <dbl> -0.002084244, -1.075923377, -0.950387785, -1.649389307, 1.265196921…
+#> $ y5 <dbl> 0.66561830, -1.13511810, 0.08388061, -2.09568318, 0.91200397, 1.533…
+#> $ y6 <dbl> 1.3221201, -1.5549337, -0.6343911, -2.8393208, 1.8092869, 1.7312575…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -107,16 +108,16 @@ fit <- isem(model = mod, data = dat)
 summary(fit)
 ```
 
-    #> INLAvaan 0.1.0.9005 ended normally after 16 seconds
+    #> INLAvaan 0.1.0.9006 ended normally after 56 seconds
     #> 
     #>   Estimator                                      BAYES
     #>   Optimization method                             INLA
     #>   Number of model parameters                        16
     #> 
-    #>   Number of observations                          1000
+    #>   Number of observations                         10000
     #> 
     #>   Statistic                                 MargLogLik         PPP
-    #>   Value                                      -5265.531          NA
+    #>   Value                                     -51549.150          NA
     #> 
     #> Parameter Estimates:
     #> 
@@ -125,46 +126,48 @@ summary(fit)
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta1 =~                                                             
     #>     y1                1.000                                           
-    #>     y2                1.193    0.013    1.167    1.220    normal(0,10)
-    #>     y3                1.494    0.016    1.464    1.525    normal(0,10)
+    #>     y2                1.197    0.004    1.188    1.206    normal(0,10)
+    #>     y3                1.502    0.005    1.491    1.512    normal(0,10)
     #>   eta2 =~                                                             
     #>     y4                1.000                                           
-    #>     y5                1.186    0.014    1.159    1.213    normal(0,10)
-    #>     y6                1.505    0.015    1.475    1.536    normal(0,10)
+    #>     y5                1.207    0.004    1.199    1.216    normal(0,10)
+    #>     y6                1.506    0.005    1.497    1.516    normal(0,10)
     #> 
     #> Regressions:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta2 ~                                                              
-    #>     eta1              0.269    0.031    0.207    0.330    normal(0,10)
+    #>     eta1              0.298    0.010    0.277    0.317    normal(0,10)
     #> 
     #> Covariances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>  .y1 ~~                                                               
-    #>    .y4                0.044    0.004    0.036    0.052       beta(1,1)
+    #>    .y4                0.049    0.001    0.047    0.051       beta(1,1)
     #>  .y2 ~~                                                               
-    #>    .y5                0.052    0.005    0.044    0.062       beta(1,1)
+    #>    .y5                0.052    0.001    0.049    0.055       beta(1,1)
     #>  .y3 ~~                                                               
-    #>    .y6                0.046    0.006    0.036    0.056       beta(1,1)
+    #>    .y6                0.045    0.002    0.041    0.048       beta(1,1)
     #> 
     #> Variances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
-    #>    .y1                0.095    0.006    0.086    0.108 gamma(1,.5)[sd]
-    #>    .y2                0.102    0.006    0.090    0.112 gamma(1,.5)[sd]
-    #>    .y3                0.098    0.009    0.081    0.116 gamma(1,.5)[sd]
-    #>    .y4                0.101    0.005    0.091    0.110 gamma(1,.5)[sd]
-    #>    .y5                0.105    0.007    0.092    0.120 gamma(1,.5)[sd]
-    #>    .y6                0.082    0.010    0.065    0.103 gamma(1,.5)[sd]
-    #>     eta1              1.075    0.051    0.977    1.179 gamma(1,.5)[sd]
-    #>    .eta2              1.018    0.049    0.926    1.117 gamma(1,.5)[sd]
+    #>    .y1                0.099    0.002    0.096    0.102 gamma(1,.5)[sd]
+    #>    .y2                0.102    0.003    0.097    0.107 gamma(1,.5)[sd]
+    #>    .y3                0.095    0.003    0.089    0.101 gamma(1,.5)[sd]
+    #>    .y4                0.097    0.002    0.093    0.101 gamma(1,.5)[sd]
+    #>    .y5                0.102    0.002    0.097    0.105 gamma(1,.5)[sd]
+    #>    .y6                0.097    0.003    0.092    0.102 gamma(1,.5)[sd]
+    #>     eta1              0.984    0.015    0.955    1.014 gamma(1,.5)[sd]
+    #>    .eta2              0.969    0.015    0.941    0.998 gamma(1,.5)[sd]
 
 Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using
 Stan 500 burnin and 1000 samples, as well as variational Bayes):
 
 <img src="man/figures/README-fig-compare-1.png" width="100%" />
 
-    #> Timing
+    #> 
+    #> ── Compare timing ──
+    #> 
     #>   INLAvaan     lavaan    blavaan blavaan_vb 
-    #>     16.607      0.028      3.715      6.235
+    #>     56.854      0.032     25.195     57.485
 
 ## Outro
 
@@ -213,6 +216,7 @@ sessioninfo::session_info()
 #>  e1071          1.7-14     2023-12-06 [1] CRAN (R 4.3.1)
 #>  evaluate       0.22       2023-09-29 [1] CRAN (R 4.3.1)
 #>  fansi          1.0.4      2023-01-22 [1] CRAN (R 4.3.0)
+#>  farver         2.1.1      2022-07-06 [1] CRAN (R 4.3.0)
 #>  fastmap        1.1.1      2023-02-24 [1] CRAN (R 4.3.0)
 #>  fBasics        4022.94    2023-03-04 [1] CRAN (R 4.3.0)
 #>  fdrtool        1.2.17     2021-11-13 [1] CRAN (R 4.3.0)
@@ -238,13 +242,14 @@ sessioninfo::session_info()
 #>  htmlwidgets    1.6.2      2023-03-17 [1] CRAN (R 4.3.0)
 #>  igraph         1.5.1      2023-08-10 [1] CRAN (R 4.3.0)
 #>  INLA           24.05.01-1 2024-05-01 [1] local
-#>  INLAvaan     * 0.1.0.9005 2024-05-27 [1] local
+#>  INLAvaan     * 0.1.0.9006 2024-05-27 [1] local
 #>  inline         0.3.19     2021-05-31 [1] CRAN (R 4.3.0)
 #>  jpeg           0.1-10     2022-11-29 [1] CRAN (R 4.3.0)
 #>  jsonlite       1.8.7      2023-06-29 [1] CRAN (R 4.3.0)
 #>  KernSmooth     2.23-22    2023-07-10 [1] CRAN (R 4.3.0)
 #>  knitr          1.44       2023-09-11 [1] CRAN (R 4.3.0)
 #>  kutils         1.73       2023-09-17 [1] CRAN (R 4.3.1)
+#>  labeling       0.4.3      2023-08-29 [1] CRAN (R 4.3.0)
 #>  lattice        0.21-9     2023-10-01 [1] CRAN (R 4.3.1)
 #>  lavaan       * 0.6-17     2023-12-20 [1] CRAN (R 4.3.1)
 #>  lifecycle      1.0.3      2022-10-07 [1] CRAN (R 4.3.0)

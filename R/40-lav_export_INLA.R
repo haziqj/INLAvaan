@@ -1291,8 +1291,8 @@ lav2inla <- function(
   filtered_partable <- subset(partable, free > 0 & mat != "nu")
   sorted_partable <- filtered_partable[order(filtered_partable$free), ]
   inlastart <- sorted_partable$inlastart
-  inlastart[inlastart == Inf] <- 1
-  inlastart[inlastart == -Inf] <- -1
+  inlastart[inlastart == Inf] <- 2.7
+  inlastart[inlastart == -Inf] <- -2.7
 
   # INLA formula
   the_model <- INLA::inla.rgeneric.define(

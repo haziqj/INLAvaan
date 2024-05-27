@@ -123,18 +123,20 @@ inla_sem <- function(
   log.prior = function() {
     params <- interpret.theta()
 
-    # If x ~ gamma(shape,rate) then this is the logpdf transform of y = log(x^2)
-    log_pdf_scale <- function(y, shape = 1, rate = 0.5) {
-      - y / 2 - rate * exp(y / 2) + shape * log(rate) - lgamma(shape) +
-        (shape - 1) * (y / 2)
+    # If sigma ~ gamma(shape,rate) then this is the logpdf transform of theta = log(sigma^2)
+    log_pdf_scale <- function(x, shape = 1, rate = 0.5) {
+      sigma <- sqrt(exp(x))
+      gamma_density <- dgamma(sigma, shape, rate, log = TRUE)
+      log_jacobian <- x
+      gamma_density + log_jacobian
     }
 
-    # If x ~ beta(a,b) then this is the logpdf of y = log(x / (1 - x))
-    log_pdf_rho <- function(y, shape1 = 1, shape2 = 1) {
-      ey <- exp(y)
-      one_plus_ey <- 1 + ey
-      lgamma(shape1 + shape2) - lgamma(shape1) - lgamma(shape2) +
-        shape1 * y - (shape1 + shape2 + 1) * log(one_plus_ey)
+    # If rho ~ beta(a,b) then this is the logpdf of theta = log(rho / (1 - rho))
+    log_pdf_rho <- function(x, shape1 = 1, shape2 = 1) {
+      rho <- exp(x) / (1 + exp(x))
+      log_beta_density <- dbeta(rho, shape1, shape2, log = TRUE)
+      log_jacobian <- x - 2 * log1p(exp(x)) # log(Jacobian) = theta - 2 * log(1 + exp(theta))
+      log_beta_density + log_jacobian
     }
 
     # FIXME: Adjust priors in the future
