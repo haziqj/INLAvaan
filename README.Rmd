@@ -43,7 +43,7 @@ library(semptools)
 1. "Non-iid" models, such as spatio-temporal models.
 2. Multilevel-ish kind of models (2-3 levels).
 3. Covariates.
-4. Multiple groups (yes, should be easy--but I'm lazy)
+4. Multigroup analysis (in principle this is simple, but I have bigger plans for this).
 
 ## First impressions
 
