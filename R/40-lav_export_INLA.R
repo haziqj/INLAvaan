@@ -1374,11 +1374,16 @@ coeffun_inla <- function(
 
   # Psi (may require sampling)
   if (length(idx_lvrho) > 0) {
-    samps <-
-      purrr::map(res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)], \(m) {
-        INLA::inla.rmarginal(nsamp, m)
-      }) |>
-      as.data.frame()
+    # samps <-
+    #   purrr::map(res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)], \(m) {
+    #     INLA::inla.rmarginal(nsamp, m)
+    #   }) |>
+    #   as.data.frame()
+    marginals <- res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)]
+    samps <- lapply(marginals, \(m) {
+      INLA::inla.rmarginal(nsamp, m)
+    })
+    samps <- as.data.frame(samps)
 
     samps <- apply(samps, 1, simplify = FALSE, \(x) {
       psi <- exp(x[seq_along(idx_psi)])
@@ -1447,11 +1452,16 @@ coeffun_inla <- function(
 
   # Theta may require sampling
   if (length(idx_rho) > 0) {
-    samps <-
-      purrr::map(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)], \(m) {
-        INLA::inla.rmarginal(nsamp, m)
-      }) |>
-      as.data.frame()
+    # samps <-
+    #   purrr::map(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)], \(m) {
+    #     INLA::inla.rmarginal(nsamp, m)
+    #   }) |>
+    #   as.data.frame()
+    marginals <- res$internal.marginals.hyperpar[c(idx_theta, idx_rho)]
+    samps <- lapply(marginals, \(m) {
+      INLA::inla.rmarginal(nsamp, m)
+    })
+    samps <- as.data.frame(samps)
 
     samps <- apply(samps, 1, simplify = FALSE, \(x) {
       theta_e <- exp(x[seq_along(idx_theta)])
