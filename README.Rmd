@@ -44,6 +44,28 @@ library(semptools)
 2. Multilevel-ish kind of models (2-3 levels).
 3. Covariates.
 4. Multigroup analysis (in principle this is simple, but I have bigger plans for this).
+5. Missing data imputation.
+
+## Installation
+
+You need a working installation of [INLA](https://www.r-inla.org).
+Following the official instructions given [here](https://www.r-inla.org/download-install), run this command in R:
+
+```r
+install.packages(
+  "INLA",
+  repos = c(getOption("repos"), 
+            INLA = "https://inla.r-inla-download.org/R/stable"), 
+  dep = TRUE
+)
+```
+
+Then, you can install the development version of `{INLAvaan}` from GitHub with:
+
+```r
+# install.packages("pak")
+pak::pak("haziqj/INLAvaan")
+```
 
 ## First impressions
 

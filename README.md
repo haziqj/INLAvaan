@@ -27,6 +27,30 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 3.  Covariates.
 4.  Multigroup analysis (in principle this is simple, but I have bigger
     plans for this).
+5.  Missing data imputation.
+
+## Installation
+
+You need a working installation of [INLA](https://www.r-inla.org).
+Following the official instructions given
+[here](https://www.r-inla.org/download-install), run this command in R:
+
+``` r
+install.packages(
+  "INLA",
+  repos = c(getOption("repos"), 
+            INLA = "https://inla.r-inla-download.org/R/stable"), 
+  dep = TRUE
+)
+```
+
+Then, you can install the development version of `{INLAvaan}` from
+GitHub with:
+
+``` r
+# install.packages("pak")
+pak::pak("haziqj/INLAvaan")
+```
 
 ## First impressions
 
@@ -90,12 +114,12 @@ mod <- "
 dplyr::glimpse(dat)
 #> Rows: 10,000
 #> Columns: 6
-#> $ y1 <dbl> 0.22414294, -0.72065271, -0.05790235, -0.49596159, -0.66835757, -0.…
-#> $ y2 <dbl> 0.38864849, -0.68200526, -0.01972678, -1.01807262, -0.95024278, 0.1…
-#> $ y3 <dbl> -0.0078741761, -0.4961304582, 0.1657180522, -0.9116505280, -0.83338…
-#> $ y4 <dbl> -0.002084244, -1.075923377, -0.950387785, -1.649389307, 1.265196921…
-#> $ y5 <dbl> 0.66561830, -1.13511810, 0.08388061, -2.09568318, 0.91200397, 1.533…
-#> $ y6 <dbl> 1.3221201, -1.5549337, -0.6343911, -2.8393208, 1.8092869, 1.7312575…
+#> $ y1 <dbl> 0.34061656, 0.19051033, -1.37544979, -0.68893007, -1.34314371, -2.2…
+#> $ y2 <dbl> 0.28134026, 0.50089758, -1.04396165, -0.66899967, -1.77143064, -2.6…
+#> $ y3 <dbl> 0.38367248, 0.21039518, -1.48457285, -0.85458310, -2.38827171, -4.0…
+#> $ y4 <dbl> -1.37051777, -0.77249576, -1.11703112, 0.01112477, -1.50967747, 1.2…
+#> $ y5 <dbl> -2.144357928, -0.443899296, -0.003459286, 0.295801281, -1.872703163…
+#> $ y6 <dbl> -1.82496089, -0.91144626, -0.12132716, 0.28565903, -2.36228783, 1.5…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
