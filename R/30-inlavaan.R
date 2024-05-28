@@ -5,6 +5,7 @@
 #' @param dp TBC
 #' @param save.lvs TBC
 #' @param bcontrol TBC
+#' @param npost Number of post-processing samples to do, if any.
 #'
 #' @return TBC
 #' @export
@@ -15,6 +16,7 @@ inlavaan <- function(
     target = "INLA",
     dp = NULL,
     save.lvs = FALSE,
+    npost = 250,
     bcontrol = list(num.threads = 6)) {
 
   # To play nice with blavaan code
@@ -880,10 +882,12 @@ inlavaan <- function(
       #   pxpartable = jagtrans$pxpartable,
       #   res = res
       # ))
+      if(verbose) cat("Post processing... ")
       parests <- coeffun_inla(
         lavpartable = lavpartable,
         pxpartable = jagtrans$pxpartable,
-        res = res
+        res = res,
+        npost = npost
       )
       stansumm <- parests$stansumm
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1141,7 +1145,7 @@ inlavaan <- function(
                             jagextra            = mcmcextra,
                             stansumm            = stansumm,
                             domll               = domll)
-    if(verbose) cat(" done.\n")
+    if(verbose) cat("done.\n")
   }
   timing$TEST <- (proc.time()[3] - start.time)
   start.time <- proc.time()[3]

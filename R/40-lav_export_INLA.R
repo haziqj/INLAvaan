@@ -1330,7 +1330,7 @@ coeffun_inla <- function(
     pxpartable,
     res,
     fun = "mean",
-    nsamp = 100) {
+    npost = 2000) {
 
   # Get INLA estimates ---------------------------------------------------------
   idx_nu    <- pxpartable$free[pxpartable$mat == "nu" & pxpartable$free > 0]
@@ -1375,21 +1375,17 @@ coeffun_inla <- function(
 
   # Psi (may require sampling)
   if (length(idx_lvrho) > 0) {
-    # samps <-
-    #   purrr::map(res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)], \(m) {
-    #     INLA::inla.rmarginal(nsamp, m)
-    #   }) |>
-    #   as.data.frame()
     marginals <- res$internal.marginals.hyperpar[c(idx_psi, idx_lvrho)]
     samps <- lapply(marginals, \(m) {
-      INLA::inla.rmarginal(nsamp, m)
+      INLA::inla.rmarginal(npost, m)
     })
     samps <- as.data.frame(samps)
 
     samps <- apply(samps, 1, simplify = FALSE, \(x) {
       psi <- exp(x[seq_along(idx_psi)])
-      lvrho <- exp(x[length(idx_psi) + seq_along(idx_lvrho)])
-      lvrho <- lvrho / (1 + lvrho)
+      u <- exp(-x[length(idx_psi) + seq_along(idx_lvrho)])
+      u <- 1 / (1 + u)
+      lvrho <- 2 * u - 1
 
       SD <- Diagonal(x = sqrt(psi))
       Rho_df <- pxpartable[pxpartable$mat == "lvrho", ]
@@ -1453,21 +1449,16 @@ coeffun_inla <- function(
 
   # Theta may require sampling
   if (length(idx_rho) > 0) {
-    # samps <-
-    #   purrr::map(res$internal.marginals.hyperpar[c(idx_theta, idx_rho)], \(m) {
-    #     INLA::inla.rmarginal(nsamp, m)
-    #   }) |>
-    #   as.data.frame()
     marginals <- res$internal.marginals.hyperpar[c(idx_theta, idx_rho)]
     samps <- lapply(marginals, \(m) {
-      INLA::inla.rmarginal(nsamp, m)
+      INLA::inla.rmarginal(npost, m)
     })
     samps <- as.data.frame(samps)
 
     samps <- apply(samps, 1, simplify = FALSE, \(x) {
       theta_e <- exp(x[seq_along(idx_theta)])
-      u <- exp(x[length(idx_theta) + seq_along(idx_rho)])
-      u <- u / (1 + u)
+      u <- exp(-x[length(idx_theta) + seq_along(idx_rho)])
+      u <- 1 / (1 + u)
       rho <- 2 * u - 1
 
       SD <- Diagonal(x = sqrt(theta_e))
