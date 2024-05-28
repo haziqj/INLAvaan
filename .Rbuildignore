@@ -6,3 +6,4 @@
 ^README\.qmd$
 ^README_files$
 ^README_cache$
+^codecov\.yml$

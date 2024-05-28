@@ -8,6 +8,8 @@
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/haziqj/INLAvaan/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/haziqj/INLAvaan/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/haziqj/INLAvaan/branch/main/graph/badge.svg)](https://app.codecov.io/gh/haziqj/INLAvaan?branch=main)
 <!-- badges: end -->
 
 > Bayesian structural equation modelling with INLA.
@@ -114,12 +116,12 @@ mod <- "
 dplyr::glimpse(dat)
 #> Rows: 10,000
 #> Columns: 6
-#> $ y1 <dbl> 1.84203694, 0.02328884, 0.36048446, 0.12859919, -0.59050939, -0.726…
-#> $ y2 <dbl> 2.14931783, -0.10763201, 0.36281703, -0.27518025, -0.78496598, 0.02…
-#> $ y3 <dbl> 2.50998474, -0.27356717, 0.24850906, 0.46956020, 0.15657694, -0.512…
-#> $ y4 <dbl> -0.40096255, -0.80527224, 0.55792900, 0.39483125, -0.67444531, -0.1…
-#> $ y5 <dbl> 0.13318961, -0.71126709, 0.36900913, 0.43814420, -0.07442546, 0.447…
-#> $ y6 <dbl> -0.01517936, -1.77226314, 0.54464554, 1.00142596, 0.78223045, 0.166…
+#> $ y1 <dbl> -1.186116189, 0.235382053, 0.001330662, -1.116578957, -0.537370063,…
+#> $ y2 <dbl> -2.34516559, 0.55765819, -0.83882171, -0.77999471, -0.79058597, 1.3…
+#> $ y3 <dbl> -1.5417462, 1.1229198, -0.3525473, -0.9698537, -1.5521626, 2.163050…
+#> $ y4 <dbl> 1.37136308, 0.20452593, -0.19729736, 0.67467441, 1.01417142, 0.6074…
+#> $ y5 <dbl> 0.93313963, 0.26060807, -0.81823192, 1.12356724, 0.36066546, 0.2903…
+#> $ y6 <dbl> 2.22602893, 1.22153810, -0.88099143, 0.84524435, 0.10090842, 0.4738…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -235,7 +237,6 @@ sessioninfo::session_info()
 #>  curl           5.2.1       2024-03-01 [1] CRAN (R 4.4.0)
 #>  data.table     1.15.4      2024-03-30 [1] CRAN (R 4.4.0)
 #>  DBI            1.2.2       2024-02-16 [1] CRAN (R 4.4.0)
-#>  Deriv          4.1.3       2021-02-24 [1] CRAN (R 4.4.0)
 #>  digest         0.6.35      2024-03-11 [1] CRAN (R 4.4.0)
 #>  dplyr        * 1.1.4       2023-11-17 [1] CRAN (R 4.4.0)
 #>  e1071          1.7-14      2023-12-06 [1] CRAN (R 4.4.0)
@@ -268,7 +269,7 @@ sessioninfo::session_info()
 #>  htmlwidgets    1.6.4       2023-12-06 [1] CRAN (R 4.4.0)
 #>  igraph         2.0.3       2024-03-13 [1] CRAN (R 4.4.0)
 #>  INLA           24.05.27-2  2024-05-27 [1] local
-#>  INLAvaan     * 0.1.0.9009  2024-05-28 [1] local
+#>  INLAvaan     * 0.1.0.9010  2024-05-28 [1] local
 #>  inline         0.3.19      2021-05-31 [1] CRAN (R 4.4.0)
 #>  jpeg           0.1-10      2022-11-29 [1] CRAN (R 4.4.0)
 #>  jsonlite       1.8.8       2023-12-04 [1] CRAN (R 4.4.0)
@@ -287,7 +288,6 @@ sessioninfo::session_info()
 #>  magrittr       2.0.3       2022-03-30 [1] CRAN (R 4.4.0)
 #>  MASS           7.3-60.2    2024-04-24 [1] local
 #>  Matrix         1.7-0       2024-03-22 [1] CRAN (R 4.4.0)
-#>  MatrixModels   0.5-3       2023-11-06 [1] CRAN (R 4.4.0)
 #>  matrixStats    1.3.0       2024-04-11 [1] CRAN (R 4.4.0)
 #>  mi             1.1         2022-06-06 [1] CRAN (R 4.4.0)
 #>  minqa          1.2.7       2024-05-20 [1] CRAN (R 4.4.0)
