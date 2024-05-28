@@ -1,7 +1,7 @@
 Package: INLAvaan
 Type: Package
 Title: Bayesian Structural Equation Modelling with INLA
-Version: 0.1.0.9009
+Version: 0.1.0.9010
 Authors@R: 
     c(person("Haziq", "Jamil", 
              email = "haziq.jamil@gmail.com",
@@ -22,5 +22,5 @@ Imports:
     methods,
     modeest,
     tidyr
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)

@@ -9,6 +9,7 @@ inlavaan(
   target = "INLA",
   dp = NULL,
   save.lvs = FALSE,
+  npost = 250,
   bcontrol = list(num.threads = 6)
 )
 }
@@ -20,6 +21,8 @@ inlavaan(
 \item{dp}{TBC}
 
 \item{save.lvs}{TBC}
+
+\item{npost}{Number of post-processing samples to do, if any.}
 
 \item{bcontrol}{TBC}
 }

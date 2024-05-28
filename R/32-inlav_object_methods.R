@@ -260,39 +260,39 @@ setMethod("coef", "INLAvaan",
             callNextMethod(object, type, labels)
           })
 
-
-plot.blavaan <- function(x, pars=NULL, plot.type="trace", showplot=TRUE, ...){
-  # NB: arguments now go to bayesplot functions
-  if(length(pars) == 0L){
-    pars <- x@ParTable$free
-    pars <- pars[pars > 0 & !is.na(pars)]
-  }
-
-  if(x@Options$target != "stan"){
-    samps <- as.array(blavInspect(x, 'mcmc', add.labels = FALSE), drop = FALSE)
-    parnames <- x@ParTable$pxnames[match(pars, x@ParTable$free)]
-    samps <- samps[, match(parnames, colnames(samps)), , drop = FALSE]
-    ## samps dims must be "iteration, chain, parameter"
-    samps <- aperm(samps, c(1, 3, 2))
-  } else {
-    samps <- as.array(x@external$mcmcout)
-    parnums <- x@ParTable$stanpnum[match(pars, x@ParTable$free)]
-    samps <- samps[, , parnums, drop = FALSE]
-  }
-  if(blavInspect(x, 'ngroups') == 1L){
-    dimnames(samps)[[3]] <- with(x@ParTable, paste0(lhs,op,rhs)[match(pars, free)])
-  } else {
-    dimnames(samps)[[3]] <- with(x@ParTable, paste0(lhs,op,rhs,".g",group)[match(pars, free)])
-  }
-
-  plfun <- get(paste0("mcmc_", plot.type), asNamespace("bayesplot"))
-
-  pl <- do.call(plfun, c(list(x = samps), list(...)))
-
-  if(showplot) plot(pl)
-
-  invisible(pl)
-}
+#
+# plot.blavaan <- function(x, pars=NULL, plot.type="trace", showplot=TRUE, ...){
+#   # NB: arguments now go to bayesplot functions
+#   if(length(pars) == 0L){
+#     pars <- x@ParTable$free
+#     pars <- pars[pars > 0 & !is.na(pars)]
+#   }
+#
+#   if(x@Options$target != "stan"){
+#     samps <- as.array(blavInspect(x, 'mcmc', add.labels = FALSE), drop = FALSE)
+#     parnames <- x@ParTable$pxnames[match(pars, x@ParTable$free)]
+#     samps <- samps[, match(parnames, colnames(samps)), , drop = FALSE]
+#     ## samps dims must be "iteration, chain, parameter"
+#     samps <- aperm(samps, c(1, 3, 2))
+#   } else {
+#     samps <- as.array(x@external$mcmcout)
+#     parnums <- x@ParTable$stanpnum[match(pars, x@ParTable$free)]
+#     samps <- samps[, , parnums, drop = FALSE]
+#   }
+#   if(blavInspect(x, 'ngroups') == 1L){
+#     dimnames(samps)[[3]] <- with(x@ParTable, paste0(lhs,op,rhs)[match(pars, free)])
+#   } else {
+#     dimnames(samps)[[3]] <- with(x@ParTable, paste0(lhs,op,rhs,".g",group)[match(pars, free)])
+#   }
+#
+#   plfun <- get(paste0("mcmc_", plot.type), asNamespace("bayesplot"))
+#
+#   pl <- do.call(plfun, c(list(x = samps), list(...)))
+#
+#   if(showplot) plot(pl)
+#
+#   invisible(pl)
+# }
 
 #setMethod("plot", "blavaan", plot.blavaan)
 
