@@ -240,28 +240,56 @@ Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using Stan on a s
 coef_lav <- lavaan::coef(fit_lav)
 coef_inla <- lavaan::coef(fit)
 
-lavaan::partable(fit_lav) |>
-  select(id, op, lavaan = est) |>
-  mutate(truth = true_vals) |>
-  left_join(select(lavaan::partable(fit), id, INLAvaan = est, pxnames), by = "id") |>
-  left_join(select(lavaan::partable(fit_blav), id, blavaan = est), by = "id") |>
-  left_join(select(lavaan::partable(fit_blavvb), id, blavaan_vb = est), by = "id") |>
-  mutate(type = gsub("\\[[^]]*\\]", "", pxnames)) |>
-  drop_na() |>
-  pivot_longer(c(lavaan, blavaan, blavaan_vb, INLAvaan)) |>
-  ggplot(aes(value, truth)) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_point(aes(col = type, shape = name), size = 3) +
-  scale_shape_manual(values = c(0, 5, 1, 2)) +
-  theme_bw() +
-  labs(
-    x = "Estimate",
-    y = "True parameter value",
-    color = "Parameter",
-    shape = "Estimator"
-  )
+PE_lav <- summary(fit_lav, ci = TRUE)$pe |>
+  select(est, ci.lower, ci.upper) |>
+  mutate(method = "lavaan") |>
+  as_tibble()
+garb <- capture.output(tmp <- summary(fit))
+PE_inla <- tibble(
+  est = as.numeric(tmp[, "Estimate"]),
+  ci.lower = as.numeric(tmp[, "pi.lower"]),
+  ci.upper = as.numeric(tmp[, "pi.upper"])
+) |>
+  mutate(method = "INLAvaan")
+garb <- capture.output(tmp <- summary(fit_blav))
+PE_blav <- tibble(
+  est = as.numeric(tmp[, "Estimate"]),
+  ci.lower = as.numeric(tmp[, "pi.lower"]),
+  ci.upper = as.numeric(tmp[, "pi.upper"])
+) |>
+  mutate(method = "blavaan")
+garb <- capture.output(tmp <- summary(fit_blavvb))
+PE_blavvb <- tibble(
+  est = as.numeric(tmp[, "Estimate"]),
+  ci.lower = as.numeric(tmp[, "pi.lower"]),
+  ci.upper = as.numeric(tmp[, "pi.upper"])
+) |>
+  mutate(method = "blavaan_vb")
 
-cli::cli_h2("Compare timing")
+bind_rows(
+  PE_lav, PE_inla, PE_blav, PE_blavvb
+) |>
+  mutate(
+    truth = rep(true_vals, 4),
+    free = rep(partable(fit)$free, 4),
+    pxnames = rep(partable(fit)$pxnames, 4),
+  ) |>
+  mutate(
+    type = gsub("\\[[^]]*\\]", "", pxnames),
+    across(c(est, ci.lower, ci.upper), \(x) (x - truth) / truth),
+  ) |>
+  drop_na() |>
+  mutate(names = factor(rep(names(coef(fit)), 4), levels = rev(names(coef(fit))))) |>
+  ggplot(aes(est, names, color = method)) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point(size = 2, position = position_dodge(width = 0.5)) +
+  geom_errorbarh(aes(xmin = ci.lower, xmax = ci.upper), height = 0.2, 
+                 position = position_dodge(width = 0.5)) +
+  scale_x_continuous(labels = scales::percent) +
+  theme_bw() +
+  labs(x = "Relative bias", y = NULL)
+
+cli::cli_h2("Compare timing (seconds)")
 list(fit, fit_lav, fit_blav, fit_blavvb) |>
   set_names(c("INLAvaan", "lavaan", "blavaan", "blavaan_vb")) |>
   purrr::map_dbl(\(x) x@timing$total) 
