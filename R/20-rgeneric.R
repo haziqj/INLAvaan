@@ -51,17 +51,15 @@ inla_sem <- function(
 
     # Rho and Theta matrix
     Rho_df <- partable[partable$mat == "rho", ]
-    Rho <- Theta <- diag(p)
+    Theta <- diag(p)
     RHO_IDX <- cbind(Rho_df$row, Rho_df$col)
-    assign("Rho", Rho, envir = envir)
     assign("RHO_IDX", RHO_IDX, envir = envir)
     assign("Theta", Theta, envir = envir)
 
     # LVRho and Psi matrix
     LVRho_df <- partable[partable$mat == "lvrho", ]
-    LVRho <- Psi <- diag(q)
+    Psi <- diag(q)
     LVRHO_IDX <- cbind(LVRho_df$row, LVRho_df$col)
-    assign("LVRho", LVRho, envir = envir)
     assign("LVRHO_IDX", LVRHO_IDX, envir = envir)
     assign("Psi", Psi, envir = envir)
 
@@ -73,7 +71,8 @@ inla_sem <- function(
     lambda <- theta[idx_lam]
     beta <- theta[idx_beta]
     sd_e <- sqrt(exp(theta[idx_theta]))  # sd_e = sd_e ^ 2 (item sd)
-    rho <- 1 / (1 + exp(-theta[idx_rho]))
+    u <- 1 / (1 + exp(-theta[idx_rho]))
+    rho <- 2 * u - 1
     sd_z <- sqrt(exp(theta[idx_psi]))  # sd_z = sd_z ^ 2 (latent sd)
     lvrho <- 1 / (1 + exp(-theta[idx_lvrho]))
 
@@ -97,7 +96,7 @@ inla_sem <- function(
     # Theta matrix
     diag(Theta) <- params$sd_e ^ 2
     if (length(idx_rho) > 0) {
-      for (k in seq_along(nrow(RHO_IDX))) {
+      for (k in seq_len(nrow(RHO_IDX))) {
         i <- RHO_IDX[k, 1]
         j <- RHO_IDX[k, 2]
         Theta[i, j] <- Theta[j, i] <-
@@ -108,7 +107,7 @@ inla_sem <- function(
     # Psi matrix
     diag(Psi) <- params$sd_z ^ 2
     if (length(idx_lvrho) > 0) {
-      for (k in seq_along(nrow(LVRHO_IDX))) {
+      for (k in seq_len(nrow(LVRHO_IDX))) {
         i <- LVRHO_IDX[k, 1]
         j <- LVRHO_IDX[k, 2]
         Psi[i, j] <- Psi[j, i] <-
@@ -149,9 +148,9 @@ inla_sem <- function(
 
     # If rho ~ beta(a,b) then this is the logpdf of theta = log(rho / (1 - rho))
     log_pdf_rho <- function(x, shape1 = 1, shape2 = 1) {
-      rho <- exp(x) / (1 + exp(x))
-      log_beta_density <- dbeta(rho, shape1, shape2, log = TRUE)
-      log_jacobian <- x - 2 * log1p(exp(x)) # log(Jacobian) = theta - 2 * log(1 + exp(theta))
+      u <- 1 / (1 + exp(-x))
+      log_beta_density <- dbeta(u, shape1, shape2, log = TRUE)
+      log_jacobian <- -log(2 * u * (1 - u)) # log(Jacobian) = theta - 2 * log(1 + exp(theta))
       log_beta_density + log_jacobian
     }
 

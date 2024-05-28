@@ -1286,7 +1286,7 @@ lav2inla <- function(
                              ifelse(mat %in% c("theta", "psi") & free > 0,
                                     log(start),
                                     ifelse(mat %in% c("rho", "lvrho"),
-                                           log(start / (1 - start)),
+                                           log(((start + 1) / 2) / (1 - ((start + 1) / 2))),
                                            start)))
   filtered_partable <- subset(partable, free > 0 & mat != "nu")
   sorted_partable <- filtered_partable[order(filtered_partable$free), ]
@@ -1466,8 +1466,9 @@ coeffun_inla <- function(
 
     samps <- apply(samps, 1, simplify = FALSE, \(x) {
       theta_e <- exp(x[seq_along(idx_theta)])
-      rho <- exp(x[length(idx_theta) + seq_along(idx_rho)])
-      rho <- rho / (1 + rho)
+      u <- exp(x[length(idx_theta) + seq_along(idx_rho)])
+      u <- u / (1 + u)
+      rho <- 2 * u - 1
 
       SD <- Diagonal(x = sqrt(theta_e))
       Rho_df <- pxpartable[pxpartable$mat == "rho", ]
