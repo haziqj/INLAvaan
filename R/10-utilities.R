@@ -9,6 +9,20 @@ cli_messages <- c(
   "Navigating the seas of stochasticity"
 )
 
+theta_to_rho <- function(x) {
+  u <- 1 / (1 + exp(-x))
+  rho <- 2 * u - 1
+  rho
+}
+
+rho_to_theta <- function(x) {
+  x[x > 1] <- 1
+  x[x < -1] <- -1
+  u <- (x + 1) / 2
+  theta <- log(u / (1 - u))
+  theta
+}
+
 # 1. From theta to PT
 # 2. From PT to Sigma and hence Q
 # 3. From PT to log priors

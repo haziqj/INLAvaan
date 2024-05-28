@@ -1286,13 +1286,13 @@ lav2inla <- function(
                              ifelse(mat %in% c("theta", "psi") & free > 0,
                                     log(start),
                                     ifelse(mat %in% c("rho", "lvrho"),
-                                           log(((start + 1) / 2) / (1 - ((start + 1) / 2))),
+                                           rho_to_theta(start),
                                            start)))
   filtered_partable <- subset(partable, free > 0 & mat != "nu")
   sorted_partable <- filtered_partable[order(filtered_partable$free), ]
   inlastart <- sorted_partable$inlastart
-  inlastart[inlastart == Inf] <- 2.7
-  inlastart[inlastart == -Inf] <- -2.7
+  inlastart[inlastart == Inf] <- rho_to_theta(0.9)  # not needed
+  inlastart[inlastart == -Inf] <- rho_to_theta(-0.9)
 
   # INLA formula
   the_model <- INLA::inla.rgeneric.define(
