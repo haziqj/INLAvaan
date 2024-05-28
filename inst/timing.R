@@ -94,7 +94,7 @@ res <-
       .progress = TRUE
     ),
   )
-save(res, file = "inst/timing.RData")
+# save(res, file = "inst/timing.RData")
 
 res |>
   unnest(c(res_blav, res_blavvb, res_inla), names_sep = "_") |>
