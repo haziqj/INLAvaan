@@ -1,5 +1,5 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. Please edit that file. -->
 
 ## `{INLAvaan}`
 
@@ -114,12 +114,12 @@ mod <- "
 dplyr::glimpse(dat)
 #> Rows: 10,000
 #> Columns: 6
-#> $ y1 <dbl> 0.34061656, 0.19051033, -1.37544979, -0.68893007, -1.34314371, -2.2…
-#> $ y2 <dbl> 0.28134026, 0.50089758, -1.04396165, -0.66899967, -1.77143064, -2.6…
-#> $ y3 <dbl> 0.38367248, 0.21039518, -1.48457285, -0.85458310, -2.38827171, -4.0…
-#> $ y4 <dbl> -1.37051777, -0.77249576, -1.11703112, 0.01112477, -1.50967747, 1.2…
-#> $ y5 <dbl> -2.144357928, -0.443899296, -0.003459286, 0.295801281, -1.872703163…
-#> $ y6 <dbl> -1.82496089, -0.91144626, -0.12132716, 0.28565903, -2.36228783, 1.5…
+#> $ y1 <dbl> 0.23041915, -1.20980232, 0.11966023, 0.15560228, -0.15693438, 0.073…
+#> $ y2 <dbl> -0.15030541, -1.30247879, 0.12670994, 0.25018937, -0.40116438, 0.09…
+#> $ y3 <dbl> -0.30835765, -2.03946418, 0.19973812, 1.16009432, -0.71445916, -0.0…
+#> $ y4 <dbl> -1.2528425, -0.4007957, 1.0932570, -1.1670915, 0.2812536, -0.321274…
+#> $ y5 <dbl> -1.0241216, -0.5205118, 0.9030348, -1.9875820, 0.9732588, -0.717214…
+#> $ y6 <dbl> -1.7326670, -1.0388986, 1.1022415, -1.7216595, 1.2163629, -0.306665…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -132,7 +132,7 @@ fit <- isem(model = mod, data = dat)
 summary(fit)
 ```
 
-    #> INLAvaan 0.1.0.9006 ended normally after 56 seconds
+    #> INLAvaan 0.1.0.9007 ended normally after 45 seconds
     #> 
     #>   Estimator                                      BAYES
     #>   Optimization method                             INLA
@@ -141,7 +141,7 @@ summary(fit)
     #>   Number of observations                         10000
     #> 
     #>   Statistic                                 MargLogLik         PPP
-    #>   Value                                     -51549.150          NA
+    #>   Value                                     -52095.682          NA
     #> 
     #> Parameter Estimates:
     #> 
@@ -150,37 +150,37 @@ summary(fit)
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta1 =~                                                             
     #>     y1                1.000                                           
-    #>     y2                1.197    0.004    1.188    1.206    normal(0,10)
-    #>     y3                1.502    0.005    1.491    1.512    normal(0,10)
+    #>     y2                1.205    0.004    1.197    1.214    normal(0,10)
+    #>     y3                1.505    0.005    1.495    1.516    normal(0,10)
     #>   eta2 =~                                                             
     #>     y4                1.000                                           
-    #>     y5                1.207    0.004    1.199    1.216    normal(0,10)
-    #>     y6                1.506    0.005    1.497    1.516    normal(0,10)
+    #>     y5                1.199    0.004    1.191    1.208    normal(0,10)
+    #>     y6                1.509    0.005    1.499    1.519    normal(0,10)
     #> 
     #> Regressions:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta2 ~                                                              
-    #>     eta1              0.298    0.010    0.277    0.317    normal(0,10)
+    #>     eta1              0.301    0.010    0.280    0.321    normal(0,10)
     #> 
     #> Covariances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>  .y1 ~~                                                               
-    #>    .y4                0.049    0.001    0.047    0.051       beta(1,1)
+    #>    .y4                0.051    0.001    0.049    0.053       beta(1,1)
     #>  .y2 ~~                                                               
-    #>    .y5                0.052    0.001    0.049    0.055       beta(1,1)
+    #>    .y5                0.047    0.001    0.044    0.049       beta(1,1)
     #>  .y3 ~~                                                               
-    #>    .y6                0.045    0.002    0.041    0.048       beta(1,1)
+    #>    .y6                0.049    0.002    0.045    0.053       beta(1,1)
     #> 
     #> Variances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
-    #>    .y1                0.099    0.002    0.096    0.102 gamma(1,.5)[sd]
-    #>    .y2                0.102    0.003    0.097    0.107 gamma(1,.5)[sd]
-    #>    .y3                0.095    0.003    0.089    0.101 gamma(1,.5)[sd]
-    #>    .y4                0.097    0.002    0.093    0.101 gamma(1,.5)[sd]
-    #>    .y5                0.102    0.002    0.097    0.105 gamma(1,.5)[sd]
-    #>    .y6                0.097    0.003    0.092    0.102 gamma(1,.5)[sd]
-    #>     eta1              0.984    0.015    0.955    1.014 gamma(1,.5)[sd]
-    #>    .eta2              0.969    0.015    0.941    0.998 gamma(1,.5)[sd]
+    #>    .y1                0.103    0.002    0.099    0.106 gamma(1,.5)[sd]
+    #>    .y2                0.098    0.002    0.094    0.101 gamma(1,.5)[sd]
+    #>    .y3                0.101    0.003    0.096    0.108 gamma(1,.5)[sd]
+    #>    .y4                0.099    0.002    0.097    0.102 gamma(1,.5)[sd]
+    #>    .y5                0.097    0.002    0.093    0.101 gamma(1,.5)[sd]
+    #>    .y6                0.103    0.003    0.097    0.109 gamma(1,.5)[sd]
+    #>     eta1              0.987    0.015    0.957    1.016 gamma(1,.5)[sd]
+    #>    .eta2              1.009    0.015    0.979    1.039 gamma(1,.5)[sd]
 
 Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using
 Stan 500 burnin and 1000 samples, as well as variational Bayes):
@@ -191,7 +191,7 @@ Stan 500 burnin and 1000 samples, as well as variational Bayes):
     #> ── Compare timing ──
     #> 
     #>   INLAvaan     lavaan    blavaan blavaan_vb 
-    #>     56.854      0.032     25.195     57.485
+    #>     45.234      0.034     26.128     55.931
 
 ## Outro
 
@@ -199,7 +199,7 @@ Stan 500 burnin and 1000 samples, as well as variational Bayes):
 sessioninfo::session_info()
 #> ─ Session info ───────────────────────────────────────────────────────────────
 #>  setting  value
-#>  version  R version 4.3.1 (2023-06-16)
+#>  version  R version 4.4.0 (2024-04-24)
 #>  os       macOS Sonoma 14.4.1
 #>  system   aarch64, darwin20
 #>  ui       X11
@@ -207,164 +207,162 @@ sessioninfo::session_info()
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       Asia/Riyadh
-#>  date     2024-05-27
+#>  date     2024-05-28
 #>  pandoc   3.2 @ /opt/homebrew/bin/ (via rmarkdown)
 #> 
 #> ─ Packages ───────────────────────────────────────────────────────────────────
-#>  package      * version    date (UTC) lib source
-#>  abind          1.4-5      2016-07-21 [1] CRAN (R 4.3.0)
-#>  arm            1.13-1     2022-08-28 [1] CRAN (R 4.3.0)
-#>  backports      1.4.1      2021-12-13 [1] CRAN (R 4.3.0)
-#>  base64enc      0.1-3      2015-07-28 [1] CRAN (R 4.3.0)
-#>  bayesplot      1.10.0     2022-11-16 [1] CRAN (R 4.3.0)
-#>  blavaan      * 0.5-2      2023-09-25 [1] CRAN (R 4.3.1)
-#>  boot           1.3-28.1   2022-11-22 [1] CRAN (R 4.3.1)
-#>  callr          3.7.3      2022-11-02 [1] CRAN (R 4.3.0)
-#>  carData        3.0-5      2022-01-06 [1] CRAN (R 4.3.0)
-#>  checkmate      2.2.0      2023-04-27 [1] CRAN (R 4.3.0)
-#>  class          7.3-22     2023-05-03 [1] CRAN (R 4.3.1)
-#>  classInt       0.4-10     2023-09-05 [1] CRAN (R 4.3.0)
-#>  cli            3.6.1      2023-03-23 [1] CRAN (R 4.3.0)
-#>  clue           0.3-65     2023-09-23 [1] CRAN (R 4.3.1)
-#>  cluster        2.1.4      2022-08-22 [1] CRAN (R 4.3.1)
-#>  coda           0.19-4     2020-09-30 [1] CRAN (R 4.3.0)
-#>  codetools      0.2-19     2023-02-01 [1] CRAN (R 4.3.1)
-#>  colorspace     2.1-0      2023-01-23 [1] CRAN (R 4.3.0)
-#>  CompQuadForm   1.4.3      2017-04-12 [1] CRAN (R 4.3.0)
-#>  corpcor        1.6.10     2021-09-16 [1] CRAN (R 4.3.0)
-#>  crayon         1.5.2      2022-09-29 [1] CRAN (R 4.3.0)
-#>  data.table     1.15.2     2024-02-29 [1] CRAN (R 4.3.1)
-#>  DBI            1.2.2      2024-02-16 [1] CRAN (R 4.3.1)
-#>  digest         0.6.33     2023-07-07 [1] CRAN (R 4.3.0)
-#>  dplyr        * 1.1.3      2023-09-03 [1] CRAN (R 4.3.0)
-#>  e1071          1.7-14     2023-12-06 [1] CRAN (R 4.3.1)
-#>  evaluate       0.22       2023-09-29 [1] CRAN (R 4.3.1)
-#>  fansi          1.0.4      2023-01-22 [1] CRAN (R 4.3.0)
-#>  farver         2.1.1      2022-07-06 [1] CRAN (R 4.3.0)
-#>  fastmap        1.1.1      2023-02-24 [1] CRAN (R 4.3.0)
-#>  fBasics        4022.94    2023-03-04 [1] CRAN (R 4.3.0)
-#>  fdrtool        1.2.17     2021-11-13 [1] CRAN (R 4.3.0)
-#>  fmesher        0.1.4      2023-10-28 [1] CRAN (R 4.3.1)
-#>  forcats      * 1.0.0      2023-01-29 [1] CRAN (R 4.3.0)
-#>  foreign        0.8-85     2023-09-09 [1] CRAN (R 4.3.0)
-#>  Formula        1.2-5      2023-02-24 [1] CRAN (R 4.3.0)
-#>  future         1.33.0     2023-07-01 [1] CRAN (R 4.3.0)
-#>  future.apply   1.11.0     2023-05-21 [1] CRAN (R 4.3.0)
-#>  generics       0.1.3      2022-07-05 [1] CRAN (R 4.3.0)
-#>  ggplot2      * 3.4.3      2023-08-14 [1] CRAN (R 4.3.0)
-#>  glasso         1.11       2019-10-01 [1] CRAN (R 4.3.0)
-#>  globals        0.16.2     2022-11-21 [1] CRAN (R 4.3.0)
-#>  glue           1.6.2      2022-02-24 [1] CRAN (R 4.3.0)
-#>  gridExtra      2.3        2017-09-09 [1] CRAN (R 4.3.0)
-#>  gt             0.9.0      2023-03-31 [1] CRAN (R 4.3.0)
-#>  gtable         0.3.4      2023-08-21 [1] CRAN (R 4.3.0)
-#>  gtools         3.9.4      2022-11-27 [1] CRAN (R 4.3.0)
-#>  Hmisc          5.1-1      2023-09-12 [1] CRAN (R 4.3.0)
-#>  hms            1.1.3      2023-03-21 [1] CRAN (R 4.3.0)
-#>  htmlTable      2.4.1      2022-07-07 [1] CRAN (R 4.3.0)
-#>  htmltools      0.5.6      2023-08-10 [1] CRAN (R 4.3.0)
-#>  htmlwidgets    1.6.2      2023-03-17 [1] CRAN (R 4.3.0)
-#>  igraph         1.5.1      2023-08-10 [1] CRAN (R 4.3.0)
-#>  INLA           24.05.01-1 2024-05-01 [1] local
-#>  INLAvaan     * 0.1.0.9006 2024-05-27 [1] local
-#>  inline         0.3.19     2021-05-31 [1] CRAN (R 4.3.0)
-#>  jpeg           0.1-10     2022-11-29 [1] CRAN (R 4.3.0)
-#>  jsonlite       1.8.7      2023-06-29 [1] CRAN (R 4.3.0)
-#>  KernSmooth     2.23-22    2023-07-10 [1] CRAN (R 4.3.0)
-#>  knitr          1.44       2023-09-11 [1] CRAN (R 4.3.0)
-#>  kutils         1.73       2023-09-17 [1] CRAN (R 4.3.1)
-#>  labeling       0.4.3      2023-08-29 [1] CRAN (R 4.3.0)
-#>  lattice        0.21-9     2023-10-01 [1] CRAN (R 4.3.1)
-#>  lavaan       * 0.6-17     2023-12-20 [1] CRAN (R 4.3.1)
-#>  lifecycle      1.0.3      2022-10-07 [1] CRAN (R 4.3.0)
-#>  lisrelToR      0.1.5      2022-05-09 [1] CRAN (R 4.3.0)
-#>  listenv        0.9.0      2022-12-16 [1] CRAN (R 4.3.0)
-#>  lme4           1.1-34     2023-07-04 [1] CRAN (R 4.3.0)
-#>  loo            2.6.0      2023-03-31 [1] CRAN (R 4.3.0)
-#>  lubridate    * 1.9.3      2023-09-27 [1] CRAN (R 4.3.1)
-#>  magrittr       2.0.3      2022-03-30 [1] CRAN (R 4.3.0)
-#>  MASS           7.3-60     2023-05-04 [1] CRAN (R 4.3.1)
-#>  Matrix         1.6-1.1    2023-09-18 [1] CRAN (R 4.3.1)
-#>  matrixStats    1.0.0      2023-06-02 [1] CRAN (R 4.3.0)
-#>  mi             1.1        2022-06-06 [1] CRAN (R 4.3.0)
-#>  minqa          1.2.6      2023-09-11 [1] CRAN (R 4.3.0)
-#>  mnormt         2.1.1      2022-09-26 [1] CRAN (R 4.3.0)
-#>  modeest        2.4.0      2019-11-18 [1] CRAN (R 4.3.0)
-#>  munsell        0.5.0      2018-06-12 [1] CRAN (R 4.3.0)
-#>  mvtnorm        1.2-3      2023-08-25 [1] CRAN (R 4.3.0)
-#>  nlme           3.1-163    2023-08-09 [1] CRAN (R 4.3.0)
-#>  nloptr         2.0.3      2022-05-26 [1] CRAN (R 4.3.0)
-#>  nnet           7.3-19     2023-05-03 [1] CRAN (R 4.3.1)
-#>  nonnest2       0.5-6      2023-08-13 [1] CRAN (R 4.3.0)
-#>  OpenMx         2.21.8     2023-04-05 [1] CRAN (R 4.3.0)
-#>  openxlsx       4.2.5.2    2023-02-06 [1] CRAN (R 4.3.0)
-#>  parallelly     1.36.0     2023-05-26 [1] CRAN (R 4.3.0)
-#>  pbapply        1.7-2      2023-06-27 [1] CRAN (R 4.3.0)
-#>  pbivnorm       0.6.0      2015-01-23 [1] CRAN (R 4.3.0)
-#>  pillar         1.9.0      2023-03-22 [1] CRAN (R 4.3.0)
-#>  pkgbuild       1.4.2      2023-06-26 [1] CRAN (R 4.3.0)
-#>  pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.3.0)
-#>  plyr           1.8.9      2023-10-02 [1] CRAN (R 4.3.1)
-#>  png            0.1-8      2022-11-29 [1] CRAN (R 4.3.0)
-#>  prettyunits    1.2.0      2023-09-24 [1] CRAN (R 4.3.1)
-#>  processx       3.8.2      2023-06-30 [1] CRAN (R 4.3.0)
-#>  proxy          0.4-27     2022-06-09 [1] CRAN (R 4.3.0)
-#>  ps             1.7.5      2023-04-18 [1] CRAN (R 4.3.0)
-#>  psych          2.3.9      2023-09-26 [1] CRAN (R 4.3.1)
-#>  purrr        * 1.0.2      2023-08-10 [1] CRAN (R 4.3.0)
-#>  qgraph         1.9.5      2023-05-16 [1] CRAN (R 4.3.0)
-#>  quadprog       1.5-8      2019-11-20 [1] CRAN (R 4.3.0)
-#>  QuickJSR       1.0.6      2023-09-12 [1] CRAN (R 4.3.0)
-#>  R6             2.5.1      2021-08-19 [1] CRAN (R 4.3.0)
-#>  Rcpp         * 1.0.12     2024-01-09 [1] CRAN (R 4.3.1)
-#>  RcppParallel   5.1.7      2023-02-27 [1] CRAN (R 4.3.0)
-#>  readr        * 2.1.4      2023-02-10 [1] CRAN (R 4.3.0)
-#>  reshape2       1.4.4      2020-04-09 [1] CRAN (R 4.3.0)
-#>  rlang          1.1.1      2023-04-28 [1] CRAN (R 4.3.0)
-#>  rmarkdown      2.25       2023-09-18 [1] CRAN (R 4.3.1)
-#>  rmutil         1.1.10     2022-10-27 [1] CRAN (R 4.3.0)
-#>  rockchalk      1.8.157    2022-08-06 [1] CRAN (R 4.3.0)
-#>  rpart          4.1.19     2022-10-21 [1] CRAN (R 4.3.1)
-#>  rstan          2.26.23    2023-09-08 [1] CRAN (R 4.3.0)
-#>  rstantools     2.3.1.1    2023-07-18 [1] CRAN (R 4.3.0)
-#>  rstudioapi     0.15.0     2023-07-07 [1] CRAN (R 4.3.0)
-#>  sandwich       3.0-2      2022-06-15 [1] CRAN (R 4.3.0)
-#>  scales         1.2.1      2022-08-20 [1] CRAN (R 4.3.0)
-#>  sem            3.1-15     2022-04-10 [1] CRAN (R 4.3.0)
-#>  semPlot      * 1.1.6      2022-08-10 [1] CRAN (R 4.3.0)
-#>  semptools    * 0.2.10     2023-10-15 [1] CRAN (R 4.3.1)
-#>  sessioninfo    1.2.2      2021-12-06 [1] CRAN (R 4.3.0)
-#>  sf             1.0-15     2023-12-18 [1] CRAN (R 4.3.1)
-#>  sp             2.1-0      2023-10-02 [1] CRAN (R 4.3.1)
-#>  spatial        7.3-17     2023-07-20 [1] CRAN (R 4.3.0)
-#>  stable         1.1.6      2022-03-02 [1] CRAN (R 4.3.0)
-#>  stabledist     0.7-1      2016-09-12 [1] CRAN (R 4.3.0)
-#>  StanHeaders    2.26.28    2023-09-07 [1] CRAN (R 4.3.0)
-#>  statip         0.2.3      2019-11-17 [1] CRAN (R 4.3.0)
-#>  stringi        1.7.12     2023-01-11 [1] CRAN (R 4.3.0)
-#>  stringr      * 1.5.0      2022-12-02 [1] CRAN (R 4.3.0)
-#>  tibble       * 3.2.1      2023-03-20 [1] CRAN (R 4.3.0)
-#>  tidyr        * 1.3.0      2023-01-24 [1] CRAN (R 4.3.0)
-#>  tidyselect     1.2.0      2022-10-10 [1] CRAN (R 4.3.0)
-#>  tidyverse    * 2.0.0      2023-02-22 [1] CRAN (R 4.3.0)
-#>  timechange     0.2.0      2023-01-11 [1] CRAN (R 4.3.0)
-#>  timeDate       4022.108   2023-01-07 [1] CRAN (R 4.3.0)
-#>  timeSeries     4031.107   2023-08-26 [1] CRAN (R 4.3.0)
-#>  tmvnsim        1.0-2      2016-12-15 [1] CRAN (R 4.3.0)
-#>  tzdb           0.4.0      2023-05-12 [1] CRAN (R 4.3.0)
-#>  units          0.8-5      2023-11-28 [1] CRAN (R 4.3.1)
-#>  utf8           1.2.3      2023-01-31 [1] CRAN (R 4.3.0)
-#>  vctrs          0.6.3      2023-06-14 [1] CRAN (R 4.3.0)
-#>  withr          2.5.1      2023-09-26 [1] CRAN (R 4.3.1)
-#>  xfun           0.40       2023-08-09 [1] CRAN (R 4.3.0)
-#>  XML            3.99-0.14  2023-03-19 [1] CRAN (R 4.3.0)
-#>  xml2           1.3.5      2023-07-06 [1] CRAN (R 4.3.0)
-#>  xtable         1.8-4      2019-04-21 [1] CRAN (R 4.3.0)
-#>  yaml           2.3.7      2023-01-23 [1] CRAN (R 4.3.0)
-#>  zip            2.3.0      2023-04-17 [1] CRAN (R 4.3.0)
-#>  zoo            1.8-12     2023-04-13 [1] CRAN (R 4.3.0)
+#>  package      * version     date (UTC) lib source
+#>  abind          1.4-5       2016-07-21 [1] CRAN (R 4.4.0)
+#>  arm            1.14-4      2024-04-01 [1] CRAN (R 4.4.0)
+#>  backports      1.5.0       2024-05-23 [1] CRAN (R 4.4.0)
+#>  base64enc      0.1-3       2015-07-28 [1] CRAN (R 4.4.0)
+#>  bayesplot      1.11.1      2024-02-15 [1] CRAN (R 4.4.0)
+#>  blavaan      * 0.5-4       2024-04-15 [1] CRAN (R 4.4.0)
+#>  boot           1.3-30      2024-02-26 [1] CRAN (R 4.4.0)
+#>  carData        3.0-5       2022-01-06 [1] CRAN (R 4.4.0)
+#>  checkmate      2.3.1       2023-12-04 [1] CRAN (R 4.4.0)
+#>  class          7.3-22      2023-05-03 [1] CRAN (R 4.4.0)
+#>  classInt       0.4-10      2023-09-05 [1] CRAN (R 4.4.0)
+#>  cli            3.6.2       2023-12-11 [1] CRAN (R 4.4.0)
+#>  clue           0.3-65      2023-09-23 [1] CRAN (R 4.4.0)
+#>  cluster        2.1.6       2023-12-01 [1] CRAN (R 4.4.0)
+#>  coda           0.19-4.1    2024-01-31 [1] CRAN (R 4.4.0)
+#>  codetools      0.2-20      2024-03-31 [1] CRAN (R 4.4.0)
+#>  colorspace     2.1-0       2023-01-23 [1] CRAN (R 4.4.0)
+#>  CompQuadForm   1.4.3       2017-04-12 [1] CRAN (R 4.4.0)
+#>  corpcor        1.6.10      2021-09-16 [1] CRAN (R 4.4.0)
+#>  curl           5.2.1       2024-03-01 [1] CRAN (R 4.4.0)
+#>  data.table     1.15.4      2024-03-30 [1] CRAN (R 4.4.0)
+#>  DBI            1.2.2       2024-02-16 [1] CRAN (R 4.4.0)
+#>  digest         0.6.35      2024-03-11 [1] CRAN (R 4.4.0)
+#>  dplyr        * 1.1.4       2023-11-17 [1] CRAN (R 4.4.0)
+#>  e1071          1.7-14      2023-12-06 [1] CRAN (R 4.4.0)
+#>  evaluate       0.23        2023-11-01 [1] CRAN (R 4.4.0)
+#>  fansi          1.0.6       2023-12-08 [1] CRAN (R 4.4.0)
+#>  farver         2.1.2       2024-05-13 [1] CRAN (R 4.4.0)
+#>  fastmap        1.2.0       2024-05-15 [1] CRAN (R 4.4.0)
+#>  fBasics        4032.96     2023-11-03 [1] CRAN (R 4.4.0)
+#>  fdrtool        1.2.17      2021-11-13 [1] CRAN (R 4.4.0)
+#>  fmesher        0.1.5       2023-12-20 [1] CRAN (R 4.4.0)
+#>  forcats      * 1.0.0       2023-01-29 [1] CRAN (R 4.4.0)
+#>  foreign        0.8-86      2023-11-28 [1] CRAN (R 4.4.0)
+#>  Formula        1.2-5       2023-02-24 [1] CRAN (R 4.4.0)
+#>  future         1.33.2      2024-03-26 [1] CRAN (R 4.4.0)
+#>  future.apply   1.11.2      2024-03-28 [1] CRAN (R 4.4.0)
+#>  generics       0.1.3       2022-07-05 [1] CRAN (R 4.4.0)
+#>  ggplot2      * 3.5.1       2024-04-23 [1] CRAN (R 4.4.0)
+#>  glasso         1.11        2019-10-01 [1] CRAN (R 4.4.0)
+#>  globals        0.16.3      2024-03-08 [1] CRAN (R 4.4.0)
+#>  glue           1.7.0       2024-01-09 [1] CRAN (R 4.4.0)
+#>  gridExtra      2.3         2017-09-09 [1] CRAN (R 4.4.0)
+#>  gt             0.10.1      2024-01-17 [1] CRAN (R 4.4.0)
+#>  gtable         0.3.5       2024-04-22 [1] CRAN (R 4.4.0)
+#>  gtools         3.9.5       2023-11-20 [1] CRAN (R 4.4.0)
+#>  highr          0.11        2024-05-26 [1] CRAN (R 4.4.0)
+#>  Hmisc          5.1-2       2024-03-11 [1] CRAN (R 4.4.0)
+#>  hms            1.1.3       2023-03-21 [1] CRAN (R 4.4.0)
+#>  htmlTable      2.4.2       2023-10-29 [1] CRAN (R 4.4.0)
+#>  htmltools      0.5.8.1     2024-04-04 [1] CRAN (R 4.4.0)
+#>  htmlwidgets    1.6.4       2023-12-06 [1] CRAN (R 4.4.0)
+#>  igraph         2.0.3       2024-03-13 [1] CRAN (R 4.4.0)
+#>  INLA           24.05.27-2  2024-05-27 [1] local
+#>  INLAvaan     * 0.1.0.9007  2024-05-28 [1] local
+#>  inline         0.3.19      2021-05-31 [1] CRAN (R 4.4.0)
+#>  jpeg           0.1-10      2022-11-29 [1] CRAN (R 4.4.0)
+#>  jsonlite       1.8.8       2023-12-04 [1] CRAN (R 4.4.0)
+#>  KernSmooth     2.23-22     2023-07-10 [1] CRAN (R 4.4.0)
+#>  knitr          1.46        2024-04-06 [1] CRAN (R 4.4.0)
+#>  kutils         1.73        2023-09-17 [1] CRAN (R 4.4.0)
+#>  labeling       0.4.3       2023-08-29 [1] CRAN (R 4.4.0)
+#>  lattice        0.22-6      2024-03-20 [1] CRAN (R 4.4.0)
+#>  lavaan       * 0.6-17      2023-12-20 [1] CRAN (R 4.4.0)
+#>  lifecycle      1.0.4       2023-11-07 [1] CRAN (R 4.4.0)
+#>  lisrelToR      0.3         2024-02-07 [1] CRAN (R 4.4.0)
+#>  listenv        0.9.1       2024-01-29 [1] CRAN (R 4.4.0)
+#>  lme4           1.1-35.3    2024-04-16 [1] CRAN (R 4.4.0)
+#>  loo            2.7.0       2024-02-24 [1] CRAN (R 4.4.0)
+#>  lubridate    * 1.9.3       2023-09-27 [1] CRAN (R 4.4.0)
+#>  magrittr       2.0.3       2022-03-30 [1] CRAN (R 4.4.0)
+#>  MASS           7.3-60.2    2024-04-24 [1] local
+#>  Matrix         1.7-0       2024-03-22 [1] CRAN (R 4.4.0)
+#>  matrixStats    1.3.0       2024-04-11 [1] CRAN (R 4.4.0)
+#>  mi             1.1         2022-06-06 [1] CRAN (R 4.4.0)
+#>  minqa          1.2.7       2024-05-20 [1] CRAN (R 4.4.0)
+#>  mnormt         2.1.1       2022-09-26 [1] CRAN (R 4.4.0)
+#>  modeest        2.4.0       2019-11-18 [1] CRAN (R 4.4.0)
+#>  munsell        0.5.1       2024-04-01 [1] CRAN (R 4.4.0)
+#>  mvtnorm        1.2-5       2024-05-21 [1] CRAN (R 4.4.0)
+#>  nlme           3.1-164     2023-11-27 [1] CRAN (R 4.4.0)
+#>  nloptr         2.0.3       2022-05-26 [1] CRAN (R 4.4.0)
+#>  nnet           7.3-19      2023-05-03 [1] CRAN (R 4.4.0)
+#>  nonnest2       0.5-7       2024-05-06 [1] CRAN (R 4.4.0)
+#>  OpenMx         2.21.11     2023-11-28 [1] CRAN (R 4.4.0)
+#>  openxlsx       4.2.5.2     2023-02-06 [1] CRAN (R 4.4.0)
+#>  parallelly     1.37.1      2024-02-29 [1] CRAN (R 4.4.0)
+#>  pbapply        1.7-2       2023-06-27 [1] CRAN (R 4.4.0)
+#>  pbivnorm       0.6.0       2015-01-23 [1] CRAN (R 4.4.0)
+#>  pillar         1.9.0       2023-03-22 [1] CRAN (R 4.4.0)
+#>  pkgbuild       1.4.4       2024-03-17 [1] CRAN (R 4.4.0)
+#>  pkgconfig      2.0.3       2019-09-22 [1] CRAN (R 4.4.0)
+#>  plyr           1.8.9       2023-10-02 [1] CRAN (R 4.4.0)
+#>  png            0.1-8       2022-11-29 [1] CRAN (R 4.4.0)
+#>  proxy          0.4-27      2022-06-09 [1] CRAN (R 4.4.0)
+#>  psych          2.4.3       2024-03-18 [1] CRAN (R 4.4.0)
+#>  purrr        * 1.0.2       2023-08-10 [1] CRAN (R 4.4.0)
+#>  qgraph         1.9.8       2023-11-03 [1] CRAN (R 4.4.0)
+#>  quadprog       1.5-8       2019-11-20 [1] CRAN (R 4.4.0)
+#>  QuickJSR       1.1.3       2024-01-31 [1] CRAN (R 4.4.0)
+#>  R6             2.5.1       2021-08-19 [1] CRAN (R 4.4.0)
+#>  Rcpp         * 1.0.12      2024-01-09 [1] CRAN (R 4.4.0)
+#>  RcppParallel   5.1.7       2023-02-27 [1] CRAN (R 4.4.0)
+#>  readr        * 2.1.5       2024-01-10 [1] CRAN (R 4.4.0)
+#>  reshape2       1.4.4       2020-04-09 [1] CRAN (R 4.4.0)
+#>  rlang          1.1.3       2024-01-10 [1] CRAN (R 4.4.0)
+#>  rmarkdown      2.27        2024-05-17 [1] CRAN (R 4.4.0)
+#>  rmutil         1.1.10      2022-10-27 [1] CRAN (R 4.4.0)
+#>  rockchalk      1.8.157     2022-08-06 [1] CRAN (R 4.4.0)
+#>  rpart          4.1.23      2023-12-05 [1] CRAN (R 4.4.0)
+#>  rstan          2.32.6      2024-03-05 [1] CRAN (R 4.4.0)
+#>  rstantools     2.4.0       2024-01-31 [1] CRAN (R 4.4.0)
+#>  rstudioapi     0.16.0      2024-03-24 [1] CRAN (R 4.4.0)
+#>  sandwich       3.1-0       2023-12-11 [1] CRAN (R 4.4.0)
+#>  scales         1.3.0       2023-11-28 [1] CRAN (R 4.4.0)
+#>  sem            3.1-15      2022-04-10 [1] CRAN (R 4.4.0)
+#>  semPlot      * 1.1.6       2022-08-10 [1] CRAN (R 4.4.0)
+#>  semptools    * 0.2.10      2023-10-15 [1] CRAN (R 4.4.0)
+#>  sessioninfo    1.2.2       2021-12-06 [1] CRAN (R 4.4.0)
+#>  sf             1.0-16      2024-03-24 [1] CRAN (R 4.4.0)
+#>  sp             2.1-4       2024-04-30 [1] CRAN (R 4.4.0)
+#>  spatial        7.3-17      2023-07-20 [1] CRAN (R 4.4.0)
+#>  stable         1.1.6       2022-03-02 [1] CRAN (R 4.4.0)
+#>  stabledist     0.7-1       2016-09-12 [1] CRAN (R 4.4.0)
+#>  StanHeaders    2.32.8      2024-05-21 [1] CRAN (R 4.4.0)
+#>  statip         0.2.3       2019-11-17 [1] CRAN (R 4.4.0)
+#>  stringi        1.8.4       2024-05-06 [1] CRAN (R 4.4.0)
+#>  stringr      * 1.5.1       2023-11-14 [1] CRAN (R 4.4.0)
+#>  tibble       * 3.2.1       2023-03-20 [1] CRAN (R 4.4.0)
+#>  tidyr        * 1.3.1       2024-01-24 [1] CRAN (R 4.4.0)
+#>  tidyselect     1.2.1       2024-03-11 [1] CRAN (R 4.4.0)
+#>  tidyverse    * 2.0.0       2023-02-22 [1] CRAN (R 4.4.0)
+#>  timechange     0.3.0       2024-01-18 [1] CRAN (R 4.4.0)
+#>  timeDate       4032.109    2023-12-14 [1] CRAN (R 4.4.0)
+#>  timeSeries     4032.109    2024-01-14 [1] CRAN (R 4.4.0)
+#>  tmvnsim        1.0-2       2016-12-15 [1] CRAN (R 4.4.0)
+#>  tzdb           0.4.0       2023-05-12 [1] CRAN (R 4.4.0)
+#>  units          0.8-5       2023-11-28 [1] CRAN (R 4.4.0)
+#>  utf8           1.2.4       2023-10-22 [1] CRAN (R 4.4.0)
+#>  V8             4.4.2       2024-02-15 [1] CRAN (R 4.4.0)
+#>  vctrs          0.6.5       2023-12-01 [1] CRAN (R 4.4.0)
+#>  withr          3.0.0       2024-01-16 [1] CRAN (R 4.4.0)
+#>  xfun           0.44        2024-05-15 [1] CRAN (R 4.4.0)
+#>  XML            3.99-0.16.1 2024-01-22 [1] CRAN (R 4.4.0)
+#>  xml2           1.3.6       2023-12-04 [1] CRAN (R 4.4.0)
+#>  xtable         1.8-4       2019-04-21 [1] CRAN (R 4.4.0)
+#>  yaml           2.3.8       2023-12-11 [1] CRAN (R 4.4.0)
+#>  zip            2.3.1       2024-01-27 [1] CRAN (R 4.4.0)
+#>  zoo            1.8-12      2023-04-13 [1] CRAN (R 4.4.0)
 #> 
-#>  [1] /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/library
+#>  [1] /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library
 #> 
 #> ──────────────────────────────────────────────────────────────────────────────
 ```
