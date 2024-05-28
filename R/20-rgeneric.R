@@ -41,40 +41,30 @@ inla_sem <- function(
     # Lambda matrix
     Lam_df <- partable[partable$mat == "lambda", ]
     Lam_df$est[Lam_df$free > 0] <- params$lambda
-    Lambda <- with(Lam_df, sparseMatrix(
-      i = row,
-      j = col,
-      x = est,
-      dims = c(max(row), max(col))
-    ))
+    Lambda <- matrix(0, nrow = max(Lam_df$row), ncol = max(Lam_df$col))
+    Lambda[cbind(Lam_df$row, Lam_df$col)] <- Lam_df$est
 
     # B matrix
     B_df <- partable[partable$mat == "beta", ]
     B_df$est[B_df$free > 0] <- params$beta
     if (length(params$beta) > 0) {
-      B <- with(B_df, sparseMatrix(
-        i = row,
-        j = col,
-        x = est,
-        dims = rep(max(c(row, col)), 2)
-      ))
+      sizeB <- max(B_df$row, B_df$col)
+      B <- matrix(0, nrow = sizeB, ncol = sizeB)
+      B[cbind(B_df$row, B_df$col)] <- B_df$est
     } else {
       B <- 0
     }
 
     # Theta matrix
     if (length(params$rho) > 0) {
-      SD <- Diagonal(x = params$sd_e)
+      SD <- diag(x = params$sd_e)
       Rho_df <- partable[partable$mat == "rho", ]
       Rho_df$est[Rho_df$free > 0] <- params$rho
-      Rho <- with(Rho_df, sparseMatrix(
-        i = row,
-        j = col,
-        x = est,
-        dims = rep(length(params$sd_e), 2),
-        symmetric = TRUE
-      ))
-      Rho <- Rho + diag(1, nrow = length(params$sd_e))
+      sizeRho <- length(params$sd_e)
+      Rho <- matrix(0, nrow = sizeRho, ncol = sizeRho)
+      Rho[cbind(Rho_df$row, Rho_df$col)] <- Rho_df$est
+      Rho <- Rho + t(Rho)
+      diag(Rho) <- 1
       Theta <- SD %*% Rho %*% SD
     } else {
       Theta <- diag(params$sd_e ^ 2)
@@ -83,17 +73,14 @@ inla_sem <- function(
 
     # Psi matrix
     if (length(params$lvrho) > 0) {
-      SD <- Diagonal(x = params$sd_z)
+      SD <- diag(x = params$sd_z)
       LVRho_df <- partable[partable$mat == "lvrho", ]
       LVRho_df$est[LVRho_df$free > 0] <- params$lvrho
-      LVRho <- with(LVRho_df, sparseMatrix(
-        i = row,
-        j = col,
-        x = est,
-        dims = rep(length(params$sd_z), 2),
-        symmetric = TRUE
-      ))
-      LVRho <- LVRho + diag(1, nrow = length(params$sd_z))
+      sizeLVRho <- length(params$sd_z)
+      LVRho <- matrix(0, nrow = sizeLVRho, ncol = sizeLVRho)
+      LVRho[cbind(LVRho_df$row, LVRho_df$col)] <- LVRho_df$est
+      LVRho <- LVRho + t(LVRho)
+      diag(LVRho) <- 1
       Psi <- SD %*% LVRho %*% SD
     } else {
       Psi <- diag(params$sd_z ^ 2)
