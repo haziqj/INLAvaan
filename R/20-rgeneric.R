@@ -107,7 +107,7 @@ inla_sem <- function(
 
     # Psi matrix
     diag(Psi) <- params$sd_z ^ 2
-    if (length(idx_psi) > 0) {
+    if (length(idx_lvrho) > 0) {
       for (k in seq_along(nrow(LVRHO_IDX))) {
         i <- LVRHO_IDX[k, 1]
         j <- LVRHO_IDX[k, 2]
@@ -126,7 +126,7 @@ inla_sem <- function(
     # Sigma_inv <- A_inv - A_inv %*% U %*% solve(int_mat) %*% t(U) %*% A_inv
 
     # Regular way
-    if (IminB == 1) {
+    if (is.vector(IminB)) {
       front <- Lambda
     } else {
       front <- Lambda %*% solve(IminB)
