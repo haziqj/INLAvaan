@@ -17,11 +17,13 @@ true_model <- "
   y5 ~~ 0.1*y5
   y6 ~~ 0.1*y6
 "
-dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
+dat <- lavaan::simulateData(true_model, sample.nobs = 500)
 
 mod <- "
   eta1 =~ y1 + y2 + y3
   eta2 =~ y4 + y5 + y6
+  # eta2 ~ eta1
+  y1 ~~ y4
 "
 fit <- isem(model = mod, data = dat, meanstructure = FALSE, verbose = TRUE)
 

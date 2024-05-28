@@ -1302,6 +1302,7 @@ lav2inla <- function(
     q = pta$nfac[[1]],
     init = inlastart,
     partable = partable
+    # optimize = TRUE
   )
 
   control_fixed <- INLA::control.fixed()
