@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file. -->
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -216,8 +216,8 @@ The `i` in `isem` stands for `INLA` (following the convention of `bsem` for `{bl
 library(INLAvaan)
 fit <- isem(model = mod, data = dat)
 fit_lav <- sem(mod, dat)
-fit_blav <- bsem(mod, dat, n.chains = 1)
-fit_blavvb <- bsem(mod, dat, target = "vb")
+fit_blav <- bsem(mod, dat, n.chains = 1, sample = 2000, burnin = 1000)
+fit_blavvb <- bsem(mod, dat, target = "vb", sample = 2000, burnin = 1000)
 ```
 
 ```{r}
@@ -232,7 +232,7 @@ summary(fit)
 summary(fit)
 ```
 
-Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using Stan 500 burnin and 1000 samples, as well as variational Bayes):
+Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using Stan on a single thread obtaining 1000 burnin and 2000 samples, as well as variational Bayes):
 
 ```{r}
 #| label: fig-compare
