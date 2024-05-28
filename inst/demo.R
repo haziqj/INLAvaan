@@ -31,11 +31,6 @@ mod <- "
 "
 fit <- isem(model = mod, data = dat, meanstructure = FALSE, verbose = TRUE)
 
-
-
-tmp <- fit
-do.call("inlav_model_test", tmp)
-
 # Political democracy SEM example ----------------------------------------------
 myModel <- '
   # latent variables

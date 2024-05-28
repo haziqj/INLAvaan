@@ -74,7 +74,7 @@ run_inlav_sim <- function(N) {
 
 # Run simulations --------------------------------------------------------------
 res <-
-  tibble(n = rep(c(100, 250, 500, 1000, 2000), each = 10)) |>
+  tibble(n = rep(c(100, 250, 500, 1000, 2500, 5000, 7500, 10000), each = 10)) |>
   mutate(
     res_blav = future_map(
       .x = n,
@@ -94,6 +94,7 @@ res <-
       .progress = TRUE
     ),
   )
+save(res, file = "inst/timing.RData")
 
 res |>
   unnest(c(res_blav, res_blavvb, res_inla), names_sep = "_") |>

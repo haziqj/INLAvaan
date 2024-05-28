@@ -296,6 +296,38 @@ list(fit, fit_lav, fit_blav, fit_blavvb) |>
   purrr::map_dbl(\(x) x@timing$total) 
 ```
 
+A little experiment to see how sample size affects run time:
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+#| echo: false
+#| warning: false
+#| message: false
+load("inst/timing.RData")
+res |>
+  unnest(c(res_blav, res_blavvb, res_inla), names_sep = "_") |>
+  select(n, ends_with("time")) |>
+  rename(
+    blavaan = res_blav_time,
+    blavaan_vb = res_blavvb_time,
+    INLAvaan = res_inla_time
+  ) |>
+  pivot_longer(
+    cols = -n,
+    names_to = "method",
+    values_to = "time"
+  ) |>
+  ggplot(aes(n, time, col = method)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  scale_x_continuous(labels = scales::comma) +
+  theme_bw() +
+  labs(x = "Sample size", y = "Run time (s)",
+       title = "Total run time to fit two factor SEM with varying sample sizes",
+       caption = "For MCMC sampling, 1000 burnin and 2000 samples were obtained.")
+```
+
 ## Outro
 
 ```{r}
