@@ -131,6 +131,7 @@ inla_sem <- function(
       front <- Lambda %*% solve(IminB)
     }
     Sigma <- front %*% tcrossprod(Psi, front) + Theta
+    Sigma <- Sigma + diag(1e-10, nrow(Sigma))  # for stability
     solve(Sigma)
   }
 
