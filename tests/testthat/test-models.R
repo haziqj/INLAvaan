@@ -60,14 +60,14 @@ test_that("CFA", {
     eta1 =~ y1 + y2 + y3
     eta2 =~ y4 + y5 + y6
   "
-  dat <- lavaan::simulateData(mod, sample.nobs = 100)
+  dat <- lavaan::simulateData(mod, sample.nobs = 1000)
   expect_no_error({
     fit <- icfa(
       model = mod,
       data = dat,
       meanstructure = FALSE,
       verbose = FALSE,
-      npost = 10
+      npost = 100
     )
   })
 })

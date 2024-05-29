@@ -1383,9 +1383,7 @@ coeffun_inla <- function(
 
     samps <- apply(samps, 1, simplify = FALSE, \(x) {
       psi <- exp(x[seq_along(idx_psi)])
-      u <- exp(-x[length(idx_psi) + seq_along(idx_lvrho)])
-      u <- 1 / (1 + u)
-      lvrho <- 2 * u - 1
+      lvrho <- theta_to_rho(x[length(idx_psi) + seq_along(idx_lvrho)])
 
       SD <- Diagonal(x = sqrt(psi))
       Rho_df <- pxpartable[pxpartable$mat == "lvrho", ]
@@ -1457,9 +1455,7 @@ coeffun_inla <- function(
 
     samps <- apply(samps, 1, simplify = FALSE, \(x) {
       theta_e <- exp(x[seq_along(idx_theta)])
-      u <- exp(-x[length(idx_theta) + seq_along(idx_rho)])
-      u <- 1 / (1 + u)
-      rho <- 2 * u - 1
+      rho <- theta_to_rho(x[length(idx_theta) + seq_along(idx_rho)])
 
       SD <- Diagonal(x = sqrt(theta_e))
       Rho_df <- pxpartable[pxpartable$mat == "rho", ]
