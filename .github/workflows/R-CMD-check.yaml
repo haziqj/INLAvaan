@@ -47,26 +47,14 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-
-      # - name: Check and set alternatives for BLAS/LAPACK
-      #   if: matrix.config.os == 'ubuntu-latest'
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y libatlas-base-dev
-      #     # List available alternatives for diagnostics
-      #     sudo update-alternatives --query libblas.so.3
-      #     sudo update-alternatives --query liblapack.so.3
-      #     # Manually registering and setting the alternatives if needed
-      #     sudo update-alternatives --install /usr/lib/x86_64-linux-gnu/libblas.so.3 libblas.so.3 /usr/lib/atlas-base/atlas/libblas.so.3 50
-      #     sudo update-alternatives --install /usr/lib/x86_64-linux-gnu/liblapack.so.3 liblapack.so.3 /usr/lib/atlas-base/atlas/liblapack.so.3 50
-      #     sudo update-alternatives --set libblas.so.3 /usr/lib/atlas-base/atlas/libblas.so.3
-      #     sudo update-alternatives --set liblapack.so.3 /usr/lib/atlas-base/atlas/liblapack.so.3      
-
-      # - name: Configure BLAS
-      #   if: matrix.config.os == 'ubuntu-latest'      
-      #   run: |
-      #     echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-      #     echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+          
+      - name: Set Test Flag
+        run: |
+          if [ "${{ matrix.config.os }}" = "ubuntu-latest" ]; then
+            echo "R_CHECK_ARGS=--no-tests" >> $GITHUB_ENV
+          else
+            echo "R_CHECK_ARGS=''" >> $GITHUB_ENV
+          fi
 
       - name: Session info
         run: |
@@ -77,6 +65,6 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          check_args: ${{ if eq(matrix.config.os, 'ubuntu-latest') , '--no-tests', '' }}          
+          build_args: 'c("--no-manual", "--compact-vignettes=gs+qpdf")'
+          check_args: ${{ env.R_CHECK_ARGS }}    
 
