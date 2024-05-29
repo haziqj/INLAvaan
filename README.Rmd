@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+
 library(INLAvaan)
 library(lavaan)
 library(blavaan)
@@ -217,8 +218,8 @@ The `i` in `isem` stands for `INLA` (following the convention of `bsem` for `{bl
 library(INLAvaan)
 fit <- isem(model = mod, data = dat)
 fit_lav <- sem(mod, dat)
-fit_blav <- bsem(mod, dat, n.chains = 1, sample = 2000, burnin = 1000)
-fit_blavvb <- bsem(mod, dat, target = "vb", sample = 2000, burnin = 1000)
+fit_blav <- bsem(mod, dat, sample = 2000, burnin = 1000)
+fit_blavvb <- bsem(mod, dat, target = "vb", n.chains = 1, sample = 2000, burnin = 1000)
 ```
 
 ```{r}
@@ -325,7 +326,7 @@ res |>
   theme_bw() +
   labs(x = "Sample size", y = "Run time (s)",
        title = "Total run time to fit two factor SEM with varying sample sizes",
-       caption = "For MCMC sampling, 1000 burnin and 2000 samples were obtained.\nINLA ran on 8 parallel threads.")
+       caption = "For MCMC sampling, 1000 burnin and 2000 samples were obtained.\nINLA ran on 6 parallel threads.")
 ```
 
 ## Outro

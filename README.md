@@ -116,12 +116,12 @@ mod <- "
 dplyr::glimpse(dat)
 #> Rows: 10,000
 #> Columns: 6
-#> $ y1 <dbl> -1.27571798, -0.09407202, -2.05151029, -1.15385961, 2.22560881, -0.…
-#> $ y2 <dbl> -2.09632166, -0.19867560, -1.96302810, -0.48787050, 1.93058032, -0.…
-#> $ y3 <dbl> -2.44225102, -0.45471235, -3.19202260, -1.36024551, 2.61948039, -0.…
-#> $ y4 <dbl> -1.06902978, -1.15104358, -1.11122765, -2.31535838, 1.52493390, 0.5…
-#> $ y5 <dbl> -1.23227671, -1.37170113, -1.19170701, -2.00573380, 1.13141524, 0.2…
-#> $ y6 <dbl> -1.9777087, -2.0222614, -1.0814154, -3.2868422, 1.0235407, 0.580349…
+#> $ y1 <dbl> 0.709801263, 0.842340759, -1.213499961, -0.200593044, 0.798170874, …
+#> $ y2 <dbl> 1.15008029, 1.20330819, -0.47440788, -0.33209759, 0.73791700, 0.019…
+#> $ y3 <dbl> 1.2848640572, 1.7572442266, -0.6549680413, -0.3067896758, 1.2151127…
+#> $ y4 <dbl> 1.24142876, 0.56811857, -2.12670803, -0.50739519, 0.03233622, -0.92…
+#> $ y5 <dbl> 1.15048010, 0.46779008, -2.74135310, -0.91711369, -0.04315028, -1.1…
+#> $ y6 <dbl> 1.34254059, 0.54066565, -2.90934210, -0.88349219, -0.08309935, -1.4…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -134,7 +134,7 @@ fit <- isem(model = mod, data = dat)
 summary(fit)
 ```
 
-    #> INLAvaan 0.1.0.9011 ended normally after 35 seconds
+    #> INLAvaan 0.1.0.9011 ended normally after 36 seconds
     #> 
     #>   Estimator                                      BAYES
     #>   Optimization method                             INLA
@@ -143,7 +143,7 @@ summary(fit)
     #>   Number of observations                         10000
     #> 
     #>   Statistic                                 MargLogLik         PPP
-    #>   Value                                     -51647.090          NA
+    #>   Value                                     -51887.404          NA
     #> 
     #> Parameter Estimates:
     #> 
@@ -152,37 +152,37 @@ summary(fit)
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta1 =~                                                             
     #>     y1                1.000                                           
-    #>     y2                1.205    0.004    1.196    1.214    normal(0,10)
-    #>     y3                1.512    0.005    1.502    1.522    normal(0,10)
+    #>     y2                1.193    0.004    1.185    1.202    normal(0,10)
+    #>     y3                1.494    0.005    1.483    1.503    normal(0,10)
     #>   eta2 =~                                                             
     #>     y4                1.000                                           
-    #>     y5                1.193    0.004    1.185    1.201    normal(0,10)
-    #>     y6                1.493    0.005    1.484    1.503    normal(0,10)
+    #>     y5                1.202    0.004    1.194    1.210    normal(0,10)
+    #>     y6                1.502    0.005    1.493    1.512    normal(0,10)
     #> 
     #> Regressions:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta2 ~                                                              
-    #>     eta1              0.296    0.010    0.276    0.316    normal(0,10)
+    #>     eta1              0.303    0.010    0.283    0.323    normal(0,10)
     #> 
     #> Covariances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>  .y1 ~~                                                               
-    #>    .y4                0.049    0.001    0.047    0.052       beta(1,1)
+    #>    .y4                0.050    0.001    0.048    0.053       beta(1,1)
     #>  .y2 ~~                                                               
-    #>    .y5                0.048    0.001    0.046    0.051       beta(1,1)
+    #>    .y5                0.053    0.001    0.050    0.056       beta(1,1)
     #>  .y3 ~~                                                               
-    #>    .y6                0.050    0.002    0.046    0.053       beta(1,1)
+    #>    .y6                0.046    0.002    0.042    0.050       beta(1,1)
     #> 
     #> Variances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
-    #>    .y1                0.102    0.002    0.099    0.106 gamma(1,.5)[sd]
-    #>    .y2                0.098    0.002    0.094    0.102 gamma(1,.5)[sd]
-    #>    .y3                0.098    0.003    0.092    0.105 gamma(1,.5)[sd]
-    #>    .y4                0.096    0.002    0.092    0.099 gamma(1,.5)[sd]
-    #>    .y5                0.100    0.002    0.095    0.105 gamma(1,.5)[sd]
-    #>    .y6                0.098    0.003    0.091    0.103 gamma(1,.5)[sd]
-    #>     eta1              0.995    0.015    0.966    1.025 gamma(1,.5)[sd]
-    #>    .eta2              0.997    0.015    0.969    1.027 gamma(1,.5)[sd]
+    #>    .y1                0.100    0.002    0.096    0.104 gamma(1,.5)[sd]
+    #>    .y2                0.102    0.002    0.098    0.106 gamma(1,.5)[sd]
+    #>    .y3                0.100    0.003    0.094    0.106 gamma(1,.5)[sd]
+    #>    .y4                0.099    0.002    0.096    0.103 gamma(1,.5)[sd]
+    #>    .y5                0.103    0.002    0.099    0.108 gamma(1,.5)[sd]
+    #>    .y6                0.093    0.003    0.088    0.100 gamma(1,.5)[sd]
+    #>     eta1              1.021    0.015    0.991    1.052 gamma(1,.5)[sd]
+    #>    .eta2              0.999    0.015    0.970    1.029 gamma(1,.5)[sd]
 
 Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using
 Stan on a single thread obtaining 1000 burnin and 2000 samples, as well
@@ -194,7 +194,7 @@ as variational Bayes):
     #> ── Compare timing (seconds) ──
     #> 
     #>   INLAvaan     lavaan    blavaan blavaan_vb 
-    #>     35.687      0.034     47.335     92.147
+    #>     36.734      0.030    131.507     89.568
 
 A little experiment to see how sample size affects run time:
 
