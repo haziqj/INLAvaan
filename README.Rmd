@@ -325,11 +325,11 @@ res |>
   theme_bw() +
   labs(x = "Sample size", y = "Run time (s)",
        title = "Total run time to fit two factor SEM with varying sample sizes",
-       caption = "For MCMC sampling, 1000 burnin and 2000 samples were obtained.")
+       caption = "For MCMC sampling, 1000 burnin and 2000 samples were obtained.\nINLA ran on 8 parallel threads.")
 ```
 
 ## Outro
 
 ```{r}
-sessioninfo::session_info()
+sessioninfo::session_info(info = "all")
 ```

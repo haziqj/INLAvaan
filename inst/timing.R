@@ -115,3 +115,32 @@ res |>
   theme_bw() +
   labs(x = "Sample size", y = "Run time (s)",
        title = "Total run time to fit two factor SEM with varying sample sizes")
+
+# Which solver to use? ---------------------------------------------------------
+library(microbenchmark)
+library(Matrix)
+library(MASS)
+
+safe_solve <- function(x) {
+  try_chol <- try(chol(x), silent = TRUE)
+  if (any(class(try_chol) %in% "try-error")) {
+    xm <- forceSymmetric(Matrix(x))
+    return(solve(xm))
+  } else {
+    return(chol2inv(try_chol))
+  }
+}
+
+set.seed(42)
+A <- matrix(rnorm(36), nrow = 6)
+Sigma <- A %*% t(A)
+
+microbenchmark(
+  solve_base = solve(Sigma),
+  chol2inv_chol = chol2inv(chol(Sigma)),
+  MASS_ginv = ginv(Sigma),
+  Matrix_solve = solve((Matrix(Sigma))),
+  Matrix_chol2inv = solve(chol((Matrix(Sigma)))),
+  safe_solve = safe_solve(Sigma),
+  times = 1000
+)

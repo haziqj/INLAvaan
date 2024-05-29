@@ -116,12 +116,12 @@ mod <- "
 dplyr::glimpse(dat)
 #> Rows: 10,000
 #> Columns: 6
-#> $ y1 <dbl> 1.02192841, 0.29113577, -1.47070927, 0.65444305, -0.77219144, -1.17…
-#> $ y2 <dbl> 0.57817049, 0.39498437, -1.42764854, 0.80022760, -0.37544841, -2.34…
-#> $ y3 <dbl> 0.6068068, 0.3128205, -1.1559359, 1.4147742, -0.1831977, -2.5209732…
-#> $ y4 <dbl> 1.07363543, 0.97521562, 0.12599742, -0.73024295, 0.28783171, 1.5970…
-#> $ y5 <dbl> 1.30085521, 0.62574636, -0.53820263, -0.99175403, 0.80177352, 0.822…
-#> $ y6 <dbl> 1.2908936, 0.7196049, 0.6252699, -1.0316967, 1.3074426, 2.0141520, …
+#> $ y1 <dbl> -1.27571798, -0.09407202, -2.05151029, -1.15385961, 2.22560881, -0.…
+#> $ y2 <dbl> -2.09632166, -0.19867560, -1.96302810, -0.48787050, 1.93058032, -0.…
+#> $ y3 <dbl> -2.44225102, -0.45471235, -3.19202260, -1.36024551, 2.61948039, -0.…
+#> $ y4 <dbl> -1.06902978, -1.15104358, -1.11122765, -2.31535838, 1.52493390, 0.5…
+#> $ y5 <dbl> -1.23227671, -1.37170113, -1.19170701, -2.00573380, 1.13141524, 0.2…
+#> $ y6 <dbl> -1.9777087, -2.0222614, -1.0814154, -3.2868422, 1.0235407, 0.580349…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -134,7 +134,7 @@ fit <- isem(model = mod, data = dat)
 summary(fit)
 ```
 
-    #> INLAvaan 0.1.0.9009 ended normally after 27 seconds
+    #> INLAvaan 0.1.0.9011 ended normally after 35 seconds
     #> 
     #>   Estimator                                      BAYES
     #>   Optimization method                             INLA
@@ -143,7 +143,7 @@ summary(fit)
     #>   Number of observations                         10000
     #> 
     #>   Statistic                                 MargLogLik         PPP
-    #>   Value                                     -52055.478          NA
+    #>   Value                                     -51647.090          NA
     #> 
     #> Parameter Estimates:
     #> 
@@ -152,37 +152,37 @@ summary(fit)
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta1 =~                                                             
     #>     y1                1.000                                           
-    #>     y2                1.205    0.004    1.196    1.213    normal(0,10)
-    #>     y3                1.497    0.005    1.487    1.507    normal(0,10)
+    #>     y2                1.205    0.004    1.196    1.214    normal(0,10)
+    #>     y3                1.512    0.005    1.502    1.522    normal(0,10)
     #>   eta2 =~                                                             
     #>     y4                1.000                                           
-    #>     y5                1.201    0.004    1.193    1.209    normal(0,10)
-    #>     y6                1.494    0.005    1.485    1.503    normal(0,10)
+    #>     y5                1.193    0.004    1.185    1.201    normal(0,10)
+    #>     y6                1.493    0.005    1.484    1.503    normal(0,10)
     #> 
     #> Regressions:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta2 ~                                                              
-    #>     eta1              0.312    0.014    0.280    0.332    normal(0,10)
+    #>     eta1              0.296    0.010    0.276    0.316    normal(0,10)
     #> 
     #> Covariances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>  .y1 ~~                                                               
-    #>    .y4                0.048    0.001    0.046    0.050       beta(1,1)
+    #>    .y4                0.049    0.001    0.047    0.052       beta(1,1)
     #>  .y2 ~~                                                               
-    #>    .y5                0.049    0.001    0.046    0.051       beta(1,1)
+    #>    .y5                0.048    0.001    0.046    0.051       beta(1,1)
     #>  .y3 ~~                                                               
-    #>    .y6                0.052    0.002    0.048    0.056       beta(1,1)
+    #>    .y6                0.050    0.002    0.046    0.053       beta(1,1)
     #> 
     #> Variances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
-    #>    .y1                0.099    0.002    0.096    0.103 gamma(1,.5)[sd]
-    #>    .y2                0.098    0.002    0.093    0.102 gamma(1,.5)[sd]
-    #>    .y3                0.104    0.003    0.098    0.109 gamma(1,.5)[sd]
-    #>    .y4                0.100    0.002    0.096    0.102 gamma(1,.5)[sd]
-    #>    .y5                0.099    0.002    0.095    0.104 gamma(1,.5)[sd]
-    #>    .y6                0.102    0.002    0.097    0.105 gamma(1,.5)[sd]
-    #>     eta1              1.018    0.015    0.989    1.049 gamma(1,.5)[sd]
-    #>    .eta2              1.008    0.015    0.979    1.037 gamma(1,.5)[sd]
+    #>    .y1                0.102    0.002    0.099    0.106 gamma(1,.5)[sd]
+    #>    .y2                0.098    0.002    0.094    0.102 gamma(1,.5)[sd]
+    #>    .y3                0.098    0.003    0.092    0.105 gamma(1,.5)[sd]
+    #>    .y4                0.096    0.002    0.092    0.099 gamma(1,.5)[sd]
+    #>    .y5                0.100    0.002    0.095    0.105 gamma(1,.5)[sd]
+    #>    .y6                0.098    0.003    0.091    0.103 gamma(1,.5)[sd]
+    #>     eta1              0.995    0.015    0.966    1.025 gamma(1,.5)[sd]
+    #>    .eta2              0.997    0.015    0.969    1.027 gamma(1,.5)[sd]
 
 Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using
 Stan on a single thread obtaining 1000 burnin and 2000 samples, as well
@@ -194,7 +194,7 @@ as variational Bayes):
     #> ── Compare timing (seconds) ──
     #> 
     #>   INLAvaan     lavaan    blavaan blavaan_vb 
-    #>     27.785      0.032     47.276     90.578
+    #>     35.687      0.034     47.335     92.147
 
 A little experiment to see how sample size affects run time:
 
@@ -203,7 +203,7 @@ A little experiment to see how sample size affects run time:
 ## Outro
 
 ``` r
-sessioninfo::session_info()
+sessioninfo::session_info(info = "all")
 #> ─ Session info ───────────────────────────────────────────────────────────────
 #>  setting  value
 #>  version  R version 4.4.0 (2024-04-24)
@@ -214,7 +214,7 @@ sessioninfo::session_info()
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       Asia/Riyadh
-#>  date     2024-05-28
+#>  date     2024-05-29
 #>  pandoc   3.2 @ /opt/homebrew/bin/ (via rmarkdown)
 #> 
 #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -241,6 +241,7 @@ sessioninfo::session_info()
 #>  curl           5.2.1       2024-03-01 [1] CRAN (R 4.4.0)
 #>  data.table     1.15.4      2024-03-30 [1] CRAN (R 4.4.0)
 #>  DBI            1.2.2       2024-02-16 [1] CRAN (R 4.4.0)
+#>  Deriv          4.1.3       2021-02-24 [1] CRAN (R 4.4.0)
 #>  digest         0.6.35      2024-03-11 [1] CRAN (R 4.4.0)
 #>  dplyr        * 1.1.4       2023-11-17 [1] CRAN (R 4.4.0)
 #>  e1071          1.7-14      2023-12-06 [1] CRAN (R 4.4.0)
@@ -273,7 +274,7 @@ sessioninfo::session_info()
 #>  htmlwidgets    1.6.4       2023-12-06 [1] CRAN (R 4.4.0)
 #>  igraph         2.0.3       2024-03-13 [1] CRAN (R 4.4.0)
 #>  INLA           24.05.27-2  2024-05-27 [1] local
-#>  INLAvaan     * 0.1.0.9010  2024-05-28 [1] local
+#>  INLAvaan     * 0.1.0.9011  2024-05-29 [1] local
 #>  inline         0.3.19      2021-05-31 [1] CRAN (R 4.4.0)
 #>  jpeg           0.1-10      2022-11-29 [1] CRAN (R 4.4.0)
 #>  jsonlite       1.8.8       2023-12-04 [1] CRAN (R 4.4.0)
@@ -292,6 +293,7 @@ sessioninfo::session_info()
 #>  magrittr       2.0.3       2022-03-30 [1] CRAN (R 4.4.0)
 #>  MASS           7.3-60.2    2024-04-24 [1] local
 #>  Matrix         1.7-0       2024-03-22 [1] CRAN (R 4.4.0)
+#>  MatrixModels   0.5-3       2023-11-06 [1] CRAN (R 4.4.0)
 #>  matrixStats    1.3.0       2024-04-11 [1] CRAN (R 4.4.0)
 #>  mgcv           1.9-1       2023-12-21 [1] CRAN (R 4.4.0)
 #>  mi             1.1         2022-06-06 [1] CRAN (R 4.4.0)
@@ -371,6 +373,32 @@ sessioninfo::session_info()
 #>  zoo            1.8-12      2023-04-13 [1] CRAN (R 4.4.0)
 #> 
 #>  [1] /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library
+#> 
+#> ─ External software ──────────────────────────────────────────────────────────
+#>  setting        value
+#>  cairo          1.17.6
+#>  cairoFT
+#>  pango          1.50.14
+#>  png            1.6.40
+#>  jpeg           9.5
+#>  tiff           LIBTIFF, Version 4.5.0
+#>  tcl            8.6.13
+#>  curl           8.4.0
+#>  zlib           1.2.12
+#>  bzlib          1.0.8, 13-Jul-2019
+#>  xz             5.4.4
+#>  deflate
+#>  PCRE           10.42 2022-12-11
+#>  ICU            74.1
+#>  TRE            TRE 0.8.0 R_fixes (BSD)
+#>  iconv          Apple or GNU libiconv 1.11
+#>  readline       5.2
+#>  BLAS           /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRblas.0.dylib
+#>  lapack         /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib
+#>  lapack_version 3.12.0
+#> 
+#> ─ Python configuration ───────────────────────────────────────────────────────
+#>  Python is not available
 #> 
 #> ──────────────────────────────────────────────────────────────────────────────
 ```
