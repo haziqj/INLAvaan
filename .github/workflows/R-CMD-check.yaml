@@ -59,7 +59,7 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          args: 'c("--no-tests")'  # skip tests on Ubuntu
+          args: 'c("--no-tests", "--no-manual")'  # skip tests on Ubuntu
 
       - name: Check R Package (Non-Ubuntu)
         if: matrix.config.os != 'ubuntu-latest'
