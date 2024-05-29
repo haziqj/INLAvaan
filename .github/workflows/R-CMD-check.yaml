@@ -29,7 +29,6 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      RUN_TESTS: ${{ if eq(matrix.config.os, 'ubuntu-latest'), 'false', 'true' }}      
 
     steps:
       - uses: actions/checkout@v4
@@ -47,7 +46,7 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
-          
+
       - name: Set Test Flag
         run: |
           if [ "${{ matrix.config.os }}" = "ubuntu-latest" ]; then
