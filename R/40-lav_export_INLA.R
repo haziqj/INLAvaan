@@ -1301,7 +1301,8 @@ lav2inla <- function(
     p = pta$nvar[[1]],
     q = pta$nfac[[1]],
     init = inlastart,
-    partable = partable
+    partable = partable,
+    theta_to_rho = theta_to_rho  # utility function, see 10-utilities.R
     # optimize = TRUE
   )
 

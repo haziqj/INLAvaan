@@ -71,9 +71,9 @@ inla_sem <- function(
     lambda <- theta[idx_lam]
     beta <- theta[idx_beta]
     sd_e <- sqrt(exp(theta[idx_theta]))  # sd_e = sd_e ^ 2 (item sd)
-    rho <- INLAvaan:::theta_to_rho(theta[idx_rho])
+    rho <- theta_to_rho(theta[idx_rho])
     sd_z <- sqrt(exp(theta[idx_psi]))  # sd_z = sd_z ^ 2 (latent sd)
-    lvrho <- INLAvaan:::theta_to_rho(theta[idx_lvrho])
+    lvrho <- theta_to_rho(theta[idx_lvrho])
 
     list(
       lambda = lambda,
@@ -130,8 +130,9 @@ inla_sem <- function(
       front <- Lambda %*% solve(IminB)
     }
     Sigma <- front %*% tcrossprod(Psi, front) + Theta
-    # Sigma <- Sigma + diag(1e-7, nrow(Sigma))  # for stability
-    MASS::ginv(Sigma)
+    Sigma <- Sigma + diag(1e-10, nrow(Sigma))  # for stability
+    chol2inv(chol(Sigma))
+    # MASS::ginv(Sigma)
   }
 
   mu <- function() { numeric(0) }
