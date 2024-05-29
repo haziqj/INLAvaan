@@ -48,9 +48,18 @@ jobs:
           needs: check
 
       - name: Configure BLAS
+        if: matrix.config.os == 'ubuntu-latest'      
         run: |
           echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
           echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+
+      - name: Install and select alternative BLAS/LAPACK
+        if: matrix.config.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libatlas-base-dev
+          sudo update-alternatives --set libblas.so.3 /usr/lib/atlas-base/atlas/libblas.so.3
+          sudo update-alternatives --set liblapack.so.3 /usr/lib/atlas-base/atlas/liblapack.so.3          
 
       - name: Session info
         run: |
