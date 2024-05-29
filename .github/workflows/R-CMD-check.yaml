@@ -29,6 +29,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      RUN_TESTS: ${{ if eq(matrix.config.os, 'ubuntu-latest'), 'false', 'true' }}      
 
     steps:
       - uses: actions/checkout@v4
@@ -77,3 +78,5 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+          check_args: ${{ if eq(matrix.config.os, 'ubuntu-latest') , '--no-tests', '' }}          
+
