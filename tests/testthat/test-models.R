@@ -1,4 +1,6 @@
 test_that("CFA", {
+  INLA::inla.setOption(num.threads = "1:1")
+
   mod <- "
     eta1 =~ y1 + y2 + y3
     eta2 =~ y4 + y5 + y6
@@ -16,6 +18,8 @@ test_that("CFA", {
 })
 
 test_that("SEM", {
+  INLA::inla.setOption(num.threads = "1:1")
+
   mod <- "
     eta1 =~ y1 + y2 + y3
     eta2 =~ y4 + y5 + y6
