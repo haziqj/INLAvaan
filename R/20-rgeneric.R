@@ -130,11 +130,10 @@ inla_sem <- function(
       front <- Lambda %*% solve(IminB)
     }
     Sigma <- front %*% tcrossprod(Psi, front) + Theta
-    # Sigma <- Sigma + diag(1e-10, nrow(Sigma))  # for stability
-    # chol2inv(chol(Sigma))
-    # MASS::ginv(Sigma)
-    Sigma <- Matrix::forceSymmetric(Matrix::Matrix(Sigma))
-    Matrix::solve(Sigma)
+    Sigma <- Sigma + diag(1e-5, nrow(Sigma))  # for stability
+    chol2inv(chol(Sigma))
+    # Sigma <- Matrix::forceSymmetric(Matrix::Matrix(Sigma))
+    # Matrix::solve(Sigma)
   }
 
   mu <- function() { numeric(0) }
