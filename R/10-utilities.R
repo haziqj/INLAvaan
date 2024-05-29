@@ -23,6 +23,16 @@ rho_to_theta <- function(x) {
   theta
 }
 
+safe_solve <- function(x) {
+  try_chol <- try(chol(x), silent = TRUE)
+  if (any(class(try_chol) %in% "try-error")) {
+    xm <- forceSymmetric(Matrix(x))
+    return(solve(xm))
+  } else {
+    return(chol2inv(try_chol))
+  }
+}
+
 # 1. From theta to PT
 # 2. From PT to Sigma and hence Q
 # 3. From PT to log priors

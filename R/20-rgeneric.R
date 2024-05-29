@@ -130,8 +130,9 @@ inla_sem <- function(
       front <- Lambda %*% solve(IminB)
     }
     Sigma <- front %*% tcrossprod(Psi, front) + Theta
-    Sigma <- Sigma + diag(1e-5, nrow(Sigma))  # for stability
-    chol2inv(chol(Sigma))
+    safe_solve(Sigma)
+    # Sigma <- Sigma + diag(1e-7, nrow(Sigma))  # for stability
+    # chol2inv(chol(Sigma))
     # Sigma <- Matrix::forceSymmetric(Matrix::Matrix(Sigma))
     # Matrix::solve(Sigma)
   }
