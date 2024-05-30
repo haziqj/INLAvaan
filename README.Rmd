@@ -329,6 +329,146 @@ res |>
        caption = "For MCMC sampling, 1000 burnin and 2000 samples were obtained.\nINLA ran on 6 parallel threads.")
 ```
 
+
+## Political democracy data
+
+The quintessential example for SEM is this model from Bollen (1989) to fit a political democracy data set.
+Eleven observed variables are hypothesized to arise from three latent variables.
+This set includes data from 75 developing countries each assessed on four measures of democracy measured twice (1960 and 1965), and three measures of industrialization measured once (1960). 
+The eleven observed variables are:
+
+-   `y1`: Freedom of the press, 1960
+-   `y2`: Freedom of political opposition, 1960
+-   `y3`: Fairness of elections, 1960
+-   `y4`: Effectiveness of elected legislature, 1960
+-   `y5`: Freedom of the press, 1965
+-   `y6`: Freedom of political opposition, 1965
+-   `y7`: Fairness of elections, 1965
+-   `y8`: Effectiveness of elected legislature, 1965
+-   `y9`: GNP per capita, 1960
+-   `y10`: Energy consumption per capita, 1960
+-   `y11`: Percentage of labor force in industry, 1960
+
+Variables `y1-y4` and `y5-y8` are typically used as indicators of the latent trait of "political democracy" in 1960 and 1965 respectively, whereas `y9-y11` are used as indicators of industrialization (1960).
+It is theorised that industrialisation influences political democracy, and that political democracy in 1960 influences political democracy in 1965.
+Since the items measure the same latent trait at two time points, there is an assumption that the residuals of these items will be correlated with each other.
+The model is depicted in the figure below.
+
+```{r}
+#| echo: false
+knitr::include_graphics("https://lavaan.ugent.be/figures/sem.png")
+```
+
+The corresponding model in `{lavaan}` syntax is:
+
+```{r}
+mod <- "
+  # latent variables
+  dem60 =~ y1 + y2 + y3 + y4
+  dem65 =~ y5 + y6 + y7 + y8
+  ind60 =~ x1 + x2 + x3
+
+  # latent regressions
+  dem60 ~ ind60
+  dem65 ~ ind60 + dem60
+
+  # residual covariances
+  y1 ~~ y5
+  y2 ~~ y4 + y6
+  y3 ~~ y7
+  y4 ~~ y8
+  y6 ~~ y8
+"
+```
+
+We will fit this model using `{INLAvaan}` and compare the results with `{blavaan}`.
+
+```{r}
+#| label: poldemfit
+#| include: false
+#| cache: true
+data("PoliticalDemocracy", package = "lavaan")
+poldemfit <- isem(mod, PoliticalDemocracy, meanstructure = !TRUE, bcontrol = list(num.threads = 6))
+
+library(future)
+plan("multisession")
+poldemfit_blav <- bsem(
+  model = mod, 
+  data = PoliticalDemocracy,
+  # meanstructure = TRUE,
+  n.chains = 3,
+  bcontrol = list(cores = 3)
+  # burnin = 5000,
+  # sample = 10000
+)
+```
+
+```{r}
+#| eval: false
+data("PoliticalDemocracy", package = "lavaan")
+poldemfit <- isem(model = mod, data = PoliticalDemocracy)
+summary(poldemfit)
+```
+
+```{r}
+#| echo: false
+summary(poldemfit) #
+```
+
+```{r}
+#| label: fig-poldem
+#| echo: false
+#
+garb <- capture.output(tmp <- summary(poldemfit))
+PE_inla <- tibble(
+  est = as.numeric(tmp[, "Estimate"]),
+  ci.lower = as.numeric(tmp[, "pi.lower"]),
+  ci.upper = as.numeric(tmp[, "pi.upper"])
+) |>
+  mutate(method = "INLAvaan")
+garb <- capture.output(tmp <- summary(poldemfit_blav))
+PE_blav <- tibble(
+  est = as.numeric(tmp[, "Estimate"]),
+  ci.lower = as.numeric(tmp[, "pi.lower"]),
+  ci.upper = as.numeric(tmp[, "pi.upper"])
+) |>
+  mutate(method = "blavaan")
+
+
+bind_rows(
+  PE_inla, PE_blav
+) |>
+  mutate(
+    free = rep(partable(poldemfit)$free, 2),
+    pxnames = rep(partable(poldemfit)$pxnames, 2),
+    type = gsub("\\[[^]]*\\]", "", pxnames)
+  ) |>
+  drop_na() |>
+  mutate(names = factor(rep(names(coef(poldemfit)), 2), levels = rev(names(coef(fit))))) |>
+  pivot_wider(
+    names_from = method,
+    values_from = c(est, ci.lower, ci.upper)
+  ) |>
+  ggplot(aes(est_INLAvaan, est_blavaan, col = type)) +
+  geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(xmin = ci.lower_INLAvaan, xmax = ci.upper_INLAvaan), width = 0.1, alpha = 0.3) +
+  geom_errorbar(aes(ymin = ci.lower_blavaan, ymax = ci.upper_blavaan), width = 0.1, alpha = 0.3) +
+  theme_bw() +
+  labs(
+    x = "{INLAvaan} estimates",
+    y = "{blavaan} estimates",
+    col = "Parameter\ntype",
+    title = "Comparison of the estimates for the Political Democracy example",
+    caption = "MCMC conducted using Stan (3 parallel chains, 500 burnin, and 1500 samples)."
+  )
+
+cli::cli_h2("Compare timing (seconds)")
+list(poldemfit, poldemfit_blav) |>
+  set_names(c("INLAvaan", "blavaan")) |>
+  purrr::map_dbl(\(x) x@timing$total) 
+```
+
 ## Outro
 
 ```{r}

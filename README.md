@@ -116,12 +116,12 @@ mod <- "
 dplyr::glimpse(dat)
 #> Rows: 10,000
 #> Columns: 6
-#> $ y1 <dbl> 0.709801263, 0.842340759, -1.213499961, -0.200593044, 0.798170874, …
-#> $ y2 <dbl> 1.15008029, 1.20330819, -0.47440788, -0.33209759, 0.73791700, 0.019…
-#> $ y3 <dbl> 1.2848640572, 1.7572442266, -0.6549680413, -0.3067896758, 1.2151127…
-#> $ y4 <dbl> 1.24142876, 0.56811857, -2.12670803, -0.50739519, 0.03233622, -0.92…
-#> $ y5 <dbl> 1.15048010, 0.46779008, -2.74135310, -0.91711369, -0.04315028, -1.1…
-#> $ y6 <dbl> 1.34254059, 0.54066565, -2.90934210, -0.88349219, -0.08309935, -1.4…
+#> $ y1 <dbl> -1.26736639, -2.31884913, 1.71420679, 2.01369694, 1.37071214, -0.95…
+#> $ y2 <dbl> -1.3071645, -2.4263002, 1.9387949, 2.9101688, 1.7358113, -1.6660828…
+#> $ y3 <dbl> -2.2831840, -2.2597714, 2.3922723, 3.1412267, 2.1247038, -1.3562886…
+#> $ y4 <dbl> -0.18661779, -1.42605096, 2.49517728, -1.17149170, -1.01596946, 0.0…
+#> $ y5 <dbl> -0.6070868, -1.9211147, 2.9405287, -1.0167702, -0.4167566, -1.00124…
+#> $ y6 <dbl> -1.2278010, -2.2398984, 3.2180808, -1.8873268, -1.2123784, -0.60215…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -134,7 +134,7 @@ fit <- isem(model = mod, data = dat)
 summary(fit)
 ```
 
-    #> INLAvaan 0.1.0.9011 ended normally after 36 seconds
+    #> INLAvaan 0.1.0.9012 ended normally after 34 seconds
     #> 
     #>   Estimator                                      BAYES
     #>   Optimization method                             INLA
@@ -143,7 +143,7 @@ summary(fit)
     #>   Number of observations                         10000
     #> 
     #>   Statistic                                 MargLogLik         PPP
-    #>   Value                                     -51887.404          NA
+    #>   Value                                     -52033.656          NA
     #> 
     #> Parameter Estimates:
     #> 
@@ -152,37 +152,37 @@ summary(fit)
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta1 =~                                                             
     #>     y1                1.000                                           
-    #>     y2                1.193    0.004    1.185    1.202    normal(0,10)
-    #>     y3                1.494    0.005    1.483    1.503    normal(0,10)
+    #>     y2                1.203    0.004    1.194    1.212    normal(0,10)
+    #>     y3                1.496    0.005    1.485    1.505    normal(0,10)
     #>   eta2 =~                                                             
     #>     y4                1.000                                           
-    #>     y5                1.202    0.004    1.194    1.210    normal(0,10)
-    #>     y6                1.502    0.005    1.493    1.512    normal(0,10)
+    #>     y5                1.199    0.004    1.191    1.207    normal(0,10)
+    #>     y6                1.503    0.005    1.493    1.512    normal(0,10)
     #> 
     #> Regressions:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>   eta2 ~                                                              
-    #>     eta1              0.303    0.010    0.283    0.323    normal(0,10)
+    #>     eta1              0.306    0.010    0.286    0.326    normal(0,10)
     #> 
     #> Covariances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
     #>  .y1 ~~                                                               
-    #>    .y4                0.050    0.001    0.048    0.053       beta(1,1)
+    #>    .y4                0.048    0.001    0.046    0.051       beta(1,1)
     #>  .y2 ~~                                                               
-    #>    .y5                0.053    0.001    0.050    0.056       beta(1,1)
+    #>    .y5                0.049    0.001    0.046    0.051       beta(1,1)
     #>  .y3 ~~                                                               
-    #>    .y6                0.046    0.002    0.042    0.050       beta(1,1)
+    #>    .y6                0.053    0.002    0.050    0.057       beta(1,1)
     #> 
     #> Variances:
     #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
-    #>    .y1                0.100    0.002    0.096    0.104 gamma(1,.5)[sd]
-    #>    .y2                0.102    0.002    0.098    0.106 gamma(1,.5)[sd]
-    #>    .y3                0.100    0.003    0.094    0.106 gamma(1,.5)[sd]
-    #>    .y4                0.099    0.002    0.096    0.103 gamma(1,.5)[sd]
-    #>    .y5                0.103    0.002    0.099    0.108 gamma(1,.5)[sd]
-    #>    .y6                0.093    0.003    0.088    0.100 gamma(1,.5)[sd]
-    #>     eta1              1.021    0.015    0.991    1.052 gamma(1,.5)[sd]
-    #>    .eta2              0.999    0.015    0.970    1.029 gamma(1,.5)[sd]
+    #>    .y1                0.100    0.002    0.096    0.103 gamma(1,.5)[sd]
+    #>    .y2                0.100    0.002    0.096    0.104 gamma(1,.5)[sd]
+    #>    .y3                0.103    0.003    0.097    0.108 gamma(1,.5)[sd]
+    #>    .y4                0.098    0.002    0.094    0.101 gamma(1,.5)[sd]
+    #>    .y5                0.098    0.002    0.094    0.103 gamma(1,.5)[sd]
+    #>    .y6                0.105    0.003    0.099    0.111 gamma(1,.5)[sd]
+    #>     eta1              1.009    0.015    0.980    1.040 gamma(1,.5)[sd]
+    #>    .eta2              0.987    0.015    0.959    1.017 gamma(1,.5)[sd]
 
 Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using
 Stan on a single thread obtaining 1000 burnin and 2000 samples, as well
@@ -194,11 +194,153 @@ as variational Bayes):
     #> ── Compare timing (seconds) ──
     #> 
     #>   INLAvaan     lavaan    blavaan blavaan_vb 
-    #>     36.734      0.030    131.507     89.568
+    #>     34.968      0.028    127.584     92.434
 
 A little experiment to see how sample size affects run time:
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+
+## Political democracy data
+
+The quintessential example for SEM is this model from Bollen (1989) to
+fit a political democracy data set. Eleven observed variables are
+hypothesized to arise from three latent variables. This set includes
+data from 75 developing countries each assessed on four measures of
+democracy measured twice (1960 and 1965), and three measures of
+industrialization measured once (1960). The eleven observed variables
+are:
+
+- `y1`: Freedom of the press, 1960
+- `y2`: Freedom of political opposition, 1960
+- `y3`: Fairness of elections, 1960
+- `y4`: Effectiveness of elected legislature, 1960
+- `y5`: Freedom of the press, 1965
+- `y6`: Freedom of political opposition, 1965
+- `y7`: Fairness of elections, 1965
+- `y8`: Effectiveness of elected legislature, 1965
+- `y9`: GNP per capita, 1960
+- `y10`: Energy consumption per capita, 1960
+- `y11`: Percentage of labor force in industry, 1960
+
+Variables `y1-y4` and `y5-y8` are typically used as indicators of the
+latent trait of “political democracy” in 1960 and 1965 respectively,
+whereas `y9-y11` are used as indicators of industrialization (1960). It
+is theorised that industrialisation influences political democracy, and
+that political democracy in 1960 influences political democracy in 1965.
+Since the items measure the same latent trait at two time points, there
+is an assumption that the residuals of these items will be correlated
+with each other. The model is depicted in the figure below.
+
+<img src="https://lavaan.ugent.be/figures/sem.png" width="100%" />
+
+The corresponding model in `{lavaan}` syntax is:
+
+``` r
+mod <- "
+  # latent variables
+  dem60 =~ y1 + y2 + y3 + y4
+  dem65 =~ y5 + y6 + y7 + y8
+  ind60 =~ x1 + x2 + x3
+
+  # latent regressions
+  dem60 ~ ind60
+  dem65 ~ ind60 + dem60
+
+  # residual covariances
+  y1 ~~ y5
+  y2 ~~ y4 + y6
+  y3 ~~ y7
+  y4 ~~ y8
+  y6 ~~ y8
+"
+```
+
+We will fit this model using `{INLAvaan}` and compare the results with
+`{blavaan}`.
+
+``` r
+data("PoliticalDemocracy", package = "lavaan")
+poldemfit <- isem(model = mod, data = PoliticalDemocracy)
+summary(poldemfit)
+```
+
+    #> INLAvaan 0.1.0.9012 ended normally after 9 seconds
+    #> 
+    #>   Estimator                                      BAYES
+    #>   Optimization method                             INLA
+    #>   Number of model parameters                        31
+    #> 
+    #>   Number of observations                            75
+    #> 
+    #>   Statistic                                 MargLogLik         PPP
+    #>   Value                                      -1607.444          NA
+    #> 
+    #> Parameter Estimates:
+    #> 
+    #> 
+    #> Latent Variables:
+    #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
+    #>   dem60 =~                                                            
+    #>     y1                1.000                                           
+    #>     y2                1.256    0.184    0.894    1.620    normal(0,10)
+    #>     y3                1.056    0.149    0.764    1.349    normal(0,10)
+    #>     y4                1.262    0.150    0.967    1.558    normal(0,10)
+    #>   dem65 =~                                                            
+    #>     y5                1.000                                           
+    #>     y6                1.189    0.172    0.850    1.529    normal(0,10)
+    #>     y7                1.281    0.162    0.963    1.599    normal(0,10)
+    #>     y8                1.267    0.164    0.944    1.591    normal(0,10)
+    #>   ind60 =~                                                            
+    #>     x1                1.000                                           
+    #>     x2                2.186    0.138    1.923    2.465    normal(0,10)
+    #>     x3                1.816    0.152    1.520    2.118    normal(0,10)
+    #> 
+    #> Regressions:
+    #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
+    #>   dem60 ~                                                             
+    #>     ind60             1.478    0.398    0.691    2.259    normal(0,10)
+    #>   dem65 ~                                                             
+    #>     ind60             0.562    0.230    0.106    1.011    normal(0,10)
+    #>     dem60             0.847    0.097    0.662    1.043    normal(0,10)
+    #> 
+    #> Covariances:
+    #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
+    #>  .y1 ~~                                                               
+    #>    .y5                0.622    0.331   -0.042    1.234       beta(1,1)
+    #>  .y2 ~~                                                               
+    #>    .y4                1.372    0.604    0.306    2.743       beta(1,1)
+    #>    .y6                2.183    0.664    1.025    3.479       beta(1,1)
+    #>  .y3 ~~                                                               
+    #>    .y7                0.770    0.560   -0.447    1.879       beta(1,1)
+    #>  .y4 ~~                                                               
+    #>    .y8                0.337    0.461   -0.594    1.259       beta(1,1)
+    #>  .y6 ~~                                                               
+    #>    .y8                1.427    0.488    0.502    2.339       beta(1,1)
+    #> 
+    #> Variances:
+    #>                    Estimate  Post.SD pi.lower pi.upper    Prior       
+    #>    .y1                2.026    0.486    1.151    3.186 gamma(1,.5)[sd]
+    #>    .y2                7.436    1.375    5.257   10.529 gamma(1,.5)[sd]
+    #>    .y3                5.242    0.950    3.629    7.278 gamma(1,.5)[sd]
+    #>    .y4                3.368    0.788    2.065    5.190 gamma(1,.5)[sd]
+    #>    .y5                2.435    0.525    1.602    3.590 gamma(1,.5)[sd]
+    #>    .y6                5.128    0.951    3.671    7.163 gamma(1,.5)[sd]
+    #>    .y7                3.733    0.797    2.441    5.373 gamma(1,.5)[sd]
+    #>    .y8                3.464    0.791    2.149    5.219 gamma(1,.5)[sd]
+    #>    .x1                0.087    0.021    0.055    0.130 gamma(1,.5)[sd]
+    #>    .x2                0.112    0.058    0.028    0.233 gamma(1,.5)[sd]
+    #>    .x3                0.481    0.091    0.329    0.690 gamma(1,.5)[sd]
+    #>    .dem60             4.118    0.982    2.518    6.356 gamma(1,.5)[sd]
+    #>    .dem65             0.104    0.180   -0.002    0.560 gamma(1,.5)[sd]
+    #>     ind60             0.462    0.090    0.310    0.662 gamma(1,.5)[sd]
+
+<img src="man/figures/README-fig-poldem-1.png" width="100%" />
+
+    #> 
+    #> ── Compare timing (seconds) ──
+    #> 
+    #> INLAvaan  blavaan 
+    #>    9.004   19.669
 
 ## Outro
 
@@ -214,7 +356,7 @@ sessioninfo::session_info(info = "all")
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       Asia/Riyadh
-#>  date     2024-05-29
+#>  date     2024-05-30
 #>  pandoc   3.2 @ /opt/homebrew/bin/ (via rmarkdown)
 #> 
 #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -255,7 +397,7 @@ sessioninfo::session_info(info = "all")
 #>  forcats      * 1.0.0       2023-01-29 [1] CRAN (R 4.4.0)
 #>  foreign        0.8-86      2023-11-28 [1] CRAN (R 4.4.0)
 #>  Formula        1.2-5       2023-02-24 [1] CRAN (R 4.4.0)
-#>  future         1.33.2      2024-03-26 [1] CRAN (R 4.4.0)
+#>  future       * 1.33.2      2024-03-26 [1] CRAN (R 4.4.0)
 #>  future.apply   1.11.2      2024-03-28 [1] CRAN (R 4.4.0)
 #>  generics       0.1.3       2022-07-05 [1] CRAN (R 4.4.0)
 #>  ggplot2      * 3.5.1       2024-04-23 [1] CRAN (R 4.4.0)
@@ -274,7 +416,7 @@ sessioninfo::session_info(info = "all")
 #>  htmlwidgets    1.6.4       2023-12-06 [1] CRAN (R 4.4.0)
 #>  igraph         2.0.3       2024-03-13 [1] CRAN (R 4.4.0)
 #>  INLA           24.05.27-2  2024-05-27 [1] local
-#>  INLAvaan     * 0.1.0.9011  2024-05-29 [1] local
+#>  INLAvaan     * 0.1.0.9012  2024-05-30 [1] local
 #>  inline         0.3.19      2021-05-31 [1] CRAN (R 4.4.0)
 #>  jpeg           0.1-10      2022-11-29 [1] CRAN (R 4.4.0)
 #>  jsonlite       1.8.8       2023-12-04 [1] CRAN (R 4.4.0)
@@ -335,6 +477,7 @@ sessioninfo::session_info(info = "all")
 #>  rstan          2.32.6      2024-03-05 [1] CRAN (R 4.4.0)
 #>  rstantools     2.4.0       2024-01-31 [1] CRAN (R 4.4.0)
 #>  rstudioapi     0.16.0      2024-03-24 [1] CRAN (R 4.4.0)
+#>  runjags        2.2.2-4     2024-03-10 [1] CRAN (R 4.4.0)
 #>  sandwich       3.1-0       2023-12-11 [1] CRAN (R 4.4.0)
 #>  scales         1.3.0       2023-11-28 [1] CRAN (R 4.4.0)
 #>  sem            3.1-15      2022-04-10 [1] CRAN (R 4.4.0)
