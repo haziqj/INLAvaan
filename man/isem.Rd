@@ -10,7 +10,9 @@ isem(
   target = "INLA",
   dp = NULL,
   save.lvs = FALSE,
-  bcontrol = list(verbose = TRUE, num.threads = 6)
+  npost = 250,
+  stop_at_jagtrans = FALSE,
+  bcontrol = list()
 )
 
 icfa(
@@ -18,7 +20,9 @@ icfa(
   target = "INLA",
   dp = NULL,
   save.lvs = FALSE,
-  bcontrol = list(verbose = TRUE, num.threads = 6)
+  npost = 250,
+  stop_at_jagtrans = FALSE,
+  bcontrol = list()
 )
 }
 \arguments{

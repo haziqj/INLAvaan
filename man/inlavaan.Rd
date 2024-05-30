@@ -10,7 +10,8 @@ inlavaan(
   dp = NULL,
   save.lvs = FALSE,
   npost = 250,
-  bcontrol = list(num.threads = 6)
+  stop_at_jagtrans = FALSE,
+  bcontrol = list()
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ inlavaan(
 \item{save.lvs}{TBC}
 
 \item{npost}{Number of post-processing samples to do, if any.}
+
+\item{stop_at_jagtrans}{DEBUG}
 
 \item{bcontrol}{TBC}
 }
