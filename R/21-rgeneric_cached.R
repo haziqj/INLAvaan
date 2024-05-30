@@ -111,24 +111,24 @@ inla_sem_cached <- function(
     # Theta matrix
     diag(Theta) <- params$sd_e ^ 2
     if (length(idx_rho) > 0) {
-      for (k in seq_len(nrow(RHO_IDX))) {
-        i <- RHO_IDX[k, 1]
-        j <- RHO_IDX[k, 2]
-        Theta[i, j] <- Theta[j, i] <-
-          params$rho[k] * params$sd_e[i] * params$sd_e[j]
-      }
+      I <- RHO_IDX[, 1]
+      J <- RHO_IDX[, 2]
+      values <- params$rho * params$sd_e[I] * params$sd_e[J]
+      Theta[cbind(I, J)] <- values
+      Theta[cbind(J, I)] <- values
+
       Theta <- force_pd(Theta)  # force pd
     }
 
     # Psi matrix
     diag(Psi) <- params$sd_z ^ 2
     if (length(idx_lvrho) > 0) {
-      for (k in seq_len(nrow(LVRHO_IDX))) {
-        i <- LVRHO_IDX[k, 1]
-        j <- LVRHO_IDX[k, 2]
-        Psi[i, j] <- Psi[j, i] <-
-          params$lvrho[k] * params$sd_z[i] * params$sd_z[j]
-      }
+      I <- LVRHO_IDX[, 1]
+      J <- LVRHO_IDX[, 2]
+      values <- params$lvrho * params$sd_z[I] * params$sd_z[J]
+      Psi[cbind(I, J)] <- values
+      Psi[cbind(J, I)] <- values
+
       Psi <- force_pd(Psi)  # force pd
     }
 

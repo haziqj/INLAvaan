@@ -1271,7 +1271,6 @@ inlavaan <- function(
   out
 }
 
-
 #' Title
 #'
 #' @param ... TBC
