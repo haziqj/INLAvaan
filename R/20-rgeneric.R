@@ -9,64 +9,14 @@ inla_sem <- function(
   # - init (initial values)
   # - partable
 
-  # CACHE
-  envir <- parent.env(environment())
-  if (!exists("INLAvaan_SEM_cache", envir = envir)) {
+  interpret.theta <- function() {
 
-    # FIXME: These are indices for free parameters theta. But sometimes, with
-    # fixed parameter values we still need the indices...
-
-    # Indices
     idx_lam   <- partable$free[partable$mat == "lambda" & partable$free > 0]
     idx_beta  <- partable$free[partable$mat == "beta" & partable$free > 0]
     idx_theta <- partable$free[partable$mat == "theta" & partable$free > 0]
     idx_rho   <- partable$free[partable$mat == "rho" & partable$free > 0]
     idx_psi   <- partable$free[partable$mat == "psi" & partable$free > 0]
     idx_lvrho <- partable$free[partable$mat == "lvrho" & partable$free > 0]
-    assign("idx_lam", idx_lam, envir = envir)
-    assign("idx_beta", idx_beta, envir = envir)
-    assign("idx_theta", idx_theta, envir = envir)
-    assign("idx_rho", idx_rho, envir = envir)
-    assign("idx_psi", idx_psi, envir = envir)
-    assign("idx_lvrho", idx_lvrho, envir = envir)
-
-    # Lambda matrix
-    Lam_df <- partable[partable$mat == "lambda", ]
-    Lambda <- matrix(0, nrow = max(Lam_df$row), ncol = max(Lam_df$col))
-    Lambda[cbind(Lam_df$row, Lam_df$col)] <- Lam_df$est
-    LAM_IDX <- as.matrix(Lam_df[Lam_df$free > 0, c("row", "col")])
-    assign("Lambda", Lambda, envir = envir)
-    assign("LAM_IDX", LAM_IDX, envir = envir)
-
-    # (I-B) matrix
-    B_df <- partable[partable$mat == "beta", ]
-    B_IDX <- as.matrix(B_df[B_df$free > 0, c("row", "col")])
-    IminB <- 1
-    if (length(idx_beta) > 0) {
-      IminB <- diag(q)
-      IminB[B_IDX] <- -B_df$est
-    }
-    assign("IminB", IminB, envir = envir)
-    assign("B_IDX", B_IDX, envir = envir)
-
-    # Rho and Theta matrix
-    Rho_df <- partable[partable$mat == "rho", ]
-    Theta <- diag(p)
-    RHO_IDX <- cbind(Rho_df$row, Rho_df$col)
-    assign("RHO_IDX", RHO_IDX, envir = envir)
-    assign("Theta", Theta, envir = envir)
-
-    # LVRho and Psi matrix
-    LVRho_df <- partable[partable$mat == "lvrho", ]
-    Psi <- diag(q)
-    LVRHO_IDX <- cbind(LVRho_df$row, LVRho_df$col)
-    assign("LVRHO_IDX", LVRHO_IDX, envir = envir)
-    assign("Psi", Psi, envir = envir)
-
-    assign("INLAvaan_SEM_cache", TRUE, envir = envir)
-  }
-
-  interpret.theta <- function() {
 
     lambda <- theta[idx_lam]
     beta <- theta[idx_beta]
@@ -88,53 +38,58 @@ inla_sem <- function(
   Q <- function() {
     params <- interpret.theta()
 
-    # The matrices are cached and updated here
-    Lambda[LAM_IDX] <- params$lambda
-    if (length(idx_beta) > 0) IminB[B_IDX] <- -params$beta
+    # Lambda matrix
+    Lam_df <- partable[partable$mat == "lambda", ]
+    Lam_df$est[Lam_df$free > 0] <- params$lambda
+    Lambda <- matrix(0, nrow = max(Lam_df$row), ncol = max(Lam_df$col))
+    Lambda[cbind(Lam_df$row, Lam_df$col)] <- Lam_df$est
+
+    # B matrix
+    B_df <- partable[partable$mat == "beta", ]
+    B_df$est[B_df$free > 0] <- params$beta
+    if (length(params$beta) > 0) {
+      sizeB <- max(B_df$row, B_df$col)
+      B <- matrix(0, nrow = sizeB, ncol = sizeB)
+      B[cbind(B_df$row, B_df$col)] <- B_df$est
+    } else {
+      B <- 0
+    }
 
     # Theta matrix
-    diag(Theta) <- params$sd_e ^ 2
-    if (length(idx_rho) > 0) {
-      for (k in seq_len(nrow(RHO_IDX))) {
-        i <- RHO_IDX[k, 1]
-        j <- RHO_IDX[k, 2]
-        Theta[i, j] <- Theta[j, i] <-
-          params$rho[k] * params$sd_e[i] * params$sd_e[j]
-      }
+    if (length(params$rho) > 0) {
+      SD <- diag(x = params$sd_e)
+      Rho_df <- partable[partable$mat == "rho", ]
+      Rho_df$est[Rho_df$free > 0] <- params$rho
+      sizeRho <- length(params$sd_e)
+      Rho <- matrix(0, nrow = sizeRho, ncol = sizeRho)
+      Rho[cbind(Rho_df$row, Rho_df$col)] <- Rho_df$est
+      Rho <- Rho + t(Rho)
+      diag(Rho) <- 1
+      Theta <- SD %*% Rho %*% SD
+    } else {
+      Theta <- diag(params$sd_e ^ 2)
     }
+
 
     # Psi matrix
-    diag(Psi) <- params$sd_z ^ 2
-    if (length(idx_lvrho) > 0) {
-      for (k in seq_len(nrow(LVRHO_IDX))) {
-        i <- LVRHO_IDX[k, 1]
-        j <- LVRHO_IDX[k, 2]
-        Psi[i, j] <- Psi[j, i] <-
-          params$lvrho[k] * params$sd_z[i] * params$sd_z[j]
-      }
-    }
-
-    # Using Woodbury Matrix identity
-    # I_q <- diag(q)
-    # inv_I_minus_B <- solve(I_q - B)
-    # U <- Lambda %*% inv_I_minus_B
-    # C_inv <- diag(x = 1 / params$psi)  # solve(Psi)
-    # A_inv <- diag(x = 1 / params$sd_e)
-    # int_mat <- C_inv + t(U) %*% A_inv %*% U
-    # Sigma_inv <- A_inv - A_inv %*% U %*% solve(int_mat) %*% t(U) %*% A_inv
-
-    # Regular way
-    if (is.vector(IminB)) {
-      front <- Lambda
+    if (length(params$lvrho) > 0) {
+      SD <- diag(x = params$sd_z)
+      LVRho_df <- partable[partable$mat == "lvrho", ]
+      LVRho_df$est[LVRho_df$free > 0] <- params$lvrho
+      sizeLVRho <- length(params$sd_z)
+      LVRho <- matrix(0, nrow = sizeLVRho, ncol = sizeLVRho)
+      LVRho[cbind(LVRho_df$row, LVRho_df$col)] <- LVRho_df$est
+      LVRho <- LVRho + t(LVRho)
+      diag(LVRho) <- 1
+      Psi <- SD %*% LVRho %*% SD
     } else {
-      front <- Lambda %*% solve(IminB)
+      Psi <- diag(params$sd_z ^ 2)
     }
-    Sigma <- front %*% tcrossprod(Psi, front) + Theta
-    # safe_solve(Sigma)
-    Sigma <- Sigma + diag(1e-7, nrow(Sigma))  # for stability
-    chol2inv(chol(Sigma))
-    # Sigma <- Matrix::forceSymmetric(Matrix::Matrix(Sigma))
-    # Matrix::solve(Sigma)
+
+    # Return inverse Sigma
+    front <- Lambda %*% solve(diag(1, nrow = q) - B)
+    Sigma <- front %*% Psi %*% t(front) + Theta
+    solve(Sigma)
   }
 
   mu <- function() { numeric(0) }
@@ -153,7 +108,7 @@ inla_sem <- function(
     log_pdf_rho <- function(x, shape1 = 1, shape2 = 1) {
       u <- 1 / (1 + exp(-x))
       log_beta_density <- dbeta(u, shape1, shape2, log = TRUE)
-      log_jacobian <- -log(2 * u * (1 - u)) # log(Jacobian) = theta - 2 * log(1 + exp(theta))
+      log_jacobian <- -(log(2) + log(u) + log(1-u)) # log(Jacobian) = theta - 2 * log(1 + exp(theta))
       log_beta_density + log_jacobian
     }
 
@@ -178,8 +133,7 @@ inla_sem <- function(
   }
 
   graph <- function() {
-    Q <- matrix(1, nrow = p, ncol = p)
-    INLA::inla.as.sparse(Q)
+    matrix(1, nrow = p, ncol = p)
   }
 
   quit = function() { return(invisible()) }

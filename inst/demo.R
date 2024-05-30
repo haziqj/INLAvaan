@@ -52,10 +52,31 @@ myModel <- '
 
 fit <- isem(
   model = myModel,
-  data = PoliticalDemocracy,
-  meanstructure = FALSE,
+  data = scale(PoliticalDemocracy, center = FALSE, scale = FALSE),
+  meanstructure = TRUE,
+  # stop_at_jagtrans = TRUE,
   verbose = TRUE
 )
+
+tmp <- fit
+tmp$the_model$f$rgeneric$definition("Q")
+
+with(tmp$the_model$f$rgeneric$definition("Q", .debug = TRUE), {
+  solve(Lambda %*% IminB %*% Psi %*% t(IminB) %*% t(Lambda) + Theta)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 fit_lav <- sem(myModel, data = PoliticalDemocracy)
 

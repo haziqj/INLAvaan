@@ -10,15 +10,30 @@ cli_messages <- c(
 )
 
 theta_to_rho <- function(x) {
+  pos_only <- FALSE
+
   u <- 1 / (1 + exp(-x))
-  rho <- 2 * u - 1
+  if (pos_only) {
+    rho <- u
+  } else {
+    rho <- 2 * u - 1
+  }
+
   rho
 }
 
 rho_to_theta <- function(x) {
+  pos_only <- FALSE
+
   x[x > 1] <- 1
-  x[x < -1] <- -1
-  u <- (x + 1) / 2
+  if (pos_only) {
+    x[x < 0] <- 0
+    u <- x
+  } else {
+    x[x < -1] <- -1
+    u <- (x + 1) / 2
+  }
+
   theta <- log(u / (1 - u))
   theta
 }

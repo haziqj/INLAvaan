@@ -1287,23 +1287,22 @@ lav2inla <- function(
                                     log(start),
                                     ifelse(mat %in% c("rho", "lvrho"),
                                            rho_to_theta(start),
+                                           # log(start / (1 - start)),
                                            start)))
   filtered_partable <- subset(partable, free > 0 & mat != "nu")
   sorted_partable <- filtered_partable[order(filtered_partable$free), ]
   inlastart <- sorted_partable$inlastart
-  inlastart[inlastart == Inf] <- rho_to_theta(0.9)  # not needed
-  inlastart[inlastart == -Inf] <- rho_to_theta(-0.9)
 
   # INLA formula
   the_model <- INLA::inla.rgeneric.define(
-    inla_sem,  # see 20-rgeneric.R
+    inla_sem_cached,
     n = lavdata@nobs[[1]],  # TODO: Multiple groups?
     p = pta$nvar[[1]],
     q = pta$nfac[[1]],
     init = inlastart,
     partable = partable,
-    theta_to_rho = theta_to_rho, # utility function, see 10-utilities.R
-    safe_solve = safe_solve
+    theta_to_rho = theta_to_rho # utility function, see 10-utilities.R
+    # safe_solve = safe_solve
     # optimize = TRUE
   )
 
@@ -1311,7 +1310,7 @@ lav2inla <- function(
   if (isTRUE(meanstructure)) {
     form <- val ~ -1 + nu + f(ov.idx, model = the_model, replicate = i)
   } else {
-    form <- val ~ -1 + offset(nu_off) + f(ov.idx, model = the_model, replicate = i)
+    form <- val ~ offset(nu_off) + f(ov.idx, model = the_model, replicate = i)
     control_fixed$prec <- 100
   }
 
@@ -1321,6 +1320,7 @@ lav2inla <- function(
     the_model = the_model,
     control.family = list(hyper = list(prec = list(initial = 10, fixed = TRUE))),
     control.fixed = control_fixed,
+    control.compute = list(smtp = "band"),
     pxpartable = partable,
     inlastart = inlastart
   )

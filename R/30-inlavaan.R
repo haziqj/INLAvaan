@@ -6,6 +6,7 @@
 #' @param save.lvs TBC
 #' @param bcontrol TBC
 #' @param npost Number of post-processing samples to do, if any.
+#' @param stop_at_jagtrans DEBUG
 #'
 #' @return TBC
 #' @export
@@ -17,7 +18,11 @@ inlavaan <- function(
     dp = NULL,
     save.lvs = FALSE,
     npost = 250,
-    bcontrol = list(num.threads = 6)) {
+
+    # FOR MY DEBUGGING
+    stop_at_jagtrans = FALSE,
+
+    bcontrol = list()) {
 
   # To play nice with blavaan code
   cp                 = "srs"
@@ -568,6 +573,8 @@ inlavaan <- function(
             # inits = initsin
           )
         )
+        if (stop_at_jagtrans) return(jagtrans)
+
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       } else if(target == "jags") {
         jagtrans <- try(lav2mcmc(model = lavpartable, lavdata = lavdata,
@@ -1282,7 +1289,12 @@ isem <- function(
     target = "INLA",
     dp = NULL,
     save.lvs = FALSE,
-    bcontrol = list(verbose = TRUE, num.threads = 6)) {
+    npost = 250,
+
+    # FOR MY DEBUGGING
+    stop_at_jagtrans = FALSE,
+
+    bcontrol = list()) {
 
   dotdotdot <- list(...)
   std.lv <- ifelse(any(names(dotdotdot) == "std.lv"), dotdotdot$std.lv, FALSE)
