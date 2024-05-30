@@ -22,7 +22,7 @@ inlavaan <- function(
     # FOR MY DEBUGGING
     stop_at_jagtrans = FALSE,
 
-    bcontrol = list()) {
+    bcontrol = list(num.threads = 6)) {
 
   # To play nice with blavaan code
   cp                 = "srs"

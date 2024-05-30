@@ -1430,7 +1430,7 @@ coeffun_inla <- function(
   } else {
     psi_tab <-
       lapply(res$internal.marginals.hyperpar[c(idx_psi)], \(m) {
-        INLA::inla.tmarginal(function(x) exp(x), m) |>
+        INLA::inla.tmarginal(exp, m) |>
           INLA::inla.zmarginal(silent = TRUE) |>
           as.data.frame()
       }) |>
@@ -1501,7 +1501,7 @@ coeffun_inla <- function(
   } else {
     theta_tab <-
       lapply(res$internal.marginals.hyperpar[c(idx_theta)], \(m) {
-        INLA::inla.tmarginal(function(x) exp(x), m) |>
+        INLA::inla.tmarginal(exp, m) |>
           INLA::inla.zmarginal(silent = TRUE) |>
           as.data.frame()
       }) |>
