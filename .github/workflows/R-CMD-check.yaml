@@ -53,17 +53,17 @@ jobs:
           sessioninfo::session_info("installed", include_base = TRUE, info = "all")
         shell: Rscript {0}
 
-      - name: Check R Package (Ubuntu)
-        if: matrix.config.os == 'ubuntu-latest'
-        uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          args: 'c("--no-tests", "--no-manual")'  # skip tests on Ubuntu
-          error-on: '"error"'
+      # - name: Check R Package (Ubuntu)
+      #   if: matrix.config.os == 'ubuntu-latest'
+      #   uses: r-lib/actions/check-r-package@v2
+      #   with:
+      #     upload-snapshots: true
+      #     build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+      #     args: 'c("--no-tests", "--no-manual")'  # skip tests on Ubuntu
+      #     error-on: '"error"'
 
-      - name: Check R Package (Non-Ubuntu)
-        if: matrix.config.os != 'ubuntu-latest'
+      - name: Check R Package #(Non-Ubuntu)
+        # if: matrix.config.os != 'ubuntu-latest'
         uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
