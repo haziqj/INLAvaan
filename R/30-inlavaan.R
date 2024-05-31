@@ -565,11 +565,25 @@ inlavaan <- function(
 
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
       if (target == "INLA") {
+
+        sp <- NULL
+        if (!verbose) {
+          current_cli.progress_show_after <- options("cli.progress_show_after")
+          options("cli.progress_show_after" = 0)
+          sp <- cli::make_spinner(
+            which = cli::get_spinner("bouncingBall"),
+            template = paste("{spin}", sample(cli_messages, 1)),
+            stream = "message",
+            static = "silent"
+          )
+        }
+
         jagtrans <- try(
           lav2inla(
             lavobject = LAV,
             lavdata = lavdata,
-            dp = dp
+            dp = dp,
+            sp = sp
             # inits = initsin
           )
         )
@@ -824,27 +838,7 @@ inlavaan <- function(
         res <- try(do.call(rjcall, rjarg))
       } else {
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        # spinner <- cli::make_spinner(
-        #   # which = "simpleDotsScrolling",
-        #   template = paste(sample(cli_messages, 1), "{spin}")
-        # )
-        # spinner$spin()
-        #
-        # f <- future({
-        #   invisible({
-        #     sink(tempfile())  # Redirect output to a temporary file
-        #     require("INLA")
-        #     result <- do.call("inla", rjarg)
-        #     sink(NULL)
-        #     result
-        #   })
-        # }, seed = TRUE)
-        # while (!resolved(f)) {
-        #   Sys.sleep(0.1)  # Briefly pause to avoid hogging CPU
-        #   spinner$spin() # The spinner automatically updates
-        # }
-        # res <- value(f)
-        # spinner$finish()
+
         res <- do.call("inla", rjarg)
 
         # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1267,6 +1261,10 @@ inlavaan <- function(
   #     warning("blavaan WARNING: Small effective sample sizes (< 100) for some parameters.", call. = FALSE)
   #   }
   # }
+
+  if (!verbose) {
+    options("cli.progress_show_after" = current_cli.progress_show_after)
+  }
 
   out
 }

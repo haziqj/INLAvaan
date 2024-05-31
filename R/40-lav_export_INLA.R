@@ -2,6 +2,7 @@ lav2inla <- function(
     lavobject,
     lavdata = NULL,
     dp = NULL,
+    sp = NULL,
     n.chains = 1,
     mcmcextra = "",
     inits = "prior",
@@ -1301,7 +1302,8 @@ lav2inla <- function(
     q = pta$nfac[[1]],
     init = inlastart,
     partable = partable,
-    theta_to_rho = theta_to_rho # utility function, see 10-utilities.R
+    theta_to_rho = theta_to_rho,  # utility function, see 10-utilities.R
+    sp = sp
     # safe_solve = safe_solve
     # optimize = TRUE
   )

@@ -1,7 +1,7 @@
 Package: INLAvaan
 Type: Package
 Title: Bayesian Structural Equation Modelling with INLA
-Version: 0.1.0.9012
+Version: 0.1.0.9013
 Authors@R: 
     c(person("Haziq", "Jamil", 
              email = "haziq.jamil@gmail.com",

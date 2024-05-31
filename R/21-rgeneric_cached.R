@@ -91,6 +91,8 @@ inla_sem_cached <- function(
     sd_z <- sqrt(exp(theta[idx_psi]))  # sd_z = sd_z ^ 2 (latent sd)
     lvrho <- theta_to_rho(theta[idx_lvrho])
 
+    if (!is.null(sp)) sp$spin()
+
     list(
       lambda = lambda,
       beta = beta,

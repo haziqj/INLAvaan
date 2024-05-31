@@ -7,17 +7,6 @@ true_model <- "
   eta1 =~ 1*y1 + 1.2*y2 + 1.5*y3
   eta2 =~ 1*y4 + 1.2*y5 + 1.5*y6
   eta2 ~~ 0.3*eta1
-
-  y1 ~~ 0.05*y4
-  y2 ~~ 0.05*y5
-  y3 ~~ 0.05*y6
-
-  y1 ~~ 0.1*y1
-  y2 ~~ 0.1*y2
-  y3 ~~ 0.1*y3
-  y4 ~~ 0.1*y4
-  y5 ~~ 0.1*y5
-  y6 ~~ 0.1*y6
 "
 dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
 
@@ -29,7 +18,8 @@ mod <- "
   # y2 ~~ y5
   # y3 ~~ y6
 "
-fit <- isem(model = mod, data = dat, meanstructure = FALSE, verbose = TRUE); summary(fit)
+fit <- isem(model = mod, data = dat, meanstructure = FALSE, verbose = TRUE)
+summary(fit)
 
 # Political democracy SEM example ----------------------------------------------
 myModel <- '

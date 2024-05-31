@@ -11,7 +11,7 @@ inlavaan(
   save.lvs = FALSE,
   npost = 250,
   stop_at_jagtrans = FALSE,
-  bcontrol = list()
+  bcontrol = list(num.threads = 6)
 )
 }
 \arguments{
