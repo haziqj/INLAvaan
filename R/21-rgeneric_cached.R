@@ -32,7 +32,7 @@ inla_sem_cached <- function(
     }
     assign("force_pd", force_pd, envir = envir)
 
-    # Indices
+    # Indices of free parameters
     idx_lam   <- partable$free[partable$mat == "lambda" & partable$free > 0]
     idx_beta  <- partable$free[partable$mat == "beta" & partable$free > 0]
     idx_theta <- partable$free[partable$mat == "theta" & partable$free > 0]

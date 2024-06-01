@@ -11,15 +11,52 @@ true_model <- "
 dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
 
 mod <- "
-  eta1 =~ y1 + y2 + y3
-  eta2 =~ y4 + y5 + y6
+  eta1 =~ y1 + 2*y2 + a*y3
+  eta2 =~ y4 + b*y5 + a*y6
   # eta2 ~ eta1
   # y1 ~~ y4
   # y2 ~~ y5
   # y3 ~~ y6
 "
-fit <- isem(model = mod, data = dat, meanstructure = FALSE, verbose = TRUE)
-summary(fit)
+fit <- isem(
+  model = mod, data = dat,
+  meanstructure = FALSE,
+  verbose = TRUE,
+  # std.lv = TRUE,
+  stop_at_jagtrans = TRUE
+)
+
+tmp <- fit
+view(tmp$pxpartable)
+
+
+
+partable <- tmp$pxpartable
+
+
+partable |>
+  group_by(label) |>
+  mutate(free = case_when(
+    free > 0 ~ min(free),
+    TRUE ~ free
+  ))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Political democracy SEM example ----------------------------------------------
 myModel <- '

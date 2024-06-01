@@ -401,9 +401,6 @@ lav2inla <- function(
     }
   }
 
-
-
-
   TXT <- paste0(TXT, t1, "for(i in 1:N) {\n")
 
   if (ny > 0) {
@@ -1237,6 +1234,7 @@ lav2inla <- function(
     partable$mat[partable$mat == "psiUNC"] <- "psi"
   }
 
+
   ## insert function files, similar to brms approach:
   # tmp <- tempfile(fileext = ".stan")
   # cat(fullmodel, file = tmp)
@@ -1258,6 +1256,10 @@ lav2inla <- function(
   # out <- c(out, list(monitors = NULL, pxpartable = partable))
 
   # INLA Stuff -----------------------------------------------------------------
+
+
+
+
   # Prepare the data (needs to be in long form)
   dat_inla <- data.frame()
   for (g in 1:ngroups) {
