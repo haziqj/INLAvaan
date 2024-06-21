@@ -23,7 +23,7 @@ fit <- isem(
   meanstructure = FALSE,
   verbose = TRUE,
   # std.lv = TRUE,
-  stop_at_jagtrans = TRUE
+  stop_at_jagtrans = FALSE
 )
 
 tmp <- fit

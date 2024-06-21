@@ -58,7 +58,7 @@ pak::pak("haziqj/INLAvaan")
 
 A simple two-factor SEM with six observed, correlated Gaussian
 variables. Let $i=1,\dots,n$ index the subjects. Conditional on the
-values of $k$th latent variable $\eta_{ki}$ for subject $i$, the six
+values of $k$-th latent variable $\eta_{ki}$ for subject $i$, the six
 measurement model equations are
 
 <br>
@@ -116,12 +116,12 @@ mod <- "
 dplyr::glimpse(dat)
 #> Rows: 10,000
 #> Columns: 6
-#> $ y1 <dbl> -1.26736639, -2.31884913, 1.71420679, 2.01369694, 1.37071214, -0.95…
-#> $ y2 <dbl> -1.3071645, -2.4263002, 1.9387949, 2.9101688, 1.7358113, -1.6660828…
-#> $ y3 <dbl> -2.2831840, -2.2597714, 2.3922723, 3.1412267, 2.1247038, -1.3562886…
-#> $ y4 <dbl> -0.18661779, -1.42605096, 2.49517728, -1.17149170, -1.01596946, 0.0…
-#> $ y5 <dbl> -0.6070868, -1.9211147, 2.9405287, -1.0167702, -0.4167566, -1.00124…
-#> $ y6 <dbl> -1.2278010, -2.2398984, 3.2180808, -1.8873268, -1.2123784, -0.60215…
+#> $ y1 <dbl> -1.21410027, 0.42781790, -1.23105577, 1.29706010, -0.14438098, -1.2…
+#> $ y2 <dbl> -1.084814450, 0.372560944, -1.142733592, 1.906949830, -0.013115768,…
+#> $ y3 <dbl> -1.7501130, 1.2281783, -0.9274464, 3.0957939, 0.7869644, -1.1736760…
+#> $ y4 <dbl> 1.83828191, 0.92323072, 0.68456209, 1.88557378, -0.71608409, -0.519…
+#> $ y5 <dbl> 1.32807356, 0.62454411, 1.26304139, 2.50170072, -0.82536783, -1.213…
+#> $ y6 <dbl> 1.47070238, 1.36488688, 1.74260694, 2.89753599, -0.51635709, -0.748…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -349,14 +349,14 @@ sessioninfo::session_info(info = "all")
 #> ─ Session info ───────────────────────────────────────────────────────────────
 #>  setting  value
 #>  version  R version 4.4.0 (2024-04-24)
-#>  os       macOS Sonoma 14.4.1
+#>  os       macOS Sonoma 14.5
 #>  system   aarch64, darwin20
 #>  ui       X11
 #>  language (EN)
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
-#>  tz       Asia/Riyadh
-#>  date     2024-05-30
+#>  tz       Asia/Brunei
+#>  date     2024-06-21
 #>  pandoc   3.2 @ /opt/homebrew/bin/ (via rmarkdown)
 #> 
 #> ─ Packages ───────────────────────────────────────────────────────────────────
@@ -366,7 +366,7 @@ sessioninfo::session_info(info = "all")
 #>  backports      1.5.0       2024-05-23 [1] CRAN (R 4.4.0)
 #>  base64enc      0.1-3       2015-07-28 [1] CRAN (R 4.4.0)
 #>  bayesplot      1.11.1      2024-02-15 [1] CRAN (R 4.4.0)
-#>  blavaan      * 0.5-4       2024-04-15 [1] CRAN (R 4.4.0)
+#>  blavaan      * 0.5-5       2024-06-09 [1] CRAN (R 4.4.0)
 #>  boot           1.3-30      2024-02-26 [1] CRAN (R 4.4.0)
 #>  carData        3.0-5       2022-01-06 [1] CRAN (R 4.4.0)
 #>  checkmate      2.3.1       2023-12-04 [1] CRAN (R 4.4.0)
@@ -382,22 +382,21 @@ sessioninfo::session_info(info = "all")
 #>  corpcor        1.6.10      2021-09-16 [1] CRAN (R 4.4.0)
 #>  curl           5.2.1       2024-03-01 [1] CRAN (R 4.4.0)
 #>  data.table     1.15.4      2024-03-30 [1] CRAN (R 4.4.0)
-#>  DBI            1.2.2       2024-02-16 [1] CRAN (R 4.4.0)
-#>  Deriv          4.1.3       2021-02-24 [1] CRAN (R 4.4.0)
+#>  DBI            1.2.3       2024-06-02 [1] CRAN (R 4.4.0)
 #>  digest         0.6.35      2024-03-11 [1] CRAN (R 4.4.0)
 #>  dplyr        * 1.1.4       2023-11-17 [1] CRAN (R 4.4.0)
 #>  e1071          1.7-14      2023-12-06 [1] CRAN (R 4.4.0)
-#>  evaluate       0.23        2023-11-01 [1] CRAN (R 4.4.0)
+#>  evaluate       0.24.0      2024-06-10 [1] CRAN (R 4.4.0)
 #>  fansi          1.0.6       2023-12-08 [1] CRAN (R 4.4.0)
 #>  farver         2.1.2       2024-05-13 [1] CRAN (R 4.4.0)
 #>  fastmap        1.2.0       2024-05-15 [1] CRAN (R 4.4.0)
 #>  fBasics        4032.96     2023-11-03 [1] CRAN (R 4.4.0)
 #>  fdrtool        1.2.17      2021-11-13 [1] CRAN (R 4.4.0)
-#>  fmesher        0.1.5       2023-12-20 [1] CRAN (R 4.4.0)
+#>  fmesher        0.1.6       2024-06-14 [1] CRAN (R 4.4.0)
 #>  forcats      * 1.0.0       2023-01-29 [1] CRAN (R 4.4.0)
 #>  foreign        0.8-86      2023-11-28 [1] CRAN (R 4.4.0)
 #>  Formula        1.2-5       2023-02-24 [1] CRAN (R 4.4.0)
-#>  future       * 1.33.2      2024-03-26 [1] CRAN (R 4.4.0)
+#>  future         1.33.2      2024-03-26 [1] CRAN (R 4.4.0)
 #>  future.apply   1.11.2      2024-03-28 [1] CRAN (R 4.4.0)
 #>  generics       0.1.3       2022-07-05 [1] CRAN (R 4.4.0)
 #>  ggplot2      * 3.5.1       2024-04-23 [1] CRAN (R 4.4.0)
@@ -409,33 +408,32 @@ sessioninfo::session_info(info = "all")
 #>  gtable         0.3.5       2024-04-22 [1] CRAN (R 4.4.0)
 #>  gtools         3.9.5       2023-11-20 [1] CRAN (R 4.4.0)
 #>  highr          0.11        2024-05-26 [1] CRAN (R 4.4.0)
-#>  Hmisc          5.1-2       2024-03-11 [1] CRAN (R 4.4.0)
+#>  Hmisc          5.1-3       2024-05-28 [1] CRAN (R 4.4.0)
 #>  hms            1.1.3       2023-03-21 [1] CRAN (R 4.4.0)
 #>  htmlTable      2.4.2       2023-10-29 [1] CRAN (R 4.4.0)
 #>  htmltools      0.5.8.1     2024-04-04 [1] CRAN (R 4.4.0)
 #>  htmlwidgets    1.6.4       2023-12-06 [1] CRAN (R 4.4.0)
 #>  igraph         2.0.3       2024-03-13 [1] CRAN (R 4.4.0)
-#>  INLA           24.05.27-2  2024-05-27 [1] local
-#>  INLAvaan     * 0.1.0.9012  2024-05-30 [1] local
+#>  INLA           24.06.04    2024-06-03 [1] local
+#>  INLAvaan     * 0.1.0.9013  2024-05-31 [1] local
 #>  inline         0.3.19      2021-05-31 [1] CRAN (R 4.4.0)
 #>  jpeg           0.1-10      2022-11-29 [1] CRAN (R 4.4.0)
 #>  jsonlite       1.8.8       2023-12-04 [1] CRAN (R 4.4.0)
-#>  KernSmooth     2.23-22     2023-07-10 [1] CRAN (R 4.4.0)
-#>  knitr          1.46        2024-04-06 [1] CRAN (R 4.4.0)
+#>  KernSmooth     2.23-24     2024-05-17 [1] CRAN (R 4.4.0)
+#>  knitr          1.47        2024-05-29 [1] CRAN (R 4.4.0)
 #>  kutils         1.73        2023-09-17 [1] CRAN (R 4.4.0)
 #>  labeling       0.4.3       2023-08-29 [1] CRAN (R 4.4.0)
 #>  lattice        0.22-6      2024-03-20 [1] CRAN (R 4.4.0)
-#>  lavaan       * 0.6-17      2023-12-20 [1] CRAN (R 4.4.0)
+#>  lavaan       * 0.6-18      2024-06-07 [1] CRAN (R 4.4.0)
 #>  lifecycle      1.0.4       2023-11-07 [1] CRAN (R 4.4.0)
 #>  lisrelToR      0.3         2024-02-07 [1] CRAN (R 4.4.0)
 #>  listenv        0.9.1       2024-01-29 [1] CRAN (R 4.4.0)
-#>  lme4           1.1-35.3    2024-04-16 [1] CRAN (R 4.4.0)
+#>  lme4           1.1-35.4    2024-06-19 [1] CRAN (R 4.4.0)
 #>  loo            2.7.0       2024-02-24 [1] CRAN (R 4.4.0)
 #>  lubridate    * 1.9.3       2023-09-27 [1] CRAN (R 4.4.0)
 #>  magrittr       2.0.3       2022-03-30 [1] CRAN (R 4.4.0)
-#>  MASS           7.3-60.2    2024-04-24 [1] local
+#>  MASS           7.3-61      2024-06-13 [1] CRAN (R 4.4.0)
 #>  Matrix         1.7-0       2024-03-22 [1] CRAN (R 4.4.0)
-#>  MatrixModels   0.5-3       2023-11-06 [1] CRAN (R 4.4.0)
 #>  matrixStats    1.3.0       2024-04-11 [1] CRAN (R 4.4.0)
 #>  mgcv           1.9-1       2023-12-21 [1] CRAN (R 4.4.0)
 #>  mi             1.1         2022-06-06 [1] CRAN (R 4.4.0)
@@ -444,8 +442,8 @@ sessioninfo::session_info(info = "all")
 #>  modeest        2.4.0       2019-11-18 [1] CRAN (R 4.4.0)
 #>  munsell        0.5.1       2024-04-01 [1] CRAN (R 4.4.0)
 #>  mvtnorm        1.2-5       2024-05-21 [1] CRAN (R 4.4.0)
-#>  nlme           3.1-164     2023-11-27 [1] CRAN (R 4.4.0)
-#>  nloptr         2.0.3       2022-05-26 [1] CRAN (R 4.4.0)
+#>  nlme           3.1-165     2024-06-06 [1] CRAN (R 4.4.0)
+#>  nloptr         2.1.0       2024-06-19 [1] CRAN (R 4.4.0)
 #>  nnet           7.3-19      2023-05-03 [1] CRAN (R 4.4.0)
 #>  nonnest2       0.5-7       2024-05-06 [1] CRAN (R 4.4.0)
 #>  OpenMx         2.21.11     2023-11-28 [1] CRAN (R 4.4.0)
@@ -463,13 +461,13 @@ sessioninfo::session_info(info = "all")
 #>  purrr        * 1.0.2       2023-08-10 [1] CRAN (R 4.4.0)
 #>  qgraph         1.9.8       2023-11-03 [1] CRAN (R 4.4.0)
 #>  quadprog       1.5-8       2019-11-20 [1] CRAN (R 4.4.0)
-#>  QuickJSR       1.1.3       2024-01-31 [1] CRAN (R 4.4.0)
+#>  QuickJSR       1.2.2       2024-06-07 [1] CRAN (R 4.4.0)
 #>  R6             2.5.1       2021-08-19 [1] CRAN (R 4.4.0)
 #>  Rcpp         * 1.0.12      2024-01-09 [1] CRAN (R 4.4.0)
 #>  RcppParallel   5.1.7       2023-02-27 [1] CRAN (R 4.4.0)
 #>  readr        * 2.1.5       2024-01-10 [1] CRAN (R 4.4.0)
 #>  reshape2       1.4.4       2020-04-09 [1] CRAN (R 4.4.0)
-#>  rlang          1.1.3       2024-01-10 [1] CRAN (R 4.4.0)
+#>  rlang          1.1.4       2024-06-04 [1] CRAN (R 4.4.0)
 #>  rmarkdown      2.27        2024-05-17 [1] CRAN (R 4.4.0)
 #>  rmutil         1.1.10      2022-10-27 [1] CRAN (R 4.4.0)
 #>  rockchalk      1.8.157     2022-08-06 [1] CRAN (R 4.4.0)
@@ -477,7 +475,6 @@ sessioninfo::session_info(info = "all")
 #>  rstan          2.32.6      2024-03-05 [1] CRAN (R 4.4.0)
 #>  rstantools     2.4.0       2024-01-31 [1] CRAN (R 4.4.0)
 #>  rstudioapi     0.16.0      2024-03-24 [1] CRAN (R 4.4.0)
-#>  runjags        2.2.2-4     2024-03-10 [1] CRAN (R 4.4.0)
 #>  sandwich       3.1-0       2023-12-11 [1] CRAN (R 4.4.0)
 #>  scales         1.3.0       2023-11-28 [1] CRAN (R 4.4.0)
 #>  sem            3.1-15      2022-04-10 [1] CRAN (R 4.4.0)
@@ -489,7 +486,7 @@ sessioninfo::session_info(info = "all")
 #>  spatial        7.3-17      2023-07-20 [1] CRAN (R 4.4.0)
 #>  stable         1.1.6       2022-03-02 [1] CRAN (R 4.4.0)
 #>  stabledist     0.7-1       2016-09-12 [1] CRAN (R 4.4.0)
-#>  StanHeaders    2.32.8      2024-05-21 [1] CRAN (R 4.4.0)
+#>  StanHeaders    2.32.9      2024-05-29 [1] CRAN (R 4.4.0)
 #>  statip         0.2.3       2019-11-17 [1] CRAN (R 4.4.0)
 #>  stringi        1.8.4       2024-05-06 [1] CRAN (R 4.4.0)
 #>  stringr      * 1.5.1       2023-11-14 [1] CRAN (R 4.4.0)
@@ -507,7 +504,7 @@ sessioninfo::session_info(info = "all")
 #>  V8             4.4.2       2024-02-15 [1] CRAN (R 4.4.0)
 #>  vctrs          0.6.5       2023-12-01 [1] CRAN (R 4.4.0)
 #>  withr          3.0.0       2024-01-16 [1] CRAN (R 4.4.0)
-#>  xfun           0.44        2024-05-15 [1] CRAN (R 4.4.0)
+#>  xfun           0.45        2024-06-16 [1] CRAN (R 4.4.0)
 #>  XML            3.99-0.16.1 2024-01-22 [1] CRAN (R 4.4.0)
 #>  xml2           1.3.6       2023-12-04 [1] CRAN (R 4.4.0)
 #>  xtable         1.8-4       2019-04-21 [1] CRAN (R 4.4.0)
@@ -526,7 +523,7 @@ sessioninfo::session_info(info = "all")
 #>  jpeg           9.5
 #>  tiff           LIBTIFF, Version 4.5.0
 #>  tcl            8.6.13
-#>  curl           8.4.0
+#>  curl           8.6.0
 #>  zlib           1.2.12
 #>  bzlib          1.0.8, 13-Jul-2019
 #>  xz             5.4.4

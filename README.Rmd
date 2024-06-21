@@ -73,7 +73,7 @@ pak::pak("haziqj/INLAvaan")
 
 A simple two-factor SEM with six observed, correlated Gaussian variables.
 Let $i=1,\dots,n$ index the subjects.
-Conditional on the values of $k$th latent variable $\eta_{ki}$ for subject $i$, the six measurement model equations are
+Conditional on the values of $k$-th latent variable $\eta_{ki}$ for subject $i$, the six measurement model equations are
 
 <br>
 <p align="center">
@@ -313,7 +313,7 @@ res |>
     blavaan = res_blav_time,
     blavaan_vb = res_blavvb_time,
     INLAvaan = res_inla_time
-  ) |>
+  ) |> 
   pivot_longer(
     cols = -n,
     names_to = "method",

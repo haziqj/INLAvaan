@@ -553,7 +553,8 @@ inlavaan <- function(
     lavoptions$llnsamp <- mcmcextra$data$llnsamp
   }
 
-  verbose <- lavoptions$verbose
+  verbose <- dotdotdot$verbose
+  if (length(verbose) == 0) verbose <- FALSE
 
   # redo estimation + vcov + test
   # 6. estimate free parameters
