@@ -21,9 +21,9 @@ mod <- "
 fit <- isem(
   model = mod, data = dat,
   meanstructure = FALSE,
-  verbose = TRUE,
+  verbose = FALSE,
   # std.lv = TRUE,
-  stop_at_jagtrans = FALSE
+  stop_at_jagtrans = TRUE
 )
 
 tmp <- fit

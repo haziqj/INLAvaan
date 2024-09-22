@@ -23,8 +23,9 @@ dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
 
 # All parameters estimated
 mod <- "
-  eta1 =~ y1 + y2 + y3
-  eta2 =~ y4 + y5 + y6
+  eta1 =~ y1 + a*y2 + y3
+  eta2 =~ y4 + a*y5 + y6
+  eta3 =~ y7 + a*y8 + y9
   eta2 ~ eta1
 
   y1 ~~ y4
@@ -33,4 +34,12 @@ mod <- "
 "
 
 LAV <- sem(mod, dat, do.fit = FALSE)
+# BLAV <- sem(mod, dat, do.fit = FALSE)
 partable(LAV)
+lavInspect(LAV, "free")
+lavInspect(LAV, "est")
+
+# IDEA
+#
+# LAV <- USER CALL lavaan()
+#

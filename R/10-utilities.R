@@ -48,6 +48,222 @@ safe_solve <- function(x) {
   }
 }
 
+
+lav_object_inspect_modelmatrices <- function(object, what = "free", # nolint
+                                             type = "free", add.labels = FALSE, add.class = FALSE,
+                                             list.by.group = FALSE,
+                                             drop.list.single.group = FALSE) {
+
+  glist <- object@Model@GLIST
+
+  current.verbose <- lav_verbose()
+  if (what == "dx.free") {
+    if (lav_verbose(FALSE)) on.exit(lav_verbose(current.verbose), TRUE)
+    tmp.dx <- lav_model_gradient(
+      lavmodel       = object@Model,
+      GLIST          = NULL,
+      lavsamplestats = object@SampleStats,
+      lavdata        = object@Data,
+      lavcache       = object@Cache,
+      type           = "free",
+      group.weight   = TRUE,
+      ceq.simple     = TRUE,
+      Delta          = NULL)
+  } else if (what == "dx.all") {
+    if (lav_verbose(FALSE)) on.exit(lav_verbose(current.verbose), TRUE)
+    glist <- lav_model_gradient(lavmodel   = object@Model,
+                                GLIST          = NULL,
+                                lavsamplestats = object@SampleStats,
+                                lavdata        = object@Data,
+                                lavcache       = object@Cache,
+                                type           = "allofthem",
+                                group.weight   = TRUE,
+                                ceq.simple     = FALSE,
+                                Delta          = NULL)
+    names(glist) <- names(object@Model@GLIST)
+  } else if (what == "std.all") {
+    tmp.std <- lav_standardize_all(object)
+  } else if (what == "std.lv") {
+    tmp.std <- lav_standardize_lv(object)
+  } else if (what == "std.nox") {
+    tmp.std <- lav_standardize_all_nox(object)
+  } else if (what == "se") {
+    tmp.se <- lav_object_inspect_se(object)
+  } else if (what == "std.se") {
+    tmp.se <- lav_object_inspect_std_se(object)
+  } else if (what == "start") {
+    tmp.start <- lav_object_inspect_start(object)
+  } else if (what == "est") {
+    tmp.est <- lav_object_inspect_est(object)
+  } else if (what == "est.unrotated") {
+    if (!is.null(object@Options$rotation) &&
+        object@Options$rotation == "none") {
+      tmp.est <- lav_object_inspect_est(object, unrotated = FALSE)
+    } else {
+      tmp.est <- lav_object_inspect_est(object, unrotated = TRUE)
+    }
+  }
+
+  for (mm in seq_along(glist)) {
+
+    if (add.labels) {
+      dimnames(glist[[mm]]) <- object@Model@dimNames[[mm]]
+    }
+
+    if (what == "free") {
+      # fill in free parameter counts
+      if (type == "free") {
+        m.el.idx <- object@Model@m.free.idx[[mm]]
+        x.el.idx <- object@Model@x.free.idx[[mm]]
+        # } else if(type == "unco") {
+        #    m.el.idx <- object@Model@m.unco.idx[[mm]]
+        #    x.el.idx <- object@Model@x.unco.idx[[mm]]
+      } else if (type == "partable") {
+        m.el.idx <- object@Model@m.user.idx[[mm]]
+        x.el.idx <- object@Model@x.user.idx[[mm]]
+      } else {
+        lav_msg_stop(gettextf(
+          "%1$s argument unknown: %2$s",
+          "type", lav_msg_view(type)
+        ))
+      }
+      # erase everything
+      glist[[mm]][, ] <- 0.0
+      glist[[mm]][m.el.idx] <- x.el.idx
+    } else if (what == "se" || what == "std.se") {
+      # fill in standard errors
+      m.user.idx <- object@Model@m.user.idx[[mm]]
+      x.user.idx <- object@Model@x.user.idx[[mm]]
+      # erase everything
+      glist[[mm]][, ] <- 0.0
+      glist[[mm]][m.user.idx] <- tmp.se[x.user.idx]
+    } else if (what == "start") {
+      # fill in starting values
+      m.user.idx <- object@Model@m.user.idx[[mm]]
+      x.user.idx <- object@Model@x.user.idx[[mm]]
+      glist[[mm]][m.user.idx] <- tmp.start[x.user.idx]
+    } else if (what %in% c("est", "est.unrotated")) {
+      # fill in estimated parameter values
+      m.user.idx <- object@Model@m.user.idx[[mm]]
+      x.user.idx <- object@Model@x.user.idx[[mm]]
+      glist[[mm]][m.user.idx] <- tmp.est[x.user.idx]
+    } else if (what == "dx.free") {
+      # fill in derivatives free parameters
+      m.el.idx <- object@Model@m.free.idx[[mm]]
+      x.el.idx <- object@Model@x.free.idx[[mm]]
+      # erase everything
+      glist[[mm]][, ] <- 0.0
+      glist[[mm]][m.el.idx] <- tmp.dx[x.el.idx]
+    } else if (what %in% c("std.all", "std.lv", "std.nox")) {
+      m.user.idx <- object@Model@m.user.idx[[mm]]
+      x.user.idx <- object@Model@x.user.idx[[mm]]
+      glist[[mm]][m.user.idx] <- tmp.std[x.user.idx]
+    }
+
+    # class
+    if (add.class) {
+      if (object@Model@isSymmetric[mm]) {
+        class(glist[[mm]]) <- c("lavaan.matrix.symmetric", "matrix")
+      } else {
+        class(glist[[mm]]) <- c("lavaan.matrix", "matrix")
+      }
+    }
+  }
+
+  # try to reflect `equality constraints'
+  con.flag <- FALSE
+  if (what == "free" && object@Model@eq.constraints) {
+    # extract constraints from parameter table
+    partable <- parTable(object)
+    tmp.con <-  partable[partable$op %in% c("==", "<", ">"),
+                         c("lhs", "op", "rhs")]
+    rownames(tmp.con) <- NULL
+
+    # replace 'labels' by parameter numbers
+    tmp.id <- lav_partable_constraints_label_id(partable)
+    tmp.label <- names(tmp.id)
+    for (con in seq_len(nrow(tmp.con))) {
+      # lhs
+      lhs.labels <- all.vars(as.formula(paste("~", tmp.con[con, "lhs"])))
+
+      if (length(lhs.labels) > 0L) {
+        # par id
+        lhs.freeid <- tmp.id[match(lhs.labels, tmp.label)]
+
+        # substitute
+        tmp <- tmp.con[con, "lhs"]
+        for (pat in seq_along(lhs.labels)) {
+          tmp <- sub(lhs.labels[pat], lhs.freeid[pat], tmp)
+        }
+        tmp.con[con, "lhs"] <- tmp
+      }
+
+      # rhs
+      rhs.labels <- all.vars(as.formula(paste("~", tmp.con[con, "rhs"])))
+
+      if (length(rhs.labels) > 0L) {
+        # par id
+        rhs.freeid <- tmp.id[match(rhs.labels, tmp.label)]
+        # substitute
+        tmp <- tmp.con[con, "rhs"]
+        for (pat in seq_along(rhs.labels)) {
+          tmp <- sub(rhs.labels[pat], rhs.freeid[pat], tmp)
+        }
+        tmp.con[con, "rhs"] <- tmp
+      }
+    } # con
+
+    # add this info at the top
+    # glist <- c(constraints = list(tmp.con), glist)
+    # no, not a good idea, it does not work with list.by.group
+
+    # add it as a 'header' attribute?
+    attr(tmp.con, "header") <- "Note: model contains equality constraints:"
+    con.flag <- TRUE
+  }
+
+  # should we group them per block?
+  if (list.by.group) {
+    lavmodel       <- object@Model
+    nmat           <- lavmodel@nmat
+
+    return.value <- vector("list", length = lavmodel@nblocks)
+    for (b in seq_len(lavmodel@nblocks)) {
+      # which mm belong to this block?
+      mm.in.group <- 1:nmat[b] + cumsum(c(0, nmat))[b]
+
+      return.value[[b]] <- glist[mm.in.group]
+    }
+
+    if (lavmodel@nblocks == 1L && drop.list.single.group) {
+      return.value <- return.value[[1]]
+    } else if (lavmodel@nblocks > 1L) {
+      names(return.value) <- object@Data@block.label
+    }
+  } else {
+    return.value <- glist
+  }
+
+  # header
+  if (con.flag) {
+    attr(return.value, "header") <- tmp.con
+  }
+
+  # lavaan.list
+  if (add.class) {
+    class(return.value) <- c("lavaan.list", "list")
+  }
+
+  return.value
+}
+
+
+
+
+
+
+
+
 # 1. From theta to PT
 # 2. From PT to Sigma and hence Q
 # 3. From PT to log priors
