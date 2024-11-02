@@ -1318,3 +1318,11 @@ isem <- function(
 #' @rdname isem
 #' @export
 icfa <- isem
+
+#' @rdname isem
+#' @export
+insem <- isem
+
+#' @rdname isem
+#' @export
+incfa <- icfa
