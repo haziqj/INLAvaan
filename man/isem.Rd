@@ -3,6 +3,8 @@
 \name{isem}
 \alias{isem}
 \alias{icfa}
+\alias{insem}
+\alias{incfa}
 \title{Title}
 \usage{
 isem(
@@ -16,6 +18,26 @@ isem(
 )
 
 icfa(
+  ...,
+  target = "INLA",
+  dp = NULL,
+  save.lvs = FALSE,
+  npost = 250,
+  stop_at_jagtrans = FALSE,
+  bcontrol = list()
+)
+
+insem(
+  ...,
+  target = "INLA",
+  dp = NULL,
+  save.lvs = FALSE,
+  npost = 250,
+  stop_at_jagtrans = FALSE,
+  bcontrol = list()
+)
+
+incfa(
   ...,
   target = "INLA",
   dp = NULL,
