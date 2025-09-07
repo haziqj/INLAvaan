@@ -2,11 +2,11 @@ Package: INLAvaan
 Type: Package
 Title: Bayesian Structural Equation Modelling with INLA
 Version: 0.1.0.9013
-Authors@R: 
-    c(person("Haziq", "Jamil", 
-             email = "haziq.jamil@gmail.com",
-             role = c("aut", "cre"),
-             comment = c(ORCID = "0000-0003-3298-1010")))
+Authors@R: c(
+    person("Haziq", "Jamil", , "haziq.jamil@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3298-1010")),
+    person("Alving", "Bong", role = "ctb")
+  )
 Description: INLAvaan is an R package that extends `{lavaan}` for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA. 
 License: GPL (>= 3)
 Additional_repositories: https://inla.r-inla-download.org/R/testing
@@ -21,10 +21,11 @@ Imports:
     Matrix,
     modeest,
     tidyr
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 
     methods
+URL: http://haziqj.ml/INLAvaan/

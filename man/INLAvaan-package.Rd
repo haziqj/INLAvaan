@@ -8,6 +8,13 @@
 \description{
 INLAvaan is an R package that extends `{lavaan}` for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{http://haziqj.ml/INLAvaan/}
+}
+
+}
 \author{
 \strong{Maintainer}: Haziq Jamil \email{haziq.jamil@gmail.com} (\href{https://orcid.org/0000-0003-3298-1010}{ORCID})
 
