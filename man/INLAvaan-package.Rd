@@ -18,5 +18,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Haziq Jamil \email{haziq.jamil@gmail.com} (\href{https://orcid.org/0000-0003-3298-1010}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Alvin Bong [contributor]
+}
+
 }
 \keyword{internal}

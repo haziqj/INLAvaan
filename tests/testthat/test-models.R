@@ -62,7 +62,7 @@ test_that("CFA", {
   "
   dat <- lavaan::simulateData(mod, sample.nobs = 1000)
   expect_no_error({
-    fit <- icfa(
+    fit <- incfa(
       model = mod,
       data = dat,
       meanstructure = FALSE,

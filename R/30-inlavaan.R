@@ -1280,7 +1280,7 @@ inlavaan <- function(
 #'
 #' @return TBC
 #' @export
-isem <- function(
+insem <- function(
     ..., # default lavaan arguments
 
     # INLA specific stuff
@@ -1300,7 +1300,7 @@ isem <- function(
   mc <- match.call()
   mc$model.type      = as.character( mc[[1L]] )
   if(length(mc$model.type) == 3L) mc$model.type <- mc$model.type[3L]
-  mc$model.type <- gsub("^i", "", mc$model.type)
+  mc$model.type <- gsub("^in", "", mc$model.type)
   mc$int.ov.free     = TRUE
   mc$int.lv.free     = FALSE
   mc$auto.fix.first  = !std.lv
@@ -1315,14 +1315,6 @@ isem <- function(
   eval(mc, parent.frame())
 }
 
-#' @rdname isem
+#' @rdname insem
 #' @export
-icfa <- isem
-
-#' @rdname isem
-#' @export
-insem <- isem
-
-#' @rdname isem
-#' @export
-incfa <- icfa
+incfa <- insem
