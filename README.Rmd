@@ -32,22 +32,6 @@ library(semptools)
 
 > Bayesian structural equation modelling with INLA.
 
-**Soon-ish features**
-
-1. Model fit indices (PPP, xIC, RMSEA, etc.)
-2. Prior specification.
-3. Fixed values and/or parameter constraints.
-4. Specify different families for different observed variable. 
-5. Standardised coefficients.
-
-**Long term plan**
-
-1. "Non-iid" models, such as spatio-temporal models.
-2. Multilevel-ish kind of models (2-3 levels).
-3. Covariates.
-4. Multigroup analysis (in principle this is simple, but I have bigger plans for this).
-5. Missing data imputation.
-
 ## Installation
 
 You need a working installation of [INLA](https://www.r-inla.org).
@@ -468,6 +452,49 @@ list(poldemfit, poldemfit_blav) |>
   set_names(c("INLAvaan", "blavaan")) |>
   purrr::map_dbl(\(x) x@timing$total) 
 ```
+
+## Citation
+
+To cite package `{INLAvaan}` in publications use:
+
+> Jamil, H (2025). _INLAvaan: Bayesian structural equation modelling with INLA
+_. https://haziqj.github.io/inlavaan/.
+
+A BibTeX entry for LaTeX users is:
+
+```bibtex
+@Manual{,
+    title = {INLAvaan: Bayesian structural equation modelling with INLA},
+    author = {Haziq Jamil},
+    year = {2025},
+    url = {https://haziqj.ml/inlavaan/},
+  }
+```
+
+## License
+
+The `{INLAvaan}` package is licensed under the [GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html). 
+
+```plaintext
+INLAvaan: Bayesian structural equation modelling with INLA
+Copyright (C) 2025- Haziq Jamil
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+```
+
+By using this package, you agree to comply with both licenses: 
+the GPL-3 license for the software and the CC BY 4.0 license for the data.
 
 ## Outro
 
