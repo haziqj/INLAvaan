@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-## `{INLAvaan}`
+# INLAvaan <a href="https://inlavaan.haziqj.ml"><img src="man/figures/logo.png" align="right" height="139" alt="INLAvaan website" /></a>
 
 <!-- badges: start -->
 
@@ -101,12 +101,12 @@ mod <- "
 dplyr::glimpse(dat)
 #> Rows: 10,000
 #> Columns: 6
-#> $ y1 <dbl> -0.16403280, 0.84666165, -0.75187977, -0.23349984, -1.10872063, 0.0…
-#> $ y2 <dbl> -0.64413960, -0.17169049, 0.08213562, -0.90485687, -2.04156900, 0.1…
-#> $ y3 <dbl> 0.858094700, 0.006330417, -1.026780681, -0.613721047, -2.157229417,…
-#> $ y4 <dbl> 0.48799221, -0.53041248, 1.81160243, -0.67852846, 0.01154559, -0.16…
-#> $ y5 <dbl> 0.009933007, -1.575633176, 1.948946179, -1.701868598, -0.503675724,…
-#> $ y6 <dbl> 0.12796084, -1.79257187, 1.95968390, -0.90338971, -0.23092387, 0.01…
+#> $ y1 <dbl> -1.148518135, 0.444618841, 0.771218503, 0.551783979, -0.228427419, …
+#> $ y2 <dbl> -1.18826657, 1.01901560, 0.40491523, 1.38051641, 0.18770293, -1.933…
+#> $ y3 <dbl> -1.3617802, 1.1150475, 0.5365782, 1.7459408, 0.4876758, -2.4735535,…
+#> $ y4 <dbl> -2.02201679, 0.85431820, -1.73057047, 0.48429957, -0.60096629, 0.67…
+#> $ y5 <dbl> -1.8321686, 1.6783100, -2.8853791, 0.5389005, -0.5569732, 1.1181923…
+#> $ y6 <dbl> -2.9506752, 1.9654119, -2.7378737, 0.3983366, -0.6044734, 1.0805252…
 ```
 
 To fit this model using `{INLAvaan}`, use the familiar `{lavaan}`
@@ -394,7 +394,7 @@ sessioninfo::session_info(info = "all")
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       Asia/Riyadh
-#>  date     2025-09-07
+#>  date     2025-09-10
 #>  pandoc   3.4 @ /Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/aarch64/ (via rmarkdown)
 #>  quarto   1.7.33 @ /usr/local/bin/quarto
 #> 
@@ -422,11 +422,10 @@ sessioninfo::session_info(info = "all")
 #>  curl           7.0.0      2025-08-19 [1] CRAN (R 4.5.0)
 #>  data.table     1.17.8     2025-07-10 [1] CRAN (R 4.5.0)
 #>  DBI            1.2.3      2024-06-02 [1] CRAN (R 4.5.0)
-#>  Deriv          4.2.0      2025-06-20 [1] CRAN (R 4.5.0)
 #>  digest         0.6.37     2024-08-19 [1] CRAN (R 4.5.0)
 #>  dplyr        * 1.1.4      2023-11-17 [1] CRAN (R 4.5.0)
 #>  e1071          1.7-16     2024-09-16 [1] CRAN (R 4.5.0)
-#>  evaluate       1.0.4      2025-06-18 [1] CRAN (R 4.5.0)
+#>  evaluate       1.0.5      2025-08-27 [1] CRAN (R 4.5.0)
 #>  farver         2.1.2      2024-05-13 [1] CRAN (R 4.5.0)
 #>  fastmap        1.2.0      2024-05-15 [1] CRAN (R 4.5.0)
 #>  fBasics        4041.97    2024-08-19 [1] CRAN (R 4.5.0)
@@ -435,7 +434,7 @@ sessioninfo::session_info(info = "all")
 #>  forcats      * 1.0.0      2023-01-29 [1] CRAN (R 4.5.0)
 #>  foreign        0.8-90     2025-03-31 [1] CRAN (R 4.5.1)
 #>  Formula        1.2-5      2023-02-24 [1] CRAN (R 4.5.0)
-#>  future       * 1.67.0     2025-07-29 [1] CRAN (R 4.5.0)
+#>  future         1.67.0     2025-07-29 [1] CRAN (R 4.5.0)
 #>  future.apply   1.20.0     2025-06-06 [1] CRAN (R 4.5.0)
 #>  generics       0.1.4      2025-05-09 [1] CRAN (R 4.5.0)
 #>  ggplot2      * 3.5.2      2025-04-09 [1] CRAN (R 4.5.0)
@@ -472,7 +471,6 @@ sessioninfo::session_info(info = "all")
 #>  magrittr       2.0.3      2022-03-30 [1] CRAN (R 4.5.0)
 #>  MASS           7.3-65     2025-02-28 [1] CRAN (R 4.5.1)
 #>  Matrix         1.7-3      2025-03-11 [1] CRAN (R 4.5.1)
-#>  MatrixModels   0.5-4      2025-03-26 [1] CRAN (R 4.5.0)
 #>  matrixStats    1.5.0      2025-01-07 [1] CRAN (R 4.5.0)
 #>  mgcv           1.9-3      2025-04-04 [1] CRAN (R 4.5.1)
 #>  mi             1.2        2025-09-02 [1] CRAN (R 4.5.0)
@@ -517,7 +515,6 @@ sessioninfo::session_info(info = "all")
 #>  rstan          2.32.7     2025-03-10 [1] CRAN (R 4.5.0)
 #>  rstantools     2.4.0      2024-01-31 [1] CRAN (R 4.5.0)
 #>  rstudioapi     0.17.1     2024-10-22 [1] CRAN (R 4.5.0)
-#>  runjags        2.2.2-5    2025-04-09 [1] CRAN (R 4.5.0)
 #>  sandwich       3.1-1      2024-09-15 [1] CRAN (R 4.5.0)
 #>  scales         1.4.0      2025-04-24 [1] CRAN (R 4.5.0)
 #>  sem            3.1-16     2024-08-28 [1] CRAN (R 4.5.0)
