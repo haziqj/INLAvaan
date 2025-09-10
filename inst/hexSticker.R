@@ -1,5 +1,6 @@
+library(hexSticker)
 sticker(
-  subplot = "inst/inlavaan.001.png",   # path to prepped image; or "inlavaan.png"
+  subplot = "inst/inlavaan.002.png",   # path to prepped image; or "inlavaan.png"
   package = "",                       # empty → no package text
   p_size = 0,                         # also ensure package text is invisible
   s_x = 1, s_y = 1.3,                 # subplot centre; tweak these
@@ -11,3 +12,5 @@ sticker(
   dpi = 900,
   white_around_sticker = FALSE
 )
+
+# Needs manual edit to remove the excess outside the hex
