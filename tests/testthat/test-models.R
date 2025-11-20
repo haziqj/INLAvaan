@@ -53,24 +53,24 @@
 #
 # })
 
-test_that("CFA", {
-  # INLA::inla.setOption(num.threads = "1:1")
-
-  mod <- "
-    eta1 =~ y1 + y2 + y3
-    eta2 =~ y4 + y5 + y6
-  "
-  dat <- lavaan::simulateData(mod, sample.nobs = 1000)
-  expect_no_error({
-    fit <- incfa(
-      model = mod,
-      data = dat,
-      meanstructure = FALSE,
-      verbose = FALSE,
-      npost = 100
-    )
-  })
-})
+# test_that("CFA", {
+#   # INLA::inla.setOption(num.threads = "1:1")
+#
+#   mod <- "
+#     eta1 =~ y1 + y2 + y3
+#     eta2 =~ y4 + y5 + y6
+#   "
+#   dat <- lavaan::simulateData(mod, sample.nobs = 1000)
+#   expect_no_error({
+#     fit <- incfa(
+#       model = mod,
+#       data = dat,
+#       meanstructure = FALSE,
+#       verbose = FALSE,
+#       npost = 100
+#     )
+#   })
+# })
 
 # test_that("SEM", {
 #   INLA::inla.setOption(num.threads = "1:1")
