@@ -25,6 +25,32 @@ force_pd <- function(x) {
   out
 }
 
+pars_to_x <- function(theta, pt) {
+  # Convert unrestricted theta-side parameters to lavaan-side parameters x
+  idxfree <- pt$free > 0
+  pars <- pt$parstart
+  pars[idxfree] <- theta
+  npt <- length(pars)
+  xx <- x <- mapply(function(f, z) f(z), pt$ginv, pars)
+
+  # Now deal with covariances
+  idxcov <- grepl("cov", pt$mat) #& !sapply(pt$g, is_same_function, identity)
+  for (j in which(idxcov)) {
+    X1 <- pt$lhs[j]
+    X2 <- pt$rhs[j]
+    where_varX1 <- which(pt$lhs == X1 & pt$op == "~~" & pt$rhs == X1)
+    where_varX2 <- which(pt$lhs == X2 & pt$op == "~~" & pt$rhs == X2)
+
+    sd1 <- sqrt(x[where_varX1])
+    sd2 <- sqrt(x[where_varX2])
+    x[j] <- x[j] * sd1 * sd2
+  }
+
+  out <- x[idxfree]
+  attr(out, "xcor") <- xx[idxfree]
+  out
+}
+
 convert_pars <- function(theta, pt, paridx) {
   # Goal is to
   # 1) Convert any theta-side correlations to covariances

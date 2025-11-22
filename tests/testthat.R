@@ -8,6 +8,5 @@
 
 library(testthat)
 library(INLAvaan)
-library(lavaan)
 
 test_check("INLAvaan")

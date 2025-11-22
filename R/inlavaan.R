@@ -21,10 +21,10 @@ inlavaan <- function(
   lavargs$estimator <- estimator
   lavargs$verbose <- FALSE  # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
-  if (!isTRUE(lavargs$std.lv)) {
-    cli::cli_alert_warning("For now, only standardised latent variables are supported. Setting std.lv = TRUE.")
-  }
-  lavargs$std.lv <- TRUE
+  # if (!isTRUE(lavargs$std.lv)) {
+  #   cli::cli_alert_warning("For now, only standardised latent variables are supported. Setting std.lv = TRUE.")
+  # }
+  # lavargs$std.lv <- TRUE
 
   # Build joint log posterior --------------------------------------------------
   if (estimator == "ML") {
@@ -59,13 +59,12 @@ inlavaan <- function(
   # Prep work for approximation ------------------------------------------------
   joint_lp <- function(pars) {
 
-    tmp <- convert_pars(pars, pt, PARIDX)
-    x <- attr(tmp, "x")
+    x <- pars_to_x(pars, pt)
     ll <- loglik(x)
 
     pld <- 0
     if (isTRUE(add_priors)) {
-      pld <- prior_logdens(x, pt, PARIDX)
+      pld <- prior_logdens(attr(x, "xcor"), pt, PARIDX)
     }
 
     ll + pld
@@ -187,7 +186,7 @@ inlavaan <- function(
     summary = summ,
     theta_star = as.numeric(theta_star),
     Sigma_theta = Sigma_theta,
-    theta_star_trans = attr(convert_pars(theta_star, pt, PARIDX), "x"),
+    theta_star_trans = pars_to_x(theta_star, pt),
     approx_data = approx_data,
     pdf_data = pdf_data,
     partable = pt
