@@ -154,3 +154,77 @@ post_marg_skewnorm <- function(
   )
 }
 
+# Marginal Gaussian approximation
+post_marg_marggaus <- function(
+    j = 1,
+    g = identity,
+    ginv = identity,
+    ginv_prime = \(x) 1,
+    theta_star,
+    Sigma_theta
+) {
+
+  # Posterior mean and SD in theta space
+  thetaj_mean <- theta_star[j]
+  thetaj_sd <- sqrt(Sigma_theta[j, j])
+
+  # Transform to original space
+  x_mean <- ginv(thetaj_mean)
+  x_sd <- abs(ginv_prime(thetaj_mean)) * thetaj_sd
+
+  # Compute quantiles
+  qq <- ginv(qnorm(c(0.025, 0.5, 0.975), mean = thetaj_mean, sd = thetaj_sd))
+
+  # Build PDF data
+  tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
+  fj <- function(par) dnorm(par, mean = thetaj_mean, sd = thetaj_sd)
+  transform_density <- function(.fj, hinv, hinv_prime, a = 1) {
+    function(y) {
+      tt <- hinv(y / a)
+      jcb <- abs(hinv_prime(y / a))
+      .fj(tt) * jcb
+    }
+  }
+  fj_orig <- transform_density(.fj = fj, hinv = g, hinv_prime = function(x) 1 / ginv_prime(x))
+  x <- ginv(tt)
+  dx <- diff(x)
+  fx <- fj_orig(x)
+  fmid <- (head(fx, -1) + tail(fx, -1)) / 2
+  C <- sum(fmid * dx)
+  fx <- fx / C
+
+  # Compute mode
+  xmax <- optimize(fj_orig, interval = range(x), maximum = TRUE)$maximum
+
+  # Combine results
+  res <- c(x_mean, x_sd, qq, xmax)
+  names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+
+  list(
+    summary = res,
+    pdf_data = data.frame(x = x, y = fx)
+  )
+}
+
+# Sampling approximation
+post_marg_sampling <- function(theta, Sigma_theta, pt, nsamp = 1000) {
+
+  theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+  x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
+
+  apply(x_samp, 1, function(y) {
+    Ex <- mean(y)
+    SDx <- sd(y)
+    qq <- quantile(y, probs = c(0.025, 0.5, 0.975))
+    dens <- density(y)
+    xmax <- dens$x[which.max(dens$y)]
+    res <- c(Ex, SDx, qq, xmax)
+    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+
+    list(
+      summary = res,
+      pdf_data = data.frame(x = dens$x, y = dens$y)
+    )
+  })
+}
+

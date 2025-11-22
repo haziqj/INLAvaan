@@ -4,17 +4,18 @@ inlavaan <- function(
     data,
     lavfun = "sem",
     estimator = "ML",
-    method = c("skewnorm", "asymgaus"),
+    method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
     start = NULL,
     control = list(),
     verbose = !FALSE,
     add_priors = TRUE,
+    nsamp = 10000,
     ...
 ) {
 
   # Check arguments ------------------------------------------------------------
   method <- match.arg(method)
-  estimator <- match.arg(estimator, choices = c("ML", "PML", "DWLS", "WLS"))
+  estimator <- match.arg(estimator, choices = c("ML", "PML"))
   lavargs <- list(...)
   lavargs$model <- model
   lavargs$data <- data
@@ -51,6 +52,7 @@ inlavaan <- function(
 
   pt <- inlavaanify_partable(lavpartable, blavaan::dpriors(), lavdata, lavoptions)
   PARIDX <- pt$free > 0
+  parnames <- pt$names[pt$free > 0]
 
   # Prep work for approximation ------------------------------------------------
   joint_lp <- function(pars) {
@@ -99,69 +101,82 @@ inlavaan <- function(
   # Approximations -------------------------------------------------------------
   pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
 
-  if (method == "asymgaus") {
-    if (isTRUE(verbose)) cli::cli_alert_info("Using asymmetric Gaussian approximation.")
-    if (isTRUE(verbose)) cli::cli_progress_step("Calibrating asymmetric Gaussians.")
-
-    approx_data <-
-      do.call(what = "rbind", lapply(
-        pars_list,
-        function(j) {
-          k <- 2
-          dplus  <- max(0.01, lp_max - joint_lp(theta_star + L[, j] * k))
-          dminus <- max(0.01, lp_max - joint_lp(theta_star - L[, j] * k))
-          c(sigma_plus = sqrt(k ^ 2 / (2 * dplus)),
-            sigma_minus = sqrt(k ^ 2 / (2 * dplus)))
-        }
-      ))
-
-    post_marg <- function(j, g, ginv, ginv_prime) {
-      post_marg_asymgaus(j = j, g = g, ginv = ginv, ginv_prime = ginv_prime,
-                         theta_star = theta_star, Sigma_theta = Sigma_theta,
-                         sigma_asym = approx_data)
-    }
+  if (method == "sampling") {
+    # Do sampling and return results
+    if (isTRUE(verbose)) cli::cli_alert_info("Using sampling-based approximation.")
+    if (isTRUE(verbose)) cli::cli_progress_step("Sampling from posterior.")
+    approx_data <- NULL
+    tmp <- post_marg_sampling(theta_star, Sigma_theta, pt, nsamp)
   } else {
-    if (isTRUE(verbose)) cli::cli_alert_info("Using skew normal approximation.")
-    if (isTRUE(verbose)) cli::cli_progress_step("Fitting skew normal to marginals.")
+    if (method == "asymgaus") {
+      if (isTRUE(verbose)) cli::cli_alert_info("Using asymmetric Gaussian approximation.")
+      if (isTRUE(verbose)) cli::cli_progress_step("Calibrating asymmetric Gaussians.")
 
-    approx_data <- matrix(NA, nrow = m, ncol = 4)
-    colnames(approx_data) <- c("xi", "omega", "alpha", "logC")
-
-    approx_data <-
-      do.call(what = "rbind", lapply(
-        pars_list,
-        function(j) {
-          mv <- seq(-4, 4, length = 21)
-          tt <- theta_star[j] + mv * sqrt(Sigma_theta[j, j])
-          yy <- numeric(length(mv))
-          for (k in seq_along(mv)) {
-            yy[k] <- joint_lp(theta_star + L[, j] * mv[k])
+      approx_data <-
+        do.call(what = "rbind", lapply(
+          pars_list,
+          function(j) {
+            k <- 2
+            dplus  <- max(0.01, lp_max - joint_lp(theta_star + L[, j] * k))
+            dminus <- max(0.01, lp_max - joint_lp(theta_star - L[, j] * k))
+            c(sigma_plus = sqrt(k ^ 2 / (2 * dplus)),
+              sigma_minus = sqrt(k ^ 2 / (2 * dplus)))
           }
-          yy <- yy - max(yy)  # normalise to have maximum at zero
-          fit_sn <- fit_skew_normal(tt, yy)
-          unlist(fit_sn)
-        }
-      ))
+        ))
 
-    post_marg <- function(j, g, ginv, ginv_prime) {
-      post_marg_skewnorm(j = j, g = g, ginv = ginv, ginv_prime = ginv_prime,
-                         theta_star = theta_star, Sigma_theta = Sigma_theta,
-                         sn_params = approx_data)
+      post_marg <- function(j, g, ginv, ginv_prime) {
+        post_marg_asymgaus(j = j, g = g, ginv = ginv, ginv_prime = ginv_prime,
+                           theta_star = theta_star, Sigma_theta = Sigma_theta,
+                           sigma_asym = approx_data)
+      }
+    } else if (method == "skewnorm") {
+      if (isTRUE(verbose)) cli::cli_alert_info("Using skew normal approximation.")
+      if (isTRUE(verbose)) cli::cli_progress_step("Fitting skew normal to marginals.")
+
+      approx_data <- matrix(NA, nrow = m, ncol = 4)
+      colnames(approx_data) <- c("xi", "omega", "alpha", "logC")
+
+      approx_data <-
+        do.call(what = "rbind", lapply(
+          pars_list,
+          function(j) {
+            mv <- seq(-4, 4, length = 21)
+            tt <- theta_star[j] + mv * sqrt(Sigma_theta[j, j])
+            yy <- numeric(length(mv))
+            for (k in seq_along(mv)) {
+              yy[k] <- joint_lp(theta_star + L[, j] * mv[k])
+            }
+            yy <- yy - max(yy)  # normalise to have maximum at zero
+            fit_sn <- fit_skew_normal(tt, yy)
+            unlist(fit_sn)
+          }
+        ))
+
+      post_marg <- function(j, g, ginv, ginv_prime) {
+        post_marg_skewnorm(j = j, g = g, ginv = ginv, ginv_prime = ginv_prime,
+                           theta_star = theta_star, Sigma_theta = Sigma_theta,
+                           sn_params = approx_data)
+      }
+    } else if (method == "marggaus") {
+      if (isTRUE(verbose)) cli::cli_alert_info("Using marginal Gaussian approximation.")
+      approx_data <- NULL
+
+      post_marg <- function(j, g, ginv, ginv_prime) {
+        post_marg_marggaus(j = j, g = g, ginv = ginv, ginv_prime = ginv_prime,
+                           theta_star = theta_star, Sigma_theta = Sigma_theta)
+      }
     }
+
+    # Compute posterior marginals ----------------------------------------------
+    if (isTRUE(verbose)) cli::cli_progress_step("Preparing output.")
+    tmp <- Map(
+      f          = post_marg,
+      j          = seq_len(m),
+      g          = pt$g[pt$free > 0],
+      ginv       = pt$ginv[pt$free > 0],
+      ginv_prime = pt$ginv_prime[pt$free > 0]
+    )
   }
-
-  # Prepare output -------------------------------------------------------------
-  if (isTRUE(verbose)) cli::cli_progress_step("Preparing output.")
-
-  parnames <- pt$names[pt$free > 0]
-
-  tmp <- Map(
-    f          = post_marg,
-    j          = seq_len(m),
-    g          = pt$g[pt$free > 0],
-    ginv       = pt$ginv[pt$free > 0],
-    ginv_prime = pt$ginv_prime[pt$free > 0]
-  )
 
   summ <- do.call("rbind", Map(
     f = function(x, y) {
@@ -178,12 +193,16 @@ inlavaan <- function(
 
   # Sampling for covariances
   if (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
-    if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
-    samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, nsamp = 1000)
+    if (method == "sampling") {
+      # Do nothing
+    } else {
+      if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
+      samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, nsamp)
 
-    for (cov_name in names(samp_cov)) {
-      summ[cov_name, ] <- samp_cov[[cov_name]]$summary
-      pdf_data[[cov_name]] <- samp_cov[[cov_name]]$pdf_data
+      for (cov_name in names(samp_cov)) {
+        summ[cov_name, ] <- samp_cov[[cov_name]]$summary
+        pdf_data[[cov_name]] <- samp_cov[[cov_name]]$pdf_data
+      }
     }
   }
 
