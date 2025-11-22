@@ -15,7 +15,7 @@ inlavaan <- function(
 
   # Check arguments ------------------------------------------------------------
   method <- match.arg(method)
-  estimator <- match.arg(estimator, choices = c("ML", "PML"))
+  # estimator <- match.arg(estimator, choices = c("ML", "PML"))
   lavargs <- list(...)
   lavargs$model <- model
   lavargs$data <- data
@@ -229,9 +229,7 @@ print.inlavaan_internal <- function(x, digits = 3, ...) {
 #' @export
 summary.inlavaan_internal <- function(object, ...) {
   structure(
-    list(
-      summary = object$summary
-    ),
+    list(summary = object$summary),
     class = "summary.inlavaan_internal"
   )
 }

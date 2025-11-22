@@ -2,7 +2,6 @@ library(tidyverse)
 library(lavaan)
 library(INLAvaan)
 
-# 2-factor SEM model -----------------------------------------------------------
 true_model <- "
   eta1 =~ 1*y1 + 1.2*y2 + 1.5*y3
   eta2 =~ 1*y4 + 1.2*y5 + 1.5*y6
@@ -11,112 +10,53 @@ true_model <- "
 dat <- lavaan::simulateData(true_model, sample.nobs = 1000)
 
 mod <- "
-  eta1 =~ y1 + 2*y2 + a*y3
-  eta2 =~ y4 + b*y5 + a*y6
-  # eta2 ~ eta1
-  # y1 ~~ y4
-  # y2 ~~ y5
-  # y3 ~~ y6
+  eta1 =~ y1 + y2 + y3
+  eta2 =~ y4 + y5 + y6
+
+  y1 ~~ y4
 "
-fit <- isem(
-  model = mod, data = dat,
-  meanstructure = FALSE,
-  verbose = TRUE,
-  # std.lv = TRUE,
-  stop_at_jagtrans = FALSE
-)
-
-tmp <- fit
-view(tmp$pxpartable)
+fit <- sem(mod, dat)
+pt <- as_tibble(inlavaanify_partable(fit@ParTable, lavdata = fit@Data, lavoptions = fit@Options))
 
 
+THETA <- c(1.2, 1.5, 1.2, 1.5, rep(0, 7), rep(0, 2), atanh(0.3 * (1 + 1e-6)))
 
-partable <- tmp$pxpartable
-
-
-partable |>
-  group_by(label) |>
-  mutate(free = case_when(
-    free > 0 ~ min(free),
-    TRUE ~ free
-  ))
+pars_to_x(THETA, pt)
 
 
+fit <- inlavaan(mod, dat)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Political democracy SEM example ----------------------------------------------
 myModel <- '
-  # latent variables
-  dem60 =~ y1 + y2 + y3 + y4
-  dem65 =~ y5 + y6 + y7 + y8
-  ind60 =~ x1 + x2 + x3
-
-  # latent regressions
-  dem60 ~ ind60
-  dem65 ~ ind60 + dem60
-
-  # residual covariances
-  y1 ~~ y5
-  y2 ~~ y4 + y6
-  y3 ~~ y7
-  y4 ~~ y8
-  y6 ~~ y8
+ # latent variables
+   ind60 =~ x1 + x2 + x3
+   dem60 =~ y1 + y2 + y3 + y4
+   dem65 =~ y5 + y6 + y7 + y8
+ # regressions
+   dem60 ~ ind60
+   dem65 ~ ind60 + dem60
+ # residual covariances
+   y1 ~~ y5
+   y2 ~~ y4 + y6
+   y3 ~~ y7
+   y4 ~~ y8
+   y6 ~~ y8
 '
-
-fit <- isem(
-  model = myModel,
-  data = PoliticalDemocracy,
-  # meanstructure = TRUE,
-  verbose = TRUE
-)
+fit <- inlavaan(model = myModel,
+           data = PoliticalDemocracy)
+summary(fit)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-fit_lav <- sem(myModel, data = PoliticalDemocracy)
-
-inla_coef <- coef(fit)
-lav_coef <- coef(sem(myModel, data = PoliticalDemocracy, meanstructure = FALSE))
-
-partable(fit) |>
-  filter(free > 0) |>
-  select(id, inla = est, pxnames, lhs, op, rhs) |>
-  mutate(type = gsub("\\[[^]]*\\]", "", pxnames)) |>
-  mutate(type = case_when(
-    type == "theta" & lhs != rhs ~ "theta_cov",
-    TRUE ~ type
-  )) |>
-  left_join(select(partable(fit_lav), id, lavaan = est), by = "id") |>
-  ggplot(aes(lavaan, inla)) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_point(aes(col = type), size = 3) +
-  theme_bw()
-
-
-
+coef(sem(myModel, PoliticalDemocracy))
+# ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6
+# 2.180        1.819        1.257        1.058        1.265        1.186
+# dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5
+# 1.280        1.266        1.483        0.572        0.837        0.624
+# y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1
+# 1.313        2.153        0.795        0.348        1.356        0.082
+# x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4
+# 0.120        0.467        1.891        7.373        5.067        3.148
+# y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60
+# 2.351        4.954        3.431        3.254        0.448        3.956
+# dem65~~dem65
+# 0.172
