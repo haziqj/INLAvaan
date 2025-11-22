@@ -26,91 +26,62 @@ dbeta_box <- function(x, shape1, shape2, a, b, log = FALSE) {
   out
 }
 
-prior_logdens <- function(x, pt, paridx) {
-  # Since optimisation happens in pars-space (theta) and we define priors on
-  # x-space (original lavaan parameters), we need to compute the prior density
-  # on x-space considering Jacobians. NOTE: Correlations are correlations, not
-  # covariances!!!
-  #
-  # theta = g(x), x = ginv(theta), and the Jacobians ginv_prime =
-  # d(ginv)/d(theta) are available in pt.
+prior_logdens <- function(theta, pt) {
+  # Priors defined in theta-space (unrestricted parameterisation)
+  # theta  : vector of optimisation parameters
+  # pt     : parameter table
+  # paridx : which entries in pt correspond to free parameters
 
-  priors <- pt$prior[paridx]
-  ginv_primes <- pt$ginv_prime[paridx]
-  names(x) <- priors
+  idxfree <- pt$free > 0
+  priors <- pt$prior[idxfree]
+  ginv   <- pt$ginv[idxfree]       # theta |-> xcor
+  names(theta) <- priors
 
-  # Compute log Jacobians
-  log_jacobian <- vapply(seq_along(x), function(i) {
-
-    prior <- priors[i]
-
-    # --- Variances (log-transform): g = log, x = exp(theta) ---
-    # We detect a variance by the fact it has a gamma prior WITHOUT [sd].
-    if (grepl("gamma", prior) && !grepl("\\[sd\\]", prior)) {
-      # Jacobian = dx/dtheta = x (variance)
-      return(log(abs(x[i])))
-    }
-
-    # --- SD priors (gamma[sd]) ---
-    # x = variance, but we need ds/dtheta = s/2 where s = sqrt(v)
-    if (grepl("gamma", prior) && grepl("\\[sd\\]", prior)) {
-      s <- sqrt(x[i])
-      # log |ds/dtheta| = log(s/2)
-      return(log(s) - log(2))
-    }
-
-    # --- Correlations: Fisher transformation ---
-    # Here ginv_prime really *is* a function of x.
-    return(log(abs(ginv_primes[[i]](x[i]))))
-
-  }, numeric(1))
-
-  # Compute prior log density
-  lp <- numeric(length(x))
+  log_jacobian <- lp <- numeric(length(theta))
   for (i in seq_along(priors)) {
+
     prior <- priors[i]
-    xval <- x[i]
+    th    <- theta[i]
+    xval  <- ginv[[i]](th)  # convert θ → x, since prior is defined on x-scale
+    dx_dtheta <- pt$ginv_prime[[i]](th)
 
     if (grepl("normal", prior)) {
-      tmp <- as.numeric(strsplit(gsub("normal\\(|\\)", "", prior), ",")[[1]])
+      tmp  <- as.numeric(strsplit(gsub("normal\\(|\\)", "", prior), ",")[[1]])
       mean <- tmp[1]
-      sd <- sqrt(tmp[2])
-      lp[i] <- dnorm(xval, mean = mean, sd = sd, log = TRUE)
+      sd   <- sqrt(tmp[2])
+      lp[i] <- dnorm(xval, mean, sd, log = TRUE)
     }
 
     if (grepl("gamma", prior)) {
       tmp <- as.numeric(strsplit(gsub("gamma\\(|\\)|\\[sd\\]", "", prior), ",")[[1]])
       shape <- tmp[1]
-      rate <- tmp[2]
+      rate  <- tmp[2]
       if (grepl("\\[sd\\]", prior)) {
         lp[i] <- dgamma(sqrt(xval), shape = shape, rate = rate, log = TRUE)
+        dx_dtheta <- dx_dtheta / (2 * sqrt(xval))
       } else {
         lp[i] <- dgamma(xval, shape = shape, rate = rate, log = TRUE)
       }
     }
 
     if (grepl("beta", prior)) {
-      tmp <- as.numeric(strsplit(gsub("beta\\(|\\)", "", prior), ",")[[1]])
-      shape1 <- tmp[1]
-      shape2 <- tmp[2]
-      lp[i] <- dbeta_box(xval, shape1 = shape1, shape2 = shape2, a = -1, b = 1, log = TRUE)
+      tmp   <- as.numeric(strsplit(gsub("beta\\(|\\)",   "", prior), ",")[[1]])
+      a     <- tmp[1]
+      b     <- tmp[2]
+      lp[i] <- dbeta_box(xval, shape1 = a, shape2 = b, a = -1, b = 1, log = TRUE)
     }
 
+    log_jacobian[i] <- log(abs(dx_dtheta))
   }
 
-  if (any(is.infinite(lp)) | any(is.infinite(log_jacobian))) {
-    cat("Parameter value:\n")
-    print(x)
-    cat("Prior log-densities:\n")
-    print(lp)
-    cat("Log-Jacobians:\n")
-    print(log_jacobian)
-  }
+  # if (any(!is.finite(lp))) {
+  #   cat("Theta values causing prior issue:\n")
+  #   print(theta)
+  #   cat("Prior log-densities:\n")
+  #   print(lp)
+  # }
 
   out <- sum(lp + log_jacobian)
-  if (is.nan(out) | is.na(out) | is.infinite(out)) {
-    out <- -1e40
-  }
+  if (!is.finite(out)) out <- -1e40
   out
 }
-

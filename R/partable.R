@@ -163,6 +163,9 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
     USE.NAMES = FALSE
   )
 
+  # Add names
+  pt$names <- mapply(paste0, pt$lhs, pt$op, pt$rhs)
+
   # FIXME: Perhaps add a 'inlavaan_partable' class to this object
   as.list(pt)
 }

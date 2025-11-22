@@ -7,7 +7,7 @@ inlavaan <- function(
     method = c("skewnorm", "asymgaus"),
     start = NULL,
     control = list(),
-    verbose = FALSE,
+    verbose = !FALSE,
     add_priors = TRUE,
     ...
 ) {
@@ -21,10 +21,6 @@ inlavaan <- function(
   lavargs$estimator <- estimator
   lavargs$verbose <- FALSE  # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
-  # if (!isTRUE(lavargs$std.lv)) {
-  #   cli::cli_alert_warning("For now, only standardised latent variables are supported. Setting std.lv = TRUE.")
-  # }
-  # lavargs$std.lv <- TRUE
 
   # Build joint log posterior --------------------------------------------------
   if (estimator == "ML") {
@@ -64,7 +60,7 @@ inlavaan <- function(
 
     pld <- 0
     if (isTRUE(add_priors)) {
-      pld <- prior_logdens(attr(x, "xcor"), pt, PARIDX)
+      pld <- prior_logdens(pars, pt)
     }
 
     ll + pld
@@ -157,7 +153,6 @@ inlavaan <- function(
   # Prepare output -------------------------------------------------------------
   if (isTRUE(verbose)) cli::cli_progress_step("Preparing output.")
 
-  pt$names <- mapply(paste0, pt$lhs, pt$op, pt$rhs)
   parnames <- pt$names[pt$free > 0]
 
   tmp <- Map(
@@ -180,6 +175,17 @@ inlavaan <- function(
 
   pdf_data <- lapply(tmp, \(x) x$pdf_data)
   names(pdf_data) <- parnames
+
+  # Sampling for covariances
+  if (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
+    if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
+    samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, nsamp = 1000)
+
+    for (cov_name in names(samp_cov)) {
+      summ[cov_name, ] <- samp_cov[[cov_name]]$summary
+      pdf_data[[cov_name]] <- samp_cov[[cov_name]]$pdf_data
+    }
+  }
 
   out <- list(
     coefficients = summ[, "Mean"],
