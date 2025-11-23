@@ -5,6 +5,7 @@
 post_marg_asymgaus <- function(
     j = 1,
     g = identity,
+    g_prime = \(x) 1,
     ginv = identity,
     ginv_prime = \(x) 1,
     theta_star,
@@ -54,14 +55,10 @@ post_marg_asymgaus <- function(
   fj <- function(par) exp(fj_lp(par))  # unnormalised
 
   # PDF transform x = ginv(theta)
-  transform_density <- function(.fj, hinv, hinv_prime, a = 1) {
-    function(y) {
-      tt <- hinv(y / a)
-      jcb <- abs(hinv_prime(y / a))
-      .fj(tt) * jcb
-    }
+  transform_density <- function(.fj, hinv, hinv_prime) {
+    function(y) .fj(hinv(y)) * abs(hinv_prime(y))
   }
-  fj_orig <- transform_density(.fj = fj, hinv = g, hinv_prime = function(x) 1 / ginv_prime(x))
+  fj_orig <- transform_density(.fj = fj, hinv = g, hinv_prime = g_prime)
 
   # Posterior mean and SD
   x <- ginv(tt)
@@ -97,6 +94,7 @@ post_marg_asymgaus <- function(
 post_marg_skewnorm <- function(
     j = 1,
     g = identity,
+    g_prime = \(x) 1,
     ginv = identity,
     ginv_prime = \(x) 1,
     theta_star,
@@ -112,14 +110,10 @@ post_marg_skewnorm <- function(
   # Build the density by pdf transform
   tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
   fj <- function(par) dsnorm(par, xi, omega, alpha, log = FALSE)
-  transform_density <- function(.fj, hinv, hinv_prime, a = 1) {
-    function(y) {
-      tt <- hinv(y / a)
-      jcb <- abs(hinv_prime(y / a))
-      .fj(tt) * jcb
-    }
+  transform_density <- function(.fj, hinv, hinv_prime) {
+    function(y) .fj(hinv(y)) * abs(hinv_prime(y))
   }
-  fj_orig <- transform_density(.fj = fj, hinv = g, hinv_prime = function(x) 1 / ginv_prime(x))
+  fj_orig <- transform_density(.fj = fj, hinv = g, hinv_prime = g_prime)
   x <- ginv(tt)
   dx <- diff(x)
   fx <- fj_orig(x)
@@ -158,6 +152,7 @@ post_marg_skewnorm <- function(
 post_marg_marggaus <- function(
     j = 1,
     g = identity,
+    g_prime = \(x) 1,
     ginv = identity,
     ginv_prime = \(x) 1,
     theta_star,
@@ -178,14 +173,10 @@ post_marg_marggaus <- function(
   # Build PDF data
   tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
   fj <- function(par) dnorm(par, mean = thetaj_mean, sd = thetaj_sd)
-  transform_density <- function(.fj, hinv, hinv_prime, a = 1) {
-    function(y) {
-      tt <- hinv(y / a)
-      jcb <- abs(hinv_prime(y / a))
-      .fj(tt) * jcb
-    }
+  transform_density <- function(.fj, hinv, hinv_prime) {
+    function(y) .fj(hinv(y)) * abs(hinv_prime(y))
   }
-  fj_orig <- transform_density(.fj = fj, hinv = g, hinv_prime = function(x) 1 / ginv_prime(x))
+  fj_orig <- transform_density(.fj = fj, hinv = g, hinv_prime = g_prime)
   x <- ginv(tt)
   dx <- diff(x)
   fx <- fj_orig(x)

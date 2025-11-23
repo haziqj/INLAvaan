@@ -124,8 +124,8 @@ inlavaan <- function(
           }
         ))
 
-      post_marg <- function(j, g, ginv, ginv_prime) {
-        post_marg_asymgaus(j = j, g = g, ginv = ginv, ginv_prime = ginv_prime,
+      post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
+        post_marg_asymgaus(j = j, g = g, g_prime = g_prime, ginv = ginv, ginv_prime = ginv_prime,
                            theta_star = theta_star, Sigma_theta = Sigma_theta,
                            sigma_asym = approx_data)
       }
@@ -152,8 +152,8 @@ inlavaan <- function(
           }
         ))
 
-      post_marg <- function(j, g, ginv, ginv_prime) {
-        post_marg_skewnorm(j = j, g = g, ginv = ginv, ginv_prime = ginv_prime,
+      post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
+        post_marg_skewnorm(j = j, g = g, g_prime = g_prime, ginv = ginv, ginv_prime = ginv_prime,
                            theta_star = theta_star, Sigma_theta = Sigma_theta,
                            sn_params = approx_data)
       }
@@ -161,8 +161,8 @@ inlavaan <- function(
       if (isTRUE(verbose)) cli::cli_alert_info("Using marginal Gaussian approximation.")
       approx_data <- NULL
 
-      post_marg <- function(j, g, ginv, ginv_prime) {
-        post_marg_marggaus(j = j, g = g, ginv = ginv, ginv_prime = ginv_prime,
+      post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
+        post_marg_marggaus(j = j, g = g, g_prime = g_prime, ginv = ginv, ginv_prime = ginv_prime,
                            theta_star = theta_star, Sigma_theta = Sigma_theta)
       }
     }
@@ -173,6 +173,7 @@ inlavaan <- function(
       f          = post_marg,
       j          = seq_len(m),
       g          = pt$g[pt$free > 0],
+      g_prime    = pt$g_prime[pt$free > 0],
       ginv       = pt$ginv[pt$free > 0],
       ginv_prime = pt$ginv_prime[pt$free > 0]
     )
@@ -206,15 +207,27 @@ inlavaan <- function(
     }
   }
 
+  # Compute ppp
+  if (method == "skewnorm") {
+    if (isTRUE(verbose)) cli::cli_progress_step("Computing posterior predictive p-value.")
+    ppp <- get_ppp(theta_star, Sigma_theta, approx_data, pt, lavmodel,
+                   lavsamplestats, nsamp = nsamp)
+  } else {
+    ppp <- NA
+  }
+
   out <- list(
     coefficients = summ[, "Mean"],
     summary = summ,
+    ppp = ppp,
     theta_star = as.numeric(theta_star),
     Sigma_theta = Sigma_theta,
     theta_star_trans = pars_to_x(theta_star, pt),
     approx_data = approx_data,
     pdf_data = pdf_data,
-    partable = pt
+    partable = pt,
+    lavmodel = lavmodel,
+    lavsamplestats = lavsamplestats
   )
   class(out) <- "inlavaan_internal"
   out

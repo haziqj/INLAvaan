@@ -101,22 +101,25 @@ safe_tanh <- function(x, eps = 1e-6) {
 
 partable_transform_funcs <- function(matrix) {
   g <- identity
+  g_prime <- function(x) 1
   ginv <- identity
   ginv_prime <- function(x) 1
 
   if (grepl("theta_var|psi_var", matrix)) {
     g <- log
+    g_prime <- function(x) 1 / x
     ginv <- exp
     ginv_prime <- exp
   }
 
   if (grepl("theta_cor|theta_cov|psi_cor|psi_cov", matrix)) {
     g <- atanh
+    g_prime <- function(x) 1 / (1 - x ^ 2)
     ginv <- safe_tanh
-    ginv_prime <- \(x) 1 - safe_tanh(x) ^ 2
+    ginv_prime <- function(x) 1 - safe_tanh(x) ^ 2
   }
 
-  return(list(g = g, ginv = ginv, ginv_prime = ginv_prime))
+  return(list(g = g, g_prime = g_prime,  ginv = ginv, ginv_prime = ginv_prime))
 }
 
 inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoptions) {
@@ -154,6 +157,7 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
   # Add transformations to unrestricted parameter space
   tmp <- lapply(pt$mat, partable_transform_funcs)
   pt$g <- lapply(tmp, `[[`, "g")
+  pt$g_prime <- lapply(tmp, `[[`, "g_prime")
   pt$ginv <- lapply(tmp, `[[`, "ginv")
   pt$ginv_prime <- lapply(tmp, `[[`, "ginv_prime")
 
