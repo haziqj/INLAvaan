@@ -35,6 +35,7 @@ prior_logdens <- function(theta, pt) {
   idxfree <- pt$free > 0
   priors <- pt$prior[idxfree]
   ginv   <- pt$ginv[idxfree]       # theta |-> xcor
+  ginv_prime <- pt$ginv_prime[idxfree]
   names(theta) <- priors
 
   log_jacobian <- lp <- numeric(length(theta))
@@ -43,12 +44,12 @@ prior_logdens <- function(theta, pt) {
     prior <- priors[i]
     th    <- theta[i]
     xval  <- ginv[[i]](th)  # convert θ → x, since prior is defined on x-scale
-    dx_dtheta <- pt$ginv_prime[[i]](th)
+    dx_dtheta <- ginv_prime[[i]](th)
 
     if (grepl("normal", prior)) {
       tmp  <- as.numeric(strsplit(gsub("normal\\(|\\)", "", prior), ",")[[1]])
       mean <- tmp[1]
-      sd   <- sqrt(tmp[2])
+      sd   <- tmp[2]
       lp[i] <- dnorm(xval, mean, sd, log = TRUE)
     }
 
