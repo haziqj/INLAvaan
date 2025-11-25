@@ -4,7 +4,7 @@ library(blavaan)
 library(INLAvaan)
 library(furrr)
 plan("multisession", workers = parallel::detectCores() - 2)
-nsamp <- 1e4
+nsamp <- 1e3
 
 mod <- "
   ind60 =~ x1 + x2 + x3
@@ -24,7 +24,7 @@ dat <- PoliticalDemocracy
 
 fit_lav  <- sem(mod, dat)
 fit_blav <- bsem(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp)
-fit_inl1 <- inlavaan(mod, dat, method = "skewnorm")
+fit_inl1 <- inlavaan(mod, dat, method = "skewnorm", add_priors = FALSE)
 fit_inl2 <- inlavaan(mod, dat, method = "asymgaus")
 fit_inl3 <- inlavaan(mod, dat, method = "marggaus")
 fit_inl4 <- inlavaan(mod, dat, method = "sampling")

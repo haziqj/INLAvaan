@@ -4,7 +4,7 @@ library(blavaan)
 library(INLAvaan)
 library(furrr)
 plan("multisession", workers = parallel::detectCores() - 2)
-nsamp <- 1e5
+nsamp <- 1e4
 
 # To test advantage of skewnormal fits. Here, y3 has loading 0.9 with small
 # residual variance (0.05). So total variance is var(y3) = 0.9^2 + 0.05 = 0.86,
@@ -12,7 +12,7 @@ nsamp <- 1e5
 # little noise. This creates a curved, near boundary ridge in the
 # likelihood/posterior surface. ML happily pushes it below 0 (Heywood), while MCMC produces heavy left skew.
 
-gen_data <- function(n = 80, seed = NULL) {
+gen_data <- function(n, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)
 
   true_model <- "
@@ -47,7 +47,7 @@ mod <- "
   eta1 =~ y1 + y2 + y3
   eta2 =~ y4 + y5 + y6
 "
-dat <- gen_data(100, seed = 22)
+dat <- gen_data(80, seed = 22)
 
 fit_lav  <- sem(mod, dat, std.lv = TRUE)
 truval <- coef(fit_lav)
@@ -87,16 +87,16 @@ plot_df <-
 
 ggplot() +
   geom_density(
-    data = plot_df_blav |> filter(name %in% c("y3~~y3", "eta1~~eta2")),
+    data = plot_df_blav, # |> filter(name %in% c("y3~~y3", "eta1~~eta2")),
     aes(value, fill = "MCMC"), col = NA, alpha = 0.38
   ) +
   geom_line(
-    data = plot_df |> filter(name %in% c("y3~~y3", "eta1~~eta2")),
+    data = plot_df, # |> filter(name %in% c("y3~~y3", "eta1~~eta2")),
     aes(x, y, group = method, col = method), linewidth = 0.75
   ) +
   geom_vline(
     data = tibble(name = names(truval), truval = truval) |>
-      filter(name %in% c("y3~~y3", "eta1~~eta2")) |>
+      # filter(name %in% c("y3~~y3", "eta1~~eta2")) |>
       mutate(name = factor(name, levels = names(coef(fit_lav)))),
     aes(xintercept = truval),
     linetype = "dashed"
