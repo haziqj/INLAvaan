@@ -6,7 +6,14 @@ inlavaan <- function(
     estimator = "ML",
     method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
     start = NULL,
-    control = list(),
+    control = list(
+      eval.max = 4000,
+      iter.max = 2000,
+      rel.tol  = 1e-12,
+      x.tol    = 1e-12,
+      step.min = 1e-8,
+      step.max = 1.0
+    ),
     verbose = !FALSE,
     add_priors = TRUE,
     nsamp = 10000,
@@ -77,23 +84,28 @@ inlavaan <- function(
   lp_max <- joint_lp(theta_star)  # maximum value
 
   if (isTRUE(verbose)) cli::cli_progress_step("Computing the Hessian.")
-  H_neg <- numDeriv::hessian(\(x) -1 * joint_lp(x), theta_star)
+  H_neg <- numDeriv::hessian(
+    func = \(x) -1 * joint_lp(x),
+    x = theta_star,
+    method.args = list(eps = 1e-4, d = 0.0005) # high stability
+  )
+  Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
 
   # Stabilise inversion
-  H_neg <- 0.5 * (H_neg + t(H_neg))
-  eps <- 1e-6 * mean(diag(H_neg) ^ 2) ^ 0.5   # scale by Hessian magnitude
-  H_neg_reg <- H_neg + diag(eps, nrow(H_neg))
-  ok <- FALSE
-  tries <- 0
-  while (!ok && tries < 5) {
-    tries <- tries + 1
-    ok <- tryCatch({
-      L <- chol(solve(H_neg_reg))  # directly get Sigma^{1/2}
-      TRUE
-    }, error = function(e) FALSE)
-    if (!ok) H_neg_reg <- H_neg_reg + diag(eps * 10 ^ tries, nrow(H_neg))
-  }
-  Sigma_theta <- solve(H_neg_reg)
+  # H_neg <- 0.5 * (H_neg + t(H_neg))
+  # eps <- 1e-6 * mean(diag(H_neg) ^ 2) ^ 0.5   # scale by Hessian magnitude
+  # H_neg_reg <- H_neg + diag(eps, nrow(H_neg))
+  # ok <- FALSE
+  # tries <- 0
+  # while (!ok && tries < 5) {
+  #   tries <- tries + 1
+  #   ok <- tryCatch({
+  #     L <- chol(solve(H_neg_reg))  # directly get Sigma^{1/2}
+  #     TRUE
+  #   }, error = function(e) FALSE)
+  #   if (!ok) H_neg_reg <- H_neg_reg + diag(eps * 10 ^ tries, nrow(H_neg))
+  # }
+  # Sigma_theta <- solve(H_neg_reg)
 
   # For whitening transformation: z = L^{-1}(theta - theta*)
   L <- t(chol(Sigma_theta))
