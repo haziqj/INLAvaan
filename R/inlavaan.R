@@ -18,11 +18,13 @@ inlavaan <- function(
     add_priors = TRUE,
     nsamp = 10000,
     dp = blavaan::dpriors(),
+    optim = c("nlminb", "ucminf", "optim"),
     ...
 ) {
 
   # Check arguments ------------------------------------------------------------
   method <- match.arg(method)
+  optim <- match.arg(optim)
   # estimator <- match.arg(estimator, choices = c("ML", "PML"))
   lavargs <- list(...)
   lavargs$model <- model
@@ -76,20 +78,44 @@ inlavaan <- function(
     ll + pld
   }
 
-  # Find posterior mode (maximise joint log posterior)
   if (isTRUE(verbose)) cli::cli_progress_step("Finding posterior mode.")
   parstart <- pt$parstart[pt$free > 0]
-  opt <- nlminb(parstart, \(x) -1 * joint_lp(x), control = control)
-  theta_star <- opt$par
-  lp_max <- joint_lp(theta_star)  # maximum value
+  if (optim == "nlminb") {
+    opt <- nlminb(parstart, \(x) -1 * joint_lp(x), control = control)
+    theta_star <- opt$par
+    if (isTRUE(verbose)) cli::cli_progress_step("Computing the Hessian.")
+    H_neg <- numDeriv::hessian(
+      func = \(x) -1 * joint_lp(x),
+      x = theta_star,
+      method.args = list(eps = 1e-4, d = 0.0005) # high stability
+    )
+    Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
+  } else if (optim == "ucminf") {
+    opt <- ucminf::ucminf(
+      par = parstart,
+      fn = \(x) -1 * joint_lp(x),
+      control = list(),
+      hessian = 2
+    )
+    theta_star <- opt$par
+    Sigma_theta <- opt$invhessian
+  } else {
+    opt <- stats::optim(
+      par = parstart,
+      fn = \(x) -1 * joint_lp(x),
+      method = "BFGS",
+      hessian = TRUE,
+      control = list()
+    )
+    theta_star <- opt$par
+    Sigma_theta <- solve(opt$hessian)
+  }
+  lp_max <- joint_lp(theta_star)
 
-  if (isTRUE(verbose)) cli::cli_progress_step("Computing the Hessian.")
-  H_neg <- numDeriv::hessian(
-    func = \(x) -1 * joint_lp(x),
-    x = theta_star,
-    method.args = list(eps = 1e-4, d = 0.0005) # high stability
-  )
-  Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
+
+
+
+
 
   # Stabilise inversion
   # H_neg <- 0.5 * (H_neg + t(H_neg))
