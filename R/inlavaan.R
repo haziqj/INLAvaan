@@ -10,6 +10,7 @@ inlavaan <- function(
     verbose = !FALSE,
     add_priors = TRUE,
     nsamp = 10000,
+    dp = blavaan::dpriors(),
     ...
 ) {
 
@@ -50,7 +51,7 @@ inlavaan <- function(
   n              <- fit0@SampleStats@ntotal
   m              <- sum(lavpartable$free > 0)
 
-  pt <- inlavaanify_partable(lavpartable, blavaan::dpriors(), lavdata, lavoptions)
+  pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
   PARIDX <- pt$free > 0
   parnames <- pt$names[pt$free > 0]
 
@@ -172,6 +173,10 @@ inlavaan <- function(
     tmp <- Map(
       f          = post_marg,
       j          = seq_len(m),
+      # g          = rep(list(identity), m), #pt$g[pt$free > 0],
+      # g_prime    = rep(list(\(x) 1), m), #pt$g_prime[pt$free > 0],
+      # ginv       = rep(list(identity), m), #pt$ginv[pt$free > 0],
+      # ginv_prime = rep(list(\(x) 1), m)
       g          = pt$g[pt$free > 0],
       g_prime    = pt$g_prime[pt$free > 0],
       ginv       = pt$ginv[pt$free > 0],
@@ -208,7 +213,7 @@ inlavaan <- function(
   }
 
   # Compute ppp
-  if (method == "skewnorm") {
+  if (FALSE & method == "skewnorm") {
     if (isTRUE(verbose)) cli::cli_progress_step("Computing posterior predictive p-value.")
     ppp <- get_ppp(theta_star, Sigma_theta, approx_data, pt, lavmodel,
                    lavsamplestats, nsamp = nsamp)
@@ -216,8 +221,14 @@ inlavaan <- function(
     ppp <- NA
   }
 
+  coefs <- summ[, "Mean"]
+  names(coefs) <- parnames
+
+  summ <- as.data.frame(summ)
+  summ$prior <- pt$prior[pt$free > 0]
+
   out <- list(
-    coefficients = summ[, "Mean"],
+    coefficients = coefs,
     summary = summ,
     ppp = ppp,
     theta_star = as.numeric(theta_star),
@@ -249,7 +260,10 @@ summary.inlavaan_internal <- function(object, ...) {
 
 #' @export
 print.summary.inlavaan_internal <- function(x, digits = 3, ...) {
-  print(round(x$summary, digits))
+  summ <- x$summary
+  which_numeric <- sapply(summ, is.numeric)
+  summ[, which_numeric] <- round(summ[, which_numeric], digits)
+  print(summ)
   invisible(x)
 }
 

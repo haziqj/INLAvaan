@@ -36,9 +36,9 @@ partable_classify_sem_matrix <- function(lhs, op, rhs, ov.names, std.ov, std.lv)
   }
 
   if (op == "~") {
-    if (!lhs_is_ov) {
+    # if (!lhs_is_ov) {
       return("beta")
-    }
+    # }
   }
 
   if (op == "~1") {
@@ -65,7 +65,7 @@ partable_classify_sem_matrix <- function(lhs, op, rhs, ov.names, std.ov, std.lv)
   return(NA_character_)
 }
 
-partable_prior_from_row <- function(matrix, lhs, rhs, op, dp = blavaan::dpriors()) {
+partable_prior_from_row <- function(matrix, lhs, rhs, op, dp) {
   is_var <- grepl("_var", matrix)
 
   if (matrix == "nu") {
