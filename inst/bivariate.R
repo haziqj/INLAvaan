@@ -5,7 +5,7 @@ library(future)
 plan("multisession", workers = parallel::detectCores() - 2)
 nsamp <- 1e4
 
-# set.seed(123)
+set.seed(123)
 
 n <- 50
 Sigma_true <- matrix(c(1, 0.5, 0.5, 1.2), nrow = 2)
@@ -28,10 +28,13 @@ transformed parameters {
   Sigma[2,2] = square(sigma[2]);
   Sigma[1,2] = rho * sigma[1] * sigma[2];
   Sigma[2,1] = Sigma[1,2];
+  vector[2] sigma2;
+  sigma2[1] = square(sigma[1]);
+  sigma2[2] = square(sigma[2]);
 }
 
 model {
-  sigma ~ gamma(1, 0.5);
+  sigma2 ~ gamma(1, 0.5);
   rho ~ uniform(-1, 1);
   for (i in 1:n)
     x[i] ~ multi_normal(rep_vector(0, 2), Sigma);
@@ -57,7 +60,7 @@ mod <- "
 "
 dat <- data.frame(x1 = x[, 1], x2 = x[, 2])
 
-fit_inlv <- inlavaan(mod, dat, dp = dpriors(psi = "gamma(1,0.5)[sd]", theta = "gamma(1,0.5)[sd]"), method = "skewnorm")
+fit_inlv <- inlavaan(mod, dat, dp = dpriors(psi = "gamma(1,0.5)", theta = "gamma(1,0.5)"), method = "skewnorm")
 
 # extract stan draws
 draws <- as.data.frame(rstan::extract(fit_stan, permuted = TRUE))

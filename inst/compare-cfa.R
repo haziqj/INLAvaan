@@ -13,12 +13,12 @@ mod <- "
 "
 dat <- HolzingerSwineford1939
 
-DP <- dpriors(psi = "gamma(1,1)", theta = "gamma(1,1)")
+DP <- dpriors(psi = "gamma(1,0.5)[sd]", theta = "gamma(1,0.5)[sd]")
 STDLV <- FALSE
 
 fit_lav  <- cfa(mod, dat, std.lv = STDLV)
 fit_blav <- bcfa(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp, std.lv = STDLV, dp = DP)
-fit_inl1 <- inlavaan(mod, dat, lavfun = "cfa", method = "skewnorm", std.lv = STDLV, dp = DP)
+fit_inl1 <- inlavaan(mod, dat, lavfun = "cfa", method = "skewnorm", std.lv = STDLV, dp = DP, optim = "nlminb", add_priors = FALSE)
 # fit_inl2 <- inlavaan(mod, dat, lavfun = "cfa", method = "asymgaus", std.lv = STDLV)
 # fit_inl3 <- inlavaan(mod, dat, lavfun = "cfa", method = "marggaus", std.lv = STDLV)
 # fit_inl4 <- inlavaan(mod, dat, lavfun = "cfa", method = "sampling", std.lv = STDLV)
