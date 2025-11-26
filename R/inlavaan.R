@@ -14,7 +14,7 @@ inlavaan <- function(
       step.min = 1e-8,
       step.max = 1.0
     ),
-    verbose = !FALSE,
+    verbose = TRUE,
     add_priors = TRUE,
     nsamp = 10000,
     dp = blavaan::dpriors(),
@@ -32,6 +32,7 @@ inlavaan <- function(
   lavargs$estimator <- estimator
   lavargs$verbose <- FALSE  # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
+  lavargs$parser <- "old"  # To get priors parsed
 
   # Build joint log posterior --------------------------------------------------
   if (estimator == "ML") {
@@ -79,15 +80,24 @@ inlavaan <- function(
   }
   joint_lp_grad <- function(pars) {
     x <- pars_to_x(pars, pt)
-    sd1sd2 <- attr(x, "sd1sd2")
     gll <- grad_loglik(x)
-    jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
+
+    # Jacobian adjustment, since we need:
+    # d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
+    jcb <- diag(mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars))
+    sd1sd2 <- attr(x, "sd1sd2")
     jcb <- jcb * sd1sd2
+    jcb_mat <- attr(x, "jcb_mat")
+    for (k in seq_len(nrow(jcb_mat))) {
+      i <- jcb_mat[k, 1]
+      j <- jcb_mat[k, 2]
+      jcb[i, j] <- jcb_mat[k, 3]
+    }
 
     gpld <- 0
     if (isTRUE(add_priors)) gpld <- prior_grad(pars, pt)
-
-    gll * jcb + gpld
+    # jcb * gll + gpld
+    as.numeric(jcb %*% gll) + gpld
   }
 
   if (isTRUE(verbose)) cli::cli_progress_step("Finding posterior mode.")
@@ -101,59 +111,31 @@ inlavaan <- function(
     )
     theta_star <- opt$par
     if (isTRUE(verbose)) cli::cli_progress_step("Computing the Hessian.")
-    H_neg <- numDeriv::hessian(
-      func = \(x) -1 * joint_lp(x),
-      x = theta_star,
-      method.args = list(eps = 1e-4, d = 0.0005) # high stability
-    )
-    # H_neg <- numDeriv::jacobian(
-    #   function(x) -1 * joint_lp_grad(x),
-    #   theta_star,
-    #   method.args = list(eps = 1e-4)
+    # H_neg <- numDeriv::hessian(
+    #   func = \(x) -1 * joint_lp(x),
+    #   x = theta_star,
+    #   method.args = list(eps = 1e-4, d = 0.0005) # high stability
     # )
-    # # Patch covariance blocks
-    # patch_cov_block <- function(pars, H) {
-    #   pt_cov_rows <- grep("cov", pt$mat)
-    #   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
-    #   idxcov <- pt$free[pt_cov_free_rows]
-    #
-    #   x <- pars_to_x(pars, pt)
-    #   sd1sd2 <- attr(x, "sd1sd2")
-    #   hessian_x <- attr(x, "hessian_x")
-    #
-    #   gll <- grad_loglik(x)
-    #   jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
-    #   jcb <- jcb * sd1sd2
-    #
-    #   gpld <- 0
-    #   if (isTRUE(add_priors)) gpld <- prior_grad(pars, pt)
-    #
-    #   GRAD <- -1 * (gll * jcb + gpld)
-    #   XSEC <- hessian_x
-    #   for (i in seq_along(idxcov)) {
-    #     H[i, i] <- H[i, i] + GRAD[i] * XSEC[i]
-    #   }
-    #
-    #   H
-    # }
-    # H_neg <- patch_cov_block(theta_star, H_neg)
-
-
+    grad_fd <- numDeriv::grad(\(x) -1 * joint_lp(x), theta_star)
+    grad_an <- -1 * joint_lp_grad(theta_star)
+    print(cbind(fd = grad_fd, analytic = grad_an, diff = grad_an - grad_fd))
+    H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
     Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
   } else if (optim == "ucminf") {
     opt <- ucminf::ucminf(
       par = parstart,
-      fn = \(x) -1 * joint_lp(x),
+      fn = function(x) -1 * joint_lp(x),
+      gr = function(x) -1 * joint_lp_grad(x),
       control = list(),
       hessian = 2
     )
-    return(opt)
     theta_star <- opt$par
     Sigma_theta <- opt$invhessian
   } else {
     opt <- stats::optim(
       par = parstart,
-      fn = \(x) -1 * joint_lp(x),
+      fn = function(x) -1 * joint_lp(x),
+      gr = function(x) -1 * joint_lp_grad(x),
       method = "BFGS",
       hessian = TRUE,
       control = list()
@@ -162,11 +144,6 @@ inlavaan <- function(
     Sigma_theta <- solve(opt$hessian)
   }
   lp_max <- joint_lp(theta_star)
-
-
-
-
-
 
   # Stabilise inversion
   # H_neg <- 0.5 * (H_neg + t(H_neg))
@@ -220,8 +197,8 @@ inlavaan <- function(
                            sigma_asym = approx_data)
       }
     } else if (method == "skewnorm") {
-      if (isTRUE(verbose)) cli::cli_alert_info("Using skew normal approximation.")
       if (isTRUE(verbose)) cli::cli_progress_step("Fitting skew normal to marginals.")
+      if (isTRUE(verbose)) cli::cli_alert_info("Using skew normal approximation.")
 
       approx_data <- matrix(NA, nrow = m, ncol = 4)
       colnames(approx_data) <- c("xi", "omega", "alpha", "logC")
@@ -294,7 +271,7 @@ inlavaan <- function(
       if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
 
       if (method == "skewnorm") {
-        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, 10000)
+        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, nsamp)
       } else {
         samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, nsamp)
       }
@@ -332,7 +309,8 @@ inlavaan <- function(
     pdf_data = pdf_data,
     partable = pt,
     lavmodel = lavmodel,
-    lavsamplestats = lavsamplestats
+    lavsamplestats = lavsamplestats,
+    opt = opt
   )
   class(out) <- "inlavaan_internal"
   out

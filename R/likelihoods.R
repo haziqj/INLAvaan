@@ -33,10 +33,10 @@ pars_to_x <- function(theta, pt) {
   npt <- length(pars)
   xx <- x <- mapply(function(f, z) f(z), pt$ginv, pars)
   sd1sd2 <- rep(1, npt)
-  x2 <- rep(0, npt)
+  jcb_mat <- NULL
 
   # Now deal with covariances
-  idxcov <- grepl("cov", pt$mat) #& !sapply(pt$g, is_same_function, identity)
+  idxcov <- grepl("cov", pt$mat)
   for (j in which(idxcov)) {
     X1 <- pt$lhs[j]
     X2 <- pt$rhs[j]
@@ -45,15 +45,21 @@ pars_to_x <- function(theta, pt) {
 
     sd1 <- sqrt(x[where_varX1])
     sd2 <- sqrt(x[where_varX2])
-    x[j] <- x[j] * sd1 * sd2
+    rho <- x[j]
+    x[j] <- rho * sd1 * sd2
+
+    jcb_mat <- rbind(jcb_mat, c(where_varX1, j, 0.5 * rho * sd1 * sd2))
+    jcb_mat <- rbind(jcb_mat, c(where_varX2, j, 0.5 * rho * sd1 * sd2))
     sd1sd2[j] <- sd1 * sd2
-    x2[j] <- -2 * x[j] * (1 - x[j] ^ 2) * sd1 * sd2
   }
+
+  jcb_mat[, 1] <- pt$free[jcb_mat[, 1][pt$free[jcb_mat[, 1]] > 0]]
+  jcb_mat[, 2] <- pt$free[jcb_mat[, 2][pt$free[jcb_mat[, 2]] > 0]]
 
   out <- x[idxfree]
   attr(out, "xcor") <- xx[idxfree]
   attr(out, "sd1sd2") <- sd1sd2[idxfree]
-  attr(out, "hessian_x") <- x2[idxfree]
+  attr(out, "jcb_mat") <- jcb_mat
   out
 }
 
