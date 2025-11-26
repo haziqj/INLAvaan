@@ -59,7 +59,8 @@ prior_logdens <- function(theta, pt) {
       rate  <- tmp[2]
       if (grepl("\\[sd\\]", prior)) {
         lp[i] <- dgamma(sqrt(xval), shape = shape, rate = rate, log = TRUE)
-        dx_dtheta <- dx_dtheta / (2 * sqrt(xval))
+        # dx_dtheta <- dx_dtheta / (2 * sqrt(xval))
+        dx_dtheta <- 0.5 * exp(th / 2)
       } else {
         lp[i] <- dgamma(xval, shape = shape, rate = rate, log = TRUE)
       }

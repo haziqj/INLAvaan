@@ -93,4 +93,47 @@ sample_covariances <- function(theta, Sigma_theta, pt, nsamp = 1000) {
 
 }
 
+sample_covariances_fit_sn <- function(theta, Sigma_theta, pt, nsamp = 10000) {
+  pt_cov_rows <- grep("cov", pt$mat)
+  pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
+  idxcov <- pt$free[pt_cov_free_rows]
 
+  theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+  x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
+  cov_samp <- x_samp[idxcov, , drop = FALSE]
+  rownames(cov_samp) <- pt$names[pt_cov_free_rows]
+
+  sn_params <- apply(cov_samp, 1, fit_skew_normal_samp)
+  sn_params <- do.call("rbind", lapply(sn_params, unlist))
+
+  apply(sn_params, 1, function(y) {
+    xi <- y["xi"]
+    omega <- y["omega"]
+    alpha <- y["alpha"]
+    delta <- alpha / sqrt(1 + alpha ^ 2)
+
+    Ex <- xi + omega * delta * sqrt(2 / pi)
+    Vx <- omega ^ 2 * (1 - 2 * delta ^ 2 / pi)
+    SDx <- sqrt(Vx)
+    qq <- sn::qsn(c(0.025, 0.5, 0.975), xi = xi, omega = omega, alpha = alpha)
+
+    x  <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
+    fx <- dsnorm(x, xi = xi, omega = omega, alpha = alpha)
+
+    xmax <- optimize(
+      function(x) dsnorm(x, xi = xi, omega = omega, alpha = alpha),
+      interval = range(x),
+      maximum = TRUE
+    )$maximum
+
+    res <- res <- c(Ex, SDx, qq, xmax)
+    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+
+    list(
+      summary = res,
+      pdf_data = data.frame(x = x, y = fx)
+    )
+  })
+
+
+}

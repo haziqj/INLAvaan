@@ -177,6 +177,28 @@ snorm_EX_VarX <- function(xi, omega, alpha) {
   list(EX = EX, VarX = VarX)
 }
 
+fit_skew_normal_samp <- function(x) {
+
+  # Starting values
+  xi0    <- median(x)
+  omega0 <- log(sd(x))      # log-scale param
+  alpha0 <- 0
+  start  <- c(xi0, omega0, alpha0)
+
+  opt <- nlminb(
+    start = c(xi0, omega0, alpha0),
+    objective = function(par) {
+      -1 * sum(dsnorm(x, xi = par[1], omega = exp(par[2]), alpha = par[3], log = TRUE))
+    }
+  )
+
+  xi_hat    <- opt$par[1]
+  omega_hat <- exp(opt$par[2])
+  alpha_hat <- opt$par[3]
+
+  list(xi = xi_hat, omega = omega_hat, alpha = alpha_hat, logC = 0)
+}
+
 # # Test case
 # library(sn)
 # library(tidyverse)

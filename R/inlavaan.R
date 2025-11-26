@@ -241,7 +241,12 @@ inlavaan <- function(
       # Do nothing
     } else {
       if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
-      samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, nsamp)
+
+      if (method == "skewnorm") {
+        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, 10000)
+      } else {
+        samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, nsamp)
+      }
 
       for (cov_name in names(samp_cov)) {
         summ[cov_name, ] <- samp_cov[[cov_name]]$summary
