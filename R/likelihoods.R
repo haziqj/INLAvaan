@@ -32,6 +32,8 @@ pars_to_x <- function(theta, pt) {
   pars[idxfree] <- theta
   npt <- length(pars)
   xx <- x <- mapply(function(f, z) f(z), pt$ginv, pars)
+  sd1sd2 <- rep(1, npt)
+  x2 <- rep(0, npt)
 
   # Now deal with covariances
   idxcov <- grepl("cov", pt$mat) #& !sapply(pt$g, is_same_function, identity)
@@ -44,10 +46,14 @@ pars_to_x <- function(theta, pt) {
     sd1 <- sqrt(x[where_varX1])
     sd2 <- sqrt(x[where_varX2])
     x[j] <- x[j] * sd1 * sd2
+    sd1sd2[j] <- sd1 * sd2
+    x2[j] <- -2 * x[j] * (1 - x[j] ^ 2) * sd1 * sd2
   }
 
   out <- x[idxfree]
   attr(out, "xcor") <- xx[idxfree]
+  attr(out, "sd1sd2") <- sd1sd2[idxfree]
+  attr(out, "hessian_x") <- x2[idxfree]
   out
 }
 
@@ -151,6 +157,18 @@ mvnorm_loglik_samplestats <- function(x, lavmodel, lavsamplestats, lavdata, lavo
     Sinv.method = "eigen",
     Sigma.inv   = NULL
   )
+  out
+}
+
+mvnorm_loglik_grad <- function(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache) {
+  # Gradient of fit function F_ML (not loglik yet)
+  grad_F <- lavaan:::lav_model_gradient(
+    lavmodel = lavaan::lav_model_set_parameters(lavmodel, x),
+    lavsamplestats = lavsamplestats,
+    lavdata = lavdata
+  )
+  # Rescale so we get gradient of loglik
+  out <- -1 * lavsamplestats@ntotal * grad_F
   out
 }
 

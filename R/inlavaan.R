@@ -39,6 +39,9 @@ inlavaan <- function(
     loglik <- function(x) {
       mvnorm_loglik_samplestats(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache)
     }
+    grad_loglik <- function(x) {
+      mvnorm_loglik_grad(x, lavmodel, lavsamplestats, lavdata, lavoptions)
+    }
   } else if (estimator == "PML") {
     if (isTRUE(verbose)) cli::cli_alert_info("Using pairwise log-likelihood.")
     loglik <- function(x) {
@@ -66,22 +69,36 @@ inlavaan <- function(
 
   # Prep work for approximation ------------------------------------------------
   joint_lp <- function(pars) {
-
     x <- pars_to_x(pars, pt)
     ll <- loglik(x)
 
     pld <- 0
-    if (isTRUE(add_priors)) {
-      pld <- prior_logdens(pars, pt)
-    }
+    if (isTRUE(add_priors)) pld <- prior_logdens(pars, pt)
 
     ll + pld
+  }
+  joint_lp_grad <- function(pars) {
+    x <- pars_to_x(pars, pt)
+    sd1sd2 <- attr(x, "sd1sd2")
+    gll <- grad_loglik(x)
+    jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
+    jcb <- jcb * sd1sd2
+
+    gpld <- 0
+    if (isTRUE(add_priors)) gpld <- prior_grad(pars, pt)
+
+    gll * jcb + gpld
   }
 
   if (isTRUE(verbose)) cli::cli_progress_step("Finding posterior mode.")
   parstart <- pt$parstart[pt$free > 0]
   if (optim == "nlminb") {
-    opt <- nlminb(parstart, \(x) -1 * joint_lp(x), control = control)
+    opt <- nlminb(
+      start = parstart,
+      objective = function(x) -1 * joint_lp(x),
+      gradient = function(x) -1 * joint_lp_grad(x),
+      control = control
+    )
     theta_star <- opt$par
     if (isTRUE(verbose)) cli::cli_progress_step("Computing the Hessian.")
     H_neg <- numDeriv::hessian(
@@ -89,6 +106,39 @@ inlavaan <- function(
       x = theta_star,
       method.args = list(eps = 1e-4, d = 0.0005) # high stability
     )
+    # H_neg <- numDeriv::jacobian(
+    #   function(x) -1 * joint_lp_grad(x),
+    #   theta_star,
+    #   method.args = list(eps = 1e-4)
+    # )
+    # # Patch covariance blocks
+    # patch_cov_block <- function(pars, H) {
+    #   pt_cov_rows <- grep("cov", pt$mat)
+    #   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
+    #   idxcov <- pt$free[pt_cov_free_rows]
+    #
+    #   x <- pars_to_x(pars, pt)
+    #   sd1sd2 <- attr(x, "sd1sd2")
+    #   hessian_x <- attr(x, "hessian_x")
+    #
+    #   gll <- grad_loglik(x)
+    #   jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
+    #   jcb <- jcb * sd1sd2
+    #
+    #   gpld <- 0
+    #   if (isTRUE(add_priors)) gpld <- prior_grad(pars, pt)
+    #
+    #   GRAD <- -1 * (gll * jcb + gpld)
+    #   XSEC <- hessian_x
+    #   for (i in seq_along(idxcov)) {
+    #     H[i, i] <- H[i, i] + GRAD[i] * XSEC[i]
+    #   }
+    #
+    #   H
+    # }
+    # H_neg <- patch_cov_block(theta_star, H_neg)
+
+
     Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
   } else if (optim == "ucminf") {
     opt <- ucminf::ucminf(
@@ -97,6 +147,7 @@ inlavaan <- function(
       control = list(),
       hessian = 2
     )
+    return(opt)
     theta_star <- opt$par
     Sigma_theta <- opt$invhessian
   } else {
