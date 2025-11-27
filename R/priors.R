@@ -96,7 +96,6 @@ prior_grad <- function(theta, pt) {
   ginv_prime2 <- pt$ginv_prime2[idxfree]
 
   names(theta) <- priors
-
   grad <- numeric(length(theta))
 
   for (i in seq_along(priors)) {

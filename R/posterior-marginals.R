@@ -198,7 +198,7 @@ post_marg_marggaus <- function(
 }
 
 # Sampling approximation
-post_marg_sampling <- function(theta, Sigma_theta, pt, nsamp = 1000) {
+post_marg_sampling <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
 
   theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
   x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)

@@ -30,6 +30,7 @@ inlavaan <- function(
   lavargs$model <- model
   lavargs$data <- data
   lavargs$estimator <- estimator
+  lavargs$ceq.simple <- TRUE  # FIXME: Force ceq.simple rather than eq.constraints
   lavargs$verbose <- FALSE  # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
   lavargs$parser <- "old"  # To get priors parsed
@@ -65,11 +66,17 @@ inlavaan <- function(
   m              <- sum(lavpartable$free > 0)
 
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
-  PARIDX <- pt$free > 0
-  parnames <- pt$names[pt$free > 0]
+  PARFREEIDX <- pt$free > 0L
+  if (lavmodel@ceq.simple.only)
+    PARFREEIDX <- which(pt$free > 0L & !duplicated(pt$free))
+  parnames <- pt$names[PARFREEIDX]
 
   # Prep work for approximation ------------------------------------------------
   joint_lp <- function(pars) {
+    # UNPACK
+    if (lavmodel@ceq.simple.only)
+      pars <- as.numeric(lavmodel@ceq.simple.K %*% pars)
+
     x <- pars_to_x(pars, pt)
     ll <- loglik(x)
 
@@ -79,6 +86,11 @@ inlavaan <- function(
     ll + pld
   }
   joint_lp_grad <- function(pars) {
+
+    # UNPACK
+    if (lavmodel@ceq.simple.only)
+      pars <- as.numeric(lavmodel@ceq.simple.K %*% pars)
+
     x <- pars_to_x(pars, pt)
     gll <- grad_loglik(x)
 
@@ -96,15 +108,19 @@ inlavaan <- function(
       }
     }
 
-
     gpld <- 0
     if (isTRUE(add_priors)) gpld <- prior_grad(pars, pt)
-    # jcb * gll + gpld
-    as.numeric(jcb %*% gll) + gpld
+    out <- as.numeric(jcb %*% gll) + gpld
+
+    # Repack gradients if needed
+    if (lavmodel@ceq.simple.only)
+      as.numeric(out %*% lavmodel@ceq.simple.K)
+    else
+      out
   }
 
   if (isTRUE(verbose)) cli::cli_progress_step("Finding posterior mode.")
-  parstart <- pt$parstart[pt$free > 0]
+  parstart <- pt$parstart[PARFREEIDX]
   if (optim == "nlminb") {
     opt <- nlminb(
       start = parstart,
@@ -169,6 +185,7 @@ inlavaan <- function(
   L_inv <- solve(L)
 
   # Approximations -------------------------------------------------------------
+  if (lavmodel@ceq.simple.only) m <- length(theta_star)
   pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
 
   if (method == "sampling") {
@@ -242,14 +259,10 @@ inlavaan <- function(
     tmp <- Map(
       f          = post_marg,
       j          = seq_len(m),
-      # g          = rep(list(identity), m), #pt$g[pt$free > 0],
-      # g_prime    = rep(list(\(x) 1), m), #pt$g_prime[pt$free > 0],
-      # ginv       = rep(list(identity), m), #pt$ginv[pt$free > 0],
-      # ginv_prime = rep(list(\(x) 1), m)
-      g          = pt$g[pt$free > 0],
-      g_prime    = pt$g_prime[pt$free > 0],
-      ginv       = pt$ginv[pt$free > 0],
-      ginv_prime = pt$ginv_prime[pt$free > 0]
+      g          = pt$g[PARFREEIDX],
+      g_prime    = pt$g_prime[PARFREEIDX],
+      ginv       = pt$ginv[PARFREEIDX],
+      ginv_prime = pt$ginv_prime[PARFREEIDX]
     )
   }
 
@@ -274,7 +287,7 @@ inlavaan <- function(
       if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
 
       if (method == "skewnorm") {
-        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, nsamp)
+        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, lavmodel@ceq.simple.K, nsamp)
       } else {
         samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, nsamp)
       }
@@ -295,11 +308,18 @@ inlavaan <- function(
     ppp <- NA
   }
 
+  # Unpack
+  # idx <- lavpartable$free[lavpartable$free > 0]
+
   coefs <- summ[, "Mean"]
   names(coefs) <- parnames
 
   summ <- as.data.frame(summ)
-  summ$prior <- pt$prior[pt$free > 0]
+  summ$prior <- pt$prior[PARFREEIDX]
+
+  if (lavmodel@ceq.simple.only) {
+    theta_star_trans <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
+  }
 
   out <- list(
     coefficients = coefs,
@@ -307,7 +327,7 @@ inlavaan <- function(
     ppp = ppp,
     theta_star = as.numeric(theta_star),
     Sigma_theta = Sigma_theta,
-    theta_star_trans = pars_to_x(theta_star, pt),
+    theta_star_trans = theta_star_trans,
     approx_data = approx_data,
     pdf_data = pdf_data,
     partable = pt,

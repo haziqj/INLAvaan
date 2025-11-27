@@ -133,9 +133,9 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
   pt$mat <- NA
 
 
-  for (g in seq_len(ngroups)) {
+  for (g in c(0, seq_len(ngroups))) {
     # Identify stuff
-    ov.names <- lavdata@ov.names[[g]]
+    ov.names <- if (g == 0) NULL else lavdata@ov.names[[g]]
     pt$mat[pt$group == g] <- mapply(
       partable_classify_sem_matrix,
       lhs = pt$lhs[pt$group == g],
@@ -174,6 +174,8 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
 
   # Add names
   pt$names <- mapply(paste0, pt$lhs, pt$op, pt$rhs)
+  where_label <- pt$label != ""
+  pt$names[where_label] <- pt$label[where_label]
 
   # FIXME: Perhaps add a 'inlavaan_partable' class to this object
   as.list(pt)

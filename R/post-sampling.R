@@ -26,7 +26,10 @@ get_ppp <- function(theta_star, Sigma_theta, sn_params, pt, lavmodel,
     alpha <- sn_params[j, "alpha"]
     sn::qsn(u[, j], xi = xi, omega = omega, alpha = alpha)
   }))
-
+  if (lavmodel@ceq.simple.only) {
+    K <- lavmodel@ceq.simple.K
+    theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
+  }
   x <- t(apply(theta, 1, pars_to_x, pt = pt))
 
   Sigma_list <- lapply(seq_len(nrow(x)), function(i) {
@@ -63,13 +66,15 @@ get_ppp <- function(theta_star, Sigma_theta, sn_params, pt, lavmodel,
 
 }
 
-sample_covariances <- function(theta, Sigma_theta, pt, nsamp = 1000) {
+sample_covariances <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
 
   pt_cov_rows <- grep("cov", pt$mat)
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
   idxcov <- pt$free[pt_cov_free_rows]
 
   theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+  if (!all(dim(K) == 0))
+    theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
   x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
 
   cov_samp <- x_samp[idxcov, , drop = FALSE]
@@ -93,12 +98,15 @@ sample_covariances <- function(theta, Sigma_theta, pt, nsamp = 1000) {
 
 }
 
-sample_covariances_fit_sn <- function(theta, Sigma_theta, pt, nsamp = 10000) {
+sample_covariances_fit_sn <- function(theta, Sigma_theta, pt, K, nsamp = 10000) {
+
   pt_cov_rows <- grep("cov", pt$mat)
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
   idxcov <- pt$free[pt_cov_free_rows]
 
   theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+  if (!all(dim(K) == 0))
+    theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
   x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
   cov_samp <- x_samp[idxcov, , drop = FALSE]
   rownames(cov_samp) <- pt$names[pt_cov_free_rows]
