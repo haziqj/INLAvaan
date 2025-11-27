@@ -88,11 +88,14 @@ inlavaan <- function(
     sd1sd2 <- attr(x, "sd1sd2")
     jcb <- jcb * sd1sd2
     jcb_mat <- attr(x, "jcb_mat")
-    for (k in seq_len(nrow(jcb_mat))) {
-      i <- jcb_mat[k, 1]
-      j <- jcb_mat[k, 2]
-      jcb[i, j] <- jcb_mat[k, 3]
+    if (!is.null(jcb_mat)) {
+      for (k in seq_len(nrow(jcb_mat))) {
+        i <- jcb_mat[k, 1]
+        j <- jcb_mat[k, 2]
+        jcb[i, j] <- jcb_mat[k, 3]
+      }
     }
+
 
     gpld <- 0
     if (isTRUE(add_priors)) gpld <- prior_grad(pars, pt)
