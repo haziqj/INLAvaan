@@ -68,7 +68,7 @@ inlavaan <- function(
 
   # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
-  PTFREEIDX <- pt$free > 0L
+  PTFREEIDX <- which(pt$free > 0L)
   if (isTRUE(ceq.simple)) {
     # Note: Always work in the reduced space
     PTFREEIDX <- which(pt$free > 0L & !duplicated(pt$free))
