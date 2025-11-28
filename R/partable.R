@@ -146,6 +146,9 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
   }
 
   # Add priors
+  # Note: Possible to add own non-standard priors, but the evaluation of
+  # prior_logdens() will return an error.
+  user_prior <- pt$prior
   pt$prior <- mapply(
     partable_prior_from_row,
     matrix = pt$mat,
@@ -156,6 +159,10 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
     USE.NAMES = FALSE
   )
   pt$prior[pt$free == 0L | duplicated(pt$free)] <- NA_character_
+  if (!is.null(user_prior)) {
+    where_user_prior <- user_prior != ""
+    pt$prior[where_user_prior] <- user_prior[where_user_prior]
+  }
 
   # Add transformations to unrestricted parameter space
   tmp <- lapply(pt$mat, partable_transform_funcs)

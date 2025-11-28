@@ -57,7 +57,7 @@ prior_logdens <- function(theta, pt) {
       lp[i] <- dnorm(x = xval, mean = mean, sd = sd, log = TRUE)
     }
 
-    if (grepl("gamma", prior)) {
+    else if (grepl("gamma", prior)) {
       hypr  <- as.numeric(strsplit(gsub("gamma\\(|\\)|\\[sd\\]", "", prior), ",")[[1]])
       shape <- hypr[1]
       rate  <- hypr[2]
@@ -70,12 +70,19 @@ prior_logdens <- function(theta, pt) {
       }
     }
 
-    if (grepl("beta", prior)) {
+    else if (grepl("beta", prior)) {
       hypr  <- as.numeric(strsplit(gsub("beta\\(|\\)",   "", prior), ",")[[1]])
       a     <- hypr[1]
       b     <- hypr[2]
       lp[i] <- dbeta_box(x = xval, shape1 = a, shape2 = b, a = -1, b = 1,
                          log = TRUE)
+    }
+
+    else {
+      cli::cli_abort(c(
+        "Unknown prior distribution specified:",
+        "x" = "Prior '{prior}' is not supported."
+      ))
     }
 
     ljcb[i] <- log(abs(dx_dth))

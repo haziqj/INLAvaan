@@ -308,14 +308,14 @@ inlavaan <- function(
     ppp <- NA
   }
 
-  # Unpack
+  # Unpack?
   # idx <- lavpartable$free[lavpartable$free > 0]
 
   coefs <- summ[, "Mean"]
   names(coefs) <- parnames
 
   summ <- as.data.frame(summ)
-  # summ$prior <- pt$prior[PTFREEIDX]
+  summ$Prior <- pt$prior[PTFREEIDX]
 
   if (lavmodel@ceq.simple.only) {
     theta_star_trans <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
