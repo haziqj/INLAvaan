@@ -63,40 +63,40 @@ inlavaan <- function(
   lavpartable    <- fit0@ParTable
   lavcache       <- fit0@Cache
   n              <- fit0@SampleStats@ntotal
-  m              <- sum(lavpartable$free > 0)
+  ceq.simple     <- lavmodel@ceq.simple.only
+  ceq.K          <- lavmodel@ceq.simple.K  # used to pack params/grads
 
+  # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
-  PARFREEIDX <- pt$free > 0L
-  if (lavmodel@ceq.simple.only)
-    PARFREEIDX <- which(pt$free > 0L & !duplicated(pt$free))
-  parnames <- pt$names[PARFREEIDX]
+  PTFREEIDX <- pt$free > 0L
+  if (isTRUE(ceq.simple)) {
+    # Note: Always work in the reduced space
+    PTFREEIDX <- which(pt$free > 0L & !duplicated(pt$free))
+  }
+  m <- length(PTFREEIDX)
+  parnames <- pt$names[PTFREEIDX]
 
   # Prep work for approximation ------------------------------------------------
   joint_lp <- function(pars) {
-    # UNPACK
-    if (lavmodel@ceq.simple.only)
-      pars <- as.numeric(lavmodel@ceq.simple.K %*% pars)
-
+    if (isTRUE(ceq.simple)) pars <- as.numeric(ceq.K %*% pars)  # Unpack
     x <- pars_to_x(pars, pt)
     ll <- loglik(x)
-
     pld <- 0
     if (isTRUE(add_priors)) pld <- prior_logdens(pars, pt)
-
-    ll + pld
+    as.numeric(ll + pld)
   }
+
   joint_lp_grad <- function(pars) {
-
-    # UNPACK
-    if (lavmodel@ceq.simple.only)
-      pars <- as.numeric(lavmodel@ceq.simple.K %*% pars)
-
+    # First, the likelihood gradient
+    if (isTRUE(ceq.simple)) pars <- as.numeric(ceq.K %*% pars)  # Unpack
     x <- pars_to_x(pars, pt)
     gll <- grad_loglik(x)
 
-    # Jacobian adjustment, since we need:
-    # d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
+    # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
     jcb <- diag(mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars))
+
+    # This is the extra jacobian adjustment for covariances, since dx/dθ affects
+    # more than one place if covariance exists
     sd1sd2 <- attr(x, "sd1sd2")
     jcb <- jcb * sd1sd2
     jcb_mat <- attr(x, "jcb_mat")
@@ -107,25 +107,23 @@ inlavaan <- function(
         jcb[i, j] <- jcb_mat[k, 3]
       }
     }
+    gll_th <- as.numeric(jcb %*% gll)
+    if (isTRUE(ceq.simple)) gll_th <- as.numeric(gll_th %*%ceq.K)  # Repack
 
-    gpld <- 0
-    if (isTRUE(add_priors)) gpld <- prior_grad(pars, pt)
-    out <- as.numeric(jcb %*% gll) + gpld
+    # Second, the prior gradient
+    glp_th <- 0
+    if (isTRUE(add_priors)) glp_th <- prior_grad(pars, pt)
 
-    # Repack gradients if needed
-    if (lavmodel@ceq.simple.only)
-      as.numeric(out %*% lavmodel@ceq.simple.K)
-    else
-      out
+    as.numeric(gll_th + glp_th)
   }
 
   if (isTRUE(verbose)) cli::cli_progress_step("Finding posterior mode.")
-  parstart <- pt$parstart[PARFREEIDX]
+  parstart <- pt$parstart[PTFREEIDX]
   if (optim == "nlminb") {
     opt <- nlminb(
       start = parstart,
       objective = function(x) -1 * joint_lp(x),
-      gradient = function(x) -1 * joint_lp_grad(x),
+      # gradient = function(x) -1 * joint_lp_grad(x),
       control = control
     )
     theta_star <- opt$par
@@ -193,7 +191,8 @@ inlavaan <- function(
     if (isTRUE(verbose)) cli::cli_alert_info("Using sampling-based approximation.")
     if (isTRUE(verbose)) cli::cli_progress_step("Sampling from posterior.")
     approx_data <- NULL
-    tmp <- post_marg_sampling(theta_star, Sigma_theta, pt, nsamp)
+    tmp <- post_marg_sampling(theta_star, Sigma_theta, pt, lavmodel@ceq.simple.K, nsamp)
+    tmp <- tmp[!duplicated(pt$free[pt$free > 0])]
   } else {
     if (method == "asymgaus") {
       if (isTRUE(verbose)) cli::cli_alert_info("Using asymmetric Gaussian approximation.")
@@ -259,10 +258,10 @@ inlavaan <- function(
     tmp <- Map(
       f          = post_marg,
       j          = seq_len(m),
-      g          = pt$g[PARFREEIDX],
-      g_prime    = pt$g_prime[PARFREEIDX],
-      ginv       = pt$ginv[PARFREEIDX],
-      ginv_prime = pt$ginv_prime[PARFREEIDX]
+      g          = pt$g[PTFREEIDX],
+      g_prime    = pt$g_prime[PTFREEIDX],
+      ginv       = pt$ginv[PTFREEIDX],
+      ginv_prime = pt$ginv_prime[PTFREEIDX]
     )
   }
 
@@ -289,7 +288,7 @@ inlavaan <- function(
       if (method == "skewnorm") {
         samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, lavmodel@ceq.simple.K, nsamp)
       } else {
-        samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, nsamp)
+        samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, lavmodel@ceq.simple.K, nsamp)
       }
 
       for (cov_name in names(samp_cov)) {
@@ -315,10 +314,12 @@ inlavaan <- function(
   names(coefs) <- parnames
 
   summ <- as.data.frame(summ)
-  summ$prior <- pt$prior[PARFREEIDX]
+  # summ$prior <- pt$prior[PTFREEIDX]
 
   if (lavmodel@ceq.simple.only) {
     theta_star_trans <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
+  } else {
+    theta_star_trans <- pars_to_x(theta_star, pt)
   }
 
   out <- list(

@@ -201,6 +201,8 @@ post_marg_marggaus <- function(
 post_marg_sampling <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
 
   theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+  if (!all(dim(K) == 0))
+    theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
   x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
 
   apply(x_samp, 1, function(y) {

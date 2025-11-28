@@ -31,49 +31,54 @@ prior_logdens <- function(theta, pt) {
   # theta  : vector of optimisation parameters
   # pt     : parameter table
   # paridx : which entries in pt correspond to free parameters
+  # From inlavaanify_partable(), only free and non-duplicated parameters have
+  # priors defined.
 
-  idxfree <- pt$free > 0
-  priors <- pt$prior[idxfree]
-  ginv   <- pt$ginv[idxfree]       # theta |-> xcor
-  ginv_prime <- pt$ginv_prime[idxfree]
-  names(theta) <- priors
+  ptidxprior <- which(!is.na(pt$prior))
+  thidxprior <- pt$free[ptidxprior]
+  priors     <- pt$prior[ptidxprior]
+  ginv       <- pt$ginv[ptidxprior]
+  ginv_prime <- pt$ginv_prime[ptidxprior]
 
-  log_jacobian <- lp <- numeric(length(theta))
+  ljcb <- lp <- numeric(length(priors))
+  names(lp) <- priors
+  names(ljcb) <- as.character(ginv_prime)
+
   for (i in seq_along(priors)) {
-
-    prior <- priors[i]
-    th    <- theta[i]
-    xval  <- ginv[[i]](th)  # convert θ → x, since prior is defined on x-scale
-    dx_dtheta <- ginv_prime[[i]](th)
+    prior  <- priors[i]
+    th     <- theta[thidxprior[i]]
+    xval   <- ginv[[i]](th)
+    dx_dth <- ginv_prime[[i]](th)
 
     if (grepl("normal", prior)) {
-      tmp  <- as.numeric(strsplit(gsub("normal\\(|\\)", "", prior), ",")[[1]])
-      mean <- tmp[1]
-      sd   <- tmp[2]
-      lp[i] <- dnorm(xval, mean, sd, log = TRUE)
+      hypr  <- as.numeric(strsplit(gsub("normal\\(|\\)", "", prior), ",")[[1]])
+      mean  <- hypr[1]
+      sd    <- hypr[2]
+      lp[i] <- dnorm(x = xval, mean = mean, sd = sd, log = TRUE)
     }
 
     if (grepl("gamma", prior)) {
-      tmp <- as.numeric(strsplit(gsub("gamma\\(|\\)|\\[sd\\]", "", prior), ",")[[1]])
-      shape <- tmp[1]
-      rate  <- tmp[2]
+      hypr  <- as.numeric(strsplit(gsub("gamma\\(|\\)|\\[sd\\]", "", prior), ",")[[1]])
+      shape <- hypr[1]
+      rate  <- hypr[2]
       if (grepl("\\[sd\\]", prior)) {
-        lp[i] <- dgamma(sqrt(xval), shape = shape, rate = rate, log = TRUE)
-        # dx_dtheta <- dx_dtheta / (2 * sqrt(xval))
-        dx_dtheta <- 0.5 * exp(th / 2)
+        lp[i] <- dgamma(x = sqrt(xval), shape = shape, rate = rate, log = TRUE)
+        dx_dth <- dx_dth / (2 * sqrt(xval))
+        # dx_dth <- 0.5 * exp(th / 2)
       } else {
-        lp[i] <- dgamma(xval, shape = shape, rate = rate, log = TRUE)
+        lp[i] <- dgamma(x = xval, shape = shape, rate = rate, log = TRUE)
       }
     }
 
     if (grepl("beta", prior)) {
-      tmp   <- as.numeric(strsplit(gsub("beta\\(|\\)",   "", prior), ",")[[1]])
-      a     <- tmp[1]
-      b     <- tmp[2]
-      lp[i] <- dbeta_box(xval, shape1 = a, shape2 = b, a = -1, b = 1, log = TRUE)
+      hypr  <- as.numeric(strsplit(gsub("beta\\(|\\)",   "", prior), ",")[[1]])
+      a     <- hypr[1]
+      b     <- hypr[2]
+      lp[i] <- dbeta_box(x = xval, shape1 = a, shape2 = b, a = -1, b = 1,
+                         log = TRUE)
     }
 
-    log_jacobian[i] <- log(abs(dx_dtheta))
+    ljcb[i] <- log(abs(dx_dth))
   }
 
   # if (any(!is.finite(lp))) {
@@ -83,88 +88,69 @@ prior_logdens <- function(theta, pt) {
   #   print(lp)
   # }
 
-  out <- sum(lp + log_jacobian)
+  out <- sum(lp + ljcb)
   if (!is.finite(out)) out <- -1e40
   out
 }
 
 prior_grad <- function(theta, pt) {
-  idxfree <- pt$free > 0
-  priors <- pt$prior[idxfree]
-  ginv   <- pt$ginv[idxfree]          # theta -> x
-  ginv_prime  <- pt$ginv_prime[idxfree]
-  ginv_prime2 <- pt$ginv_prime2[idxfree]
+  # From inlavaanify_partable(), only free and non-duplicated parameters have
+  # priors defined.
 
-  names(theta) <- priors
-  grad <- numeric(length(theta))
+  ptidxprior  <- which(!is.na(pt$prior))
+  thidxprior  <- pt$free[ptidxprior]
+  priors      <- pt$prior[ptidxprior]
+  ginv        <- pt$ginv[ptidxprior]
+  ginv_prime  <- pt$ginv_prime[ptidxprior]
+  ginv_prime2 <- pt$ginv_prime2[ptidxprior]  # second derivatives
+
+  grad <- numeric(length(priors))
+  names(grad) <- priors
 
   for (i in seq_along(priors)) {
+    prior    <- priors[i]
+    th       <- theta[thidxprior[i]]
+    xval     <- ginv[[i]](th)
+    dx_dth   <- ginv_prime[[i]](th)
+    ddx_dth2 <- ginv_prime2[[i]](th)
 
-    prior <- priors[i]
-    th    <- theta[i]
-
-    # transform: theta -> x
-    xval <- ginv[[i]](th)
-    dx_dtheta   <- ginv_prime[[i]](th)    # dx/dtheta
-    ddx_dtheta2 <- ginv_prime2[[i]](th)   # d²x/dtheta²
-
-    # derivative of log p(x) wrt x
-    dlogp_dx <- 0
-    # extra adjustment for Jacobian in [sd] case
     jac_extra <- 0
 
     if (grepl("normal", prior)) {
-      tmp  <- as.numeric(strsplit(gsub("normal\\(|\\)", "", prior), ",")[[1]])
-      mu <- tmp[1]
-      sd <- tmp[2]
-      dlogp_dx <- -(xval - mu) / (sd^2)
+      hypr   <- as.numeric(strsplit(gsub("normal\\(|\\)", "", prior), ",")[[1]])
+      mu     <- hypr[1]
+      sd     <- hypr[2]
+      dlp_dx <- -(xval - mu) / (sd ^ 2)
     }
 
     if (grepl("gamma", prior)) {
-      tmp <- as.numeric(strsplit(gsub("gamma\\(|\\)|\\[sd\\]", "", prior), ",")[[1]])
-      shape <- tmp[1]
-      rate  <- tmp[2]
+      hypr  <- as.numeric(strsplit(gsub("gamma\\(|\\)|\\[sd\\]", "", prior), ",")[[1]])
+      shape <- hypr[1]
+      rate  <- hypr[2]
 
       if (grepl("\\[sd\\]", prior)) {
-        ## prior is on s = sqrt(x)
+        # Prior is on s = sqrt(x) ~ Gamma(shape, rate)
         s <- sqrt(xval)
-
-        # d/ds log gamma(s | shape, rate)
-        dlogp_ds <- (shape - 1)/s - rate
-
-        # convert to d log p / dx: ds/dx = 1/(2s)
-        dlogp_dx <- dlogp_ds * (1/(2 * s))
+        dlp_ds <- (shape - 1) / sqrt(xval) - rate
+        dlp_dx <- dlp_ds / (2 * sqrt(xval))
 
         # Jacobian is log|ds/dtheta|, not log|dx/dtheta|
         # d/dtheta log|ds/dtheta| = (x''/x') - x'/(2x)
-        jac_extra <- - dx_dtheta / (2 * xval)
-
+        jac_extra <- - dx_dth / (2 * xval)
       } else {
-        # gamma prior directly on x
-        dlogp_dx <- (shape - 1)/xval - rate
+        dlp_dx <- (shape - 1) / xval - rate
       }
     }
 
     if (grepl("beta", prior)) {
-      tmp   <- as.numeric(strsplit(gsub("beta\\(|\\)", "", prior), ",")[[1]])
-      a     <- tmp[1]
-      b     <- tmp[2]
-      dlogp_dx <- 0.5 * (a - 1) / (xval + 1) - 0.5 * (b - 1) / (1 - xval)
+      hypr   <- as.numeric(strsplit(gsub("beta\\(|\\)", "", prior), ",")[[1]])
+      a      <- hypr[1]
+      b      <- hypr[2]
+      dlp_dx <- 0.5 * (a - 1) / (xval + 1) - 0.5 * (b - 1) / (1 - xval)
     }
 
-    ## full gradient contribution
-
-    # 1) from log p(x(theta))
-    term1 <- dlogp_dx * dx_dtheta
-
-    # 2) from log|dx/dtheta| or log|ds/dtheta|
-    if (is.null(ddx_dtheta2) || is.na(ddx_dtheta2)) {
-      term2 <- jac_extra
-    } else {
-      term2 <- ddx_dtheta2 / dx_dtheta + jac_extra
-    }
-
-    grad[i] <- term1 + term2
+    # Full gradient contribution
+    grad[i] <- dlp_dx * dx_dth + ddx_dth2 / dx_dth + jac_extra
   }
 
   grad

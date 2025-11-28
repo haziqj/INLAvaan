@@ -26,7 +26,8 @@ force_pd <- function(x) {
 }
 
 pars_to_x <- function(theta, pt) {
-  # Convert unrestricted theta-side parameters to lavaan-side parameters x
+  # Convert unrestricted theta-side parameters to lavaan-side parameters x.
+  # Always receive UNPACKED theta.
   idxfree <- pt$free > 0
   pars <- pt$parstart
   pars[idxfree] <- theta
@@ -53,8 +54,11 @@ pars_to_x <- function(theta, pt) {
     sd1sd2[j] <- sd1 * sd2
   }
 
-  jcb_mat[, 1] <- pt$free[jcb_mat[, 1][pt$free[jcb_mat[, 1]] > 0]]
-  jcb_mat[, 2] <- pt$free[jcb_mat[, 2][pt$free[jcb_mat[, 2]] > 0]]
+  if (!is.null(jcb_mat)) {
+    jcb_mat[, 1] <- pt$free[jcb_mat[, 1]]
+    jcb_mat[, 2] <- pt$free[jcb_mat[, 2]]
+    jcb_mat <- jcb_mat[jcb_mat[, 1] != 0 & jcb_mat[, 2] != 0, ]
+  }
 
   out <- x[idxfree]
   attr(out, "xcor") <- xx[idxfree]

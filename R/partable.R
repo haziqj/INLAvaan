@@ -132,7 +132,6 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
   std_lv <- lavoptions$std.lv
   pt$mat <- NA
 
-
   for (g in c(0, seq_len(ngroups))) {
     # Identify stuff
     ov.names <- if (g == 0) NULL else lavdata@ov.names[[g]]
@@ -156,7 +155,7 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
     MoreArgs = list(dp = dp),
     USE.NAMES = FALSE
   )
-  pt$prior[pt$free == 0] <- NA_character_
+  pt$prior[pt$free == 0L | duplicated(pt$free)] <- NA_character_
 
   # Add transformations to unrestricted parameter space
   tmp <- lapply(pt$mat, partable_transform_funcs)
