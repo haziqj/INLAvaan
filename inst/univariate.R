@@ -48,11 +48,8 @@ fit_stan <- stan(
 
 library(blavaan)
 
-mod <- "
-eta =~ x
-"
+mod <- "eta =~ x"
 dat <- data.frame(x = x)
-
 fit_inlv <- inlavaan(mod, dat, dp = dpriors(psi = "gamma(1,0.5)[sd]"))
 
 

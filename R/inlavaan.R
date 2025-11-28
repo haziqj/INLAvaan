@@ -93,7 +93,8 @@ inlavaan <- function(
     gll <- grad_loglik(x)
 
     # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
-    jcb <- diag(mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars))
+    jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
+    jcb <- diag(jcb, length(jcb))
 
     # This is the extra jacobian adjustment for covariances, since dx/dθ affects
     # more than one place if covariance exists
@@ -123,7 +124,7 @@ inlavaan <- function(
     opt <- nlminb(
       start = parstart,
       objective = function(x) -1 * joint_lp(x),
-      # gradient = function(x) -1 * joint_lp_grad(x),
+      gradient = function(x) -1 * joint_lp_grad(x),
       control = control
     )
     theta_star <- opt$par

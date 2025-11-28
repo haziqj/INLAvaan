@@ -1,5 +1,6 @@
 library(tidyverse)
 library(lavaan)
+data(Demo.growth, package = "lavaan")
 library(blavaan)
 library(INLAvaan)
 library(furrr)
@@ -7,22 +8,28 @@ plan("multisession", workers = parallel::detectCores() - 2)
 nsamp <- 1e3
 
 mod <- "
-  visual  =~ x1 + x2 + x3
-  textual =~ x4 + x5 + x6
-  speed   =~ x7 + x8 + x9
+  # intercept and slope with fixed coefficients
+  i =~ 1*t1 + 1*t2 + 1*t3 + 1*t4
+  s =~ 0*t1 + 1*t2 + 2*t3 + 3*t4
+
+  # regressions
+  i ~ x1 + x2
+  s ~ x1 + x2
+
+  # time-varying covariates
+  t1 ~ c1
+  t2 ~ c2
+  t3 ~ c3
+  t4 ~ c4
 "
-dat <- HolzingerSwineford1939
 
-DP <- dpriors(psi = "gamma(1,1)", theta = "gamma(1,1)")
-STDLV <- FALSE
-OPTIM <- "optim"
+dat <- Demo.growth
 
-fit_lav  <- cfa(mod, dat, std.lv = STDLV, do.fit = FALSE)
-fit_blav <- bcfa(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp, std.lv = STDLV, dp = DP)
-fit_inl1 <- inlavaan(mod, dat, lavfun = "cfa", method = "skewnorm", std.lv = STDLV, dp = DP, optim = OPTIM)
-# fit_inl2 <- inlavaan(mod, dat, lavfun = "cfa", method = "asymgaus", std.lv = STDLV)
-# fit_inl3 <- inlavaan(mod, dat, lavfun = "cfa", method = "marggaus", std.lv = STDLV)
-fit_inl4 <- inlavaan(mod, dat, lavfun = "cfa", method = "sampling", std.lv = STDLV)
+fit_lav  <- growth(mod, dat)
+fit_blav <- bgrowth(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp)
+fit_inl1 <- inlavaan(mod, dat, lavfun = "growth", method = "skewnorm")
+fit_inl2 <- inlavaan(mod, dat, lavfun = "growth", method = "asymgaus")
+fit_inl4 <- inlavaan(mod, dat, lavfun = "growth", method = "sampling")
 
 # Comparison
 draws <- do.call("rbind", blavInspect(fit_blav, "mcmc"))

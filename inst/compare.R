@@ -4,7 +4,7 @@ library(blavaan)
 library(INLAvaan)
 library(furrr)
 plan("multisession", workers = parallel::detectCores() - 2)
-nsamp <- 1e4
+nsamp <- 1e3
 
 # To test advantage of skewnormal fits. Here, y3 has loading 0.9 with small
 # residual variance (0.05). So total variance is var(y3) = 0.9^2 + 0.05 = 0.86,
@@ -58,7 +58,7 @@ fit_blav <- bsem(mod, dat, std.lv = TRUE, bcontrol = list(cores = 3),
                  burnin = nsamp / 2, sample = nsamp)
 fit_inl1 <- inlavaan(mod, dat, std.lv = TRUE, method = "skewnorm")
 fit_inl2 <- inlavaan(mod, dat, std.lv = TRUE, method = "asymgaus")
-fit_inl3 <- inlavaan(mod, dat, std.lv = TRUE, method = "marggaus")
+# fit_inl3 <- inlavaan(mod, dat, std.lv = TRUE, method = "marggaus")
 fit_inl4 <- inlavaan(mod, dat, std.lv = TRUE, method = "sampling")
 
 # Comparison
@@ -72,7 +72,7 @@ plot_df <-
   list(
     skewnorm = fit_inl1$pdf_data,
     asymgaus = fit_inl2$pdf_data,
-    marggaus = fit_inl3$pdf_data,
+    # marggaus = fit_inl3$pdf_data,
     sampling = fit_inl4$pdf_data
   ) |>
   map(function(plot_df_list) {

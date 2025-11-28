@@ -2,47 +2,77 @@ library(tidyverse)
 library(lavaan)
 library(blavaan)
 library(INLAvaan)
+library(lme4)
 library(furrr)
 plan("multisession", workers = parallel::detectCores() - 2)
 nsamp <- 1e3
 
+# fit_lmer <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
+
+dat <- pivot_wider(sleepstudy, names_from = Days, names_prefix = "Day",
+                   values_from = Reaction)
+# dat <- brlavaan::gen_data_growth(1000)
 mod <- "
-  ind60 =~ x1 + x2 + x3
-  dem60 =~ y1 + y2 + y3 + y4
-  dem65 =~ y5 + y6 + y7 + y8
+  # intercept with coefficients fixed to 1
+  i =~  1*Day0 + 1*Day1 + 1*Day2 + 1*Day3 + 1*Day4 +
+        1*Day5 + 1*Day6 + 1*Day7 + 1*Day8 + 1*Day9
 
-  dem60 ~ ind60
-  dem65 ~ ind60 + dem60
+  # slope with coefficients fixed to 0:9 (number of days)
+  s =~  0*Day0 + 1*Day1 + 2*Day2 + 3*Day3 + 4*Day4 +
+        5*Day5 + 6*Day6 + 7*Day7 + 8*Day8 + 9*Day9
 
-  y1 ~~ y5
-  y2 ~~ y4 + y6
-  y3 ~~ y7
-  y4 ~~ y8
-  y6 ~~ y8
-"
-dat <- PoliticalDemocracy
-STDLV <- FALSE
-DP <- dpriors(psi = "gamma(1,0.5)", theta = "gamma(1,0.5)")
+  i ~~ i
+  i ~ 1
 
-fit_lav  <- sem(mod, dat)
-fit_blav <- bsem(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp, dp = DP, std.lv = STDLV)
-fit_inl1 <- inlavaan(mod, dat, method = "skewnorm", dp = DP, std.lv = STDLV)
-fit_inl2 <- inlavaan(mod, dat, method = "asymgaus", dp = DP, std.lv = STDLV)
-# fit_inl3 <- inlavaan(mod, dat, method = "marggaus")
-fit_inl4 <- inlavaan(mod, dat, method = "sampling", dp = DP, std.lv = STDLV)
+  s ~~ s
+  s ~ 1
+
+  i ~~ s
+
+  # fix intercepts
+  Day0 ~ 0*1
+  Day1 ~ 0*1
+  Day2 ~ 0*1
+  Day3 ~ 0*1
+  Day4 ~ 0*1
+  Day5 ~ 0*1
+  Day6 ~ 0*1
+  Day7 ~ 0*1
+  Day8 ~ 0*1
+  Day9 ~ 0*1
+
+  # apply equality constraints
+  Day0 ~~ v*Day0
+  Day1 ~~ v*Day1
+  Day2 ~~ v*Day2
+  Day3 ~~ v*Day3
+  Day4 ~~ v*Day4
+  Day5 ~~ v*Day5
+  Day6 ~~ v*Day6
+  Day7 ~~ v*Day7
+  Day8 ~~ v*Day8
+  Day9 ~~ v*Day9
+  "
+
+fit_lav  <- growth(mod, dat, ceq.simple = TRUE, std.ov = !TRUE)
+fit_blav <- bgrowth(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp)
+fit_inl1 <- inlavaan(mod, dat, lavfun = "growth", method = "skewnorm")
+fit_inl2 <- inlavaan(mod, dat, lavfun = "growth", method = "asymgaus")
+fit_inl3 <- inlavaan(mod, dat, lavfun = "growth", method = "marggaus")
+fit_inl4 <- inlavaan(mod, dat, lavfun = "growth", method = "sampling")
 
 # Comparison
 draws <- do.call("rbind", blavInspect(fit_blav, "mcmc"))
 plot_df_blav <-
   as.data.frame(draws) |>
   pivot_longer(everything()) |>
-  mutate(name = factor(name, levels = names(coef(fit_blav))))
+  mutate(name = factor(name, levels = names(coef(fit_inl1))))
 
 plot_df <-
   list(
     skewnorm = fit_inl1$pdf_data,
     asymgaus = fit_inl2$pdf_data,
-    # marggaus = fit_inl3$pdf_data,
+    marggaus = fit_inl3$pdf_data,
     sampling = fit_inl4$pdf_data
   ) |>
   map(function(plot_df_list) {
