@@ -323,8 +323,12 @@ inlavaan <- function(
     theta_star_trans <- pars_to_x(theta_star, pt)
   }
 
+  # Marginal log-likelihood (for BF comparison)
+  marg_loglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
+
   out <- list(
     coefficients = coefs,
+    marg_loglik = marg_loglik,
     summary = summ,
     ppp = ppp,
     theta_star = as.numeric(theta_star),
