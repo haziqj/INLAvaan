@@ -35,7 +35,7 @@ prior_logdens <- function(theta, pt) {
   # priors defined.
 
   ptidxprior <- which(!is.na(pt$prior))
-  thidxprior <- pt$free[ptidxprior]
+  thidxprior  <- which(!duplicated(pt$free[pt$free > 0]))
   priors     <- pt$prior[ptidxprior]
   ginv       <- pt$ginv[ptidxprior]
   ginv_prime <- pt$ginv_prime[ptidxprior]
@@ -105,7 +105,7 @@ prior_grad <- function(theta, pt) {
   # priors defined.
 
   ptidxprior  <- which(!is.na(pt$prior))
-  thidxprior  <- pt$free[ptidxprior]
+  thidxprior  <- which(!duplicated(pt$free[pt$free > 0]))
   priors      <- pt$prior[ptidxprior]
   ginv        <- pt$ginv[ptidxprior]
   ginv_prime  <- pt$ginv_prime[ptidxprior]

@@ -38,6 +38,8 @@ pars_to_x <- function(theta, pt) {
   xx <- x <- mapply(function(f, z) f(z), pt$ginv, pars)
   sd1sd2 <- rep(1, npt)
   jcb_mat <- NULL
+  thidx <- integer(npt)
+  thidx[pt$free > 0] <- seq_len(sum(pt$free > 0))
 
   # Now deal with covariances
   for (g in seq_len(nG)) {
@@ -53,17 +55,16 @@ pars_to_x <- function(theta, pt) {
       rho <- x[j]
       x[j] <- rho * sd1 * sd2
 
-      jcb_mat <- rbind(jcb_mat, c(where_varX1, j, 0.5 * rho * sd1 * sd2))
-      jcb_mat <- rbind(jcb_mat, c(where_varX2, j, 0.5 * rho * sd1 * sd2))
+      thidx1 <- thidx[where_varX1]
+      thidx2 <- thidx[where_varX2]
+      thidx3 <- thidx[j]
+      jcb_mat <- rbind(jcb_mat, c(thidx1, thidx3, 0.5 * rho * sd1 * sd2))
+      jcb_mat <- rbind(jcb_mat, c(thidx2, thidx3, 0.5 * rho * sd1 * sd2))
       sd1sd2[j] <- sd1 * sd2
     }
   }
 
-  if (!is.null(jcb_mat)) {
-    jcb_mat[, 1] <- pt$free[jcb_mat[, 1]]
-    jcb_mat[, 2] <- pt$free[jcb_mat[, 2]]
-    jcb_mat <- jcb_mat[jcb_mat[, 1] != 0 & jcb_mat[, 2] != 0, ]
-  }
+  jcb_mat <- jcb_mat[jcb_mat[, 1] != 0 & jcb_mat[, 2] != 0, ]
 
   out <- x[pt$free > 0L & !duplicated(pt$free)]
   attr(out, "xcor") <- xx[pt$free > 0L & !duplicated(pt$free)]
