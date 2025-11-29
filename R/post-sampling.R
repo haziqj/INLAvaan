@@ -85,7 +85,8 @@ get_ppp <- function(
     pt,
     lavmodel,
     lavsamplestats,
-    nsamp = 250
+    nsamp = 250,
+    cli_env = NULL
   ) {
 
   x <- sample_params(
@@ -99,22 +100,6 @@ get_ppp <- function(
     return_theta = FALSE
   )
 
-  Sigma_list <- lapply(seq_len(nrow(x)), function(i) {
-    xx <- x[i, ]
-    lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
-    lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-    Sigma <- lavimplied$cov[[1]]
-    Sigma
-  })
-
-  n <- lavsamplestats@nobs[[1]]
-  S <- lavsamplestats@cov[[1]]
-
-  Srep <- lapply(Sigma_list, function(Sigma) {
-    W <- stats::rWishart(1, n - 1, Sigma)[,,1]
-    W / (n - 1)
-  })
-
   #log |Sigma| + trace(S Sigma^{-1}) - log |S| - p
   Fdiscrp <- function(S, Sigma) {
     logdet_Sigma <- as.numeric(determinant(Sigma, logarithm = TRUE)$modulus)
@@ -123,17 +108,33 @@ get_ppp <- function(
     logdet_Sigma + trace_term - logdet_S - nrow(S)
   }
 
-  TT <- Map(
-    function(Srep, Sigma) {
-      Tobs <- Fdiscrp(S, Sigma)
-      Trep <- Fdiscrp(Srep, Sigma)
-      as.numeric(Trep >= Tobs)
-    },
-    Srep = Srep,
-    Sigma = Sigma_list
-  )
-  mean(unlist(TT))
+  nG <- max(pt$group)
+  res <- vector("numeric", length = nrow(x))
+  for (i in seq_len(nrow(x))) {
+    if (!is.null(cli_env)) cli::cli_progress_update(.envir = cli_env)
+    xx <- x[i, ]
+    lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
+    lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
+    Tobs <- 0
+    Trep <- 0
+
+    for (g in seq_len(nG)) {
+      n <- lavsamplestats@nobs[[g]]
+      S <- lavsamplestats@cov[[g]]
+      Sigma <- lavimplied$cov[[g]]
+
+      W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[, , 1]
+      Srep <- W / (n - 1)
+
+      Tobs <- Tobs + Fdiscrp(S, Sigma)
+      Trep <- Trep + Fdiscrp(Srep, Sigma)
+    }
+
+    res[i] <- as.numeric(Trep >= Tobs)
+  }
+
+  mean(res)
 }
 
 sample_covariances <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {

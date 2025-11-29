@@ -301,9 +301,14 @@ inlavaan <- function(
 
   # Compute ppp
   if (method == "skewnorm" | method == "asymgaus") {
-    if (isTRUE(verbose)) cli::cli_progress_step("Computing posterior predictive p-value.")
+    env <- NULL
+    if (isTRUE(verbose)) {
+      env <- environment()
+      cli::cli_progress_step("Computing posterior predictive p-value.",
+                             spinner = TRUE, .envir = env)
+    }
     ppp <- get_ppp(theta_star, Sigma_theta, method, approx_data, pt, lavmodel,
-                   lavsamplestats, nsamp = nsamp)
+                   lavsamplestats, nsamp = nsamp, cli_env = env)
   } else {
     ppp <- NA
   }

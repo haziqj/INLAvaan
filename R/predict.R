@@ -1,4 +1,5 @@
 get_SEM_param_matrix <- function(x, mat, lavmodel) {
+  nG <- lavmodel@ngroups
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
@@ -8,10 +9,19 @@ get_SEM_param_matrix <- function(x, mat, lavmodel) {
     mat
   }, lavmodel_x@GLIST, lavmodel_x@dimNames)
 
+  uniq_names <- unique(names(GLIST))
+  k <- length(uniq_names)
+  out <- vector("list", nG)
+  for (g in seq_len(nG)) {
+    idx <- ((g - 1) * k + 1):(g * k)
+    out[[g]] <- GLIST[idx]
+    names(out[[g]]) <- uniq_names
+  }
+
   if (mat == "all" | mat == "GLIST") {
-    return(GLIST)
+    return(out)
   } else {
-    return(GLIST[[mat]])
+    return(lapply(out, function(glist) glist[[mat]]))
   }
 }
 
@@ -47,33 +57,38 @@ predict.inlavaan_internal <- function(object, type = c("lv", "yhat", "ov", "ypre
     return_theta = FALSE
   )
 
-  y <- lavdata@X[[1]]  # FIXME: What if group data?
+  nG <- lavdata@ngroups
+  y <- lavdata@X
 
   if (type == "lv") {
     sample_lv <- function(xx) {
       GLIST <- get_SEM_param_matrix(xx, "all", lavmodel)
+      out <- vector("list", nG)
+      for (g in seq_len(nG)) {
+        glist <- GLIST[[g]]
+        Lambda <- glist$lambda
+        Psi <- glist$psi
+        Theta <- glist$theta
+        B <- glist$beta
+        alpha <- glist$alpha
 
-      Lambda <- GLIST$lambda
-      Psi <- GLIST$psi
-      Theta <- GLIST$theta
-      B <- GLIST$beta
-      alpha <- GLIST$alpha
+        IminB <- if(is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
+        if (is.null(alpha)) alpha <- 0
+        IminB_inv <- solve(IminB)
 
-      IminB <- diag(nrow(B)) - if (is.null(B)) 0 else B
-      if (is.null(alpha)) alpha <- 0
-      IminB_inv <- solve(IminB)
+        front <- Lambda %*% IminB_inv
+        Sigmay <- front %*% Psi %*% t(front) + Theta
+        Sigmay_inv <- solve(Sigmay)
 
-      front <- Lambda %*% IminB_inv
-      Sigmay <- front %*% Psi %*% t(front) + Theta
-      Sigmay_inv <- solve(Sigmay)
+        Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
+        mu_eta <- t(as.numeric(alpha) + Phi %*% t(Lambda) %*% Sigmay_inv %*% t(y[[g]]))
+        V_eta <- Phi - Phi %*% t(Lambda) %*% Sigmay_inv %*% Lambda %*% Phi
 
-      Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
-      mu_eta <- t(alpha + Phi %*% t(Lambda) %*% Sigmay_inv %*% t(y))
-      V_eta <- Phi - Phi %*% t(Lambda) %*% Sigmay_inv %*% Lambda %*% Phi
-
-      out <- t(apply(mu_eta, 1, function(mu) {
-        mvtnorm::rmvnorm(1, mean = mu, sigma = V_eta)
-      }))
+        out[[g]] <- t(apply(mu_eta, 1, function(mu) {
+          mvtnorm::rmvnorm(1, mean = mu, sigma = V_eta)
+        }))
+      }
+      out <- do.call(rbind, out)
       colnames(out) <- colnames(Psi)
       out
     }
@@ -89,6 +104,8 @@ predict.inlavaan_internal <- function(object, type = c("lv", "yhat", "ov", "ypre
     cli::cli_abort("Only type = 'lv' is currently implemented.")
   }
 
+  attr(out, "nobs") <- lavdata@nobs
+  attr(out, "group.label") <- lavdata@group.label
   structure(out, class = "predict.inlavaan_internal")
 }
 
@@ -125,24 +142,44 @@ print.summary.predict.inlavaan_internal <- function(x, stat = "Mean", ...) {
 }
 
 #' @export
-plot.predict.inlavaan_internal <- function(x, ...) {
+plot.predict.inlavaan_internal <- function(x, nrow = NULL, ncol = NULL, ...) {
   summ <- summary(x)
+  nobs <- attr(x, "nobs")
+  nG <- length(nobs)
+  groups <- rep(seq_len(nG), times = nobs)
 
   means <- summ$Mean
   score <- rowSums(means)
   ranks <- order(score, decreasing = TRUE)
+  summ <- lapply(summ, function(mat) cbind(group = groups, mat))
 
-  bind_rows(lapply(summ, function(x) {
-    as.data.frame(x) |>
-      rownames_to_column("id")
-  }), .id = "statistic") |>
-    pivot_longer(-c(statistic, id), names_to = "var", values_to = "val") |>
+  plot_df <-
+    bind_rows(lapply(summ, function(x) {
+      as.data.frame(x) |>
+        rownames_to_column("id")
+    }), .id = "statistic") |>
+    pivot_longer(-c(statistic, id, group), names_to = "var", values_to = "val") |>
     pivot_wider(names_from = statistic, values_from = val) |>
-    mutate(id = factor(id, levels = ranks)) |>
-    ggplot() +
-    geom_pointrange(aes(x = id, y = Mean, ymin = `2.5%`, ymax = `97.5%`), size = 0) +
-    facet_wrap(~ var) +
+    mutate(
+      id = factor(id, levels = ranks),
+      group = factor(group, labels = attr(x, "group.label"))
+    )
+
+  if (nG > 1L) {
+    browser()
+    p <-
+      ggplot(plot_df) +
+      geom_pointrange(aes(x = id, y = Mean, ymin = `2.5%`, ymax = `97.5%`, col = group), size = 0)
+  } else {
+    p <-
+      ggplot(plot_df) +
+      geom_pointrange(aes(x = id, y = Mean, ymin = `2.5%`, ymax = `97.5%`), size = 0)
+  }
+
+  p +
+    facet_wrap(~ var, nrow = nrow, ncol = ncol) +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 5)) +
     labs(x = "Individual ID", y = "Value")
+
 }
