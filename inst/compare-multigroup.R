@@ -76,3 +76,10 @@ ggplot() +
     legend.key.width = unit(1, "cm")
   ) +
   labs(x = NULL, y = NULL, col = NULL, fill = NULL)
+
+## ----- Model comparison ------------------------------------------------------
+fit0 <- inlavaan(mod, dat, lavfun = "cfa")
+fit1 <- inlavaan(mod, dat, lavfun = "cfa", group = "school")
+fit2 <- inlavaan(mod, dat, lavfun = "cfa", group = "school", group.equal = "loadings")
+fit3 <- inlavaan(mod, dat, lavfun = "cfa", group = "school", group.equal = c("loadings", "intercepts"))
+compare(fit0, fit1, fit2, fit3)

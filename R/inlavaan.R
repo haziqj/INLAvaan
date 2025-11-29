@@ -330,6 +330,9 @@ inlavaan <- function(
 
   # Marginal log-likelihood (for BF comparison)
   marg_loglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
+  loglik <- joint_lp(theta_star)
+  AIC <- -2 * loglik + 2 * m
+  BIC <- -2 * loglik + log(n) * m
 
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, coefs)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -338,6 +341,8 @@ inlavaan <- function(
   out <- list(
     coefficients = coefs,
     marg_loglik = marg_loglik,
+    AIC = AIC,
+    BIC = BIC,
     summary = summ,
     ppp = ppp,
     method = method,
