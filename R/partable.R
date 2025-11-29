@@ -182,6 +182,10 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
   pt$names <- mapply(paste0, pt$lhs, pt$op, pt$rhs)
   where_label <- pt$label != ""
   pt$names[where_label] <- pt$label[where_label]
+  if (max(pt$group) > 1) {
+    pt$names <- paste0(pt$names, ".g", pt$group)
+    pt$names <- gsub(".g1", "", pt$names)
+  }
 
   # FIXME: Perhaps add a 'inlavaan_partable' class to this object
   as.list(pt)

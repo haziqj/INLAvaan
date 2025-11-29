@@ -101,6 +101,7 @@ inlavaan <- function(
     sd1sd2 <- attr(x, "sd1sd2")
     jcb <- jcb * sd1sd2
     jcb_mat <- attr(x, "jcb_mat")
+
     if (!is.null(jcb_mat)) {
       for (k in seq_len(nrow(jcb_mat))) {
         i <- jcb_mat[k, 1]
@@ -192,8 +193,7 @@ inlavaan <- function(
     if (isTRUE(verbose)) cli::cli_alert_info("Using sampling-based approximation.")
     if (isTRUE(verbose)) cli::cli_progress_step("Sampling from posterior.")
     approx_data <- NULL
-    tmp <- post_marg_sampling(theta_star, Sigma_theta, pt, lavmodel@ceq.simple.K, nsamp)
-    tmp <- tmp[!duplicated(pt$free[pt$free > 0])]
+    postmargres <- post_marg_sampling(theta_star, Sigma_theta, pt, ceq.K, nsamp)
   } else {
     if (method == "asymgaus") {
       if (isTRUE(verbose)) cli::cli_alert_info("Using asymmetric Gaussian approximation.")
@@ -256,7 +256,7 @@ inlavaan <- function(
 
     # Compute posterior marginals ----------------------------------------------
     if (isTRUE(verbose)) cli::cli_progress_step("Preparing output.")
-    tmp <- Map(
+    postmargres <- Map(
       f          = post_marg,
       j          = seq_len(m),
       g          = pt$g[PTFREEIDX],
@@ -272,11 +272,11 @@ inlavaan <- function(
       row.names(out) <- y
       out
     },
-    x = tmp,
+    x = postmargres,
     y = parnames
   ))
 
-  pdf_data <- lapply(tmp, \(x) x$pdf_data)
+  pdf_data <- lapply(postmargres, \(x) x$pdf_data)
   names(pdf_data) <- parnames
 
   # Sampling for covariances
@@ -328,7 +328,7 @@ inlavaan <- function(
 
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, coefs)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-  Sigmay <- lavimplied$cov[[1]]
+  Sigmay <- lavimplied$cov
 
   out <- list(
     coefficients = coefs,
