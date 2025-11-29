@@ -20,8 +20,8 @@ OPTIM <- "optim"
 fit_lav  <- cfa(mod, dat, std.lv = STDLV, do.fit = FALSE)
 fit_blav <- bcfa(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp, std.lv = STDLV, dp = DP)
 fit_inl1 <- inlavaan(mod, dat, lavfun = "cfa", method = "skewnorm", std.lv = STDLV, dp = DP, optim = OPTIM)
-# fit_inl2 <- inlavaan(mod, dat, lavfun = "cfa", method = "asymgaus", std.lv = STDLV)
-# fit_inl3 <- inlavaan(mod, dat, lavfun = "cfa", method = "marggaus", std.lv = STDLV)
+fit_inl2 <- inlavaan(mod, dat, lavfun = "cfa", method = "asymgaus", std.lv = STDLV)
+fit_inl3 <- inlavaan(mod, dat, lavfun = "cfa", method = "marggaus", std.lv = STDLV)
 fit_inl4 <- inlavaan(mod, dat, lavfun = "cfa", method = "sampling", std.lv = STDLV)
 
 # Comparison

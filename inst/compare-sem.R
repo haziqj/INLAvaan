@@ -25,10 +25,10 @@ STDLV <- FALSE
 DP <- dpriors(psi = "gamma(1,0.5)", theta = "gamma(1,0.5)")
 
 fit_lav  <- sem(mod, dat)
-fit_blav <- bsem(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp, dp = DP, std.lv = STDLV)
+fit_blav <- bsem(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp, dp = DP, std.lv = STDLV, save.lvs = TRUE)
 fit_inl1 <- inlavaan(mod, dat, method = "skewnorm", dp = DP, std.lv = STDLV)
 fit_inl2 <- inlavaan(mod, dat, method = "asymgaus", dp = DP, std.lv = STDLV)
-# fit_inl3 <- inlavaan(mod, dat, method = "marggaus")
+fit_inl3 <- inlavaan(mod, dat, method = "marggaus")
 fit_inl4 <- inlavaan(mod, dat, method = "sampling", dp = DP, std.lv = STDLV)
 
 # Comparison
