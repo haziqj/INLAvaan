@@ -1,7 +1,37 @@
 # All functions here compute summaries and also table of (x, f(x)) values for
 # plotting of the jth component parameter's posterior marginal
 
-# Two-piece asymmetric Gaussian
+## ----- Two-piece asymmetric Gaussian -----------------------------------------
+# Product factor log-pdf
+prodfac_lp <- function(z, sigma_asym) {
+  res <- 0
+  for (j in seq_len(nrow(sigma_asym))) {
+    if (z[j] > 0)
+      res <- res + -0.5 * (z[j] / sqrt(sigma_asym[j, "sigma_plus"])) ^ 2
+    else
+      res <- res + -0.5 * (z[j] / sqrt(sigma_asym[j, "sigma_minus"])) ^ 2
+  }
+  res
+}
+
+# Marginalised distribution
+marg_lp <- function(tj, j, theta_star, Sigma_theta, sigma_asym) {
+  L <- t(chol(Sigma_theta))
+  L_inv <- solve(L)
+
+  sapply(tj, function(thetaj) {
+    # First compute conditional expectation
+    theta_new <- rep(NA, length(theta_star))
+    theta_new[-j] <- theta_star[-j] + Sigma_theta[-j, j] / Sigma_theta[j, j] *
+      (thetaj - theta_star[j])
+    theta_new[j] <- thetaj
+
+    # Convert to z and get prodfac_lp
+    z_new <- as.numeric(L_inv %*% (theta_new - theta_star))
+    prodfac_lp(z_new, sigma_asym)
+  })
+}
+
 post_marg_asymgaus <- function(
     j = 1,
     g = identity,
@@ -13,43 +43,10 @@ post_marg_asymgaus <- function(
     sigma_asym
   ) {
 
-  # Helper functions -----------------------------------------------------------
-  L <- t(chol(Sigma_theta))
-  L_inv <- solve(L)
-  m <- length(theta_star)
-
-  # Joint factors
-  prodfac_lp <- function(z) {
-    res <- 0
-    for (j in 1:m) {
-      if (z[j] > 0)
-        res <- res + -0.5 * (z[j] / sqrt(sigma_asym[j, "sigma_plus"])) ^ 2
-      else
-        res <- res + -0.5 * (z[j] / sqrt(sigma_asym[j, "sigma_minus"])) ^ 2
-    }
-    res
-  }
-
-  # Marginalised distribution
-  marg_lp <- function(tj, j = 1) {
-    sapply(tj, function(thetaj) {
-      # First compute conditional expectation
-      theta_new <- rep(NA, m)
-      theta_new[-j] <- theta_star[-j] + Sigma_theta[-j, j] / Sigma_theta[j, j] *
-        (thetaj - theta_star[j])
-      theta_new[j] <- thetaj
-
-      # Convert to z and get prodfac_lp
-      z_new <- as.numeric(L_inv %*% (theta_new - theta_star))
-      prodfac_lp(z_new)
-    })
-  }
-
-  # Posterior marginal for parameter j -----------------------------------------
-
   # Build the density by laying out some points and spline interpolation
   tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
-  yy <- marg_lp(tt, j = j)
+  yy <- marg_lp(tt, j = j, theta_star = theta_star,
+                Sigma_theta = Sigma_theta, sigma_asym = sigma_asym)
   yy <- yy - max(yy)  # stabilise
   fj_lp <- stats::splinefun(tt, yy)
   fj <- function(par) exp(fj_lp(par))  # unnormalised

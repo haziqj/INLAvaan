@@ -16,7 +16,7 @@ inlavaan <- function(
     ),
     verbose = TRUE,
     add_priors = TRUE,
-    nsamp = 10000,
+    nsamp = 3000,
     dp = blavaan::dpriors(),
     optim = c("nlminb", "ucminf", "optim"),
     ...
@@ -300,9 +300,9 @@ inlavaan <- function(
   }
 
   # Compute ppp
-  if (FALSE & method == "skewnorm") {
+  if (method == "skewnorm" | method == "asymgaus") {
     if (isTRUE(verbose)) cli::cli_progress_step("Computing posterior predictive p-value.")
-    ppp <- get_ppp(theta_star, Sigma_theta, approx_data, pt, lavmodel,
+    ppp <- get_ppp(theta_star, Sigma_theta, method, approx_data, pt, lavmodel,
                    lavsamplestats, nsamp = nsamp)
   } else {
     ppp <- NA
@@ -326,6 +326,10 @@ inlavaan <- function(
   # Marginal log-likelihood (for BF comparison)
   marg_loglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
 
+  lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, coefs)
+  lavimplied <- lavaan::lav_model_implied(lavmodel_x)
+  Sigmay <- lavimplied$cov[[1]]
+
   out <- list(
     coefficients = coefs,
     marg_loglik = marg_loglik,
@@ -339,6 +343,7 @@ inlavaan <- function(
     partable = pt,
     lavmodel = lavmodel,
     lavsamplestats = lavsamplestats,
+    Sigmay = Sigmay,
     opt = opt
   )
   class(out) <- "inlavaan_internal"

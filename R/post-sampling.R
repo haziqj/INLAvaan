@@ -11,8 +11,16 @@
 # and the test statistic is T(S, Sigma) = (n - 1) / 2 * F(S, Sigma)
 # Then ppp = P(T(Srep, Sigma) >= T(S, Sigma))
 
-get_ppp <- function(theta_star, Sigma_theta, sn_params, pt, lavmodel,
-                    lavsamplestats, nsamp = 250) {
+get_ppp <- function(
+    theta_star,
+    Sigma_theta,
+    method,
+    approx_data,
+    pt,
+    lavmodel,
+    lavsamplestats,
+    nsamp = 250
+  ) {
   n <- lavsamplestats@nobs[[1]]
   S <- lavsamplestats@cov[[1]]
 
@@ -20,12 +28,45 @@ get_ppp <- function(theta_star, Sigma_theta, sn_params, pt, lavmodel,
   z <- mvtnorm::rmvnorm(n = nsamp, sigma = R)
   u <- apply(z, 2, pnorm)
 
-  theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
-    xi    <- sn_params[j, "xi"]
-    omega <- sn_params[j, "omega"]
-    alpha <- sn_params[j, "alpha"]
-    sn::qsn(u[, j], xi = xi, omega = omega, alpha = alpha)
-  }))
+  # FIXME: Repeated code in post_marg_skewnorm and post_marg_marggaus
+  # Use marginals to get theta
+  if (method == "skewnorm") {
+    theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
+      xi    <- approx_data[j, "xi"]
+      omega <- approx_data[j, "omega"]
+      alpha <- approx_data[j, "alpha"]
+      sn::qsn(u[, j], xi = xi, omega = omega, alpha = alpha)
+    }))
+  } else if (method == "asymgaus") {
+    theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
+      tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
+      yy <- marg_lp(tt, j = j, theta_star = theta_star,
+                    Sigma_theta = Sigma_theta, sigma_asym = approx_data)
+      yy <- yy - max(yy)  # stabilise
+      fj_lp <- stats::splinefun(tt, yy)
+      fj <- function(par) exp(fj_lp(par))  # unnormalised
+      dt <- diff(tt)
+      ft <- fj(tt)
+      fmid <- (head(ft, -1) + tail(ft, -1)) / 2
+      ymid <- (head(tt, -1) + tail(tt, -1)) / 2
+      C <- sum(fmid * dt)
+      ft <- ft / C
+      Ft <- c(0, cumsum(fmid * dt))
+      Ft <- Ft / tail(Ft, 1)
+      qfj <- splinefun(Ft, tt, method = "monoH.FC")
+      qfj(u[, j])
+    }))
+  } else if (method == "marggaus") {
+    theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
+      mu_j <- theta_star[j]
+      sd_j <- sqrt(Sigma_theta[j, j])
+      qnorm(u[, j], mean = mu_j, sd = sd_j)
+    }))
+  } else if (method == "sampling") {
+    D <- diag(sqrt(diag(Sigma_theta)))
+    theta <- D %*% qnorm(t(u)) + theta_star
+  }
+
   if (lavmodel@ceq.simple.only) {
     K <- lavmodel@ceq.simple.K
     theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
@@ -80,7 +121,7 @@ sample_covariances <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
   cov_samp <- x_samp[idxcov, , drop = FALSE]
   rownames(cov_samp) <- pt$names[pt_cov_free_rows]
 
-  # RES
+  # FIXME: Repeated code in post_marg_sampling
   apply(cov_samp, 1, function(y) {
     Ex <- mean(y)
     SDx <- sd(y)
@@ -114,6 +155,7 @@ sample_covariances_fit_sn <- function(theta, Sigma_theta, pt, K, nsamp = 10000) 
   sn_params <- apply(cov_samp, 1, fit_skew_normal_samp)
   sn_params <- do.call("rbind", lapply(sn_params, unlist))
 
+  # FIXME: Repeated code in post_marg_skewnorm
   apply(sn_params, 1, function(y) {
     xi <- y["xi"]
     omega <- y["omega"]
