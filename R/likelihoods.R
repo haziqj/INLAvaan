@@ -28,6 +28,9 @@ force_pd <- function(x) {
 pars_to_x <- function(theta, pt) {
   # Convert unrestricted theta-side parameters to lavaan-side parameters x.
   # Always receive UNPACKED theta.
+
+  if (is.null(pt) | missing(pt)) cli::cli_abort("Parameter table 'pt' must be provided.")
+
   idxfree <- pt$free > 0
   pars <- pt$parstart
   pars[idxfree] <- theta

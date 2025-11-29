@@ -1,29 +1,13 @@
-# 1. Get correlation matrix R = cov2cor(Sigma_theta)
-# 2. Sample z ~ N(0, R)
-# 3. Compute u = Phi^{-1}(z)
-# 4. For each j, compute theta_j = F^{-1}_j(u_j) where F_j is the marginal posterior CDF for parameter j
-# 5. Get x = pars_to_x(theta)
-# 6. Compute implied covariance matrix Sigma(x)
-# 7. Sample Srep ~ Wishart(n - 1, Sigma(x))
-# 7. Repeat 1-6 and get samples of Sigma, and Srep
-#
-# Define F(S, Sigma) = log |Sigma| + trace(S Sigma^{-1}) - log |S| - p
-# and the test statistic is T(S, Sigma) = (n - 1) / 2 * F(S, Sigma)
-# Then ppp = P(T(Srep, Sigma) >= T(S, Sigma))
-
-get_ppp <- function(
+sample_params <- function(
     theta_star,
     Sigma_theta,
     method,
     approx_data,
     pt,
     lavmodel,
-    lavsamplestats,
-    nsamp = 250
-  ) {
-  n <- lavsamplestats@nobs[[1]]
-  S <- lavsamplestats@cov[[1]]
-
+    nsamp = 1000,
+    return_theta = FALSE
+) {
   R <- cov2cor(Sigma_theta)
   z <- mvtnorm::rmvnorm(n = nsamp, sigma = R)
   u <- apply(z, 2, pnorm)
@@ -71,7 +55,49 @@ get_ppp <- function(
     K <- lavmodel@ceq.simple.K
     theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
   }
-  x <- t(apply(theta, 1, pars_to_x, pt = pt))
+
+  if (return_theta)
+    return(theta)
+  else {
+    x <- t(apply(theta, 1, pars_to_x, pt = pt))
+    return(x)
+  }
+}
+
+# 1. Get correlation matrix R = cov2cor(Sigma_theta)
+# 2. Sample z ~ N(0, R)
+# 3. Compute u = Phi^{-1}(z)
+# 4. For each j, compute theta_j = F^{-1}_j(u_j) where F_j is the marginal posterior CDF for parameter j
+# 5. Get x = pars_to_x(theta)
+# 6. Compute implied covariance matrix Sigma(x)
+# 7. Sample Srep ~ Wishart(n - 1, Sigma(x))
+# 7. Repeat 1-6 and get samples of Sigma, and Srep
+#
+# Define F(S, Sigma) = log |Sigma| + trace(S Sigma^{-1}) - log |S| - p
+# and the test statistic is T(S, Sigma) = (n - 1) / 2 * F(S, Sigma)
+# Then ppp = P(T(Srep, Sigma) >= T(S, Sigma))
+
+get_ppp <- function(
+    theta_star,
+    Sigma_theta,
+    method,
+    approx_data,
+    pt,
+    lavmodel,
+    lavsamplestats,
+    nsamp = 250
+  ) {
+
+  x <- sample_params(
+    theta_star = theta_star,
+    Sigma_theta = Sigma_theta,
+    method = method,
+    approx_data = approx_data,
+    pt = pt,
+    lavmodel = lavmodel,
+    nsamp = nsamp,
+    return_theta = FALSE
+  )
 
   Sigma_list <- lapply(seq_len(nrow(x)), function(i) {
     xx <- x[i, ]
@@ -80,6 +106,9 @@ get_ppp <- function(
     Sigma <- lavimplied$cov[[1]]
     Sigma
   })
+
+  n <- lavsamplestats@nobs[[1]]
+  S <- lavsamplestats@cov[[1]]
 
   Srep <- lapply(Sigma_list, function(Sigma) {
     W <- stats::rWishart(1, n - 1, Sigma)[,,1]

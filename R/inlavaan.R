@@ -335,6 +335,7 @@ inlavaan <- function(
     marg_loglik = marg_loglik,
     summary = summ,
     ppp = ppp,
+    method = method,
     theta_star = as.numeric(theta_star),
     Sigma_theta = Sigma_theta,
     theta_star_trans = theta_star_trans,
@@ -343,6 +344,7 @@ inlavaan <- function(
     partable = pt,
     lavmodel = lavmodel,
     lavsamplestats = lavsamplestats,
+    lavdata = lavdata,
     Sigmay = Sigmay,
     opt = opt
   )
