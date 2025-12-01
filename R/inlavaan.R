@@ -1,4 +1,4 @@
-inlav_fit <- function(
+inlavaan <- function(
     model,
     data,
     lavfun = "sem",
