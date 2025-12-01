@@ -1,4 +1,4 @@
-fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
+fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   # NOTE: y is the density evaluations at x on the log scale, i.e. log f(x).
   # y should ideally be normalized so max(y) = 0 for numerical stability
   if (max(y) > 0) {
@@ -8,6 +8,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
   if (threshold_log_drop >= 0) {
     cli::cli_abort("In {.fn fit_skew_normal}, {.arg threshold_log_drop} must be negative.")
   }
+  is_est_k <- is.na(temp)
 
   # Integration weights (used for calculating moments to get inits)
   if (FALSE) {
@@ -20,10 +21,10 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
     # w_int     <- w_int / sum(w_int)
   }
 
-  # Fitting (importance) weights for objective
-  w_fit <- exp(10 * y)
-  w_fit[y < threshold_log_drop] <- 0  # the "clean" KLD approach
-  w_fit <- w_fit / sum(w_fit)  # normalise for stability
+  # # Fitting (importance) weights for objective
+  # w_fit <- exp(10 * y)
+  # w_fit[y < threshold_log_drop] <- 0  # the "clean" KLD approach
+  # w_fit <- w_fit / sum(w_fit)  # normalise for stability
 
   # Initial moment-based estimates
   p  <- exp(y)
@@ -67,7 +68,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
     lsinv <- param[2]
     a     <- param[3]
     logC  <- param[4]
-    logk  <- param[5]
+    logk  <- if (is_est_k) param[5] else log(temp)
     # print(exp(logk))
 
     w <- exp(exp(logk) * y)
@@ -92,8 +93,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
     u  <- a * xx
     R  <- mills_ratio(u)
 
-    logk  <- param[5]
-
+    logk  <- if (is_est_k) param[5] else log(temp)
     w <- exp(exp(logk) * y)
     w[y < -6] <- 0
     w <- w / sum(w)
@@ -113,7 +113,12 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
     g3 <- -2 * sum(w * r * L_a)
     g4 <- -2 * sum(w * r * L_logC)
     g5 <- sum(y * w * r ^ 2) * exp(logk)
-    c(g1, g2, g3, g4, g5)
+
+    if (is_est_k) {
+      return(c(g1, g2, g3, g4, g5))
+    } else {
+      return(c(g1, g2, g3, g4))
+    }
   }
 
   hs <- function(param, x, y) {
@@ -171,8 +176,13 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
   }
 
   # Optimise skew normal parameters
+  st <- if (is_est_k) {
+    c(xi_init, log(1 / omega_init), alpha_init, 0, log(10))
+  } else {
+    c(xi_init, log(1 / omega_init), alpha_init, 0)
+  }
   fit <- nlminb(
-    c(xi_init, log(1 / omega_init), alpha_init, 0, log(10)),
+    st,
     ob,
     gr,
     # hs,
@@ -184,7 +194,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
   omega_hat <- exp(-fit$par[2])
   alpha_hat <- fit$par[3]
   logC_hat  <- fit$par[4]
-  k_hat     <- exp(fit$par[5])
+  k_hat     <- if (is_est_k) exp(fit$par[5]) else temp
 
   list(xi = xi_hat, omega = omega_hat, alpha = alpha_hat, logC = logC_hat, k = k_hat)
 }

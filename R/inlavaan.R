@@ -5,6 +5,9 @@ inlavaan <- function(
     lavfun = "sem",
     estimator = "ML",
     method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+    sn_fit_cor = TRUE,
+    sn_fit_logthresh = -6,
+    sn_fit_temp = NA,
     start = NULL,
     control = list(
       eval.max = 4000,
@@ -19,6 +22,7 @@ inlavaan <- function(
     nsamp = 3000,
     dp = blavaan::dpriors(),
     optim = c("nlminb", "ucminf", "optim"),
+    numerical_grad = FALSE,
     ...
 ) {
 
@@ -118,6 +122,7 @@ inlavaan <- function(
 
     as.numeric(gll_th + glp_th)
   }
+  if (isTRUE(numerical_grad)) joint_lp_grad <- NULL
 
   if (isTRUE(verbose)) cli::cli_progress_step("Finding posterior mode.")
   parstart <- pt$parstart[PTFREEIDX]
@@ -130,15 +135,20 @@ inlavaan <- function(
     )
     theta_star <- opt$par
     if (isTRUE(verbose)) cli::cli_progress_step("Computing the Hessian.")
-    # H_neg <- numDeriv::hessian(
-    #   func = \(x) -1 * joint_lp(x),
-    #   x = theta_star,
-    #   method.args = list(eps = 1e-4, d = 0.0005) # high stability
-    # )
-    grad_fd <- numDeriv::grad(\(x) -1 * joint_lp(x), theta_star)
-    grad_an <- -1 * joint_lp_grad(theta_star)
-    print(cbind(fd = grad_fd, analytic = grad_an, diff = grad_an - grad_fd))
-    H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
+    if (isTRUE(numerical_grad)) {
+      H_neg <- numDeriv::hessian(
+        func = \(x) -1 * joint_lp(x),
+        x = theta_star,
+        method.args = list(eps = 1e-4, d = 0.0005) # high stability
+      )
+    } else {
+      H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
+      if (isTRUE(verbose)) {
+        grad_fd <- numDeriv::grad(\(x) -1 * joint_lp(x), theta_star)
+        grad_an <- -1 * joint_lp_grad(theta_star)
+        print(cbind(fd = grad_fd, analytic = grad_an, diff = grad_an - grad_fd))
+      }
+    }
     Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
   } else if (optim == "ucminf") {
     opt <- ucminf::ucminf(
@@ -170,8 +180,10 @@ inlavaan <- function(
 
   if (method == "sampling") {
     # Do sampling and return results
-    if (isTRUE(verbose)) cli::cli_alert_info("Using sampling-based approximation.")
-    if (isTRUE(verbose)) cli::cli_progress_step("Sampling from posterior.")
+    if (isTRUE(verbose)) {
+      cli::cli_alert_info("Using sampling-based approximation.")
+      cli::cli_progress_step("Sampling from posterior.")
+    }
     approx_data <- NULL
     postmargres <- post_marg_sampling(theta_star, Sigma_theta, pt, ceq.K, nsamp)
   } else {
@@ -224,22 +236,30 @@ inlavaan <- function(
             tt <- theta_star[j] + mv * sqrt(Sigma_theta[j, j])
             yy <- numeric(length(mv))
             for (k in seq_along(mv)) {
-              # # Evaluate joint_lp at theta_j with others fixed at the
-              # # conditional mode
-              # theta_new <- rep(NA, length(theta_star))
-              # theta_new[j] <- tt[k]
-              # theta_new[-j] <- theta_star[-j] +
-              #   Sigma_theta[-j, j] / Sigma_theta[j, j] * (tt[k] - theta_star[j])
-              # yy[k] <- joint_lp(theta_new)
-
-              # Fit in decoupled Z-space
-              tt[k] <- mv[k]
-              yy[k] <- joint_lp(theta_star + L[, j] * mv[k])
+              if (isTRUE(sn_fit_cor)) {
+                # Fit in decoupled Z-space
+                tt[k] <- mv[k]
+                yy[k] <- joint_lp(theta_star + L[, j] * mv[k])
+              } else {
+                # Evaluate joint_lp at theta_j with others fixed at the
+                # conditional mode
+                theta_new <- rep(NA, length(theta_star))
+                theta_new[j] <- tt[k]
+                theta_new[-j] <- theta_star[-j] +
+                  Sigma_theta[-j, j] / Sigma_theta[j, j] * (tt[k] - theta_star[j])
+                yy[k] <- joint_lp(theta_new)
+              }
             }
-            fit_sn <- fit_skew_normal(tt, yy - max(yy))
-
-            fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
-            fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
+            fit_sn <- fit_skew_normal(
+              tt, yy - max(yy),
+              threshold_log_drop = sn_fit_logthresh,
+              temp = sn_fit_temp
+            )
+            if (isTRUE(sn_fit_cor)) {
+              # Adjust back to theta space
+              fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
+              fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
+            }
             unlist(fit_sn)
           }
         ))
@@ -308,7 +328,7 @@ inlavaan <- function(
   }
 
   # Compute ppp
-  if (FALSE){ #method == "skewnorm" | method == "asymgaus") {
+  if (method == "skewnorm" | method == "asymgaus") {
     env <- NULL
     if (isTRUE(verbose)) {
       env <- environment()
