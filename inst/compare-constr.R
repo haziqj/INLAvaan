@@ -5,13 +5,13 @@ library(INLAvaan)
 library(lme4)
 library(furrr)
 plan("multisession", workers = parallel::detectCores() - 2)
-nsamp <- 1e3
+nsamp <- 1e4
 
 # fit_lmer <- lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
 
 dat <- pivot_wider(sleepstudy, names_from = Days, names_prefix = "Day",
                    values_from = Reaction)
-# dat <- brlavaan::gen_data_growth(1000)
+# dat <- brlavaan::gen_data_growth(100)
 mod <- "
   # intercept with coefficients fixed to 1
   i =~  1*Day0 + 1*Day1 + 1*Day2 + 1*Day3 + 1*Day4 +
@@ -72,7 +72,7 @@ plot_df <-
   list(
     skewnorm = fit_inl1$pdf_data,
     asymgaus = fit_inl2$pdf_data,
-    marggaus = fit_inl3$pdf_data,
+    # marggaus = fit_inl3$pdf_data,
     sampling = fit_inl4$pdf_data
   ) |>
   map(function(plot_df_list) {

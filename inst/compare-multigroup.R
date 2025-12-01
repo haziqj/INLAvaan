@@ -79,7 +79,7 @@ ggplot() +
 
 ## ----- Model comparison ------------------------------------------------------
 fit0 <- inlavaan(mod, dat, lavfun = "cfa")
-fit1 <- inlavaan(mod, dat, lavfun = "cfa", group = "school")
+fit1 <- inlavaan(mod, dat, lavfun = "cfa", group = "school", sn_fit_temp = 10L)
 fit2 <- inlavaan(mod, dat, lavfun = "cfa", group = "school", group.equal = "loadings")
 fit3 <- inlavaan(mod, dat, lavfun = "cfa", group = "school", group.equal = c("loadings", "intercepts"))
 compare(fit0, fit1, fit2, fit3)

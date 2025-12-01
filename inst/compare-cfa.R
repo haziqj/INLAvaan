@@ -13,9 +13,9 @@ mod <- "
 "
 dat <- HolzingerSwineford1939
 
-DP <- dpriors(psi = "gamma(1,1)", theta = "gamma(1,1)")
+DP <- dpriors(psi = "gamma(1,0.5)[sd]", theta = "gamma(1,0.5)[sd]")
 STDLV <- FALSE
-OPTIM <- "optim"
+OPTIM <- "nlminb"
 
 fit_lav  <- cfa(mod, dat, std.lv = STDLV, do.fit = FALSE)
 fit_blav <- bcfa(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp, std.lv = STDLV, dp = DP)
