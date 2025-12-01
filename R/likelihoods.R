@@ -33,6 +33,7 @@ pars_to_x <- function(theta, pt) {
   nG <- max(pt$group)
   idxfree <- pt$free > 0
   pars <- pt$parstart
+  if (length(theta) != sum(idxfree)) browser()
   pars[idxfree] <- theta
   npt <- length(pars)
   xx <- x <- mapply(function(f, z) f(z), pt$ginv, pars)

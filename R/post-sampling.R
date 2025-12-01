@@ -14,46 +14,48 @@ sample_params <- function(
 
   # FIXME: Repeated code in post_marg_skewnorm and post_marg_marggaus
   # Use marginals to get theta
-  if (method == "skewnorm") {
-    theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
-      xi    <- approx_data[j, "xi"]
-      omega <- approx_data[j, "omega"]
-      alpha <- approx_data[j, "alpha"]
-      sn::qsn(u[, j], xi = xi, omega = omega, alpha = alpha)
-    }))
-  } else if (method == "asymgaus") {
-    theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
-      tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
-      yy <- marg_lp(tt, j = j, theta_star = theta_star,
-                    Sigma_theta = Sigma_theta, sigma_asym = approx_data)
-      yy <- yy - max(yy)  # stabilise
-      fj_lp <- stats::splinefun(tt, yy)
-      fj <- function(par) exp(fj_lp(par))  # unnormalised
-      dt <- diff(tt)
-      ft <- fj(tt)
-      fmid <- (head(ft, -1) + tail(ft, -1)) / 2
-      ymid <- (head(tt, -1) + tail(tt, -1)) / 2
-      C <- sum(fmid * dt)
-      ft <- ft / C
-      Ft <- c(0, cumsum(fmid * dt))
-      Ft <- Ft / tail(Ft, 1)
-      qfj <- splinefun(Ft, tt, method = "monoH.FC")
-      qfj(u[, j])
-    }))
-  } else if (method == "marggaus") {
-    theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
-      mu_j <- theta_star[j]
-      sd_j <- sqrt(Sigma_theta[j, j])
-      qnorm(u[, j], mean = mu_j, sd = sd_j)
-    }))
-  } else if (method == "sampling") {
+  if (method == "sampling") {
     D <- diag(sqrt(diag(Sigma_theta)))
-    theta <- D %*% qnorm(t(u)) + theta_star
-  }
+    theta <- t(D %*% qnorm(t(u)) + theta_star)
+  } else {
+    if (method == "skewnorm") {
+      theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
+        xi    <- approx_data[j, "xi"]
+        omega <- approx_data[j, "omega"]
+        alpha <- approx_data[j, "alpha"]
+        sn::qsn(u[, j], xi = xi, omega = omega, alpha = alpha)
+      }))
+    } else if (method == "asymgaus") {
+      theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
+        tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
+        yy <- marg_lp(tt, j = j, theta_star = theta_star,
+                      Sigma_theta = Sigma_theta, sigma_asym = approx_data)
+        yy <- yy - max(yy)  # stabilise
+        fj_lp <- stats::splinefun(tt, yy)
+        fj <- function(par) exp(fj_lp(par))  # unnormalised
+        dt <- diff(tt)
+        ft <- fj(tt)
+        fmid <- (head(ft, -1) + tail(ft, -1)) / 2
+        ymid <- (head(tt, -1) + tail(tt, -1)) / 2
+        C <- sum(fmid * dt)
+        ft <- ft / C
+        Ft <- c(0, cumsum(fmid * dt))
+        Ft <- Ft / tail(Ft, 1)
+        qfj <- splinefun(Ft, tt, method = "monoH.FC")
+        qfj(u[, j])
+      }))
+    } else if (method == "marggaus") {
+      theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
+        mu_j <- theta_star[j]
+        sd_j <- sqrt(Sigma_theta[j, j])
+        qnorm(u[, j], mean = mu_j, sd = sd_j)
+      }))
+    }
 
-  if (lavmodel@ceq.simple.only) {
-    K <- lavmodel@ceq.simple.K
-    theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
+    if (lavmodel@ceq.simple.only) {
+      K <- lavmodel@ceq.simple.K
+      theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
+    }
   }
 
   if (return_theta)
@@ -123,6 +125,7 @@ get_ppp <- function(
       n <- lavsamplestats@nobs[[g]]
       S <- lavsamplestats@cov[[g]]
       Sigma <- lavimplied$cov[[g]]
+      if (check_mat(Sigma)) next
 
       W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[, , 1]
       Srep <- W / (n - 1)

@@ -1,5 +1,4 @@
-#' @export
-inlavaan <- function(
+inlav_fit <- function(
     model,
     data,
     lavfun = "sem",
@@ -183,16 +182,16 @@ inlavaan <- function(
   if (method == "sampling") {
     # Do sampling and return results
     if (isTRUE(verbose)) {
-      cli::cli_alert_info("Using sampling-based approximation.")
       cli::cli_progress_step("Sampling from posterior.")
+      cli::cli_alert_info("Using sampling-based approximation.")
     }
     approx_data <- NULL
     postmargres <- post_marg_sampling(theta_star, Sigma_theta, pt, ceq.K, nsamp)
   } else {
     if (method == "asymgaus") {
       if (isTRUE(verbose)) {
-        cli::cli_alert_info("Using asymmetric Gaussian approximation.")
         cli::cli_progress_step("Calibrating asymmetric Gaussians.")
+        cli::cli_alert_info("Using asymmetric Gaussian approximation.")
       }
 
       # For whitening transformation: z = L^{-1}(theta - theta*)
@@ -285,7 +284,6 @@ inlavaan <- function(
     }
 
     # Compute posterior marginals ----------------------------------------------
-    if (isTRUE(verbose)) cli::cli_progress_step("Preparing output.")
     postmargres <- Map(
       f          = post_marg,
       j          = seq_len(m),
@@ -329,22 +327,17 @@ inlavaan <- function(
     }
   }
 
-  # Compute ppp
-  if (method == "skewnorm" | method == "asymgaus") {
-    env <- NULL
-    if (isTRUE(verbose)) {
-      env <- environment()
-      cli::cli_progress_step("Computing posterior predictive p-value.",
-                             spinner = TRUE, .envir = env)
-    }
-    ppp <- get_ppp(theta_star, Sigma_theta, method, approx_data, pt, lavmodel,
-                   lavsamplestats, nsamp = nsamp, cli_env = env)
-    dic_list <- get_dic(theta_star, Sigma_theta, method, approx_data,
-                        pt, lavmodel, lavsamplestats, loglik,
-                        nsamp = nsamp, cli_env = env)
-  } else {
-    ppp <- NA
+  # Compute ppp and dic
+  env <- NULL
+  if (isTRUE(verbose)) {
+    env <- environment()
+    cli::cli_progress_step("Computing ppp and DIC.", spinner = TRUE, .envir = env)
   }
+  ppp <- get_ppp(theta_star, Sigma_theta, method, approx_data, pt, lavmodel,
+                 lavsamplestats, nsamp = nsamp, cli_env = env)
+  dic_list <- get_dic(theta_star, Sigma_theta, method, approx_data,
+                      pt, lavmodel, lavsamplestats, loglik,
+                      nsamp = nsamp, cli_env = env)
 
   # Unpack?
   # idx <- lavpartable$free[lavpartable$free > 0]
