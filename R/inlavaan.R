@@ -164,26 +164,6 @@ inlavaan <- function(
   }
   lp_max <- joint_lp(theta_star)
 
-  # Stabilise inversion
-  # H_neg <- 0.5 * (H_neg + t(H_neg))
-  # eps <- 1e-6 * mean(diag(H_neg) ^ 2) ^ 0.5   # scale by Hessian magnitude
-  # H_neg_reg <- H_neg + diag(eps, nrow(H_neg))
-  # ok <- FALSE
-  # tries <- 0
-  # while (!ok && tries < 5) {
-  #   tries <- tries + 1
-  #   ok <- tryCatch({
-  #     L <- chol(solve(H_neg_reg))  # directly get Sigma^{1/2}
-  #     TRUE
-  #   }, error = function(e) FALSE)
-  #   if (!ok) H_neg_reg <- H_neg_reg + diag(eps * 10 ^ tries, nrow(H_neg))
-  # }
-  # Sigma_theta <- solve(H_neg_reg)
-
-  # For whitening transformation: z = L^{-1}(theta - theta*)
-  L <- t(chol(Sigma_theta))
-  L_inv <- solve(L)
-
   # Approximations -------------------------------------------------------------
   if (lavmodel@ceq.simple.only) m <- length(theta_star)
   pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
@@ -196,13 +176,20 @@ inlavaan <- function(
     postmargres <- post_marg_sampling(theta_star, Sigma_theta, pt, ceq.K, nsamp)
   } else {
     if (method == "asymgaus") {
-      if (isTRUE(verbose)) cli::cli_alert_info("Using asymmetric Gaussian approximation.")
-      if (isTRUE(verbose)) cli::cli_progress_step("Calibrating asymmetric Gaussians.")
+      if (isTRUE(verbose)) {
+        cli::cli_alert_info("Using asymmetric Gaussian approximation.")
+        cli::cli_progress_step("Calibrating asymmetric Gaussians.")
+      }
+
+      # For whitening transformation: z = L^{-1}(theta - theta*)
+      L <- t(chol(Sigma_theta))
+      L_inv <- solve(L)
 
       approx_data <-
         do.call(what = "rbind", lapply(
           pars_list,
           function(j) {
+            # Gauge the drop in joint_lp in whitened Z space
             k <- 2
             dplus  <- max(0.01, lp_max - joint_lp(theta_star + L[, j] * k))
             dminus <- max(0.01, lp_max - joint_lp(theta_star - L[, j] * k))
@@ -212,13 +199,19 @@ inlavaan <- function(
         ))
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
-        post_marg_asymgaus(j = j, g = g, g_prime = g_prime, ginv = ginv, ginv_prime = ginv_prime,
-                           theta_star = theta_star, Sigma_theta = Sigma_theta,
-                           sigma_asym = approx_data)
+        post_marg_asymgaus(j = j, g = g, g_prime = g_prime, ginv = ginv,
+                           ginv_prime = ginv_prime, theta_star = theta_star,
+                           Sigma_theta = Sigma_theta, sigma_asym = approx_data)
       }
     } else if (method == "skewnorm") {
-      if (isTRUE(verbose)) cli::cli_progress_step("Fitting skew normal to marginals.")
-      if (isTRUE(verbose)) cli::cli_alert_info("Using skew normal approximation.")
+      if (isTRUE(verbose)) {
+        cli::cli_progress_step("Fitting skew normal to marginals.")
+        cli::cli_alert_info("Using skew normal approximation.")
+      }
+
+      # For whitening transformation: z = L^{-1}(theta - theta*)
+      L <- t(chol(Sigma_theta))
+      L_inv <- solve(L)
 
       approx_data <- matrix(NA, nrow = m, ncol = 4)
       colnames(approx_data) <- c("xi", "omega", "alpha", "logC")
@@ -231,26 +224,41 @@ inlavaan <- function(
             tt <- theta_star[j] + mv * sqrt(Sigma_theta[j, j])
             yy <- numeric(length(mv))
             for (k in seq_along(mv)) {
+              # # Evaluate joint_lp at theta_j with others fixed at the
+              # # conditional mode
+              # theta_new <- rep(NA, length(theta_star))
+              # theta_new[j] <- tt[k]
+              # theta_new[-j] <- theta_star[-j] +
+              #   Sigma_theta[-j, j] / Sigma_theta[j, j] * (tt[k] - theta_star[j])
+              # yy[k] <- joint_lp(theta_new)
+
+              # Fit in decoupled Z-space
+              tt[k] <- mv[k]
               yy[k] <- joint_lp(theta_star + L[, j] * mv[k])
             }
-            yy <- yy - max(yy)  # normalise to have maximum at zero
-            fit_sn <- fit_skew_normal(tt, yy)
+            fit_sn <- fit_skew_normal(tt, yy - max(yy))
+
+            fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
+            fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
             unlist(fit_sn)
           }
         ))
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
-        post_marg_skewnorm(j = j, g = g, g_prime = g_prime, ginv = ginv, ginv_prime = ginv_prime,
-                           theta_star = theta_star, Sigma_theta = Sigma_theta,
-                           sn_params = approx_data)
+        post_marg_skewnorm(j = j, g = g, g_prime = g_prime, ginv = ginv,
+                           ginv_prime = ginv_prime, theta_star = theta_star,
+                           Sigma_theta = Sigma_theta, sn_params = approx_data)
       }
     } else if (method == "marggaus") {
-      if (isTRUE(verbose)) cli::cli_alert_info("Using marginal Gaussian approximation.")
+      if (isTRUE(verbose))
+        cli::cli_alert_info("Using marginal Gaussian approximation.")
+
       approx_data <- NULL
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
-        post_marg_marggaus(j = j, g = g, g_prime = g_prime, ginv = ginv, ginv_prime = ginv_prime,
-                           theta_star = theta_star, Sigma_theta = Sigma_theta)
+        post_marg_marggaus(j = j, g = g, g_prime = g_prime, ginv = ginv,
+                           ginv_prime = ginv_prime, theta_star = theta_star,
+                           Sigma_theta = Sigma_theta)
       }
     }
 
@@ -287,9 +295,9 @@ inlavaan <- function(
       if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
 
       if (method == "skewnorm") {
-        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, lavmodel@ceq.simple.K, nsamp)
+        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, ceq.K, nsamp)
       } else {
-        samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, lavmodel@ceq.simple.K, nsamp)
+        samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, ceq.K, nsamp)
       }
 
       for (cov_name in names(samp_cov)) {
@@ -300,7 +308,7 @@ inlavaan <- function(
   }
 
   # Compute ppp
-  if (method == "skewnorm" | method == "asymgaus") {
+  if (FALSE){ #method == "skewnorm" | method == "asymgaus") {
     env <- NULL
     if (isTRUE(verbose)) {
       env <- environment()
@@ -330,9 +338,8 @@ inlavaan <- function(
 
   # Marginal log-likelihood (for BF comparison)
   marg_loglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
-  loglik <- joint_lp(theta_star)
-  AIC <- -2 * loglik + 2 * m
-  BIC <- -2 * loglik + log(n) * m
+  AIC <- NA
+  BIC <- NA
 
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, coefs)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
