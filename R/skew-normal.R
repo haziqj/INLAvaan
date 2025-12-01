@@ -21,7 +21,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
   }
 
   # Fitting (importance) weights for objective
-  w_fit <- exp(1*y)
+  w_fit <- exp(10 * y)
   w_fit[y < threshold_log_drop] <- 0  # the "clean" KLD approach
   w_fit <- w_fit / sum(w_fit)  # normalise for stability
 
@@ -62,11 +62,17 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
   xi_init    <- mean_hat - omega_init * root * sqrt(2 / pi)
 
   # Optimisation functions
-  ob <- function(param, x, y, w) {
+  ob <- function(param, x, y) {
     mu    <- param[1]
     lsinv <- param[2]
     a     <- param[3]
     logC  <- param[4]
+    logk  <- param[5]
+    # print(exp(logk))
+
+    w <- exp(exp(logk) * y)
+    w[y < -6] <- 0
+    w <- w / sum(w)
 
     # log skew-normal density up to constant
     xx <- (x - mu) * exp(lsinv)
@@ -76,7 +82,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
     sum(w * resid ^ 2) # Weighted Sum of Squares
   }
 
-  gr <- function(param, x, y, w) {
+  gr <- function(param, x, y) {
     mu    <- param[1]
     lsinv <- param[2]
     a     <- param[3]
@@ -85,6 +91,12 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
     xx <- s * (x - mu)
     u  <- a * xx
     R  <- mills_ratio(u)
+
+    logk  <- param[5]
+
+    w <- exp(exp(logk) * y)
+    w[y < -6] <- 0
+    w <- w / sum(w)
 
     # First derivatives of log-density L wrt parameters
     L_mu    <- s * xx - a * s * R
@@ -100,10 +112,11 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
     g2 <- -2 * sum(w * r * L_lsinv)
     g3 <- -2 * sum(w * r * L_a)
     g4 <- -2 * sum(w * r * L_logC)
-    c(g1, g2, g3, g4)
+    g5 <- sum(y * w * r ^ 2) * exp(logk)
+    c(g1, g2, g3, g4, g5)
   }
 
-  hs <- function(param, x, y, w) {
+  hs <- function(param, x, y) {
     mu    <- param[1]
     lsinv <- param[2]
     a     <- param[3]
@@ -159,20 +172,21 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6) {
 
   # Optimise skew normal parameters
   fit <- nlminb(
-    c(xi_init, log(1 / omega_init), alpha_init, 0),
+    c(xi_init, log(1 / omega_init), alpha_init, 0, log(10)),
     ob,
     gr,
-    hs,
+    # hs,
     x = x,
-    y = y,
-    w = w_fit
+    y = y
+    # w = w_fit
   )
   xi_hat    <- fit$par[1]
   omega_hat <- exp(-fit$par[2])
   alpha_hat <- fit$par[3]
   logC_hat  <- fit$par[4]
+  k_hat     <- exp(fit$par[5])
 
-  list(xi = xi_hat, omega = omega_hat, alpha = alpha_hat, logC = logC_hat)
+  list(xi = xi_hat, omega = omega_hat, alpha = alpha_hat, logC = logC_hat, k = k_hat)
 }
 
 mills_ratio <- function(u) {
@@ -218,7 +232,7 @@ fit_skew_normal_samp <- function(x) {
   omega_hat <- exp(opt$par[2])
   alpha_hat <- opt$par[3]
 
-  list(xi = xi_hat, omega = omega_hat, alpha = alpha_hat, logC = 0)
+  list(xi = xi_hat, omega = omega_hat, alpha = alpha_hat, logC = 0, k = 1)
 }
 
 # # Test case
