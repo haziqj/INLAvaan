@@ -8,7 +8,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   if (threshold_log_drop >= 0) {
     cli::cli_abort("In {.fn fit_skew_normal}, {.arg threshold_log_drop} must be negative.")
   }
-  is_est_k <- is.na(temp)
+  is_est_k <- is.na(temp) | is.null(temp)
 
   # Integration weights (used for calculating moments to get inits)
   if (FALSE) {
@@ -122,6 +122,10 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   }
 
   hs <- function(param, x, y) {
+    w <- exp(temp * y)
+    w[y < -6] <- 0
+    w <- w / sum(w)
+
     mu    <- param[1]
     lsinv <- param[2]
     a     <- param[3]
@@ -174,6 +178,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
              H13, H23, H33, H34,
              H14, H24, H34, H44), nrow = 4, byrow = TRUE)
   }
+  if (is_est_k) hs <- NULL
 
   # Optimise skew normal parameters
   st <- if (is_est_k) {
@@ -185,7 +190,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
     st,
     ob,
     gr,
-    # hs,
+    hs,
     x = x,
     y = y
     # w = w_fit

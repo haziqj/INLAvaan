@@ -23,12 +23,14 @@ inlavaan <- function(
     dp = blavaan::dpriors(),
     optim = c("nlminb", "ucminf", "optim"),
     numerical_grad = FALSE,
+    debug = FALSE,
     ...
 ) {
 
   # Check arguments ------------------------------------------------------------
   method <- match.arg(method)
   optim <- match.arg(optim)
+  if (isTRUE(debug)) verbose <- TRUE
   # estimator <- match.arg(estimator, choices = c("ML", "PML"))
   lavargs <- list(...)
   lavargs$model <- model
@@ -143,7 +145,7 @@ inlavaan <- function(
       )
     } else {
       H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
-      if (isTRUE(verbose)) {
+      if (isTRUE(debug)) {
         grad_fd <- numDeriv::grad(\(x) -1 * joint_lp(x), theta_star)
         grad_an <- -1 * joint_lp_grad(theta_star)
         print(cbind(fd = grad_fd, analytic = grad_an, diff = grad_an - grad_fd))
@@ -337,6 +339,9 @@ inlavaan <- function(
     }
     ppp <- get_ppp(theta_star, Sigma_theta, method, approx_data, pt, lavmodel,
                    lavsamplestats, nsamp = nsamp, cli_env = env)
+    dic_list <- get_dic(theta_star, Sigma_theta, method, approx_data,
+                        pt, lavmodel, lavsamplestats, loglik,
+                        nsamp = nsamp, cli_env = env)
   } else {
     ppp <- NA
   }
@@ -358,8 +363,6 @@ inlavaan <- function(
 
   # Marginal log-likelihood (for BF comparison)
   marg_loglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
-  AIC <- NA
-  BIC <- NA
 
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, coefs)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -368,8 +371,7 @@ inlavaan <- function(
   out <- list(
     coefficients = coefs,
     marg_loglik = marg_loglik,
-    AIC = AIC,
-    BIC = BIC,
+    DIC = dic_list,
     summary = summ,
     ppp = ppp,
     method = method,

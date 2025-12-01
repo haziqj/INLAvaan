@@ -215,5 +215,45 @@ sample_covariances_fit_sn <- function(theta, Sigma_theta, pt, K, nsamp = 10000) 
     )
   })
 
+}
 
+get_dic <- function(
+    theta_star,
+    Sigma_theta,
+    method,
+    approx_data,
+    pt,
+    lavmodel,
+    lavsamplestats,
+    loglik,
+    nsamp = 250,
+    cli_env = NULL
+) {
+
+  x <- sample_params(
+    theta_star = theta_star,
+    Sigma_theta = Sigma_theta,
+    method = method,
+    approx_data = approx_data,
+    pt = pt,
+    lavmodel = lavmodel,
+    nsamp = nsamp,
+    return_theta = FALSE
+  )
+
+  if (lavmodel@ceq.simple.only) {
+    xhat <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
+  } else {
+    xhat <- pars_to_x(theta_star, pt)
+  }
+
+  Dhat <- -2 * loglik(xhat)
+  Dbar <- mean(sapply(seq_len(nrow(x)), function(i) {
+    if (!is.null(cli_env)) cli::cli_progress_update(.envir = cli_env)
+    xx <- x[i, ]
+    -2 * loglik(xx)
+  }))
+  pD <- Dbar - Dhat
+
+  list(dic = Dbar + pD, Dbar = Dbar, Dhat = Dhat, pD = pD)
 }

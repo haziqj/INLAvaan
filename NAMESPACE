@@ -3,6 +3,7 @@
 S3method(compare,inlavaan_internal)
 S3method(plot,inlavaan_internal)
 S3method(plot,predict.inlavaan_internal)
+S3method(print,compare.inlavaan_compare)
 S3method(print,inlavaan_internal)
 S3method(print,predict.inlavaan_internal)
 S3method(print,summary.inlavaan_internal)
