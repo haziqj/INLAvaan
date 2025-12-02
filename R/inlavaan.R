@@ -2,12 +2,14 @@ inlavaan <- function(
     model,
     data,
     lavfun = "sem",
+    dp = blavaan::dpriors(),
     estimator = "ML",
-    method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+    marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+    nsamp = 3000,
+    test = FALSE,
     sn_fit_cor = TRUE,
     sn_fit_logthresh = -6,
     sn_fit_temp = NA,
-    start = NULL,
     control = list(
       eval.max = 4000,
       iter.max = 2000,
@@ -17,18 +19,19 @@ inlavaan <- function(
       step.max = 1.0
     ),
     verbose = TRUE,
-    add_priors = TRUE,
-    nsamp = 3000,
-    dp = blavaan::dpriors(),
-    optim = c("nlminb", "ucminf", "optim"),
-    numerical_grad = FALSE,
     debug = FALSE,
+    add_priors = TRUE,
+    optim_method = c("nlminb", "ucminf", "optim"),
+    numerical_grad = FALSE,
     ...
 ) {
 
-  # Check arguments ------------------------------------------------------------
-  method <- match.arg(method)
-  optim <- match.arg(optim)
+  start.time0 <- proc.time()[3]
+  timing <- list(start.time = start.time0)
+
+  ## ----- Check arguments -----------------------------------------------------
+  marginal_method <- match.arg(marginal_method)
+  optim_method <- match.arg(optim_method)
   if (isTRUE(debug)) verbose <- TRUE
   # estimator <- match.arg(estimator, choices = c("ML", "PML"))
   lavargs <- list(...)
@@ -40,7 +43,7 @@ inlavaan <- function(
   lavargs$do.fit <- FALSE
   lavargs$parser <- "old"  # To get priors parsed
 
-  # Build joint log posterior --------------------------------------------------
+  ## ----- Build joint log posterior -------------------------------------------
   if (estimator == "ML") {
     if (isTRUE(verbose)) cli::cli_alert_info("Using MVN log-likelihood.")
     loglik <- function(x) {
@@ -59,7 +62,7 @@ inlavaan <- function(
     cli::cli_abort("That's not supported yet.")
   }
 
-  # Initialise lavaan object ---------------------------------------------------
+  ## ----- Initialise lavaan object --------------------------------------------
   fit0 <- do.call(get(lavfun, envir = asNamespace("lavaan")), lavargs)
   lavmodel       <- fit0@Model
   lavsamplestats <- fit0@SampleStats
@@ -81,7 +84,7 @@ inlavaan <- function(
   m <- length(PTFREEIDX)
   parnames <- pt$names[PTFREEIDX]
 
-  # Prep work for approximation ------------------------------------------------
+  ## ----- Prep work for approximation -----------------------------------------
   joint_lp <- function(pars) {
     if (isTRUE(ceq.simple)) pars <- as.numeric(ceq.K %*% pars)  # Unpack
     x <- pars_to_x(pars, pt)
@@ -123,39 +126,40 @@ inlavaan <- function(
 
     as.numeric(gll_th + glp_th)
   }
-  if (isTRUE(numerical_grad)) joint_lp_grad <- NULL
 
+  timing <- add_timing(timing, "init")
+
+  ## ----- Start optimisation --------------------------------------------------
   if (isTRUE(verbose)) cli::cli_progress_step("Finding posterior mode.")
+
+  ob <- function(x) -1 * joint_lp(x)
+  gr <- if (isTRUE(numerical_grad)) NULL else function(x) -1 * joint_lp_grad(x)
   parstart <- pt$parstart[PTFREEIDX]
-  if (optim == "nlminb") {
+
+  if (optim_method == "nlminb") {
     opt <- nlminb(
       start = parstart,
-      objective = function(x) -1 * joint_lp(x),
-      gradient = function(x) -1 * joint_lp_grad(x),
+      objective = ob,
+      gradient = gr,
       control = control
     )
     theta_star <- opt$par
     if (isTRUE(verbose)) cli::cli_progress_step("Computing the Hessian.")
     if (isTRUE(numerical_grad)) {
       H_neg <- numDeriv::hessian(
-        func = \(x) -1 * joint_lp(x),
+        func = ob,
         x = theta_star,
         method.args = list(eps = 1e-4, d = 0.0005) # high stability
       )
     } else {
       H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
-      if (isTRUE(debug)) {
-        grad_fd <- numDeriv::grad(\(x) -1 * joint_lp(x), theta_star)
-        grad_an <- -1 * joint_lp_grad(theta_star)
-        print(cbind(fd = grad_fd, analytic = grad_an, diff = grad_an - grad_fd))
-      }
     }
     Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
-  } else if (optim == "ucminf") {
+  } else if (optim_method == "ucminf") {
     opt <- ucminf::ucminf(
       par = parstart,
-      fn = function(x) -1 * joint_lp(x),
-      gr = function(x) -1 * joint_lp_grad(x),
+      fn = ob,
+      gr = gr,
       control = list(),
       hessian = 2
     )
@@ -164,8 +168,8 @@ inlavaan <- function(
   } else {
     opt <- stats::optim(
       par = parstart,
-      fn = function(x) -1 * joint_lp(x),
-      gr = function(x) -1 * joint_lp_grad(x),
+      fn = ob,
+      gr = gr,
       method = "BFGS",
       hessian = TRUE,
       control = list()
@@ -173,13 +177,33 @@ inlavaan <- function(
     theta_star <- opt$par
     Sigma_theta <- solve(opt$hessian)
   }
-  lp_max <- joint_lp(theta_star)
 
-  # Approximations -------------------------------------------------------------
+  # Derivatives at optima
+  opt$dx <- numDeriv::grad(\(x) -1 * joint_lp(x), theta_star)  # fd grad
+  if (isTRUE(debug)) {
+    grad_an <- -1 * joint_lp_grad(theta_star)
+    print(cbind(fd = opt$dx, analytic = grad_an, diff = grad_an - grad_fd))
+  }
+
+  # Other info at optima
+  lp_max <- joint_lp(theta_star)
+  if (ceq.simple) {
+    theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star), pt)
+  } else {
+    theta_star_trans <- pars_to_x(theta_star, pt)
+  }
+
+  timing <- add_timing(timing, "optim")
+
+  # Marginal log-likelihood (for BF comparison)
+  mloglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
+  timing <- add_timing(timing, "loglik")
+
+  ## ----- Marginal approximations ---------------------------------------------
   if (lavmodel@ceq.simple.only) m <- length(theta_star)
   pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
 
-  if (method == "sampling") {
+  if (marginal_method == "sampling") {
     # Do sampling and return results
     if (isTRUE(verbose)) {
       cli::cli_progress_step("Sampling from posterior.")
@@ -188,7 +212,7 @@ inlavaan <- function(
     approx_data <- NULL
     postmargres <- post_marg_sampling(theta_star, Sigma_theta, pt, ceq.K, nsamp)
   } else {
-    if (method == "asymgaus") {
+    if (marginal_method == "asymgaus") {
       if (isTRUE(verbose)) {
         cli::cli_progress_step("Calibrating asymmetric Gaussians.")
         cli::cli_alert_info("Using asymmetric Gaussian approximation.")
@@ -216,7 +240,7 @@ inlavaan <- function(
                            ginv_prime = ginv_prime, theta_star = theta_star,
                            Sigma_theta = Sigma_theta, sigma_asym = approx_data)
       }
-    } else if (method == "skewnorm") {
+    } else if (marginal_method == "skewnorm") {
       if (isTRUE(verbose)) {
         cli::cli_progress_step("Fitting skew normal to marginals.")
         cli::cli_alert_info("Using skew normal approximation.")
@@ -270,7 +294,7 @@ inlavaan <- function(
                            ginv_prime = ginv_prime, theta_star = theta_star,
                            Sigma_theta = Sigma_theta, sn_params = approx_data)
       }
-    } else if (method == "marggaus") {
+    } else if (marginal_method == "marggaus") {
       if (isTRUE(verbose))
         cli::cli_alert_info("Using marginal Gaussian approximation.")
 
@@ -307,67 +331,62 @@ inlavaan <- function(
   pdf_data <- lapply(postmargres, \(x) x$pdf_data)
   names(pdf_data) <- parnames
 
-  # Sampling for covariances
-  if (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
-    if (method == "sampling") {
-      # Do nothing
-    } else {
-      if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
-
-      if (method == "skewnorm") {
-        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, ceq.K, nsamp)
-      } else {
-        samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, ceq.K, nsamp)
-      }
-
-      for (cov_name in names(samp_cov)) {
-        summ[cov_name, ] <- samp_cov[[cov_name]]$summary
-        pdf_data[[cov_name]] <- samp_cov[[cov_name]]$pdf_data
-      }
-    }
-  }
-
-  # Compute ppp and dic
-  env <- NULL
-  if (isTRUE(verbose)) {
-    env <- environment()
-    cli::cli_progress_step("Computing ppp and DIC.", spinner = TRUE, .envir = env)
-  }
-  ppp <- get_ppp(theta_star, Sigma_theta, method, approx_data, pt, lavmodel,
-                 lavsamplestats, nsamp = nsamp, cli_env = env)
-  dic_list <- get_dic(theta_star, Sigma_theta, method, approx_data,
-                      pt, lavmodel, lavsamplestats, loglik,
-                      nsamp = nsamp, cli_env = env)
-
-  # Unpack?
-  # idx <- lavpartable$free[lavpartable$free > 0]
-
   coefs <- summ[, "Mean"]
   names(coefs) <- parnames
 
   summ <- as.data.frame(summ)
   summ$Prior <- pt$prior[PTFREEIDX]
 
-  if (lavmodel@ceq.simple.only) {
-    theta_star_trans <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
-  } else {
-    theta_star_trans <- pars_to_x(theta_star, pt)
+  timing <- add_timing(timing, "marginals")
+
+  ## ----- Sampling for covariances --------------------------------------------
+  if (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
+    if (marginal_method == "sampling") {
+      # Do nothing
+    } else {
+      if (isTRUE(verbose)) cli::cli_progress_step("Sampling posterior covariances.")
+
+      if (marginal_method == "skewnorm") {
+        samp_cov <- sample_covariances_fit_sn(theta_star, Sigma_theta, pt, ceq.K, nsamp)
+      } else {
+        samp_cov <- sample_covariances(theta_star, Sigma_theta, pt, ceq.K, nsamp)
+      }
+
+      for (cov_name in names(samp_cov)) {
+        tmp_new_summ <- samp_cov[[cov_name]]$summary
+        summ[cov_name, names(tmp_new_summ)] <- tmp_new_summ
+        pdf_data[[cov_name]] <- samp_cov[[cov_name]]$pdf_data
+      }
+    }
   }
+  timing <- add_timing(timing, "covariances")
 
-  # Marginal log-likelihood (for BF comparison)
-  marg_loglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
+  ## ----- Compute ppp and dic -------------------------------------------------
+  if (isTRUE(test)) {
+    env <- NULL
+    if (isTRUE(verbose)) {
+      env <- environment()
+      cli::cli_progress_step("Computing ppp and DIC.", spinner = TRUE, .envir = env)
+    }
+    ppp <- get_ppp(theta_star, Sigma_theta, marginal_method, approx_data, pt,
+                   lavmodel, lavsamplestats, nsamp = nsamp, cli_env = env)
+    dic_list <- get_dic(theta_star, Sigma_theta, marginal_method, approx_data,
+                        pt, lavmodel, lavsamplestats, loglik, nsamp = nsamp,
+                        cli_env = env)
+  } else {
+    ppp <- dic_list <- NA
+  }
+  timing <- add_timing(timing, "test")
 
-  lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, coefs)
-  lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-  Sigmay <- lavimplied$cov
-
+  ## ----- Output --------------------------------------------------------------
   out <- list(
     coefficients = coefs,
-    marg_loglik = marg_loglik,
+    mloglik = mloglik,
     DIC = dic_list,
     summary = summ,
     ppp = ppp,
-    method = method,
+    optim_method = optim_method,
+    marginal_method = marginal_method,
     theta_star = as.numeric(theta_star),
     Sigma_theta = Sigma_theta,
     theta_star_trans = theta_star_trans,
@@ -377,11 +396,17 @@ inlavaan <- function(
     lavmodel = lavmodel,
     lavsamplestats = lavsamplestats,
     lavdata = lavdata,
-    Sigmay = Sigmay,
-    opt = opt
+    opt = opt,
+    timing = timing[-1]  # remove start.time
   )
   class(out) <- "inlavaan_internal"
-  out
+
+  if (isTRUE(debug)) {
+    return(out)
+  } else {
+    out <- create_lav_from_inlavaan_internal(fit0, out)
+    return(out)
+  }
 }
 
 #' @export
