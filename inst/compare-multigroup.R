@@ -10,7 +10,7 @@ nsamp <- 1e3
 mod <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
-  speed   =~ x7 + x8 + x9
+  # speed   =~ x7 + x8 + x9
 "
 dat <- HolzingerSwineford1939
 
@@ -79,7 +79,13 @@ ggplot() +
 
 ## ----- Model comparison ------------------------------------------------------
 fit0 <- inlavaan(mod, dat, lavfun = "cfa")
-fit1 <- inlavaan(mod, dat, lavfun = "cfa", group = "school", sn_fit_temp = 10L)
+fit1 <- inlavaan(mod, dat, lavfun = "cfa", group = "school")
 fit2 <- inlavaan(mod, dat, lavfun = "cfa", group = "school", group.equal = "loadings")
 fit3 <- inlavaan(mod, dat, lavfun = "cfa", group = "school", group.equal = c("loadings", "intercepts"))
 compare(fit0, fit1, fit2, fit3)
+
+
+
+fit <- inlavaan(mod, dat, lavfun = "cfa", group = "school", group.equal = "loadings")
+fit_lav <- cfa(mod, dat, group = "school", group.equal = "loadings")
+

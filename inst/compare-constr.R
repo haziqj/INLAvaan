@@ -56,7 +56,7 @@ mod <- "
 
 fit_lav  <- growth(mod, dat, ceq.simple = TRUE, std.ov = !TRUE)
 fit_blav <- bgrowth(mod, dat, bcontrol = list(cores = 3), burnin = nsamp / 2, sample = nsamp)
-fit_inl1 <- inlavaan(mod, dat, lavfun = "growth", method = "skewnorm")
+fit_inl1 <- inlavaan(mod, dat, lavfun = "growth", marginal_method = "skewnorm")
 fit_inl2 <- inlavaan(mod, dat, lavfun = "growth", method = "asymgaus")
 fit_inl3 <- inlavaan(mod, dat, lavfun = "growth", method = "marggaus")
 fit_inl4 <- inlavaan(mod, dat, lavfun = "growth", method = "sampling")
