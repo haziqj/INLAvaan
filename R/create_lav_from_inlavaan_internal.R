@@ -1,19 +1,20 @@
 create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
 
-  ## ----- Change Model and implied slots --------------------------------------
-  x <- fit_inlv$theta_star_trans
+  ## ----- Update Model and implied slots --------------------------------------
+  x <- fit_inlv$coefficients
   fit0@Model <- lavaan::lav_model_set_parameters(fit0@Model, x)
   fit0@implied <- lavaan::lav_model_implied(fit0@Model)
 
-  ## ----- Change ParTable slot ------------------------------------------------
+  ## ----- Update ParTable slot ------------------------------------------------
 
   # # Find Theta matrix (residuals) and Sigmay (implied covariance matrix)
   # thetadiag <- diag(fit0@Model@GLIST$theta)
   # Sigmay <- fit0@implied$cov[[1]]  # FIXME: Group 1 only
+  SD <- fit_inlv$summary[, "SD"]  # free only
 
-  # Change parameter table and pta slots
   pt <- fit_inlv$partable
   pt$est[pt$free > 0] <- x[pt$free[pt$free > 0]]
+  pt$se[pt$free > 0] <- SD[pt$free[pt$free > 0]]
 
   SE <- fit_inlv$summary[, "SD"]
   pt$se <- 0
@@ -29,15 +30,23 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   # Manually change the slack column
   # slack_values <- as.vector(fit0@Model@con.jac %*% x - fit0@Model@ceq.rhs)
   # pt$est[pt$op == "=="] <- slack_values
+
+  # Flatten functions list
+  pt$g           <- sapply(pt$g, as_fun_string)
+  pt$g_prime     <- sapply(pt$g_prime, as_fun_string)
+  pt$ginv        <- sapply(pt$ginv, as_fun_string)
+  pt$ginv_prime  <- sapply(pt$ginv_prime, as_fun_string)
+  pt$ginv_prime2 <- sapply(pt$ginv_prime2, as_fun_string)
+
   fit0@ParTable <- pt
 
-  ## ----- Change Options slot -------------------------------------------------
+  ## ----- Update Options slot -------------------------------------------------
   optim_method <- fit_inlv$optim_method
   if (optim_method == "optim") optim_method <- "BFGS"
   fit0@Options$optim.method <- fit_inlv$optim_method
   fit0@Options$do.fit <- TRUE
 
-  ## ----- Change Fit slot -----------------------------------------------------
+  ## ----- Update Fit slot -----------------------------------------------------
   fit0@Fit@x <- x
   # fit0@Fit@TH[[1]] <- tau  # FIXME: Group 1
   fit0@Fit@est <- pt$est
@@ -59,7 +68,30 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   }
   fit0@Fit@Sigma.hat <- fit0@implied
 
-  ## ----- Change optim slot ---------------------------------------------------
+  if (is.na(fit_inlv$ppp)) {
+    fit0@Fit@test <- list()
+  } else {
+    fit0@Fit@test <- list(
+      mloglik = list(
+        test = "mloglik",
+        stat = fit_inlv$mloglik,
+        stat.group = fit_inlv$mloglik,  # FIXME
+        df = NA,
+        refdistr = NA,
+        pvalue = NA
+      ),
+      ppp = list(
+        test = "ppp",
+        stat = fit_inlv$ppp,
+        stat.group = fit_inlv$ppp,  # FIXME
+        df = NA,
+        refdistr = NA,
+        pvalue = NA
+      )
+    )
+  }
+
+  ## ----- Update optim slot ---------------------------------------------------
   fit0@optim$x    <- fit_inlv$opt$par
   fit0@optim$dx   <- fit_inlv$opt$dx
   fit0@optim$npar <- length(x)
@@ -69,7 +101,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@optim$iterations <- fit0@Fit@iterations
   fit0@optim$converged  <- fit0@Fit@converged
 
-  ## ----- Change loglik slot --------------------------------------------------
+  ## ----- Update loglik slot --------------------------------------------------
   # if (fit_inlv$method == "ucminf") {
   #   fit0@loglik$loglik <- fit_inlv$numFit$value
   # } else if (fit_inlv$method == "SA") {
@@ -84,33 +116,19 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   # }
   fit0@loglik <- list()
 
-  ## ----- Change vcov slot ----------------------------------------------------
+  ## ----- Update vcov slot ----------------------------------------------------
   fit0@vcov <- list()  # FIXME: Do we need this?
 
-  ## ----- Change test slot ----------------------------------------------------
-  fit0@test <- list(
-    mloglik = list(
-      test = "mloglik",
-      stat = fit_inlv$mloglik,
-      stat.group = fit_inlv$mloglik,  # FIXME
-      df = NA,
-      refdistr = NA,
-      pvalue = NA
-    ),
-    ppp = list(
-      test = "ppp",
-      stat = fit_inlv$ppp,
-      stat.group = fit_inlv$ppp,  # FIXME
-      df = NA,
-      refdistr = NA,
-      pvalue = NA
-    )
-  )
+  ## ----- Update test slot ----------------------------------------------------
+  fit0@test <- fit0@Fit@test
 
-  # Change baseline slot -------------------------------------------------------
+  ## ----- Change baseline slot ------------------------------------------------
   fit0@baseline <- list()
 
-  # Change timing slot ---------------------------------------------------------
+  ## ----- Change version slot -------------------------------------------------
+  fit0@version <- as.character(packageVersion("INLAvaan"))
+
+  ## ----- Change timing slot --------------------------------------------------
   t0 <- fit0@timing
   t1 <- fit_inlv$timing
   nms <- union(names(t0), names(t1))
@@ -122,7 +140,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
 
   ## ----- Return --------------------------------------------------------------
   fit0@external <- list(
-    inlavaan_internal = fit_inlv[!grepl("lav", names(fit_inlv))]
+    inlavaan_internal = fit_inlv  #[!grepl("lav", names(fit_inlv))]
   )
   fit0
 }

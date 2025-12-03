@@ -144,6 +144,7 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
       SIMPLIFY = TRUE
     )
   }
+  pt$mat <- unlist(pt$mat)
 
   # Add priors
   # Note: Possible to add own non-standard priors, but the evaluation of

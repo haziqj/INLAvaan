@@ -9,6 +9,11 @@ cli_messages <- c(
   "Navigating the seas of stochasticity"
 )
 
+#' Convert function to single string
+as_fun_string <- function(f) {
+  gsub("\\s+", " ", paste(deparse(f), collapse = " "))
+}
+
 #' Helper function to add timing information
 #'
 #' This function adds an element with name as specified in parameter part and
@@ -30,3 +35,4 @@ add_timing <- function(timing, part) {
 
   timing
 }
+

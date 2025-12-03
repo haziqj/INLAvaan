@@ -6,22 +6,15 @@ inlavaan <- function(
     estimator = "ML",
     marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
     nsamp = 3000,
-    test = FALSE,
+    test = TRUE,
     sn_fit_cor = TRUE,
     sn_fit_logthresh = -6,
     sn_fit_temp = NA,
-    control = list(
-      eval.max = 4000,
-      iter.max = 2000,
-      rel.tol  = 1e-12,
-      x.tol    = 1e-12,
-      step.min = 1e-8,
-      step.max = 1.0
-    ),
+    control = list(),
     verbose = TRUE,
     debug = FALSE,
     add_priors = TRUE,
-    optim_method = c("nlminb", "ucminf", "optim"),
+    optim_method = c("nlminb", "ucminf", "nlminb"),
     numerical_grad = FALSE,
     ...
 ) {
@@ -405,17 +398,17 @@ inlavaan <- function(
     return(out)
   } else {
     out <- create_lav_from_inlavaan_internal(fit0, out)
-    return(out)
+    return(new("INLAvaan", out))
   }
 }
 
-#' @export
+#' @exportS3Method print inlavaan_internal
 print.inlavaan_internal <- function(x, digits = 3, ...) {
   print(round(x$coefficients, digits))
   invisible(x)
 }
 
-#' @export
+#' @exportS3Method summary inlavaan_internal
 summary.inlavaan_internal <- function(object, ...) {
   structure(
     list(summary = object$summary),
@@ -423,7 +416,7 @@ summary.inlavaan_internal <- function(object, ...) {
   )
 }
 
-#' @export
+#' @exportS3Method print summary.inlavaan_internal
 print.summary.inlavaan_internal <- function(x, digits = 3, ...) {
   summ <- x$summary
   which_numeric <- sapply(summ, is.numeric)
@@ -431,27 +424,3 @@ print.summary.inlavaan_internal <- function(x, digits = 3, ...) {
   print(summ)
   invisible(x)
 }
-
-#' @export
-plot.inlavaan_internal <- function(x, ...) {
-  all_plots <- list()
-  postmode <- x$summary[, "Mode"]
-
-  for (j in seq_along(x$pdf_data)) {
-    param <- names(x$pdf_data)[j]
-    plot_df <- x$pdf_data[[param]]
-
-    p_dens <-
-      ggplot(plot_df, aes(x, y)) +
-      geom_line() +
-      geom_vline(xintercept = postmode[j], linetype = "dashed", color = "red") +
-      theme_minimal() +
-      labs(x = NULL, y = NULL, subtitle = param)
-
-    all_plots[[param]] <- p_dens
-  }
-
-  cowplot::plot_grid(plotlist = all_plots)
-}
-
-
