@@ -1,7 +1,8 @@
+#' @export
 inlavaan <- function(
   model,
   data,
-  lavfun = "sem",
+  model.type = "sem",
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
@@ -68,7 +69,7 @@ inlavaan <- function(
   }
 
   ## ----- Initialise lavaan object --------------------------------------------
-  fit0 <- do.call(get(lavfun, envir = asNamespace("lavaan")), lavargs)
+  fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
   lavmodel <- fit0@Model
   lavsamplestats <- fit0@SampleStats
   lavdata <- fit0@Data
@@ -499,4 +500,85 @@ inlavaan <- function(
     out <- create_lav_from_inlavaan_internal(fit0, out)
     return(new("INLAvaan", out))
   }
+}
+
+#' @export
+acfa <- function(
+  model,
+  data,
+  lavfun = "sem",
+  dp = blavaan::dpriors(),
+  estimator = "ML",
+  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+  nsamp = 3000,
+  test = TRUE,
+  sn_fit_cor = TRUE,
+  sn_fit_logthresh = -6,
+  sn_fit_temp = NA,
+  control = list(),
+  verbose = TRUE,
+  debug = FALSE,
+  add_priors = TRUE,
+  optim_method = c("nlminb", "ucminf", "nlminb"),
+  numerical_grad = FALSE,
+  ...
+) {
+  sc <- sys.call()
+  sc[["model.type"]] <- quote("cfa")
+  sc[[1L]] <- quote(INLAvaan::inlavaan)
+  eval(sc, parent.frame())
+}
+
+#' @export
+asem <- function(
+  model,
+  data,
+  lavfun = "sem",
+  dp = blavaan::dpriors(),
+  estimator = "ML",
+  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+  nsamp = 3000,
+  test = TRUE,
+  sn_fit_cor = TRUE,
+  sn_fit_logthresh = -6,
+  sn_fit_temp = NA,
+  control = list(),
+  verbose = TRUE,
+  debug = FALSE,
+  add_priors = TRUE,
+  optim_method = c("nlminb", "ucminf", "nlminb"),
+  numerical_grad = FALSE,
+  ...
+) {
+  sc <- sys.call()
+  sc[["model.type"]] <- quote("sem")
+  sc[[1L]] <- quote(INLAvaan::inlavaan)
+  eval(sc, parent.frame())
+}
+
+#' @export
+agrowth <- function(
+  model,
+  data,
+  lavfun = "sem",
+  dp = blavaan::dpriors(),
+  estimator = "ML",
+  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+  nsamp = 3000,
+  test = TRUE,
+  sn_fit_cor = TRUE,
+  sn_fit_logthresh = -6,
+  sn_fit_temp = NA,
+  control = list(),
+  verbose = TRUE,
+  debug = FALSE,
+  add_priors = TRUE,
+  optim_method = c("nlminb", "ucminf", "nlminb"),
+  numerical_grad = FALSE,
+  ...
+) {
+  sc <- sys.call()
+  sc[["model.type"]] <- quote("growth")
+  sc[[1L]] <- quote(INLAvaan::inlavaan)
+  eval(sc, parent.frame())
 }
