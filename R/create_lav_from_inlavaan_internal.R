@@ -1,5 +1,4 @@
 create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
-
   ## ----- Update Model and implied slots --------------------------------------
   x <- fit_inlv$coefficients
   fit0@Model <- lavaan::lav_model_set_parameters(fit0@Model, x)
@@ -10,7 +9,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   # # Find Theta matrix (residuals) and Sigmay (implied covariance matrix)
   # thetadiag <- diag(fit0@Model@GLIST$theta)
   # Sigmay <- fit0@implied$cov[[1]]  # FIXME: Group 1 only
-  SD <- fit_inlv$summary[, "SD"]  # free only
+  SD <- fit_inlv$summary[, "SD"] # free only
 
   pt <- fit_inlv$partable
   pt$est[pt$free > 0] <- x[pt$free[pt$free > 0]]
@@ -18,7 +17,9 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
 
   SE <- fit_inlv$summary[, "SD"]
   pt$se <- 0
-  if (length(SE) > 0) pt$se[pt$free > 0] <- SE[pt$free[pt$free > 0]]
+  if (length(SE) > 0) {
+    pt$se[pt$free > 0] <- SE[pt$free[pt$free > 0]]
+  }
 
   # Put the diag theta values in the pt (ONLY IF ORDINAL)
   # ov_names <- fit0@Data@ov.names[[1]]  # FIXME: Group 1 only
@@ -32,17 +33,19 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   # pt$est[pt$op == "=="] <- slack_values
 
   # Flatten functions list
-  pt$g           <- sapply(pt$g, as_fun_string)
-  pt$g_prime     <- sapply(pt$g_prime, as_fun_string)
-  pt$ginv        <- sapply(pt$ginv, as_fun_string)
-  pt$ginv_prime  <- sapply(pt$ginv_prime, as_fun_string)
+  pt$g <- sapply(pt$g, as_fun_string)
+  pt$g_prime <- sapply(pt$g_prime, as_fun_string)
+  pt$ginv <- sapply(pt$ginv, as_fun_string)
+  pt$ginv_prime <- sapply(pt$ginv_prime, as_fun_string)
   pt$ginv_prime2 <- sapply(pt$ginv_prime2, as_fun_string)
 
   fit0@ParTable <- pt
 
   ## ----- Update Options slot -------------------------------------------------
   optim_method <- fit_inlv$optim_method
-  if (optim_method == "optim") optim_method <- "BFGS"
+  if (optim_method == "optim") {
+    optim_method <- "BFGS"
+  }
   fit0@Options$optim.method <- fit_inlv$optim_method
   fit0@Options$do.fit <- TRUE
 
@@ -55,27 +58,27 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
 
   if (fit_inlv$optim_method == "nlminb") {
     fit0@Fit@iterations <- as.integer(fit_inlv$opt$iterations)
-    fit0@Fit@converged  <- fit_inlv$opt$convergence == 0L
-    fit0@Fit@fx         <- fit_inlv$opt$objective
+    fit0@Fit@converged <- fit_inlv$opt$convergence == 0L
+    fit0@Fit@fx <- fit_inlv$opt$objective
   } else if (fit_inlv$optim_method == "optim") {
     fit0@Fit@iterations <- as.integer(fit_inlv$opt$counts["function"])
-    fit0@Fit@converged  <- fit_inlv$opt$convergence == 0L
-    fit0@Fit@fx         <- fit_inlv$opt$value
+    fit0@Fit@converged <- fit_inlv$opt$convergence == 0L
+    fit0@Fit@fx <- fit_inlv$opt$value
   } else if (fit_inlv$optim_method == "ucminf") {
     fit0@Fit@iterations <- as.integer(fit_inlv$opt$info["neval"])
-    fit0@Fit@converged  <- fit_inlv$opt$convergence == 1L
-    fit0@Fit@fx         <- fit_inlv$opt$value
+    fit0@Fit@converged <- fit_inlv$opt$convergence == 1L
+    fit0@Fit@fx <- fit_inlv$opt$value
   }
   fit0@Fit@Sigma.hat <- fit0@implied
 
-  if (is.na(fit_inlv$ppp)) {
+  if (is.null(fit_inlv$ppp)) {
     fit0@Fit@test <- list()
   } else {
     fit0@Fit@test <- list(
       mloglik = list(
         test = "mloglik",
         stat = fit_inlv$mloglik,
-        stat.group = fit_inlv$mloglik,  # FIXME
+        stat.group = fit_inlv$mloglik, # FIXME
         df = NA,
         refdistr = NA,
         pvalue = NA
@@ -83,7 +86,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
       ppp = list(
         test = "ppp",
         stat = fit_inlv$ppp,
-        stat.group = fit_inlv$ppp,  # FIXME
+        stat.group = fit_inlv$ppp, # FIXME
         df = NA,
         refdistr = NA,
         pvalue = NA
@@ -92,14 +95,14 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   }
 
   ## ----- Update optim slot ---------------------------------------------------
-  fit0@optim$x    <- fit_inlv$opt$par
-  fit0@optim$dx   <- fit_inlv$opt$dx
+  fit0@optim$x <- fit_inlv$opt$par
+  fit0@optim$dx <- fit_inlv$opt$dx
   fit0@optim$npar <- length(x)
 
-  fit0@optim$fx         <- fit0@Fit@fx
-  fit0@optim$fx.group   <- fit0@Fit@fx.group  # FIXME: What's this?
+  fit0@optim$fx <- fit0@Fit@fx
+  fit0@optim$fx.group <- fit0@Fit@fx.group # FIXME: What's this?
   fit0@optim$iterations <- fit0@Fit@iterations
-  fit0@optim$converged  <- fit0@Fit@converged
+  fit0@optim$converged <- fit0@Fit@converged
 
   ## ----- Update loglik slot --------------------------------------------------
   # if (fit_inlv$method == "ucminf") {
@@ -117,7 +120,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@loglik <- list()
 
   ## ----- Update vcov slot ----------------------------------------------------
-  fit0@vcov <- list()  # FIXME: Do we need this?
+  fit0@vcov <- list() # FIXME: Do we need this?
 
   ## ----- Update test slot ----------------------------------------------------
   fit0@test <- fit0@Fit@test
@@ -140,8 +143,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
 
   ## ----- Return --------------------------------------------------------------
   fit0@external <- list(
-    inlavaan_internal = fit_inlv  #[!grepl("lav", names(fit_inlv))]
+    inlavaan_internal = fit_inlv #[!grepl("lav", names(fit_inlv))]
   )
   fit0
 }
-

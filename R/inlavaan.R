@@ -467,7 +467,7 @@ inlavaan <- function(
       cli_env = env
     )
   } else {
-    ppp <- dic_list <- NA
+    ppp <- dic_list <- NULL
   }
   timing <- add_timing(timing, "test")
 
