@@ -1,17 +1,33 @@
-summary_inlavaan <- function(
-    object,
-    header = TRUE,
-    fit.measures = TRUE,
-    estimates = TRUE,
-    standardized = FALSE,
-    rsquare = FALSE,
-    postmedian = !FALSE,
-    postmode = !FALSE,
-    priors = TRUE,
-    nd = 3L,
-    ...
-) {
+#' @exportS3Method summary inlavaan_internal
+summary.inlavaan_internal <- function(object, ...) {
+  structure(
+    list(summary = object$summary),
+    class = "summary.inlavaan_internal"
+  )
+}
 
+#' @exportS3Method print summary.inlavaan_internal
+print.summary.inlavaan_internal <- function(x, digits = 3, ...) {
+  summ <- x$summary
+  which_numeric <- sapply(summ, is.numeric)
+  summ[, which_numeric] <- round(summ[, which_numeric], digits)
+  print(summ)
+  invisible(x)
+}
+
+summary_inlavaan <- function(
+  object,
+  header = TRUE,
+  fit.measures = TRUE,
+  estimates = TRUE,
+  standardized = FALSE,
+  rsquare = FALSE,
+  postmedian = !FALSE,
+  postmode = !FALSE,
+  priors = TRUE,
+  nd = 3L,
+  ...
+) {
   ## ----- Header --------------------------------------------------------------
   if (isTRUE(header)) {
     show_inlavaan(object)
@@ -34,7 +50,9 @@ summary_inlavaan <- function(
 
   if (isTRUE(estimates)) {
     if (isTRUE(standardized) | isTRUE(rsquare)) {
-      cli::cli_alert_warning("{.arg standardized = TRUE} or {.arg rsquare = TRUE} are not implemented yet.")
+      cli::cli_alert_warning(
+        "{.arg standardized = TRUE} or {.arg rsquare = TRUE} are not implemented yet."
+      )
     }
 
     marg_method <- object@external$inlavaan_internal$marginal_method
@@ -67,11 +85,15 @@ summary_inlavaan <- function(
     ptfreeidx <- which(pt$free > 0)
     summ <- object@external$inlavaan_internal$summary
     peidx <- match(
-      paste0(pt$lhs[ptfreeidx], pt$op[ptfreeidx], pt$rhs[ptfreeidx], pt$group[ptfreeidx]),
+      paste0(
+        pt$lhs[ptfreeidx],
+        pt$op[ptfreeidx],
+        pt$rhs[ptfreeidx],
+        pt$group[ptfreeidx]
+      ),
       paste0(PE$lhs, PE$op, PE$rhs, PE$group)
     )
     summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
-
 
     char.format <- paste("%", max(8, nd + 5), "s", sep = "")
 
@@ -87,7 +109,11 @@ summary_inlavaan <- function(
     }
 
     PE$`97.5%` <- ""
-    PE$`97.5%`[peidx] <- formatC(summ$`97.5%`[summidx], digits = nd, format = "f")
+    PE$`97.5%`[peidx] <- formatC(
+      summ$`97.5%`[summidx],
+      digits = nd,
+      format = "f"
+    )
 
     if (isTRUE(postmode)) {
       PE$Mode <- ""
