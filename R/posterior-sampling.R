@@ -66,11 +66,11 @@ sample_params <- function(
         })
       )
     }
+  }
 
-    if (lavmodel@ceq.simple.only) {
-      K <- lavmodel@ceq.simple.K
-      theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
-    }
+  if (lavmodel@ceq.simple.only) {
+    K <- lavmodel@ceq.simple.K
+    theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
   }
 
   if (return_theta) {

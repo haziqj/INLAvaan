@@ -1,6 +1,6 @@
 compare_mcmc <- function(fit_blavaan, ...) {
   require(tidyverse)
-  parnames <- names(coef(fit_blavaan))
+  parnames <- unique(names(coef(fit_blavaan)))
 
   # MCMC Histograms
   draws <- do.call("rbind", blavInspect(fit_blavaan, "mcmc"))
@@ -83,7 +83,8 @@ compare_mcmc <- function(fit_blavaan, ...) {
   }
 
   # Align MCMC to Approximation Grid
-  plot_df_aligned <- plot_df |>
+  plot_df_aligned <-
+    plot_df |>
     group_by(name, method) |>
     group_modify(function(data, keys) {
       # Get matching MCMC samples
@@ -193,7 +194,7 @@ compare_mcmc <- function(fit_blavaan, ...) {
       position = position_dodge()
     ) +
     coord_flip() +
-    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    scale_y_continuous(labels = scales::percent) +
     scale_fill_manual(
       values = c(
         "skewnorm" = "#00A6AA",
