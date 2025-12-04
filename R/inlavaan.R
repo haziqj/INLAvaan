@@ -202,7 +202,7 @@ inlavaan <- function(
   opt$dx <- numDeriv::grad(\(x) -1 * joint_lp(x), theta_star) # fd grad
   if (isTRUE(debug)) {
     grad_an <- -1 * joint_lp_grad(theta_star)
-    print(cbind(fd = opt$dx, analytic = grad_an, diff = grad_an - grad_fd))
+    print(cbind(fd = opt$dx, analytic = grad_an, diff = grad_an - opt$dx))
   }
 
   # Other info at optima
