@@ -1,14 +1,20 @@
+#' @exportS3Method print inlavaan_internal
+print.inlavaan_internal <- function(x, digits = 3, ...) {
+  print(round(x$coefficients, digits))
+  invisible(x)
+}
+
 show_inlavaan <- function(object) {
   class(object) <- "lavaan"
-  garb <- capture.output( tmp <- show(object) )
+  garb <- capture.output(tmp <- show(object))
   tmp$test <- NULL
-  garb <- capture.output( tmp )
+  garb <- capture.output(tmp)
   garb <- gsub("lavaan", "INLAvaan", garb)
   cat(paste0(garb, collapse = "\n"))
   cat("\n\n")
 
   ## ----- Print marginal log-likelihood and ppp -------------------------------
-  show_ppp <- if(length(object@Fit@test$ppp) == 0) FALSE else TRUE
+  show_ppp <- if (length(object@Fit@test$ppp) == 0) FALSE else TRUE
 
   cat(
     "Model Test (User Model):\n\n",

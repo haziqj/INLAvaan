@@ -500,26 +500,3 @@ inlavaan <- function(
     return(new("INLAvaan", out))
   }
 }
-
-#' @exportS3Method print inlavaan_internal
-print.inlavaan_internal <- function(x, digits = 3, ...) {
-  print(round(x$coefficients, digits))
-  invisible(x)
-}
-
-#' @exportS3Method summary inlavaan_internal
-summary.inlavaan_internal <- function(object, ...) {
-  structure(
-    list(summary = object$summary),
-    class = "summary.inlavaan_internal"
-  )
-}
-
-#' @exportS3Method print summary.inlavaan_internal
-print.summary.inlavaan_internal <- function(x, digits = 3, ...) {
-  summ <- x$summary
-  which_numeric <- sapply(summ, is.numeric)
-  summ[, which_numeric] <- round(summ[, which_numeric], digits)
-  print(summ)
-  invisible(x)
-}
