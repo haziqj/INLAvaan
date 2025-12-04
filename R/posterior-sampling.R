@@ -1,12 +1,12 @@
 sample_params <- function(
-    theta_star,
-    Sigma_theta,
-    method,
-    approx_data,
-    pt,
-    lavmodel,
-    nsamp = 1000,
-    return_theta = FALSE
+  theta_star,
+  Sigma_theta,
+  method,
+  approx_data,
+  pt,
+  lavmodel,
+  nsamp = 1000,
+  return_theta = FALSE
 ) {
   R <- cov2cor(Sigma_theta)
   z <- mvtnorm::rmvnorm(n = nsamp, sigma = R)
@@ -19,37 +19,52 @@ sample_params <- function(
     theta <- t(D %*% qnorm(t(u)) + theta_star)
   } else {
     if (method == "skewnorm") {
-      theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
-        xi    <- approx_data[j, "xi"]
-        omega <- approx_data[j, "omega"]
-        alpha <- approx_data[j, "alpha"]
-        sn::qsn(u[, j], xi = xi, omega = omega, alpha = alpha)
-      }))
+      theta <- do.call(
+        "cbind",
+        lapply(seq_len(ncol(u)), function(j) {
+          xi <- approx_data[j, "xi"]
+          omega <- approx_data[j, "omega"]
+          alpha <- approx_data[j, "alpha"]
+          sn::qsn(u[, j], xi = xi, omega = omega, alpha = alpha)
+        })
+      )
     } else if (method == "asymgaus") {
-      theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
-        tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
-        yy <- marg_lp(tt, j = j, theta_star = theta_star,
-                      Sigma_theta = Sigma_theta, sigma_asym = approx_data)
-        yy <- yy - max(yy)  # stabilise
-        fj_lp <- stats::splinefun(tt, yy)
-        fj <- function(par) exp(fj_lp(par))  # unnormalised
-        dt <- diff(tt)
-        ft <- fj(tt)
-        fmid <- (head(ft, -1) + tail(ft, -1)) / 2
-        ymid <- (head(tt, -1) + tail(tt, -1)) / 2
-        C <- sum(fmid * dt)
-        ft <- ft / C
-        Ft <- c(0, cumsum(fmid * dt))
-        Ft <- Ft / tail(Ft, 1)
-        qfj <- splinefun(Ft, tt, method = "monoH.FC")
-        qfj(u[, j])
-      }))
+      theta <- do.call(
+        "cbind",
+        lapply(seq_len(ncol(u)), function(j) {
+          tt <- theta_star[j] +
+            seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
+          yy <- marg_lp(
+            tt,
+            j = j,
+            theta_star = theta_star,
+            Sigma_theta = Sigma_theta,
+            sigma_asym = approx_data
+          )
+          yy <- yy - max(yy) # stabilise
+          fj_lp <- stats::splinefun(tt, yy)
+          fj <- function(par) exp(fj_lp(par)) # unnormalised
+          dt <- diff(tt)
+          ft <- fj(tt)
+          fmid <- (head(ft, -1) + tail(ft, -1)) / 2
+          ymid <- (head(tt, -1) + tail(tt, -1)) / 2
+          C <- sum(fmid * dt)
+          ft <- ft / C
+          Ft <- c(0, cumsum(fmid * dt))
+          Ft <- Ft / tail(Ft, 1)
+          qfj <- splinefun(Ft, tt, method = "monoH.FC")
+          qfj(u[, j])
+        })
+      )
     } else if (method == "marggaus") {
-      theta <- do.call("cbind", lapply(seq_len(ncol(u)), function(j) {
-        mu_j <- theta_star[j]
-        sd_j <- sqrt(Sigma_theta[j, j])
-        qnorm(u[, j], mean = mu_j, sd = sd_j)
-      }))
+      theta <- do.call(
+        "cbind",
+        lapply(seq_len(ncol(u)), function(j) {
+          mu_j <- theta_star[j]
+          sd_j <- sqrt(Sigma_theta[j, j])
+          qnorm(u[, j], mean = mu_j, sd = sd_j)
+        })
+      )
     }
 
     if (lavmodel@ceq.simple.only) {
@@ -58,9 +73,9 @@ sample_params <- function(
     }
   }
 
-  if (return_theta)
+  if (return_theta) {
     return(theta)
-  else {
+  } else {
     x <- t(apply(theta, 1, pars_to_x, pt = pt))
     return(x)
   }
@@ -80,17 +95,16 @@ sample_params <- function(
 # Then ppp = P(T(Srep, Sigma) >= T(S, Sigma))
 
 get_ppp <- function(
-    theta_star,
-    Sigma_theta,
-    method,
-    approx_data,
-    pt,
-    lavmodel,
-    lavsamplestats,
-    nsamp = 250,
-    cli_env = NULL
-  ) {
-
+  theta_star,
+  Sigma_theta,
+  method,
+  approx_data,
+  pt,
+  lavmodel,
+  lavsamplestats,
+  nsamp = 250,
+  cli_env = NULL
+) {
   x <- sample_params(
     theta_star = theta_star,
     Sigma_theta = Sigma_theta,
@@ -113,7 +127,9 @@ get_ppp <- function(
   nG <- max(pt$group)
   res <- vector("numeric", length = nrow(x))
   for (i in seq_len(nrow(x))) {
-    if (!is.null(cli_env)) cli::cli_progress_update(.envir = cli_env)
+    if (!is.null(cli_env)) {
+      cli::cli_progress_update(.envir = cli_env)
+    }
     xx <- x[i, ]
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
     lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -125,9 +141,11 @@ get_ppp <- function(
       n <- lavsamplestats@nobs[[g]]
       S <- lavsamplestats@cov[[g]]
       Sigma <- lavimplied$cov[[g]]
-      if (check_mat(Sigma)) next
+      if (check_mat(Sigma)) {
+        next
+      }
 
-      W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[, , 1]
+      W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1]
       Srep <- W / (n - 1)
 
       Tobs <- Tobs + Fdiscrp(S, Sigma)
@@ -141,14 +159,14 @@ get_ppp <- function(
 }
 
 sample_covariances <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
-
   pt_cov_rows <- grep("cov", pt$mat)
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
   idxcov <- pt$free[pt_cov_free_rows]
 
   theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
-  if (!all(dim(K) == 0))
+  if (!all(dim(K) == 0)) {
     theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
+  }
   x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
 
   cov_samp <- x_samp[idxcov, , drop = FALSE]
@@ -169,18 +187,23 @@ sample_covariances <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
       pdf_data = data.frame(x = dens$x, y = dens$y)
     )
   })
-
 }
 
-sample_covariances_fit_sn <- function(theta, Sigma_theta, pt, K, nsamp = 10000) {
-
+sample_covariances_fit_sn <- function(
+  theta,
+  Sigma_theta,
+  pt,
+  K,
+  nsamp = 10000
+) {
   pt_cov_rows <- grep("cov", pt$mat)
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
   idxcov <- pt$free[pt_cov_free_rows]
 
   theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
-  if (!all(dim(K) == 0))
+  if (!all(dim(K) == 0)) {
     theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
+  }
   x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
   cov_samp <- x_samp[idxcov, , drop = FALSE]
   rownames(cov_samp) <- pt$names[pt_cov_free_rows]
@@ -193,14 +216,20 @@ sample_covariances_fit_sn <- function(theta, Sigma_theta, pt, K, nsamp = 10000) 
     xi <- y["xi"]
     omega <- y["omega"]
     alpha <- y["alpha"]
-    delta <- alpha / sqrt(1 + alpha ^ 2)
+    delta <- alpha / sqrt(1 + alpha^2)
 
     Ex <- xi + omega * delta * sqrt(2 / pi)
-    Vx <- omega ^ 2 * (1 - 2 * delta ^ 2 / pi)
+    Vx <- omega^2 * (1 - 2 * delta^2 / pi)
     SDx <- sqrt(Vx)
-    qq <- sn::qsn(c(0.025, 0.5, 0.975), xi = xi, omega = omega, alpha = alpha)
+    qq <- sn::qsn(
+      c(0.025, 0.5, 0.975),
+      xi = xi,
+      omega = omega,
+      alpha = alpha,
+      solver = "RFB"
+    )
 
-    x  <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
+    x <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
     fx <- dsnorm(x, xi = xi, omega = omega, alpha = alpha)
 
     xmax <- optimize(
@@ -217,22 +246,20 @@ sample_covariances_fit_sn <- function(theta, Sigma_theta, pt, K, nsamp = 10000) 
       pdf_data = data.frame(x = x, y = fx)
     )
   })
-
 }
 
 get_dic <- function(
-    theta_star,
-    Sigma_theta,
-    method,
-    approx_data,
-    pt,
-    lavmodel,
-    lavsamplestats,
-    loglik,
-    nsamp = 250,
-    cli_env = NULL
+  theta_star,
+  Sigma_theta,
+  method,
+  approx_data,
+  pt,
+  lavmodel,
+  lavsamplestats,
+  loglik,
+  nsamp = 250,
+  cli_env = NULL
 ) {
-
   x <- sample_params(
     theta_star = theta_star,
     Sigma_theta = Sigma_theta,
@@ -252,7 +279,9 @@ get_dic <- function(
 
   Dhat <- -2 * loglik(xhat)
   Dbar <- mean(sapply(seq_len(nrow(x)), function(i) {
-    if (!is.null(cli_env)) cli::cli_progress_update(.envir = cli_env)
+    if (!is.null(cli_env)) {
+      cli::cli_progress_update(.envir = cli_env)
+    }
     xx <- x[i, ]
     -2 * loglik(xx)
   }))
