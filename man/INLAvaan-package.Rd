@@ -6,7 +6,9 @@
 \alias{INLAvaan-package}
 \title{INLAvaan: Bayesian Structural Equation Modelling with INLA}
 \description{
-INLAvaan is an R package that extends `{lavaan}` for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
+INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.
 }
 \seealso{
 Useful links:
@@ -20,6 +22,7 @@ Useful links:
 
 Other contributors:
 \itemize{
+  \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) [contributor]
   \item Alvin Bong [contributor]
 }
 
