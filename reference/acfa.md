@@ -184,11 +184,11 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
 #> ✔ Finding posterior mode. [144ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [343ms]
+#> ✔ Computing the Hessian. [348ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [586ms]
+#> ✔ Fitting skew normal to marginals. [596ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
