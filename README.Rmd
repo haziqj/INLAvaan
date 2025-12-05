@@ -13,13 +13,12 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+options(width = 90, cli.dynamic = FALSE)
 
 library(INLAvaan)
 library(lavaan)
 library(blavaan)
 library(tidyverse)
-library(semPlot)
-library(semptools)
 ```
 
 # INLAvaan <a href="https://inlavaan.haziqj.ml"><img src="man/figures/logo.png" align="right" height="139" alt="INLAvaan website" /></a>
@@ -30,12 +29,86 @@ library(semptools)
 [![Codecov test coverage](https://codecov.io/gh/haziqj/INLAvaan/branch/main/graph/badge.svg)](https://app.codecov.io/gh/haziqj/INLAvaan?branch=main)
 <!-- badges: end -->
 
-> Bayesian structural equation modelling with INLA.
+> Efficient approximate Bayesian inference for Structural Equation Models.
+
+While Markov Chain Monte Carlo (MCMC) methods remain the gold standard for exact Bayesian inference, they can be prohibitively slow for iterative model development. 
+`{INLAvaan}` offers a rapid alternative for **la**tent **va**riable **an**alysis, delivering Bayesian results at (or near) the speed of frequentist estimators.
+It achieves this through a custom, ground-up implementation of the [Integrated Nested Laplace Approximation (INLA)](https://www.r-inla.org), engineered specifically for the [lavaan](https://lavaan.org) modelling framework.
+
+## A Familiar Interface
+
+`{INLAvaan}` is designed to fit seamlessly into your existing workflow.
+If you are familiar with the (b)lavaan syntax, you can begin using `{INLAvaan}` immediately.
+
+As a first impression of the package, consider the canonical example of SEM applied to the Industrialisation and Political Democracy data set of Bollen (1989)^[Bollen, K. A. (1989). *Structural equations with latent variables* (pp. xiv, 514). John Wiley & Sons. <https://doi.org/10.1002/9781118619179>]:
+
+```{r}
+#| label: inlavaan-poldem
+model <- "
+  # Latent variable definitions
+     ind60 =~ x1 + x2 + x3
+     dem60 =~ y1 + y2 + y3 + y4
+     dem65 =~ y5 + y6 + y7 + y8
+
+  # (Latent) regressions
+    dem60 ~ ind60
+    dem65 ~ ind60 + dem60
+
+  # Residual correlations
+    y1 ~~ y5
+    y2 ~~ y4 + y6
+    y3 ~~ y7
+    y4 ~~ y8
+    y6 ~~ y8
+  
+  # Custom priors on latent variances
+    ind60 ~~ prior('gamma(1,.5)')*ind60
+    dem60 ~~ prior('gamma(2, 1)')*dem60
+    dem65 ~~ prior('gamma(2, 1)')*dem65
+"
+utils::data("PoliticalDemocracy", package = "lavaan")
+
+fit <- asem(model, PoliticalDemocracy)
+
+summary(fit)
+```
+
+## Validation Against MCMC
+
+Computation speed is valuable only when accuracy is preserved.
+
+For many standard SEMs, the Laplace approximation yields posterior distributions that are visually and numerically comparable to those obtained via MCMC (e.g., via `{blavaan}`/Stan), but at a fraction of the computational cost.
+
+The figure below illustrates the posterior density overlap for the example above:
+
+```{r}
+#| label: fig-compare-poldem
+#| message: false
+#| warning: false
+#| results: "hide"
+#| fig-height: 5.5
+#| fig-width: 8
+#| out-width: 100%
+#| fig-dpi: 200
+
+# install.packages("blavaan")
+library(blavaan)
+fit_blav <- bsem(model, PoliticalDemocracy)
+res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
+print(res$p_compare)
+```
 
 ## Installation
 
-You need a working installation of [INLA](https://www.r-inla.org).
-Following the official instructions given [here](https://www.r-inla.org/download-install), run this command in R:
+Install the development version of `{INLAvaan}` from GitHub using:
+
+```r
+# install.packages("pak")
+pak::pak("haziqj/INLAvaan")
+```
+
+*Optionally*^[R-INLA dependency has been removed temporarily for v0.2-0.], you may wish to install [INLA](https://www.r-inla.org).
+Following the official instructions given [here](https://www.r-inla.org/download-install), install the package by running this command in R:
 
 ```r
 install.packages(
@@ -46,419 +119,151 @@ install.packages(
 )
 ```
 
-Then, you can install the development version of `{INLAvaan}` from GitHub with:
+<!-- ## Political democracy data -->
 
-```r
-# install.packages("pak")
-pak::pak("haziqj/INLAvaan")
-```
+<!-- The quintessential example for SEM is this model from Bollen (1989) to fit a political democracy data set. -->
+<!-- Eleven observed variables are hypothesized to arise from three latent variables. -->
+<!-- This set includes data from 75 developing countries each assessed on four measures of democracy measured twice (1960 and 1965), and three measures of industrialization measured once (1960).  -->
+<!-- The eleven observed variables are: -->
 
-## First impressions
+<!-- -   `y1`: Freedom of the press, 1960 -->
+<!-- -   `y2`: Freedom of political opposition, 1960 -->
+<!-- -   `y3`: Fairness of elections, 1960 -->
+<!-- -   `y4`: Effectiveness of elected legislature, 1960 -->
+<!-- -   `y5`: Freedom of the press, 1965 -->
+<!-- -   `y6`: Freedom of political opposition, 1965 -->
+<!-- -   `y7`: Fairness of elections, 1965 -->
+<!-- -   `y8`: Effectiveness of elected legislature, 1965 -->
+<!-- -   `y9`: GNP per capita, 1960 -->
+<!-- -   `y10`: Energy consumption per capita, 1960 -->
+<!-- -   `y11`: Percentage of labor force in industry, 1960 -->
 
-A simple two-factor SEM with six observed, correlated Gaussian variables.
-Let $i=1,\dots,n$ index the subjects.
-Conditional on the values of $k$-th latent variable $\eta_{ki}$ for subject $i$, the six measurement model equations are
+<!-- Variables `y1-y4` and `y5-y8` are typically used as indicators of the latent trait of "political democracy" in 1960 and 1965 respectively, whereas `y9-y11` are used as indicators of industrialization (1960). -->
+<!-- It is theorised that industrialisation influences political democracy, and that political democracy in 1960 influences political democracy in 1965. -->
+<!-- Since the items measure the same latent trait at two time points, there is an assumption that the residuals of these items will be correlated with each other. -->
+<!-- The model is depicted in the figure below. -->
 
-<br>
-<p align="center">
-  <img src="man/figures/measeqn.gif" width="40%" style="display: block; margin: auto;" />
-</p>
-<br>
-<!-- $$ -->
-<!-- \begin{gathered} -->
-<!-- y_{1i} = \lambda_{11} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{1i}, \quad \epsilon_{1i} \sim N(0, \theta_{11}) \\ -->
-<!-- y_{2i} = \lambda_{21} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{2i}, \quad \epsilon_{2i} \sim N(0, \theta_{22}) \\ -->
-<!-- y_{3i} = \lambda_{31} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}}  + \epsilon_{3i}, \quad \epsilon_{3i} \sim N(0, \theta_{33}) \\ -->
-<!-- y_{4i} = \phantom{\lambda_{11} \eta_{2i} +}  \lambda_{42} \eta_{2i} + \epsilon_{4i}, \quad \epsilon_{4i} \sim N(0, \theta_{44}) \\ -->
-<!-- y_{5i} = \phantom{\lambda_{11} \eta_{2i} +} \lambda_{52} \eta_{2i} + \epsilon_{5i}, \quad \epsilon_{5i} \sim N(0, \theta_{55}) \\ -->
-<!-- y_{6i} = \phantom{\lambda_{11} \eta_{2i} +} \lambda_{62} \eta_{2i} + \epsilon_{6i}, \quad \epsilon_{6i} \sim N(0, \theta_{66}) \\ -->
-<!-- \\ -->
-<!-- \operatorname{Cov}(\epsilon_{1i},\epsilon_{4i}) = \theta_{14} \\ -->
-<!-- \operatorname{Cov}(\epsilon_{2i},\epsilon_{5i}) = \theta_{25} \\ -->
-<!-- \operatorname{Cov}(\epsilon_{3i},\epsilon_{6i}) = \theta_{36} \\ -->
-<!-- \end{gathered} -->
-<!-- $$ -->
+<!-- ```{r} -->
+<!-- #| echo: false -->
+<!-- knitr::include_graphics("https://lavaan.ugent.be/figures/sem.png") -->
+<!-- ``` -->
 
-For identifiability, we set $\lambda_{11} = \lambda_{42} = 1$.
-The structural part of the model are given by these equations:
+<!-- The corresponding model in `{lavaan}` syntax is: -->
 
-<br>
-<p align="center">
-  <img src="man/figures/struceqn.gif" width="30%" style="display: block; margin: auto;" />
-</p>
-<br>
-<!-- $$ -->
-<!-- \begin{gathered} -->
-<!-- \eta_{1i} = \phantom{b\eta_{1i} +} \zeta_{1i}, \quad \zeta_{1i} \sim N(0, \psi_1) \\ -->
-<!-- \eta_{2i} = b\eta_{1i} + \zeta_{2i}, \quad \zeta_{2i} \sim N(0, \psi_2) -->
-<!-- \end{gathered} -->
-<!-- $$ -->
+<!-- ```{r} -->
+<!-- mod <- " -->
+<!--   # latent variables -->
+<!--   dem60 =~ y1 + y2 + y3 + y4 -->
+<!--   dem65 =~ y5 + y6 + y7 + y8 -->
+<!--   ind60 =~ x1 + x2 + x3 -->
 
-Graphically, we can plot the following path diagram.
+<!--   # latent regressions -->
+<!--   dem60 ~ ind60 -->
+<!--   dem65 ~ ind60 + dem60 -->
 
-```{r twofacsemsetup}
-#| include: false
-true_model <- "
-  eta1 =~ 1*y1 + 1.2*y2 + 1.5*y3
-  eta2 =~ 1*y4 + 1.2*y5 + 1.5*y6
-  eta2 ~ 0.3*eta1
+<!--   # residual covariances -->
+<!--   y1 ~~ y5 -->
+<!--   y2 ~~ y4 + y6 -->
+<!--   y3 ~~ y7 -->
+<!--   y4 ~~ y8 -->
+<!--   y6 ~~ y8 -->
+<!-- " -->
+<!-- ``` -->
 
-  y1 ~~ 0.05*y4
-  y2 ~~ 0.05*y5
-  y3 ~~ 0.05*y6
+<!-- We will fit this model using `{INLAvaan}` and compare the results with `{blavaan}`. -->
 
-  y1 ~~ 0.1*y1
-  y2 ~~ 0.1*y2
-  y3 ~~ 0.1*y3
-  y4 ~~ 0.1*y4
-  y5 ~~ 0.1*y5
-  y6 ~~ 0.1*y6
-"
-dat <- lavaan::simulateData(true_model, sample.nobs = 10000)
+<!-- ```{r} -->
+<!-- #| label: poldemfit -->
+<!-- #| include: false -->
+<!-- #| cache: true -->
+<!-- data("PoliticalDemocracy", package = "lavaan") -->
+<!-- poldemfit <- insem(mod, PoliticalDemocracy, meanstructure = !TRUE, bcontrol = list(num.threads = 6)) -->
 
-mod <- "
-  eta1 =~ y1 + y2 + y3
-  eta2 =~ y4 + y5 + y6
-  eta2 ~ eta1
-  y1 ~~ y4
-  y2 ~~ y5
-  y3 ~~ y6
-"
-fit_lav <- sem(mod, dat)
-fit_lav@ParTable$est <- true_vals <-
-  c(rep(c(1, 1.2, 1.5), 2), 0.3, rep(0.05, 3), rep(0.1, 6), rep(1, 2))
+<!-- library(future) -->
+<!-- plan("multisession") -->
+<!-- poldemfit_blav <- bsem( -->
+<!--   model = mod,  -->
+<!--   data = PoliticalDemocracy, -->
+<!--   # meanstructure = TRUE, -->
+<!--   n.chains = 3, -->
+<!--   bcontrol = list(cores = 3) -->
+<!--   # burnin = 5000, -->
+<!--   # sample = 10000 -->
+<!-- ) -->
+<!-- ``` -->
 
-p <- semPlot::semPaths(
-  fit_lav, 
-  whatLabels = "est",
-  node.width = 1,
-  edge.label.cex = 0.75,
-  # style = "ram",
-  mar = c(-5, -1, 5, -1)
-)
-```
+<!-- ```{r} -->
+<!-- #| eval: false -->
+<!-- data("PoliticalDemocracy", package = "lavaan") -->
+<!-- poldemfit <- insem(model = mod, data = PoliticalDemocracy) -->
+<!-- summary(poldemfit) -->
+<!-- ``` -->
 
-```{r}
-#| label: sempath
-#| echo: false
-#| message: false
+<!-- ```{r} -->
+<!-- #| echo: false -->
+<!-- summary(poldemfit) # -->
+<!-- ``` -->
 
-indicator_order <- c(
-  "y1", "y2", "y3",
-  "y4", "y5", "y6"
-)
-indicator_factor <- c(
-  "eta1", "eta1", "eta1",
-  "eta2", "eta2", "eta2"
-)
-factor_layout <- matrix(c("eta1", "eta2"), byrow = TRUE, nrow = 1)
-factor_point_to <- matrix(c("up", "up"), byrow = TRUE, nrow = 1)
-p2 <- set_sem_layout(
-  p,
-  indicator_order = indicator_order,
-  indicator_factor = indicator_factor,
-  factor_layout = factor_layout,
-  factor_point_to = factor_point_to
-) |>
-  set_curve(c(
-    "y1~~y4" = 3,
-    "y2~~y5" = 3,
-    "y3~~y6" = 3
-  )) |>
-  change_node_label(list(
-    list(node = "et1", to = expression(eta[1])),
-    list(node = "et2", to = expression(eta[2]))
-  ))
-plot(p2)
-```
-
-```{r}
-# {lavaan} textual model
-mod <- "
-  # Measurement model
-  eta1 =~ y1 + y2 + y3
-  eta2 =~ y4 + y5 + y6
-  
-  # Factor regression
-  eta2 ~ eta1
-  
-  # Covariances
-  y1 ~~ y4
-  y2 ~~ y5
-  y3 ~~ y6
-"
-
-# Data set
-dplyr::glimpse(dat)
-```
+<!-- ```{r} -->
+<!-- #| label: fig-poldem -->
+<!-- #| echo: false -->
+<!-- # -->
+<!-- garb <- capture.output(tmp <- summary(poldemfit)) -->
+<!-- PE_inla <- tibble( -->
+<!--   est = as.numeric(tmp[, "Estimate"]), -->
+<!--   ci.lower = as.numeric(tmp[, "pi.lower"]), -->
+<!--   ci.upper = as.numeric(tmp[, "pi.upper"]) -->
+<!-- ) |> -->
+<!--   mutate(method = "INLAvaan") -->
+<!-- garb <- capture.output(tmp <- summary(poldemfit_blav)) -->
+<!-- PE_blav <- tibble( -->
+<!--   est = as.numeric(tmp[, "Estimate"]), -->
+<!--   ci.lower = as.numeric(tmp[, "pi.lower"]), -->
+<!--   ci.upper = as.numeric(tmp[, "pi.upper"]) -->
+<!-- ) |> -->
+<!--   mutate(method = "blavaan") -->
 
 
-To fit this model using `{INLAvaan}`, use the familiar `{lavaan}` syntax. 
-The `in` in `insem` stands for `INLA` (following the convention of `bsem` for `{blavaan}`).
+<!-- bind_rows( -->
+<!--   PE_inla, PE_blav -->
+<!-- ) |> -->
+<!--   mutate( -->
+<!--     free = rep(partable(poldemfit)$free, 2), -->
+<!--     pxnames = rep(partable(poldemfit)$pxnames, 2), -->
+<!--     type = gsub("\\[[^]]*\\]", "", pxnames) -->
+<!--   ) |> -->
+<!--   drop_na() |> -->
+<!--   mutate(names = factor(rep(names(coef(poldemfit)), 2), levels = rev(names(coef(fit))))) |> -->
+<!--   pivot_wider( -->
+<!--     names_from = method, -->
+<!--     values_from = c(est, ci.lower, ci.upper) -->
+<!--   ) |> -->
+<!--   ggplot(aes(est_INLAvaan, est_blavaan, col = type)) + -->
+<!--   geom_abline(slope = 1, intercept = 0, linetype = 2) + -->
+<!--   geom_point(size = 3) + -->
+<!--   geom_errorbar(aes(xmin = ci.lower_INLAvaan, xmax = ci.upper_INLAvaan), width = 0.1, alpha = 0.3) + -->
+<!--   geom_errorbar(aes(ymin = ci.lower_blavaan, ymax = ci.upper_blavaan), width = 0.1, alpha = 0.3) + -->
+<!--   theme_bw() + -->
+<!--   labs( -->
+<!--     x = "{INLAvaan} estimates", -->
+<!--     y = "{blavaan} estimates", -->
+<!--     col = "Parameter\ntype", -->
+<!--     title = "Comparison of the estimates for the Political Democracy example", -->
+<!--     caption = "MCMC conducted using Stan (3 parallel chains, 500 burnin, and 1500 samples)." -->
+<!--   ) -->
 
-```{r inlafit}
-#| include: false
-#| cache: true
-library(INLAvaan)
-fit <- insem(model = mod, data = dat)
-fit_lav <- sem(mod, dat)
-fit_blav <- bsem(mod, dat, sample = 2000, burnin = 1000)
-fit_blavvb <- bsem(mod, dat, target = "vb", n.chains = 1, sample = 2000, burnin = 1000)
-```
-
-```{r}
-#| eval: false
-library(INLAvaan)
-fit <- insem(model = mod, data = dat)
-summary(fit)
-```
-
-```{r}
-#| echo: false
-summary(fit)
-```
-
-Compare model fit to `{lavaan}` and `{blavaan}` (MCMC sampling using Stan on a single thread obtaining 1000 burnin and 2000 samples, as well as variational Bayes):
-
-```{r}
-#| label: fig-compare
-#| echo: false
-coef_lav <- lavaan::coef(fit_lav)
-coef_inla <- lavaan::coef(fit)
-
-PE_lav <- summary(fit_lav, ci = TRUE)$pe |>
-  select(est, ci.lower, ci.upper) |>
-  mutate(method = "lavaan") |>
-  as_tibble()
-garb <- capture.output(tmp <- summary(fit))
-PE_inla <- tibble(
-  est = as.numeric(tmp[, "Estimate"]),
-  ci.lower = as.numeric(tmp[, "pi.lower"]),
-  ci.upper = as.numeric(tmp[, "pi.upper"])
-) |>
-  mutate(method = "INLAvaan")
-garb <- capture.output(tmp <- summary(fit_blav))
-PE_blav <- tibble(
-  est = as.numeric(tmp[, "Estimate"]),
-  ci.lower = as.numeric(tmp[, "pi.lower"]),
-  ci.upper = as.numeric(tmp[, "pi.upper"])
-) |>
-  mutate(method = "blavaan")
-garb <- capture.output(tmp <- summary(fit_blavvb))
-PE_blavvb <- tibble(
-  est = as.numeric(tmp[, "Estimate"]),
-  ci.lower = as.numeric(tmp[, "pi.lower"]),
-  ci.upper = as.numeric(tmp[, "pi.upper"])
-) |>
-  mutate(method = "blavaan_vb")
-
-bind_rows(
-  PE_lav, PE_inla, PE_blav, PE_blavvb
-) |>
-  mutate(
-    truth = rep(true_vals, 4),
-    free = rep(partable(fit)$free, 4),
-    pxnames = rep(partable(fit)$pxnames, 4),
-  ) |>
-  mutate(
-    type = gsub("\\[[^]]*\\]", "", pxnames),
-    across(c(est, ci.lower, ci.upper), \(x) (x - truth) / truth),
-  ) |>
-  drop_na() |>
-  mutate(names = factor(rep(names(coef(fit)), 4), levels = rev(names(coef(fit))))) |>
-  ggplot(aes(est, names, color = method)) +
-  geom_vline(xintercept = 0, linetype = "dashed") +
-  geom_point(size = 2, position = position_dodge(width = 0.5)) +
-  geom_errorbarh(aes(xmin = ci.lower, xmax = ci.upper), height = 0.2, 
-                 position = position_dodge(width = 0.5)) +
-  scale_x_continuous(labels = scales::percent) +
-  theme_bw() +
-  labs(x = "Relative bias", y = NULL)
-
-cli::cli_h2("Compare timing (seconds)")
-list(fit, fit_lav, fit_blav, fit_blavvb) |>
-  set_names(c("INLAvaan", "lavaan", "blavaan", "blavaan_vb")) |>
-  purrr::map_dbl(\(x) x@timing$total) 
-```
-
-A little experiment to see how sample size affects run time:
-
-```{r}
-#| fig-width: 8
-#| fig-height: 5
-#| echo: false
-#| warning: false
-#| message: false
-load("inst/timing.RData")
-res |>
-  unnest(c(res_blav, res_blavvb, res_inla), names_sep = "_") |>
-  select(n, ends_with("time")) |>
-  rename(
-    blavaan = res_blav_time,
-    blavaan_vb = res_blavvb_time,
-    INLAvaan = res_inla_time
-  ) |> 
-  pivot_longer(
-    cols = -n,
-    names_to = "method",
-    values_to = "time"
-  ) |>
-  ggplot(aes(n, time, col = method)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
-  scale_x_continuous(labels = scales::comma) +
-  theme_bw() +
-  labs(x = "Sample size", y = "Run time (s)",
-       title = "Total run time to fit two factor SEM with varying sample sizes",
-       caption = "For MCMC sampling, 1000 burnin and 2000 samples were obtained.\nINLA ran on 6 parallel threads.")
-```
-
-
-## Political democracy data
-
-The quintessential example for SEM is this model from Bollen (1989) to fit a political democracy data set.
-Eleven observed variables are hypothesized to arise from three latent variables.
-This set includes data from 75 developing countries each assessed on four measures of democracy measured twice (1960 and 1965), and three measures of industrialization measured once (1960). 
-The eleven observed variables are:
-
--   `y1`: Freedom of the press, 1960
--   `y2`: Freedom of political opposition, 1960
--   `y3`: Fairness of elections, 1960
--   `y4`: Effectiveness of elected legislature, 1960
--   `y5`: Freedom of the press, 1965
--   `y6`: Freedom of political opposition, 1965
--   `y7`: Fairness of elections, 1965
--   `y8`: Effectiveness of elected legislature, 1965
--   `y9`: GNP per capita, 1960
--   `y10`: Energy consumption per capita, 1960
--   `y11`: Percentage of labor force in industry, 1960
-
-Variables `y1-y4` and `y5-y8` are typically used as indicators of the latent trait of "political democracy" in 1960 and 1965 respectively, whereas `y9-y11` are used as indicators of industrialization (1960).
-It is theorised that industrialisation influences political democracy, and that political democracy in 1960 influences political democracy in 1965.
-Since the items measure the same latent trait at two time points, there is an assumption that the residuals of these items will be correlated with each other.
-The model is depicted in the figure below.
-
-```{r}
-#| echo: false
-knitr::include_graphics("https://lavaan.ugent.be/figures/sem.png")
-```
-
-The corresponding model in `{lavaan}` syntax is:
-
-```{r}
-mod <- "
-  # latent variables
-  dem60 =~ y1 + y2 + y3 + y4
-  dem65 =~ y5 + y6 + y7 + y8
-  ind60 =~ x1 + x2 + x3
-
-  # latent regressions
-  dem60 ~ ind60
-  dem65 ~ ind60 + dem60
-
-  # residual covariances
-  y1 ~~ y5
-  y2 ~~ y4 + y6
-  y3 ~~ y7
-  y4 ~~ y8
-  y6 ~~ y8
-"
-```
-
-We will fit this model using `{INLAvaan}` and compare the results with `{blavaan}`.
-
-```{r}
-#| label: poldemfit
-#| include: false
-#| cache: true
-data("PoliticalDemocracy", package = "lavaan")
-poldemfit <- insem(mod, PoliticalDemocracy, meanstructure = !TRUE, bcontrol = list(num.threads = 6))
-
-library(future)
-plan("multisession")
-poldemfit_blav <- bsem(
-  model = mod, 
-  data = PoliticalDemocracy,
-  # meanstructure = TRUE,
-  n.chains = 3,
-  bcontrol = list(cores = 3)
-  # burnin = 5000,
-  # sample = 10000
-)
-```
-
-```{r}
-#| eval: false
-data("PoliticalDemocracy", package = "lavaan")
-poldemfit <- insem(model = mod, data = PoliticalDemocracy)
-summary(poldemfit)
-```
-
-```{r}
-#| echo: false
-summary(poldemfit) #
-```
-
-```{r}
-#| label: fig-poldem
-#| echo: false
-#
-garb <- capture.output(tmp <- summary(poldemfit))
-PE_inla <- tibble(
-  est = as.numeric(tmp[, "Estimate"]),
-  ci.lower = as.numeric(tmp[, "pi.lower"]),
-  ci.upper = as.numeric(tmp[, "pi.upper"])
-) |>
-  mutate(method = "INLAvaan")
-garb <- capture.output(tmp <- summary(poldemfit_blav))
-PE_blav <- tibble(
-  est = as.numeric(tmp[, "Estimate"]),
-  ci.lower = as.numeric(tmp[, "pi.lower"]),
-  ci.upper = as.numeric(tmp[, "pi.upper"])
-) |>
-  mutate(method = "blavaan")
-
-
-bind_rows(
-  PE_inla, PE_blav
-) |>
-  mutate(
-    free = rep(partable(poldemfit)$free, 2),
-    pxnames = rep(partable(poldemfit)$pxnames, 2),
-    type = gsub("\\[[^]]*\\]", "", pxnames)
-  ) |>
-  drop_na() |>
-  mutate(names = factor(rep(names(coef(poldemfit)), 2), levels = rev(names(coef(fit))))) |>
-  pivot_wider(
-    names_from = method,
-    values_from = c(est, ci.lower, ci.upper)
-  ) |>
-  ggplot(aes(est_INLAvaan, est_blavaan, col = type)) +
-  geom_abline(slope = 1, intercept = 0, linetype = 2) +
-  geom_point(size = 3) +
-  geom_errorbar(aes(xmin = ci.lower_INLAvaan, xmax = ci.upper_INLAvaan), width = 0.1, alpha = 0.3) +
-  geom_errorbar(aes(ymin = ci.lower_blavaan, ymax = ci.upper_blavaan), width = 0.1, alpha = 0.3) +
-  theme_bw() +
-  labs(
-    x = "{INLAvaan} estimates",
-    y = "{blavaan} estimates",
-    col = "Parameter\ntype",
-    title = "Comparison of the estimates for the Political Democracy example",
-    caption = "MCMC conducted using Stan (3 parallel chains, 500 burnin, and 1500 samples)."
-  )
-
-cli::cli_h2("Compare timing (seconds)")
-list(poldemfit, poldemfit_blav) |>
-  set_names(c("INLAvaan", "blavaan")) |>
-  purrr::map_dbl(\(x) x@timing$total) 
-```
+<!-- cli::cli_h2("Compare timing (seconds)") -->
+<!-- list(poldemfit, poldemfit_blav) |> -->
+<!--   set_names(c("INLAvaan", "blavaan")) |> -->
+<!--   purrr::map_dbl(\(x) x@timing$total)  -->
+<!-- ``` -->
 
 ## Citation
 
 To cite package `{INLAvaan}` in publications use:
 
 > Jamil, H (2025). _INLAvaan: Bayesian structural equation modelling with INLA
-_. https://haziqj.github.io/inlavaan/.
+_. R package version `r packageVersion("INLAvaan")`. URL: <https://inlavaan.haziqj.ml/>
 
 A BibTeX entry for LaTeX users is:
 
@@ -467,7 +272,8 @@ A BibTeX entry for LaTeX users is:
     title = {INLAvaan: Bayesian structural equation modelling with INLA},
     author = {Haziq Jamil},
     year = {2025},
-    url = {https://haziqj.ml/inlavaan/},
+    note = {R package version `r packageVersion("INLAvaan")`},
+    url = {https://inlavaan.haziqj.ml/},
   }
 ```
 
@@ -496,8 +302,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 By using this package, you agree to comply with both licenses: 
 the GPL-3 license for the software and the CC BY 4.0 license for the data.
 
-## Outro
+<!-- ## Outro -->
 
-```{r}
-sessioninfo::session_info(info = "all")
-```
+<!-- ```{r} -->
+<!-- sessioninfo::session_info(info = "all") -->
+<!-- ``` -->
