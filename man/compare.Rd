@@ -9,6 +9,9 @@ compare(x, y, ...)
 
 \S4method{compare}{INLAvaan}(x, y, ...)
 }
+\arguments{
+\item{x, y, ...}{An object of class \code{INLAvaan} or \code{inlavaan_internal}.}
+}
 \value{
 A data frame of class \code{compare.inlavaan_internal} containing model
 fit statistics.

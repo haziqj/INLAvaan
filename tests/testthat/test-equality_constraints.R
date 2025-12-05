@@ -133,7 +133,6 @@ test_that("Gradients are correct (Finite Difference Check)", {
 testthat::skip_on_ci()
 testthat::skip_on_cran()
 testthat::skip_if_not(interactive())
-library(tidyverse)
 library(blavaan)
 library(furrr)
 plan("multisession", workers = parallel::detectCores() - 2)

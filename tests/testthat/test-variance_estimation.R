@@ -27,7 +27,6 @@ test_that("Comparison to MCMC", {
 testthat::skip_on_ci()
 testthat::skip_on_cran()
 testthat::skip_if_not(interactive())
-library(tidyverse)
 library(rstan)
 library(furrr)
 plan("multisession", workers = parallel::detectCores() - 2)

@@ -249,7 +249,7 @@ inlavaan <- function(
   }
 
   # Derivatives at optima
-  opt$dx <- numDeriv::grad(\(x) -1 * joint_lp(x), theta_star) # fd grad
+  opt$dx <- numDeriv::grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
   if (isTRUE(debug)) {
     grad_an <- -1 * joint_lp_grad(theta_star)
     print(cbind(fd = opt$dx, analytic = grad_an, diff = grad_an - opt$dx))
@@ -435,7 +435,7 @@ inlavaan <- function(
     )
   )
 
-  pdf_data <- lapply(postmargres, \(x) x$pdf_data)
+  pdf_data <- lapply(postmargres, function(x) x$pdf_data)
   names(pdf_data) <- parnames
 
   coefs <- summ[, "Mean"]

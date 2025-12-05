@@ -36,9 +36,9 @@ marg_lp <- function(tj, j, theta_star, Sigma_theta, sigma_asym) {
 post_marg_asymgaus <- function(
   j = 1,
   g = identity,
-  g_prime = \(x) 1,
+  g_prime = function(x) 1,
   ginv = identity,
-  ginv_prime = \(x) 1,
+  ginv_prime = function(x) 1,
   theta_star,
   Sigma_theta,
   sigma_asym
@@ -96,9 +96,9 @@ post_marg_asymgaus <- function(
 post_marg_skewnorm <- function(
   j = 1,
   g = identity,
-  g_prime = \(x) 1,
+  g_prime = function(x) 1,
   ginv = identity,
-  ginv_prime = \(x) 1,
+  ginv_prime = function(x) 1,
   theta_star,
   Sigma_theta,
   sn_params
@@ -158,9 +158,9 @@ post_marg_skewnorm <- function(
 post_marg_marggaus <- function(
   j = 1,
   g = identity,
-  g_prime = \(x) 1,
+  g_prime = function(x) 1,
   ginv = identity,
-  ginv_prime = \(x) 1,
+  ginv_prime = function(x) 1,
   theta_star,
   Sigma_theta
 ) {

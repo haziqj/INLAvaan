@@ -2,10 +2,12 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @import ggplot2
 #' @import methods
 #' @importFrom cli cli_abort cli_alert_info
 #' @importFrom dplyr mutate select filter group_by ungroup
-#' @importFrom INLA inla
+#' @importFrom dplyr recode
+#' @importFrom forcats fct_rev
 #' @importFrom lavaan fitmeasures
 #' @importFrom lavaan fitMeasures
 #' @importFrom lavaan inspect
@@ -31,13 +33,11 @@
 #' @importFrom lavaan parameterEstimates
 #' @importFrom lavaan parTable
 #' @importFrom lavaan standardizedSolution
-#' @importFrom Matrix Diagonal
-#' @importFrom Matrix solve
-#' @importFrom Matrix sparseMatrix
-#' @importFrom Matrix t
 #' @importFrom methods callNextMethod
 #' @importFrom methods new
 #' @importFrom methods show
+#' @importFrom purrr imap
+#' @importFrom purrr map
 #' @importFrom stats approx
 #' @importFrom stats cov2cor
 #' @importFrom stats dbeta
@@ -55,6 +55,7 @@
 #' @importFrom stats setNames
 #' @importFrom stats splinefun
 #' @importFrom stats uniroot
+#' @importFrom tidyr %>%
 #' @importFrom tidyr pivot_longer
 #' @importFrom utils capture.output
 #' @importFrom utils head

@@ -1,11 +1,26 @@
+# Silence R CMD check notes for dplyr/ggplot2 pipelines
+utils::globalVariables(c(
+  "name",
+  "method",
+  "value",
+  "y",
+  "f_mcmc",
+  "results",
+  "Bias_SDs",
+  "L1",
+  "L1_percent",
+  "JS_percent",
+  "metric"
+))
+
 compare_mcmc <- function(fit_blavaan, ...) {
   parnames <- unique(names(coef(fit_blavaan)))
 
   # MCMC Histograms
   draws <- do.call("rbind", blavaan::blavInspect(fit_blavaan, "mcmc"))
   plot_df_blav <-
-    as.data.frame(draws) |>
-    tidyr::pivot_longer(dplyr::everything()) |>
+    as.data.frame(draws) %>%
+    tidyr::pivot_longer(dplyr::everything()) %>%
     dplyr::mutate(name = factor(name, levels = parnames))
 
   # INLAvaan Densities
@@ -24,14 +39,16 @@ compare_mcmc <- function(fit_blavaan, ...) {
 
   # Create plot
   plot_df <-
-    fit_inlavaan_list |>
+    fit_inlavaan_list %>%
     purrr::map(function(plot_df_list) {
       plot_df <-
-        ipurrr::map(plot_df_list, \(x, idx) dplyr::mutate(x, name = idx)) |>
-        dplyr::bind_rows() |>
+        purrr::imap(plot_df_list, function(x, idx) {
+          dplyr::mutate(x, name = idx)
+        }) %>%
+        dplyr::bind_rows() %>%
         dplyr::mutate(name = factor(name, levels = parnames))
-    }) |>
-    dplyr::bind_rows(.id = "method") |>
+    }) %>%
+    dplyr::bind_rows(.id = "method") %>%
     dplyr::mutate(
       method = factor(
         method,
@@ -81,8 +98,8 @@ compare_mcmc <- function(fit_blavaan, ...) {
 
   # Align MCMC to Approximation Grid
   plot_df_aligned <-
-    plot_df |>
-    dplyr::group_by(name, method) |>
+    plot_df %>%
+    dplyr::group_by(name, method) %>%
     dplyr::group_modify(function(data, keys) {
       # Get matching MCMC samples
       mcmc_vals <- dplyr::filter(plot_df_blav, name == keys$name)$value
@@ -101,13 +118,13 @@ compare_mcmc <- function(fit_blavaan, ...) {
       f_mcmc <- stats::approx(x = d$x, y = d$y, xout = data$x, rule = 2)$y
 
       dplyr::mutate(data, f_mcmc = f_mcmc)
-    }) |>
+    }) %>%
     dplyr::ungroup()
 
   # Calculate Metrics
   metrics_df <-
-    plot_df_aligned |>
-    dplyr::group_by(name, method) |>
+    plot_df_aligned %>%
+    dplyr::group_by(name, method) %>%
     dplyr::summarise(
       results = {
         x <- x
@@ -145,7 +162,7 @@ compare_mcmc <- function(fit_blavaan, ...) {
         # --- L1 (Total Variation) ---
         l1 <- trapz(x, abs(pm - pa))
 
-        tibble(
+        dplyr::tibble(
           L1 = l1,
           L1_percent = l1 / 2, # 0 to 1 scale (Area difference)
           js = js_val,
@@ -156,33 +173,33 @@ compare_mcmc <- function(fit_blavaan, ...) {
         )
       },
       .groups = "drop"
-    ) |>
-    tidyr::unpack(results) |>
-    dplyr::arrange(method, desc(Bias_SDs))
+    ) %>%
+    tidyr::unpack(results) %>%
+    dplyr::arrange(method, dplyr::desc(Bias_SDs))
 
   # Add overall by averaging
   metrics_df <-
-    metrics_df |>
-    dplyr::bind_rows(dplyr::mutate(metrics_df, name = "Overall")) |>
-    dplyr::mutate(name = factor(name, levels = c("Overall", parnames))) |>
-    dplyr::summarise(across(L1:Bias_SDs, mean), .by = c(name, method))
+    metrics_df %>%
+    dplyr::bind_rows(dplyr::mutate(metrics_df, name = "Overall")) %>%
+    dplyr::mutate(name = factor(name, levels = c("Overall", parnames))) %>%
+    dplyr::summarise(dplyr::across(L1:Bias_SDs, mean), .by = c(name, method))
 
   # Plot of L1 and JS errors
   p_errors <-
-    metrics_df |>
+    metrics_df %>%
     tidyr::pivot_longer(
       cols = c(L1_percent, JS_percent),
       names_to = "metric",
       values_to = "value"
-    ) |>
+    ) %>%
     dplyr::mutate(
-      name = fct_rev(name),
-      metric = recode(
+      name = forcats::fct_rev(name),
+      metric = dplyr::recode(
         metric,
         L1_percent = "L1 Error",
         JS_percent = "Jensen-Shannon Error"
       )
-    ) |>
+    ) %>%
     ggplot2::ggplot() +
     ggplot2::geom_bar(
       aes(x = name, y = value, fill = method),

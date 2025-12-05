@@ -11,6 +11,8 @@
 #'   - **pD**: Effective number of parameters (if available).
 #'   - **logBF**: The natural logarithm of the Bayes Factor relative to the best model.
 #'
+#' @param x,y,... An object of class `INLAvaan` or `inlavaan_internal`.
+#'
 #' @return A data frame of class `compare.inlavaan_internal` containing model
 #'   fit statistics.
 #' @export

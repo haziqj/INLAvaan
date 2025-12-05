@@ -17,12 +17,13 @@ Imports:
     cli,
     cowplot,
     dplyr,
-    INLA,
+    forcats,
+    ggplot2,
     lavaan,
-    Matrix,
-    modeest,
+    methods,
     mvtnorm,
     numDeriv,
+    purrr,
     scales,
     sn,
     statmod,
@@ -33,8 +34,10 @@ Imports:
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE)
 Suggests: 
+    furrr,
+    INLA,
+    lme4,
+    rstan,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Depends: 
-    methods
 URL: http://haziqj.ml/INLAvaan/
