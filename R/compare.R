@@ -15,6 +15,10 @@
 #'
 #' @return A data frame of class `compare.inlavaan_internal` containing model
 #'   fit statistics.
+#'
+#' @references https://lavaan.ugent.be/tutorial/groups.html
+#'
+#' @example inst/examples/ex-model_comparison.R
 #' @export
 setGeneric("compare", function(x, y, ...) standardGeneric("compare"))
 
@@ -66,8 +70,8 @@ compare.inlavaan_internal <- function(x, y, ...) {
     Model = modnames,
     No.params = m,
     Marg.Loglik = marg_ll,
-    DIC = ifelse(is.null(DIC), "", DIC),
-    pD = ifelse(is.null(pD), "", pD),
+    DIC = if (is.null(DIC)) "" else DIC,
+    pD = if (is.null(pD)) "" else pD,
     logBF = round(logBF, 3),
     # BF            = round(BF, 3),
     stringsAsFactors = FALSE

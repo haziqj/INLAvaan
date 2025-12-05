@@ -3,11 +3,15 @@ get_SEM_param_matrix <- function(x, mat, lavmodel) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
-  GLIST <- Map(function(mat, dn) {
-    rownames(mat) <- dn[[1]]
-    colnames(mat) <- dn[[2]]
-    mat
-  }, lavmodel_x@GLIST, lavmodel_x@dimNames)
+  GLIST <- Map(
+    function(mat, dn) {
+      rownames(mat) <- dn[[1]]
+      colnames(mat) <- dn[[2]]
+      mat
+    },
+    lavmodel_x@GLIST,
+    lavmodel_x@dimNames
+  )
 
   uniq_names <- unique(names(GLIST))
   k <- length(uniq_names)
@@ -36,7 +40,12 @@ get_SEM_param_matrix <- function(x, mat, lavmodel) {
 
 #' @exportS3Method predict inlavaan_internal
 #' @keywords internal
-predict.inlavaan_internal <- function(object, type = c("lv", "yhat", "ov", "ypred", "ydist"), nsamp = 250, ...) {
+predict.inlavaan_internal <- function(
+  object,
+  type = c("lv", "yhat", "ov", "ypred", "ydist"),
+  nsamp = 250,
+  ...
+) {
   type <- match.arg(type)
 
   theta_star <- object$theta_star
@@ -75,8 +84,10 @@ predict.inlavaan_internal <- function(object, type = c("lv", "yhat", "ov", "ypre
         B <- glist$beta
         alpha <- glist$alpha
 
-        IminB <- if(is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
-        if (is.null(alpha)) alpha <- 0
+        IminB <- if (is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
+        if (is.null(alpha)) {
+          alpha <- 0
+        }
         IminB_inv <- solve(IminB)
 
         front <- Lambda %*% IminB_inv
@@ -84,7 +95,9 @@ predict.inlavaan_internal <- function(object, type = c("lv", "yhat", "ov", "ypre
         Sigmay_inv <- solve(Sigmay)
 
         Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
-        mu_eta <- t(as.numeric(alpha) + Phi %*% t(Lambda) %*% Sigmay_inv %*% t(y[[g]]))
+        mu_eta <- t(
+          as.numeric(alpha) + Phi %*% t(Lambda) %*% Sigmay_inv %*% t(y[[g]])
+        )
         V_eta <- Phi - Phi %*% t(Lambda) %*% Sigmay_inv %*% Lambda %*% Phi
 
         out[[g]] <- t(apply(mu_eta, 1, function(mu) {
@@ -96,8 +109,9 @@ predict.inlavaan_internal <- function(object, type = c("lv", "yhat", "ov", "ypre
         out <- do.call(rbind, out)
         colnames(out) <- colnames(Psi)
       } else {
-        out <- do.call(rbind, Map(function(g, df) data.frame(group = g, df),
-                                  names(out), out)
+        out <- do.call(
+          rbind,
+          Map(function(g, df) data.frame(group = g, df), names(out), out)
         )
         colnames(out)[-1] <- colnames(Psi)
       }
@@ -105,7 +119,11 @@ predict.inlavaan_internal <- function(object, type = c("lv", "yhat", "ov", "ypre
       out
     }
 
-    cli::cli_progress_bar("Sampling latent variables", total = nsamp, clear = FALSE)
+    cli::cli_progress_bar(
+      "Sampling latent variables",
+      total = nsamp,
+      clear = FALSE
+    )
     out <- vector("list", nsamp)
     for (i in seq_len(nsamp)) {
       out[[i]] <- sample_lv(x_samp[i, ])
@@ -122,7 +140,11 @@ predict.inlavaan_internal <- function(object, type = c("lv", "yhat", "ov", "ypre
 
 #' @exportS3Method print predict.inlavaan_internal
 #' @keywords internal
-print.predict.inlavaan_internal <- function(x, stat = c("mean", "sd", ""), ...) {
+print.predict.inlavaan_internal <- function(
+  x,
+  stat = c("mean", "sd", ""),
+  ...
+) {
   cat("Predicted values from inlavaan model\n")
   cat("Number of samples:", length(x), "\n")
   cat("First sample:\n")
@@ -143,16 +165,16 @@ summary.predict.inlavaan_internal <- function(object, ...) {
   arr <- simplify2array(object)
 
   Mean <- apply(arr, c(1, 2), mean)
-  SD   <- apply(arr, c(1, 2), sd)
-  Q    <- apply(arr, c(1, 2), quantile, probs = c(0.025, 0.5, 0.975))
+  SD <- apply(arr, c(1, 2), sd)
+  Q <- apply(arr, c(1, 2), quantile, probs = c(0.025, 0.5, 0.975))
 
   res <- list(
     group_id = group_id,
     Mean = Mean,
     SD = SD,
-    `2.5%` = Q[1, ,],
-    `50%` = Q[2, ,],
-    `97.5%` = Q[3, ,]
+    `2.5%` = Q[1, , ],
+    `50%` = Q[2, , ],
+    `97.5%` = Q[3, , ]
   )
   structure(res, class = "summary.predict.inlavaan_internal")
 }
@@ -208,7 +230,9 @@ print.summary.predict.inlavaan_internal <- function(x, stat = "Mean", ...) {
 #
 # }
 
+#' @rdname INLAvaan-class
+#' @param object An object of class [INLAvaan].
+#' @export
 setMethod("predict", "INLAvaan", function(object, ...) {
   predict.inlavaan_internal(object@external$inlavaan_internal, ...)
 })
-

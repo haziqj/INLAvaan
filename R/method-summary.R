@@ -22,8 +22,8 @@ summary_inlavaan <- function(
   estimates = TRUE,
   standardized = FALSE,
   rsquare = FALSE,
-  postmedian = !FALSE,
-  postmode = !FALSE,
+  postmedian = TRUE,
+  postmode = TRUE,
   priors = TRUE,
   nd = 3L,
   ...
@@ -151,4 +151,17 @@ summary_inlavaan <- function(
   cat("\n")
 }
 
+
+#' @param header Logical; if TRUE, print model fit information header.
+#' @param fit.measures Logical; if TRUE, print fit measures (DIC and PPP).
+#' @param estimates Logical; if TRUE, print parameter estimates table.
+#' @param standardized Logical; if TRUE, include standardized estimates.
+#' @param rsquare Logical; if TRUE, include R-square values.
+#' @param postmedian Logical; if TRUE, include posterior median in estimates.
+#' @param postmode Logical; if TRUE, include posterior mode in estimates.
+#' @param priors Logical; if TRUE, include prior information in estimates.
+#' @param nd Integer; number of decimal places to print for numeric values.
+#'
+#' @rdname INLAvaan-class
+#' @export
 setMethod("summary", "INLAvaan", summary_inlavaan)

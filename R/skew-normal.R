@@ -1,3 +1,34 @@
+#' Fit a skew normal distribution to log-density evaluations
+#'
+#' @details This skew normal fitting function uses a weighted least squares
+#'   approach to fit the log-density evaluations provided in `y` at points `x`.
+#'   The weights are set to be the density evaluations raised to the power of
+#'   the temperature parameter `k`. This has somewhat an interpretation of
+#'   finding the skew normal fit that minimises the Kullback-Leibler divergence
+#'   from the true density to it.
+#'
+#'   In R-INLA, the C code implementation from which this was translated from
+#'   can be found
+#'   [here](https://github.com/hrue/r-inla/blob/b63eb379f69d6553f965b360f1b88877cfef20d1/gmrflib/fit-sn.c).
+#'
+#'
+#' @param x A numeric vector of points where the density is evaluated.
+#' @param y A numeric vector of log-density evaluations at points x.
+#' @param threshold_log_drop A negative numeric value indicating the log-density
+#'   drop threshold below which points are ignored in the fitting. Default is
+#'   -6.
+#' @param temp A numeric value for the temperature parameter k. If NA (default),
+#'   it is included in the optimisation.
+#'
+#' @returns A list with fitted parameters:
+#'   - `xi`: location parameter
+#'   - `omega`: scale parameter
+#'   - `alpha`: shape parameter
+#'   - `logC`: log-normalization constant
+#'   - `k`: temperature parameter
+#'
+#' @example inst/examples/ex-skewnorm-fit.R
+#' @export
 fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   # NOTE: y is the density evaluations at x on the log scale, i.e. log f(x).
   # y should ideally be normalized so max(y) = 0 for numerical stability
@@ -308,26 +339,3 @@ fit_skew_normal_samp <- function(x) {
 
   list(xi = xi_hat, omega = omega_hat, alpha = alpha_hat, logC = 0, k = 1)
 }
-
-# # Test case
-# library(sn)
-# library(tidyverse)
-#
-# joint_lp <- function(x) dgamma(x, shape = 3, rate = 1, log = TRUE)
-#
-# x_grid <- seq(0.1, 8, length.out = 21)
-# y_log <- sapply(x_grid, joint_lp)
-# y_log <- y_log - max(y_log)  # normalise to have maximum at zero
-#
-# res <- fit_skew_normal(x_grid, y_log)
-#
-# tibble(
-#   x = seq(0.1, 8, length.out = 200),
-#   truth = exp(joint_lp(x)),
-#   approx = dsnorm(x, xi = res$xi, omega = res$omega, alpha = res$alpha)
-# ) |>
-#   pivot_longer(cols = c("truth", "approx"), names_to = "type", values_to = "density") |>
-#   ggplot(aes(x = x, y = density, color = type)) +
-#   geom_line(linewidth = 1) +
-#   theme_minimal() +
-#   theme(legend.position = "top")

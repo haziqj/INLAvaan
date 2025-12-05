@@ -21,14 +21,12 @@ plot.inlavaan_internal <- function(x, ...) {
   cowplot::plot_grid(plotlist = all_plots)
 }
 
-#' Plot for INLAvaan objects
+#' @param x An object of class [INLAvaan].
+#' @param y Not used.
+#' @param ... Not used.
 #'
-#' @param x An `INLAvaan` object
-#' @param y Not used
-#' @param ... Not used
-#'
+#' @rdname INLAvaan-class
 #' @export
-#' @rdname INLAvaan-methods
 setMethod("plot", "INLAvaan", function(x, y, ...) {
   plot.inlavaan_internal(x@external$inlavaan_internal, ...)
 })

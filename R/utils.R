@@ -9,11 +9,48 @@ cli_messages <- c(
   "Navigating the seas of stochasticity"
 )
 
+# Helper function to check if two functions are the same
+is_same_function <- function(f, g) {
+  identical(deparse(body(f)), deparse(body(g)))
+}
+
 # Convert function to single string
 as_fun_string <- function(f) {
   gsub("\\s+", " ", paste(deparse(f), collapse = " "))
 }
 
+# Check if matrix is negative definite
+check_mat <- function(mat) {
+  if (any(is.nan(mat))) {
+    return(TRUE)
+  }
+  if (any(is.na(mat))) {
+    return(TRUE)
+  }
+  if (any(is.infinite(mat))) {
+    return(TRUE)
+  }
+  eig <- eigen(mat, TRUE, TRUE)$values
+  mat_is_neg_def <- any(eig < -1e-06 * eig[1])
+  mat_is_neg_def
+}
+
+# Force matrix to be positive definite
+force_pd <- function(x) {
+  ed <- eigen(x, symmetric = TRUE, only.values = TRUE)
+  if (any(ed$values < 0)) {
+    ed <- eigen(x, symmetric = TRUE)
+    eval <- ed$values
+    evec <- ed$vectors
+    eval[eval < 0] <- .Machine$double.eps
+    out <- evec %*% diag(eval) %*% t(evec)
+  } else {
+    out <- x
+  }
+  out
+}
+
+# Get internal inlavaan object
 get_inlavaan_internal <- function(object) {
   if (!inherits(object, "INLAvaan")) {
     cli::cli_abort("Object must be of class {.var INLAvaan}")
