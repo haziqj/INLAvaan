@@ -1,5 +1,4 @@
 compare_mcmc <- function(fit_blavaan, ...) {
-  require(tidyverse)
   parnames <- unique(names(coef(fit_blavaan)))
 
   # MCMC Histograms

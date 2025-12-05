@@ -2,6 +2,10 @@
 "_PACKAGE"
 
 ## usethis namespace: start
+#' @import methods
+#' @importFrom cli cli_abort cli_alert_info
+#' @importFrom dplyr mutate select filter group_by ungroup
+#' @importFrom stats dnorm dgamma
 #' @importFrom gt vec_fmt_duration
 #' @importFrom INLA inla
 #' @importFrom lavaan fitmeasures

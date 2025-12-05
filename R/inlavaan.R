@@ -1,3 +1,53 @@
+#' Fit an Approximate Bayesian Latent Variable Model
+#'
+#' This function fits a Bayesian latent variable model by approximating the
+#' posterior distributions of the model parameters using various methods,
+#' including skew normal, asymmetric Gaussian, marginal Gaussian, or
+#' sampling-based approaches. It leverages the lavaan package for model
+#' specification and estimation.
+#'
+#' @inheritParams lavaan::lavaan
+#' @inheritParams lavaan::simulateData
+#' @inheritParams blavaan::blavaan
+#'
+#' @param estimator The estimator to be used. Currently only `"ML"` (maximum
+#'   likelihood) is supported.
+#' @param marginal_method The method for approximating the marginal posterior
+#'   distributions. Options include `"skewnorm"` (skew normal), `"asymgaus"`
+#'   (two-piece asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
+#'   approximation), and `"sampling"` (sampling from the joint Laplace
+#'   approximation).
+#' @param nsamp The number of samples to draw for all sampling-based approaches
+#'   (including posterior sampling for model fit indices).
+#' @param test Logical indicating whether to compute posterior fit indices.
+#' @param sn_fit_cor Logical indicating whether to fit the skew normal in the
+#'   decoupled space. Defaults to `TRUE`.
+#' @param sn_fit_logthresh The log-threshold for fitting the skew normal. Points
+#'   with log-posterior drop below this threshold (relative to the maximum) will
+#'   be excluded from the fit. Defaults to `-6`.
+#' @param sn_fit_temp Temperature parameter for fitting the skew normal. If
+#'   `NA`, the temperature will be included in the optimisation during the skew
+#'   normal fit.
+#' @param control A list of control parameters for the optimiser.
+#' @param verbose Logical indicating whether to print progress messages.
+#' @param debug Logical indicating whether to return debug information.
+#' @param add_priors Logical indicating whether to include prior densities in
+#'   the posterior computation.
+#' @param optim_method The optimisation method to use for finding the posterior
+#'   mode. Options include `"nlminb"` (default), `"ucminf"`, and `"optim"`
+#'   (BFGS).
+#' @param numerical_grad Logical indicating whether to use numerical gradients
+#'   for the optimisation.
+#' @param ... Additional arguments to be passed to the [lavaan] model fitting
+#'   function.
+#'
+#' @seealso Typically, users will interact with the specific latent variable
+#'   model functions instead, including [acfa()], [asem()], and [agrowth()].
+#'
+#' @example inst/examples/ex-inlavaan.R
+#'
+#' @return An S4 object of class `INLAvaan` which is a subclass of the
+#'   [lavaan-class] class.
 #' @export
 inlavaan <- function(
   model,
@@ -502,11 +552,32 @@ inlavaan <- function(
   }
 }
 
+#' Fit an Approximate Bayesian Confirmatory Factor Analysis Model
+#'
+#' Fit an Approximate Bayesian Confirmatory Factor Analysis Model
+#'
+#' The [acfa()] function is a wrapper for the more general [inlavaan()]
+#' function, using the following default arguments:
+#'   - `int.ov.free = TRUE`
+#'   - `int.lv.free = FALSE`
+#'   - `auto.fix.first = TRUE` (unless `std.lv = TRUE`)
+#'   - `auto.fix.single = TRUE`
+#'   - `auto.var = TRUE`
+#'   - `auto.cov.lv.x = TRUE`
+#'   - `auto.efa = TRUE`
+#'   - `auto.th = TRUE`
+#'   - `auto.delta = TRUE`
+#'   - `auto.cov.y = TRUE`
+#'
+#' For further information regarding these arguments, please refer to the
+#' [lavaan::lavOptions()] documentation.
+#'
+#' @inherit inlavaan params return seealso
+#' @example inst/examples/ex-cfa.R
 #' @export
 acfa <- function(
   model,
   data,
-  lavfun = "sem",
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
@@ -529,11 +600,32 @@ acfa <- function(
   eval(sc, parent.frame())
 }
 
+#' Fit an Approximate Bayesian Structural Equation Model
+#'
+#' Fit an Approximate Bayesian Structural Equation Model
+#'
+#' The [asem()] function is a wrapper for the more general [inlavaan()]
+#' function, using the following default arguments:
+#'   - `int.ov.free = TRUE`
+#'   - `int.lv.free = FALSE`
+#'   - `auto.fix.first = TRUE` (unless `std.lv = TRUE`)
+#'   - `auto.fix.single = TRUE`
+#'   - `auto.var = TRUE`
+#'   - `auto.cov.lv.x = TRUE`
+#'   - `auto.efa = TRUE`
+#'   - `auto.th = TRUE`
+#'   - `auto.delta = TRUE`
+#'   - `auto.cov.y = TRUE`
+#'
+#' For further information regarding these arguments, please refer to the
+#' [lavaan::lavOptions()] documentation.
+#'
+#' @inherit inlavaan params return seealso
+#' @example inst/examples/ex-sem.R
 #' @export
 asem <- function(
   model,
   data,
-  lavfun = "sem",
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
@@ -556,11 +648,30 @@ asem <- function(
   eval(sc, parent.frame())
 }
 
+#' Fit an Approximate Bayesian Growth Curve Model
+#'
+#' Fit an Approximate Bayesian Growth Curve Model
+#'
+#' The [asem()] function is a wrapper for the more general [inlavaan()]
+#' function, using the following default arguments:
+#'   - `meanstructure = TRUE`
+#'   - `int.ov.free = FALSE`
+#'   - `int.lv.free = TRUE`
+#'   - `auto.fix.first = TRUE` (unless `std.lv = TRUE`)
+#'   - `auto.fix.single = TRUE`
+#'   - `auto.var = TRUE`
+#'   - `auto.cov.lv.x = TRUE`
+#'   - `auto.efa = TRUE`
+#'   - `auto.th = TRUE`
+#'   - `auto.delta = TRUE`
+#'   - `auto.cov.y = TRUE`
+#'
+#' @inherit inlavaan params return seealso
+#' @example inst/examples/ex-growth.R
 #' @export
 agrowth <- function(
   model,
   data,
-  lavfun = "sem",
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),

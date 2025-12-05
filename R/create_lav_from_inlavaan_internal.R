@@ -68,25 +68,28 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   }
   fit0@Fit@Sigma.hat <- fit0@implied
 
-  if (is.null(fit_inlv$ppp)) {
-    fit0@Fit@test <- list()
-  } else {
-    fit0@Fit@test <- list(
-      mloglik = list(
-        test = "mloglik",
-        stat = fit_inlv$mloglik,
-        stat.group = fit_inlv$mloglik, # FIXME
-        df = NA,
-        refdistr = NA,
-        pvalue = NA
-      ),
-      ppp = list(
-        test = "ppp",
-        stat = fit_inlv$ppp,
-        stat.group = fit_inlv$ppp, # FIXME
-        df = NA,
-        refdistr = NA,
-        pvalue = NA
+  fit0@Fit@test <- list(
+    mloglik = list(
+      test = "mloglik",
+      stat = fit_inlv$mloglik,
+      stat.group = fit_inlv$mloglik, # FIXME
+      df = NA,
+      refdistr = NA,
+      pvalue = NA
+    )
+  )
+  if (!is.null(fit_inlv$ppp)) {
+    fit0@Fit@test <- c(
+      fit0@Fit@test,
+      list(
+        ppp = list(
+          test = "ppp",
+          stat = fit_inlv$ppp,
+          stat.group = fit_inlv$ppp, # FIXME
+          df = NA,
+          refdistr = NA,
+          pvalue = NA
+        )
       )
     )
   }

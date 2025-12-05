@@ -79,6 +79,9 @@ summary_inlavaan <- function(
       header = TRUE,
       output = "text"
     )
+    if (is.null(PE$group)) {
+      PE$group <- 1
+    }
 
     # Now need to put information into PE from pt and summary
     pt <- object@ParTable
@@ -96,7 +99,6 @@ summary_inlavaan <- function(
     summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
 
     char.format <- paste("%", max(8, nd + 5), "s", sep = "")
-
     PE$SD <- ""
     PE$SD[peidx] <- formatC(summ$SD[summidx], digits = nd, format = "f")
 
@@ -134,11 +136,15 @@ summary_inlavaan <- function(
 
   # Add Parameter Estimates section
   idxpehead <- grep("Parameter Estimates", garb)
-  garb[idxpehead + 2] <- capture.output(cat(
-    "\n",
-    sprintf("  %-38s", "Marginalisation method"),
-    sprintf("  %10s", toupper(marg_method))
-  ))[2]
+  garb <- c(
+    garb[1:(idxpehead + 1)],
+    capture.output(cat(
+      "\n",
+      sprintf("  %-38s", "Marginalisation method"),
+      sprintf("  %10s", toupper(marg_method))
+    ))[2],
+    garb[(idxpehead + 2):length(garb)]
+  )
 
   # Print
   cat(paste0(garb, collapse = "\n"))

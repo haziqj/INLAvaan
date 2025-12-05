@@ -113,7 +113,7 @@ mvnorm_loglik_samplestats <- function(
         lavsamplestats@mean[[g]]
       }
 
-    res[g] <- lavaan:::lav_mvnorm_loglik_samplestats(
+    res[g] <- lavaan___lav_mvnorm_loglik_samplestats(
       sample.mean = lavsamplestats@mean[[g]],
       sample.cov = lavsamplestats@cov[[g]],
       sample.nobs = lavsamplestats@nobs[[g]],
@@ -139,7 +139,7 @@ mvnorm_loglik_grad <- function(
   lavcache
 ) {
   # Gradient of fit function F_ML (not loglik yet)
-  grad_F <- lavaan:::lav_model_gradient(
+  grad_F <- lavaan___lav_model_gradient(
     lavmodel = lavaan::lav_model_set_parameters(lavmodel, x),
     lavsamplestats = lavsamplestats,
     lavdata = lavdata
@@ -160,7 +160,7 @@ pl_fn <- function(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache) {
     # Sigma <- force_pd(Sigma)
   }
 
-  out <- lavaan:::estimator.PML(
+  out <- lavaan___estimator.PML(
     Sigma.hat = Sigma,
     Mu.hat = lavimplied$mean[[1]],
     TH = lavimplied$th[[1]],
