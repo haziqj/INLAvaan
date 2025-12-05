@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Bayesian Structural Equation Modelling with INLA">
-<meta name="description" content="INLAvaan is an R package that extends `{lavaan}` for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.">
-<meta property="og:description" content="INLAvaan is an R package that extends `{lavaan}` for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.">
+<meta name="description" content="INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.">
+<meta property="og:description" content="INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.">
 <meta property="og:image" content="https://inlavaan.haziqj.ml/logo.png">
 </head>
 <body>
@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9013</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2-0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,271 +55,306 @@
 <!-- badges: start -->
 
 <blockquote>
-<p>Bayesian structural equation modelling with INLA.</p>
+<p>Efficient approximate Bayesian inference for Structural Equation Models.</p>
 </blockquote>
+<p>While Markov Chain Monte Carlo (MCMC) methods remain the gold standard for exact Bayesian inference, they can be prohibitively slow for iterative model development. <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> offers a rapid alternative for <strong>la</strong>tent <strong>va</strong>riable <strong>an</strong>alysis, delivering Bayesian results at (or near) the speed of frequentist estimators. It achieves this through a custom, ground-up implementation of the <a href="https://www.r-inla.org" class="external-link">Integrated Nested Laplace Approximation (INLA)</a>, engineered specifically for the <a href="https://lavaan.org" class="external-link">lavaan</a> modelling framework.</p>
+<div class="section level2">
+<h2 id="a-familiar-interface">A Familiar Interface<a class="anchor" aria-label="anchor" href="#a-familiar-interface"></a>
+</h2>
+<p><a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> is designed to fit seamlessly into your existing workflow. If you are familiar with the (b)lavaan syntax, you can begin using <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> immediately.</p>
+<p>As a first impression of the package, consider the canonical example of SEM applied to the Industrialisation and Political Democracy data set of Bollen (1989)<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Bollen, K. A. (1989). &lt;em&gt;Structural equations with latent variables&lt;/em&gt; (pp. xiv, 514). John Wiley &amp;amp; Sons. &lt;a href="https://doi.org/10.1002/9781118619179" class="external-link uri"&gt;https://doi.org/10.1002/9781118619179&lt;/a&gt;&lt;/p&gt;'><sup>1</sup></a>:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  # Latent variable definitions</span></span>
+<span><span class="st">     ind60 =~ x1 + x2 + x3</span></span>
+<span><span class="st">     dem60 =~ y1 + y2 + y3 + y4</span></span>
+<span><span class="st">     dem65 =~ y5 + y6 + y7 + y8</span></span>
+<span><span class="st"></span></span>
+<span><span class="st">  # (Latent) regressions</span></span>
+<span><span class="st">    dem60 ~ ind60</span></span>
+<span><span class="st">    dem65 ~ ind60 + dem60</span></span>
+<span><span class="st"></span></span>
+<span><span class="st">  # Residual correlations</span></span>
+<span><span class="st">    y1 ~~ y5</span></span>
+<span><span class="st">    y2 ~~ y4 + y6</span></span>
+<span><span class="st">    y3 ~~ y7</span></span>
+<span><span class="st">    y4 ~~ y8</span></span>
+<span><span class="st">    y6 ~~ y8</span></span>
+<span><span class="st">  </span></span>
+<span><span class="st">  # Custom priors on latent variances</span></span>
+<span><span class="st">    ind60 ~~ prior('gamma(1,.5)')*ind60</span></span>
+<span><span class="st">    dem60 ~~ prior('gamma(2, 1)')*dem60</span></span>
+<span><span class="st">    dem65 ~~ prior('gamma(2, 1)')*dem65</span></span>
+<span><span class="st">"</span></span>
+<span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"PoliticalDemocracy"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
+<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [109ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [306ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
+<span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [421ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [106ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ⠸ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ⠼ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.0 ended normally after 70 iterations</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Estimator                                         ML</span></span>
+<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        31</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Number of observations                            75</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Test (User Model):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                   -1641.399 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.525 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Information Criteria:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3158.970 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    31.100 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Parameter Estimates:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Marginalisation method                     SKEWNORM</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Latent Variables:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%      50%    97.5%     Mode    Prior       </span></span>
+<span><span class="co">#&gt;   ind60 =~                                                                              </span></span>
+<span><span class="co">#&gt;     x1                1.000                                                             </span></span>
+<span><span class="co">#&gt;     x2                2.179    0.140    1.920    2.174    2.470    2.162    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x3                1.811    0.151    1.516    1.810    2.109    1.809    normal(0,10)</span></span>
+<span><span class="co">#&gt;   dem60 =~                                                                              </span></span>
+<span><span class="co">#&gt;     y1                1.000                                                             </span></span>
+<span><span class="co">#&gt;     y2                1.294    0.196    0.930    1.286    1.699    1.271    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y3                1.088    0.152    0.799    1.085    1.396    1.078    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y4                1.300    0.157    1.002    1.297    1.620    1.289    normal(0,10)</span></span>
+<span><span class="co">#&gt;   dem65 =~                                                                              </span></span>
+<span><span class="co">#&gt;     y5                1.000                                                             </span></span>
+<span><span class="co">#&gt;     y6                1.190    0.173    0.872    1.183    1.553    1.166    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y7                1.287    0.159    0.990    1.282    1.613    1.272    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y8                1.261    0.160    0.954    1.259    1.581    1.254    normal(0,10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Regressions:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%      50%    97.5%     Mode    Prior       </span></span>
+<span><span class="co">#&gt;   dem60 ~                                                                               </span></span>
+<span><span class="co">#&gt;     ind60             1.472    0.383    0.722    1.471    2.223    1.470    normal(0,10)</span></span>
+<span><span class="co">#&gt;   dem65 ~                                                                               </span></span>
+<span><span class="co">#&gt;     ind60             0.578    0.247    0.089    0.579    1.059    0.582    normal(0,10)</span></span>
+<span><span class="co">#&gt;     dem60             0.842    0.101    0.647    0.841    1.044    0.838    normal(0,10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Covariances:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%      50%    97.5%     Mode    Prior       </span></span>
+<span><span class="co">#&gt;  .y1 ~~                                                                                 </span></span>
+<span><span class="co">#&gt;    .y5                0.299    0.360    0.038    0.635    1.449    0.572       beta(1,1)</span></span>
+<span><span class="co">#&gt;  .y2 ~~                                                                                 </span></span>
+<span><span class="co">#&gt;    .y4                0.254    0.723    0.006    1.176    2.833    1.030       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.349    0.708    0.772    2.069    3.553    2.019       beta(1,1)</span></span>
+<span><span class="co">#&gt;  .y3 ~~                                                                                 </span></span>
+<span><span class="co">#&gt;    .y7                0.212    0.599   -0.283    0.891    2.066    0.891       beta(1,1)</span></span>
+<span><span class="co">#&gt;  .y4 ~~                                                                                 </span></span>
+<span><span class="co">#&gt;    .y8                0.121    0.448   -0.388    0.375    1.371    0.309       beta(1,1)</span></span>
+<span><span class="co">#&gt;  .y6 ~~                                                                                 </span></span>
+<span><span class="co">#&gt;    .y8                0.306    0.561    0.163    1.263    2.362    1.263       beta(1,1)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variances:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%      50%    97.5%     Mode    Prior       </span></span>
+<span><span class="co">#&gt;     ind60             0.478    0.096    0.323    0.467    0.697    0.446     gamma(1,.5)</span></span>
+<span><span class="co">#&gt;    .dem60             3.766    0.847    2.390    3.669    5.693    3.486      gamma(2,1)</span></span>
+<span><span class="co">#&gt;    .dem65             0.402    0.210    0.107    0.366    0.908    0.295      gamma(2,1)</span></span>
+<span><span class="co">#&gt;    .x1                0.082    0.020    0.048    0.080    0.126    0.076 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x2                0.132    0.070    0.034    0.120    0.303    0.096 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x3                0.482    0.095    0.327    0.471    0.696    0.452 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y1                1.952    0.497    1.155    1.892    3.088    1.779 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y2                7.489    1.420    5.160    7.335   10.705    7.044 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y3                5.138    1.010    3.485    5.027    7.428    4.818 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y4                3.161    0.802    1.879    3.063    5.000    2.877 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y5                2.407    0.518    1.563    2.349    3.584    2.239 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y6                5.006    0.942    3.457    4.904    7.135    4.713 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y7                3.398    0.743    2.187    3.315    5.082    3.158 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y8                3.248    0.729    2.068    3.164    4.908    3.005 gamma(1,.5)[sd]</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="validation-against-mcmc">Validation Against MCMC<a class="anchor" aria-label="anchor" href="#validation-against-mcmc"></a>
+</h2>
+<p>Computation speed is valuable only when accuracy is preserved.</p>
+<p>For many standard SEMs, the Laplace approximation yields posterior distributions that are visually and numerically comparable to those obtained via MCMC (e.g., via <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a>/Stan), but at a fraction of the computational cost.</p>
+<p>The figure below illustrates the posterior density overlap for the example above:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("blavaan")</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a></span><span class="op">)</span></span>
+<span><span class="va">fit_blav</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://ecmerkle.github.io/blavaan/reference/bsem.html" class="external-link">bsem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">INLAvaan</span><span class="fu">:::</span><span class="fu">compare_mcmc</span><span class="op">(</span><span class="va">fit_blav</span>, INLAvaan <span class="op">=</span> <span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">p_compare</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-fig-compare-poldem-1.png" width="100%"></p>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You need a working installation of <a href="https://www.r-inla.org" class="external-link">INLA</a>. Following the official instructions given <a href="https://www.r-inla.org/download-install" class="external-link">here</a>, run this command in R:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<p>Install the development version of <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> from GitHub using:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"haziqj/INLAvaan"</span><span class="op">)</span></span></code></pre></div>
+<p><em>Optionally</em><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;R-INLA dependency has been removed temporarily for v0.2-0.&lt;/p&gt;"><sup>2</sup></a>, you may wish to install <a href="https://www.r-inla.org" class="external-link">INLA</a>. Following the official instructions given <a href="https://www.r-inla.org/download-install" class="external-link">here</a>, install the package by running this command in R:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span></span>
 <span>  <span class="st">"INLA"</span>,</span>
 <span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span>, </span>
 <span>            INLA <span class="op">=</span> <span class="st">"https://inla.r-inla-download.org/R/stable"</span><span class="op">)</span>, </span>
 <span>  dep <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Then, you can install the development version of <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> from GitHub with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"haziqj/INLAvaan"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="first-impressions">First impressions<a class="anchor" aria-label="anchor" href="#first-impressions"></a>
-</h2>
-<p>A simple two-factor SEM with six observed, correlated Gaussian variables. Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">i=1,\dots,n</annotation></semantics></math> index the subjects. Conditional on the values of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-th latent variable <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>η</mi><mrow><mi>k</mi><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\eta_{ki}</annotation></semantics></math> for subject <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>, the six measurement model equations are</p>
-<br><p align="center">
-<img src="reference/figures/measeqn.gif" width="40%" style="display: block; margin: auto;"></p>
-<p><br><!-- $$ --><!-- \begin{gathered} --><!-- y_{1i} = \lambda_{11} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{1i}, \quad \epsilon_{1i} \sim N(0, \theta_{11}) \\ --><!-- y_{2i} = \lambda_{21} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}} + \epsilon_{2i}, \quad \epsilon_{2i} \sim N(0, \theta_{22}) \\ --><!-- y_{3i} = \lambda_{31} \eta_{1i} \phantom{+ \lambda_{1} \eta_{2i}}  + \epsilon_{3i}, \quad \epsilon_{3i} \sim N(0, \theta_{33}) \\ --><!-- y_{4i} = \phantom{\lambda_{11} \eta_{2i} +}  \lambda_{42} \eta_{2i} + \epsilon_{4i}, \quad \epsilon_{4i} \sim N(0, \theta_{44}) \\ --><!-- y_{5i} = \phantom{\lambda_{11} \eta_{2i} +} \lambda_{52} \eta_{2i} + \epsilon_{5i}, \quad \epsilon_{5i} \sim N(0, \theta_{55}) \\ --><!-- y_{6i} = \phantom{\lambda_{11} \eta_{2i} +} \lambda_{62} \eta_{2i} + \epsilon_{6i}, \quad \epsilon_{6i} \sim N(0, \theta_{66}) \\ --><!-- \\ --><!-- \operatorname{Cov}(\epsilon_{1i},\epsilon_{4i}) = \theta_{14} \\ --><!-- \operatorname{Cov}(\epsilon_{2i},\epsilon_{5i}) = \theta_{25} \\ --><!-- \operatorname{Cov}(\epsilon_{3i},\epsilon_{6i}) = \theta_{36} \\ --><!-- \end{gathered} --><!-- $$ --></p>
-<p>For identifiability, we set <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>λ</mi><mn>11</mn></msub><mo>=</mo><msub><mi>λ</mi><mn>42</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\lambda_{11} = \lambda_{42} = 1</annotation></semantics></math>. The structural part of the model are given by these equations:</p>
-<br><p align="center">
-<img src="reference/figures/struceqn.gif" width="30%" style="display: block; margin: auto;"></p>
-<p><br><!-- $$ --><!-- \begin{gathered} --><!-- \eta_{1i} = \phantom{b\eta_{1i} +} \zeta_{1i}, \quad \zeta_{1i} \sim N(0, \psi_1) \\ --><!-- \eta_{2i} = b\eta_{1i} + \zeta_{2i}, \quad \zeta_{2i} \sim N(0, \psi_2) --><!-- \end{gathered} --><!-- $$ --></p>
-<p>Graphically, we can plot the following path diagram.</p>
-<p><img src="reference/figures/README-sempath-1.png" width="100%"></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># {lavaan} textual model</span></span>
-<span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
-<span><span class="st">  # Measurement model</span></span>
-<span><span class="st">  eta1 =~ y1 + y2 + y3</span></span>
-<span><span class="st">  eta2 =~ y4 + y5 + y6</span></span>
-<span><span class="st">  </span></span>
-<span><span class="st">  # Factor regression</span></span>
-<span><span class="st">  eta2 ~ eta1</span></span>
-<span><span class="st">  </span></span>
-<span><span class="st">  # Covariances</span></span>
-<span><span class="st">  y1 ~~ y4</span></span>
-<span><span class="st">  y2 ~~ y5</span></span>
-<span><span class="st">  y3 ~~ y6</span></span>
-<span><span class="st">"</span></span>
-<span></span>
-<span><span class="co"># Data set</span></span>
-<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Rows: 10,000</span></span>
-<span><span class="co">#&gt; Columns: 6</span></span>
-<span><span class="co">#&gt; $ y1 &lt;dbl&gt; -1.148518135, 0.444618841, 0.771218503, 0.551783979, -0.228427419, …</span></span>
-<span><span class="co">#&gt; $ y2 &lt;dbl&gt; -1.18826657, 1.01901560, 0.40491523, 1.38051641, 0.18770293, -1.933…</span></span>
-<span><span class="co">#&gt; $ y3 &lt;dbl&gt; -1.3617802, 1.1150475, 0.5365782, 1.7459408, 0.4876758, -2.4735535,…</span></span>
-<span><span class="co">#&gt; $ y4 &lt;dbl&gt; -2.02201679, 0.85431820, -1.73057047, 0.48429957, -0.60096629, 0.67…</span></span>
-<span><span class="co">#&gt; $ y5 &lt;dbl&gt; -1.8321686, 1.6783100, -2.8853791, 0.5389005, -0.5569732, 1.1181923…</span></span>
-<span><span class="co">#&gt; $ y6 &lt;dbl&gt; -2.9506752, 1.9654119, -2.7378737, 0.3983366, -0.6044734, 1.0805252…</span></span></code></pre></div>
-<p>To fit this model using <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a>, use the familiar <a href="https://lavaan.ugent.be" class="external-link">lavaan</a> syntax. The <code>in</code> in <code>insem</code> stands for <code>INLA</code> (following the convention of <code>bsem</code> for <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a>).</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a></span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/insem.html">insem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co">#&gt; INLAvaan 0.1.0.9013 ended normally after 16 seconds</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt;   Estimator                                      BAYES</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;   Optimization method                             INLA</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;   Number of model parameters                        16</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;   Number of observations                         10000</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;   Statistic                                 MargLogLik         PPP</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;   Value                                     -51947.572          NA</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; Parameter Estimates:</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; Latent Variables:</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Post.SD pi.lower pi.upper    Prior       </span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;   eta1 =~                                                             </span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;     y1                1.000                                           </span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;     y2                1.194    0.004    1.185    1.203    normal(0,10)</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;     y3                1.495    0.005    1.485    1.505    normal(0,10)</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;   eta2 =~                                                             </span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;     y4                1.000                                           </span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt;     y5                1.205    0.004    1.197    1.214    normal(0,10)</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt;     y6                1.503    0.005    1.494    1.513    normal(0,10)</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; Regressions:</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Post.SD pi.lower pi.upper    Prior       </span></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt;   eta2 ~                                                              </span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt;     eta1              0.289    0.010    0.269    0.309    normal(0,10)</span></span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; Covariances:</span></span>
-<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Post.SD pi.lower pi.upper    Prior       </span></span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt;  .y1 ~~                                                               </span></span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt;    .y4                0.051    0.001    0.049    0.053       beta(1,1)</span></span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt;  .y2 ~~                                                               </span></span>
-<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt;    .y5                0.051    0.001    0.048    0.054       beta(1,1)</span></span>
-<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt;  .y3 ~~                                                               </span></span>
-<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt;    .y6                0.049    0.002    0.046    0.052       beta(1,1)</span></span>
-<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co">#&gt; Variances:</span></span>
-<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Post.SD pi.lower pi.upper    Prior       </span></span>
-<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="co">#&gt;    .y1                0.100    0.002    0.097    0.104 gamma(1,.5)[sd]</span></span>
-<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt;    .y2                0.104    0.002    0.100    0.109 gamma(1,.5)[sd]</span></span>
-<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt;    .y3                0.096    0.003    0.090    0.102 gamma(1,.5)[sd]</span></span>
-<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt;    .y4                0.101    0.002    0.098    0.105 gamma(1,.5)[sd]</span></span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt;    .y5                0.101    0.002    0.097    0.105 gamma(1,.5)[sd]</span></span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt;    .y6                0.097    0.003    0.091    0.101 gamma(1,.5)[sd]</span></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt;     eta1              1.011    0.015    0.981    1.041 gamma(1,.5)[sd]</span></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt;    .eta2              0.983    0.015    0.954    1.012 gamma(1,.5)[sd]</span></span></code></pre></div>
-<p>Compare model fit to <a href="https://lavaan.ugent.be" class="external-link">lavaan</a> and <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> (MCMC sampling using Stan on a single thread obtaining 1000 burnin and 2000 samples, as well as variational Bayes):</p>
-<p><img src="reference/figures/README-fig-compare-1.png" width="100%"></p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; ── Compare timing (seconds) ──</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   INLAvaan     lavaan    blavaan blavaan_vb </span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;     16.382      0.024    110.517     69.682</span></span></code></pre></div>
-<p>A little experiment to see how sample size affects run time:</p>
-<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
-</div>
-<div class="section level2">
-<h2 id="political-democracy-data">Political democracy data<a class="anchor" aria-label="anchor" href="#political-democracy-data"></a>
-</h2>
-<p>The quintessential example for SEM is this model from Bollen (1989) to fit a political democracy data set. Eleven observed variables are hypothesized to arise from three latent variables. This set includes data from 75 developing countries each assessed on four measures of democracy measured twice (1960 and 1965), and three measures of industrialization measured once (1960). The eleven observed variables are:</p>
-<ul>
-<li>
-<code>y1</code>: Freedom of the press, 1960</li>
-<li>
-<code>y2</code>: Freedom of political opposition, 1960</li>
-<li>
-<code>y3</code>: Fairness of elections, 1960</li>
-<li>
-<code>y4</code>: Effectiveness of elected legislature, 1960</li>
-<li>
-<code>y5</code>: Freedom of the press, 1965</li>
-<li>
-<code>y6</code>: Freedom of political opposition, 1965</li>
-<li>
-<code>y7</code>: Fairness of elections, 1965</li>
-<li>
-<code>y8</code>: Effectiveness of elected legislature, 1965</li>
-<li>
-<code>y9</code>: GNP per capita, 1960</li>
-<li>
-<code>y10</code>: Energy consumption per capita, 1960</li>
-<li>
-<code>y11</code>: Percentage of labor force in industry, 1960</li>
-</ul>
-<p>Variables <code>y1-y4</code> and <code>y5-y8</code> are typically used as indicators of the latent trait of “political democracy” in 1960 and 1965 respectively, whereas <code>y9-y11</code> are used as indicators of industrialization (1960). It is theorised that industrialisation influences political democracy, and that political democracy in 1960 influences political democracy in 1965. Since the items measure the same latent trait at two time points, there is an assumption that the residuals of these items will be correlated with each other. The model is depicted in the figure below.</p>
-<p><img src="https://lavaan.ugent.be/figures/sem.png" width="100%"></p>
-<p>The corresponding model in <a href="https://lavaan.ugent.be" class="external-link">lavaan</a> syntax is:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
-<span><span class="st">  # latent variables</span></span>
-<span><span class="st">  dem60 =~ y1 + y2 + y3 + y4</span></span>
-<span><span class="st">  dem65 =~ y5 + y6 + y7 + y8</span></span>
-<span><span class="st">  ind60 =~ x1 + x2 + x3</span></span>
-<span><span class="st"></span></span>
-<span><span class="st">  # latent regressions</span></span>
-<span><span class="st">  dem60 ~ ind60</span></span>
-<span><span class="st">  dem65 ~ ind60 + dem60</span></span>
-<span><span class="st"></span></span>
-<span><span class="st">  # residual covariances</span></span>
-<span><span class="st">  y1 ~~ y5</span></span>
-<span><span class="st">  y2 ~~ y4 + y6</span></span>
-<span><span class="st">  y3 ~~ y7</span></span>
-<span><span class="st">  y4 ~~ y8</span></span>
-<span><span class="st">  y6 ~~ y8</span></span>
-<span><span class="st">"</span></span></code></pre></div>
-<p>We will fit this model using <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> and compare the results with <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"PoliticalDemocracy"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span>
-<span><span class="va">poldemfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/insem.html">insem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">poldemfit</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co">#&gt; INLAvaan 0.1.0.9013 ended normally after 7 seconds</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt;   Estimator                                      BAYES</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co">#&gt;   Optimization method                             INLA</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt;   Number of model parameters                        31</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt;   Number of observations                            75</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   Statistic                                 MargLogLik         PPP</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;   Value                                      -1607.393          NA</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; Parameter Estimates:</span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; Latent Variables:</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Post.SD pi.lower pi.upper    Prior       </span></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt;   dem60 =~                                                            </span></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt;     y1                1.000                                           </span></span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt;     y2                1.257    0.184    0.896    1.621    normal(0,10)</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt;     y3                1.055    0.148    0.765    1.348    normal(0,10)</span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt;     y4                1.262    0.150    0.967    1.556    normal(0,10)</span></span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt;   dem65 =~                                                            </span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt;     y5                1.000                                           </span></span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt;     y6                1.189    0.173    0.849    1.529    normal(0,10)</span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt;     y7                1.279    0.162    0.961    1.599    normal(0,10)</span></span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt;     y8                1.268    0.165    0.943    1.592    normal(0,10)</span></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a><span class="co">#&gt;   ind60 =~                                                            </span></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="co">#&gt;     x1                1.000                                           </span></span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="co">#&gt;     x2                2.185    0.137    1.923    2.463    normal(0,10)</span></span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt;     x3                1.816    0.152    1.520    2.117    normal(0,10)</span></span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; Regressions:</span></span>
-<span id="cb9-33"><a href="#cb9-33" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Post.SD pi.lower pi.upper    Prior       </span></span>
-<span id="cb9-34"><a href="#cb9-34" tabindex="-1"></a><span class="co">#&gt;   dem60 ~                                                             </span></span>
-<span id="cb9-35"><a href="#cb9-35" tabindex="-1"></a><span class="co">#&gt;     ind60             1.477    0.398    0.692    2.259    normal(0,10)</span></span>
-<span id="cb9-36"><a href="#cb9-36" tabindex="-1"></a><span class="co">#&gt;   dem65 ~                                                             </span></span>
-<span id="cb9-37"><a href="#cb9-37" tabindex="-1"></a><span class="co">#&gt;     ind60             0.561    0.229    0.108    1.009    normal(0,10)</span></span>
-<span id="cb9-38"><a href="#cb9-38" tabindex="-1"></a><span class="co">#&gt;     dem60             0.849    0.097    0.665    1.045    normal(0,10)</span></span>
-<span id="cb9-39"><a href="#cb9-39" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-40"><a href="#cb9-40" tabindex="-1"></a><span class="co">#&gt; Covariances:</span></span>
-<span id="cb9-41"><a href="#cb9-41" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Post.SD pi.lower pi.upper    Prior       </span></span>
-<span id="cb9-42"><a href="#cb9-42" tabindex="-1"></a><span class="co">#&gt;  .y1 ~~                                                               </span></span>
-<span id="cb9-43"><a href="#cb9-43" tabindex="-1"></a><span class="co">#&gt;    .y5                0.621    0.307    0.087    1.181       beta(1,1)</span></span>
-<span id="cb9-44"><a href="#cb9-44" tabindex="-1"></a><span class="co">#&gt;  .y2 ~~                                                               </span></span>
-<span id="cb9-45"><a href="#cb9-45" tabindex="-1"></a><span class="co">#&gt;    .y4                1.344    0.600    0.149    2.465       beta(1,1)</span></span>
-<span id="cb9-46"><a href="#cb9-46" tabindex="-1"></a><span class="co">#&gt;    .y6                2.178    0.682    0.950    3.644       beta(1,1)</span></span>
-<span id="cb9-47"><a href="#cb9-47" tabindex="-1"></a><span class="co">#&gt;  .y3 ~~                                                               </span></span>
-<span id="cb9-48"><a href="#cb9-48" tabindex="-1"></a><span class="co">#&gt;    .y7                0.726    0.560   -0.426    1.868       beta(1,1)</span></span>
-<span id="cb9-49"><a href="#cb9-49" tabindex="-1"></a><span class="co">#&gt;  .y4 ~~                                                               </span></span>
-<span id="cb9-50"><a href="#cb9-50" tabindex="-1"></a><span class="co">#&gt;    .y8                0.297    0.480   -0.616    1.161       beta(1,1)</span></span>
-<span id="cb9-51"><a href="#cb9-51" tabindex="-1"></a><span class="co">#&gt;  .y6 ~~                                                               </span></span>
-<span id="cb9-52"><a href="#cb9-52" tabindex="-1"></a><span class="co">#&gt;    .y8                1.412    0.510    0.525    2.386       beta(1,1)</span></span>
-<span id="cb9-53"><a href="#cb9-53" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-54"><a href="#cb9-54" tabindex="-1"></a><span class="co">#&gt; Variances:</span></span>
-<span id="cb9-55"><a href="#cb9-55" tabindex="-1"></a><span class="co">#&gt;                    Estimate  Post.SD pi.lower pi.upper    Prior       </span></span>
-<span id="cb9-56"><a href="#cb9-56" tabindex="-1"></a><span class="co">#&gt;    .y1                1.978    0.479    1.172    3.055 gamma(1,.5)[sd]</span></span>
-<span id="cb9-57"><a href="#cb9-57" tabindex="-1"></a><span class="co">#&gt;    .y2                7.617    1.419    5.268   11.106 gamma(1,.5)[sd]</span></span>
-<span id="cb9-58"><a href="#cb9-58" tabindex="-1"></a><span class="co">#&gt;    .y3                5.182    0.991    3.622    7.533 gamma(1,.5)[sd]</span></span>
-<span id="cb9-59"><a href="#cb9-59" tabindex="-1"></a><span class="co">#&gt;    .y4                3.280    0.831    2.078    5.218 gamma(1,.5)[sd]</span></span>
-<span id="cb9-60"><a href="#cb9-60" tabindex="-1"></a><span class="co">#&gt;    .y5                2.445    0.529    1.605    3.474 gamma(1,.5)[sd]</span></span>
-<span id="cb9-61"><a href="#cb9-61" tabindex="-1"></a><span class="co">#&gt;    .y6                5.160    1.004    3.595    7.415 gamma(1,.5)[sd]</span></span>
-<span id="cb9-62"><a href="#cb9-62" tabindex="-1"></a><span class="co">#&gt;    .y7                3.568    0.745    2.395    5.126 gamma(1,.5)[sd]</span></span>
-<span id="cb9-63"><a href="#cb9-63" tabindex="-1"></a><span class="co">#&gt;    .y8                3.405    0.785    2.186    5.250 gamma(1,.5)[sd]</span></span>
-<span id="cb9-64"><a href="#cb9-64" tabindex="-1"></a><span class="co">#&gt;    .x1                0.089    0.024    0.051    0.149 gamma(1,.5)[sd]</span></span>
-<span id="cb9-65"><a href="#cb9-65" tabindex="-1"></a><span class="co">#&gt;    .x2                0.108    0.061    0.028    0.273 gamma(1,.5)[sd]</span></span>
-<span id="cb9-66"><a href="#cb9-66" tabindex="-1"></a><span class="co">#&gt;    .x3                0.487    0.088    0.329    0.665 gamma(1,.5)[sd]</span></span>
-<span id="cb9-67"><a href="#cb9-67" tabindex="-1"></a><span class="co">#&gt;    .dem60             4.110    0.980    2.514    6.344 gamma(1,.5)[sd]</span></span>
-<span id="cb9-68"><a href="#cb9-68" tabindex="-1"></a><span class="co">#&gt;    .dem65             0.096    0.183   -0.200    0.413 gamma(1,.5)[sd]</span></span>
-<span id="cb9-69"><a href="#cb9-69" tabindex="-1"></a><span class="co">#&gt;     ind60             0.463    0.090    0.311    0.663 gamma(1,.5)[sd]</span></span></code></pre></div>
-<p><img src="reference/figures/README-fig-poldem-1.png" width="100%"></p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; ── Compare timing (seconds) ──</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; INLAvaan  blavaan </span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;    7.693   25.090</span></span></code></pre></div>
+<!-- ## Political democracy data -->
+<!-- The quintessential example for SEM is this model from Bollen (1989) to fit a political democracy data set. -->
+<!-- Eleven observed variables are hypothesized to arise from three latent variables. -->
+<!-- This set includes data from 75 developing countries each assessed on four measures of democracy measured twice (1960 and 1965), and three measures of industrialization measured once (1960).  -->
+<!-- The eleven observed variables are: -->
+<!-- -   `y1`: Freedom of the press, 1960 -->
+<!-- -   `y2`: Freedom of political opposition, 1960 -->
+<!-- -   `y3`: Fairness of elections, 1960 -->
+<!-- -   `y4`: Effectiveness of elected legislature, 1960 -->
+<!-- -   `y5`: Freedom of the press, 1965 -->
+<!-- -   `y6`: Freedom of political opposition, 1965 -->
+<!-- -   `y7`: Fairness of elections, 1965 -->
+<!-- -   `y8`: Effectiveness of elected legislature, 1965 -->
+<!-- -   `y9`: GNP per capita, 1960 -->
+<!-- -   `y10`: Energy consumption per capita, 1960 -->
+<!-- -   `y11`: Percentage of labor force in industry, 1960 -->
+<!-- Variables `y1-y4` and `y5-y8` are typically used as indicators of the latent trait of "political democracy" in 1960 and 1965 respectively, whereas `y9-y11` are used as indicators of industrialization (1960). -->
+<!-- It is theorised that industrialisation influences political democracy, and that political democracy in 1960 influences political democracy in 1965. -->
+<!-- Since the items measure the same latent trait at two time points, there is an assumption that the residuals of these items will be correlated with each other. -->
+<!-- The model is depicted in the figure below. -->
+<!-- ```{r} -->
+<!-- #| echo: false -->
+<!-- knitr::include_graphics("https://lavaan.ugent.be/figures/sem.png") -->
+<!-- ``` -->
+<!-- The corresponding model in `{lavaan}` syntax is: -->
+<!-- ```{r} -->
+<!-- mod <- " -->
+<!--   # latent variables -->
+<!--   dem60 =~ y1 + y2 + y3 + y4 -->
+<!--   dem65 =~ y5 + y6 + y7 + y8 -->
+<!--   ind60 =~ x1 + x2 + x3 -->
+<!--   # latent regressions -->
+<!--   dem60 ~ ind60 -->
+<!--   dem65 ~ ind60 + dem60 -->
+<!--   # residual covariances -->
+<!--   y1 ~~ y5 -->
+<!--   y2 ~~ y4 + y6 -->
+<!--   y3 ~~ y7 -->
+<!--   y4 ~~ y8 -->
+<!--   y6 ~~ y8 -->
+<!-- " -->
+<!-- ``` -->
+<!-- We will fit this model using `{INLAvaan}` and compare the results with `{blavaan}`. -->
+<!-- ```{r} -->
+<!-- #| label: poldemfit -->
+<!-- #| include: false -->
+<!-- #| cache: true -->
+<!-- data("PoliticalDemocracy", package = "lavaan") -->
+<!-- poldemfit <- insem(mod, PoliticalDemocracy, meanstructure = !TRUE, bcontrol = list(num.threads = 6)) -->
+<!-- library(future) -->
+<!-- plan("multisession") -->
+<!-- poldemfit_blav <- bsem( -->
+<!--   model = mod,  -->
+<!--   data = PoliticalDemocracy, -->
+<!--   # meanstructure = TRUE, -->
+<!--   n.chains = 3, -->
+<!--   bcontrol = list(cores = 3) -->
+<!--   # burnin = 5000, -->
+<!--   # sample = 10000 -->
+<!-- ) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- #| eval: false -->
+<!-- data("PoliticalDemocracy", package = "lavaan") -->
+<!-- poldemfit <- insem(model = mod, data = PoliticalDemocracy) -->
+<!-- summary(poldemfit) -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- #| echo: false -->
+<!-- summary(poldemfit) # -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- #| label: fig-poldem -->
+<!-- #| echo: false -->
+<!-- # -->
+<!-- garb <- capture.output(tmp <- summary(poldemfit)) -->
+<!-- PE_inla <- tibble( -->
+<!--   est = as.numeric(tmp[, "Estimate"]), -->
+<!--   ci.lower = as.numeric(tmp[, "pi.lower"]), -->
+<!--   ci.upper = as.numeric(tmp[, "pi.upper"]) -->
+<!-- ) |> -->
+<!--   mutate(method = "INLAvaan") -->
+<!-- garb <- capture.output(tmp <- summary(poldemfit_blav)) -->
+<!-- PE_blav <- tibble( -->
+<!--   est = as.numeric(tmp[, "Estimate"]), -->
+<!--   ci.lower = as.numeric(tmp[, "pi.lower"]), -->
+<!--   ci.upper = as.numeric(tmp[, "pi.upper"]) -->
+<!-- ) |> -->
+<!--   mutate(method = "blavaan") -->
+<!-- bind_rows( -->
+<!--   PE_inla, PE_blav -->
+<!-- ) |> -->
+<!--   mutate( -->
+<!--     free = rep(partable(poldemfit)$free, 2), -->
+<!--     pxnames = rep(partable(poldemfit)$pxnames, 2), -->
+<!--     type = gsub("\\[[^]]*\\]", "", pxnames) -->
+<!--   ) |> -->
+<!--   drop_na() |> -->
+<!--   mutate(names = factor(rep(names(coef(poldemfit)), 2), levels = rev(names(coef(fit))))) |> -->
+<!--   pivot_wider( -->
+<!--     names_from = method, -->
+<!--     values_from = c(est, ci.lower, ci.upper) -->
+<!--   ) |> -->
+<!--   ggplot(aes(est_INLAvaan, est_blavaan, col = type)) + -->
+<!--   geom_abline(slope = 1, intercept = 0, linetype = 2) + -->
+<!--   geom_point(size = 3) + -->
+<!--   geom_errorbar(aes(xmin = ci.lower_INLAvaan, xmax = ci.upper_INLAvaan), width = 0.1, alpha = 0.3) + -->
+<!--   geom_errorbar(aes(ymin = ci.lower_blavaan, ymax = ci.upper_blavaan), width = 0.1, alpha = 0.3) + -->
+<!--   theme_bw() + -->
+<!--   labs( -->
+<!--     x = "{INLAvaan} estimates", -->
+<!--     y = "{blavaan} estimates", -->
+<!--     col = "Parameter\ntype", -->
+<!--     title = "Comparison of the estimates for the Political Democracy example", -->
+<!--     caption = "MCMC conducted using Stan (3 parallel chains, 500 burnin, and 1500 samples)." -->
+<!--   ) -->
+<!-- cli::cli_h2("Compare timing (seconds)") -->
+<!-- list(poldemfit, poldemfit_blav) |> -->
+<!--   set_names(c("INLAvaan", "blavaan")) |> -->
+<!--   purrr::map_dbl(\(x) x@timing$total)  -->
+<!-- ``` -->
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>To cite package <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> in publications use:</p>
 <blockquote>
-<p>Jamil, H (2025). <em>INLAvaan: Bayesian structural equation modelling with INLA </em>. <a href="https://haziqj.github.io/inlavaan/" class="external-link uri">https://haziqj.github.io/inlavaan/</a>.</p>
+<p>Jamil, H (2025). <em>INLAvaan: Bayesian structural equation modelling with INLA</em> . R package version 0.2.0. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
 </blockquote>
 <p>A BibTeX entry for LaTeX users is:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="va">@Manual</span>{,</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>    <span class="dt">title</span> = {INLAvaan: Bayesian structural equation modelling with INLA},</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>    <span class="dt">author</span> = {Haziq Jamil},</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>    <span class="dt">year</span> = {2025},</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>    <span class="dt">url</span> = {https://haziqj.ml/inlavaan/},</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  }</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">@Manual</span>{,</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="dt">title</span> = {INLAvaan: Bayesian structural equation modelling with INLA},</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="dt">author</span> = {Haziq Jamil},</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="dt">year</span> = {2025},</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="dt">note</span> = {R package version 0.2.0},</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="dt">url</span> = {https://inlavaan.haziqj.ml/},</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  }</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
@@ -341,219 +376,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</code></pre>
 <p>By using this package, you agree to comply with both licenses: the GPL-3 license for the software and the CC BY 4.0 license for the data.</p>
-</div>
-<div class="section level2">
-<h2 id="outro">Outro<a class="anchor" aria-label="anchor" href="#outro"></a>
-</h2>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://sessioninfo.r-lib.org/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span>info <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in grDevices::grSoftVersion(): unable to load shared object '/Library/Frameworks/R.framework/Resources/modules//R_X11.so':</span></span>
-<span><span class="co">#&gt;   dlopen(/Library/Frameworks/R.framework/Resources/modules//R_X11.so, 0x0006): Library not loaded: /opt/X11/lib/libSM.6.dylib</span></span>
-<span><span class="co">#&gt;   Referenced from: &lt;D469498A-D948-3064-86EA-DF67F05DCE0F&gt; /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/modules/R_X11.so</span></span>
-<span><span class="co">#&gt;   Reason: tried: '/opt/X11/lib/libSM.6.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/X11/lib/libSM.6.dylib' (no such file), '/opt/X11/lib/libSM.6.dylib' (no such file), '/Library/Frameworks/R.framework/Resources/lib/libSM.6.dylib' (no such file), '/Library/Java/JavaVirtualMachines/jdk-11.0.18+10/Contents/Home/lib/server/libSM.6.dylib' (no such file)</span></span>
-<span><span class="co">#&gt; Warning in cairoVersion(): unable to load shared object '/Library/Frameworks/R.framework/Resources/library/grDevices/libs//cairo.so':</span></span>
-<span><span class="co">#&gt;   dlopen(/Library/Frameworks/R.framework/Resources/library/grDevices/libs//cairo.so, 0x0006): Library not loaded: /opt/X11/lib/libXrender.1.dylib</span></span>
-<span><span class="co">#&gt;   Referenced from: &lt;8BEC12F7-999D-3BC3-8F3A-2F9F34808E56&gt; /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library/grDevices/libs/cairo.so</span></span>
-<span><span class="co">#&gt;   Reason: tried: '/opt/X11/lib/libXrender.1.dylib' (no such file), '/System/Volumes/Preboot/Cryptexes/OS/opt/X11/lib/libXrender.1.dylib' (no such file), '/opt/X11/lib/libXrender.1.dylib' (no such file), '/Library/Frameworks/R.framework/Resources/lib/libXrender.1.dylib' (no such file), '/Library/Java/JavaVirtualMachines/jdk-11.0.18+10/Contents/Home/lib/server/libXrender.1.dylib' (no such file)</span></span>
-<span><span class="co">#&gt; tcltk DLL is linked to '/opt/X11/lib/libX11.6.dylib'</span></span>
-<span><span class="co">#&gt; ─ Session info ───────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;  setting  value</span></span>
-<span><span class="co">#&gt;  version  R version 4.5.1 (2025-06-13)</span></span>
-<span><span class="co">#&gt;  os       macOS Sequoia 15.6.1</span></span>
-<span><span class="co">#&gt;  system   aarch64, darwin20</span></span>
-<span><span class="co">#&gt;  ui       X11</span></span>
-<span><span class="co">#&gt;  language (EN)</span></span>
-<span><span class="co">#&gt;  collate  en_US.UTF-8</span></span>
-<span><span class="co">#&gt;  ctype    en_US.UTF-8</span></span>
-<span><span class="co">#&gt;  tz       Asia/Riyadh</span></span>
-<span><span class="co">#&gt;  date     2025-09-10</span></span>
-<span><span class="co">#&gt;  pandoc   3.4 @ /Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/aarch64/ (via rmarkdown)</span></span>
-<span><span class="co">#&gt;  quarto   1.7.33 @ /usr/local/bin/quarto</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ─ Packages ───────────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;  package      * version    date (UTC) lib source</span></span>
-<span><span class="co">#&gt;  abind          1.4-8      2024-09-12 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  arm            1.14-4     2024-04-01 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  backports      1.5.0      2024-05-23 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  base64enc      0.1-3      2015-07-28 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  bayesplot      1.14.0     2025-08-31 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  blavaan      * 0.5-8      2025-01-08 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  boot           1.3-31     2024-08-28 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  carData        3.0-5      2022-01-06 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  checkmate      2.3.3      2025-08-18 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  class          7.3-23     2025-01-01 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  classInt       0.4-11     2025-01-08 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  cli            3.6.5      2025-04-23 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  clue           0.3-66     2024-11-13 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  cluster        2.1.8.1    2025-03-12 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  coda           0.19-4.1   2024-01-31 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  codetools      0.2-20     2024-03-31 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  colorspace     2.1-1      2024-07-26 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  CompQuadForm   1.4.4      2025-07-13 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  corpcor        1.6.10     2021-09-16 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  curl           7.0.0      2025-08-19 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  data.table     1.17.8     2025-07-10 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  DBI            1.2.3      2024-06-02 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  digest         0.6.37     2024-08-19 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  dplyr        * 1.1.4      2023-11-17 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  e1071          1.7-16     2024-09-16 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  evaluate       1.0.5      2025-08-27 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  farver         2.1.2      2024-05-13 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  fastmap        1.2.0      2024-05-15 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  fBasics        4041.97    2024-08-19 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  fdrtool        1.2.18     2024-08-20 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  fmesher        0.5.0      2025-07-07 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  forcats      * 1.0.0      2023-01-29 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  foreign        0.8-90     2025-03-31 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  Formula        1.2-5      2023-02-24 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  future         1.67.0     2025-07-29 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  future.apply   1.20.0     2025-06-06 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  generics       0.1.4      2025-05-09 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  ggplot2      * 3.5.2      2025-04-09 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  glasso         1.11       2019-10-01 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  globals        0.18.0     2025-05-08 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  glue           1.8.0      2024-09-30 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  gridExtra      2.3        2017-09-09 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  gt             1.0.0      2025-04-05 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  gtable         0.3.6      2024-10-25 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  gtools         3.9.5      2023-11-20 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  Hmisc          5.2-3      2025-03-16 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  hms            1.1.3      2023-03-21 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  htmlTable      2.4.3      2024-07-21 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  htmltools      0.5.8.1    2024-04-04 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  htmlwidgets    1.6.4      2023-12-06 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  igraph         2.1.4      2025-01-23 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  INLA           25.06.07   2025-06-11 [1] local</span></span>
-<span><span class="co">#&gt;  INLAvaan     * 0.1.0.9013 2025-09-07 [1] local</span></span>
-<span><span class="co">#&gt;  inline         0.3.21     2025-01-09 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  jpeg           0.1-11     2025-03-21 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  jsonlite       2.0.0      2025-03-27 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  KernSmooth     2.23-26    2025-01-01 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  knitr          1.50       2025-03-16 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  kutils         1.73       2023-09-17 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  labeling       0.4.3      2023-08-29 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  lattice        0.22-7     2025-04-02 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  lavaan       * 0.6-19     2024-09-26 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  lifecycle      1.0.4      2023-11-07 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  lisrelToR      0.3        2024-02-07 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  listenv        0.9.1      2024-01-29 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  lme4           1.1-37     2025-03-26 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  loo            2.8.0      2024-07-03 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  lubridate    * 1.9.4      2024-12-08 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  magrittr       2.0.3      2022-03-30 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  MASS           7.3-65     2025-02-28 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  Matrix         1.7-3      2025-03-11 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  matrixStats    1.5.0      2025-01-07 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  mgcv           1.9-3      2025-04-04 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  mi             1.2        2025-09-02 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  minqa          1.2.8      2024-08-17 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  mnormt         2.1.1      2022-09-26 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  modeest        2.4.0      2019-11-18 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  mvtnorm        1.3-3      2025-01-10 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  nlme           3.1-168    2025-03-31 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  nloptr         2.2.1      2025-03-17 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  nnet           7.3-20     2025-01-01 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  nonnest2       0.5-8      2024-08-28 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  OpenMx         2.22.9     2025-08-20 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  openxlsx       4.2.8      2025-01-25 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  parallelly     1.45.1     2025-07-24 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  pbapply        1.7-4      2025-07-20 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  pbivnorm       0.6.0      2015-01-23 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  pillar         1.11.0     2025-07-04 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  pkgbuild       1.4.8      2025-05-26 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  pkgconfig      2.0.3      2019-09-22 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  plyr           1.8.9      2023-10-02 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  png            0.1-8      2022-11-29 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  proxy          0.4-27     2022-06-09 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  psych          2.5.6      2025-06-23 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  purrr        * 1.1.0      2025-07-10 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  qgraph         1.9.8      2023-11-03 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  quadprog       1.5-8      2019-11-20 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  QuickJSR       1.8.0      2025-06-09 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  R6             2.6.1      2025-02-15 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  rbibutils      2.3        2024-10-04 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  RColorBrewer   1.1-3      2022-04-03 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  Rcpp         * 1.1.0      2025-07-02 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  RcppParallel   5.1.11-1   2025-08-27 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  Rdpack         2.6.4      2025-04-09 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  readr        * 2.1.5      2024-01-10 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  reformulas     0.4.1      2025-04-30 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  reshape2       1.4.4      2020-04-09 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  rlang          1.1.6      2025-04-11 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  rmarkdown      2.29       2024-11-04 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  rmutil         1.1.10     2022-10-27 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  rockchalk      1.8.157    2022-08-06 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  rpart          4.1.24     2025-01-07 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  rstan          2.32.7     2025-03-10 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  rstantools     2.4.0      2024-01-31 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  rstudioapi     0.17.1     2024-10-22 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  sandwich       3.1-1      2024-09-15 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  scales         1.4.0      2025-04-24 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  sem            3.1-16     2024-08-28 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  semPlot      * 1.1.7      2025-09-01 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  semptools    * 0.3.2      2025-07-12 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  sessioninfo    1.2.3      2025-02-05 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  sf             1.0-21     2025-05-15 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  spatial        7.3-18     2025-01-01 [1] CRAN (R 4.5.1)</span></span>
-<span><span class="co">#&gt;  stable         1.1.6      2022-03-02 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  stabledist     0.7-2      2024-08-17 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  StanHeaders    2.32.10    2024-07-15 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  statip         0.2.3      2019-11-17 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  stringi        1.8.7      2025-03-27 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  stringr      * 1.5.1      2023-11-14 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  tibble       * 3.3.0      2025-06-08 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  tidyr        * 1.3.1      2024-01-24 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  tidyselect     1.2.1      2024-03-11 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  tidyverse    * 2.0.0      2023-02-22 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  timechange     0.3.0      2024-01-18 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  timeDate       4041.110   2024-09-22 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  timeSeries     4041.111   2024-09-22 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  tmvnsim        1.0-2      2016-12-15 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  tzdb           0.5.0      2025-03-15 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  units          0.8-7      2025-03-11 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  V8             7.0.0      2025-09-01 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  vctrs          0.6.5      2023-12-01 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  withr          3.0.2      2024-10-28 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  xfun           0.53       2025-08-19 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  XML            3.99-0.19  2025-08-22 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  xml2           1.4.0      2025-08-20 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  xtable         1.8-4      2019-04-21 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  yaml           2.3.10     2024-07-26 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  zip            2.3.3      2025-05-13 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt;  zoo            1.8-14     2025-04-10 [1] CRAN (R 4.5.0)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  [1] /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library</span></span>
-<span><span class="co">#&gt;  * ── Packages attached to the search path.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ─ External software ──────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;  setting        value</span></span>
-<span><span class="co">#&gt;  cairo</span></span>
-<span><span class="co">#&gt;  cairoFT</span></span>
-<span><span class="co">#&gt;  pango</span></span>
-<span><span class="co">#&gt;  png</span></span>
-<span><span class="co">#&gt;  jpeg</span></span>
-<span><span class="co">#&gt;  tiff</span></span>
-<span><span class="co">#&gt;  tcl</span></span>
-<span><span class="co">#&gt;  curl           8.7.1</span></span>
-<span><span class="co">#&gt;  zlib           1.2.12</span></span>
-<span><span class="co">#&gt;  bzlib          1.0.8, 13-Jul-2019</span></span>
-<span><span class="co">#&gt;  xz             5.6.3</span></span>
-<span><span class="co">#&gt;  deflate        1.23</span></span>
-<span><span class="co">#&gt;  PCRE           10.44 2024-06-07</span></span>
-<span><span class="co">#&gt;  ICU            76.1</span></span>
-<span><span class="co">#&gt;  TRE            TRE 0.8.0 R_fixes (BSD)</span></span>
-<span><span class="co">#&gt;  iconv          Apple or GNU libiconv 1.11 /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libR.dylib</span></span>
-<span><span class="co">#&gt;  readline       5.2</span></span>
-<span><span class="co">#&gt;  BLAS           /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib</span></span>
-<span><span class="co">#&gt;  lapack         /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib</span></span>
-<span><span class="co">#&gt;  lapack_version 3.12.1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ─ Python configuration ───────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt;  Python is not available</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ──────────────────────────────────────────────────────────────────────────────</span></span></code></pre></div>
+<!-- ## Outro -->
+<!-- ```{r} -->
+<!-- sessioninfo::session_info(info = "all") -->
+<!-- ``` -->
 </div>
 </div>
+
+
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
@@ -596,7 +426,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</cod
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
