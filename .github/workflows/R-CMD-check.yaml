@@ -67,6 +67,7 @@ jobs:
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
           args: 'c("--no-tests", "--no-manual")'  # skip tests on Ubuntu
           error-on: '"error"'
+          cache-version: 612
 
       - name: Check R Package #(Non-Ubuntu)
         if: matrix.config.os != 'ubuntu-latest'
