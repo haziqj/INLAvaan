@@ -202,14 +202,7 @@ compare_mcmc <- function(fit_blavaan, ...) {
     ) +
     ggplot2::coord_flip() +
     ggplot2::scale_y_continuous(labels = scales::percent) +
-    ggplot2::scale_fill_manual(
-      values = c(
-        "skewnorm" = "#00A6AA",
-        "asymgaus" = "#F18F00",
-        "marggaus" = "#adbf04",
-        "sampling" = "#9C6FAE"
-      )
-    ) +
+    ggplot2::scale_fill_manual(values = mycols) +
     ggplot2::facet_grid(. ~ metric, scales = "free_x") +
     ggplot2::theme_minimal() +
     ggplot2::theme(
