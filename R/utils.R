@@ -24,10 +24,9 @@ is_same_function <- function(f, g) {
   identical(deparse(body(f)), deparse(body(g)))
 }
 
-
 #' Convert function to single string
 #'
-#' @inheritParams is_same_function
+#' @param f Function to convert.
 #' @returns A single character vector representing the function.
 #' @export
 #'

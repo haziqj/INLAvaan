@@ -1,8 +1,10 @@
 #' Density of a Beta distribution on a bounded interval
 #'
 #' @inheritParams stats::dbeta
+#' @param x A numeric vector of quantiles.
 #' @param a The lower bound of the interval.
 #' @param b The upper bound of the interval.
+#' @param log Logical; if TRUE, probabilities p are given as log(p).
 #'
 #' @returns A numeric vector of density values.
 #' @export

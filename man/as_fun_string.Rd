@@ -6,6 +6,9 @@
 \usage{
 as_fun_string(f)
 }
+\arguments{
+\item{f}{Function to convert.}
+}
 \value{
 A single character vector representing the function.
 }

@@ -4,7 +4,7 @@
 \name{INLAvaan-package}
 \alias{INLAvaan}
 \alias{INLAvaan-package}
-\title{INLAvaan: Bayesian Structural Equation Modelling with INLA}
+\title{INLAvaan: Bayesian Latent Variable Analysis using INLA}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
@@ -14,6 +14,8 @@ INLAvaan is an R package that extends lavaan for Bayesian statistical modeling u
 Useful links:
 \itemize{
   \item \url{http://inlavaan.haziqj.ml/}
+  \item \url{https://github.com/haziqj/INLAvaan}
+  \item Report bugs at \url{https://github.com/haziqj/INLAvaan/issues}
 }
 
 }

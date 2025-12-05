@@ -292,6 +292,27 @@ mills_ratio <- function(u) {
   exp(logphi - logPhi)
 }
 
+
+#' The Skew Normal Distribution
+#'
+#' Density for the skew normal distribution with location `xi`, scale `omega`,
+#' and shape `alpha`.
+#'
+#' @param x Vector of quantiles.
+#' @param xi Location parameter.
+#' @param omega Scale parameter.
+#' @param alpha Shape parameter.
+#' @param logC Log-normalization constant.
+#' @param log Logical; if TRUE, returns the log density.
+#'
+#' @returns A numeric vector of (log) density values.
+#' @references https://en.wikipedia.org/wiki/Skew_normal_distribution
+#'
+#' @export
+#' @examples
+#' x <- seq(-5, 5, length.out = 100)
+#' y <- dsnorm(x, xi = 0, omega = 1, alpha = 5)
+#' plot(x, y, type = "l", main = "Skew Normal Density")
 dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {
   xx <- (x - xi) / omega
   if (isTRUE(log)) {

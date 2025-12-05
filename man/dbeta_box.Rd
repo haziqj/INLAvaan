@@ -7,11 +7,15 @@
 dbeta_box(x, shape1, shape2, a, b, log = FALSE)
 }
 \arguments{
+\item{x}{A numeric vector of quantiles.}
+
 \item{shape1, shape2}{non-negative parameters of the Beta distribution.}
 
 \item{a}{The lower bound of the interval.}
 
 \item{b}{The upper bound of the interval.}
+
+\item{log}{Logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 A numeric vector of density values.

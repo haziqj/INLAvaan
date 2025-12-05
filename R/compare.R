@@ -29,7 +29,7 @@ setMethod("compare", "INLAvaan", function(x, y, ...) {
   mc <- match.call()
   call_list <- as.list(mc)[-1]
   modnames <- sapply(call_list, deparse)
-  FUN <- getFromNamespace("compare.inlavaan_internal", "INLAvaan")
+  FUN <- utils::getFromNamespace("compare.inlavaan_internal", "INLAvaan")
   mc[[1]] <- FUN
   eval(mc, parent.frame())
 })
