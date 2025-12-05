@@ -205,14 +205,14 @@ fit <- agrowth(mod, data = Demo.growth)
 #> ✔ Finding posterior mode. [250ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [383ms]
+#> ✔ Computing the Hessian. [382ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [550ms]
+#> ✔ Fitting skew normal to marginals. [518ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [419ms]
+#> ✔ Sampling posterior covariances. [420ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
