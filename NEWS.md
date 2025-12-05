@@ -1,17 +1,14 @@
-# INLAvaan (development version)
+# INLAvaan 0.2.0
 
-**Soon-ish features**
+* INLAvaan has been rewritten from the ground up specifically for SEM models. The new version does not call R-INLA directly, but instead uses the core approximation ideas to fit SEM models more efficiently. 
+* Features are restricted to **normal likelihoods only** and continuous observations for now.
+* Support for most models that lavaan/blavaan can fit, including CFA, SEM, and growth curve models.
+* Support for multigroup analysis.
+* Added PPP and DIC model fit indices.
+* Added prior specification for all model parameters.
+* Added support for fixed values and parameter constraints.
+* Initial CRAN submission.
 
-1. Model fit indices (PPP, xIC, RMSEA, etc.)
-2. Prior specification.
-3. Fixed values and/or parameter constraints.
-4. Specify different families for different observed variable. 
-5. Standardised coefficients.
+# INLAvaan 0.1
 
-**Long term plan**
-
-1. "Non-iid" models, such as spatio-temporal models.
-2. Multilevel-ish kind of models (2-3 levels).
-3. Covariates.
-4. Multigroup analysis (in principle this is simple, but I have bigger plans for this).
-5. Missing data imputation.
+* Used `rgeneric` functionality of R-INLA to implement a basic SEM framework.
