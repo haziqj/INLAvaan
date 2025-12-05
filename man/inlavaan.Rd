@@ -11,7 +11,7 @@ inlavaan(
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 3000,
+  nsamp = 1000,
   test = TRUE,
   sn_fit_cor = TRUE,
   sn_fit_logthresh = -6,

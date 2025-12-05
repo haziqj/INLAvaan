@@ -22,6 +22,7 @@ Useful links:
 
 Other contributors:
 \itemize{
+  \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) [contributor]
   \item Alvin Bong [contributor]
 }
 
