@@ -28,6 +28,7 @@ reference:
 - title: Utility functions
   contents:
     - dbeta_box
+    - dsnorm
     - fit_skew_normal
     - is_same_function
     - as_fun_string
