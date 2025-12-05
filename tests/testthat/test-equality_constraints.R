@@ -108,6 +108,25 @@ test_that("Method: sampling", {
   expect_s4_class(fit, "INLAvaan")
 })
 
+test_that("Gradients are correct (Finite Difference Check)", {
+  suppressMessages(
+    tmp <- capture.output(fit <- agrowth(mod, dat, test = NA, debug = TRUE))
+  )
+  test_df <- read.table(text = tmp, skip = 1)[, -1]
+  colnames(test_df) <- c("fd", "analytic", "diff")
+
+  expect_equal(
+    as.numeric(test_df$fd),
+    as.numeric(test_df$diff),
+    tolerance = 1e-3
+  )
+  expect_equal(
+    as.numeric(test_df$diff),
+    rep(0, nrow(test_df)),
+    tolerance = 1e-3
+  )
+})
+
 ################################################################################
 ## CHECK AGAINST MCMC ##########################################################
 ################################################################################

@@ -54,3 +54,22 @@ test_that("Multigroup fitting and testing", {
     compare(fit1, fit2, fit3)
   })
 })
+
+test_that("Gradients are correct (Finite Difference Check)", {
+  suppressMessages(
+    tmp <- capture.output(fit <- acfa(mod, dat, test = NA, debug = TRUE))
+  )
+  test_df <- read.table(text = tmp, skip = 1)[, -1]
+  colnames(test_df) <- c("fd", "analytic", "diff")
+
+  expect_equal(
+    as.numeric(test_df$fd),
+    as.numeric(test_df$diff),
+    tolerance = 1e-3
+  )
+  expect_equal(
+    as.numeric(test_df$diff),
+    rep(0, nrow(test_df)),
+    tolerance = 1e-3
+  )
+})
