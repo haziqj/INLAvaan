@@ -56,7 +56,7 @@ inlavaan <- function(
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 3000,
+  nsamp = 1000,
   test = TRUE,
   sn_fit_cor = TRUE,
   sn_fit_logthresh = -6,
@@ -278,16 +278,18 @@ inlavaan <- function(
   if (marginal_method == "sampling") {
     # Do sampling and return results
     if (isTRUE(verbose)) {
-      cli::cli_progress_step("Sampling from posterior.")
+      cli::cli_progress_done()
       cli::cli_alert_info("Using sampling-based approximation.")
+      cli::cli_progress_step("Sampling from posterior.")
     }
     approx_data <- NULL
     postmargres <- post_marg_sampling(theta_star, Sigma_theta, pt, ceq.K, nsamp)
   } else {
     if (marginal_method == "asymgaus") {
       if (isTRUE(verbose)) {
-        cli::cli_progress_step("Calibrating asymmetric Gaussians.")
+        cli::cli_progress_done()
         cli::cli_alert_info("Using asymmetric Gaussian approximation.")
+        cli::cli_progress_step("Calibrating asymmetric Gaussians.")
       }
 
       # For whitening transformation: z = L^{-1}(theta - theta*)
@@ -326,8 +328,9 @@ inlavaan <- function(
       }
     } else if (marginal_method == "skewnorm") {
       if (isTRUE(verbose)) {
-        cli::cli_progress_step("Fitting skew normal to marginals.")
+        cli::cli_progress_done()
         cli::cli_alert_info("Using skew normal approximation.")
+        cli::cli_progress_step("Fitting skew normal to marginals.")
       }
 
       # For whitening transformation: z = L^{-1}(theta - theta*)

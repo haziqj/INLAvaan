@@ -36,6 +36,11 @@ compare_mcmc <- function(fit_blavaan, ...) {
       )
     }
   })
+  inlav_names <- names(fit_inlavaan_list)
+
+  mycols <- c("#00A6AA", "#F18F00", "#adbf04", "#9C6FAE")
+  mycols <- mycols[1:length(inlav_names)]
+  names(mycols) <- inlav_names
 
   # Create plot
   plot_df <-
@@ -49,12 +54,7 @@ compare_mcmc <- function(fit_blavaan, ...) {
         dplyr::mutate(name = factor(name, levels = parnames))
     }) %>%
     dplyr::bind_rows(.id = "method") %>%
-    dplyr::mutate(
-      method = factor(
-        method,
-        levels = c("skewnorm", "asymgaus", "marggaus", "sampling")
-      )
-    )
+    dplyr::mutate(method = factor(method, inlav_names))
 
   p_compare <-
     ggplot2::ggplot() +
@@ -70,14 +70,7 @@ compare_mcmc <- function(fit_blavaan, ...) {
       linewidth = 0.75
     ) +
     ggplot2::facet_wrap(~name, scales = "free") +
-    ggplot2::scale_colour_manual(
-      values = c(
-        "skewnorm" = "#00A6AA",
-        "asymgaus" = "#F18F00",
-        "marggaus" = "#adbf04",
-        "sampling" = "#9C6FAE"
-      )
-    ) +
+    ggplot2::scale_colour_manual(values = mycols) +
     ggplot2::scale_fill_manual(values = c("MCMC" = "#131516")) +
     ggplot2::theme_minimal() +
     ggplot2::theme(

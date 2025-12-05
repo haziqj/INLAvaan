@@ -139,6 +139,8 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
     (if (n %in% names(t0)) t0[[n]] else 0) +
       (if (n %in% names(t1)) t1[[n]] else 0)
   })
+  fit0@timing$total <- NULL
+  fit0@timing$total <- sum(unlist(fit0@timing))
   names(fit0@timing) <- nms
 
   ## ----- Return --------------------------------------------------------------
