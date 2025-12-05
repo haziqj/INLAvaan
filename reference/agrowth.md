@@ -202,17 +202,17 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [261ms]
+#> ✔ Finding posterior mode. [413ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [383ms]
+#> ✔ Computing the Hessian. [564ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [516ms]
+#> ✔ Fitting skew normal to marginals. [554ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [415ms]
+#> ✔ Sampling posterior covariances. [356ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.

@@ -10,6 +10,10 @@ dbeta_box(x, shape1, shape2, a, b, log = FALSE)
 
 ## Arguments
 
+- x:
+
+  A numeric vector of quantiles.
+
 - shape1, shape2:
 
   non-negative parameters of the Beta distribution.
@@ -21,6 +25,10 @@ dbeta_box(x, shape1, shape2, a, b, log = FALSE)
 - b:
 
   The upper bound of the interval.
+
+- log:
+
+  Logical; if TRUE, probabilities p are given as log(p).
 
 ## Value
 

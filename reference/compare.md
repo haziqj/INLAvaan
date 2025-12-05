@@ -45,91 +45,35 @@ https://lavaan.ugent.be/tutorial/groups.html
 ## Examples
 
 ``` r
-# Model comparison on multigroup analysis (measurement invariance)
-HS.model <- "
-  visual  =~ x1 + x2 + x3
-  textual =~ x4 + x5 + x6
-  speed   =~ x7 + x8 + x9
-"
-utils::data("HolzingerSwineford1939", package = "lavaan")
+if (FALSE) { # \dontrun{
+  # Model comparison on multigroup analysis (measurement invariance)
+  HS.model <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
+  "
+  utils::data("HolzingerSwineford1939", package = "lavaan")
 
+  # Configural invariance
+  fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 
-# Configural invariance
-fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
-#> ℹ Using MVN log-likelihood.
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [807ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [2.4s]
-#> 
-#> ℹ Using skew normal approximation.
-#> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [3.2s]
-#> 
-#> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [356ms]
-#> 
-#> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [5.1s]
-#> 
+  # Weak invariance
+  fit2 <- acfa(
+    HS.model,
+    data = HolzingerSwineford1939,
+    group = "school",
+    group.equal = "loadings"
+  )
 
-# Weak invariance
-fit2 <- acfa(
-  HS.model,
-  data = HolzingerSwineford1939,
-  group = "school",
-  group.equal = "loadings"
-)
-#> ℹ Using MVN log-likelihood.
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [853ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [2s]
-#> 
-#> ℹ Using skew normal approximation.
-#> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [2.7s]
-#> 
-#> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [336ms]
-#> 
-#> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ⠸ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [4.5s]
-#> 
+  # Strong invariance
+  fit3 <- acfa(
+    HS.model,
+    data = HolzingerSwineford1939,
+    group = "school",
+    group.equal = c("intercepts", "loadings")
+  )
 
-# Strong invariance
-fit3 <- acfa(
-  HS.model,
-  data = HolzingerSwineford1939,
-  group = "school",
-  group.equal = c("intercepts", "loadings")
-)
-#> ℹ Using MVN log-likelihood.
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [590ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [1.7s]
-#> 
-#> ℹ Using skew normal approximation.
-#> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [2.3s]
-#> 
-#> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [338ms]
-#> 
-#> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ⠸ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [4.5s]
-#> 
-
-# Compare models
-compare(fit1, fit2, fit3)
-#> Error in compare.inlavaan_internal(x = fit1, y = fit2, fit3): could not find function "compare.inlavaan_internal"
+  # Compare models
+  compare(fit1, fit2, fit3)
+} # }
 ```

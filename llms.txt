@@ -5,7 +5,7 @@
 
 While Markov Chain Monte Carlo (MCMC) methods remain the gold standard
 for exact Bayesian inference, they can be prohibitively slow for
-iterative model development. [INLAvaan](http://haziqj.ml/INLAvaan/)
+iterative model development. [INLAvaan](http://inlavaan.haziqj.ml/)
 offers a rapid alternative for **la**tent **va**riable **an**alysis,
 delivering Bayesian results at (or near) the speed of frequentist
 estimators. It achieves this through a custom, ground-up implementation
@@ -15,9 +15,9 @@ of the [Integrated Nested Laplace Approximation
 
 ## A Familiar Interface
 
-[INLAvaan](http://haziqj.ml/INLAvaan/) is designed to fit seamlessly
+[INLAvaan](http://inlavaan.haziqj.ml/) is designed to fit seamlessly
 into your existing workflow. If you are familiar with the (b)lavaan
-syntax, you can begin using [INLAvaan](http://haziqj.ml/INLAvaan/)
+syntax, you can begin using [INLAvaan](http://inlavaan.haziqj.ml/)
 immediately.
 
 As a first impression of the package, consider the canonical example of
@@ -177,7 +177,7 @@ print(res$p_compare)
 ## Installation
 
 Install the development version of
-[INLAvaan](http://haziqj.ml/INLAvaan/) from GitHub using:
+[INLAvaan](http://inlavaan.haziqj.ml/) from GitHub using:
 
 ``` r
 # install.packages("pak")
@@ -200,7 +200,7 @@ install.packages(
 
 ## Citation
 
-To cite package [INLAvaan](http://haziqj.ml/INLAvaan/) in publications
+To cite package [INLAvaan](http://inlavaan.haziqj.ml/) in publications
 use:
 
 > Jamil, H (2025). *INLAvaan: Bayesian structural equation modelling
@@ -221,7 +221,7 @@ A BibTeX entry for LaTeX users is:
 
 ## License
 
-The [INLAvaan](http://haziqj.ml/INLAvaan/) package is licensed under the
+The [INLAvaan](http://inlavaan.haziqj.ml/) package is licensed under the
 [GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 ``` plaintext
@@ -255,28 +255,42 @@ license for the software and the CC BY 4.0 license for the data.
 
 # Package index
 
-## All functions
+## Approximate Bayesian estimation of latent variable models
 
+Main lavaan-style functions to estimate SEM.
+
+- [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) : Fit
+  an Approximate Bayesian Latent Variable Model
+- [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md) : Fit an
+  Approximate Bayesian Confirmatory Factor Analysis Model
+- [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md) : Fit an
+  Approximate Bayesian Structural Equation Model
+- [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md) : Fit
+  an Approximate Bayesian Growth Curve Model
+- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
+  Compare Bayesian Models Fitted with INLAvaan
 - [`coef(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`predict(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`show(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`summary(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   : Class For Representing a (Fitted) Latent Variable Model
-- [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md) : Fit an
-  Approximate Bayesian Confirmatory Factor Analysis Model
-- [`add_timing()`](https://inlavaan.haziqj.ml/reference/add_timing.md) :
-  Helper function to add timing information
-- [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md) : Fit
-  an Approximate Bayesian Growth Curve Model
-- [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md) : Fit an
-  Approximate Bayesian Structural Equation Model
-- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
-  Compare Bayesian Models Fitted with INLAvaan
+
+## Utility functions
+
 - [`dbeta_box()`](https://inlavaan.haziqj.ml/reference/dbeta_box.md) :
   Density of a Beta distribution on a bounded interval
+- [`dsnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md) : The
+  Skew Normal Distribution
 - [`fit_skew_normal()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal.md)
   : Fit a skew normal distribution to log-density evaluations
-- [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) : Fit
-  an Approximate Bayesian Latent Variable Model
+- [`is_same_function()`](https://inlavaan.haziqj.ml/reference/is_same_function.md)
+  : Helper function to check if two functions are the same
+- [`as_fun_string()`](https://inlavaan.haziqj.ml/reference/as_fun_string.md)
+  : Convert function to single string
 
+# Articles
+
+### All vignettes
+
+- [INLAvaan](https://inlavaan.haziqj.ml/articles/INLAvaan.md):

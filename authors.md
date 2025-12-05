@@ -2,22 +2,27 @@
 
 ## Authors
 
-- **Haziq Jamil**. Author, maintainer.
+- **[Haziq Jamil](https://haziqj.ml/)**. Author, maintainer.
   [](https://orcid.org/0000-0003-3298-1010)
 
-- **Håvard Rue**. Contributor. [](https://orcid.org/0000-0002-0222-1881)
+- **[Håvard
+  Rue](https://www.kaust.edu.sa/en/study/faculty/haavard-rue)**.
+  Contributor. [](https://orcid.org/0000-0002-0222-1881)
 
-- **Alvin Bong**. Contributor.
+- **[Alvin Bong](https://alvinbjl.github.io)**. Contributor.
 
 ## Citation
 
-Jamil H (2025). *INLAvaan: Bayesian Structural Equation Modelling with
-INLA*. R package version 0.2-0, <http://haziqj.ml/INLAvaan/>.
+Source:
+[`DESCRIPTION`](https://github.com/haziqj/INLAvaan/blob/main/DESCRIPTION)
+
+Jamil H (2025). *INLAvaan: Bayesian Latent Variable Analysis using
+INLA*. R package version 0.2-0, <http://inlavaan.haziqj.ml/>.
 
     @Manual{,
-      title = {INLAvaan: Bayesian Structural Equation Modelling with INLA},
+      title = {INLAvaan: Bayesian Latent Variable Analysis using INLA},
       author = {Haziq Jamil},
       year = {2025},
       note = {R package version 0.2-0},
-      url = {http://haziqj.ml/INLAvaan/},
+      url = {http://inlavaan.haziqj.ml/},
     }

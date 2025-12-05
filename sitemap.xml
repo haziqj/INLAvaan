@@ -1,19 +1,23 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://inlavaan.haziqj.ml/404.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/LICENSE.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/articles/INLAvaan.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/articles/index.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/authors.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/index.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/news/index.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/INLAvaan-class.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/INLAvaan-package.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/acfa.html</loc></url>
-<url><loc>https://inlavaan.haziqj.ml/reference/add_timing.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/agrowth.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/as_fun_string.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/asem.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/compare.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/dbeta_box.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/dsnorm.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/fit_skew_normal.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/index.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/inlavaan.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/is_same_function.html</loc></url>
 </urlset>
 

@@ -193,17 +193,17 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [239ms]
+#> ✔ Finding posterior mode. [386ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [692ms]
+#> ✔ Computing the Hessian. [973ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [993ms]
+#> ✔ Fitting skew normal to marginals. [1s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [558ms]
+#> ✔ Sampling posterior covariances. [475ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 70 iterations
@@ -259,7 +259,7 @@ summary(fit)
 #>   dem60 ~                                                               
 #>     ind60             1.470    0.391    0.705    1.470    2.238    1.470
 #>   dem65 ~                                                               
-#>     ind60             0.604    0.242    0.126    0.605    1.076    0.608
+#>     ind60             0.604    0.242    0.125    0.605    1.074    0.608
 #>     dem60             0.861    0.076    0.715    0.860    1.012    0.858
 #>     Prior       
 #>                 
@@ -271,16 +271,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%      50%    97.5%     Mode
 #>  .y1 ~~                                                                 
-#>    .y5                0.273    0.349   -0.016    0.573    1.354    0.517
+#>    .y5                0.273    0.355   -0.016    0.582    1.376    0.526
 #>  .y2 ~~                                                                 
-#>    .y4                0.281    0.706    0.156    1.416    2.931    1.346
-#>    .y6                0.348    0.715    0.840    2.039    3.644    1.922
+#>    .y4                0.281    0.669    0.197    1.320    2.819    1.212
+#>    .y6                0.348    0.720    0.845    2.127    3.673    2.055
 #>  .y3 ~~                                                                 
-#>    .y7                0.173    0.593   -0.401    0.762    1.924    0.762
+#>    .y7                0.173    0.609   -0.454    0.739    1.932    0.739
 #>  .y4 ~~                                                                 
-#>    .y8                0.117    0.469   -0.453    0.377    1.389    0.327
+#>    .y8                0.117    0.452   -0.345    0.406    1.425    0.328
 #>  .y6 ~~                                                                 
-#>    .y8                0.312    0.559    0.389    1.312    2.580    1.211
+#>    .y8                0.312    0.553    0.331    1.296    2.501    1.229
 #>     Prior       
 #>                 
 #>        beta(1,1)
@@ -309,7 +309,7 @@ summary(fit)
 #>    .y8                3.345    0.729    2.154    3.265    4.996    3.111
 #>     ind60             0.471    0.094    0.318    0.460    0.687    0.439
 #>    .dem60             4.039    0.945    2.536    3.922    6.215    3.704
-#>    .dem65             0.241    0.212    0.017    0.184    0.793    0.053
+#>    .dem65             0.242    0.212    0.017    0.184    0.794    0.053
 #>     Prior       
 #>  gamma(1,.5)[sd]
 #>  gamma(1,.5)[sd]

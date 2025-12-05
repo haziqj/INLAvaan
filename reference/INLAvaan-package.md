@@ -1,4 +1,4 @@
-# INLAvaan: Bayesian Structural Equation Modelling with INLA
+# INLAvaan: Bayesian Latent Variable Analysis using INLA
 
 INLAvaan is an R package that extends lavaan for Bayesian statistical
 modeling using Integrated Nested Laplace Approximations (INLA). It
@@ -10,7 +10,11 @@ advanced computational speed of INLA.
 
 Useful links:
 
-- <http://haziqj.ml/INLAvaan/>
+- <http://inlavaan.haziqj.ml/>
+
+- <https://github.com/haziqj/INLAvaan>
+
+- Report bugs at <https://github.com/haziqj/INLAvaan/issues>
 
 ## Author
 

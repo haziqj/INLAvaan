@@ -5,12 +5,17 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Bayesian Structural Equation Modelling with INLA • INLAvaan</title>
+<title>Bayesian Latent Variable Analysis using INLA • INLAvaan</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Bayesian Structural Equation Modelling with INLA">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Bayesian Latent Variable Analysis using INLA">
 <meta name="description" content="INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.">
 <meta property="og:description" content="INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.">
 <meta property="og:image" content="https://inlavaan.haziqj.ml/logo.png">
@@ -32,6 +37,17 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/INLAvaan.html">Get started</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-examples">
+<li><h6 class="dropdown-header" data-toc-skip>Confirmatory factor analysis</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Structural equation modelling</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Growth curve modelling</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Equality constraints</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Multigroup analysis</h6></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
@@ -39,6 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/haziqj/INLAvaan/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -57,11 +74,11 @@
 <blockquote>
 <p>Efficient approximate Bayesian inference for Structural Equation Models.</p>
 </blockquote>
-<p>While Markov Chain Monte Carlo (MCMC) methods remain the gold standard for exact Bayesian inference, they can be prohibitively slow for iterative model development. <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> offers a rapid alternative for <strong>la</strong>tent <strong>va</strong>riable <strong>an</strong>alysis, delivering Bayesian results at (or near) the speed of frequentist estimators. It achieves this through a custom, ground-up implementation of the <a href="https://www.r-inla.org" class="external-link">Integrated Nested Laplace Approximation (INLA)</a>, engineered specifically for the <a href="https://lavaan.org" class="external-link">lavaan</a> modelling framework.</p>
+<p>While Markov Chain Monte Carlo (MCMC) methods remain the gold standard for exact Bayesian inference, they can be prohibitively slow for iterative model development. <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> offers a rapid alternative for <strong>la</strong>tent <strong>va</strong>riable <strong>an</strong>alysis, delivering Bayesian results at (or near) the speed of frequentist estimators. It achieves this through a custom, ground-up implementation of the <a href="https://www.r-inla.org" class="external-link">Integrated Nested Laplace Approximation (INLA)</a>, engineered specifically for the <a href="https://lavaan.org" class="external-link">lavaan</a> modelling framework.</p>
 <div class="section level2">
 <h2 id="a-familiar-interface">A Familiar Interface<a class="anchor" aria-label="anchor" href="#a-familiar-interface"></a>
 </h2>
-<p><a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> is designed to fit seamlessly into your existing workflow. If you are familiar with the (b)lavaan syntax, you can begin using <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> immediately.</p>
+<p><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> is designed to fit seamlessly into your existing workflow. If you are familiar with the (b)lavaan syntax, you can begin using <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> immediately.</p>
 <p>As a first impression of the package, consider the canonical example of SEM applied to the Industrialisation and Political Democracy data set of Bollen (1989)<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Bollen, K. A. (1989). &lt;em&gt;Structural equations with latent variables&lt;/em&gt; (pp. xiv, 514). John Wiley &amp;amp; Sons. &lt;a href="https://doi.org/10.1002/9781118619179" class="external-link uri"&gt;https://doi.org/10.1002/9781118619179&lt;/a&gt;&lt;/p&gt;'><sup>1</sup></a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
@@ -206,7 +223,7 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the development version of <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> from GitHub using:</p>
+<p>Install the development version of <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> from GitHub using:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"haziqj/INLAvaan"</span><span class="op">)</span></span></code></pre></div>
@@ -343,7 +360,7 @@
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<p>To cite package <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> in publications use:</p>
+<p>To cite package <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> in publications use:</p>
 <blockquote>
 <p>Jamil, H (2025). <em>INLAvaan: Bayesian structural equation modelling with INLA</em> . R package version 0.2.0. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
 </blockquote>
@@ -359,7 +376,7 @@
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>The <a href="http://haziqj.ml/INLAvaan/" class="external-link">INLAvaan</a> package is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" class="external-link">GPL-3</a>.</p>
+<p>The <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> package is licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" class="external-link">GPL-3</a>.</p>
 <pre class="plaintext"><code>INLAvaan: Bayesian structural equation modelling with INLA
 Copyright (C) 2025- Haziq Jamil
 
@@ -384,14 +401,21 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</cod
 </div>
 
 
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/haziqj/INLAvaan/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/haziqj/INLAvaan/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
 <li><small>GPL (&gt;= 3)</small></li>
 </ul>
 </div>
-
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
@@ -403,7 +427,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</cod
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Haziq Jamil <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3298-1010" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>
+<a href="https://haziqj.ml/" class="external-link">Haziq Jamil</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3298-1010" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
@@ -422,7 +447,7 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</cod
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Haziq Jamil.</p>
+  <p>Developed by <a href="https://haziqj.ml/" class="external-link">Haziq Jamil</a>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
