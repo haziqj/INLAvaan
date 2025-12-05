@@ -169,19 +169,20 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [181ms]
+#> ✔ Finding posterior mode. [193ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [362ms]
+#> ✔ Computing the Hessian. [372ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [529ms]
+#> ✔ Fitting skew normal to marginals. [545ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [192ms]
+#> ✔ Sampling posterior covariances. [197ms]
 #> 
 #> ⠙ Computing ppp and DIC.
+#> ⠹ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [2.1s]
 #> 
 summary(fit)
