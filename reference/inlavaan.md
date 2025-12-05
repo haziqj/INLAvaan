@@ -169,20 +169,20 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [301ms]
+#> ✔ Finding posterior mode. [182ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [548ms]
+#> ✔ Computing the Hessian. [363ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [550ms]
+#> ✔ Fitting skew normal to marginals. [537ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [136ms]
+#> ✔ Sampling posterior covariances. [187ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.2s]
+#> ✔ Computing ppp and DIC. [2.1s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 77 iterations
@@ -200,8 +200,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7519.076 
-#>    Effective parameters (pD)                    21.775 
+#>    Deviance (DIC)                             7519.104 
+#>    Effective parameters (pD)                    21.789 
 #> 
 #> Parameter Estimates:
 #> 
@@ -211,7 +211,7 @@ summary(fit)
 #>                    Estimate       SD     2.5%      50%    97.5%     Mode
 #>   visual =~                                                             
 #>     x1                1.000                                             
-#>     x2                0.573    0.115    0.366    0.566    0.816    0.552
+#>     x2                0.569    0.113    0.362    0.564    0.807    0.552
 #>     x3                0.744    0.121    0.521    0.738    0.996    0.728
 #>   textual =~                                                            
 #>     x4                1.000                                             
@@ -219,8 +219,8 @@ summary(fit)
 #>     x6                0.927    0.057    0.819    0.927    1.040    0.925
 #>   speed =~                                                              
 #>     x7                1.000                                             
-#>     x8                1.199    0.155    0.918    1.190    1.528    1.172
-#>     x9                1.122    0.203    0.774    1.103    1.570    1.062
+#>     x8                1.198    0.155    0.917    1.189    1.525    1.172
+#>     x9                1.126    0.205    0.778    1.106    1.579    1.062
 #>     Prior       
 #>                 
 #>                 

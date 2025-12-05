@@ -193,17 +193,17 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [378ms]
+#> ✔ Finding posterior mode. [229ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [952ms]
+#> ✔ Computing the Hessian. [659ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [1.2s]
+#> ✔ Fitting skew normal to marginals. [951ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [264ms]
+#> ✔ Sampling posterior covariances. [538ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 70 iterations
@@ -259,7 +259,7 @@ summary(fit)
 #>   dem60 ~                                                               
 #>     ind60             1.470    0.391    0.705    1.470    2.238    1.470
 #>   dem65 ~                                                               
-#>     ind60             0.604    0.242    0.125    0.605    1.074    0.608
+#>     ind60             0.604    0.242    0.126    0.605    1.076    0.608
 #>     dem60             0.861    0.076    0.715    0.860    1.012    0.858
 #>     Prior       
 #>                 
@@ -309,7 +309,7 @@ summary(fit)
 #>    .y8                3.345    0.729    2.154    3.265    4.996    3.111
 #>     ind60             0.471    0.094    0.318    0.460    0.687    0.439
 #>    .dem60             4.039    0.945    2.536    3.922    6.215    3.704
-#>    .dem65             0.242    0.212    0.017    0.184    0.794    0.053
+#>    .dem65             0.241    0.212    0.017    0.184    0.793    0.053
 #>     Prior       
 #>  gamma(1,.5)[sd]
 #>  gamma(1,.5)[sd]
