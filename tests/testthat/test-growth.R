@@ -27,6 +27,7 @@ test_that("Method: skewnorm", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
   # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
@@ -43,6 +44,7 @@ test_that("Method: asymgaus", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
   # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
@@ -58,6 +60,7 @@ test_that("Method: marggaus", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
   # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
@@ -73,6 +76,7 @@ test_that("Method: sampling", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
   # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)

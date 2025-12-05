@@ -59,6 +59,7 @@ test_that("Method: skewnorm", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
   gr_at_opt <- fit@optim$dx
@@ -76,6 +77,7 @@ test_that("Method: asymgaus", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
 })
@@ -90,6 +92,7 @@ test_that("Method: marggaus", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
 })
@@ -104,6 +107,7 @@ test_that("Method: sampling", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
 })

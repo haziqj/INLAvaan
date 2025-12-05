@@ -19,6 +19,7 @@ test_that("Multigroup fitting and testing", {
       group = "school"
     )
   })
+  expect_no_error(out <- capture.output(summary(fit1)))
   expect_equal(fit1@optim$dx, rep(0, length(fit1@optim$dx)), tolerance = 1e-3)
 
   # Weak invariance
@@ -33,6 +34,7 @@ test_that("Multigroup fitting and testing", {
       group.equal = "loadings"
     )
   })
+  expect_no_error(out <- capture.output(summary(fit2)))
   expect_equal(fit2@optim$dx, rep(0, length(fit2@optim$dx)), tolerance = 1e-3)
 
   # Weak invariance
@@ -47,6 +49,7 @@ test_that("Multigroup fitting and testing", {
       group.equal = c("intercepts", "loadings")
     )
   })
+  expect_no_error(out <- capture.output(summary(fit3)))
   expect_equal(fit3@optim$dx, rep(0, length(fit3@optim$dx)), tolerance = 1e-3)
 
   # Comparison

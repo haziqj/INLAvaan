@@ -39,6 +39,7 @@ test_that("Straight from textual model", {
       nsamp = NSAMP
     )
   })
+  expect_no_error(out <- capture.output(summary(fit)))
 
   pt <- lavaan::partable(fit)
   expect_true(pt$prior[grep("visual=~x2", pt$names)] == "normal(1,2)")
