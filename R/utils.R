@@ -9,7 +9,7 @@ cli_messages <- c(
   "Navigating the seas of stochasticity"
 )
 
-#' Convert function to single string
+# Convert function to single string
 as_fun_string <- function(f) {
   gsub("\\s+", " ", paste(deparse(f), collapse = " "))
 }

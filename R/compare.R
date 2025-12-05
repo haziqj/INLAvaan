@@ -1,6 +1,23 @@
+#' Compare Bayesian Models Fitted with INLAvaan
+#'
+#' Compare Bayesian Models Fitted with INLAvaan
+#'
+#' The function computes the log Bayes Factor (logBF) relative to the best
+#' fitting model (the one with the highest Marginal Log-Likelihood).
+#'
+#' The output table sorts models by descending Marginal Log-Likelihood.
+#'   - **Marg.Loglik**: The approximated marginal log-likelihood.
+#'   - **DIC**: Deviance Information Criterion (if available).
+#'   - **pD**: Effective number of parameters (if available).
+#'   - **logBF**: The natural logarithm of the Bayes Factor relative to the best model.
+#'
+#' @return A data frame of class `compare.inlavaan_internal` containing model
+#'   fit statistics.
 #' @export
 setGeneric("compare", function(x, y, ...) standardGeneric("compare"))
 
+#' @rdname compare
+#' @aliases compare,INLAvaan-method
 #' @export
 setMethod("compare", "INLAvaan", function(x, y, ...) {
   mc <- match.call()
@@ -48,7 +65,7 @@ compare.inlavaan_internal <- function(x, y, ...) {
     No.params = m,
     Marg.Loglik = marg_ll,
     DIC = ifelse(is.null(DIC), "", DIC),
-    pD = ifelse(is.null(pD), "", DIC),
+    pD = ifelse(is.null(pD), "", pD),
     logBF = round(logBF, 3),
     # BF            = round(BF, 3),
     stringsAsFactors = FALSE

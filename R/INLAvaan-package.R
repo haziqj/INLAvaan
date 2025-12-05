@@ -5,8 +5,6 @@
 #' @import methods
 #' @importFrom cli cli_abort cli_alert_info
 #' @importFrom dplyr mutate select filter group_by ungroup
-#' @importFrom stats dnorm dgamma
-#' @importFrom gt vec_fmt_duration
 #' @importFrom INLA inla
 #' @importFrom lavaan fitmeasures
 #' @importFrom lavaan fitMeasures
@@ -37,7 +35,30 @@
 #' @importFrom Matrix solve
 #' @importFrom Matrix sparseMatrix
 #' @importFrom Matrix t
-#' @importFrom modeest mlv1
+#' @importFrom methods callNextMethod
+#' @importFrom methods new
+#' @importFrom methods show
+#' @importFrom stats approx
+#' @importFrom stats cov2cor
+#' @importFrom stats dbeta
+#' @importFrom stats density
+#' @importFrom stats dgamma
+#' @importFrom stats dnorm
+#' @importFrom stats dnorm dgamma
+#' @importFrom stats median
+#' @importFrom stats nlminb
+#' @importFrom stats optimize
+#' @importFrom stats pnorm
+#' @importFrom stats qnorm
+#' @importFrom stats quantile
+#' @importFrom stats sd
+#' @importFrom stats setNames
+#' @importFrom stats splinefun
+#' @importFrom stats uniroot
 #' @importFrom tidyr pivot_longer
+#' @importFrom utils capture.output
+#' @importFrom utils head
+#' @importFrom utils packageVersion
+#' @importFrom utils tail
 ## usethis namespace: end
 NULL

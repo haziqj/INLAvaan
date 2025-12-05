@@ -2,11 +2,11 @@ compare_mcmc <- function(fit_blavaan, ...) {
   parnames <- unique(names(coef(fit_blavaan)))
 
   # MCMC Histograms
-  draws <- do.call("rbind", blavInspect(fit_blavaan, "mcmc"))
+  draws <- do.call("rbind", blavaan::blavInspect(fit_blavaan, "mcmc"))
   plot_df_blav <-
     as.data.frame(draws) |>
-    pivot_longer(everything()) |>
-    mutate(name = factor(name, levels = parnames))
+    tidyr::pivot_longer(dplyr::everything()) |>
+    dplyr::mutate(name = factor(name, levels = parnames))
 
   # INLAvaan Densities
   fit_inlavaan_list <- list(...)
@@ -25,14 +25,14 @@ compare_mcmc <- function(fit_blavaan, ...) {
   # Create plot
   plot_df <-
     fit_inlavaan_list |>
-    map(function(plot_df_list) {
+    purrr::map(function(plot_df_list) {
       plot_df <-
-        imap(plot_df_list, \(x, idx) mutate(x, name = idx)) |>
-        bind_rows() |>
-        mutate(name = factor(name, levels = parnames))
+        ipurrr::map(plot_df_list, \(x, idx) dplyr::mutate(x, name = idx)) |>
+        dplyr::bind_rows() |>
+        dplyr::mutate(name = factor(name, levels = parnames))
     }) |>
-    bind_rows(.id = "method") |>
-    mutate(
+    dplyr::bind_rows(.id = "method") |>
+    dplyr::mutate(
       method = factor(
         method,
         levels = c("skewnorm", "asymgaus", "marggaus", "sampling")
@@ -40,20 +40,20 @@ compare_mcmc <- function(fit_blavaan, ...) {
     )
 
   p_compare <-
-    ggplot() +
-    geom_density(
+    ggplot2::ggplot() +
+    ggplot2::geom_density(
       data = plot_df_blav,
       aes(value, fill = "MCMC"),
       col = NA,
       alpha = 0.38
     ) +
-    geom_line(
+    ggplot2::geom_line(
       data = plot_df,
       aes(x, y, group = method, col = method),
       linewidth = 0.75
     ) +
-    facet_wrap(~name, scales = "free") +
-    scale_colour_manual(
+    ggplot2::facet_wrap(~name, scales = "free") +
+    ggplot2::scale_colour_manual(
       values = c(
         "skewnorm" = "#00A6AA",
         "asymgaus" = "#F18F00",
@@ -61,17 +61,15 @@ compare_mcmc <- function(fit_blavaan, ...) {
         "sampling" = "#9C6FAE"
       )
     ) +
-    scale_fill_manual(
-      values = c("MCMC" = "#131516")
-    ) +
-    theme_minimal() +
-    theme(
+    ggplot2::scale_fill_manual(values = c("MCMC" = "#131516")) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
       plot.margin = margin(t = 4, r = 8, b = 8, l = 8),
       legend.position = "top",
       legend.box.spacing = unit(2, "pt"),
       legend.key.width = unit(1, "cm")
     ) +
-    labs(x = NULL, y = NULL, col = NULL, fill = NULL)
+    ggplot2::labs(x = NULL, y = NULL, col = NULL, fill = NULL)
 
   # Helper function for Integration
   trapz <- function(x, y) {
@@ -84,14 +82,14 @@ compare_mcmc <- function(fit_blavaan, ...) {
   # Align MCMC to Approximation Grid
   plot_df_aligned <-
     plot_df |>
-    group_by(name, method) |>
-    group_modify(function(data, keys) {
+    dplyr::group_by(name, method) |>
+    dplyr::group_modify(function(data, keys) {
       # Get matching MCMC samples
-      mcmc_vals <- filter(plot_df_blav, name == keys$name)$value
+      mcmc_vals <- dplyr::filter(plot_df_blav, name == keys$name)$value
 
       # Create KDE of MCMC (gold standard). We constrain the KDE to the range
       # of your approximation to prevent extrapolation
-      d <- density(
+      d <- stats::density(
         mcmc_vals,
         from = min(data$x),
         to = max(data$x),
@@ -100,17 +98,17 @@ compare_mcmc <- function(fit_blavaan, ...) {
 
       # Interpolate KDE onto exact x-points of your approximation. 'rule = 2'
       # clamps values at the ends if floating point errors occur
-      f_mcmc <- approx(x = d$x, y = d$y, xout = data$x, rule = 2)$y
+      f_mcmc <- stats::approx(x = d$x, y = d$y, xout = data$x, rule = 2)$y
 
-      mutate(data, f_mcmc = f_mcmc)
+      dplyr::mutate(data, f_mcmc = f_mcmc)
     }) |>
-    ungroup()
+    dplyr::ungroup()
 
   # Calculate Metrics
   metrics_df <-
     plot_df_aligned |>
-    group_by(name, method) |>
-    summarise(
+    dplyr::group_by(name, method) |>
+    dplyr::summarise(
       results = {
         x <- x
         pa <- y # Approx
@@ -159,25 +157,25 @@ compare_mcmc <- function(fit_blavaan, ...) {
       },
       .groups = "drop"
     ) |>
-    unpack(results) |>
-    arrange(method, desc(Bias_SDs))
+    tidyr::unpack(results) |>
+    dplyr::arrange(method, desc(Bias_SDs))
 
   # Add overall by averaging
   metrics_df <-
     metrics_df |>
-    bind_rows(mutate(metrics_df, name = "Overall")) |>
-    mutate(name = factor(name, levels = c("Overall", parnames))) |>
-    summarise(across(L1:Bias_SDs, mean), .by = c(name, method))
+    dplyr::bind_rows(dplyr::mutate(metrics_df, name = "Overall")) |>
+    dplyr::mutate(name = factor(name, levels = c("Overall", parnames))) |>
+    dplyr::summarise(across(L1:Bias_SDs, mean), .by = c(name, method))
 
   # Plot of L1 and JS errors
   p_errors <-
     metrics_df |>
-    pivot_longer(
+    tidyr::pivot_longer(
       cols = c(L1_percent, JS_percent),
       names_to = "metric",
       values_to = "value"
     ) |>
-    mutate(
+    dplyr::mutate(
       name = fct_rev(name),
       metric = recode(
         metric,
@@ -185,16 +183,16 @@ compare_mcmc <- function(fit_blavaan, ...) {
         JS_percent = "Jensen-Shannon Error"
       )
     ) |>
-    ggplot() +
-    geom_bar(
+    ggplot2::ggplot() +
+    ggplot2::geom_bar(
       aes(x = name, y = value, fill = method),
       width = 0.7,
       stat = "identity",
       position = position_dodge()
     ) +
-    coord_flip() +
-    scale_y_continuous(labels = scales::percent) +
-    scale_fill_manual(
+    ggplot2::coord_flip() +
+    ggplot2::scale_y_continuous(labels = scales::percent) +
+    ggplot2::scale_fill_manual(
       values = c(
         "skewnorm" = "#00A6AA",
         "asymgaus" = "#F18F00",
@@ -202,15 +200,15 @@ compare_mcmc <- function(fit_blavaan, ...) {
         "sampling" = "#9C6FAE"
       )
     ) +
-    facet_grid(. ~ metric, scales = "free_x") +
-    theme_minimal() +
-    theme(
+    ggplot2::facet_grid(. ~ metric, scales = "free_x") +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
       plot.margin = margin(t = 4, r = 8, b = 8, l = 8),
       legend.position = "top",
       legend.box.spacing = unit(2, "pt"),
       legend.key.width = unit(1, "cm")
     ) +
-    labs(x = NULL, y = NULL, fill = NULL)
+    ggplot2::labs(x = NULL, y = NULL, fill = NULL)
 
   list(
     p_compare = p_compare,
