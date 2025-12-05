@@ -42,11 +42,23 @@ jobs:
           use-public-rspm: true
           extra-repositories: "https://inla.r-inla-download.org/R/testing"
 
-      - name: Install Rcpp
-        if: matrix.config.os == 'ubuntu-latest'
+      # Clear transient R package caches to avoid version mismatches
+      # This prevents pak from restoring incompatible cached packages across R versions
+      - name: Clear transient R package caches
         run: |
-          install.packages("Rcpp")
-        shell: Rscript {0}
+          rm -rf /home/runner/work/_temp/Library/_cache || true
+          rm -rf /home/runner/work/_temp/Library/* || true
+          rm -rf /tmp/Rtmp* || true
+          echo "Cleared transient R caches"
+
+      # Preinstall Rcpp from GitHub for R-devel to avoid source build failures
+      # R-devel (4.6.0) removed R_ext/PrtUtil.h header, causing older Rcpp source builds to fail
+      # Installing the latest development version ensures compatibility
+      - name: Preinstall Rcpp for R-devel
+        if: matrix.config.r == 'devel' || matrix.config.r == '4.6.0'
+        run: |
+          Rscript -e 'options(repos = "https://packagemanager.posit.co/cran/__linux__/noble/latest"); install.packages("remotes")'
+          Rscript -e 'remotes::install_github("RcppCore/Rcpp")'
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -59,6 +71,7 @@ jobs:
           sessioninfo::session_info("installed", include_base = TRUE, info = "all")
         shell: Rscript {0}
 
+      # R-version-aware cache prevents reusing incompatible packages across R versions
       - name: Check R Package (Ubuntu)
         if: matrix.config.os == 'ubuntu-latest'
         uses: r-lib/actions/check-r-package@v2
@@ -67,7 +80,7 @@ jobs:
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
           args: 'c("--no-tests", "--no-manual")'  # skip tests on Ubuntu
           error-on: '"error"'
-          cache-version: 612
+          cache-version: ${{ matrix.config.r }}-612
 
       - name: Check R Package #(Non-Ubuntu)
         if: matrix.config.os != 'ubuntu-latest'
