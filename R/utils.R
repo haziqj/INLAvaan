@@ -14,6 +14,13 @@ as_fun_string <- function(f) {
   gsub("\\s+", " ", paste(deparse(f), collapse = " "))
 }
 
+get_inlavaan_internal <- function(object) {
+  if (!inherits(object, "INLAvaan")) {
+    cli::cli_abort("Object must be of class {.var INLAvaan}")
+  }
+  object@external$inlavaan_internal
+}
+
 #' Helper function to add timing information
 #'
 #' This function adds an element with name as specified in parameter part and
@@ -35,4 +42,3 @@ add_timing <- function(timing, part) {
 
   timing
 }
-
