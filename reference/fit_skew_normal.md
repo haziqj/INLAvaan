@@ -74,10 +74,10 @@ x_grid <- seq(0.1, 8, length.out = 21)
 y_log <- sapply(x_grid, logdens)
 y_log <- y_log - max(y_log) # normalise to have maximum at zero
 
-res <- fit_skew_normal(x_grid, y_log, temp = NA)
+res <- fit_skew_normal(x_grid, y_log, temp = 10)
 unlist(res)
-#>          xi       omega       alpha        logC           k 
-#>   0.7987054   2.5253544   2.9447342   1.3506738 112.7528721 
+#>         xi      omega      alpha       logC          k 
+#>  0.8424454  2.5392261  3.3105054  1.3324227 10.0000000 
 
 plot_df <-
   pivot_longer(
@@ -91,8 +91,21 @@ plot_df <-
     values_to = "density"
   )
 
-ggplot(plot_df, aes(x = x, y = density, color = type)) +
-  geom_line(linewidth = 1) +
+ggplot() +
+  # truth as filled area
+  geom_area(
+    data = subset(plot_df, type == "truth"),
+    aes(x, density, fill = "Truth"),
+    alpha = 0.38
+  ) +
+  # approx as blue line
+  geom_line(
+    data = subset(plot_df, type == "approx"),
+    aes(x = x, y = density, col = "SN Approx."),
+    linewidth = 1
+  ) +
+  scale_fill_manual(name = NULL, values = "#131516") +
+  scale_colour_manual(name = NULL, values = "#00A6AA") +
   theme_minimal() +
   theme(legend.position = "top")
 ```
