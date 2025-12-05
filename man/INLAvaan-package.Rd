@@ -13,7 +13,7 @@ INLAvaan is an R package that extends lavaan for Bayesian statistical modeling u
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://haziqj.ml/INLAvaan/}
+  \item \url{http://inlavaan.haziqj.ml/}
 }
 
 }

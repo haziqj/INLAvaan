@@ -23,17 +23,17 @@
 setGeneric("compare", function(x, y, ...) standardGeneric("compare"))
 
 #' @rdname compare
-#' @aliases compare,INLAvaan-method
+#' @aliases compare,INLAvaan-class
 #' @export
 setMethod("compare", "INLAvaan", function(x, y, ...) {
   mc <- match.call()
   call_list <- as.list(mc)[-1]
   modnames <- sapply(call_list, deparse)
-  mc[[1]] <- as.name("compare.inlavaan_internal")
+  FUN <- getFromNamespace("compare.inlavaan_internal", "INLAvaan")
+  mc[[1]] <- FUN
   eval(mc, parent.frame())
 })
 
-#' @exportS3Method compare inlavaan_internal
 compare.inlavaan_internal <- function(x, y, ...) {
   # Capture user-supplied names
   call_list <- as.list(substitute(list(x, y, ...)))[-1]

@@ -1,6 +1,6 @@
 Package: INLAvaan
 Type: Package
-Title: Bayesian Structural Equation Modelling with INLA
+Title: Bayesian Latent Variable Analysis using INLA
 Version: 0.2-0
 Authors@R: c(
     person("Haziq", "Jamil", , "haziq.jamil@gmail.com", role = c("aut", "cre"),
@@ -38,8 +38,12 @@ Roxygen: list(markdown = TRUE)
 Suggests: 
     furrr,
     INLA,
+    knitr,
     lme4,
+    rmarkdown,
     rstan,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: http://haziqj.ml/INLAvaan/
+URL: http://inlavaan.haziqj.ml/, https://github.com/haziqj/INLAvaan
+BugReports: https://github.com/haziqj/INLAvaan/issues
+VignetteBuilder: knitr

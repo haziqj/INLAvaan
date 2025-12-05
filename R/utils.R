@@ -9,12 +9,31 @@ cli_messages <- c(
   "Navigating the seas of stochasticity"
 )
 
-# Helper function to check if two functions are the same
+#' Helper function to check if two functions are the same
+#'
+#' @param f,g Functions to compare.
+#'
+#' @returns Logical.
+#' @export
+#'
+#' @examples
+#' f1 <- function(x) { x^2 + 1 }
+#' f2 <- function(x) { x^2 + 1 }
+#' is_same_function(f1, f2)  # TRUE
 is_same_function <- function(f, g) {
   identical(deparse(body(f)), deparse(body(g)))
 }
 
-# Convert function to single string
+
+#' Convert function to single string
+#'
+#' @inheritParams is_same_function
+#' @returns A single character vector representing the function.
+#' @export
+#'
+#' @examples
+#' f <- function(x) { x^2 + 1 }
+#' as_fun_string(f)
 as_fun_string <- function(f) {
   gsub("\\s+", " ", paste(deparse(f), collapse = " "))
 }
@@ -58,20 +77,8 @@ get_inlavaan_internal <- function(object) {
   object@external$inlavaan_internal
 }
 
-#' Helper function to add timing information
-#'
-#' This function adds an element with name as specified in parameter part and
-#' the duration of the interval from start.time upto now thereafter the element
-#' start.time is set to now (prepare for next call) the adapted list is returned
-#'
-#' This function is adapter from the `ldw_add_timing()` helper in the `{lavaan}`
-#' package. Original implementation copyright the lavaan project, 2010-2025,
-#' GPL-3.
-#'
-#' @param timing List with element `start.time`
-#' @param part Character string with name of part to add timing for
-#'
-#' @author Adapted by Haziq Jamil. Original author: Luc De Wilde (lavaan).
+# Helper function to add timing information. Adapted by Haziq Jamil. Original
+# author: Luc De Wilde (lavaan).
 add_timing <- function(timing, part) {
   timenow <- proc.time()[3]
   timing[[part]] <- (timenow - timing$start.time)

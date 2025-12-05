@@ -2,3 +2,64 @@ url: https://inlavaan.haziqj.ml
 template:
   bootstrap: 5
 
+authors:
+  Haziq Jamil:
+    href: https://haziqj.ml/
+  Håvard Rue:
+    href: https://www.kaust.edu.sa/en/study/faculty/haavard-rue
+  Alvin Bong:
+    href: https://alvinbjl.github.io
+
+home:
+  sidebar:
+    structure: [links, license, citation, authors, dev]
+
+reference:
+- title: Approximate Bayesian estimation of latent variable models
+  desc:  Main lavaan-style functions to estimate SEM.
+  contents:
+    - inlavaan
+    - acfa
+    - asem
+    - agrowth
+    - compare
+    - INLAvaan-class
+
+- title: Utility functions
+  contents:
+    - dbeta_box
+    - fit_skew_normal
+    - is_same_function
+    - as_fun_string
+
+navbar:
+  structure:
+    left:  [intro, articles, reference, news]
+    right: [search, github, lightswitch]
+  components:
+    articles:
+      text: Examples
+      menu:
+      - text: Confirmatory factor analysis
+      - text: Structural equation modelling
+      - text: Growth curve modelling
+      - text: Equality constraints
+      - text: Multigroup analysis
+
+# articles:
+# - title: Technical details
+#   navbar: Technical details
+#   contents:
+#   - articles/intro
+#   # - articles/tech_details
+#   # - articles/proofs
+#   - articles/complex_sampling
+#   # - articles/sigma
+# - title: Simulation study
+#   navbar: Simulation study
+#   contents:
+#   - articles/sim_results
+#   - articles/sim_tables
+# - title: Outro
+#   contents:
+#   - articles/outro
