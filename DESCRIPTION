@@ -5,6 +5,8 @@ Version: 0.2.0
 Authors@R: c(
     person("Haziq", "Jamil", , "haziq.jamil@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3298-1010")),
+   person("Håvard", "Rue", role = "ctb",
+           comment = c(ORCID = "0000-0002-0222-1881")),
     person("Alvin", "Bong", role = "ctb")
   )
 Description: INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA. 
