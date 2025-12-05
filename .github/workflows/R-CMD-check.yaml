@@ -4,7 +4,6 @@ on:
   push:
     branches: [main, master]
   pull_request:
-    branches: [main, master]
 
 name: R-CMD-check
 
@@ -17,7 +16,7 @@ jobs:
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         config:
           - {os: macos-latest,   r: 'release'}
@@ -40,40 +39,13 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-          extra-repositories: "https://inla.r-inla-download.org/R/testing"
-
-      - name: Install Rcpp
-        if: matrix.config.os == 'ubuntu-latest'
-        run: |
-          install.packages("Rcpp")
-        shell: Rscript {0}
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
 
-      - name: Session info
-        run: |
-          options(width = 100)
-          sessioninfo::session_info("installed", include_base = TRUE, info = "all")
-        shell: Rscript {0}
-
-      - name: Check R Package (Ubuntu)
-        if: matrix.config.os == 'ubuntu-latest'
-        uses: r-lib/actions/check-r-package@v2
+      - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          args: 'c("--no-tests", "--no-manual")'  # skip tests on Ubuntu
-          error-on: '"error"'
-          cache-version: 612
-
-      - name: Check R Package #(Non-Ubuntu)
-        if: matrix.config.os != 'ubuntu-latest'
-        uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
-          error-on: '"error"'
-
