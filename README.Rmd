@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
-options(width = 90, cli.dynamic = FALSE)
+options(cli.dynamic = FALSE)
 
 library(INLAvaan)
 library(lavaan)
@@ -32,7 +32,7 @@ library(tidyverse)
 > Efficient approximate Bayesian inference for Structural Equation Models.
 
 While Markov Chain Monte Carlo (MCMC) methods remain the gold standard for exact Bayesian inference, they can be prohibitively slow for iterative model development. 
-`{INLAvaan}` offers a rapid alternative for **la**tent **va**riable **an**alysis, delivering Bayesian results at (or near) the speed of frequentist estimators.
+`{INLAvaan}` offers a rapid alternative for <u>**la**</u>tent <u>**va**</u>riable <u>**an**</u>alysis, delivering Bayesian results at (or near) the speed of frequentist estimators.
 It achieves this through a custom, ground-up implementation of the [Integrated Nested Laplace Approximation (INLA)](https://www.r-inla.org), engineered specifically for the [lavaan](https://lavaan.org) modelling framework.
 
 ## A Familiar Interface
