@@ -38,20 +38,21 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [272ms]
+#> ✔ Finding posterior mode. [284ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [391ms]
+#> ✔ Computing the Hessian. [433ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [561ms]
+#> ✔ Fitting skew normal to marginals. [603ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [413ms]
+#> ✔ Sampling posterior covariances. [461ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.5s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [2.7s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 85 iterations
@@ -65,12 +66,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2557.566 
-#>    PPP (Chi-square)                              0.940 
+#>    PPP (Chi-square)                              0.945 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.380 
-#>    Effective parameters (pD)                    17.065 
+#>    Deviance (DIC)                             4996.249 
+#>    Effective parameters (pD)                    17.000 
 #> 
 #> Parameter Estimates:
 #> 
@@ -109,7 +110,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>  .i ~~                                                                
-#>    .s                 0.155    0.039   -0.004    0.148       beta(1,1)
+#>    .s                 0.155    0.039   -0.004    0.150       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
