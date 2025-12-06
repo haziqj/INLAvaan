@@ -193,17 +193,17 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [238ms]
+#> ✔ Finding posterior mode. [230ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [704ms]
+#> ✔ Computing the Hessian. [650ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [1.1s]
+#> ✔ Fitting skew normal to marginals. [910ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [345ms]
+#> ✔ Sampling posterior covariances. [320ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 70 iterations

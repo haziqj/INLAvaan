@@ -161,17 +161,18 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [130ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [119ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [189ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [177ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [308ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [292ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.6s]</span></span>
+<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.5s]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney, Kass, and Kadane 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
@@ -266,13 +267,12 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eta_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■                                5% | ETA: 24s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■                           20% | ETA: 17s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■                       34% | ETA: 14s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■                  49% | ETA: 11s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■              63% | ETA:  8s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■          76% | ETA:  5s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      90% | ETA:  2s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■                              10% | ETA: 18s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■                         27% | ETA: 14s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■                    42% | ETA: 11s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■                57% | ETA:  8s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           72% | ETA:  5s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       87% | ETA:  3s</span></span>
 <span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
@@ -350,17 +350,18 @@
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [141ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [113ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [185ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [161ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [249ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [218ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.6s]</span></span>
+<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>

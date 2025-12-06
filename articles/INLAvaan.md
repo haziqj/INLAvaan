@@ -110,17 +110,18 @@ mod <- "
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [130ms]
+#> ✔ Finding posterior mode. [119ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [189ms]
+#> ✔ Computing the Hessian. [177ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [308ms]
+#> ✔ Fitting skew normal to marginals. [292ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.6s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [1.5s]
 #> 
 ```
 
@@ -259,13 +260,12 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■                                5% | ETA: 24s
-#> Sampling latent variables ■■■■■■■                           20% | ETA: 17s
-#> Sampling latent variables ■■■■■■■■■■■                       34% | ETA: 14s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■                  49% | ETA: 11s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■              63% | ETA:  8s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■          76% | ETA:  5s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      90% | ETA:  2s
+#> Sampling latent variables ■■■■                              10% | ETA: 18s
+#> Sampling latent variables ■■■■■■■■■                         27% | ETA: 14s
+#> Sampling latent variables ■■■■■■■■■■■■■■                    42% | ETA: 11s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■                57% | ETA:  8s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           72% | ETA:  5s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       87% | ETA:  3s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
@@ -352,17 +352,18 @@ mod2 <- "
 fit2 <- asem(mod2, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [141ms]
+#> ✔ Finding posterior mode. [113ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [185ms]
+#> ✔ Computing the Hessian. [161ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [249ms]
+#> ✔ Fitting skew normal to marginals. [218ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.6s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [1.5s]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
