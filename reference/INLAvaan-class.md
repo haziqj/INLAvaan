@@ -14,7 +14,7 @@ coef(object)
 plot(x, y, ...)
 
 # S4 method for class 'INLAvaan'
-predict(object, ...)
+predict(object, nsamp, ...)
 
 # S4 method for class 'INLAvaan'
 show(object)
@@ -27,8 +27,8 @@ summary(
   estimates = TRUE,
   standardized = FALSE,
   rsquare = FALSE,
-  postmedian = TRUE,
-  postmode = TRUE,
+  postmedian = FALSE,
+  postmode = FALSE,
   priors = TRUE,
   nd = 3L,
   ...
@@ -54,6 +54,11 @@ summary(
 - ...:
 
   Not used.
+
+- nsamp:
+
+  The number of samples to draw for all sampling-based approaches
+  (including posterior sampling for model fit indices).
 
 - header:
 

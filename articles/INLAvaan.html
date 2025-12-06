@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>INLAvaan • INLAvaan</title>
+<title>Get started • INLAvaan</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -15,7 +15,10 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="INLAvaan">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="INLAvaan_files/libs/quarto-html/popper.min.js"></script><script src="INLAvaan_files/libs/quarto-html/tippy.umd.min.js"></script><link href="INLAvaan_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="INLAvaan_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Get started">
+<meta property="og:image" content="https://inlavaan.haziqj.ml/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -38,11 +41,13 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-examples">
-<li><h6 class="dropdown-header" data-toc-skip>Confirmatory factor analysis</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Structural equation modelling</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Growth curve modelling</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Equality constraints</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Multigroup analysis</h6></li>
+<li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
+    <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
+    <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/outro.html">Outro</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -58,28 +63,476 @@
 
 
   </div>
-</nav><div class="container template-article">
-
-
-
-
+</nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>INLAvaan</h1>
-            
-      
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/INLAvaan.Rmd" class="external-link"><code>vignettes/INLAvaan.Rmd</code></a></small>
-      <div class="d-none name"><code>INLAvaan.Rmd</code></div>
+      <img src="../logo.png" class="logo" alt=""><h1>Get started</h1>
+
+
+
+
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/INLAvaan.qmd" class="external-link"><code>vignettes/INLAvaan.qmd</code></a></small>
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a></span><span class="op">)</span></span></code></pre></div>
-<p>To be added…</p>
-  </main>
-</div>
 
+
+
+
+
+    <section class="level2"><h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>SEMs are ubiquitous in the social sciences, psychology, ecology, and other fields. The INLAvaan package provides a user-friendly interface for fitting Bayesian SEMs using Integrated Nested Laplace Approximations <span class="citation" data-cites="rue2009approximate">(INLA, <a href="#ref-rue2009approximate" role="doc-biblioref">Rue, Martino, and Chopin 2009</a>)</span>. This vignette will guide you through the basics of using INLAvaan to fit a simple SEM. Before we begin make sure you have installed the INLAvaan package from GitHub by running the commands below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Run this if you have not yet installed INLAvaan</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pak"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"haziqj/INLAvaan"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load all libraries for this example</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span></code></pre></div>
+</div>
+</section><section class="level2"><h2 id="motivating-example">Motivating example<a class="anchor" aria-label="anchor" href="#motivating-example"></a>
+</h2>
+<p>To motivate the use of SEMs, consider the introductory example in <span class="citation" data-cites="song2012basic">Song and Lee (<a href="#ref-song2012basic" role="doc-biblioref">2012</a>)</span>: <em>Does poorer glycemic control lead to greater severity of kidney disease?</em> We observe three indicators of glycemic control (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">y_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">y_2</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>3</mn></msub><annotation encoding="application/x-tex">y_3</annotation></semantics></math>) and three indicators of kidney disease severity (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>4</mn></msub><annotation encoding="application/x-tex">y_4</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>5</mn></msub><annotation encoding="application/x-tex">y_5</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>6</mn></msub><annotation encoding="application/x-tex">y_6</annotation></semantics></math>).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="glycemic-table.png" class="quarto-figure quarto-figure-center" style="width:75.0%"></p>
+</figure>
+</div>
+<p>Rather than fitting separate regression models for each indicator, SEM allows us to model the relationship between the latent constructs themselves, providing a clearer and more coherent representation of the underlying processes. The hypothesised SEM is illustrated by the figure below:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="https://haziqj.ml/sembias-gradsem/index_files/figure-revealjs/unnamed-chunk-4-1.png" class="quarto-figure quarto-figure-center" style="width:75.0%"></p>
+</figure>
+</div>
+</section><section class="level2"><h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
+</h2>
+<p>For the two-factor SEM we described above, it is easy to simulate some data using the <a href="https://lavaan.ugent.be" class="external-link">lavaan</a> package to do so. The code is below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pop_mod</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  eta1 =~ 1*y1 + 0.8*y2 + 0.6*y3</span></span>
+<span><span class="st">  eta2 =~ 1*y4 + 0.8*y5 + 0.6*y6</span></span>
+<span><span class="st">  eta2 ~ 0.3*eta1</span></span>
+<span><span class="st">  </span></span>
+<span><span class="st">  # Variances</span></span>
+<span><span class="st">  y1 ~~ 0.5*y1</span></span>
+<span><span class="st">  y2 ~~ 0.5*y2</span></span>
+<span><span class="st">  y3 ~~ 0.5*y3</span></span>
+<span><span class="st">  y4 ~~ 0.5*y4</span></span>
+<span><span class="st">  y5 ~~ 0.5*y5</span></span>
+<span><span class="st">  y6 ~~ 0.5*y6</span></span>
+<span><span class="st">  eta1 ~~ 1*eta1</span></span>
+<span><span class="st">  eta2 ~~ 1*eta2</span></span>
+<span><span class="st">"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">lavaan</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/simulateData.html" class="external-link">simulateData</a></span><span class="op">(</span><span class="va">pop_mod</span>, sample.nobs <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="fu">glimpse</span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 1,000</span></span>
+<span><span class="co">#&gt; Columns: 6</span></span>
+<span><span class="co">#&gt; $ y1 &lt;dbl&gt; 1.1455803, 1.4947024, -1.2456403, -0.1086872, 1.0923138, -1.2380598…</span></span>
+<span><span class="co">#&gt; $ y2 &lt;dbl&gt; 0.91137657, 0.72401293, -1.25960940, 0.76466115, 2.19814346, -2.548…</span></span>
+<span><span class="co">#&gt; $ y3 &lt;dbl&gt; 0.921500064, -0.207810400, -0.485685595, -0.699851026, 1.305249049,…</span></span>
+<span><span class="co">#&gt; $ y4 &lt;dbl&gt; -0.14207811, -0.37935984, -0.96230121, 0.38055295, -2.82223505, -1.…</span></span>
+<span><span class="co">#&gt; $ y5 &lt;dbl&gt; 0.22887213, -0.49975381, -0.94007870, -1.22195516, -1.55233455, -0.…</span></span>
+<span><span class="co">#&gt; $ y6 &lt;dbl&gt; -0.43559523, -0.21900233, -2.15905213, 0.48356421, 0.83857184, -1.0…</span></span></code></pre></div>
+</div>
+<p>From the code above, note the true values of the parameters, including the factor loadings <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Λ</mi><annotation encoding="application/x-tex">\Lambda</annotation></semantics></math>, regression coefficient <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math> between the two latent variables, as well as the residual and latent variances <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Θ</mi><annotation encoding="application/x-tex">\Theta</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Ψ</mi><annotation encoding="application/x-tex">\Psi</annotation></semantics></math> respectively.</p>
+</section><section class="level2"><h2 id="model-fit">Model fit<a class="anchor" aria-label="anchor" href="#model-fit"></a>
+</h2>
+<p>Now that we have simulated some data, we can fit the SEM using INLAvaan. The model syntax is similar to that of <a href="https://lavaan.ugent.be" class="external-link">lavaan</a>, making it easy to specify the model. For further details on the model syntax, refer to the <a href="https://lavaan.ugent.be/tutorial/syntax1.html" class="external-link">lavaan website</a>. <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> provides mirror functions for the main model fitting functions in <a href="https://lavaan.ugent.be" class="external-link">lavaan</a>:</p>
+<ul>
+<li>
+<code><a href="../reference/acfa.html">acfa()</a></code> mirrors <code><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">lavaan::cfa()</a></code> for confirmatory factor analysis; and</li>
+<li>
+<code><a href="../reference/asem.html">asem()</a></code> mirrors <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code> for structural equation models;</li>
+<li>
+<code><a href="../reference/agrowth.html">agrowth()</a></code> mirrors <code><a href="https://rdrr.io/pkg/lavaan/man/growth.html" class="external-link">lavaan::growth()</a></code> for latent growth curve models.</li>
+</ul>
+<p>The code to fit the SEM model is below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  eta1 =~ y1 + y2 + y3</span></span>
+<span><span class="st">  eta2 =~ y4 + y5 + y6</span></span>
+<span><span class="st">  eta2 ~ eta1</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
+<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [118ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [172ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
+<span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [286ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.5s]</span></span>
+<span><span class="co">#&gt; </span></span></code></pre></div>
+</div>
+<p><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney, Kass, and Kadane 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
+<p>From this, marginal posterior distributions for each parameter can be obtained by one of several ways, including 1) Skew normal fitting <span class="citation" data-cites="chiuchiolo2023joint">(<code>marginal_method = "skewnorm"</code>, the default method, see <a href="#ref-chiuchiolo2023joint" role="doc-biblioref">Chiuchiolo, Van Niekerk, and Rue 2023</a>)</span>; 2) Two-piece asymmetric Gaussian fitting <span class="citation" data-cites="martins2013bayesian">(<code>marginal_method = "asymgaus"</code>, see <a href="#ref-martins2013bayesian" role="doc-biblioref">Martins et al. 2013</a>)</span>; 3) Direct marginalisation of the joint Gaussian posterior (<code>marginal_method = "marggaus"</code>); and 4) Sampling from the joint Gaussian posterior (<code>marginal_method = "sampling"</code>).</p>
+<p>Once the marginal posterior distributions have been obtained, we can further use these to compute any derived quantities of interest via copula sampling. The posterior predictive p-values <span class="citation" data-cites="gelman1996posterior">(<a href="#ref-gelman1996posterior" role="doc-biblioref">Gelman, Meng, and Stern 1996</a>)</span> and Deviance Information Criterion <span class="citation" data-cites="spiegelhalter2002bayesian">(DIC, <a href="#ref-spiegelhalter2002bayesian" role="doc-biblioref">Spiegelhalter et al. 2002</a>)</span> are computed this way. Often, the posterior sampling takes longer than the model fitting itself, so the number of samples can be controlled via the <code>nsamp</code> argument (default is <code>nsamp = 1000</code>) or can be skipped altoghether (<code>test = "none"</code>).</p>
+</section><section class="level2"><h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a>
+</h2>
+<p>The resulting object is of class <code>INLAvaan</code>, a subclass of <code>lavaan</code> objects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots</span></span>
+<span><span class="va">fit</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.0 ended normally after 62 iterations</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
+<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        13</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Number of observations                          1000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Test (User Model):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                   -8062.521 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.343</span></span></code></pre></div>
+</div>
+<p>As a result, most of the methods that work for <code>lavaan</code> objects will also work for <code>INLAvaan</code> objects. The most common ones are probably <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Inspect coefficients</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   eta1=~y2   eta1=~y3   eta2=~y5   eta2=~y6  eta2~eta1     y1~~y1     y2~~y2 </span></span>
+<span><span class="co">#&gt;      0.872      0.600      0.787      0.582      0.272      0.483      0.500 </span></span>
+<span><span class="co">#&gt;     y3~~y3     y4~~y4     y5~~y5     y6~~y6 eta1~~eta1 eta2~~eta2 </span></span>
+<span><span class="co">#&gt;      0.488      0.474      0.465      0.521      1.058      0.935</span></span>
+<span></span>
+<span><span class="co"># Summary of results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.0 ended normally after 62 iterations</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
+<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        13</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Number of observations                          1000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Test (User Model):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                   -8062.521 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.343 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Information Criteria:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            16031.116 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    12.657 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Parameter Estimates:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Marginalisation method                     SKEWNORM</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Latent Variables:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
+<span><span class="co">#&gt;   eta1 =~                                                             </span></span>
+<span><span class="co">#&gt;     y1                1.000                                           </span></span>
+<span><span class="co">#&gt;     y2                0.872    0.043    0.790    0.957    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y3                0.600    0.032    0.538    0.664    normal(0,10)</span></span>
+<span><span class="co">#&gt;   eta2 =~                                                             </span></span>
+<span><span class="co">#&gt;     y4                1.000                                           </span></span>
+<span><span class="co">#&gt;     y5                0.787    0.042    0.707    0.873    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y6                0.582    0.034    0.517    0.650    normal(0,10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Regressions:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
+<span><span class="co">#&gt;   eta2 ~                                                              </span></span>
+<span><span class="co">#&gt;     eta1              0.272    0.038    0.198    0.347    normal(0,10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variances:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
+<span><span class="co">#&gt;    .y1                0.483    0.047    0.396    0.581 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y2                0.500    0.039    0.428    0.580 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y3                0.488    0.027    0.438    0.543 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y4                0.474    0.050    0.382    0.577 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y5                0.465    0.035    0.401    0.536 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y6                0.521    0.028    0.468    0.579 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     eta1              1.058    0.078    0.914    1.219 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .eta2              0.935    0.073    0.800    1.087 gamma(1,.5)[sd]</span></span></code></pre></div>
+</div>
+<p>It’s possible to request posterior medians and modes in the summary output by specifying <code>postmedian = TRUE</code> or <code>postmode = TRUE</code> in the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function.</p>
+<section class="level3"><h3 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
+</h3>
+<p>Predicted values for the latent variables can be obtained using the <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> function. This is done by sampling from the posterior distributions of the latent variables given the observed data. In the future, this function will also allow for out-of-sample predictions and also to retrieve predictions for observed variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">eta_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■                              11% | ETA: 18s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■                         27% | ETA: 14s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■                    43% | ETA: 11s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■                58% | ETA:  8s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           73% | ETA:  5s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       88% | ETA:  2s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 100</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            eta1       eta2</span></span>
+<span><span class="co">#&gt; [1,]  1.9517115  0.1657526</span></span>
+<span><span class="co">#&gt; [2,]  0.2039747 -1.3538419</span></span>
+<span><span class="co">#&gt; [3,] -1.3452835 -0.2163973</span></span>
+<span><span class="co">#&gt; [4,]  0.3524549  0.1483541</span></span>
+<span><span class="co">#&gt; [5,]  1.8326316 -1.1539678</span></span>
+<span><span class="co">#&gt; [6,] -1.8437214 -1.1966514</span></span></code></pre></div>
+</div>
+<p>This is an S3 object with a summary method that provides posterior means and credible intervals for the latent variables. Alternatively, the user is welcome to perform their own summary statistics on the list of posterior samples returned by <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">summ_eta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">summ_eta</span><span class="op">)</span></span>
+<span><span class="co">#&gt; List of 6</span></span>
+<span><span class="co">#&gt;  $ group_id: NULL</span></span>
+<span><span class="co">#&gt;  $ Mean    : num [1:1000, 1:2] 0.92946 0.67225 -1.1641 -0.00601 1.33624 ...</span></span>
+<span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
+<span><span class="co">#&gt;   .. ..$ : NULL</span></span>
+<span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
+<span><span class="co">#&gt;  $ SD      : num [1:1000, 1:2] 0.412 0.435 0.412 0.424 0.454 ...</span></span>
+<span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
+<span><span class="co">#&gt;   .. ..$ : NULL</span></span>
+<span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
+<span><span class="co">#&gt;  $ 2.5%    : num [1:1000, 1:2] 0.147 -0.216 -1.902 -0.848 0.536 ...</span></span>
+<span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
+<span><span class="co">#&gt;   .. ..$ : NULL</span></span>
+<span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
+<span><span class="co">#&gt;  $ 50%     : num [1:1000, 1:2] 0.9499 0.6666 -1.183 0.0184 1.283 ...</span></span>
+<span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
+<span><span class="co">#&gt;   .. ..$ : NULL</span></span>
+<span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
+<span><span class="co">#&gt;  $ 97.5%   : num [1:1000, 1:2] 1.678 1.505 -0.289 0.712 2.323 ...</span></span>
+<span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
+<span><span class="co">#&gt;   .. ..$ : NULL</span></span>
+<span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
+<span><span class="co">#&gt;  - attr(*, "class")= chr "summary.predict.inlavaan_internal"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">summ_eta</span><span class="op">$</span><span class="va">Mean</span><span class="op">)</span></span>
+<span><span class="co">#&gt;              eta1        eta2</span></span>
+<span><span class="co">#&gt; [1,]  0.929456178 -0.03525463</span></span>
+<span><span class="co">#&gt; [2,]  0.672250335 -0.37832220</span></span>
+<span><span class="co">#&gt; [3,] -1.164103491 -1.21622512</span></span>
+<span><span class="co">#&gt; [4,] -0.006007715 -0.11400159</span></span>
+<span><span class="co">#&gt; [5,]  1.336235810 -1.41207841</span></span>
+<span><span class="co">#&gt; [6,] -1.762471687 -0.79927264</span></span></code></pre></div>
+</div>
+</section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
+</h3>
+<p>A simple plot method is provided to view the marginal posterior distributions of the parameters. The vertical lines indicate the posterior mode.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output-display">
+<div>
+<figure><p><img src="INLAvaan_files/figure-html/results-plot-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section></section><section class="level2"><h2 id="model-comparison">Model comparison<a class="anchor" aria-label="anchor" href="#model-comparison"></a>
+</h2>
+<p>In addition to several global fit indices (i.e. PPP, DIC), it is possible to compare models by way of Bayes factors using the <code><a href="../reference/compare.html">compare()</a></code> function. This function takes two <code>INLAvaan</code> objects and computes the Bayes factor using the Laplace approximations to the marginal likelihoods.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mod2</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  # A model with uncorrelated factors</span></span>
+<span><span class="st">  eta1 =~ y1 + y2 + y3</span></span>
+<span><span class="st">  eta2 =~ y4 + y5 + y6</span></span>
+<span><span class="st">  eta1 ~~ 0*eta2</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
+<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [112ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [160ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
+<span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [219ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.4s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
+<span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Model No.params Marg.Loglik      DIC       pD   logBF</span></span>
+<span><span class="co">#&gt;    fit        13   -8062.521 16031.12 12.65671   0.000</span></span>
+<span><span class="co">#&gt;   fit2        12   -8082.878 16081.92 11.99086 -20.357</span></span></code></pre></div>
+</div>
+<p>As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs <span class="citation" data-cites="tendeiro2019review schad2023workflow">(<a href="#ref-tendeiro2019review" role="doc-biblioref">Tendeiro and Kiers 2019</a>; <a href="#ref-schad2023workflow" role="doc-biblioref">Schad et al. 2023</a>)</span>. The <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> package is able to implement <a href="https://ecmerkle.github.io/blavaan/articles/model_comparison.html" class="external-link">WAICs and LOOs</a> as alternative model comparison metrics, and these will hopefully also be implemented in future versions of <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a>.</p>
+</section><section class="level2"><h2 id="setting-priors">Setting priors<a class="anchor" aria-label="anchor" href="#setting-priors"></a>
+</h2>
+<p>The <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> package uses the same prior specification syntax as <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> <span class="citation" data-cites="merkle2018blavaan merkle2021efficient">(<a href="#ref-merkle2018blavaan" role="doc-biblioref">Merkle and Rosseel 2018</a>; <a href="#ref-merkle2021efficient" role="doc-biblioref">Merkle et al. 2021</a>)</span>, as detailed <a href="https://ecmerkle.github.io/blavaan/articles/prior.html" class="external-link">here</a>. Essentially, there are two ways to set priors for model parameters: 1) Globally for all parameters of a certain type (e.g., all factor loadings, all regression coefficients, etc.); and 2) Individually for specific parameters in the model syntax.</p>
+<p>The default global priors are derived from <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">blavaan</span><span class="fu">::</span><span class="fu"><a href="http://ecmerkle.github.io/blavaan/reference/dpriors.html" class="external-link">dpriors</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                nu             alpha            lambda              beta </span></span>
+<span><span class="co">#&gt;    "normal(0,32)"    "normal(0,10)"    "normal(0,10)"    "normal(0,10)" </span></span>
+<span><span class="co">#&gt;             theta               psi               rho             ibpsi </span></span>
+<span><span class="co">#&gt; "gamma(1,.5)[sd]" "gamma(1,.5)[sd]"       "beta(1,1)" "wishart(3,iden)" </span></span>
+<span><span class="co">#&gt;               tau </span></span>
+<span><span class="co">#&gt;   "normal(0,1.5)"</span></span></code></pre></div>
+</div>
+<p>Note that, <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> uses the SRS decomposition on variance matrices, and consequently places priors on <strong>correlations</strong> instead of <em>covariances</em>. If, instead we wished to set global priors, say a Gamma distribution on <strong>variances</strong> instead of <strong>standard deviations</strong> (default), then we would do the following:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">DP</span> <span class="op">&lt;-</span> <span class="fu">blavaan</span><span class="fu">::</span><span class="fu"><a href="http://ecmerkle.github.io/blavaan/reference/dpriors.html" class="external-link">dpriors</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="st">"gamma(1,1)"</span>, psi <span class="op">=</span> <span class="st">"gamma(1,1)"</span><span class="op">)</span></span>
+<span><span class="va">DP</span></span>
+<span><span class="co">#&gt;                nu             alpha            lambda              beta </span></span>
+<span><span class="co">#&gt;    "normal(0,32)"    "normal(0,10)"    "normal(0,10)"    "normal(0,10)" </span></span>
+<span><span class="co">#&gt;             theta               psi               rho             ibpsi </span></span>
+<span><span class="co">#&gt;      "gamma(1,1)"      "gamma(1,1)"       "beta(1,1)" "wishart(3,iden)" </span></span>
+<span><span class="co">#&gt;               tau </span></span>
+<span><span class="co">#&gt;   "normal(0,1.5)"</span></span>
+<span><span class="co">## fit &lt;- asem(mod, dat, dpriors = DP)  # not run</span></span></code></pre></div>
+</div>
+<p>To set individual priors for specific parameters, we can do so in the model syntax itself. For instance, to set a normal prior with mean 1 and standard deviation 3 for the factor loading of <code>y3</code> on <code>eta1</code>, and a normal prior with mean 0 and standard deviation 0.5 for the regression coefficient from <code>eta1</code> to <code>eta2</code>, we would specify the model as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  eta1 =~ y1 + y2 + prior('normal(1,3)')*y3</span></span>
+<span><span class="st">  eta2 =~ y4 + y5 + y6</span></span>
+<span><span class="st">  eta2 ~ prior('normal(0,.5)')*eta1</span></span>
+<span><span class="st">"</span></span>
+<span><span class="co">## fit &lt;- asem(mod, dat)  # not run</span></span></code></pre></div>
+</div>
+</section><section class="level2"><h2 id="dependency-on-r-inla">Dependency on R-INLA<a class="anchor" aria-label="anchor" href="#dependency-on-r-inla"></a>
+</h2>
+<p>Dependency on R-INLA has been temporarily removed for tThe current version of <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> (v0.2-0). For a wide class LVMs and SEMs where the latent variables are unstructured and independent, the current implementation is sufficient. However, future versions of <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> will re-introduce dependency on R-INLA to allow for more complex latent structures, such as spatial and temporal dependencies.</p>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-chiuchiolo2023joint" class="csl-entry" role="listitem">
+Chiuchiolo, Cristian, Janet Van Niekerk, and Håvard Rue. 2023. <span>“Joint Posterior Inference for Latent <span>Gaussian</span> Models with <span>R-INLA</span>.”</span> <em>Journal of Statistical Computation and Simulation</em> 93 (5): 723–52. <a href="https://doi.org/10.1080/00949655.2022.2117813" class="external-link">https://doi.org/10.1080/00949655.2022.2117813</a>.
+</div>
+<div id="ref-gelman1996posterior" class="csl-entry" role="listitem">
+Gelman, Andrew, Xiao-Li Meng, and Hal Stern. 1996. <span>“Posterior <span>Predictive Assessment</span> of <span>Model Fitness Via Realized Discrepancies</span>.”</span> <em>Statistica Sinica</em> 6 (4): 733–60. <a href="https://www.jstor.org/stable/24306036" class="external-link">https://www.jstor.org/stable/24306036</a>.
+</div>
+<div id="ref-martins2013bayesian" class="csl-entry" role="listitem">
+Martins, Thiago G., Daniel Simpson, Finn Lindgren, and Håvard Rue. 2013. <span>“Bayesian Computing with <span>INLA</span>: <span>New</span> Features.”</span> <em>Computational Statistics &amp; Data Analysis</em> 67 (November): 68–83. <a href="https://doi.org/10.1016/j.csda.2013.04.014" class="external-link">https://doi.org/10.1016/j.csda.2013.04.014</a>.
+</div>
+<div id="ref-merkle2021efficient" class="csl-entry" role="listitem">
+Merkle, Edgar C., Ellen Fitzsimmons, James Uanhoro, and Ben Goodrich. 2021. <span>“Efficient <span>Bayesian Structural Equation Modeling</span> in <span>Stan</span>.”</span> <em>Journal of Statistical Software</em> 100 (November): 1–22. <a href="https://doi.org/10.18637/jss.v100.i06" class="external-link">https://doi.org/10.18637/jss.v100.i06</a>.
+</div>
+<div id="ref-merkle2018blavaan" class="csl-entry" role="listitem">
+Merkle, Edgar C., and Yves Rosseel. 2018. <span>“<span class="nocase">blavaan</span>: <span>Bayesian Structural Equation Models</span> via <span>Parameter Expansion</span>.”</span> <em>Journal of Statistical Software</em> 85 (June): 1–30. <a href="https://doi.org/10.18637/jss.v085.i04" class="external-link">https://doi.org/10.18637/jss.v085.i04</a>.
+</div>
+<div id="ref-rue2009approximate" class="csl-entry" role="listitem">
+Rue, Håvard, Sara Martino, and Nicolas Chopin. 2009. <span>“Approximate <span>Bayesian Inference</span> for <span>Latent Gaussian</span> Models by Using <span>Integrated Nested Laplace Approximations</span>.”</span> <em>Journal of the Royal Statistical Society Series B: Statistical Methodology</em> 71 (2): 319–92. <a href="https://doi.org/10.1111/j.1467-9868.2008.00700.x" class="external-link">https://doi.org/10.1111/j.1467-9868.2008.00700.x</a>.
+</div>
+<div id="ref-schad2023workflow" class="csl-entry" role="listitem">
+Schad, Daniel J., Bruno Nicenboim, Paul-Christian Bürkner, Michael Betancourt, and Shravan Vasishth. 2023. <span>“Workflow Techniques for the Robust Use of Bayes Factors.”</span> <em>Psychological Methods</em> 28 (6): 1404–26. <a href="https://doi.org/10.1037/met0000472" class="external-link">https://doi.org/10.1037/met0000472</a>.
+</div>
+<div id="ref-song2012basic" class="csl-entry" role="listitem">
+Song, Xin‐Yuan, and Sik‐Yum Lee. 2012. <em>Basic and <span>Advanced Bayesian Structural Equation Modeling</span>: <span>With Applications</span> in the <span>Medical</span> and <span>Behavioral Sciences</span></em>. 1st ed. Wiley <span>Series</span> in <span>Probability</span> and <span>Statistics</span>. Wiley. <a href="https://doi.org/10.1002/9781118358887" class="external-link">https://doi.org/10.1002/9781118358887</a>.
+</div>
+<div id="ref-spiegelhalter2002bayesian" class="csl-entry" role="listitem">
+Spiegelhalter, David J, Nicola G Best, Bradley P Carlin, and Angelika Van Der Linde. 2002. <span>“Bayesian Measures of Model Complexity and Fit.”</span> <em>Journal of the Royal Statistical Society Series B: Statistical Methodology</em> 64 (4): 583–639.
+</div>
+<div id="ref-tendeiro2019review" class="csl-entry" role="listitem">
+Tendeiro, Jorge N., and Henk A. L. Kiers. 2019. <span>“A Review of Issues about Null Hypothesis <span>Bayesian</span> Testing.”</span> <em>Psychological Methods</em> 24 (6): 774–95. <a href="https://doi.org/10.1037/met0000221" class="external-link">https://doi.org/10.1037/met0000221</a>.
+</div>
+<div id="ref-tierney1989fully" class="csl-entry" role="listitem">
+Tierney, Luke, Robert E. Kass, and Joseph B. Kadane. 1989. <span>“Fully <span>Exponential Laplace Approximations</span> to <span>Expectations</span> and <span>Variances</span> of <span>Nonpositive Functions</span>.”</span> <em>Journal of the American Statistical Association</em> 84 (407): 710–16. <a href="https://doi.org/10.1080/01621459.1989.10478824" class="external-link">https://doi.org/10.1080/01621459.1989.10478824</a>.
+</div>
+</div>
+</section><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config);
+    }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
+</div>
 
 
     <footer><div class="pkgdown-footer-left">

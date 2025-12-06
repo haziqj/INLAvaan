@@ -202,26 +202,26 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [274ms]
+#> ✔ Finding posterior mode. [257ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [414ms]
+#> ✔ Computing the Hessian. [387ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [560ms]
+#> ✔ Fitting skew normal to marginals. [520ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [438ms]
+#> ✔ Sampling posterior covariances. [432ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.6s]
+#> ✔ Computing ppp and DIC. [2.7s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 85 iterations
 #> 
-#>   Estimator                                         ML
+#>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
 #>   Number of model parameters                        17
 #> 
@@ -242,99 +242,56 @@ summary(fit)
 #>    Marginalisation method                     SKEWNORM
 #> 
 #> Latent Variables:
-#>                    Estimate       SD     2.5%      50%    97.5%     Mode
-#>   i =~                                                                  
-#>     t1                1.000                                             
-#>     t2                1.000                                             
-#>     t3                1.000                                             
-#>     t4                1.000                                             
-#>   s =~                                                                  
-#>     t1                0.000                                             
-#>     t2                1.000                                             
-#>     t3                2.000                                             
-#>     t4                3.000                                             
-#>     Prior       
-#>                 
-#>                 
-#>                 
-#>                 
-#>                 
-#>                 
-#>                 
-#>                 
-#>                 
-#>                 
+#>                    Estimate       SD     2.5%    97.5%    Prior       
+#>   i =~                                                                
+#>     t1                1.000                                           
+#>     t2                1.000                                           
+#>     t3                1.000                                           
+#>     t4                1.000                                           
+#>   s =~                                                                
+#>     t1                0.000                                           
+#>     t2                1.000                                           
+#>     t3                2.000                                           
+#>     t4                3.000                                           
 #> 
 #> Regressions:
-#>                    Estimate       SD     2.5%      50%    97.5%     Mode
-#>   i ~                                                                   
-#>     x1                0.608    0.060    0.491    0.608    0.726    0.608
-#>     x2                0.604    0.064    0.478    0.604    0.730    0.604
-#>   s ~                                                                   
-#>     x1                0.262    0.029    0.206    0.262    0.318    0.262
-#>     x2                0.522    0.031    0.462    0.522    0.582    0.522
-#>   t1 ~                                                                  
-#>     c1                0.144    0.050    0.046    0.144    0.242    0.143
-#>   t2 ~                                                                  
-#>     c2                0.289    0.046    0.199    0.289    0.379    0.289
-#>   t3 ~                                                                  
-#>     c3                0.328    0.045    0.240    0.328    0.415    0.328
-#>   t4 ~                                                                  
-#>     c4                0.331    0.059    0.216    0.331    0.446    0.331
-#>     Prior       
-#>                 
-#>     normal(0,10)
-#>     normal(0,10)
-#>                 
-#>     normal(0,10)
-#>     normal(0,10)
-#>                 
-#>     normal(0,10)
-#>                 
-#>     normal(0,10)
-#>                 
-#>     normal(0,10)
-#>                 
-#>     normal(0,10)
+#>                    Estimate       SD     2.5%    97.5%    Prior       
+#>   i ~                                                                 
+#>     x1                0.608    0.060    0.491    0.726    normal(0,10)
+#>     x2                0.604    0.064    0.478    0.730    normal(0,10)
+#>   s ~                                                                 
+#>     x1                0.262    0.029    0.206    0.318    normal(0,10)
+#>     x2                0.522    0.031    0.462    0.582    normal(0,10)
+#>   t1 ~                                                                
+#>     c1                0.144    0.050    0.046    0.242    normal(0,10)
+#>   t2 ~                                                                
+#>     c2                0.289    0.046    0.199    0.379    normal(0,10)
+#>   t3 ~                                                                
+#>     c3                0.328    0.045    0.240    0.415    normal(0,10)
+#>   t4 ~                                                                
+#>     c4                0.331    0.059    0.216    0.446    normal(0,10)
 #> 
 #> Covariances:
-#>                    Estimate       SD     2.5%      50%    97.5%     Mode
-#>  .i ~~                                                                  
-#>    .s                 0.155    0.039   -0.004    0.073    0.149    0.073
-#>     Prior       
-#>                 
-#>        beta(1,1)
+#>                    Estimate       SD     2.5%    97.5%    Prior       
+#>  .i ~~                                                                
+#>    .s                 0.155    0.039   -0.004    0.149       beta(1,1)
 #> 
 #> Intercepts:
-#>                    Estimate       SD     2.5%      50%    97.5%     Mode
-#>    .t1                0.000                                             
-#>    .t2                0.000                                             
-#>    .t3                0.000                                             
-#>    .t4                0.000                                             
-#>    .i                 0.580    0.062    0.459    0.580    0.702    0.580
-#>    .s                 0.958    0.030    0.900    0.958    1.016    0.958
-#>     Prior       
-#>                 
-#>                 
-#>                 
-#>                 
-#>     normal(0,10)
-#>     normal(0,10)
+#>                    Estimate       SD     2.5%    97.5%    Prior       
+#>    .t1                0.000                                           
+#>    .t2                0.000                                           
+#>    .t3                0.000                                           
+#>    .t4                0.000                                           
+#>    .i                 0.580    0.062    0.459    0.702    normal(0,10)
+#>    .s                 0.958    0.030    0.900    1.016    normal(0,10)
 #> 
 #> Variances:
-#>                    Estimate       SD     2.5%      50%    97.5%     Mode
-#>    .t1                0.578    0.080    0.429    0.575    0.743    0.570
-#>    .t2                0.599    0.055    0.499    0.597    0.714    0.592
-#>    .t3                0.483    0.055    0.381    0.481    0.597    0.476
-#>    .t4                0.536    0.097    0.362    0.531    0.742    0.520
-#>    .i                 1.088    0.113    0.883    1.082    1.325    1.070
-#>    .s                 0.226    0.026    0.178    0.224    0.282    0.222
-#>     Prior       
-#>  gamma(1,.5)[sd]
-#>  gamma(1,.5)[sd]
-#>  gamma(1,.5)[sd]
-#>  gamma(1,.5)[sd]
-#>  gamma(1,.5)[sd]
-#>  gamma(1,.5)[sd]
+#>                    Estimate       SD     2.5%    97.5%    Prior       
+#>    .t1                0.578    0.080    0.429    0.743 gamma(1,.5)[sd]
+#>    .t2                0.599    0.055    0.499    0.714 gamma(1,.5)[sd]
+#>    .t3                0.483    0.055    0.381    0.597 gamma(1,.5)[sd]
+#>    .t4                0.536    0.097    0.362    0.742 gamma(1,.5)[sd]
+#>    .i                 1.088    0.113    0.883    1.325 gamma(1,.5)[sd]
+#>    .s                 0.226    0.026    0.178    0.282 gamma(1,.5)[sd]
 #> 
 ```

@@ -20,11 +20,13 @@ available."><meta property="og:image" content="https://inlavaan.haziqj.ml/logo.p
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/INLAvaan.html">Get started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><h6 class="dropdown-header" data-toc-skip>Confirmatory factor analysis</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Structural equation modelling</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Growth curve modelling</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Equality constraints</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Multigroup analysis</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
+    <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
+    <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/outro.html">Outro</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -57,7 +59,7 @@ available.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'INLAvaan'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">nsamp</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'INLAvaan'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/methods/show.html" class="external-link">show</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span>
@@ -70,8 +72,8 @@ available.</p>
 <span>  estimates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  standardized <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  rsquare <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  postmedian <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  postmode <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  postmedian <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  postmode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  priors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  nd <span class="op">=</span> <span class="fl">3L</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -96,6 +98,11 @@ available.</p>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Not used.</p></dd>
+
+
+<dt id="arg-nsamp">nsamp<a class="anchor" aria-label="anchor" href="#arg-nsamp"></a></dt>
+<dd><p>The number of samples to draw for all sampling-based approaches
+(including posterior sampling for model fit indices).</p></dd>
 
 
 <dt id="arg-header">header<a class="anchor" aria-label="anchor" href="#arg-header"></a></dt>

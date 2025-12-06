@@ -18,11 +18,13 @@
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/INLAvaan.html">Get started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><h6 class="dropdown-header" data-toc-skip>Confirmatory factor analysis</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Structural equation modelling</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Growth curve modelling</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Equality constraints</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Multigroup analysis</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
+    <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
+    <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/outro.html">Outro</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -225,26 +227,26 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">agrowth</span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.growth</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using MVN log-likelihood.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[274ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[257ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[414ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[387ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using skew normal approximation.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fitting skew normal to marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to marginals. <span style="color: #B2B2B2;">[560ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to marginals. <span style="color: #B2B2B2;">[520ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling posterior covariances.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling posterior covariances. <span style="color: #B2B2B2;">[438ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling posterior covariances. <span style="color: #B2B2B2;">[432ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Computing ppp and DIC.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing ppp and DIC.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[2.6s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[2.7s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.2.0 ended normally after 85 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                         ML</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                      BAYES</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Number of model parameters                        17</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -265,100 +267,57 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Marginalisation method                     SKEWNORM</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Latent Variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%      50%    97.5%     Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   i =~                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     t1                1.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     t2                1.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     t3                1.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     t4                1.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   s =~                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     t1                0.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     t2                1.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     t3                2.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     t4                3.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Prior       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%    Prior       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   i =~                                                                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     t1                1.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     t2                1.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     t3                1.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     t4                1.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   s =~                                                                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     t1                0.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     t2                1.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     t3                2.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     t4                3.000                                           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Regressions:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%      50%    97.5%     Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   i ~                                                                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x1                0.608    0.060    0.491    0.608    0.726    0.608</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x2                0.604    0.064    0.478    0.604    0.730    0.604</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   s ~                                                                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x1                0.262    0.029    0.206    0.262    0.318    0.262</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x2                0.522    0.031    0.462    0.522    0.582    0.522</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   t1 ~                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     c1                0.144    0.050    0.046    0.144    0.242    0.143</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   t2 ~                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     c2                0.289    0.046    0.199    0.289    0.379    0.289</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   t3 ~                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     c3                0.328    0.045    0.240    0.328    0.415    0.328</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   t4 ~                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     c4                0.331    0.059    0.216    0.331    0.446    0.331</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Prior       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%    Prior       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   i ~                                                                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x1                0.608    0.060    0.491    0.726    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x2                0.604    0.064    0.478    0.730    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   s ~                                                                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x1                0.262    0.029    0.206    0.318    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x2                0.522    0.031    0.462    0.582    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   t1 ~                                                                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     c1                0.144    0.050    0.046    0.242    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   t2 ~                                                                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     c2                0.289    0.046    0.199    0.379    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   t3 ~                                                                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     c3                0.328    0.045    0.240    0.415    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   t4 ~                                                                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     c4                0.331    0.059    0.216    0.446    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Covariances:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%      50%    97.5%     Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .i ~~                                                                  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .s                 0.155    0.039   -0.004    0.073    0.149    0.073</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Prior       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%    Prior       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .i ~~                                                                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .s                 0.155    0.039   -0.004    0.149       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Intercepts:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%      50%    97.5%     Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .t1                0.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .t2                0.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .t3                0.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .t4                0.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .i                 0.580    0.062    0.459    0.580    0.702    0.580</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .s                 0.958    0.030    0.900    0.958    1.016    0.958</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Prior       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%    Prior       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .t1                0.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .t2                0.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .t3                0.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .t4                0.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .i                 0.580    0.062    0.459    0.702    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .s                 0.958    0.030    0.900    1.016    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variances:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%      50%    97.5%     Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .t1                0.578    0.080    0.429    0.575    0.743    0.570</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .t2                0.599    0.055    0.499    0.597    0.714    0.592</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .t3                0.483    0.055    0.381    0.481    0.597    0.476</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .t4                0.536    0.097    0.362    0.531    0.742    0.520</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .i                 1.088    0.113    0.883    1.082    1.325    1.070</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .s                 0.226    0.026    0.178    0.224    0.282    0.222</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Prior       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%    Prior       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .t1                0.578    0.080    0.429    0.743 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .t2                0.599    0.055    0.499    0.714 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .t3                0.483    0.055    0.381    0.597 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .t4                0.536    0.097    0.362    0.742 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .i                 1.088    0.113    0.883    1.325 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .s                 0.226    0.026    0.178    0.282 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>

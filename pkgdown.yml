@@ -2,8 +2,14 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
+  cfa: cfa.html
+  eqcon: eqcon.html
+  growth: growth.html
   INLAvaan: INLAvaan.html
-last_built: 2025-12-06T06:27Z
+  multigroup: multigroup.html
+  articles/outro: outro.html
+  sem: sem.html
+last_built: 2025-12-06T13:44Z
 urls:
   reference: https://inlavaan.haziqj.ml/reference
   article: https://inlavaan.haziqj.ml/articles

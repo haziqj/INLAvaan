@@ -26,11 +26,13 @@ specification and estimation."><meta property="og:image" content="https://inlava
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/INLAvaan.html">Get started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><h6 class="dropdown-header" data-toc-skip>Confirmatory factor analysis</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Structural equation modelling</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Growth curve modelling</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Equality constraints</h6></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Multigroup analysis</h6></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
+    <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
+    <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/outro.html">Outro</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -215,25 +217,26 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using MVN log-likelihood.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[204ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[183ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[406ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[401ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using skew normal approximation.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fitting skew normal to marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to marginals. <span style="color: #B2B2B2;">[592ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to marginals. <span style="color: #B2B2B2;">[541ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling posterior covariances.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling posterior covariances. <span style="color: #B2B2B2;">[196ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling posterior covariances. <span style="color: #B2B2B2;">[192ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Computing ppp and DIC.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[2.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing ppp and DIC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[2.1s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.2.0 ended normally after 77 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                         ML</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                      BAYES</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Number of model parameters                        21</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -254,74 +257,42 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Marginalisation method                     SKEWNORM</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Latent Variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%      50%    97.5%     Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   visual =~                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x1                1.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x2                0.569    0.113    0.362    0.564    0.807    0.552</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x3                0.744    0.121    0.521    0.738    0.996    0.728</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   textual =~                                                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x4                1.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x5                1.117    0.066    0.993    1.116    1.252    1.112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x6                0.927    0.057    0.819    0.927    1.040    0.925</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   speed =~                                                              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x7                1.000                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x8                1.198    0.155    0.917    1.189    1.525    1.172</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x9                1.126    0.205    0.778    1.106    1.579    1.062</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Prior       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%    Prior       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   visual =~                                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x1                1.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x2                0.569    0.113    0.362    0.807    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x3                0.744    0.121    0.521    0.996    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   textual =~                                                          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x4                1.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x5                1.117    0.066    0.993    1.252    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x6                0.927    0.057    0.819    1.040    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   speed =~                                                            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x7                1.000                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x8                1.198    0.155    0.917    1.525    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x9                1.126    0.205    0.778    1.579    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Covariances:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%      50%    97.5%     Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   visual ~~                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.452    0.081    0.247    0.405    0.564    0.405</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.458    0.056    0.146    0.257    0.368    0.257</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   textual ~~                                                            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.276    0.049    0.076    0.172    0.269    0.172</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Prior       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        beta(1,1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        beta(1,1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%    Prior       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   visual ~~                                                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.452    0.081    0.247    0.564       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.458    0.056    0.146    0.368       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   textual ~~                                                          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.276    0.049    0.076    0.269       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variances:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%      50%    97.5%     Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x1                0.551    0.121    0.341    0.541    0.816    0.523</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x2                1.144    0.106    0.953    1.138    1.369    1.126</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x3                0.853    0.097    0.681    0.847    1.060    0.836</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x4                0.374    0.049    0.286    0.371    0.477    0.366</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x5                0.450    0.059    0.345    0.447    0.575    0.440</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x6                0.360    0.044    0.282    0.358    0.454    0.352</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x7                0.802    0.088    0.645    0.797    0.989    0.786</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x8                0.489    0.091    0.331    0.482    0.686    0.468</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x9                0.581    0.090    0.425    0.574    0.777    0.560</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     visual            0.823    0.153    0.562    0.810    1.159    0.785</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.990    0.114    0.787    0.982    1.234    0.968</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.403    0.095    0.248    0.392    0.618    0.372</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Prior       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%    Prior       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x1                0.551    0.121    0.341    0.816 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x2                1.144    0.106    0.953    1.369 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x3                0.853    0.097    0.681    1.060 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x4                0.374    0.049    0.286    0.477 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x5                0.450    0.059    0.345    0.575 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x6                0.360    0.044    0.282    0.454 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x7                0.802    0.088    0.645    0.989 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x8                0.489    0.091    0.331    0.686 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x9                0.581    0.090    0.425    0.777 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     visual            0.823    0.153    0.562    1.159 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.990    0.114    0.787    1.234 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.403    0.095    0.248    0.618 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
