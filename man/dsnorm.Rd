@@ -27,7 +27,7 @@ Density for the skew normal distribution with location \code{xi}, scale \code{om
 and shape \code{alpha}.
 }
 \examples{
-x <- seq(-5, 5, length.out = 100)
+x <- seq(-2, 5, length.out = 100)
 y <- dsnorm(x, xi = 0, omega = 1, alpha = 5)
 plot(x, y, type = "l", main = "Skew Normal Density")
 }

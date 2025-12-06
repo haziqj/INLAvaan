@@ -20,7 +20,7 @@ inlavaan(
   verbose = TRUE,
   debug = FALSE,
   add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "nlminb"),
+  optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   ...
 )

@@ -36,6 +36,12 @@ summary_inlavaan <- function(
   nd = 3L,
   ...
 ) {
+  if (isTRUE(standardized) | isTRUE(rsquare)) {
+    cli::cli_warn(
+      "{.arg standardized = TRUE} or {.arg rsquare = TRUE} are not implemented yet."
+    )
+  }
+
   ## ----- Header --------------------------------------------------------------
   if (isTRUE(header)) {
     show_inlavaan(object)
@@ -57,12 +63,6 @@ summary_inlavaan <- function(
   }
 
   if (isTRUE(estimates)) {
-    if (isTRUE(standardized) | isTRUE(rsquare)) {
-      cli::cli_alert_warning(
-        "{.arg standardized = TRUE} or {.arg rsquare = TRUE} are not implemented yet."
-      )
-    }
-
     marg_method <- object@external$inlavaan_internal$marginal_method
     # if (marg_method == "skewnorm")
     #   marg_method <- "Skew Normal"

@@ -65,7 +65,7 @@ inlavaan <- function(
   verbose = TRUE,
   debug = FALSE,
   add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "nlminb"),
+  optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   ...
 ) {
@@ -346,7 +346,7 @@ inlavaan <- function(
           lapply(
             pars_list,
             function(j) {
-              mv <- seq(-4, 4, length = 21)
+              mv <- seq(-4, 4, length = 31)
               tt <- theta_star[j] + mv * sqrt(Sigma_theta[j, j])
               yy <- numeric(length(mv))
               for (k in seq_along(mv)) {
@@ -593,7 +593,7 @@ acfa <- function(
   verbose = TRUE,
   debug = FALSE,
   add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "nlminb"),
+  optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   ...
 ) {
@@ -641,7 +641,7 @@ asem <- function(
   verbose = TRUE,
   debug = FALSE,
   add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "nlminb"),
+  optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   ...
 ) {
@@ -687,7 +687,7 @@ agrowth <- function(
   verbose = TRUE,
   debug = FALSE,
   add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "nlminb"),
+  optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   ...
 ) {

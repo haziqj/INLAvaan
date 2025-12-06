@@ -26,10 +26,18 @@ test_that("Method: skewnorm", {
       nsamp = NSAMP
     )
   })
-  expect_no_error(out <- capture.output(summary(fit)))
+
+  # Summary
+  expect_no_error(
+    out <- capture.output(summary(fit, postmedian = TRUE, postmode = TRUE))
+  )
+  expect_warning(out <- capture.output(summary(fit, standardized = TRUE)))
+  expect_no_error({
+    tmp <- get_inlavaan_internal(fit)
+    out <- capture.output(summary(tmp))
+  })
 
   expect_s4_class(fit, "INLAvaan")
-  # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
   expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
