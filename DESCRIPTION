@@ -41,11 +41,12 @@ Suggests:
     INLA,
     knitr,
     lme4,
+    quarto,
     rmarkdown,
     rstan,
     testthat (>= 3.0.0)
 VignetteBuilder: 
-    knitr
+    quarto
 Additional_repositories: https://inla.r-inla-download.org/R/testing
 Config/testthat/edition: 3
 Encoding: UTF-8

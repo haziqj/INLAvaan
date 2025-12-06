@@ -1,0 +1,25 @@
+---
+title: 'Confirmatory factor analysis'
+# descriotion:
+vignette: >
+  %\VignetteIndexEntry{Confirmatory factor analysis}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: '#>'
+bibliography: refs.bib
+---
+
+```{r}
+#| label: setup
+#| include: true
+library(INLAvaan)
+```
+
+```{r}
+#| echo: true
+#| eval: true 
+#| file: ../inst/examples/ex-cfa.R
+```

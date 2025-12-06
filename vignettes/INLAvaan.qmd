@@ -17,8 +17,8 @@ bibliography: refs.bib
 #| label: setup
 #| include: false
 library(INLAvaan)
-library(tidyverse)
 library(lavaan)
+library(dplyr)
 ```
 
 
