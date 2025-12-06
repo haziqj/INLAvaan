@@ -15,7 +15,7 @@
 
 \S4method{plot}{INLAvaan,ANY}(x, y, ...)
 
-\S4method{predict}{INLAvaan}(object, ...)
+\S4method{predict}{INLAvaan}(object, nsamp, ...)
 
 \S4method{show}{INLAvaan}(object)
 
@@ -26,8 +26,8 @@
   estimates = TRUE,
   standardized = FALSE,
   rsquare = FALSE,
-  postmedian = TRUE,
-  postmode = TRUE,
+  postmedian = FALSE,
+  postmode = FALSE,
   priors = TRUE,
   nd = 3L,
   ...
@@ -41,6 +41,9 @@
 \item{y}{Not used.}
 
 \item{...}{Not used.}
+
+\item{nsamp}{The number of samples to draw for all sampling-based approaches
+(including posterior sampling for model fit indices).}
 
 \item{header}{Logical; if TRUE, print model fit information header.}
 

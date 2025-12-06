@@ -154,7 +154,12 @@ print.predict.inlavaan_internal <- function(
 #' @exportS3Method summary predict.inlavaan_internal
 #' @keywords internal
 summary.predict.inlavaan_internal <- function(object, ...) {
-  is_group <- names(object[[1]])[1] == "group" & is.character(object[[1]][, 1])
+  is_group <- FALSE
+  if (!is.null(names(object[[1]])[1])) {
+    is_group <- names(object[[1]])[1] == "group" &
+      is.character(object[[1]][, 1])
+  }
+
   if (is_group) {
     # Remove the group column, assuming it's always the first column
     group_id <- object[[1]][, 1]
@@ -230,9 +235,14 @@ print.summary.predict.inlavaan_internal <- function(x, stat = "Mean", ...) {
 #
 # }
 
+#' @inheritParams inlavaan
 #' @rdname INLAvaan-class
 #' @param object An object of class [INLAvaan].
 #' @export
-setMethod("predict", "INLAvaan", function(object, ...) {
-  predict.inlavaan_internal(object@external$inlavaan_internal, ...)
+setMethod("predict", "INLAvaan", function(object, nsamp, ...) {
+  predict.inlavaan_internal(
+    object@external$inlavaan_internal,
+    nsamp = nsamp,
+    ...
+  )
 })

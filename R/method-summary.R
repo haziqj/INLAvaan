@@ -22,8 +22,8 @@ summary_inlavaan <- function(
   estimates = TRUE,
   standardized = FALSE,
   rsquare = FALSE,
-  postmedian = TRUE,
-  postmode = TRUE,
+  postmedian = FALSE,
+  postmode = FALSE,
   priors = TRUE,
   nd = 3L,
   ...
@@ -150,7 +150,6 @@ summary_inlavaan <- function(
   cat(paste0(garb, collapse = "\n"))
   cat("\n")
 }
-
 
 #' @param header Logical; if TRUE, print model fit information header.
 #' @param fit.measures Logical; if TRUE, print fit measures (DIC and PPP).

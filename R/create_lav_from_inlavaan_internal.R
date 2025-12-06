@@ -2,6 +2,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   ## ----- Update Model and implied slots --------------------------------------
   x <- fit_inlv$coefficients
   fit0@Model <- lavaan::lav_model_set_parameters(fit0@Model, x)
+  # fit0@Model@estimator <- "BAYES"
   fit0@implied <- lavaan::lav_model_implied(fit0@Model)
 
   ## ----- Update ParTable slot ------------------------------------------------
@@ -45,6 +46,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   }
   fit0@Options$optim.method <- fit_inlv$optim_method
   fit0@Options$do.fit <- TRUE
+  fit0@Options$estimator <- "Bayes"
 
   ## ----- Update Fit slot -----------------------------------------------------
   fit0@Fit@x <- x

@@ -1,0 +1,197 @@
+@article{schad2023workflow,
+  title = {Workflow Techniques for the Robust Use of Bayes Factors},
+  author = {Schad, Daniel J. and Nicenboim, Bruno and B{\"u}rkner, Paul-Christian and Betancourt, Michael and Vasishth, Shravan},
+  year = 2023,
+  journal = {Psychological Methods},
+  volume = {28},
+  number = {6},
+  pages = {1404--1426},
+  publisher = {American Psychological Association},
+  address = {US},
+  issn = {1939-1463},
+  doi = {10.1037/met0000472},
+  abstract = {Inferences about hypotheses are ubiquitous in the cognitive sciences. Bayes factors provide one general way to compare different hypotheses by their compatibility with the observed data. Those quantifications can then also be used to choose between hypotheses. While Bayes factors provide an immediate approach to hypothesis testing, they are highly sensitive to details of the data/model assumptions and it's unclear whether the details of the computational implementation (such as bridge sampling) are unbiased for complex analyses. Here, we study how Bayes factors misbehave under different conditions. This includes a study of errors in the estimation of Bayes factors; the first-ever use of simulation-based calibration to test the accuracy and bias of Bayes factor estimates using bridge sampling; a study of the stability of Bayes factors against different MCMC draws and sampling variation in the data; and a look at the variability of decisions based on Bayes factors using a utility function. We outline a Bayes factor workflow that researchers can use to study whether Bayes factors are robust for their individual analysis. (PsycInfo Database Record (c) 2025 APA, all rights reserved)},
+  keywords = {Bayesian Analysis,Hypothesis Testing,Sciences,Statistical Estimation,Statistical Probability}
+}
+
+@article{tendeiro2019review,
+  title = {A Review of Issues about Null Hypothesis {{Bayesian}} Testing},
+  author = {Tendeiro, Jorge N. and Kiers, Henk A. L.},
+  year = 2019,
+  journal = {Psychological Methods},
+  volume = {24},
+  number = {6},
+  pages = {774--795},
+  publisher = {American Psychological Association},
+  address = {US},
+  issn = {1939-1463},
+  doi = {10.1037/met0000221},
+  abstract = {Null hypothesis significance testing (NHST) has been under scrutiny for decades. The literature shows overwhelming evidence of a large range of problems affecting NHST. One of the proposed alternatives to NHST is using Bayes factors instead of p values. Here we denote the method of using Bayes factors to test point null models as ``null hypothesis Bayesian testing'' (NHBT). In this article we offer a wide overview of potential issues (limitations or sources of misinterpretation) with NHBT which is currently missing in the literature. We illustrate many of the shortcomings of NHBT by means of reproducible examples. The article concludes with a discussion of NHBT in particular and testing in general. In particular, we argue that posterior model probabilities should be given more emphasis than Bayes factors, because only the former provide direct answers to the most common research questions under consideration. (PsycInfo Database Record (c) 2025 APA, all rights reserved)},
+  keywords = {Hypothesis Testing,Models,Null Hypothesis Testing,Statistical Probability,Statistical Significance,Statistics}
+}
+
+
+@article{merkle2018blavaan,
+  title = {{{blavaan}}: {{Bayesian Structural Equation Models}} via {{Parameter Expansion}}},
+  shorttitle = {Blavaan},
+  author = {Merkle, Edgar C. and Rosseel, Yves},
+  year = 2018,
+  month = jun,
+  journal = {Journal of Statistical Software},
+  volume = {85},
+  pages = {1--30},
+  issn = {1548-7660},
+  doi = {10.18637/jss.v085.i04},
+  urldate = {2023-11-28},
+  abstract = {This article describes blavaan, an R package for estimating Bayesian structural equation models (SEMs) via JAGS and for summarizing the results. It also describes a novel parameter expansion approach for estimating specific types of models with residual covariances, which facilitates estimation of these models in JAGS. The methodology and software are intended to provide users with a general means of estimating Bayesian SEMs, both classical and novel, in a straightforward fashion. Users can estimate Bayesian versions of classical SEMs with lavaan syntax, they can obtain state-of-the-art Bayesian fit measures associated with the models, and they can export JAGS code to modify the SEMs as desired. These features and more are illustrated by example, and the parameter expansion approach is explained in detail.},
+  copyright = {Copyright (c) 2018 Edgar C. Merkle, Yves Rosseel},
+  langid = {english},
+  keywords = {Bayesian SEM,JAGS,lavaan,MCMC,structural equation models}
+}
+
+@article{merkle2021efficient,
+  title = {Efficient {{Bayesian Structural Equation Modeling}} in {{Stan}}},
+  author = {Merkle, Edgar C. and Fitzsimmons, Ellen and Uanhoro, James and Goodrich, Ben},
+  year = 2021,
+  month = nov,
+  journal = {Journal of Statistical Software},
+  volume = {100},
+  pages = {1--22},
+  issn = {1548-7660},
+  doi = {10.18637/jss.v100.i06},
+  urldate = {2024-05-12},
+  abstract = {Structural equation models comprise a large class of popular statistical models, including factor analysis models, certain mixed models, and extensions thereof. Model estimation is complicated by the fact that we typically have multiple interdependent response variables and multiple latent variables (which may also be called random effects or hidden variables), often leading to slow and inefficient posterior sampling. In this paper, we describe and illustrate a general, efficient approach to Bayesian SEM estimation in Stan, contrasting it with previous implementations in R package blavaan (Merkle and Rosseel 2018). After describing the approaches in detail, we conduct a practical comparison under multiple scenarios. The comparisons show that the new approach is clearly better. We also discuss ways that the approach may be extended to other models that are of interest to psychometricians.},
+  copyright = {Copyright (c) 2021 Edgar C. Merkle, Ellen Fitzsimmons, James Uanhoro, Ben Goodrich},
+  langid = {english},
+  keywords = {Bayesian SEM,blavaan,JAGS,MCMC,Stan,structural equation model}
+}
+
+@article{rosseel2012lavaan,
+  title = {{{lavaan}}: {{An}} {{{\emph{R}}}} {{Package}} for {{Structural Equation Modeling}}},
+  shorttitle = {{\textbf{Lavaan}}},
+  author = {Rosseel, Yves},
+  year = 2012,
+  journal = {Journal of Statistical Software},
+  volume = {48},
+  number = {2},
+  issn = {1548-7660},
+  doi = {10.18637/jss.v048.i02},
+  urldate = {2023-11-23},
+  abstract = {Structural equation modeling (SEM) is a vast field and widely used by many applied researchers in the social and behavioral sciences. Over the years, many software packages for structural equation modeling have been developed, both free and commercial. However, perhaps the best state-of-the-art software packages in this field are still closedsource and/or commercial. The R package lavaan has been developed to provide applied researchers, teachers, and statisticians, a free, fully open-source, but commercial-quality package for latent variable modeling. This paper explains the aims behind the development of the package, gives an overview of its most important features, and provides some examples to illustrate how lavaan works in practice.},
+  langid = {english}
+}
+
+
+@article{rue2009approximate,
+  title = {Approximate {{Bayesian Inference}} for {{Latent Gaussian}} Models by Using {{Integrated Nested Laplace Approximations}}},
+  author = {Rue, H{\aa}vard and Martino, Sara and Chopin, Nicolas},
+  year = 2009,
+  month = apr,
+  journal = {Journal of the Royal Statistical Society Series B: Statistical Methodology},
+  volume = {71},
+  number = {2},
+  pages = {319--392},
+  issn = {1369-7412, 1467-9868},
+  doi = {10.1111/j.1467-9868.2008.00700.x},
+  urldate = {2023-11-27},
+  abstract = {Summary             Structured additive regression models are perhaps the most commonly used class of models in statistical applications. It includes, among others, (generalized) linear models, (generalized) additive models, smoothing spline models, state space models, semiparametric regression, spatial and spatiotemporal models, log-Gaussian Cox processes and geostatistical and geoadditive models. We consider approximate Bayesian inference in a popular subset of structured additive regression models, latent Gaussian models, where the latent field is Gaussian, controlled by a few hyperparameters and with non-Gaussian response variables. The posterior marginals are not available in closed form owing to the non-Gaussian response variables. For such models, Markov chain Monte Carlo methods can be implemented, but they are not without problems, in terms of both convergence and computational time. In some practical applications, the extent of these problems is such that Markov chain Monte Carlo sampling is simply not an appropriate tool for routine analysis. We show that, by using an integrated nested Laplace approximation and its simplified version, we can directly compute very accurate approximations to the posterior marginals. The main benefit of these approximations is computational: where Markov chain Monte Carlo algorithms need hours or days to run, our approximations provide more precise estimates in seconds or minutes. Another advantage with our approach is its generality, which makes it possible to perform Bayesian analysis in an automatic, streamlined way, and to compute model comparison criteria and various predictive measures so that models can be compared and the model under study can be challenged.},
+  langid = {english}
+}
+
+
+@article{spiegelhalter2002bayesian,
+  title = {Bayesian Measures of Model Complexity and Fit},
+  author = {Spiegelhalter, David J and Best, Nicola G and Carlin, Bradley P and Van Der Linde, Angelika},
+  year = 2002,
+  journal = {Journal of the Royal Statistical Society Series B: Statistical Methodology},
+  volume = {64},
+  number = {4},
+  pages = {583--639},
+  publisher = {Oxford University Press}
+}
+
+
+@article{gelman1996posterior,
+  title = {Posterior {{Predictive Assessment}} of {{Model Fitness Via Realized Discrepancies}}},
+  author = {Gelman, Andrew and Meng, Xiao-Li and Stern, Hal},
+  year = 1996,
+  journal = {Statistica Sinica},
+  volume = {6},
+  number = {4},
+  eprint = {24306036},
+  eprinttype = {jstor},
+  pages = {733--760},
+  publisher = {Institute of Statistical Science, Academia Sinica},
+  issn = {1017-0405},
+  urldate = {2025-09-05},
+  abstract = {This paper considers Bayesian counterparts of the classical tests for goodness of fit and their use in judging the fit of a single Bayesian model to the observed data. We focus on posterior predictive assessment, in a framework that also includes conditioning on auxiliary statistics. The Bayesian formulation facilitates the construction and calculation of a meaningful reference distribution not only for any (classical) statistic, but also for any parameter-dependent "statistic" or discrepancy. The latter allows us to propose the realized discrepancy assessment of model fitness, which directly measures the true discrepancy between data and the posited model, for any aspect of the model which we want to explore. The computation required for the realized discrepancy assessment is a straightforward byproduct of the posterior simulation used for the original Bayesian analysis. We illustrate with three applied examples. The first example, which serves mainly to motivate the work, illustrates the difficulty of classical tests in assessing the fitness of a Poisson model to a positron emission tomography image that is constrained to be nonnegative. The second and third examples illustrate the details of the posterior predictive approach in two problems: estimation in a model with inequality constraints on the parameters, and estimation in a mixture model. In all three examples, standard test statistics (either a {$\chi$}2 or a likelihood ratio) are not pivotal: the difficulty is not just how to compute the reference distribution for the test, but that in the classical framework no such distribution exists, independent of the unknown model parameters.}
+}
+
+
+@article{martins2013bayesian,
+  title = {Bayesian Computing with {{INLA}}: {{New}} Features},
+  shorttitle = {Bayesian Computing with {{INLA}}},
+  author = {Martins, Thiago G. and Simpson, Daniel and Lindgren, Finn and Rue, H{\aa}vard},
+  year = 2013,
+  month = nov,
+  journal = {Computational Statistics \& Data Analysis},
+  volume = {67},
+  pages = {68--83},
+  issn = {0167-9473},
+  doi = {10.1016/j.csda.2013.04.014},
+  urldate = {2025-10-09},
+  abstract = {The INLA approach for approximate Bayesian inference for latent Gaussian models has been shown to give fast and accurate estimates of posterior marginals and also to be a valuable tool in practice via the R-package R-INLA. New developments in the R-INLA are formalized and it is shown how these features greatly extend the scope of models that can be analyzed by this interface. The current default method in R-INLA to approximate the posterior marginals of the hyperparameters using only a modest number of evaluations of the joint posterior distribution of the hyperparameters, without any need for numerical integration, is discussed.},
+  keywords = {Approximate Bayesian inference,INLA,Latent Gaussian models}
+}
+
+
+@article{chiuchiolo2023joint,
+  title = {Joint Posterior Inference for Latent {{Gaussian}} Models with {{R-INLA}}},
+  author = {Chiuchiolo, Cristian and Van Niekerk, Janet and Rue, H{\aa}vard},
+  year = 2023,
+  month = mar,
+  journal = {Journal of Statistical Computation and Simulation},
+  volume = {93},
+  number = {5},
+  pages = {723--752},
+  issn = {0094-9655, 1563-5163},
+  doi = {10.1080/00949655.2022.2117813},
+  urldate = {2025-10-24},
+  abstract = {Efficient Bayesian inference remains a computational challenge in hierarchical models. Simulation-based approaches such as Markov Chain Monte Carlo methods are still popular but have a large computational cost. When dealing with the large class of Latent Gaussian Models, the INLA methodology embedded in the R-INLA software provides accurate Bayesian inference by computing deterministic mixture representation to approximate the joint posterior, from which marginals are computed. The INLA approach has from the beginning been targeting to approximate univariate posteriors. In this paper we lay out the development foundation of the tools for also providing joint approximations for subsets of the latent field. These approximations inherit Gaussian copula structure and additionally provide corrections for skewness. The same idea is carried forward also to sampling from the mixture representation, which we now can adjust for skewness.},
+  langid = {english}
+}
+
+
+@article{tierney1989fully,
+  title = {Fully {{Exponential Laplace Approximations}} to {{Expectations}} and {{Variances}} of {{Nonpositive Functions}}},
+  author = {Tierney, Luke and Kass, Robert E. and Kadane, Joseph B.},
+  year = 1989,
+  month = sep,
+  journal = {Journal of the American Statistical Association},
+  volume = {84},
+  number = {407},
+  pages = {710--716},
+  issn = {0162-1459, 1537-274X},
+  doi = {10.1080/01621459.1989.10478824},
+  urldate = {2025-09-05},
+  langid = {english}
+}
+
+
+@book{song2012basic,
+  title = {Basic and {{Advanced Bayesian Structural Equation Modeling}}: {{With Applications}} in the {{Medical}} and {{Behavioral Sciences}}},
+  shorttitle = {Basic and {{Advanced Bayesian Structural Equation Modeling}}},
+  author = {Song, Xin‐Yuan and Lee, Sik‐Yum},
+  date = {2012-08-24},
+  series = {Wiley {{Series}} in {{Probability}} and {{Statistics}}},
+  edition = {1},
+  publisher = {Wiley},
+  doi = {10.1002/9781118358887},
+  url = {https://onlinelibrary.wiley.com/doi/book/10.1002/9781118358887},
+  urldate = {2025-09-01},
+  isbn = {978-0-470-66952-5 978-1-118-35888-7},
+  langid = {english},
+  keywords = {Bayesian statistical decision theory,MATHEMATICS / Probability & Statistics / General,Structural equation modeling}
+}
+
+
