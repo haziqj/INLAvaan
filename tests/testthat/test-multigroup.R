@@ -54,7 +54,8 @@ test_that("Multigroup fitting and testing", {
 
   # Comparison
   expect_no_error({
-    compare(fit1, fit2, fit3)
+    cp <- compare(fit1, fit2, fit3)
+    out <- capture.output(print(cp))
   })
 })
 

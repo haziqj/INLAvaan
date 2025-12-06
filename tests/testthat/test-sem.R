@@ -34,7 +34,8 @@ test_that("Method: skewnorm", {
   expect_warning(out <- capture.output(summary(fit, standardized = TRUE)))
   expect_no_error({
     tmp <- get_inlavaan_internal(fit)
-    out <- capture.output(summary(tmp))
+    out <- capture.output(print(tmp))
+    out <- capture.output(print(summary(tmp)))
   })
 
   expect_s4_class(fit, "INLAvaan")
