@@ -13,6 +13,7 @@ utils::globalVariables(c(
   "metric"
 ))
 
+# nocov start
 compare_mcmc <- function(fit_blavaan, ...) {
   parnames <- unique(names(coef(fit_blavaan)))
 
@@ -219,3 +220,4 @@ compare_mcmc <- function(fit_blavaan, ...) {
     metrics_df = metrics_df
   )
 }
+# nocov end
