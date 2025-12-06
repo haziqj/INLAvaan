@@ -239,7 +239,7 @@ print.summary.predict.inlavaan_internal <- function(x, stat = "Mean", ...) {
 #' @rdname INLAvaan-class
 #' @param object An object of class [INLAvaan].
 #' @export
-setMethod("predict", "INLAvaan", function(object, nsamp, ...) {
+setMethod("predict", "INLAvaan", function(object, nsamp = 1000, ...) {
   predict.inlavaan_internal(
     object@external$inlavaan_internal,
     nsamp = nsamp,

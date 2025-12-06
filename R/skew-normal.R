@@ -326,12 +326,12 @@ dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {
   }
 }
 
-snorm_EX_VarX <- function(xi, omega, alpha) {
-  delta <- alpha / sqrt(1 + alpha^2)
-  EX <- xi + omega * delta * sqrt(2 / pi)
-  VarX <- omega^2 * (1 - (2 * delta^2) / pi)
-  list(EX = EX, VarX = VarX)
-}
+# snorm_EX_VarX <- function(xi, omega, alpha) {
+#   delta <- alpha / sqrt(1 + alpha^2)
+#   EX <- xi + omega * delta * sqrt(2 / pi)
+#   VarX <- omega^2 * (1 - (2 * delta^2) / pi)
+#   list(EX = EX, VarX = VarX)
+# }
 
 fit_skew_normal_samp <- function(x) {
   # Starting values
