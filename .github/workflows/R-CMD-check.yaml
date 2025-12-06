@@ -41,11 +41,16 @@ jobs:
           use-public-rspm: true
           extra-repositories: "https://inla.r-inla-download.org/R/testing"
 
+      - name: Install Rcpp from GitHub (R-devel only)
+        if: matrix.config.r == 'devel'
+        run: |
+          install.packages("remotes")
+          remotes::install_github("RcppCore/Rcpp")
+        shell: Rscript {0}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: |
-            any::rcmdcheck
-            RcppCore/Rcpp
+          extra-packages: any::rcmdcheck
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2
