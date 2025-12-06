@@ -181,17 +181,16 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [148ms]
+#> ✔ Finding posterior mode. [150ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [351ms]
+#> ✔ Computing the Hessian. [358ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [754ms]
+#> ✔ Fitting skew normal to marginals. [753ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [2s]
 #> 
 summary(fit)

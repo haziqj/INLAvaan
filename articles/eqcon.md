@@ -54,10 +54,10 @@ names(dat) <- sub("^Reaction\\.(.*)$", "Day\\1", names(dat))
 fit <- agrowth(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [84ms]
+#> ✔ Finding posterior mode. [85ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [78ms]
+#> ✔ Computing the Hessian. [81ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
