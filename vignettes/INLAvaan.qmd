@@ -11,6 +11,7 @@ knitr:
     collapse: true
     comment: '#>'
 bibliography: refs.bib
+toc: true
 ---
 
 ```{r}
@@ -45,106 +46,16 @@ library(lavaan)
 
 ## Motivating example
 
-To motivate the fitting of SEMs, consider the introductory example in @song2012basic.
-Answer the question of Does poorer glycemic control lead to greater severity of kidney disease?
-We have three observed indicators of glycemic control (y1, y2, y3) and three observed indicators of kidney disease severity (y4, y5, y6).
-Instead of fitting separate regression models for each indicator, we can use a SEM to model the relationships between the latent constructs of glycemic control and kidney disease severity.
+To motivate the use of SEMs, consider the introductory example in @song2012basic: 
+*Does poorer glycemic control lead to greater severity of kidney disease?*
+We observe three indicators of glycemic control ($y_1$, $y_2$, $y_3$) and three indicators of kidney disease severity ($y_4$, $y_5$, $y_6$).
 
-```{r, engine = "tikz"}
-#| echo: false
-#| fig-align: center
-#| out-width: 80%
-\definecolor{kaustorg}{RGB}{241, 143, 0}
-\definecolor{kausttur}{RGB}{0, 166, 170}
-\definecolor{kaustmer}{RGB}{177, 15, 46}
-\definecolor{kaustgrn}{RGB}{173, 191, 4}
-\definecolor{kaustblu}{RGB}{82, 132, 196}
-\definecolor{kaustpur}{RGB}{156, 111, 174}
-\begin{tikzpicture}[%
-  scale=1,
-  >=stealth,
-  auto,
-  node distance=1.6cm,
-  every node/.style={font=\small},
-  latent/.style={font=\normalsize,circle, draw, minimum size=9mm, inner sep=0mm},
-  obs/.style={font=\normalsize,rectangle, draw, minimum size=6mm, inner sep=0mm},
-  error/.style={font=\normalsize,circle, draw, minimum size=5mm, inner sep=0mm}
-]
+![](glycemic-table.png){fig-align="center" width="75%"}
 
-% --------------------------------------------------------
-% 1) LATENT VARIABLES
-% --------------------------------------------------------
-\node[latent] (eta1) at (-1.5, -2) {$\eta_{1}$};
-\node[latent] (eta2) at ( 3.5, -2) {$\eta_{2}$};
+Rather than fitting separate regression models for each indicator, SEM allows us to model the relationship between the latent constructs themselves, providing a clearer and more coherent representation of the underlying processes.
+The hypothesised SEM is illustrated by the figure below:
 
-% --------------------------------------------------------
-% 2) OBSERVED VARIABLES + ERROR TERMS
-%    Place y1..y3 (for eta1) on the left, y4..y6 (for eta2) on the right.
-% --------------------------------------------------------
-\node[obs] (y1) at (-2.8, 0) {$y_{1}$};
-\node[obs] (y2) at (-1.5, 0) {$y_{2}$};
-\node[obs] (y3) at ( -0.2, 0) {$y_{3}$};
-
-\node[obs] (y4) at ( 2.2, 0) {$y_{4}$};
-\node[obs] (y5) at ( 3.5, 0) {$y_{5}$};
-\node[obs] (y6) at ( 4.8, 0) {$y_{6}$};
-
-% Error terms above each observed variable
-\node[error] (e1) at (-2.8, 1) {$\epsilon_{1}$};
-\node[error] (e2) at (-1.5, 1) {$\epsilon_{2}$};
-\node[error] (e3) at ( -0.2, 1) {$\epsilon_{3}$};
-\node[error] (e4) at ( 2.2, 1) {$\epsilon_{4}$};
-\node[error] (e5) at ( 3.5, 1) {$\epsilon_{5}$};
-\node[error] (e6) at ( 4.8, 1) {$\epsilon_{6}$};
-
-% --------------------------------------------------------
-% 3) PATHS FROM ERROR TERMS TO OBSERVED VARIABLES
-% --------------------------------------------------------
-\draw[->] (e1) -- (y1);
-\draw[->] (e2) -- (y2);
-\draw[->] (e3) -- (y3);
-\draw[->] (e4) -- (y4);
-\draw[->] (e5) -- (y5);
-\draw[->] (e6) -- (y6);
-
-% --------------------------------------------------------
-% 4) FACTOR LOADINGS
-%    \eta_{i1} -> y1, y2, y3
-%    \eta_{i2} -> y4, y5, y6
-% --------------------------------------------------------
-\draw[->] (eta1) -- node[pos=0.5, right] {$1$} (y1);
-\draw[->] (eta1) -- node[pos=0.5, right] {\color{kaustpur}$\lambda_{21}$} (y2);
-\draw[->] (eta1) -- node[pos=0.5, right] {\color{kaustpur}$\lambda_{31}$} (y3);
-
-\draw[->] (eta2) -- node[pos=0.5, right] {$1$} (y4);
-\draw[->] (eta2) -- node[pos=0.5, right] {\color{kaustpur}$\lambda_{52}$} (y5);
-\draw[->] (eta2) -- node[pos=0.5, right] {\color{kaustpur}$\lambda_{62}$} (y6);
-
-% --------------------------------------------------------
-% 5) REGRESSION BETWEEN LATENT VARIABLES
-%    \eta_1 -> \eta_2, labeled beta
-% --------------------------------------------------------
-\draw[->] (eta1) -- node[midway, above] {\color{kaustgrn}$\beta$} (eta2);
-
-% --------------------------------------------------------
-% 6) VARIANCES OF LATENT VARIABLES
-%    Double-headed arrows for psi_{11} and psi_{22}
-% --------------------------------------------------------
-\draw[<->] (eta1) to[out=200, in=230, looseness=4] 
-  node[left] {\color{kausttur}$\psi_{11}$} (eta1);
-
-\draw[<->] (eta2) to[out=-50, in=-20, looseness=4] 
-  node[right] {\color{kausttur}$\psi_{22}$} (eta2);
-
-\foreach \i in {1,...,6}{
-  \draw[<->] (e\i)
-    to[out=110, in=140, looseness=5]
-    node[above] {\color{kaustorg}$\theta_{\i\i}$}
-    (e\i);
-}
-
-\end{tikzpicture}
-```
+![](https://haziqj.ml/sembias-gradsem/index_files/figure-revealjs/unnamed-chunk-4-1.png){fig-align="center" width="75%"}
 
 ## Data
 
