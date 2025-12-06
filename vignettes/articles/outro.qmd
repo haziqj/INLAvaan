@@ -1,0 +1,11 @@
+---
+title: 'Outro'
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+sessioninfo::session_info(info = "all")
+```

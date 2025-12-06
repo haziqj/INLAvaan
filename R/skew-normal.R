@@ -310,7 +310,7 @@ mills_ratio <- function(u) {
 #'
 #' @export
 #' @examples
-#' x <- seq(-5, 5, length.out = 100)
+#' x <- seq(-2, 5, length.out = 100)
 #' y <- dsnorm(x, xi = 0, omega = 1, alpha = 5)
 #' plot(x, y, type = "l", main = "Skew Normal Density")
 dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {

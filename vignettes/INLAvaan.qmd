@@ -169,7 +169,7 @@ pop_mod <- "
   eta2 ~~ 1*eta2
 "
 set.seed(123)
-dat <- lavaan::simulateData(pop_mod, sample.nobs = 500)
+dat <- lavaan::simulateData(pop_mod, sample.nobs = 1000)
 glimpse(dat)
 ```
 

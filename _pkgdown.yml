@@ -42,25 +42,15 @@ navbar:
       text: Examples
       menu:
       - text: Confirmatory factor analysis
+        href: articles/cfa.html
       - text: Structural equation modelling
-      - text: Growth curve modelling
+        href: articles/sem.html
+      - text: Latent growth curve models
+        href: articles/growth.html
       - text: Equality constraints
+        href: articles/eqcon.html
       - text: Multigroup analysis
-
-# articles:
-# - title: Technical details
-#   navbar: Technical details
-#   contents:
-#   - articles/intro
-#   # - articles/tech_details
-#   # - articles/proofs
-#   - articles/complex_sampling
-#   # - articles/sigma
-# - title: Simulation study
-#   navbar: Simulation study
-#   contents:
-#   - articles/sim_results
-#   - articles/sim_tables
-# - title: Outro
-#   contents:
-#   - articles/outro
+        href: articles/multigroup.html
+      - text: -------
+      - text: Outro
+        href: articles/outro.html
