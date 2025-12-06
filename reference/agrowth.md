@@ -20,7 +20,7 @@ agrowth(
   verbose = TRUE,
   debug = FALSE,
   add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "nlminb"),
+  optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   ...
 )
@@ -202,20 +202,19 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [256ms]
+#> ✔ Finding posterior mode. [262ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [393ms]
+#> ✔ Computing the Hessian. [396ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [523ms]
+#> ✔ Fitting skew normal to marginals. [764ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [428ms]
+#> ✔ Sampling posterior covariances. [420ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [2.7s]
 #> 
 summary(fit)
@@ -234,8 +233,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.431 
-#>    Effective parameters (pD)                    17.091 
+#>    Deviance (DIC)                             4996.401 
+#>    Effective parameters (pD)                    17.076 
 #> 
 #> Parameter Estimates:
 #> 
@@ -283,15 +282,15 @@ summary(fit)
 #>    .t3                0.000                                           
 #>    .t4                0.000                                           
 #>    .i                 0.580    0.062    0.459    0.702    normal(0,10)
-#>    .s                 0.958    0.030    0.900    1.016    normal(0,10)
+#>    .s                 0.958    0.030    0.900    1.015    normal(0,10)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
-#>    .t1                0.578    0.080    0.429    0.743 gamma(1,.5)[sd]
+#>    .t1                0.579    0.080    0.431    0.744 gamma(1,.5)[sd]
 #>    .t2                0.599    0.055    0.499    0.714 gamma(1,.5)[sd]
-#>    .t3                0.483    0.055    0.381    0.597 gamma(1,.5)[sd]
-#>    .t4                0.536    0.097    0.362    0.742 gamma(1,.5)[sd]
+#>    .t3                0.483    0.055    0.381    0.598 gamma(1,.5)[sd]
+#>    .t4                0.537    0.097    0.363    0.743 gamma(1,.5)[sd]
 #>    .i                 1.088    0.113    0.883    1.325 gamma(1,.5)[sd]
-#>    .s                 0.226    0.026    0.178    0.282 gamma(1,.5)[sd]
+#>    .s                 0.226    0.026    0.178    0.281 gamma(1,.5)[sd]
 #> 
 ```

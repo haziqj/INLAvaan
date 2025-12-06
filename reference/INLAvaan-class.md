@@ -7,17 +7,17 @@ class. Several S4 methods are available.
 ## Usage
 
 ``` r
-# S4 method for class 'INLAvaan'
-coef(object)
-
 # S4 method for class 'INLAvaan,ANY'
 plot(x, y, ...)
 
 # S4 method for class 'INLAvaan'
-predict(object, nsamp, ...)
+predict(object, nsamp = 1000, ...)
 
 # S4 method for class 'INLAvaan'
 show(object)
+
+# S4 method for class 'INLAvaan'
+coef(object)
 
 # S4 method for class 'INLAvaan'
 summary(
@@ -37,11 +37,6 @@ summary(
 
 ## Arguments
 
-- object:
-
-  An object of class
-  [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md).
-
 - x:
 
   An object of class
@@ -54,6 +49,11 @@ summary(
 - ...:
 
   Not used.
+
+- object:
+
+  An object of class
+  [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md).
 
 - nsamp:
 

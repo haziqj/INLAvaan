@@ -269,10 +269,10 @@ Main lavaan-style functions to estimate SEM.
   an Approximate Bayesian Growth Curve Model
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
   Compare Bayesian Models Fitted with INLAvaan
-- [`coef(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
-  [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+- [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`predict(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`show(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  [`coef(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`summary(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   : Class For Representing a (Fitted) Latent Variable Model
 

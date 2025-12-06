@@ -38,17 +38,17 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [272ms]
+#> ✔ Finding posterior mode. [294ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [390ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [561ms]
+#> ✔ Fitting skew normal to marginals. [789ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [418ms]
+#> ✔ Sampling posterior covariances. [416ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [2.5s]
@@ -65,12 +65,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2557.566 
-#>    PPP (Chi-square)                              0.925 
+#>    PPP (Chi-square)                              0.934 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.256 
-#>    Effective parameters (pD)                    17.003 
+#>    Deviance (DIC)                             4996.642 
+#>    Effective parameters (pD)                    17.196 
 #> 
 #> Parameter Estimates:
 #> 
@@ -109,7 +109,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>  .i ~~                                                                
-#>    .s                 0.155    0.040   -0.007    0.149       beta(1,1)
+#>    .s                 0.155    0.041   -0.007    0.151       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
@@ -118,14 +118,14 @@ summary(fit)
 #>    .t3                0.000                                           
 #>    .t4                0.000                                           
 #>    .i                 0.580    0.062    0.459    0.702    normal(0,10)
-#>    .s                 0.958    0.030    0.900    1.016    normal(0,10)
+#>    .s                 0.958    0.030    0.900    1.015    normal(0,10)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
-#>    .t1                0.578    0.080    0.429    0.743 gamma(1,.5)[sd]
+#>    .t1                0.579    0.080    0.431    0.744 gamma(1,.5)[sd]
 #>    .t2                0.599    0.055    0.499    0.714 gamma(1,.5)[sd]
-#>    .t3                0.483    0.055    0.381    0.597 gamma(1,.5)[sd]
-#>    .t4                0.536    0.097    0.362    0.742 gamma(1,.5)[sd]
+#>    .t3                0.483    0.055    0.381    0.598 gamma(1,.5)[sd]
+#>    .t4                0.537    0.097    0.363    0.743 gamma(1,.5)[sd]
 #>    .i                 1.088    0.113    0.883    1.325 gamma(1,.5)[sd]
-#>    .s                 0.226    0.026    0.178    0.282 gamma(1,.5)[sd]
+#>    .s                 0.226    0.026    0.178    0.281 gamma(1,.5)[sd]
 ```
