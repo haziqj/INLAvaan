@@ -1,5 +1,5 @@
-gen_bivariate_data <- function(n) {
-  Sigma_true <- matrix(c(1, 0.5, 0.5, 1), nrow = 2)
+gen_bivariate_data <- function(n, corr = 0.5) {
+  Sigma_true <- matrix(c(1, corr, corr, 1), nrow = 2)
   x <- mvtnorm::rmvnorm(n, sigma = Sigma_true)
   data.frame(x1 = x[, 1], x2 = x[, 2])
 }
@@ -30,6 +30,7 @@ testthat::skip_if_not(interactive())
 library(rstan)
 library(furrr)
 plan("multisession", workers = parallel::detectCores() - 2)
+n <- 250
 
 stan_mod <- "
 data {
@@ -54,24 +55,36 @@ transformed parameters {
 }
 
 model {
-  sigma2 ~ gamma(1, 0.5);
+  sigma2 ~ gamma(1, 1);
   rho ~ uniform(-1, 1);
   for (i in 1:n)
     x[i] ~ multi_normal(rep_vector(0, 2), Sigma);
 }
 "
-dat <- gen_bivariate_data(50)
+dat <- gen_bivariate_data(n)
 
 stan_data <- list(
   n = nrow(dat),
   x = as.matrix(dat)
 )
 
-fit_stan <- stan(model_code = stan_mod, data = stan_data)
+fit_stan <- stan(
+  model_code = stan_mod,
+  data = stan_data,
+  cores = 3,
+  iter = 10000
+)
 draws <- as.data.frame(rstan::extract(fit_stan, permuted = TRUE))
 unrestricted_params <- c("Sigma.1.1", "Sigma.2.2", "Sigma.1.2")
 
-fit_inlv <- asem(mod, dat, debug = TRUE)
+fit_inlv <- asem(
+  mod,
+  dat,
+  debug = TRUE,
+  dp = blavaan::dpriors(psi = "gamma(1,1)"),
+  sn_fit_temp = 1,
+  sn_fit_logthresh = -1
+)
 
 plot_df_stan <-
   draws |>
@@ -116,18 +129,8 @@ ggplot() +
     linewidth = 0.75
   ) +
   facet_wrap(~name, scales = "free") +
-  scale_colour_manual(
-    values = c(
-      "skewnorm" = "#00A6AA",
-      "asymgaus" = "#F18F00",
-      "marggaus" = "#adbf04",
-      "sampling" = "#9C6FAE"
-    )
-    # breaks = c("asymgaus", "skewnorm", "MCMC")
-  ) +
-  scale_fill_manual(
-    values = c("MCMC" = "#131516")
-  ) +
+  scale_colour_manual(values = c("skewnorm" = "#00A6AA")) +
+  scale_fill_manual(values = c("MCMC" = "#131516")) +
   theme_minimal() +
   theme(
     plot.margin = margin(t = 4, r = 8, b = 8, l = 8),
