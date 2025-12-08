@@ -110,18 +110,18 @@ mod <- "
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [120ms]
+#> ✔ Finding posterior mode. [119ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [175ms]
+#> ✔ Computing the Hessian. [172ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [379ms]
+#> ✔ Fitting skew normal to marginals. [374ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.5s]
+#> ✔ Computing ppp and DIC. [1.4s]
 #> 
 ```
 
@@ -352,14 +352,14 @@ mod2 <- "
 fit2 <- asem(mod2, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [117ms]
+#> ✔ Finding posterior mode. [115ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [171ms]
+#> ✔ Computing the Hessian. [163ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [328ms]
+#> ✔ Fitting skew normal to marginals. [320ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.4s]

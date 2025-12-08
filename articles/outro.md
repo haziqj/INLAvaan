@@ -12,7 +12,7 @@ sessioninfo::session_info(info = "all")
 #>  collate  C.UTF-8
 #>  ctype    C.UTF-8
 #>  tz       UTC
-#>  date     2025-12-06
+#>  date     2025-12-08
 #>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
 #>  quarto   1.8.26 @ /usr/local/bin/quarto
 #> 
