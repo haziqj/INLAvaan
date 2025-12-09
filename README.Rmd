@@ -76,10 +76,10 @@ summary(fit)
 ## Validation Against MCMC
 
 Computation speed is valuable only when accuracy is preserved.
+Our method yields posterior distributions that are visually and numerically comparable to those obtained via MCMC (e.g., via `{blavaan}`/Stan), but at a fraction of the computational cost.
 
-For many standard SEMs, the Laplace approximation yields posterior distributions that are visually and numerically comparable to those obtained via MCMC (e.g., via `{blavaan}`/Stan), but at a fraction of the computational cost.
-
-The figure below illustrates the posterior density overlap for the example above:
+The figure below illustrates the posterior density overlap for the example above.
+The percentages refer to (one minus) the [Jensen-Shannon divergence](https://en.wikipedia.org/wiki/Jensen–Shannon_divergence), which gives a measure of similarity between two probability distributions.
 
 ```{r}
 #| label: fig-compare-poldem
@@ -89,11 +89,11 @@ The figure below illustrates the posterior density overlap for the example above
 #| fig-height: 5.5
 #| fig-width: 8
 #| out-width: 100%
-#| fig-dpi: 200
+#| fig-dpi: 300
 
 # install.packages("blavaan")
 library(blavaan)
-fit_blav <- bsem(model, PoliticalDemocracy)
+fit_blav <- bsem(model, PoliticalDemocracy, burnin = 2500, sample = 5000)
 res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```

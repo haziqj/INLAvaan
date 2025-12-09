@@ -63,23 +63,24 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [90ms]
+#> ✔ Finding posterior mode. [95ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [295ms]
+#> ✔ Computing the Hessian. [313ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [435ms]
+#> ✔ Fitting skew normal to marginals. [5.4s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [110ms]
+#> ✔ Sampling posterior covariances. [104ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
 #> ⠼ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [988ms]
+#> ⠴ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [902ms]
 #> 
 
 summary(fit)
@@ -94,12 +95,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1641.399 
-#>    PPP (Chi-square)                              0.494 
+#>    PPP (Chi-square)                              0.495 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3158.919 
-#>    Effective parameters (pD)                    31.075 
+#>    Deviance (DIC)                             3159.906 
+#>    Effective parameters (pD)                    31.568 
 #> 
 #> Parameter Estimates:
 #> 
@@ -109,75 +110,76 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   ind60 =~                                                            
 #>     x1                1.000                                           
-#>     x2                2.179    0.140    1.920    2.470    normal(0,10)
-#>     x3                1.811    0.151    1.516    2.109    normal(0,10)
+#>     x2                2.211    0.145    1.944    2.512    normal(0,10)
+#>     x3                1.809    0.151    1.514    2.107    normal(0,10)
 #>   dem60 =~                                                            
 #>     y1                1.000                                           
-#>     y2                1.294    0.196    0.930    1.699    normal(0,10)
-#>     y3                1.088    0.152    0.799    1.396    normal(0,10)
-#>     y4                1.300    0.157    1.002    1.620    normal(0,10)
+#>     y2                1.332    0.201    0.960    1.751    normal(0,10)
+#>     y3                1.102    0.153    0.811    1.412    normal(0,10)
+#>     y4                1.330    0.160    1.027    1.655    normal(0,10)
 #>   dem65 =~                                                            
 #>     y5                1.000                                           
-#>     y6                1.190    0.173    0.872    1.553    normal(0,10)
-#>     y7                1.287    0.159    0.990    1.613    normal(0,10)
-#>     y8                1.261    0.160    0.954    1.581    normal(0,10)
+#>     y6                1.195    0.174    0.875    1.559    normal(0,10)
+#>     y7                1.291    0.159    0.993    1.619    normal(0,10)
+#>     y8                1.271    0.160    0.963    1.592    normal(0,10)
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   dem60 ~                                                             
-#>     ind60             1.472    0.383    0.722    2.223    normal(0,10)
+#>     ind60             1.453    0.383    0.703    2.204    normal(0,10)
 #>   dem65 ~                                                             
-#>     ind60             0.578    0.247    0.089    1.059    normal(0,10)
-#>     dem60             0.842    0.101    0.647    1.044    normal(0,10)
+#>     ind60             0.575    0.247    0.086    1.056    normal(0,10)
+#>     dem60             0.847    0.102    0.651    1.050    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>  .y1 ~~                                                               
-#>    .y5                0.299    0.369    0.030    1.477       beta(1,1)
+#>    .y5                0.302    0.367    0.046    1.485       beta(1,1)
 #>  .y2 ~~                                                               
-#>    .y4                0.254    0.711    0.001    2.790       beta(1,1)
-#>    .y6                0.349    0.718    0.812    3.633       beta(1,1)
+#>    .y4                0.245    0.683   -0.020    2.663       beta(1,1)
+#>    .y6                0.338    0.715    0.846    3.653       beta(1,1)
 #>  .y3 ~~                                                               
-#>    .y7                0.212    0.605   -0.243    2.134       beta(1,1)
+#>    .y7                0.221    0.596   -0.203    2.138       beta(1,1)
 #>  .y4 ~~                                                               
-#>    .y8                0.121    0.473   -0.420    1.436       beta(1,1)
+#>    .y8                0.112    0.450   -0.411    1.356       beta(1,1)
 #>  .y6 ~~                                                               
-#>    .y8                0.306    0.583    0.276    2.562       beta(1,1)
+#>    .y8                0.300    0.589    0.298    2.604       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
-#>     ind60             0.478    0.096    0.323    0.697     gamma(1,.5)
-#>    .dem60             3.766    0.847    2.390    5.693      gamma(2,1)
-#>    .dem65             0.402    0.210    0.107    0.908      gamma(2,1)
-#>    .x1                0.082    0.020    0.048    0.126 gamma(1,.5)[sd]
-#>    .x2                0.132    0.070    0.034    0.303 gamma(1,.5)[sd]
-#>    .x3                0.482    0.095    0.327    0.696 gamma(1,.5)[sd]
-#>    .y1                1.952    0.497    1.155    3.088 gamma(1,.5)[sd]
-#>    .y2                7.489    1.420    5.160   10.705 gamma(1,.5)[sd]
-#>    .y3                5.138    1.010    3.485    7.428 gamma(1,.5)[sd]
-#>    .y4                3.161    0.802    1.879    5.000 gamma(1,.5)[sd]
-#>    .y5                2.407    0.518    1.563    3.584 gamma(1,.5)[sd]
-#>    .y6                5.006    0.942    3.457    7.135 gamma(1,.5)[sd]
-#>    .y7                3.398    0.743    2.187    5.082 gamma(1,.5)[sd]
-#>    .y8                3.248    0.729    2.068    4.908 gamma(1,.5)[sd]
+#>     ind60             0.477    0.095    0.323    0.695     gamma(1,.5)
+#>    .dem60             3.744    0.842    2.377    5.657      gamma(2,1)
+#>    .dem65             0.457    0.218    0.137    0.974      gamma(2,1)
+#>    .x1                0.086    0.021    0.051    0.132 gamma(1,.5)[sd]
+#>    .x2                0.138    0.072    0.037    0.311 gamma(1,.5)[sd]
+#>    .x3                0.496    0.098    0.335    0.718 gamma(1,.5)[sd]
+#>    .y1                2.046    0.520    1.212    3.236 gamma(1,.5)[sd]
+#>    .y2                7.895    1.523    5.403   11.347 gamma(1,.5)[sd]
+#>    .y3                5.322    1.057    3.596    7.721 gamma(1,.5)[sd]
+#>    .y4                3.368    0.856    2.001    5.332 gamma(1,.5)[sd]
+#>    .y5                2.502    0.542    1.621    3.736 gamma(1,.5)[sd]
+#>    .y6                5.258    1.008    3.611    7.546 gamma(1,.5)[sd]
+#>    .y7                3.581    0.788    2.299    5.369 gamma(1,.5)[sd]
+#>    .y8                3.443    0.780    2.186    5.225 gamma(1,.5)[sd]
 ```
 
 ## Validation Against MCMC
 
-Computation speed is valuable only when accuracy is preserved.
-
-For many standard SEMs, the Laplace approximation yields posterior
-distributions that are visually and numerically comparable to those
-obtained via MCMC (e.g., via `{blavaan}`/Stan), but at a fraction of the
-computational cost.
+Computation speed is valuable only when accuracy is preserved. Our
+method yields posterior distributions that are visually and numerically
+comparable to those obtained via MCMC (e.g., via `{blavaan}`/Stan), but
+at a fraction of the computational cost.
 
 The figure below illustrates the posterior density overlap for the
-example above:
+example above. The percentages refer to (one minus) the [Jensen-Shannon
+divergence](https://en.wikipedia.org/wiki/Jensen–Shannon_divergence),
+which gives a measure of similarity between two probability
+distributions.
 
 ``` r
 # install.packages("blavaan")
 library(blavaan)
-fit_blav <- bsem(model, PoliticalDemocracy)
+fit_blav <- bsem(model, PoliticalDemocracy, burnin = 2500, sample = 5000)
 res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```
@@ -494,14 +496,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 By using this package, you agree to comply with both licenses: the GPL-3
 license for the software and the CC BY 4.0 license for the data.
-
-<!-- ## Outro -->
-
-<!-- ```{r} -->
-
-<!-- sessioninfo::session_info(info = "all") -->
-
-<!-- ``` -->
 
 [^1]: Bollen, K. A. (1989). *Structural equations with latent variables*
     (pp. xiv, 514). John Wiley & Sons.
