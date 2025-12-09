@@ -1,4 +1,4 @@
-# testthat::skip()
+testthat::skip()
 
 ## ----- 1. Define the Log-PDF -------------------------------------------------
 # p(x, y) = p(x) * p(y|x)
@@ -37,6 +37,7 @@ cat(
 ## ----- 4. Plot ---------------------------------------------------------------
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 
 grid_size <- 0.1
 grid <- expand.grid(
@@ -78,8 +79,9 @@ ggplot(grid, aes(x, y)) +
   theme_minimal()
 
 ## ----- 5. Skew normal marginal fit -------------------------------------------
+library(INLAvaan)
 library(numDeriv)
-sn_fit_cor <- TRUE
+sn_fit_cor <- !TRUE
 sn_fit_logthresh <- -6
 sn_fit_temp <- 1
 
@@ -165,8 +167,10 @@ tibble(
   )) +
   geom_area(position = "identity") +
   geom_line(alpha = 1) +
-  scale_alpha_manual(values = c(0.3, 0)) +
-  scale_linewidth_manual(values = c(0, 0.8)) +
+  scale_alpha_manual(values = c(0, 0.3)) +
+  scale_linewidth_manual(values = c(0.8, 0)) +
+  scale_colour_manual(values = c("truth" = "black", "sn_fit" = "#00A6AA")) +
+  scale_fill_manual(values = c("truth" = "black", "sn_fit" = "#00A6AA")) +
   labs(
     title = "Marginal of X: True vs Skew Normal Approximation",
     y = "Density"
@@ -245,8 +249,8 @@ approx_data <-
         )
         if (isTRUE(sn_fit_cor)) {
           # Adjust back to theta space
-          fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
-          fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
+          # fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
+          # fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
         }
         unlist(fit_sn)
       }
@@ -278,8 +282,108 @@ tibble(
   )) +
   geom_area(position = "identity") +
   geom_line(alpha = 1) +
-  scale_alpha_manual(values = c(0.3, 0)) +
-  scale_linewidth_manual(values = c(0, 0.8)) +
+  scale_alpha_manual(values = c(0, 0.3)) +
+  scale_linewidth_manual(values = c(0.8, 0)) +
+  scale_colour_manual(values = c("truth" = "black", "sn_fit" = "#00A6AA")) +
+  scale_fill_manual(values = c("truth" = "black", "sn_fit" = "#00A6AA")) +
+  labs(
+    title = "Marginal of X: True vs Skew Normal Approximation",
+    y = "Density"
+  ) +
+  theme_minimal()
+
+## ---- Cheaper fix ------------------------------------------------------------
+approx_data <-
+  do.call(
+    what = "rbind",
+    lapply(
+      pars_list,
+      function(j) {
+        # 1. Grid in Z-space (Standard Normal Scale)
+        mv <- seq(-4, 4, length = 31)
+
+        # 2. Calculate SLA Correction Term (Gamma_1)
+        # We estimate d(H_zz)/dz_j via finite difference of the Hessian in Z-space
+        delta <- 0.01
+
+        # Direction in Theta space corresponding to Z_j
+        dir_vec <- L[, j]
+
+        # Hessian at z* + delta (mapped to theta)
+        H_plus_theta <- -1 *
+          numDeriv::hessian(lp_joint, theta_star + dir_vec * delta)
+        H_plus_z <- t(L) %*% H_plus_theta %*% L
+
+        # Hessian at z* - delta (mapped to theta)
+        H_minus_theta <- -1 *
+          numDeriv::hessian(lp_joint, theta_star - dir_vec * delta)
+        H_minus_z <- t(L) %*% H_minus_theta %*% L
+
+        # 3rd derivative diagonal: d^3(log pi) / dz_j dz_k^2
+        d_curvature_dz <- diag(H_plus_z - H_minus_z) / (2 * delta)
+
+        # Rue et al (2009) Eq 21 correction: -0.5 * sum_{k!=j} (change in curvature)
+        gamma_1 <- -0.5 * sum(d_curvature_dz[-j])
+
+        # 3. Sweep axis and apply correction
+        yy <- numeric(length(mv))
+        for (k in seq_along(mv)) {
+          # Map Z point back to Theta to evaluate Joint Log-PDF
+          theta_val <- theta_star + dir_vec * mv[k]
+
+          # SLA: Joint Density + Linear Location Correction
+          yy[k] <- lp_joint(theta_val) + gamma_1 * mv[k]
+        }
+
+        # 4. Fit Skew Normal to the corrected curve
+        fit_sn <- fit_skew_normal(
+          mv,
+          yy - max(yy),
+          threshold_log_drop = sn_fit_logthresh,
+          temp = sn_fit_temp
+        )
+
+        # 5. Transform parameters back to Theta space
+        # Scaling Z-space (mean 0, sd 1) to marginal theta (mean theta*, sd sigma_jj)
+        marginal_scale <- sqrt(Sigma_theta[j, j])
+        fit_sn$xi <- theta_star[j] + fit_sn$xi * marginal_scale
+        fit_sn$omega <- fit_sn$omega * marginal_scale
+
+        unlist(fit_sn)
+      }
+    )
+  )
+
+
+tibble(
+  x = seq(-4, 4, length = 100),
+  truth = dnorm(x, 0, 1),
+  sn_fit = INLAvaan::dsnorm(
+    x,
+    xi = approx_data["theta[1]", "xi"],
+    omega = approx_data["theta[1]", "omega"],
+    alpha = approx_data["theta[1]", "alpha"]
+  )
+) |>
+  pivot_longer(
+    cols = c("truth", "sn_fit"),
+    names_to = "type",
+    values_to = "density"
+  ) |>
+  ggplot(aes(
+    x,
+    density,
+    color = type,
+    fill = type,
+    alpha = type,
+    linewidth = type
+  )) +
+  geom_area(position = "identity") +
+  geom_line(alpha = 1) +
+  scale_alpha_manual(values = c(0, 0.3)) +
+  scale_linewidth_manual(values = c(0.8, 0)) +
+  scale_colour_manual(values = c("truth" = "black", "sn_fit" = "#00A6AA")) +
+  scale_fill_manual(values = c("truth" = "black", "sn_fit" = "#00A6AA")) +
   labs(
     title = "Marginal of X: True vs Skew Normal Approximation",
     y = "Density"
