@@ -65,6 +65,14 @@ compare_mcmc <- function(fit_blavaan, ...) {
       col = NA,
       alpha = 0.38
     ) +
+    # ggplot2::geom_histogram(
+    #   data = plot_df_blav,
+    #   aes(value, y = ggplot2::after_stat(density), fill = "MCMC"),
+    #   alpha = 0.4,
+    #   bins = 50,
+    #   col = NA,
+    #   position = "identity"
+    # ) +
     ggplot2::geom_line(
       data = plot_df,
       aes(x, y, group = method, col = method),

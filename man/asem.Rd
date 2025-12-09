@@ -53,9 +53,6 @@ approximation).}
 
 \item{test}{Logical indicating whether to compute posterior fit indices.}
 
-\item{sn_fit_cor}{Logical indicating whether to fit the skew normal in the
-decoupled space. Defaults to \code{TRUE}.}
-
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will
 be excluded from the fit. Defaults to \code{-6}.}

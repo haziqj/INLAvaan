@@ -20,8 +20,6 @@
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param test Logical indicating whether to compute posterior fit indices.
-#' @param sn_fit_cor Logical indicating whether to fit the skew normal in the
-#'   decoupled space. Defaults to `TRUE`.
 #' @param sn_fit_logthresh The log-threshold for fitting the skew normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
@@ -224,17 +222,16 @@ inlavaan <- function(
     } else {
       H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
     }
-    Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
   } else if (optim_method == "ucminf") {
     opt <- ucminf::ucminf(
       par = parstart,
       fn = ob,
       gr = gr,
       control = list(),
-      hessian = 2
+      hessian = 1
     )
     theta_star <- opt$par
-    Sigma_theta <- opt$invhessian
+    H_neg <- opt$hessian
   } else {
     opt <- stats::optim(
       par = parstart,
@@ -245,8 +242,9 @@ inlavaan <- function(
       control = list()
     )
     theta_star <- opt$par
-    Sigma_theta <- solve(opt$hessian)
+    H_neg <- opt$hessian
   }
+  Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
 
   # Derivatives at optima
   opt$dx <- numDeriv::grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
@@ -346,38 +344,37 @@ inlavaan <- function(
           lapply(
             pars_list,
             function(j) {
-              mv <- seq(-4, 4, length = 31)
-              tt <- theta_star[j] + mv * sqrt(Sigma_theta[j, j])
-              yy <- numeric(length(mv))
-              for (k in seq_along(mv)) {
-                if (isTRUE(sn_fit_cor)) {
-                  # Fit in decoupled Z-space
-                  tt[k] <- mv[k]
-                  yy[k] <- joint_lp(theta_star + L[, j] * mv[k])
-                } else {
-                  # Evaluate joint_lp at theta_j with others fixed at the
-                  # conditional mode
-                  theta_new <- rep(NA, length(theta_star))
-                  theta_new[j] <- tt[k]
-                  theta_new[-j] <- theta_star[-j] +
-                    Sigma_theta[-j, j] /
-                      Sigma_theta[j, j] *
-                      (tt[k] - theta_star[j])
-                  yy[k] <- joint_lp(theta_new)
-                }
+              z <- seq(-4, 4, length = 31)
+              yync <- yy <- numeric(length(z))
+
+              # Simplifed Laplace Approximation correction using Forward
+              # Difference
+              H_mode_z <- t(L) %*% H_neg %*% L
+              delta <- 0.01 # small step
+              th_plus <- theta_star + L[, j] * delta
+              H_plus_th <-
+                numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), th_plus)
+              H_plus_z <- t(L) %*% H_plus_th %*% L
+              d_curvature_dz <- diag(H_plus_z - H_mode_z) / delta
+              gamma1 <- -0.5 * sum(d_curvature_dz[-j])
+
+              for (k in seq_along(z)) {
+                yync[k] <- joint_lp(theta_star + L[, j] * z[k])
+                yy[k] <- yync[k] + gamma1 * z[k]
               }
+
               fit_sn <- fit_skew_normal(
-                tt,
-                yy - max(yy),
+                x = z,
+                y = yy - max(yy),
                 threshold_log_drop = sn_fit_logthresh,
                 temp = sn_fit_temp
               )
-              if (isTRUE(sn_fit_cor)) {
-                # Adjust back to theta space
-                fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
-                fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
-              }
-              unlist(fit_sn)
+
+              # Adjust back to theta space
+              fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
+              fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
+
+              c(unlist(fit_sn), gamma1 = gamma1)
             }
           )
         )
