@@ -57,39 +57,6 @@ compare_mcmc <- function(fit_blavaan, ...) {
     dplyr::bind_rows(.id = "method") %>%
     dplyr::mutate(method = factor(method, inlav_names))
 
-  p_compare <-
-    ggplot2::ggplot() +
-    ggplot2::geom_density(
-      data = plot_df_blav,
-      aes(value, fill = "MCMC"),
-      col = NA,
-      alpha = 0.38
-    ) +
-    # ggplot2::geom_histogram(
-    #   data = plot_df_blav,
-    #   aes(value, y = ggplot2::after_stat(density), fill = "MCMC"),
-    #   alpha = 0.4,
-    #   bins = 50,
-    #   col = NA,
-    #   position = "identity"
-    # ) +
-    ggplot2::geom_line(
-      data = plot_df,
-      aes(x, y, group = method, col = method),
-      linewidth = 0.75
-    ) +
-    ggplot2::facet_wrap(~name, scales = "free") +
-    ggplot2::scale_colour_manual(values = mycols) +
-    ggplot2::scale_fill_manual(values = c("MCMC" = "#131516")) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(
-      plot.margin = margin(t = 4, r = 8, b = 8, l = 8),
-      legend.position = "top",
-      legend.box.spacing = unit(2, "pt"),
-      legend.key.width = unit(1, "cm")
-    ) +
-    ggplot2::labs(x = NULL, y = NULL, col = NULL, fill = NULL)
-
   # Helper function for Integration
   trapz <- function(x, y) {
     if (length(x) < 2) {
@@ -221,6 +188,56 @@ compare_mcmc <- function(fit_blavaan, ...) {
       legend.key.width = unit(1, "cm")
     ) +
     ggplot2::labs(x = NULL, y = NULL, fill = NULL)
+
+  p_compare <-
+    ggplot2::ggplot() +
+    ggplot2::geom_density(
+      data = plot_df_blav,
+      aes(value, fill = "MCMC"),
+      col = NA,
+      alpha = 0.38
+    ) +
+    # ggplot2::geom_histogram(
+    #   data = plot_df_blav,
+    #   aes(value, y = ggplot2::after_stat(density), fill = "MCMC"),
+    #   alpha = 0.4,
+    #   bins = 50,
+    #   col = NA,
+    #   position = "identity"
+    # ) +
+    ggplot2::geom_line(
+      data = plot_df,
+      aes(x, y, group = method, col = method),
+      linewidth = 0.75
+    ) +
+    ggplot2::facet_wrap(~name, scales = "free") +
+    ggplot2::scale_colour_manual(values = mycols) +
+    ggplot2::scale_fill_manual(values = c("MCMC" = "#131516")) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      plot.margin = margin(t = 4, r = 8, b = 8, l = 8),
+      legend.position = "top",
+      legend.box.spacing = unit(2, "pt"),
+      legend.key.width = unit(1, "cm")
+    ) +
+    ggplot2::labs(x = NULL, y = NULL, col = NULL, fill = NULL)
+
+  if (length(mycols == 1)) {
+    p_compare <- p_compare +
+      ggplot2::geom_text(
+        data = plot_df %>%
+          dplyr::summarise(
+            x = quantile(x, probs = 0.95),
+            y = 0.75 * max(y),
+            .by = name
+          ) %>%
+          dplyr::left_join(metrics_df, by = "name") %>%
+          dplyr::mutate(JS_percent = scales::percent(1 - JS_percent, 0.1)),
+        aes(x, y, label = JS_percent),
+        size = 3,
+        col = mycols[1]
+      )
+  }
 
   list(
     p_compare = p_compare,

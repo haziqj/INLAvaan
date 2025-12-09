@@ -13,7 +13,7 @@ inlavaan(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = TRUE,
-  sn_fit_cor = TRUE,
+  sn_fit_correction = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -59,6 +59,9 @@ approximation).}
 (including posterior sampling for model fit indices).}
 
 \item{test}{Logical indicating whether to compute posterior fit indices.}
+
+\item{sn_fit_correction}{Logical indicating whether to apply half log
+determinant correction. More accurate but slower.}
 
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will

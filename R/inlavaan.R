@@ -20,6 +20,8 @@
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param test Logical indicating whether to compute posterior fit indices.
+#' @param sn_fit_correction Logical indicating whether to apply half log
+#'   determinant correction. More accurate but slower.
 #' @param sn_fit_logthresh The log-threshold for fitting the skew normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
@@ -56,7 +58,7 @@ inlavaan <- function(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = TRUE,
-  sn_fit_cor = TRUE,
+  sn_fit_correction = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -347,16 +349,19 @@ inlavaan <- function(
               z <- seq(-4, 4, length = 31)
               yync <- yy <- numeric(length(z))
 
-              # Simplifed Laplace Approximation correction using Forward
-              # Difference
-              H_mode_z <- t(L) %*% H_neg %*% L
-              delta <- 0.01 # small step
-              th_plus <- theta_star + L[, j] * delta
-              H_plus_th <-
-                numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), th_plus)
-              H_plus_z <- t(L) %*% H_plus_th %*% L
-              d_curvature_dz <- diag(H_plus_z - H_mode_z) / delta
-              gamma1 <- -0.5 * sum(d_curvature_dz[-j])
+              gamma1 <- 0
+              if (isTRUE(sn_fit_correction)) {
+                # Simplifed Laplace Approximation correction using Forward
+                # Difference
+                H_mode_z <- t(L) %*% H_neg %*% L
+                delta <- 0.01 # small step
+                th_plus <- theta_star + L[, j] * delta
+                H_plus_th <-
+                  numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), th_plus)
+                H_plus_z <- t(L) %*% H_plus_th %*% L
+                d_curvature_dz <- diag(H_plus_z - H_mode_z) / delta
+                gamma1 <- -0.5 * sum(d_curvature_dz[-j])
+              }
 
               for (k in seq_along(z)) {
                 yync[k] <- joint_lp(theta_star + L[, j] * z[k])
