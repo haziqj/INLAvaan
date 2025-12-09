@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
-options(cli.dynamic = FALSE)
+options(cli.dynamic = FALSE, cli.progress_show_after = 2)
 
 library(INLAvaan)
 library(lavaan)

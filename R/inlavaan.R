@@ -330,7 +330,11 @@ inlavaan <- function(
       if (isTRUE(verbose)) {
         cli::cli_progress_done()
         cli::cli_alert_info("Using skew normal approximation.")
-        cli::cli_progress_step("Fitting skew normal to marginals.")
+        j <- 0
+        cli::cli_progress_step(
+          "Fitting skew normal to {j}/{m} marginal{?s}.",
+          spinner = TRUE
+        )
       }
 
       # For whitening transformation: z = L^{-1}(theta - theta*)
@@ -340,49 +344,49 @@ inlavaan <- function(
       approx_data <- matrix(NA, nrow = m, ncol = 4)
       colnames(approx_data) <- c("xi", "omega", "alpha", "logC")
 
-      approx_data <-
-        do.call(
-          what = "rbind",
-          lapply(
-            pars_list,
-            function(j) {
-              z <- seq(-4, 4, length = 31)
-              yync <- yy <- numeric(length(z))
+      obtain_approx_data <- function(j) {
+        z <- seq(-4, 4, length = 31)
+        yync <- yy <- numeric(length(z))
 
-              gamma1 <- 0
-              if (isTRUE(sn_fit_correction)) {
-                # Simplifed Laplace Approximation correction using Forward
-                # Difference
-                H_mode_z <- t(L) %*% H_neg %*% L
-                delta <- 0.01 # small step
-                th_plus <- theta_star + L[, j] * delta
-                H_plus_th <-
-                  numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), th_plus)
-                H_plus_z <- t(L) %*% H_plus_th %*% L
-                d_curvature_dz <- diag(H_plus_z - H_mode_z) / delta
-                gamma1 <- -0.5 * sum(d_curvature_dz[-j])
-              }
+        gamma1 <- 0
+        if (isTRUE(sn_fit_correction)) {
+          # Simplifed Laplace Approximation correction using Forward
+          # Difference
+          H_mode_z <- t(L) %*% H_neg %*% L
+          delta <- 0.01 # small step
+          th_plus <- theta_star + L[, j] * delta
+          H_plus_th <-
+            numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), th_plus)
+          H_plus_z <- t(L) %*% H_plus_th %*% L
+          d_curvature_dz <- diag(H_plus_z - H_mode_z) / delta
+          gamma1 <- -0.5 * sum(d_curvature_dz[-j])
+        }
 
-              for (k in seq_along(z)) {
-                yync[k] <- joint_lp(theta_star + L[, j] * z[k])
-                yy[k] <- yync[k] + gamma1 * z[k]
-              }
+        for (k in seq_along(z)) {
+          yync[k] <- joint_lp(theta_star + L[, j] * z[k])
+          yy[k] <- yync[k] + gamma1 * z[k]
+        }
 
-              fit_sn <- fit_skew_normal(
-                x = z,
-                y = yy - max(yy),
-                threshold_log_drop = sn_fit_logthresh,
-                temp = sn_fit_temp
-              )
-
-              # Adjust back to theta space
-              fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
-              fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
-
-              c(unlist(fit_sn), gamma1 = gamma1)
-            }
-          )
+        fit_sn <- fit_skew_normal(
+          x = z,
+          y = yy - max(yy),
+          threshold_log_drop = sn_fit_logthresh,
+          temp = sn_fit_temp
         )
+
+        # Adjust back to theta space
+        fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
+        fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
+
+        c(unlist(fit_sn), gamma1 = gamma1)
+      }
+      approx_data <- list()
+      for (j in seq_len(m)) {
+        approx_data[[j]] <- obtain_approx_data(j)
+        if (isTRUE(verbose)) cli::cli_progress_update()
+      }
+      approx_data <-
+        do.call(what = "rbind", approx_data)
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
         post_marg_skewnorm(
