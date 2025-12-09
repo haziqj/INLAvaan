@@ -73,11 +73,6 @@ agrowth(
 
   Logical indicating whether to compute posterior fit indices.
 
-- sn_fit_cor:
-
-  Logical indicating whether to fit the skew normal in the decoupled
-  space. Defaults to `TRUE`.
-
 - sn_fit_logthresh:
 
   The log-threshold for fitting the skew normal. Points with
@@ -202,21 +197,21 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [256ms]
+#> ✔ Finding posterior mode. [249ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [391ms]
+#> ✔ Computing the Hessian. [366ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [748ms]
+#> ✔ Fitting skew normal to marginals. [3.8s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [422ms]
+#> ✔ Sampling posterior covariances. [415ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.7s]
+#> ✔ Computing ppp and DIC. [2.6s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 85 iterations
@@ -230,12 +225,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2557.566 
-#>    PPP (Chi-square)                              0.947 
+#>    PPP (Chi-square)                              0.948 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.401 
-#>    Effective parameters (pD)                    17.076 
+#>    Deviance (DIC)                             4996.174 
+#>    Effective parameters (pD)                    16.962 
 #> 
 #> Parameter Estimates:
 #> 
@@ -274,7 +269,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>  .i ~~                                                                
-#>    .s                 0.155    0.039   -0.004    0.149       beta(1,1)
+#>    .s                 0.157    0.039   -0.004    0.149       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
@@ -283,15 +278,15 @@ summary(fit)
 #>    .t3                0.000                                           
 #>    .t4                0.000                                           
 #>    .i                 0.580    0.062    0.459    0.702    normal(0,10)
-#>    .s                 0.958    0.030    0.900    1.015    normal(0,10)
+#>    .s                 0.957    0.030    0.900    1.015    normal(0,10)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
-#>    .t1                0.579    0.080    0.431    0.744 gamma(1,.5)[sd]
-#>    .t2                0.599    0.055    0.499    0.714 gamma(1,.5)[sd]
-#>    .t3                0.483    0.055    0.381    0.598 gamma(1,.5)[sd]
-#>    .t4                0.537    0.097    0.363    0.743 gamma(1,.5)[sd]
-#>    .i                 1.088    0.113    0.883    1.325 gamma(1,.5)[sd]
-#>    .s                 0.226    0.026    0.178    0.281 gamma(1,.5)[sd]
+#>    .t1                0.591    0.081    0.442    0.758 gamma(1,.5)[sd]
+#>    .t2                0.605    0.055    0.504    0.721 gamma(1,.5)[sd]
+#>    .t3                0.489    0.056    0.387    0.605 gamma(1,.5)[sd]
+#>    .t4                0.547    0.098    0.372    0.755 gamma(1,.5)[sd]
+#>    .i                 1.104    0.115    0.896    1.344 gamma(1,.5)[sd]
+#>    .s                 0.230    0.027    0.181    0.286 gamma(1,.5)[sd]
 #> 
 ```

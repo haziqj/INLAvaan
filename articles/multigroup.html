@@ -96,21 +96,22 @@
 <span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [757ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [749ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [2.4s]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [2.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [4.6s]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [1m 15.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [362ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [334ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [5.3s]</span></span>
+<span><span class="co">#&gt; ⠸ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [5.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.0 ended normally after 145 iterations</span></span>
@@ -130,8 +131,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7488.044 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    61.752 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7495.601 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    65.530 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -144,24 +145,24 @@
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;   visual =~                                                           </span></span>
 <span><span class="co">#&gt;     x1                1.000                                           </span></span>
-<span><span class="co">#&gt;     x2                0.412    0.141    0.138    0.693    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x3                0.616    0.154    0.341    0.944    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x2                0.407    0.135    0.150    0.679    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x3                0.612    0.153    0.341    0.941    normal(0,10)</span></span>
 <span><span class="co">#&gt;   textual =~                                                          </span></span>
 <span><span class="co">#&gt;     x4                1.000                                           </span></span>
-<span><span class="co">#&gt;     x5                1.196    0.104    1.005    1.413    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x6                0.878    0.080    0.726    1.040    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x5                1.202    0.105    1.009    1.419    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x6                0.880    0.080    0.728    1.043    normal(0,10)</span></span>
 <span><span class="co">#&gt;   speed =~                                                            </span></span>
 <span><span class="co">#&gt;     x7                1.000                                           </span></span>
-<span><span class="co">#&gt;     x8                1.194    0.280    0.723    1.818    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x9                0.981    0.267    0.528    1.570    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x8                1.240    0.298    0.742    1.904    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x9                0.977    0.265    0.527    1.563    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;   visual ~~                                                           </span></span>
-<span><span class="co">#&gt;     textual           0.472    0.121    0.232    0.707       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.287    0.079    0.025    0.335       beta(1,1)</span></span>
+<span><span class="co">#&gt;     textual           0.465    0.121    0.239    0.712       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.291    0.080    0.023    0.338       beta(1,1)</span></span>
 <span><span class="co">#&gt;   textual ~~                                                          </span></span>
-<span><span class="co">#&gt;     speed             0.315    0.074    0.039    0.328       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.308    0.077    0.034    0.336       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
@@ -180,18 +181,18 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
-<span><span class="co">#&gt;    .x1                0.333    0.230    0.051    0.913 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x2                1.349    0.168    1.057    1.716 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x3                0.999    0.145    0.750    1.318 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x4                0.432    0.072    0.307    0.589 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x5                0.462    0.087    0.311    0.653 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x6                0.297    0.053    0.206    0.412 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x7                0.828    0.130    0.605    1.112 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x8                0.521    0.119    0.321    0.785 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x9                0.698    0.114    0.502    0.950 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     visual            1.102    0.278    0.659    1.740 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     textual           0.914    0.156    0.650    1.258 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     speed             0.383    0.138    0.177    0.710 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x1                0.280    0.219    0.031    0.843 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x2                1.356    0.169    1.061    1.725 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x3                0.997    0.145    0.749    1.315 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x4                0.442    0.073    0.314    0.601 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x5                0.475    0.089    0.320    0.669 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x6                0.305    0.054    0.212    0.424 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x7                0.840    0.132    0.614    1.129 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x8                0.549    0.124    0.341    0.823 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x9                0.713    0.117    0.513    0.971 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     visual            1.017    0.255    0.609    1.602 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     textual           0.939    0.161    0.667    1.296 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     speed             0.387    0.139    0.179    0.719 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Group 2 [Grant-White]:</span></span>
@@ -200,24 +201,24 @@
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;   visual =~                                                           </span></span>
 <span><span class="co">#&gt;     x1                1.000                                           </span></span>
-<span><span class="co">#&gt;     x2                0.765    0.171    0.458    1.130    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x3                0.953    0.186    0.617    1.347    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x2                0.770    0.172    0.459    1.134    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x3                0.958    0.187    0.620    1.354    normal(0,10)</span></span>
 <span><span class="co">#&gt;   textual =~                                                          </span></span>
 <span><span class="co">#&gt;     x4                1.000                                           </span></span>
-<span><span class="co">#&gt;     x5                0.999    0.089    0.833    1.183    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x6                0.966    0.086    0.803    1.138    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x5                1.001    0.089    0.834    1.185    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x6                0.968    0.086    0.805    1.141    normal(0,10)</span></span>
 <span><span class="co">#&gt;   speed =~                                                            </span></span>
 <span><span class="co">#&gt;     x7                1.000                                           </span></span>
-<span><span class="co">#&gt;     x8                1.258    0.182    0.937    1.651    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x9                1.093    0.205    0.739    1.540    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x8                1.285    0.190    0.954    1.697    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x9                1.114    0.212    0.751    1.582    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;   visual ~~                                                           </span></span>
-<span><span class="co">#&gt;     textual           0.525    0.104    0.202    0.610       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.502    0.081    0.117    0.434       beta(1,1)</span></span>
+<span><span class="co">#&gt;     textual           0.512    0.103    0.200    0.604       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.493    0.077    0.119    0.421       beta(1,1)</span></span>
 <span><span class="co">#&gt;   textual ~~                                                          </span></span>
-<span><span class="co">#&gt;     speed             0.322    0.073    0.073    0.360       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.319    0.078    0.060    0.364       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
@@ -236,18 +237,18 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
-<span><span class="co">#&gt;    .x1                0.727    0.135    0.497    1.026 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x2                0.914    0.128    0.693    1.194 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x3                0.567    0.111    0.378    0.813 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x4                0.320    0.066    0.205    0.465 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x5                0.427    0.074    0.300    0.590 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x6                0.415    0.071    0.293    0.571 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x7                0.607    0.097    0.441    0.819 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x8                0.404    0.113    0.219    0.658 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x9                0.556    0.111    0.372    0.804 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     visual            0.628    0.172    0.354    1.022 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     textual           0.959    0.157    0.692    1.306 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     speed             0.488    0.127    0.286    0.781 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x1                0.737    0.137    0.503    1.038 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x2                0.936    0.132    0.708    1.225 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x3                0.590    0.115    0.394    0.845 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x4                0.327    0.068    0.211    0.475 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x5                0.439    0.076    0.308    0.606 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x6                0.427    0.073    0.301    0.588 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x7                0.627    0.100    0.455    0.847 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x8                0.422    0.116    0.231    0.683 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x9                0.563    0.112    0.377    0.814 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     visual            0.632    0.173    0.357    1.030 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     textual           0.976    0.161    0.704    1.332 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     speed             0.494    0.129    0.290    0.790 gamma(1,.5)[sd]</span></span>
 <span></span>
 <span><span class="co"># Weak invariance</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span></span>
@@ -258,21 +259,21 @@
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [639ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [622ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [2.1s]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [3.9s]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [58.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [333ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [327ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [4.7s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [4.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="co"># Strong invariance</span></span>
@@ -284,22 +285,21 @@
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [581ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [586ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
 <span><span class="co">#&gt; ✔ Computing the Hessian. [1.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [3.3s]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [43.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [344ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [339ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ⠸ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [4.2s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [4.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="co"># Compare models</span></span>
@@ -308,9 +308,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model No.params Marg.Loglik      DIC       pD   logBF</span></span>
-<span><span class="co">#&gt;   fit3        48   -3890.012 7511.896 49.55277   0.000</span></span>
-<span><span class="co">#&gt;   fit2        54   -3907.799 7482.811 55.04426 -17.787</span></span>
-<span><span class="co">#&gt;   fit1        60   -3927.820 7488.044 61.75194 -37.808</span></span></code></pre></div>
+<span><span class="co">#&gt;   fit3        48   -3890.012 7511.436 49.32285   0.000</span></span>
+<span><span class="co">#&gt;   fit2        54   -3907.799 7482.694 54.98599 -17.787</span></span>
+<span><span class="co">#&gt;   fit1        60   -3927.820 7495.601 65.53017 -37.808</span></span></code></pre></div>
 </div>
 
 

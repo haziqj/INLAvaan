@@ -119,20 +119,20 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/agrowth.html">agrowth</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.growth</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [264ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [259ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [383ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [382ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ℹ Fitting skew normal to marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [771ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to marginals. [3.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [410ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [407ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [2.5s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [2.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.0 ended normally after 85 iterations</span></span>
@@ -146,12 +146,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -2557.566 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.928 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.943 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             4996.646 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    17.198 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             4996.469 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    17.109 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -190,7 +190,7 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;  .i ~~                                                                </span></span>
-<span><span class="co">#&gt;    .s                 0.155    0.041   -0.010    0.151       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .s                 0.157    0.041   -0.009    0.150       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
@@ -199,16 +199,16 @@
 <span><span class="co">#&gt;    .t3                0.000                                           </span></span>
 <span><span class="co">#&gt;    .t4                0.000                                           </span></span>
 <span><span class="co">#&gt;    .i                 0.580    0.062    0.459    0.702    normal(0,10)</span></span>
-<span><span class="co">#&gt;    .s                 0.958    0.030    0.900    1.015    normal(0,10)</span></span>
+<span><span class="co">#&gt;    .s                 0.957    0.030    0.900    1.015    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
-<span><span class="co">#&gt;    .t1                0.579    0.080    0.431    0.744 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .t2                0.599    0.055    0.499    0.714 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .t3                0.483    0.055    0.381    0.598 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .t4                0.537    0.097    0.363    0.743 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .i                 1.088    0.113    0.883    1.325 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .s                 0.226    0.026    0.178    0.281 gamma(1,.5)[sd]</span></span></code></pre></div>
+<span><span class="co">#&gt;    .t1                0.591    0.081    0.442    0.758 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .t2                0.605    0.055    0.504    0.721 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .t3                0.489    0.056    0.387    0.605 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .t4                0.547    0.098    0.372    0.755 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .i                 1.104    0.115    0.896    1.344 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .s                 0.230    0.027    0.181    0.286 gamma(1,.5)[sd]</span></span></code></pre></div>
 </div>
 
 
