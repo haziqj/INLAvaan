@@ -14,7 +14,7 @@ utils::globalVariables(c(
 ))
 
 # nocov start
-compare_mcmc <- function(fit_blavaan, ...) {
+compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE) {
   parnames <- unique(names(coef(fit_blavaan)))
 
   # MCMC Histograms
@@ -222,20 +222,23 @@ compare_mcmc <- function(fit_blavaan, ...) {
     ) +
     ggplot2::labs(x = NULL, y = NULL, col = NULL, fill = NULL)
 
-  if (length(mycols == 1)) {
-    p_compare <- p_compare +
+  if (isTRUE(show_error)) {
+    pos <- if (length(mycols) == 1) "identity" else ggplot2::position_dodge()
+    p_compare <-
+      p_compare +
       ggplot2::geom_text(
         data = plot_df %>%
           dplyr::summarise(
             x = quantile(x, probs = 0.95),
             y = 0.75 * max(y),
-            .by = name
+            .by = c(name, method)
           ) %>%
-          dplyr::left_join(metrics_df, by = "name") %>%
+          dplyr::left_join(metrics_df, by = c("name", "method")) %>%
           dplyr::mutate(JS_percent = scales::percent(1 - JS_percent, 0.1)),
-        aes(x, y, label = JS_percent),
+        aes(x, y, label = JS_percent, col = method),
         size = 3,
-        col = mycols[1]
+        position = "identity",
+        show.legend = FALSE
       )
   }
 
