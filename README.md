@@ -54,31 +54,40 @@ model <- "
     y6 ~~ y8
   
   # Custom priors on latent variances
-    ind60 ~~ prior('gamma(1,.5)')*ind60
-    dem60 ~~ prior('gamma(2, 1)')*dem60
-    dem65 ~~ prior('gamma(2, 1)')*dem65
+    ind60 ~~ prior('gamma( 1,.5)')*ind60
+    dem60 ~~ prior('gamma( 1, 1)')*dem60
+    dem65 ~~ prior('gamma( 1,.5)')*dem65
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [91ms]
+#> ✔ Finding posterior mode. [96ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [298ms]
+#> ✔ Computing the Hessian. [300ms]
 #> 
 #> ℹ Using skew normal approximation.
-#> ✔ Fitting skew normal to 31/31 marginals. [5.4s]
+#> ⠙ Fitting skew normal to 0/31 marginals.
+#> ⠹ Fitting skew normal to 2/31 marginals.
+#> ⠸ Fitting skew normal to 6/31 marginals.
+#> ⠼ Fitting skew normal to 9/31 marginals.
+#> ⠴ Fitting skew normal to 13/31 marginals.
+#> ⠦ Fitting skew normal to 16/31 marginals.
+#> ⠧ Fitting skew normal to 20/31 marginals.
+#> ⠇ Fitting skew normal to 24/31 marginals.
+#> ⠏ Fitting skew normal to 27/31 marginals.
+#> ⠋ Fitting skew normal to 31/31 marginals.
+#> ✔ Fitting skew normal to 31/31 marginals. [1.8s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [101ms]
+#> ✔ Sampling posterior covariances. [119ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
-#> ⠼ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [938ms]
+#> ✔ Computing ppp and DIC. [973ms]
 #> 
 
 summary(fit)
@@ -92,13 +101,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1641.399 
-#>    PPP (Chi-square)                              0.502 
+#>    Marginal log-likelihood                   -1641.969 
+#>    PPP (Chi-square)                              0.494 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3159.261 
-#>    Effective parameters (pD)                    31.246 
+#>    Deviance (DIC)                             3158.571 
+#>    Effective parameters (pD)                    31.097 
 #> 
 #> Parameter Estimates:
 #> 
@@ -108,57 +117,57 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   ind60 =~                                                            
 #>     x1                1.000                                           
-#>     x2                2.211    0.145    1.944    2.512    normal(0,10)
+#>     x2                2.210    0.145    1.943    2.511    normal(0,10)
 #>     x3                1.809    0.151    1.514    2.107    normal(0,10)
 #>   dem60 =~                                                            
 #>     y1                1.000                                           
-#>     y2                1.332    0.201    0.960    1.751    normal(0,10)
-#>     y3                1.102    0.153    0.811    1.412    normal(0,10)
-#>     y4                1.330    0.160    1.027    1.655    normal(0,10)
+#>     y2                1.364    0.208    0.983    1.798    normal(0,10)
+#>     y3                1.118    0.158    0.819    1.438    normal(0,10)
+#>     y4                1.356    0.165    1.044    1.692    normal(0,10)
 #>   dem65 =~                                                            
 #>     y5                1.000                                           
-#>     y6                1.195    0.174    0.875    1.559    normal(0,10)
-#>     y7                1.291    0.159    0.993    1.619    normal(0,10)
-#>     y8                1.271    0.160    0.963    1.592    normal(0,10)
+#>     y6                1.216    0.179    0.888    1.592    normal(0,10)
+#>     y7                1.306    0.164    0.999    1.644    normal(0,10)
+#>     y8                1.290    0.165    0.972    1.621    normal(0,10)
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   dem60 ~                                                             
-#>     ind60             1.453    0.383    0.703    2.204    normal(0,10)
+#>     ind60             1.443    0.376    0.707    2.179    normal(0,10)
 #>   dem65 ~                                                             
-#>     ind60             0.575    0.247    0.086    1.056    normal(0,10)
-#>     dem60             0.847    0.102    0.651    1.050    normal(0,10)
+#>     ind60             0.548    0.241    0.072    1.017    normal(0,10)
+#>     dem60             0.863    0.104    0.663    1.071    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>  .y1 ~~                                                               
-#>    .y5                0.302    0.358    0.028    1.432       beta(1,1)
+#>    .y5                0.299    0.360    0.041    1.453       beta(1,1)
 #>  .y2 ~~                                                               
-#>    .y4                0.245    0.724    0.049    2.880       beta(1,1)
-#>    .y6                0.338    0.719    0.748    3.573       beta(1,1)
+#>    .y4                0.245    0.692    0.099    2.797       beta(1,1)
+#>    .y6                0.340    0.709    0.860    3.645       beta(1,1)
 #>  .y3 ~~                                                               
-#>    .y7                0.221    0.582   -0.186    2.099       beta(1,1)
+#>    .y7                0.211    0.596   -0.238    2.104       beta(1,1)
 #>  .y4 ~~                                                               
-#>    .y8                0.112    0.461   -0.402    1.404       beta(1,1)
+#>    .y8                0.102    0.438   -0.372    1.341       beta(1,1)
 #>  .y6 ~~                                                               
-#>    .y8                0.300    0.572    0.297    2.543       beta(1,1)
+#>    .y8                0.306    0.549    0.296    2.452       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>     ind60             0.477    0.095    0.323    0.695     gamma(1,.5)
-#>    .dem60             3.744    0.842    2.377    5.657      gamma(2,1)
-#>    .dem65             0.457    0.218    0.137    0.974      gamma(2,1)
-#>    .x1                0.086    0.021    0.051    0.132 gamma(1,.5)[sd]
-#>    .x2                0.138    0.072    0.037    0.311 gamma(1,.5)[sd]
+#>    .dem60             3.542    0.812    2.229    5.392      gamma(1,1)
+#>    .dem65             0.353    0.207    0.074    0.856     gamma(1,.5)
+#>    .x1                0.086    0.021    0.052    0.132 gamma(1,.5)[sd]
+#>    .x2                0.139    0.072    0.038    0.311 gamma(1,.5)[sd]
 #>    .x3                0.496    0.098    0.335    0.718 gamma(1,.5)[sd]
-#>    .y1                2.046    0.520    1.212    3.236 gamma(1,.5)[sd]
-#>    .y2                7.895    1.523    5.403   11.347 gamma(1,.5)[sd]
-#>    .y3                5.322    1.057    3.596    7.721 gamma(1,.5)[sd]
-#>    .y4                3.368    0.856    2.001    5.332 gamma(1,.5)[sd]
-#>    .y5                2.502    0.542    1.621    3.736 gamma(1,.5)[sd]
-#>    .y6                5.258    1.008    3.611    7.546 gamma(1,.5)[sd]
-#>    .y7                3.581    0.788    2.299    5.369 gamma(1,.5)[sd]
-#>    .y8                3.443    0.780    2.186    5.225 gamma(1,.5)[sd]
+#>    .y1                2.094    0.519    1.260    3.282 gamma(1,.5)[sd]
+#>    .y2                7.873    1.511    5.394   11.296 gamma(1,.5)[sd]
+#>    .y3                5.355    1.060    3.623    7.762 gamma(1,.5)[sd]
+#>    .y4                3.338    0.842    1.990    5.268 gamma(1,.5)[sd]
+#>    .y5                2.522    0.542    1.642    3.757 gamma(1,.5)[sd]
+#>    .y6                5.271    1.005    3.629    7.555 gamma(1,.5)[sd]
+#>    .y7                3.611    0.789    2.329    5.404 gamma(1,.5)[sd]
+#>    .y8                3.450    0.778    2.195    5.229 gamma(1,.5)[sd]
 ```
 
 ## Validation Against MCMC
@@ -177,7 +186,7 @@ distributions.
 ``` r
 # install.packages("blavaan")
 library(blavaan)
-fit_blav <- bsem(model, PoliticalDemocracy, burnin = 2500, sample = 5000)
+fit_blav <- bsem(model, PoliticalDemocracy)
 res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```

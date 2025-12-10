@@ -62,9 +62,9 @@ model <- "
     y6 ~~ y8
   
   # Custom priors on latent variances
-    ind60 ~~ prior('gamma(1,.5)')*ind60
-    dem60 ~~ prior('gamma(2, 1)')*dem60
-    dem65 ~~ prior('gamma(2, 1)')*dem65
+    ind60 ~~ prior('gamma( 1,.5)')*ind60
+    dem60 ~~ prior('gamma( 1, 1)')*dem60
+    dem65 ~~ prior('gamma( 1,.5)')*dem65
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
@@ -93,7 +93,7 @@ The percentages refer to (one minus) the [Jensen-Shannon divergence](https://en.
 
 # install.packages("blavaan")
 library(blavaan)
-fit_blav <- bsem(model, PoliticalDemocracy, burnin = 2500, sample = 5000)
+fit_blav <- bsem(model, PoliticalDemocracy)
 res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```
