@@ -17,13 +17,13 @@
 #'   (two-piece asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
 #'   approximation), and `"sampling"` (sampling from the joint Laplace
 #'   approximation).
+#' @param marginal_correction Which type of correction to use when fitting the
+#'   skew normal or two-piece Gaussian marginals. `"hessian"` computes the full
+#'   Hessian-based correction (slow), `"shortcut"` (default) computes only
+#'   diagonals, and `"none"` applies no correction.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param test Logical indicating whether to compute posterior fit indices.
-#' @param sn_fit_correction Which type of correction to use when fitting the
-#'   skew normal marginals. `"hessian"` computes the full Hessian-based
-#'   correction (slow), `"shortcut"` (default) computes only diagonals, and
-#'   `"none"` applies no correction.
 #' @param sn_fit_logthresh The log-threshold for fitting the skew normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
@@ -58,9 +58,9 @@ inlavaan <- function(
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+  marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 1000,
   test = TRUE,
-  sn_fit_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -76,7 +76,7 @@ inlavaan <- function(
 
   ## ----- Check arguments -----------------------------------------------------
   marginal_method <- match.arg(marginal_method)
-  sn_fit_correction <- match.arg(sn_fit_correction)
+  marginal_correction <- match.arg(marginal_correction)
   optim_method <- match.arg(optim_method)
   if (isTRUE(debug)) {
     verbose <- TRUE
@@ -250,6 +250,7 @@ inlavaan <- function(
     H_neg <- opt$hessian
   }
   Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
+  L <- t(chol(Sigma_theta)) # For whitening: z = L^{-1}(theta - theta*)
 
   # Derivatives at optima
   opt$dx <- numDeriv::grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
@@ -273,10 +274,50 @@ inlavaan <- function(
   timing <- add_timing(timing, "loglik")
 
   ## ----- Marginal approximations ---------------------------------------------
-  if (lavmodel@ceq.simple.only) {
-    m <- length(theta_star)
+  # pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
+  pars_list <- setNames(as.list(1:m), parnames)
+
+  # When asymgaus or skewnorm marginals, we need the correction factor gamma1
+  if (marginal_method %in% c("asymgaus", "skewnorm")) {
+    # Step size for finite difference / central difference
+    delta_outer <- 0.01 # for rate of change of Hessian (3rd deriv)
+    delta_inner <- 0.001 # for rate of change of gradients (2nd deriv)
+
+    if (marginal_correction %in% c("shortcut", "hessian")) {
+      # Precompute baseline Hessian (diagonal of Hessian_z at mode)
+      Hz0 <- numeric(m)
+      for (j in 1:m) {
+        g_fwd <- -1 * joint_lp_grad(theta_star + L[, j] * delta_inner)
+        g_bwd <- -1 * joint_lp_grad(theta_star - L[, j] * delta_inner)
+        Hz0[j] <- sum(L[, j] * (g_fwd - g_bwd)) / (2 * delta_inner)
+      }
+    }
+
+    get_gamma1 <- function(.j) {
+      if (marginal_correction == "none") {
+        gamma1j <- 0
+      } else {
+        th_plus <- theta_star + L[, .j] * delta_outer
+        if (marginal_correction == "hessian") {
+          Htheta1_full <- numDeriv::jacobian(
+            function(x) -1 * joint_lp_grad(x),
+            th_plus
+          )
+          Hz1 <- diag(t(L) %*% Htheta1_full %*% L)
+        } else if (marginal_correction == "shortcut") {
+          Hz1 <- numeric(m)
+          for (jj in 1:m) {
+            g_fwd <- -1 * joint_lp_grad(th_plus + L[, jj] * delta_inner)
+            g_bwd <- -1 * joint_lp_grad(th_plus - L[, jj] * delta_inner)
+            Hz1[jj] <- sum(L[, jj] * (g_fwd - g_bwd)) / (2 * delta_inner)
+          }
+        }
+        dH_dz <- (Hz1 - Hz0) / delta_outer
+        gamma1j <- -0.5 * sum(dH_dz[-.j])
+      }
+      gamma1j
+    }
   }
-  pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
 
   if (marginal_method == "sampling") {
     # Do sampling and return results
@@ -295,27 +336,29 @@ inlavaan <- function(
         cli::cli_progress_step("Calibrating asymmetric Gaussians.")
       }
 
-      # For whitening transformation: z = L^{-1}(theta - theta*)
-      L <- t(chol(Sigma_theta))
-      L_inv <- solve(L)
-
-      approx_data <-
-        do.call(
-          what = "rbind",
-          lapply(
-            pars_list,
-            function(j) {
-              # Gauge the drop in joint_lp in whitened Z space
-              k <- 2
-              dplus <- max(0.01, lp_max - joint_lp(theta_star + L[, j] * k))
-              dminus <- max(0.01, lp_max - joint_lp(theta_star - L[, j] * k))
-              c(
-                sigma_plus = sqrt(k^2 / (2 * dplus)),
-                sigma_minus = sqrt(k^2 / (2 * dplus))
-              )
-            }
-          )
+      obtain_approx_data <- function(j) {
+        # Gauge the drop in joint_lp in whitened Z space
+        k <- 2
+        gamma1j <- get_gamma1(j)
+        dplus <- max(
+          0.01,
+          lp_max - joint_lp(theta_star + L[, j] * k) - gamma1j * k
         )
+        dminus <- max(
+          0.01,
+          lp_max - joint_lp(theta_star - L[, j] * k) + gamma1j * k
+        )
+        c(
+          sigma_plus = sqrt(k^2 / (2 * dplus)),
+          sigma_minus = sqrt(k^2 / (2 * dplus))
+        )
+      }
+
+      approx_data <- list()
+      for (j in seq_len(m)) {
+        approx_data[[j]] <- obtain_approx_data(j)
+      }
+      approx_data <- do.call(what = "rbind", approx_data)
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
         post_marg_asymgaus(
@@ -340,53 +383,13 @@ inlavaan <- function(
         )
       }
 
-      # For whitening transformation: z = L^{-1}(theta - theta*)
-      L <- t(chol(Sigma_theta))
-      L_inv <- solve(L)
-
       approx_data <- matrix(NA, nrow = m, ncol = 4)
       colnames(approx_data) <- c("xi", "omega", "alpha", "logC")
-
-      # Step size for finite difference / central difference
-      delta_outer <- 0.01 # for rate of change of Hessian (3rd deriv)
-      delta_inner <- 0.001 # for rate of change of gradients (2nd deriv)
-
-      if (sn_fit_correction == "shortcut" | sn_fit_correction == "hessian") {
-        # Precompute baseline (diagonal of Hessian_z at mode)
-        Hz0 <- numeric(m)
-        for (j in 1:m) {
-          g_fwd <- gr(theta_star + L[, j] * delta_inner)
-          g_bwd <- gr(theta_star - L[, j] * delta_inner)
-          Hz0[j] <- sum(L[, j] * (g_fwd - g_bwd)) / (2 * delta_inner)
-        }
-      }
 
       obtain_approx_data <- function(j) {
         z <- seq(-4, 4, length = 31)
         yync <- yy <- numeric(length(z))
-
-        # Compute shift for log posterior in Z-space
-        if (sn_fit_correction == "none") {
-          gamma1j <- 0
-        } else {
-          th_plus <- theta_star + L[, j] * delta_outer
-          if (sn_fit_correction == "hessian") {
-            Htheta1_full <- numDeriv::jacobian(
-              function(x) -1 * joint_lp_grad(x),
-              th_plus
-            )
-            Hz1 <- diag(t(L) %*% Htheta1_full %*% L)
-          } else if (sn_fit_correction == "shortcut") {
-            Hz1 <- numeric(m)
-            for (jj in 1:m) {
-              g_fwd <- gr(th_plus + L[, jj] * delta_inner)
-              g_bwd <- gr(th_plus - L[, jj] * delta_inner)
-              Hz1[jj] <- sum(L[, jj] * (g_fwd - g_bwd)) / (2 * delta_inner)
-            }
-          }
-          dH_dz <- (Hz1 - Hz0) / delta_outer
-          gamma1j <- -0.5 * sum(dH_dz[-j])
-        }
+        gamma1j <- get_gamma1(j)
 
         for (k in seq_along(z)) {
           yync[k] <- joint_lp(theta_star + L[, j] * z[k])
@@ -618,7 +621,7 @@ acfa <- function(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
   test = TRUE,
-  sn_fit_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -666,7 +669,7 @@ asem <- function(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
   test = TRUE,
-  sn_fit_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -712,7 +715,7 @@ agrowth <- function(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
   test = TRUE,
-  sn_fit_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),

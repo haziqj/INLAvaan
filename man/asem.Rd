@@ -12,7 +12,7 @@ asem(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
   test = TRUE,
-  sn_fit_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -53,10 +53,10 @@ approximation).}
 
 \item{test}{Logical indicating whether to compute posterior fit indices.}
 
-\item{sn_fit_correction}{Which type of correction to use when fitting the
-skew normal marginals. \code{"hessian"} computes the full Hessian-based
-correction (slow), \code{"shortcut"} (default) computes only diagonals, and
-\code{"none"} applies no correction.}
+\item{marginal_correction}{Which type of correction to use when fitting the
+skew normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
+Hessian-based correction (slow), \code{"shortcut"} (default) computes only
+diagonals, and \code{"none"} applies no correction.}
 
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will

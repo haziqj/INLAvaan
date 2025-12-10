@@ -35,10 +35,10 @@ While Markov Chain Monte Carlo (MCMC) methods remain the gold standard for exact
 `{INLAvaan}` offers a rapid alternative for <u>**la**</u>tent <u>**va**</u>riable <u>**an**</u>alysis, delivering Bayesian results at (or near) the speed of frequentist estimators.
 It achieves this through a custom, ground-up implementation of the [Integrated Nested Laplace Approximation (INLA)](https://www.r-inla.org), engineered specifically for the [lavaan](https://lavaan.org) modelling framework.
 
-## A Familiar Interface
+## A familiar interface
 
 `{INLAvaan}` is designed to fit seamlessly into your existing workflow.
-If you are familiar with the (b)lavaan syntax, you can begin using `{INLAvaan}` immediately.
+If you are familiar with the [(b)lavaan syntax](https://lavaan.ugent.be/tutorial/syntax1.html), you can begin using `{INLAvaan}` immediately.
 
 As a first impression of the package, consider the canonical example of SEM applied to the Industrialisation and Political Democracy data set of Bollen (1989)^[Bollen, K. A. (1989). *Structural equations with latent variables* (pp. xiv, 514). John Wiley & Sons. <https://doi.org/10.1002/9781118619179>]:
 
@@ -50,7 +50,7 @@ model <- "
      dem60 =~ y1 + y2 + y3 + y4
      dem65 =~ y5 + y6 + y7 + y8
 
-  # (Latent) regressions
+  # Latent regressions
     dem60 ~ ind60
     dem65 ~ ind60 + dem60
 
@@ -73,7 +73,7 @@ fit <- asem(model, PoliticalDemocracy)
 summary(fit)
 ```
 
-## Validation Against MCMC
+## Validation against MCMC
 
 Computation speed is valuable only when accuracy is preserved.
 Our method yields posterior distributions that are visually and numerically comparable to those obtained via MCMC (e.g., via `{blavaan}`/Stan), but at a fraction of the computational cost.
