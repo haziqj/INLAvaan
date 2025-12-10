@@ -96,7 +96,7 @@
 <span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [768ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [751ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
 <span><span class="co">#&gt; ✔ Computing the Hessian. [2.3s]</span></span>
@@ -111,15 +111,15 @@
 <span><span class="co">#&gt; ⠧ Fitting skew normal to 43/60 marginals.</span></span>
 <span><span class="co">#&gt; ⠇ Fitting skew normal to 50/60 marginals.</span></span>
 <span><span class="co">#&gt; ⠏ Fitting skew normal to 58/60 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 60/60 marginals. [23.5s]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 60/60 marginals. [23.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [351ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [354ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠸ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [5.4s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [5.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.0 ended normally after 145 iterations</span></span>
@@ -135,12 +135,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -3927.820 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.000 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.003 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7493.610 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    64.535 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7494.242 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    64.851 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -167,10 +167,10 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;   visual ~~                                                           </span></span>
-<span><span class="co">#&gt;     textual           0.465    0.108    0.251    0.676       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.291    0.079    0.025    0.333       beta(1,1)</span></span>
+<span><span class="co">#&gt;     textual           0.465    0.114    0.247    0.693       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.291    0.078    0.030    0.336       beta(1,1)</span></span>
 <span><span class="co">#&gt;   textual ~~                                                          </span></span>
-<span><span class="co">#&gt;     speed             0.308    0.075    0.038    0.332       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.308    0.075    0.038    0.331       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
@@ -223,10 +223,10 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;   visual ~~                                                           </span></span>
-<span><span class="co">#&gt;     textual           0.512    0.100    0.208    0.600       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.493    0.080    0.114    0.429       beta(1,1)</span></span>
+<span><span class="co">#&gt;     textual           0.512    0.105    0.199    0.609       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.493    0.083    0.112    0.439       beta(1,1)</span></span>
 <span><span class="co">#&gt;   textual ~~                                                          </span></span>
-<span><span class="co">#&gt;     speed             0.319    0.077    0.063    0.366       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.319    0.078    0.065    0.373       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
@@ -267,27 +267,27 @@
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [612ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [617ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
 <span><span class="co">#&gt; ✔ Computing the Hessian. [2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/54 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 7/54 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 16/54 marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting skew normal to 25/54 marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting skew normal to 34/54 marginals.</span></span>
-<span><span class="co">#&gt; ⠦ Fitting skew normal to 43/54 marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 8/54 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 17/54 marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting skew normal to 26/54 marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting skew normal to 35/54 marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting skew normal to 44/54 marginals.</span></span>
 <span><span class="co">#&gt; ⠧ Fitting skew normal to 53/54 marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fitting skew normal to 54/54 marginals. [18.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [342ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [340ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [4.7s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [4.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="co"># Strong invariance</span></span>
@@ -299,26 +299,26 @@
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [588ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [587ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
 <span><span class="co">#&gt; ✔ Computing the Hessian. [1.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/48 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 3/48 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 14/48 marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting skew normal to 24/48 marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting skew normal to 35/48 marginals.</span></span>
-<span><span class="co">#&gt; ⠦ Fitting skew normal to 46/48 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 48/48 marginals. [13.8s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 4/48 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 15/48 marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting skew normal to 25/48 marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting skew normal to 36/48 marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting skew normal to 47/48 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 48/48 marginals. [13.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [344ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [340ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [4.2s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [4.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="co"># Compare models</span></span>
@@ -327,9 +327,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model No.params Marg.Loglik      DIC       pD   logBF</span></span>
-<span><span class="co">#&gt;   fit3        48   -3890.012 7511.833 49.52151   0.000</span></span>
-<span><span class="co">#&gt;   fit2        54   -3907.799 7483.360 55.31899 -17.787</span></span>
-<span><span class="co">#&gt;   fit1        60   -3927.820 7493.610 64.53505 -37.808</span></span></code></pre></div>
+<span><span class="co">#&gt;   fit3        48   -3890.012 7510.816 49.01299   0.000</span></span>
+<span><span class="co">#&gt;   fit2        54   -3907.799 7483.033 55.15526 -17.787</span></span>
+<span><span class="co">#&gt;   fit1        60   -3927.820 7494.242 64.85075 -37.808</span></span></code></pre></div>
 </div>
 
 

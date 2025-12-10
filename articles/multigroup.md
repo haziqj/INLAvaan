@@ -15,7 +15,7 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [768ms]
+#> ✔ Finding posterior mode. [751ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [2.3s]
@@ -30,15 +30,15 @@ fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ⠧ Fitting skew normal to 43/60 marginals.
 #> ⠇ Fitting skew normal to 50/60 marginals.
 #> ⠏ Fitting skew normal to 58/60 marginals.
-#> ✔ Fitting skew normal to 60/60 marginals. [23.5s]
+#> ✔ Fitting skew normal to 60/60 marginals. [23.4s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [351ms]
+#> ✔ Sampling posterior covariances. [354ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [5.4s]
+#> ✔ Computing ppp and DIC. [5.3s]
 #> 
 summary(fit1)
 #> INLAvaan 0.2.0 ended normally after 145 iterations
@@ -54,12 +54,12 @@ summary(fit1)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -3927.820 
-#>    PPP (Chi-square)                              0.000 
+#>    PPP (Chi-square)                              0.003 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7493.610 
-#>    Effective parameters (pD)                    64.535 
+#>    Deviance (DIC)                             7494.242 
+#>    Effective parameters (pD)                    64.851 
 #> 
 #> Parameter Estimates:
 #> 
@@ -86,10 +86,10 @@ summary(fit1)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   visual ~~                                                           
-#>     textual           0.465    0.108    0.251    0.676       beta(1,1)
-#>     speed             0.291    0.079    0.025    0.333       beta(1,1)
+#>     textual           0.465    0.114    0.247    0.693       beta(1,1)
+#>     speed             0.291    0.078    0.030    0.336       beta(1,1)
 #>   textual ~~                                                          
-#>     speed             0.308    0.075    0.038    0.332       beta(1,1)
+#>     speed             0.308    0.075    0.038    0.331       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
@@ -142,10 +142,10 @@ summary(fit1)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   visual ~~                                                           
-#>     textual           0.512    0.100    0.208    0.600       beta(1,1)
-#>     speed             0.493    0.080    0.114    0.429       beta(1,1)
+#>     textual           0.512    0.105    0.199    0.609       beta(1,1)
+#>     speed             0.493    0.083    0.112    0.439       beta(1,1)
 #>   textual ~~                                                          
-#>     speed             0.319    0.077    0.063    0.366       beta(1,1)
+#>     speed             0.319    0.078    0.065    0.373       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
@@ -186,27 +186,27 @@ fit2 <- acfa(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [612ms]
+#> ✔ Finding posterior mode. [617ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [2s]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/54 marginals.
-#> ⠹ Fitting skew normal to 7/54 marginals.
-#> ⠸ Fitting skew normal to 16/54 marginals.
-#> ⠼ Fitting skew normal to 25/54 marginals.
-#> ⠴ Fitting skew normal to 34/54 marginals.
-#> ⠦ Fitting skew normal to 43/54 marginals.
+#> ⠹ Fitting skew normal to 8/54 marginals.
+#> ⠸ Fitting skew normal to 17/54 marginals.
+#> ⠼ Fitting skew normal to 26/54 marginals.
+#> ⠴ Fitting skew normal to 35/54 marginals.
+#> ⠦ Fitting skew normal to 44/54 marginals.
 #> ⠧ Fitting skew normal to 53/54 marginals.
 #> ✔ Fitting skew normal to 54/54 marginals. [18.1s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [342ms]
+#> ✔ Sampling posterior covariances. [340ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [4.7s]
+#> ✔ Computing ppp and DIC. [4.6s]
 #> 
 
 # Strong invariance
@@ -218,26 +218,26 @@ fit3 <- acfa(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [588ms]
+#> ✔ Finding posterior mode. [587ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [1.7s]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/48 marginals.
-#> ⠹ Fitting skew normal to 3/48 marginals.
-#> ⠸ Fitting skew normal to 14/48 marginals.
-#> ⠼ Fitting skew normal to 24/48 marginals.
-#> ⠴ Fitting skew normal to 35/48 marginals.
-#> ⠦ Fitting skew normal to 46/48 marginals.
-#> ✔ Fitting skew normal to 48/48 marginals. [13.8s]
+#> ⠹ Fitting skew normal to 4/48 marginals.
+#> ⠸ Fitting skew normal to 15/48 marginals.
+#> ⠼ Fitting skew normal to 25/48 marginals.
+#> ⠴ Fitting skew normal to 36/48 marginals.
+#> ⠦ Fitting skew normal to 47/48 marginals.
+#> ✔ Fitting skew normal to 48/48 marginals. [13.9s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [344ms]
+#> ✔ Sampling posterior covariances. [340ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [4.2s]
+#> ✔ Computing ppp and DIC. [4.4s]
 #> 
 
 # Compare models
@@ -246,7 +246,7 @@ compare(fit1, fit2, fit3)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>   fit3        48   -3890.012 7511.833 49.52151   0.000
-#>   fit2        54   -3907.799 7483.360 55.31899 -17.787
-#>   fit1        60   -3927.820 7493.610 64.53505 -37.808
+#>   fit3        48   -3890.012 7510.816 49.01299   0.000
+#>   fit2        54   -3907.799 7483.033 55.15526 -17.787
+#>   fit1        60   -3927.820 7494.242 64.85075 -37.808
 ```
