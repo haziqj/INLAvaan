@@ -13,7 +13,7 @@ agrowth(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
   test = TRUE,
-  sn_fit_cor = TRUE,
+  sn_fit_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -72,6 +72,13 @@ agrowth(
 - test:
 
   Logical indicating whether to compute posterior fit indices.
+
+- sn_fit_correction:
+
+  Which type of correction to use when fitting the skew normal
+  marginals. `"hessian"` computes the full Hessian-based correction
+  (slow), `"shortcut"` (default) computes only diagonals, and `"none"`
+  applies no correction.
 
 - sn_fit_logthresh:
 
@@ -197,21 +204,22 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [249ms]
+#> ✔ Finding posterior mode. [269ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [366ms]
+#> ✔ Computing the Hessian. [398ms]
 #> 
 #> ℹ Using skew normal approximation.
-#> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [3.8s]
+#> ⠙ Fitting skew normal to 0/17 marginals.
+#> ⠹ Fitting skew normal to 11/17 marginals.
+#> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [415ms]
+#> ✔ Sampling posterior covariances. [434ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.6s]
+#> ✔ Computing ppp and DIC. [2.7s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 85 iterations

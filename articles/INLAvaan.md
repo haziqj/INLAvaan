@@ -110,17 +110,18 @@ mod <- "
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [116ms]
+#> ✔ Finding posterior mode. [118ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [168ms]
+#> ✔ Computing the Hessian. [172ms]
 #> 
 #> ℹ Using skew normal approximation.
-#> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [1.4s]
+#> ⠙ Fitting skew normal to 0/13 marginals.
+#> ✔ Fitting skew normal to 13/13 marginals. [661ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.4s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [1.5s]
 #> 
 ```
 
@@ -259,24 +260,24 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■                                6% | ETA: 18s
-#> Sampling latent variables ■■■■■■■■                          22% | ETA: 15s
-#> Sampling latent variables ■■■■■■■■■■■■                      38% | ETA: 12s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■                 54% | ETA:  9s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            70% | ETA:  6s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       85% | ETA:  3s
+#> Sampling latent variables ■■■■                              10% | ETA: 17s
+#> Sampling latent variables ■■■■■■■■■                         25% | ETA: 15s
+#> Sampling latent variables ■■■■■■■■■■■■■                     41% | ETA: 11s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■                57% | ETA:  8s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           72% | ETA:  5s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       88% | ETA:  2s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
 #> [1] 100
 head(eta_preds[[1]])
 #>            eta1       eta2
-#> [1,]  1.9506334  0.1656995
-#> [2,]  0.2040215 -1.3542372
-#> [3,] -1.3443920 -0.2148618
-#> [4,]  0.3528636  0.1494489
-#> [5,]  1.8309860 -1.1569647
-#> [6,] -1.8416560 -1.1972966
+#> [1,]  1.9506338  0.1656996
+#> [2,]  0.2040215 -1.3542371
+#> [3,] -1.3443922 -0.2148618
+#> [4,]  0.3528635  0.1494488
+#> [5,]  1.8309861 -1.1569647
+#> [6,] -1.8416562 -1.1972966
 ```
 
 This is an S3 object with a summary method that provides posterior means
@@ -313,12 +314,12 @@ str(summ_eta)
 #>  - attr(*, "class")= chr "summary.predict.inlavaan_internal"
 head(summ_eta$Mean)
 #>              eta1        eta2
-#> [1,]  0.928450035 -0.03538774
-#> [2,]  0.672136232 -0.37833282
-#> [3,] -1.163155444 -1.21531835
-#> [4,] -0.005612575 -0.11297095
-#> [5,]  1.334583725 -1.41501774
-#> [6,] -1.760294508 -0.79985376
+#> [1,]  0.928450319 -0.03538771
+#> [2,]  0.672136407 -0.37833281
+#> [3,] -1.163155706 -1.21531832
+#> [4,] -0.005612869 -0.11297101
+#> [5,]  1.334583842 -1.41501771
+#> [6,] -1.760294767 -0.79985373
 ```
 
 ### Plot
@@ -351,25 +352,26 @@ mod2 <- "
 fit2 <- asem(mod2, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [110ms]
+#> ✔ Finding posterior mode. [115ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [155ms]
+#> ✔ Computing the Hessian. [161ms]
 #> 
 #> ℹ Using skew normal approximation.
-#> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [1.2s]
+#> ⠙ Fitting skew normal to 0/12 marginals.
+#> ⠹ Fitting skew normal to 7/12 marginals.
+#> ✔ Fitting skew normal to 12/12 marginals. [554ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.3s]
+#> ✔ Computing ppp and DIC. [1.4s]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>    fit        13   -8062.521 16031.09 12.64438   0.000
-#>   fit2        12   -8082.878 16081.93 11.99687 -20.357
+#>    fit        13   -8062.521 16031.09 12.64436   0.000
+#>   fit2        12   -8082.878 16081.93 11.99666 -20.357
 ```
 
 As a note, there have been several criticisms of the use of Bayes

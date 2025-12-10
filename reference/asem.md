@@ -13,7 +13,7 @@ asem(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
   test = TRUE,
-  sn_fit_cor = TRUE,
+  sn_fit_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -72,6 +72,13 @@ asem(
 - test:
 
   Logical indicating whether to compute posterior fit indices.
+
+- sn_fit_correction:
+
+  Which type of correction to use when fitting the skew normal
+  marginals. `"hessian"` computes the full Hessian-based correction
+  (slow), `"shortcut"` (default) computes only diagonals, and `"none"`
+  applies no correction.
 
 - sn_fit_logthresh:
 
@@ -188,17 +195,18 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [225ms]
+#> ✔ Finding posterior mode. [229ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [625ms]
+#> ✔ Computing the Hessian. [659ms]
 #> 
 #> ℹ Using skew normal approximation.
-#> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [10.1s]
+#> ⠙ Fitting skew normal to 0/28 marginals.
+#> ⠹ Fitting skew normal to 7/28 marginals.
+#> ✔ Fitting skew normal to 28/28 marginals. [3.7s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [306ms]
+#> ✔ Sampling posterior covariances. [308ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 70 iterations
@@ -239,7 +247,7 @@ summary(fit)
 #>   dem60 ~                                                             
 #>     ind60             1.463    0.391    0.698    2.230    normal(0,10)
 #>   dem65 ~                                                             
-#>     ind60             0.589    0.242    0.110    1.061    normal(0,10)
+#>     ind60             0.590    0.242    0.110    1.061    normal(0,10)
 #>     dem60             0.865    0.076    0.720    1.017    normal(0,10)
 #> 
 #> Covariances:
@@ -261,10 +269,10 @@ summary(fit)
 #>    .x1                0.086    0.021    0.052    0.133 gamma(1,.5)[sd]
 #>    .x2                0.137    0.071    0.037    0.309 gamma(1,.5)[sd]
 #>    .x3                0.495    0.098    0.335    0.718 gamma(1,.5)[sd]
-#>    .y1                1.989    0.494    1.192    3.116 gamma(1,.5)[sd]
+#>    .y1                1.988    0.494    1.191    3.114 gamma(1,.5)[sd]
 #>    .y2                8.054    1.496    5.611   11.453 gamma(1,.5)[sd]
 #>    .y3                5.221    1.039    3.517    7.574 gamma(1,.5)[sd]
-#>    .y4                3.505    0.823    2.179    5.386 gamma(1,.5)[sd]
+#>    .y4                3.504    0.823    2.178    5.382 gamma(1,.5)[sd]
 #>    .y5                2.469    0.530    1.605    3.671 gamma(1,.5)[sd]
 #>    .y6                5.257    0.984    3.633    7.478 gamma(1,.5)[sd]
 #>    .y7                3.793    0.800    2.479    5.601 gamma(1,.5)[sd]

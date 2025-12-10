@@ -57,7 +57,7 @@
 <span>  marginal_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skewnorm"</span>, <span class="st">"asymgaus"</span>, <span class="st">"marggaus"</span>, <span class="st">"sampling"</span><span class="op">)</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="fl">3000</span>,</span>
 <span>  test <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  sn_fit_cor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sn_fit_correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shortcut"</span>, <span class="st">"hessian"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>  sn_fit_logthresh <span class="op">=</span> <span class="op">-</span><span class="fl">6</span>,</span>
 <span>  sn_fit_temp <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -114,6 +114,13 @@ approximation).</p></dd>
 
 <dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
 <dd><p>Logical indicating whether to compute posterior fit indices.</p></dd>
+
+
+<dt id="arg-sn-fit-correction">sn_fit_correction<a class="anchor" aria-label="anchor" href="#arg-sn-fit-correction"></a></dt>
+<dd><p>Which type of correction to use when fitting the
+skew normal marginals. <code>"hessian"</code> computes the full Hessian-based
+correction (slow), <code>"shortcut"</code> (default) computes only diagonals, and
+<code>"none"</code> applies no correction.</p></dd>
 
 
 <dt id="arg-sn-fit-logthresh">sn_fit_logthresh<a class="anchor" aria-label="anchor" href="#arg-sn-fit-logthresh"></a></dt>
@@ -202,17 +209,18 @@ model functions instead, including <code>acfa()</code>, <code><a href="asem.html
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">acfa</span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using MVN log-likelihood.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[145ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[149ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[339ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[345ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using skew normal approximation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fitting skew normal to marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to marginals. <span style="color: #B2B2B2;">[4.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew normal to 0/21 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 21/21 marginals. <span style="color: #B2B2B2;">[1.7s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Computing ppp and DIC.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[1.9s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing ppp and DIC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[2s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.2.0 ended normally after 56 iterations</span>

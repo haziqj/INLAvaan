@@ -18,7 +18,7 @@ inlavaan(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = TRUE,
-  sn_fit_correction = TRUE,
+  sn_fit_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -87,8 +87,10 @@ inlavaan(
 
 - sn_fit_correction:
 
-  Logical indicating whether to apply half log determinant correction.
-  More accurate but slower.
+  Which type of correction to use when fitting the skew normal
+  marginals. `"hessian"` computes the full Hessian-based correction
+  (slow), `"shortcut"` (default) computes only diagonals, and `"none"`
+  applies no correction.
 
 - sn_fit_logthresh:
 
@@ -169,21 +171,21 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [184ms]
+#> ✔ Finding posterior mode. [187ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [355ms]
+#> ✔ Computing the Hessian. [367ms]
 #> 
 #> ℹ Using skew normal approximation.
-#> ℹ Fitting skew normal to marginals.
-#> ✔ Fitting skew normal to marginals. [4.5s]
+#> ⠙ Fitting skew normal to 0/21 marginals.
+#> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [189ms]
+#> ✔ Sampling posterior covariances. [194ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.1s]
+#> ✔ Computing ppp and DIC. [2.2s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 77 iterations
@@ -201,8 +203,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7520.041 
-#>    Effective parameters (pD)                    22.258 
+#>    Deviance (DIC)                             7520.065 
+#>    Effective parameters (pD)                    22.270 
 #> 
 #> Parameter Estimates:
 #> 
@@ -221,7 +223,7 @@ summary(fit)
 #>   speed =~                                                            
 #>     x7                1.000                                           
 #>     x8                1.224    0.162    0.937    1.573    normal(0,10)
-#>     x9                1.136    0.209    0.785    1.602    normal(0,10)
+#>     x9                1.137    0.210    0.786    1.604    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       

@@ -57,7 +57,7 @@
 <span>  marginal_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skewnorm"</span>, <span class="st">"asymgaus"</span>, <span class="st">"marggaus"</span>, <span class="st">"sampling"</span><span class="op">)</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="fl">3000</span>,</span>
 <span>  test <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  sn_fit_cor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sn_fit_correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shortcut"</span>, <span class="st">"hessian"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>  sn_fit_logthresh <span class="op">=</span> <span class="op">-</span><span class="fl">6</span>,</span>
 <span>  sn_fit_temp <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -114,6 +114,13 @@ approximation).</p></dd>
 
 <dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
 <dd><p>Logical indicating whether to compute posterior fit indices.</p></dd>
+
+
+<dt id="arg-sn-fit-correction">sn_fit_correction<a class="anchor" aria-label="anchor" href="#arg-sn-fit-correction"></a></dt>
+<dd><p>Which type of correction to use when fitting the
+skew normal marginals. <code>"hessian"</code> computes the full Hessian-based
+correction (slow), <code>"shortcut"</code> (default) computes only diagonals, and
+<code>"none"</code> applies no correction.</p></dd>
 
 
 <dt id="arg-sn-fit-logthresh">sn_fit_logthresh<a class="anchor" aria-label="anchor" href="#arg-sn-fit-logthresh"></a></dt>
@@ -214,17 +221,18 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">asem</span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, test <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using MVN log-likelihood.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[225ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[229ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[625ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[659ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using skew normal approximation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fitting skew normal to marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to marginals. <span style="color: #B2B2B2;">[10.1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew normal to 0/28 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 7/28 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 28/28 marginals. <span style="color: #B2B2B2;">[3.7s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling posterior covariances.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling posterior covariances. <span style="color: #B2B2B2;">[306ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling posterior covariances. <span style="color: #B2B2B2;">[308ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.2.0 ended normally after 70 iterations</span>
@@ -265,7 +273,7 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dem60 ~                                                             </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ind60             1.463    0.391    0.698    2.230    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dem65 ~                                                             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ind60             0.589    0.242    0.110    1.061    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ind60             0.590    0.242    0.110    1.061    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dem60             0.865    0.076    0.720    1.017    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Covariances:</span>
@@ -287,10 +295,10 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x1                0.086    0.021    0.052    0.133 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x2                0.137    0.071    0.037    0.309 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x3                0.495    0.098    0.335    0.718 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y1                1.989    0.494    1.192    3.116 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y1                1.988    0.494    1.191    3.114 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y2                8.054    1.496    5.611   11.453 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y3                5.221    1.039    3.517    7.574 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                3.505    0.823    2.179    5.386 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                3.504    0.823    2.178    5.382 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                2.469    0.530    1.605    3.671 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                5.257    0.984    3.633    7.478 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                3.793    0.800    2.479    5.601 gamma(1,.5)[sd]</span>
