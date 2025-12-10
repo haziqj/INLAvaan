@@ -134,29 +134,29 @@ fit_inl1 <- asem(
   marginal_method = "skewnorm",
   debug = TRUE,
   test = FALSE
-  # sn_fit_temp = 1,
-  # sn_fit_logthresh = -1000
 )
-# fit_inl2 <- asem(
-#   mod,
-#   dat,
-#   marginal_method = "asymgaus",
-#   debug = TRUE,
-#   test = FALSE
-# )
-# fit_inl3 <- asem(
-#   mod,
-#   dat,
-#   marginal_method = "sampling",
-#   debug = TRUE,
-#   test = FALSE
-# )
+fit_inl2 <- asem(
+  mod,
+  dat,
+  marginal_method = "skewnorm",
+  sn_fit_correction = "none",
+  debug = TRUE,
+  test = FALSE
+)
+fit_inl3 <- asem(
+  mod,
+  dat,
+  marginal_method = "asymgaus",
+  debug = TRUE,
+  test = FALSE
+)
 
 res <- compare_mcmc(
   fit_blav,
-  "skewnorm" = fit_inl1
-  # "asymgaus" = fit_inl2,
-  # "sampling" = fit_inl3
+  "skewnorm" = fit_inl1,
+  "sn_nocor" = fit_inl2,
+  "asymgaus" = fit_inl3,
+  show_error = FALSE
 )
 print(res$p_compare)
 # print(res$p_errors)
