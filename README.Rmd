@@ -62,9 +62,9 @@ model <- "
     y6 ~~ y8
   
   # Custom priors on latent variances
-    ind60 ~~ prior('gamma( 1,.5)')*ind60
-    dem60 ~~ prior('gamma( 1, 1)')*dem60
-    dem65 ~~ prior('gamma( 1,.5)')*dem65
+    ind60 ~~ prior('gamma(1, 1)')*ind60
+    dem60 ~~ prior('gamma(1,.9)')*dem60
+    dem65 ~~ prior('gamma(1,.5)')*dem65
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
