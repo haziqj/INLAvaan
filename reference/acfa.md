@@ -13,7 +13,7 @@ acfa(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
   test = TRUE,
-  sn_fit_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -73,12 +73,12 @@ acfa(
 
   Logical indicating whether to compute posterior fit indices.
 
-- sn_fit_correction:
+- marginal_correction:
 
-  Which type of correction to use when fitting the skew normal
-  marginals. `"hessian"` computes the full Hessian-based correction
-  (slow), `"shortcut"` (default) computes only diagonals, and `"none"`
-  applies no correction.
+  Which type of correction to use when fitting the skew normal or
+  two-piece Gaussian marginals. `"hessian"` computes the full
+  Hessian-based correction (slow), `"shortcut"` (default) computes only
+  diagonals, and `"none"` applies no correction.
 
 - sn_fit_logthresh:
 
@@ -183,14 +183,14 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [146ms]
+#> ✔ Finding posterior mode. [147ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [343ms]
+#> ✔ Computing the Hessian. [386ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
+#> ✔ Fitting skew normal to 21/21 marginals. [1.6s]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.

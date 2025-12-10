@@ -78,9 +78,9 @@
 </blockquote>
 <p>While Markov Chain Monte Carlo (MCMC) methods remain the gold standard for exact Bayesian inference, they can be prohibitively slow for iterative model development. <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> offers a rapid alternative for <u><strong>la</strong></u>tent <u><strong>va</strong></u>riable <u><strong>an</strong></u>alysis, delivering Bayesian results at (or near) the speed of frequentist estimators. It achieves this through a custom, ground-up implementation of the <a href="https://www.r-inla.org" class="external-link">Integrated Nested Laplace Approximation (INLA)</a>, engineered specifically for the <a href="https://lavaan.org" class="external-link">lavaan</a> modelling framework.</p>
 <div class="section level2">
-<h2 id="a-familiar-interface">A Familiar Interface<a class="anchor" aria-label="anchor" href="#a-familiar-interface"></a>
+<h2 id="a-familiar-interface">A familiar interface<a class="anchor" aria-label="anchor" href="#a-familiar-interface"></a>
 </h2>
-<p><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> is designed to fit seamlessly into your existing workflow. If you are familiar with the (b)lavaan syntax, you can begin using <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> immediately.</p>
+<p><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> is designed to fit seamlessly into your existing workflow. If you are familiar with the <a href="https://lavaan.ugent.be/tutorial/syntax1.html" class="external-link">(b)lavaan syntax</a>, you can begin using <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> immediately.</p>
 <p>As a first impression of the package, consider the canonical example of SEM applied to the Industrialisation and Political Democracy data set of Bollen (1989)<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Bollen, K. A. (1989). &lt;em&gt;Structural equations with latent variables&lt;/em&gt; (pp. xiv, 514). John Wiley &amp;amp; Sons. &lt;a href="https://doi.org/10.1002/9781118619179" class="external-link uri"&gt;https://doi.org/10.1002/9781118619179&lt;/a&gt;&lt;/p&gt;'><sup>1</sup></a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
@@ -89,7 +89,7 @@
 <span><span class="st">     dem60 =~ y1 + y2 + y3 + y4</span></span>
 <span><span class="st">     dem65 =~ y5 + y6 + y7 + y8</span></span>
 <span><span class="st"></span></span>
-<span><span class="st">  # (Latent) regressions</span></span>
+<span><span class="st">  # Latent regressions</span></span>
 <span><span class="st">    dem60 ~ ind60</span></span>
 <span><span class="st">    dem65 ~ ind60 + dem60</span></span>
 <span><span class="st"></span></span>
@@ -110,32 +110,31 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [111ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [113ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [299ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [336ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/31 marginals.</span></span>
 <span><span class="co">#&gt; ⠹ Fitting skew normal to 1/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 4/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 5/31 marginals.</span></span>
 <span><span class="co">#&gt; ⠼ Fitting skew normal to 8/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting skew normal to 11/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠦ Fitting skew normal to 15/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠧ Fitting skew normal to 17/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠇ Fitting skew normal to 21/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠏ Fitting skew normal to 24/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠋ Fitting skew normal to 27/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠙ Fitting skew normal to 29/31 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [2.1s]</span></span>
+<span><span class="co">#&gt; ⠴ Fitting skew normal to 12/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting skew normal to 16/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting skew normal to 19/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting skew normal to 23/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠏ Fitting skew normal to 27/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠋ Fitting skew normal to 30/31 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [1.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [136ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [122ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠸ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.1s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [966ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
@@ -150,12 +149,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1641.277 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.496 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.504 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3158.453 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    31.083 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3158.284 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    30.999 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -189,16 +188,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y5                0.297    0.364    0.033    1.457       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.297    0.367    0.048    1.485       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y4                0.246    0.718    0.037    2.849       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.340    0.699    0.826    3.569       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.246    0.696    0.110    2.824       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.340    0.740    0.778    3.683       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y7                0.210    0.617   -0.257    2.165       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.210    0.609   -0.195    2.195       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y8                0.103    0.442   -0.410    1.325       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.103    0.446   -0.377    1.371       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y8                0.306    0.565    0.304    2.522       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.306    0.569    0.304    2.531       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
@@ -218,7 +217,7 @@
 <span><span class="co">#&gt;    .y8                3.452    0.778    2.197    5.228 gamma(1,.5)[sd]</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="validation-against-mcmc">Validation Against MCMC<a class="anchor" aria-label="anchor" href="#validation-against-mcmc"></a>
+<h2 id="validation-against-mcmc">Validation against MCMC<a class="anchor" aria-label="anchor" href="#validation-against-mcmc"></a>
 </h2>
 <p>Computation speed is valuable only when accuracy is preserved. Our method yields posterior distributions that are visually and numerically comparable to those obtained via MCMC (e.g., via <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a>/Stan), but at a fraction of the computational cost.</p>
 <p>The figure below illustrates the posterior density overlap for the example above. The percentages refer to (one minus) the <a href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence" class="external-link">Jensen-Shannon divergence</a>, which gives a measure of similarity between two probability distributions.</p>

@@ -16,9 +16,9 @@ inlavaan(
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+  marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 1000,
   test = TRUE,
-  sn_fit_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -76,6 +76,13 @@ inlavaan(
   approximation), and `"sampling"` (sampling from the joint Laplace
   approximation).
 
+- marginal_correction:
+
+  Which type of correction to use when fitting the skew normal or
+  two-piece Gaussian marginals. `"hessian"` computes the full
+  Hessian-based correction (slow), `"shortcut"` (default) computes only
+  diagonals, and `"none"` applies no correction.
+
 - nsamp:
 
   The number of samples to draw for all sampling-based approaches
@@ -84,13 +91,6 @@ inlavaan(
 - test:
 
   Logical indicating whether to compute posterior fit indices.
-
-- sn_fit_correction:
-
-  Which type of correction to use when fitting the skew normal
-  marginals. `"hessian"` computes the full Hessian-based correction
-  (slow), `"shortcut"` (default) computes only diagonals, and `"none"`
-  applies no correction.
 
 - sn_fit_logthresh:
 
@@ -171,17 +171,17 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [181ms]
+#> ✔ Finding posterior mode. [182ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [368ms]
+#> ✔ Computing the Hessian. [437ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
+#> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [195ms]
+#> ✔ Sampling posterior covariances. [197ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.

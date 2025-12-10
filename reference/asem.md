@@ -13,7 +13,7 @@ asem(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
   test = TRUE,
-  sn_fit_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -73,12 +73,12 @@ asem(
 
   Logical indicating whether to compute posterior fit indices.
 
-- sn_fit_correction:
+- marginal_correction:
 
-  Which type of correction to use when fitting the skew normal
-  marginals. `"hessian"` computes the full Hessian-based correction
-  (slow), `"shortcut"` (default) computes only diagonals, and `"none"`
-  applies no correction.
+  Which type of correction to use when fitting the skew normal or
+  two-piece Gaussian marginals. `"hessian"` computes the full
+  Hessian-based correction (slow), `"shortcut"` (default) computes only
+  diagonals, and `"none"` applies no correction.
 
 - sn_fit_logthresh:
 
@@ -195,18 +195,19 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [223ms]
+#> ✔ Finding posterior mode. [229ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [664ms]
+#> ✔ Computing the Hessian. [727ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/28 marginals.
-#> ⠹ Fitting skew normal to 10/28 marginals.
+#> ⠹ Fitting skew normal to 3/28 marginals.
+#> ⠸ Fitting skew normal to 26/28 marginals.
 #> ✔ Fitting skew normal to 28/28 marginals. [3.7s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [313ms]
+#> ✔ Sampling posterior covariances. [309ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0 ended normally after 70 iterations

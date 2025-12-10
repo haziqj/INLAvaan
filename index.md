@@ -13,12 +13,12 @@ implementation of the [Integrated Nested Laplace Approximation
 (INLA)](https://www.r-inla.org), engineered specifically for the
 [lavaan](https://lavaan.org) modelling framework.
 
-## A Familiar Interface
+## A familiar interface
 
 [INLAvaan](http://inlavaan.haziqj.ml/) is designed to fit seamlessly
-into your existing workflow. If you are familiar with the (b)lavaan
-syntax, you can begin using [INLAvaan](http://inlavaan.haziqj.ml/)
-immediately.
+into your existing workflow. If you are familiar with the [(b)lavaan
+syntax](https://lavaan.ugent.be/tutorial/syntax1.html), you can begin
+using [INLAvaan](http://inlavaan.haziqj.ml/) immediately.
 
 As a first impression of the package, consider the canonical example of
 SEM applied to the Industrialisation and Political Democracy data set of
@@ -31,7 +31,7 @@ model <- "
      dem60 =~ y1 + y2 + y3 + y4
      dem65 =~ y5 + y6 + y7 + y8
 
-  # (Latent) regressions
+  # Latent regressions
     dem60 ~ ind60
     dem65 ~ ind60 + dem60
 
@@ -52,32 +52,31 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [111ms]
+#> ✔ Finding posterior mode. [113ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [299ms]
+#> ✔ Computing the Hessian. [336ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/31 marginals.
 #> ⠹ Fitting skew normal to 1/31 marginals.
-#> ⠸ Fitting skew normal to 4/31 marginals.
+#> ⠸ Fitting skew normal to 5/31 marginals.
 #> ⠼ Fitting skew normal to 8/31 marginals.
-#> ⠴ Fitting skew normal to 11/31 marginals.
-#> ⠦ Fitting skew normal to 15/31 marginals.
-#> ⠧ Fitting skew normal to 17/31 marginals.
-#> ⠇ Fitting skew normal to 21/31 marginals.
-#> ⠏ Fitting skew normal to 24/31 marginals.
-#> ⠋ Fitting skew normal to 27/31 marginals.
-#> ⠙ Fitting skew normal to 29/31 marginals.
-#> ✔ Fitting skew normal to 31/31 marginals. [2.1s]
+#> ⠴ Fitting skew normal to 12/31 marginals.
+#> ⠦ Fitting skew normal to 16/31 marginals.
+#> ⠧ Fitting skew normal to 19/31 marginals.
+#> ⠇ Fitting skew normal to 23/31 marginals.
+#> ⠏ Fitting skew normal to 27/31 marginals.
+#> ⠋ Fitting skew normal to 30/31 marginals.
+#> ✔ Fitting skew normal to 31/31 marginals. [1.8s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [136ms]
+#> ✔ Sampling posterior covariances. [122ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.1s]
+#> ✔ Computing ppp and DIC. [966ms]
 #> 
 
 summary(fit)
@@ -92,12 +91,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1641.277 
-#>    PPP (Chi-square)                              0.496 
+#>    PPP (Chi-square)                              0.504 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3158.453 
-#>    Effective parameters (pD)                    31.083 
+#>    Deviance (DIC)                             3158.284 
+#>    Effective parameters (pD)                    30.999 
 #> 
 #> Parameter Estimates:
 #> 
@@ -131,16 +130,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>  .y1 ~~                                                               
-#>    .y5                0.297    0.364    0.033    1.457       beta(1,1)
+#>    .y5                0.297    0.367    0.048    1.485       beta(1,1)
 #>  .y2 ~~                                                               
-#>    .y4                0.246    0.718    0.037    2.849       beta(1,1)
-#>    .y6                0.340    0.699    0.826    3.569       beta(1,1)
+#>    .y4                0.246    0.696    0.110    2.824       beta(1,1)
+#>    .y6                0.340    0.740    0.778    3.683       beta(1,1)
 #>  .y3 ~~                                                               
-#>    .y7                0.210    0.617   -0.257    2.165       beta(1,1)
+#>    .y7                0.210    0.609   -0.195    2.195       beta(1,1)
 #>  .y4 ~~                                                               
-#>    .y8                0.103    0.442   -0.410    1.325       beta(1,1)
+#>    .y8                0.103    0.446   -0.377    1.371       beta(1,1)
 #>  .y6 ~~                                                               
-#>    .y8                0.306    0.565    0.304    2.522       beta(1,1)
+#>    .y8                0.306    0.569    0.304    2.531       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
@@ -160,7 +159,7 @@ summary(fit)
 #>    .y8                3.452    0.778    2.197    5.228 gamma(1,.5)[sd]
 ```
 
-## Validation Against MCMC
+## Validation against MCMC
 
 Computation speed is valuable only when accuracy is preserved. Our
 method yields posterior distributions that are visually and numerically

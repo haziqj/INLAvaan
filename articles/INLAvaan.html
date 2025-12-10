@@ -161,14 +161,14 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [121ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [119ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [181ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [204ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/13 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 13/13 marginals. [687ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 13/13 marginals. [655ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
@@ -267,12 +267,12 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eta_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■                               9% | ETA: 17s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■                               9% | ETA: 18s</span></span>
 <span><span class="co">#&gt; Sampling latent variables ■■■■■■■■                          24% | ETA: 15s</span></span>
 <span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■                     40% | ETA: 12s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■                56% | ETA:  8s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           72% | ETA:  5s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       88% | ETA:  2s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■                56% | ETA:  9s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            71% | ETA:  6s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       87% | ETA:  3s</span></span>
 <span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
@@ -350,15 +350,15 @@
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [116ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [119ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [166ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [182ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/12 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 7/12 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 12/12 marginals. [578ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 1/12 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 12/12 marginals. [545ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.4s]</span></span>
