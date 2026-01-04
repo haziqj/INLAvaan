@@ -276,6 +276,7 @@ inlavaan <- function(
   ## ----- Marginal approximations ---------------------------------------------
   # pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
   pars_list <- setNames(as.list(1:m), parnames)
+  visual_debug <- NULL
 
   # When asymgaus or skewnorm marginals, we need the correction factor gamma1
   if (marginal_method %in% c("asymgaus", "skewnorm")) {
@@ -383,9 +384,6 @@ inlavaan <- function(
         )
       }
 
-      approx_data <- matrix(NA, nrow = m, ncol = 4)
-      colnames(approx_data) <- c("xi", "omega", "alpha", "logC")
-
       obtain_approx_data <- function(j) {
         z <- seq(-4, 4, length = 31)
         yync <- yy <- numeric(length(z))
@@ -403,6 +401,43 @@ inlavaan <- function(
           temp = sn_fit_temp
         )
 
+        if (isTRUE(debug)) {
+          plot_df <- data.frame(
+            x = z,
+            # yc = yy - max(yy),
+            # ync = yync - max(yync),
+            fx = exp(yy - max(yy)),
+            fxnc = exp(yync - max(yync)),
+            fit = dsnorm(
+              x = z,
+              xi = fit_sn$xi,
+              omega = fit_sn$omega,
+              alpha = fit_sn$alpha,
+              logC = fit_sn$logC
+            )
+          )
+          plot_df <- tidyr::pivot_longer(plot_df, -x)
+          plot_df$name <- factor(
+            plot_df$name,
+            levels = c("fxnc", "fx", "fit"),
+            labels = c("Uncorrected posterior", "Corrected posterior", "SN fit")
+          )
+          visual_debug[[j]] <<-
+            ggplot2::ggplot(
+              plot_df,
+              aes(x = x, y = value, col = name, linetype = name)
+            ) +
+            ggplot2::geom_line() +
+            ggplot2::scale_colour_manual(
+              values = c("black", "red3", "#00A6AA")
+            ) +
+            ggplot2::scale_linetype_manual(
+              values = c("solid", "solid", "dashed")
+            ) +
+            ggplot2::theme_minimal() +
+            ggplot2::labs(x = NULL, y = NULL, col = NULL, linewidth = NULL)
+        }
+
         # Adjust back to theta space
         fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
         fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
@@ -410,7 +445,7 @@ inlavaan <- function(
         c(unlist(fit_sn), gamma1 = gamma1j)
       }
 
-      approx_data <- list()
+      approx_data <- visual_debug <- vector("list", length = m)
       for (j in seq_len(m)) {
         approx_data[[j]] <- obtain_approx_data(j)
         if (isTRUE(verbose)) cli::cli_progress_update()
@@ -578,7 +613,8 @@ inlavaan <- function(
     lavsamplestats = lavsamplestats,
     lavdata = lavdata,
     opt = opt,
-    timing = timing[-1] # remove start.time
+    timing = timing[-1], # remove start.time
+    visual_debug = visual_debug
   )
   class(out) <- "inlavaan_internal"
 

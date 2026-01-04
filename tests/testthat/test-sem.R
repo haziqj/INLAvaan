@@ -139,7 +139,7 @@ fit_inl2 <- asem(
   mod,
   dat,
   marginal_method = "skewnorm",
-  sn_fit_correction = "none",
+  marginal_correction = "none",
   debug = TRUE,
   test = FALSE
 )
