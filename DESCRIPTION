@@ -41,6 +41,7 @@ Suggests:
     INLA,
     knitr,
     lme4,
+    psychotools,
     quarto,
     rmarkdown,
     rstan,
