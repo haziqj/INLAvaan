@@ -3,4 +3,4 @@ lavaan___lav_model_gradient <-
 lavaan___lav_mvnorm_loglik_samplestats <-
   utils::getFromNamespace("lav_mvnorm_loglik_samplestats", "lavaan")
 lavaan___estimator.PML <-
-  utils::getFromNamespace("estimator.PML", "lavaan")
+  utils::getFromNamespace("lav_model_objective_pml", "lavaan")
