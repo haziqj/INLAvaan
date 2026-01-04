@@ -64,35 +64,35 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [113ms]
+#> ✔ Finding posterior mode. [114ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [336ms]
+#> ✔ Computing the Hessian. [333ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/31 marginals.
-#> ⠹ Fitting skew normal to 1/31 marginals.
-#> ⠸ Fitting skew normal to 5/31 marginals.
-#> ⠼ Fitting skew normal to 8/31 marginals.
-#> ⠴ Fitting skew normal to 12/31 marginals.
-#> ⠦ Fitting skew normal to 16/31 marginals.
-#> ⠧ Fitting skew normal to 19/31 marginals.
-#> ⠇ Fitting skew normal to 23/31 marginals.
-#> ⠏ Fitting skew normal to 27/31 marginals.
-#> ⠋ Fitting skew normal to 30/31 marginals.
+#> ⠹ Fitting skew normal to 2/31 marginals.
+#> ⠸ Fitting skew normal to 6/31 marginals.
+#> ⠼ Fitting skew normal to 9/31 marginals.
+#> ⠴ Fitting skew normal to 13/31 marginals.
+#> ⠦ Fitting skew normal to 17/31 marginals.
+#> ⠧ Fitting skew normal to 20/31 marginals.
+#> ⠇ Fitting skew normal to 24/31 marginals.
+#> ⠏ Fitting skew normal to 28/31 marginals.
+#> ⠋ Fitting skew normal to 31/31 marginals.
 #> ✔ Fitting skew normal to 31/31 marginals. [1.8s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [122ms]
+#> ✔ Sampling posterior covariances. [114ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [966ms]
+#> ✔ Computing ppp and DIC. [993ms]
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.0 ended normally after 77 iterations
+#> INLAvaan 0.2.1 ended normally after 77 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -103,12 +103,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1641.277 
-#>    PPP (Chi-square)                              0.504 
+#>    PPP (Chi-square)                              0.496 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3158.284 
-#>    Effective parameters (pD)                    30.999 
+#>    Deviance (DIC)                             3159.081 
+#>    Effective parameters (pD)                    31.397 
 #> 
 #> Parameter Estimates:
 #> 
@@ -142,16 +142,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>  .y1 ~~                                                               
-#>    .y5                0.297    0.367    0.048    1.485       beta(1,1)
+#>    .y5                0.297    0.365    0.040    1.468       beta(1,1)
 #>  .y2 ~~                                                               
-#>    .y4                0.246    0.696    0.110    2.824       beta(1,1)
-#>    .y6                0.340    0.740    0.778    3.683       beta(1,1)
+#>    .y4                0.246    0.687    0.026    2.721       beta(1,1)
+#>    .y6                0.340    0.733    0.788    3.668       beta(1,1)
 #>  .y3 ~~                                                               
-#>    .y7                0.210    0.609   -0.195    2.195       beta(1,1)
+#>    .y7                0.210    0.601   -0.228    2.133       beta(1,1)
 #>  .y4 ~~                                                               
-#>    .y8                0.103    0.446   -0.377    1.371       beta(1,1)
+#>    .y8                0.103    0.439   -0.394    1.330       beta(1,1)
 #>  .y6 ~~                                                               
-#>    .y8                0.306    0.569    0.304    2.531       beta(1,1)
+#>    .y8                0.306    0.578    0.333    2.599       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
@@ -192,7 +192,7 @@ res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```
 
-<img src="man/figures/README-fig-compare-poldem-1.png" width="100%" />
+<img src="man/figures/README-fig-compare-poldem-1.png" alt="" width="100%" />
 
 ## Installation
 
@@ -464,7 +464,7 @@ install.packages(
 To cite package `{INLAvaan}` in publications use:
 
 > Jamil, H (2025). *INLAvaan: Bayesian structural equation modelling
-> with INLA* . R package version 0.2.0. URL:
+> with INLA* . R package version 0.2.1. URL:
 > <https://inlavaan.haziqj.ml/>
 
 A BibTeX entry for LaTeX users is:
@@ -474,7 +474,7 @@ A BibTeX entry for LaTeX users is:
     title = {INLAvaan: Bayesian structural equation modelling with INLA},
     author = {Haziq Jamil},
     year = {2025},
-    note = {R package version 0.2.0},
+    note = {R package version 0.2.1},
     url = {https://inlavaan.haziqj.ml/},
   }
 ```
