@@ -195,14 +195,14 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [223ms]
+#> ✔ Finding posterior mode. [221ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [734ms]
+#> ✔ Computing the Hessian. [717ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/28 marginals.
-#> ⠹ Fitting skew normal to 7/28 marginals.
+#> ⠹ Fitting skew normal to 8/28 marginals.
 #> ✔ Fitting skew normal to 28/28 marginals. [3.8s]
 #> 
 #> ℹ Sampling posterior covariances.
