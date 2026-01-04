@@ -416,7 +416,20 @@ inlavaan <- function(
               logC = fit_sn$logC
             )
           )
-          plot_df <- tidyr::pivot_longer(plot_df, -x)
+
+          # plot_df <- pivot_longer(plot_df, -x)
+          plot_df <- reshape(
+            plot_df,
+            direction = "long",
+            varying = setdiff(names(plot_df), "x"),
+            v.names = "value",
+            timevar = "name",
+            times = setdiff(names(plot_df), "x"),
+            idvar = "x"
+          )
+          row.names(plot_df) <- NULL
+          plot_df <- plot_df[, c("x", "name", "value")]
+
           plot_df$name <- factor(
             plot_df$name,
             levels = c("fxnc", "fx", "fit"),
