@@ -110,17 +110,17 @@ mod <- "
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [120ms]
+#> ✔ Finding posterior mode. [116ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [208ms]
+#> ✔ Computing the Hessian. [205ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ⠹ Fitting skew normal to 13/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [663ms]
+#> ✔ Fitting skew normal to 13/13 marginals. [642ms]
 #> 
 #> ⠙ Computing ppp and DIC.
+#> ⠹ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.5s]
 #> 
 ```
@@ -260,13 +260,12 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■                                7% | ETA: 19s
+#> Sampling latent variables ■■■■                               9% | ETA: 18s
 #> Sampling latent variables ■■■■■■■■                          23% | ETA: 16s
-#> Sampling latent variables ■■■■■■■■■■■■                      38% | ETA: 12s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■                 53% | ETA:  9s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            69% | ETA:  6s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■        84% | ETA:  3s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% | ETA:  0s
+#> Sampling latent variables ■■■■■■■■■■■■■                     39% | ETA: 12s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■                 55% | ETA:  9s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            71% | ETA:  6s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       86% | ETA:  3s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
@@ -353,14 +352,14 @@ mod2 <- "
 fit2 <- asem(mod2, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [124ms]
+#> ✔ Finding posterior mode. [115ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [172ms]
+#> ✔ Computing the Hessian. [174ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [536ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [524ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.4s]
