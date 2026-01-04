@@ -16,13 +16,13 @@
 Source:
 [`DESCRIPTION`](https://github.com/haziqj/INLAvaan/blob/main/DESCRIPTION)
 
-Jamil H (2025). *INLAvaan: Bayesian Latent Variable Analysis using
-INLA*. R package version 0.2-0, <http://inlavaan.haziqj.ml/>.
+Jamil H (2026). *INLAvaan: Bayesian Latent Variable Analysis using
+INLA*. R package version 0.2.1, <http://inlavaan.haziqj.ml/>.
 
     @Manual{,
       title = {INLAvaan: Bayesian Latent Variable Analysis using INLA},
       author = {Haziq Jamil},
-      year = {2025},
-      note = {R package version 0.2-0},
+      year = {2026},
+      note = {R package version 0.2.1},
       url = {http://inlavaan.haziqj.ml/},
     }

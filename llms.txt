@@ -293,6 +293,8 @@ Main lavaan-style functions to estimate SEM.
   Skew Normal Distribution
 - [`fit_skew_normal()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal.md)
   : Fit a skew normal distribution to log-density evaluations
+- [`fit_skew_normal_samp()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal_samp.md)
+  : Fit a skew normal distribution to a sample
 - [`is_same_function()`](https://inlavaan.haziqj.ml/reference/is_same_function.md)
   : Helper function to check if two functions are the same
 - [`as_fun_string()`](https://inlavaan.haziqj.ml/reference/as_fun_string.md)

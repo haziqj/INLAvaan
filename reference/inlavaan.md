@@ -174,21 +174,21 @@ fit <- inlavaan(
 #> ✔ Finding posterior mode. [182ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [437ms]
+#> ✔ Computing the Hessian. [408ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [197ms]
+#> ✔ Sampling posterior covariances. [194ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [2.2s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.0 ended normally after 77 iterations
+#> INLAvaan 0.2.1 ended normally after 77 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -203,8 +203,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7520.065 
-#>    Effective parameters (pD)                    22.270 
+#>    Deviance (DIC)                             7519.732 
+#>    Effective parameters (pD)                    22.103 
 #> 
 #> Parameter Estimates:
 #> 
@@ -228,10 +228,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   visual ~~                                                           
-#>     textual           0.446    0.081    0.247    0.564       beta(1,1)
-#>     speed             0.453    0.056    0.146    0.368       beta(1,1)
+#>     textual           0.446    0.080    0.251    0.566       beta(1,1)
+#>     speed             0.453    0.055    0.149    0.366       beta(1,1)
 #>   textual ~~                                                          
-#>     speed             0.275    0.049    0.076    0.269       beta(1,1)
+#>     speed             0.275    0.050    0.073    0.270       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       

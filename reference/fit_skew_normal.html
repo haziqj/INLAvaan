@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2-0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,8 @@ it is included in the optimisation.</p></dd>
 <li><p><code>alpha</code>: shape parameter</p></li>
 <li><p><code>logC</code>: log-normalization constant</p></li>
 <li><p><code>k</code>: temperature parameter</p></li>
-</ul></div>
+</ul><p>Note that <code>logC</code> and <code>k</code> are not used when fitting from a sample.</p>
+    </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This skew normal fitting function uses a weighted least squares
@@ -116,8 +117,8 @@ can be found
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">fit_skew_normal</span><span class="op">(</span><span class="va">x_grid</span>, <span class="va">y_log</span>, temp <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         xi      omega      alpha       logC          k </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.8424454  2.5392261  3.3105054  1.3324227 10.0000000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         xi      omega      alpha       logC          k        rsq </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.8424454  2.5392261  3.3105054  1.3324227 10.0000000  0.9988780 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">plot_df</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span></span>

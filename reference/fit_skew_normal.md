@@ -42,6 +42,8 @@ A list with fitted parameters:
 
 - `k`: temperature parameter
 
+Note that `logC` and `k` are not used when fitting from a sample.
+
 ## Details
 
 This skew normal fitting function uses a weighted least squares approach
@@ -76,8 +78,8 @@ y_log <- y_log - max(y_log) # normalise to have maximum at zero
 
 res <- fit_skew_normal(x_grid, y_log, temp = 10)
 unlist(res)
-#>         xi      omega      alpha       logC          k 
-#>  0.8424454  2.5392261  3.3105054  1.3324227 10.0000000 
+#>         xi      omega      alpha       logC          k        rsq 
+#>  0.8424454  2.5392261  3.3105054  1.3324227 10.0000000  0.9988780 
 
 plot_df <-
   pivot_longer(

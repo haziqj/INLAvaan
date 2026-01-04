@@ -204,25 +204,25 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [256ms]
+#> ✔ Finding posterior mode. [263ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [445ms]
+#> ✔ Computing the Hessian. [438ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ⠹ Fitting skew normal to 5/17 marginals.
+#> ⠹ Fitting skew normal to 10/17 marginals.
 #> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [427ms]
+#> ✔ Sampling posterior covariances. [439ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.7s]
+#> ✔ Computing ppp and DIC. [2.6s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.0 ended normally after 85 iterations
+#> INLAvaan 0.2.1 ended normally after 85 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

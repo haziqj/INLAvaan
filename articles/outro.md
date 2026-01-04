@@ -12,7 +12,7 @@ sessioninfo::session_info(info = "all")
 #>  collate  C.UTF-8
 #>  ctype    C.UTF-8
 #>  tz       UTC
-#>  date     2025-12-10
+#>  date     2026-01-04
 #>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
 #>  quarto   1.8.26 @ /usr/local/bin/quarto
 #> 
@@ -24,12 +24,12 @@ sessioninfo::session_info(info = "all")
 #>  fastmap       1.2.0   2024-05-15 [1] RSPM
 #>  htmltools     0.5.9   2025-12-04 [1] RSPM
 #>  jsonlite      2.0.0   2025-03-27 [1] RSPM
-#>  knitr         1.50    2025-03-16 [1] RSPM
+#>  knitr         1.51    2025-12-20 [1] RSPM
 #>  rlang         1.1.6   2025-04-11 [1] RSPM
 #>  rmarkdown     2.30    2025-09-28 [1] RSPM
 #>  sessioninfo   1.2.3   2025-02-05 [1] any (@1.2.3)
-#>  xfun          0.54    2025-10-30 [1] RSPM
-#>  yaml          2.3.11  2025-11-28 [1] RSPM
+#>  xfun          0.55    2025-12-16 [1] RSPM
+#>  yaml          2.3.12  2025-12-10 [1] RSPM
 #> 
 #>  [1] /home/runner/work/_temp/Library
 #>  [2] /opt/R/4.5.2/lib/R/site-library

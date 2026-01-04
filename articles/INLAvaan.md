@@ -110,17 +110,17 @@ mod <- "
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [119ms]
+#> ✔ Finding posterior mode. [120ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [204ms]
+#> ✔ Computing the Hessian. [208ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [655ms]
+#> ⠹ Fitting skew normal to 13/13 marginals.
+#> ✔ Fitting skew normal to 13/13 marginals. [663ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.5s]
 #> 
 ```
@@ -166,7 +166,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.0 ended normally after 62 iterations
+#> INLAvaan 0.2.1 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -195,7 +195,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.0 ended normally after 62 iterations
+#> INLAvaan 0.2.1 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -260,12 +260,13 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■■                               9% | ETA: 18s
-#> Sampling latent variables ■■■■■■■■                          24% | ETA: 15s
-#> Sampling latent variables ■■■■■■■■■■■■■                     40% | ETA: 12s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■                56% | ETA:  9s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            71% | ETA:  6s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       87% | ETA:  3s
+#> Sampling latent variables ■■■                                7% | ETA: 19s
+#> Sampling latent variables ■■■■■■■■                          23% | ETA: 16s
+#> Sampling latent variables ■■■■■■■■■■■■                      38% | ETA: 12s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■                 53% | ETA:  9s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            69% | ETA:  6s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■        84% | ETA:  3s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% | ETA:  0s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
@@ -352,15 +353,14 @@ mod2 <- "
 fit2 <- asem(mod2, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [119ms]
+#> ✔ Finding posterior mode. [124ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [182ms]
+#> ✔ Computing the Hessian. [172ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ⠹ Fitting skew normal to 1/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [545ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [536ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.4s]

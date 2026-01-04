@@ -1,5 +1,10 @@
 # Changelog
 
+## INLAvaan 0.2.1
+
+- Support for lavaan 0.6-21.
+- Implemented variational Bayes mean correction for posterior marginals.
+
 ## INLAvaan 0.2-0
 
 - INLAvaan has been rewritten from the ground up specifically for SEM
