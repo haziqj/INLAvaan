@@ -26,6 +26,9 @@
 #'   - `alpha`: shape parameter
 #'   - `logC`: log-normalization constant
 #'   - `k`: temperature parameter
+#'   - `rsq`: R-squared of the fit
+#'
+#'  Note that `logC` and `k` are not used when fitting from a sample.
 #'
 #' @example inst/examples/ex-skewnorm-fit.R
 #' @export
@@ -115,7 +118,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
     # print(exp(logk))
 
     w <- exp(exp(logk) * y)
-    w[y < -6] <- 0
+    w[y < threshold_log_drop] <- 0
     w <- w / sum(w)
 
     # log skew-normal density up to constant
@@ -141,7 +144,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
 
     logk <- if (is_est_k) param[5] else log(temp)
     w <- exp(exp(logk) * y)
-    w[y < -6] <- 0
+    w[y < threshold_log_drop] <- 0
     w <- w / sum(w)
 
     # First derivatives of log-density L wrt parameters
@@ -173,7 +176,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
 
   hs <- function(param, x, y) {
     w <- exp(temp * y)
-    w[y < -6] <- 0
+    w[y < threshold_log_drop] <- 0
     w <- w / sum(w)
 
     mu <- param[1]
@@ -227,28 +230,11 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
 
     H44 <- 2 * sum(w * (L_logC * L_logC))
 
-    matrix(
-      c(
-        H11,
-        H12,
-        H13,
-        H14,
-        H12,
-        H22,
-        H23,
-        H24,
-        H13,
-        H23,
-        H33,
-        H34,
-        H14,
-        H24,
-        H34,
-        H44
-      ),
-      nrow = 4,
-      byrow = TRUE
-    )
+    # fmt: skip
+    matrix(c(H11, H12, H13, H14,
+             H12, H22, H23, H24,
+             H13, H23, H33, H34,
+             H14, H24, H34, H44), nrow = 4, byrow = TRUE)
   }
   if (is_est_k) {
     hs <- NULL
@@ -275,12 +261,22 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   logC_hat <- fit$par[4]
   k_hat <- if (is_est_k) exp(fit$par[5]) else temp
 
+  # Calculate Rsquared
+  w <- exp(k_hat * y)
+  w[y < threshold_log_drop] <- 0
+  w <- w / sum(w)
+  rss <- fit$objective
+  yhat <- sum(w * y)
+  tss <- sum(w * (y - yhat)^2)
+  rsq <- 1 - rss / tss
+
   list(
     xi = xi_hat,
     omega = omega_hat,
     alpha = alpha_hat,
     logC = logC_hat,
-    k = k_hat
+    k = k_hat,
+    rsq = rsq
   )
 }
 
@@ -333,6 +329,19 @@ dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {
 #   list(EX = EX, VarX = VarX)
 # }
 
+#' Fit a skew normal distribution to a sample
+#'
+#' @details Uses maximum likelihood estimation to fit a skew normal distribution
+#' to the provided numeric vector `x`.
+#'
+#' @param x A numeric vector of sample data.
+#'
+#' @inherit fit_skew_normal return
+#' @export
+#'
+#' @examples
+#' x <- rnorm(100, mean = 5, sd = 1)
+#' unlist(fit_skew_normal_samp(x))
 fit_skew_normal_samp <- function(x) {
   # Starting values
   xi0 <- stats::median(x)
@@ -358,5 +367,12 @@ fit_skew_normal_samp <- function(x) {
   omega_hat <- exp(opt$par[2])
   alpha_hat <- opt$par[3]
 
-  list(xi = xi_hat, omega = omega_hat, alpha = alpha_hat, logC = 0, k = 1)
+  list(
+    xi = xi_hat,
+    omega = omega_hat,
+    alpha = alpha_hat,
+    logC = NA,
+    k = NA,
+    rsq = NA
+  )
 }

@@ -27,6 +27,8 @@ A list with fitted parameters:
 \item \code{logC}: log-normalization constant
 \item \code{k}: temperature parameter
 }
+
+Note that \code{logC} and \code{k} are not used when fitting from a sample.
 }
 \description{
 Fit a skew normal distribution to log-density evaluations
