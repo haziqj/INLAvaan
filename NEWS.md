@@ -1,3 +1,8 @@
+# INLAvaan 0.2.1
+
+* Support for lavaan 0.6-21.
+* Implemented variational Bayes mean correction for posterior marginals.
+
 # INLAvaan 0.2-0
 
 * INLAvaan has been rewritten from the ground up specifically for SEM models. The new version does not call R-INLA directly, but instead uses the core approximation ideas to fit SEM models more efficiently. 
