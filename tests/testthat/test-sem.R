@@ -22,6 +22,7 @@ test_that("Method: skewnorm", {
       mod,
       dat,
       marginal_method = "skewnorm",
+      marginal_correction = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )
@@ -48,6 +49,7 @@ test_that("Method: asymgaus", {
       mod,
       dat,
       marginal_method = "asymgaus",
+      marginal_correction = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )

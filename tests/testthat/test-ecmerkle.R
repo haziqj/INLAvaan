@@ -1,234 +1,303 @@
-testthat::skip_on_ci()
-testthat::skip_on_cran()
-testthat::skip_if_not(interactive())
+test_that("vcov and fitMeasures", {
+  testthat::skip() # FIXME
 
+  data("PoliticalDemocracy", package = "lavaan")
+  model <- "
+    # Latent variable definitions
+    ind60 =~ x1 + x2 + x3
+    dem60 =~ y1 + y2 + y3 + y4
+    dem65 =~ y5 + y6 + y7 + y8
 
-data("PoliticalDemocracy", package = "lavaan")
-
-model <- "
-  # Latent variable definitions
-     ind60 =~ x1 + x2 + x3
-     dem60 =~ y1 + y2 + y3 + y4
-     dem65 =~ y5 + y6 + y7 + y8
-
-  # Latent regressions
+    # Latent regressions
     dem60 ~ ind60
     dem65 ~ ind60 + dem60
 
-  # Residual correlations
+    # Residual correlations
     y1 ~~ y5
     y2 ~~ y4 + y6
     y3 ~~ y7
     y4 ~~ y8
     y6 ~~ y8
+  "
+  fit <- asem(
+    model,
+    PoliticalDemocracy,
+    verbose = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none",
+    test = "none",
+    nsamp = 2
+  )
 
-  # Custom priors on latent variances
-    # ind60 ~~ prior('gamma(1, 1)')*ind60
-    # dem60 ~~ prior('gamma(1,.9)')*dem60
-    # dem65 ~~ prior('gamma(1,.5)')*dem65
-"
+  ## to get vcov, it seems we need to set @Options$se?
+  # library(lavaan)
+  # fit@Options$se <- "standard"
+  expect_error(vcov(fit))
 
-fit <- asem(model, PoliticalDemocracy)
+  ## would be nice, even if it just returns dic and ppp:
+  expect_error(fitMeasures(fit))
+})
 
-summary(fit)
+test_that("Missing data", {
+  data("PoliticalDemocracy", package = "lavaan")
+  model <- "
+    # Latent variable definitions
+    ind60 =~ x1 + x2 + x3
+    dem60 =~ y1 + y2 + y3 + y4
+    dem65 =~ y5 + y6 + y7 + y8
 
-## to get vcov, it seems we need to set @Options$se?
-library(lavaan)
-vcov(fit)
+    # Latent regressions
+    dem60 ~ ind60
+    dem65 ~ ind60 + dem60
 
-fit@Options$se <- "standard"
-vcov(fit)
+    # Residual correlations
+    y1 ~~ y5
+    y2 ~~ y4 + y6
+    y3 ~~ y7
+    y4 ~~ y8
+    y6 ~~ y8
+  "
 
-## would be nice, even if it just returns dic and ppp:
-fitMeasures(fit)
+  # ECM: Any possibility of a "full information" approach where you skip over
+  # the NAs?
+  set.seed(9619)
+  mis <- matrix(
+    rbinom(prod(dim(PoliticalDemocracy)), 1, .9),
+    nrow(PoliticalDemocracy),
+    ncol(PoliticalDemocracy)
+  )
+  pd <- PoliticalDemocracy * mis
+  pd[pd == 0] <- NA
 
+  fitm <- asem(
+    model,
+    pd,
+    verbose = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none",
+    test = "none",
+    nsamp = 2
+  )
 
-## missing data: any possibility of a "full information" approach where you skip over the NAs?
-set.seed(9619)
-mis <- matrix(
-  rbinom(prod(dim(PoliticalDemocracy)), 1, .9),
-  nrow(PoliticalDemocracy),
-  ncol(PoliticalDemocracy)
-)
-pd <- PoliticalDemocracy * mis
-pd[pd == 0] <- NA
+  expect_equal(fitm@Data@missing, "listwise")
+  expect_equal(fitm@Data@nobs[[1]], nrow(pd[complete.cases(pd), ]))
+})
 
-fitm <- asem(
-  model,
-  data = pd,
-  # dp = blavaan::dpriors(lambda = "normal(1,.3)"),
-  # missing = "ml",
-)
+test_that("Approximate constraints", {
+  testthat::skip() # FIXME
 
-summary(fitm)
+  # ECM: Approximate constraints could be interesting
+  HS.model <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
+  "
 
+  expect_error({
+    fit3 <- acfa(
+      HS.model,
+      data = lavaan::HolzingerSwineford1939,
+      group = "school",
+      group.equal = c("intercepts", "loadings"),
+      wiggle = "intercepts",
+      wiggle.sd = .1,
+      verbose = FALSE
+    )
+  })
+})
 
-## CFA
-data("HolzingerSwineford1939", package = "lavaan")
+test_that("4-group model with a bunch of constraints and predict", {
+  testthat::skip() # FIXME
 
-HS.model <- ' visual  =~ x1 + x2 + x3
-              textual =~ x4 + x5 + x6
-              speed   =~ x7 + x8 + x9 '
+  data(StereotypeThreat, package = "psychotools")
+  StereotypeThreat <- transform(
+    StereotypeThreat,
+    group = interaction(ethnicity, condition)
+  )
+  StereotypeThreat <- StereotypeThreat[order(StereotypeThreat$group), ]
 
-fit2 <- acfa(HS.model, data = HolzingerSwineford1939)
+  mod <- "
+    f1 =~ abstract + verbal + c(l1, l1, l1, l4)*numerical
 
-fit2b <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
+    f1 ~  c(maj, min1, maj, min2)*1 + c(NA, 0, NA, 0)*1
+    abstract ~ c(ar1, ar2, ar3, ar3)*1
+    numerical ~ c(na1,na1,na1,na4)*1
 
-summary(fit2b)
+    numerical ~~ c(e1, e1, e1, e4)*numerical
+    f1 ~~ c(v1.maj, v1.min, v1.maj, v1.min)*f1
+  "
 
+  fit <- acfa(
+    mod,
+    StereotypeThreat,
+    group = "group",
+    group.equal = c("loadings", "residuals", "intercepts"),
+    verbose = FALSE,
+    # marginal_method = "marggaus",
+    marginal_correction = "none",
+    test = "none",
+    nsamp = 2
+  )
+  prd <- predict(fit, nsamp = 3)
+  expect_no_error(out <- capture.output(print(prd)))
 
-## Multi-group cfa with std.lv and group.equal
-HS.model <- ' visual  =~ x1 + x2 + x3 '
-
-fit2 <- acfa(
-  HS.model,
-  data = HolzingerSwineford1939,
-  group = "school",
-  group.equal = "loadings",
-  dp = blavaan::dpriors(lambda = "normal(1,.3)")
-)
-
-summary(fit2)
-
-
-## Approximate constraints could be interesting
-fit3 <- acfa(
-  HS.model,
-  data = HolzingerSwineford1939,
-  group = "school",
-  group.equal = c("intercepts", "loadings"),
-  wiggle = "intercepts",
-  wiggle.sd = .1
-)
-
-
-## 4-group model with a bunch of constraints
-data(StereotypeThreat, package = "psychotools")
-StereotypeThreat <- transform(
-  StereotypeThreat,
-  group = interaction(ethnicity, condition)
-)
-StereotypeThreat <- StereotypeThreat[order(StereotypeThreat$group), ]
-
-model <- ' f1 =~ abstract + verbal + c(l1,l1,l1,l4)*numerical
-           f1 ~  c(maj,min1,maj,min2)*1 + c(NA,0,NA,0)*1
-           abstract ~ c(ar1,ar2,ar3,ar3)*1
-           numerical  ~ c(na1,na1,na1,na4)*1
-           numerical ~~ c(e1,e1,e1,e4)*numerical
-           f1 ~~ c(v1.maj,v1.min,v1.maj,v1.min)*f1
-         '
-
-fit <- acfa(
-  model,
-  data = StereotypeThreat,
-  group = "group",
-  group.equal = c("loadings", "residuals", "intercepts")
-)
-
-summary(fit)
-
-lavPredict(fit) # I believe these are coming from lavaan
-
-
-## constraint on covariances (or on correlations, depending on parameterization)
-## (this is a place where I think blavaan will constrain correlations instead of covariances.
-##  that might not be the right thing to do, but equality constraints on covariances are
-##  already weird.)
-HS.modelc <- ' visual  =~ x1 + x2 + x3
-               textual =~ x4 + x5 + x6
-               speed   =~ x7 + x8 + x9
-               x1 ~~ c(a,b)*x4
-               x2 ~~ c(a,b)*x5 '
-
-fit2c <- acfa(
-  HS.modelc,
-  data = HolzingerSwineford1939,
-  group = "school",
-  dp = blavaan::dpriors(lambda = 'normal(1,.5)')
-)
-
-summary(fit2c)
+  # lavPredict(fit) # ECM: I believe these are coming from lavaan
+})
 
 
-## std.lv=TRUE with equality constraints, where mcmc can choke on sign indeterminacy
-mod2 <- ' visual  =~ c("l1","l1")*x1 + c("l2","l2")*x2 + c("l3","l3")*x3
-          textual =~ c("l4","l4")*x4 + c("l5","l5")*x5 + c("l6","l6")*x6
-          visual ~~ c(1, NA)*visual
-          textual ~~ c(1, NA)*textual '
+test_that("Constraint on correlations", {
+  # ECM: This is a place where I think blavaan will constrain correlations
+  # instead of covariances. #  that might not be the right thing to do, but
+  # equality constraints on covariances are already weird.
 
-fit2 <- acfa(
-  mod2,
-  data = HolzingerSwineford1939,
-  group = "school",
-  std.lv = TRUE,
-  meanstructure = TRUE
-)
+  HS.modelc <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
 
-summary(fit2)
+    x1 ~~ c(a, b)*x4
+    x2 ~~ c(a, b)*x5
+  "
 
+  fit <- acfa(
+    HS.modelc,
+    data = lavaan::HolzingerSwineford1939,
+    group = "school",
+    dp = blavaan::dpriors(lambda = "normal(1,.5)"),
+    verbose = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none",
+    test = "none",
+    nsamp = 2
+  )
 
-## growth model, also see the examples at https://osf.io/4bpmq
-data("Demo.growth")
-colnames(Demo.growth)[1:4] = c("X1", "X2", "X3", "X4")
+  expect_no_error(out <- capture.output(summary(fit)))
+  expect_s4_class(fit, "INLAvaan")
 
-#LCS specification (constant change)
-constantX.syntax <- '
+  # Check it runs more than 1 group
+  expect_true(length(coef(fit)) > 30)
+  expect_equal(fit@Data@ngroups, 2L)
+})
 
-#X
+test_that("Standardised LVs with equality constraints", {
+  # ECM: MCMC can choke on sign indeterminacy
+  mod <- "
+    visual  =~ c(l1,l1)*x1 + c(l2,l2)*x2 + c(l3,l3)*x3
+    textual =~ c(l4,l4)*x4 + c(l5,l5)*x5 + c(l6,l6)*x6
+    visual ~~ c(1, NA)*visual
+    textual ~~ c(1, NA)*textual
+  "
 
-#latent variables
-lX1 =~ 1*X1; lX2 =~ 1*X2; lX3 =~ 1*X3; lX4 =~ 1*X4;
+  fit <- acfa(
+    mod,
+    data = lavaan::HolzingerSwineford1939,
+    group = "school",
+    std.lv = TRUE,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    # marginal_method = "marggaus",
+    marginal_correction = "none",
+    test = "none",
+    nsamp = 2
+  )
 
-#autoregressions
-lX2 ~ 1*lX1; lX3 ~ 1*lX2; lX4 ~ 1*lX3;
+  expect_no_error(out <- capture.output(summary(fit)))
+  expect_s4_class(fit, "INLAvaan")
+})
 
-#change - delta; d
-dX1 =~ 1*lX2; dX2 =~ 1*lX3; dX3 =~ 1*lX4;
+test_that("Growth models", {
+  # ECM: Also see the examples at https://osf.io/4bpmq
+  data("Demo.growth", package = "lavaan")
+  colnames(Demo.growth)[1:4] <- c("X1", "X2", "X3", "X4")
 
-#intercept and slope
-intX =~ 1*lX1;
-slopeX =~ 1*dX1 + 1*dX2 + 1*dX3;
+  # Latent Change Score (LCS) specification with constant change
+  constantX.syntax <- "
+    # Latent variables
+    lX1 =~ 1*X1
+    lX2 =~ 1*X2
+    lX3 =~ 1*X3
+    lX4 =~ 1*X4
 
-#residuals equal
-X1 ~~ residX*X1; X2 ~~ residX*X2; X3 ~~ residX*X3; X4 ~~ residX*X4;
+    # Autoregressions
+    lX2 ~ 1*lX1
+    lX3 ~ 1*lX2
+    lX4 ~ 1*lX3
 
+    # Change (constant)
+    dX1 =~ 1*lX2
+    dX2 =~ 1*lX3
+    dX3 =~ 1*lX4
 
-#manifest means @0
-X1 ~ 0*1; X2 ~0*1; X3 ~ 0*1; X4 ~ 0*1;
+    # Random intercept and slope
+    intX   =~ 1*lX1
+    slopeX =~ 1*dX1 + 1*dX2 + 1*dX3
 
-#auto-proportions
-dX1 ~ 0*lX1; dX2 ~ 0*lX2; dX3 ~ 0*lX3;
+    # Residuals equal
+    X1 ~~ rsdX*X1
+    X2 ~~ rsdX*X2
+    X3 ~~ rsdX*X3
+    X4 ~~ rsdX*X4
 
-#slope and intercept means
-slopeX ~ 1;
-intX ~ 1;
+    # Manifest means fixed to 0
+    X1 ~ 0*1
+    X2 ~ 0*1
+    X3 ~ 0*1
+    X4 ~ 0*1
 
-#Latent variances and covariance
-slopeX ~~ slopeX;
-intX ~~ intX;
-slopeX ~~ intX;
+    # Auto proportions
+    dX1 ~ 0*lX1
+    dX2 ~ 0*lX2
+    dX3 ~ 0*lX3
 
-#means and vars @0
-lX1 ~ 0*1; lX2 ~0*1; lX3 ~ 0*1; lX4 ~ 0*1;
-dX1 ~ 0*1; dX2 ~0*1; dX3 ~ 0*1;
+    # Estimate slope and intercept means
+    slopeX ~ 1
+    intX ~ 1
 
-lX1 ~~ 0*lX1; lX2 ~~ 0*lX2; lX3 ~~ 0*lX3; lX4 ~~ 0*lX4;
-dX1 ~~ 0*dX1; dX2 ~~ 0*dX2; dX3 ~~ 0*dX3;
+    # Estimate latent variances and covariance
+    slopeX ~~ slopeX
+    intX ~~ intX
+    slopeX ~~ intX
 
-'
+    # Means and variances of latent variables fixed to 0
+    lX1 ~ 0*1
+    lX2 ~ 0*1
+    lX3 ~ 0*1
+    lX4 ~ 0*1
 
-fit <- inlavaan(constantX.syntax, data = Demo.growth)
+    dX1 ~ 0*1
+    dX2 ~ 0*1
+    dX3 ~ 0*1
 
+    lX1 ~~ 0*lX1
+    lX2 ~~ 0*lX2
+    lX3 ~~ 0*lX3
+    lX4 ~~ 0*lX4
 
-## non-recursive (cyclic) model
-set.seed(1234)
-pop.model <- ' dv1 ~ 0.3*dv3
-               dv2 ~ 0.5*dv1
-               dv3 ~ 0.7*dv2 '
-Data <- lavaan::simulateData(pop.model, sample.nobs = 500)
+    dX1 ~~ 0*dX1
+    dX2 ~~ 0*dX2
+    dX3 ~~ 0*dX3
+  "
+  fit <- inlavaan(constantX.syntax, Demo.growth, verbose = FALSE)
 
-model <- ' dv1 ~ dv3
-           dv2 ~ dv1
-           dv3 ~ dv2 '
+  expect_no_error(out <- capture.output(summary(fit)))
+  expect_s4_class(fit, "INLAvaan")
+})
 
-fit <- asem(model, data = Data, dp = blavaan::dpriors(beta = "normal(.5,.5)"))
+test_that("Non-recursive (cyclic) model", {
+  set.seed(1234)
+  pop_model <- "
+    dv1 ~ 0.3*dv3
+    dv2 ~ 0.5*dv1
+    dv3 ~ 0.7*dv2
+  "
+  dat <- lavaan::simulateData(pop_model, sample.nobs = 500)
+  fit <- asem(
+    model = "dv1 ~ dv3; dv2 ~ dv1; dv3 ~ dv2",
+    data = dat,
+    dp = blavaan::dpriors(beta = "normal(.5,.5)"),
+    verbose = FALSE
+  )
+
+  expect_no_error(out <- capture.output(summary(fit)))
+  expect_s4_class(fit, "INLAvaan")
+})
