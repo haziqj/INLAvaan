@@ -18,7 +18,5 @@
 - [Multigroup
   analysis](https://inlavaan.haziqj.ml/articles/multigroup.md):
 
-- [Outro](https://inlavaan.haziqj.ml/articles/outro.md):
-
 - [Structural Equation
   Modelling](https://inlavaan.haziqj.ml/articles/sem.md):

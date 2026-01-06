@@ -46,8 +46,6 @@
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/outro.html">Outro</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -110,19 +108,19 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, test <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [255ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [245ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [780ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [741ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/28 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 1/28 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 23/28 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 28/28 marginals. [3.9s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 3/28 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 26/28 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 28/28 marginals. [3.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [364ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [355ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.1.9001 ended normally after 70 iterations</span></span>
@@ -169,16 +167,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y5                0.272    0.340   -0.006    1.330       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.272    0.367   -0.021    1.416       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y4                0.274    0.708    0.190    2.964       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.341    0.709    0.849    3.636       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.274    0.689    0.220    2.926       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.341    0.728    0.767    3.627       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y7                0.178    0.591   -0.346    1.977       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.178    0.613   -0.345    2.062       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y8                0.109    0.448   -0.391    1.367       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.109    0.447   -0.402    1.355       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                               </span></span>
-<span><span class="co">#&gt;    .y8                0.312    0.546    0.335    2.480       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.312    0.582    0.356    2.637       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%    Prior       </span></span>

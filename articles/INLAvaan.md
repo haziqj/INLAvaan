@@ -110,17 +110,18 @@ mod <- "
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [119ms]
+#> ✔ Finding posterior mode. [123ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [209ms]
+#> ✔ Computing the Hessian. [220ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [671ms]
+#> ⠹ Fitting skew normal to 11/13 marginals.
+#> ✔ Fitting skew normal to 13/13 marginals. [703ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.7s]
+#> ✔ Computing ppp and DIC. [1.5s]
 #> 
 ```
 
@@ -259,13 +260,13 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■                                7% | ETA: 18s
-#> Sampling latent variables ■■■■■■■■                          23% | ETA: 14s
-#> Sampling latent variables ■■■■■■■■■■■■                      38% | ETA: 12s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■                 54% | ETA:  9s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            69% | ETA:  6s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■        84% | ETA:  3s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% | ETA:  0s
+#> Sampling latent variables ■■■                                6% | ETA: 19s
+#> Sampling latent variables ■■■■■■■■                          22% | ETA: 15s
+#> Sampling latent variables ■■■■■■■■■■■■                      36% | ETA: 13s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■                 52% | ETA:  9s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■             68% | ETA:  6s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■        83% | ETA:  3s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■    98% | ETA:  0s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
@@ -352,14 +353,14 @@ mod2 <- "
 fit2 <- asem(mod2, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [132ms]
+#> ✔ Finding posterior mode. [128ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [174ms]
+#> ✔ Computing the Hessian. [167ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [554ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [536ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.4s]
@@ -452,6 +453,8 @@ independent, the current implementation is sufficient. However, future
 versions of [INLAvaan](https://inlavaan.haziqj.ml/) will re-introduce
 dependency on R-INLA to allow for more complex latent structures, such
 as spatial and temporal dependencies.
+
+## References
 
 Chiuchiolo, Cristian, Janet Van Niekerk, and Håvard Rue. 2023. “Joint
 Posterior Inference for Latent Gaussian Models with R-INLA.” *Journal of
