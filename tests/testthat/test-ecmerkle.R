@@ -1,6 +1,4 @@
 test_that("vcov and fitMeasures", {
-  testthat::skip() # FIXME
-
   data("PoliticalDemocracy", package = "lavaan")
   model <- "
     # Latent variable definitions
@@ -25,17 +23,11 @@ test_that("vcov and fitMeasures", {
     verbose = FALSE,
     marginal_method = "marggaus",
     marginal_correction = "none",
-    test = "none",
     nsamp = 2
   )
 
-  ## to get vcov, it seems we need to set @Options$se?
-  # library(lavaan)
-  # fit@Options$se <- "standard"
-  expect_error(vcov(fit))
-
-  ## would be nice, even if it just returns dic and ppp:
-  expect_error(fitMeasures(fit))
+  expect_message(out <- capture.output(print(vcov(fit))))
+  expect_no_error(out <- capture.output(fitmeasures(fit)))
 })
 
 test_that("Missing data", {

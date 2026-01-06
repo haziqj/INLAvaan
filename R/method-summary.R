@@ -75,7 +75,7 @@ summary_inlavaan <- function(
 
     PE <- lavaan::parameterEstimates(
       object,
-      se = TRUE,
+      se = FALSE, # create our own
       zstat = FALSE,
       ci = TRUE,
       standardized = standardized,

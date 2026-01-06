@@ -23,7 +23,8 @@
 #'   diagonals, and `"none"` applies no correction.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
-#' @param test Logical indicating whether to compute posterior fit indices.
+#' @param test Character indicating whether to compute posterior fit indices.
+#'   Defaults to "standard". Change to "none" to skip these computations.
 #' @param sn_fit_logthresh The log-threshold for fitting the skew normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
@@ -60,7 +61,7 @@ inlavaan <- function(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 1000,
-  test = TRUE,
+  test = "standard",
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -90,6 +91,7 @@ inlavaan <- function(
   lavargs$verbose <- FALSE # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
   lavargs$parser <- "old" # To get priors parsed
+  lavargs$test <- test
 
   ## ----- Build joint log posterior -------------------------------------------
   if (estimator == "ML") {
@@ -569,7 +571,7 @@ inlavaan <- function(
   timing <- add_timing(timing, "covariances")
 
   ## ----- Compute ppp and dic -------------------------------------------------
-  if (isTRUE(test)) {
+  if (test != "none") {
     env <- NULL
     if (isTRUE(verbose)) {
       env <- environment()
@@ -669,7 +671,7 @@ acfa <- function(
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
-  test = TRUE,
+  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
@@ -717,7 +719,7 @@ asem <- function(
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
-  test = TRUE,
+  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
@@ -763,7 +765,7 @@ agrowth <- function(
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
-  test = TRUE,
+  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,

@@ -47,6 +47,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@Options$optim.method <- fit_inlv$optim_method
   fit0@Options$do.fit <- TRUE
   fit0@Options$estimator <- "Bayes"
+  fit0@Options$se <- "standard"
 
   ## ----- Update Fit slot -----------------------------------------------------
   fit0@Fit@x <- x
@@ -122,7 +123,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@loglik <- list()
 
   ## ----- Update vcov slot ----------------------------------------------------
-  fit0@vcov <- list() # FIXME: Do we need this?
+  fit0@vcov <- list(vcov = fit_inlv$Sigma_theta) # NOTE: This is the Laplace vcov
 
   ## ----- Update test slot ----------------------------------------------------
   fit0@test <- fit0@Fit@test
