@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2-1.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"haziqj/INLAvaan"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Load all libraries for this example</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlavaan.haziqj.ml/">INLAvaan</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be" class="external-link">lavaan</a></span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -141,7 +141,7 @@
 <p>From the code above, note the true values of the parameters, including the factor loadings <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Λ</mi><annotation encoding="application/x-tex">\Lambda</annotation></semantics></math>, regression coefficient <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math> between the two latent variables, as well as the residual and latent variances <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Θ</mi><annotation encoding="application/x-tex">\Theta</annotation></semantics></math> and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Ψ</mi><annotation encoding="application/x-tex">\Psi</annotation></semantics></math> respectively.</p>
 </section><section class="level2"><h2 id="model-fit">Model fit<a class="anchor" aria-label="anchor" href="#model-fit"></a>
 </h2>
-<p>Now that we have simulated some data, we can fit the SEM using INLAvaan. The model syntax is similar to that of <a href="https://lavaan.ugent.be" class="external-link">lavaan</a>, making it easy to specify the model. For further details on the model syntax, refer to the <a href="https://lavaan.ugent.be/tutorial/syntax1.html" class="external-link">lavaan website</a>. <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> provides mirror functions for the main model fitting functions in <a href="https://lavaan.ugent.be" class="external-link">lavaan</a>:</p>
+<p>Now that we have simulated some data, we can fit the SEM using INLAvaan. The model syntax is similar to that of <a href="https://lavaan.ugent.be" class="external-link">lavaan</a>, making it easy to specify the model. For further details on the model syntax, refer to the <a href="https://lavaan.ugent.be/tutorial/syntax1.html" class="external-link">lavaan website</a>. <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> provides mirror functions for the main model fitting functions in <a href="https://lavaan.ugent.be" class="external-link">lavaan</a>:</p>
 <ul>
 <li>
 <code><a href="../reference/acfa.html">acfa()</a></code> mirrors <code><a href="https://rdrr.io/pkg/lavaan/man/cfa.html" class="external-link">lavaan::cfa()</a></code> for confirmatory factor analysis; and</li>
@@ -161,21 +161,20 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [116ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [119ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [201ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [209ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/13 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 13/13 marginals. [638ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 13/13 marginals. [671ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.5s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.7s]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
-<p><a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney, Kass, and Kadane 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
+<p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney, Kass, and Kadane 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
 <p>From this, marginal posterior distributions for each parameter can be obtained by one of several ways, including 1) Skew normal fitting <span class="citation" data-cites="chiuchiolo2023joint">(<code>marginal_method = "skewnorm"</code>, the default method, see <a href="#ref-chiuchiolo2023joint" role="doc-biblioref">Chiuchiolo, Van Niekerk, and Rue 2023</a>)</span>; 2) Two-piece asymmetric Gaussian fitting <span class="citation" data-cites="martins2013bayesian">(<code>marginal_method = "asymgaus"</code>, see <a href="#ref-martins2013bayesian" role="doc-biblioref">Martins et al. 2013</a>)</span>; 3) Direct marginalisation of the joint Gaussian posterior (<code>marginal_method = "marggaus"</code>); and 4) Sampling from the joint Gaussian posterior (<code>marginal_method = "sampling"</code>).</p>
 <p>Once the marginal posterior distributions have been obtained, we can further use these to compute any derived quantities of interest via copula sampling. The posterior predictive p-values <span class="citation" data-cites="gelman1996posterior">(<a href="#ref-gelman1996posterior" role="doc-biblioref">Gelman, Meng, and Stern 1996</a>)</span> and Deviance Information Criterion <span class="citation" data-cites="spiegelhalter2002bayesian">(DIC, <a href="#ref-spiegelhalter2002bayesian" role="doc-biblioref">Spiegelhalter et al. 2002</a>)</span> are computed this way. Often, the posterior sampling takes longer than the model fitting itself, so the number of samples can be controlled via the <code>nsamp</code> argument (default is <code>nsamp = 1000</code>) or can be skipped altoghether (<code>test = "none"</code>).</p>
 </section><section class="level2"><h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a>
@@ -186,7 +185,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots</span></span>
 <span><span class="va">fit</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1 ended normally after 62 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.1.9001 ended normally after 62 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -211,7 +210,7 @@
 <span></span>
 <span><span class="co"># Summary of results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1 ended normally after 62 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.1.9001 ended normally after 62 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -267,12 +266,13 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eta_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■                               9% | ETA: 18s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■                          24% | ETA: 15s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■                     40% | ETA: 12s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■                56% | ETA:  8s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           72% | ETA:  5s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       87% | ETA:  3s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■                                7% | ETA: 18s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■                          23% | ETA: 14s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■                      38% | ETA: 12s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■                 54% | ETA:  9s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            69% | ETA:  6s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■        84% | ETA:  3s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% | ETA:  0s</span></span>
 <span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
@@ -350,15 +350,14 @@
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [112ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [132ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [175ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [174ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/12 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 6/12 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 12/12 marginals. [529ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 12/12 marginals. [554ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.4s]</span></span>
@@ -371,10 +370,10 @@
 <span><span class="co">#&gt;    fit        13   -8062.521 16031.09 12.64436   0.000</span></span>
 <span><span class="co">#&gt;   fit2        12   -8082.878 16081.93 11.99666 -20.357</span></span></code></pre></div>
 </div>
-<p>As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs <span class="citation" data-cites="tendeiro2019review schad2023workflow">(<a href="#ref-tendeiro2019review" role="doc-biblioref">Tendeiro and Kiers 2019</a>; <a href="#ref-schad2023workflow" role="doc-biblioref">Schad et al. 2023</a>)</span>. The <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> package is able to implement <a href="https://ecmerkle.github.io/blavaan/articles/model_comparison.html" class="external-link">WAICs and LOOs</a> as alternative model comparison metrics, and these will hopefully also be implemented in future versions of <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a>.</p>
+<p>As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs <span class="citation" data-cites="tendeiro2019review schad2023workflow">(<a href="#ref-tendeiro2019review" role="doc-biblioref">Tendeiro and Kiers 2019</a>; <a href="#ref-schad2023workflow" role="doc-biblioref">Schad et al. 2023</a>)</span>. The <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> package is able to implement <a href="https://ecmerkle.github.io/blavaan/articles/model_comparison.html" class="external-link">WAICs and LOOs</a> as alternative model comparison metrics, and these will hopefully also be implemented in future versions of <a href="https://inlavaan.haziqj.ml/">INLAvaan</a>.</p>
 </section><section class="level2"><h2 id="setting-priors">Setting priors<a class="anchor" aria-label="anchor" href="#setting-priors"></a>
 </h2>
-<p>The <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> package uses the same prior specification syntax as <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> <span class="citation" data-cites="merkle2018blavaan merkle2021efficient">(<a href="#ref-merkle2018blavaan" role="doc-biblioref">Merkle and Rosseel 2018</a>; <a href="#ref-merkle2021efficient" role="doc-biblioref">Merkle et al. 2021</a>)</span>, as detailed <a href="https://ecmerkle.github.io/blavaan/articles/prior.html" class="external-link">here</a>. Essentially, there are two ways to set priors for model parameters: 1) Globally for all parameters of a certain type (e.g., all factor loadings, all regression coefficients, etc.); and 2) Individually for specific parameters in the model syntax.</p>
+<p>The <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> package uses the same prior specification syntax as <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> <span class="citation" data-cites="merkle2018blavaan merkle2021efficient">(<a href="#ref-merkle2018blavaan" role="doc-biblioref">Merkle and Rosseel 2018</a>; <a href="#ref-merkle2021efficient" role="doc-biblioref">Merkle et al. 2021</a>)</span>, as detailed <a href="https://ecmerkle.github.io/blavaan/articles/prior.html" class="external-link">here</a>. Essentially, there are two ways to set priors for model parameters: 1) Globally for all parameters of a certain type (e.g., all factor loadings, all regression coefficients, etc.); and 2) Individually for specific parameters in the model syntax.</p>
 <p>The default global priors are derived from <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
@@ -386,7 +385,7 @@
 <span><span class="co">#&gt;               tau </span></span>
 <span><span class="co">#&gt;   "normal(0,1.5)"</span></span></code></pre></div>
 </div>
-<p>Note that, <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> uses the SRS decomposition on variance matrices, and consequently places priors on <strong>correlations</strong> instead of <em>covariances</em>. If, instead we wished to set global priors, say a Gamma distribution on <strong>variances</strong> instead of <strong>standard deviations</strong> (default), then we would do the following:</p>
+<p>Note that, <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> uses the SRS decomposition on variance matrices, and consequently places priors on <strong>correlations</strong> instead of <em>covariances</em>. If, instead we wished to set global priors, say a Gamma distribution on <strong>variances</strong> instead of <strong>standard deviations</strong> (default), then we would do the following:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">DP</span> <span class="op">&lt;-</span> <span class="fu">blavaan</span><span class="fu">::</span><span class="fu"><a href="http://ecmerkle.github.io/blavaan/reference/dpriors.html" class="external-link">dpriors</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="st">"gamma(1,1)"</span>, psi <span class="op">=</span> <span class="st">"gamma(1,1)"</span><span class="op">)</span></span>
@@ -411,7 +410,7 @@
 </div>
 </section><section class="level2"><h2 id="dependency-on-r-inla">Dependency on R-INLA<a class="anchor" aria-label="anchor" href="#dependency-on-r-inla"></a>
 </h2>
-<p>Dependency on R-INLA has been temporarily removed for tThe current version of <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> (v0.2-0). For a wide class LVMs and SEMs where the latent variables are unstructured and independent, the current implementation is sufficient. However, future versions of <a href="http://inlavaan.haziqj.ml/" class="external-link">INLAvaan</a> will re-introduce dependency on R-INLA to allow for more complex latent structures, such as spatial and temporal dependencies.</p>
+<p>Dependency on R-INLA has been temporarily removed for tThe current version of <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> (v0.2-0). For a wide class LVMs and SEMs where the latent variables are unstructured and independent, the current implementation is sufficient. However, future versions of <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> will re-introduce dependency on R-INLA to allow for more complex latent structures, such as spatial and temporal dependencies.</p>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-chiuchiolo2023joint" class="csl-entry" role="listitem">
 Chiuchiolo, Cristian, Janet Van Niekerk, and Håvard Rue. 2023. <span>“Joint Posterior Inference for Latent <span>Gaussian</span> Models with <span>R-INLA</span>.”</span> <em>Journal of Statistical Computation and Simulation</em> 93 (5): 723–52. <a href="https://doi.org/10.1080/00949655.2022.2117813" class="external-link">https://doi.org/10.1080/00949655.2022.2117813</a>.

@@ -12,7 +12,7 @@ acfa(
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
-  test = TRUE,
+  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
@@ -34,7 +34,7 @@ acfa(
   described using the lavaan model syntax. See
   [`model.syntax`](https://rdrr.io/pkg/lavaan/man/model.syntax.html) for
   more information. Alternatively, a parameter table (eg. the output of
-  the `lavaanify()` function) is also accepted.
+  the `lavParTable()` function) is also accepted.
 
 - data:
 
@@ -71,7 +71,8 @@ acfa(
 
 - test:
 
-  Logical indicating whether to compute posterior fit indices.
+  Character indicating whether to compute posterior fit indices.
+  Defaults to "standard". Change to "none" to skip these computations.
 
 - marginal_correction:
 
@@ -183,21 +184,21 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [147ms]
+#> ✔ Finding posterior mode. [142ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [385ms]
+#> ✔ Computing the Hessian. [405ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.6s]
+#> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.2s]
+#> ✔ Computing ppp and DIC. [2.1s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 56 iterations
+#> INLAvaan 0.2.1.9001 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -12,7 +12,7 @@ asem(
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
-  test = TRUE,
+  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
@@ -34,7 +34,7 @@ asem(
   described using the lavaan model syntax. See
   [`model.syntax`](https://rdrr.io/pkg/lavaan/man/model.syntax.html) for
   more information. Alternatively, a parameter table (eg. the output of
-  the `lavaanify()` function) is also accepted.
+  the `lavParTable()` function) is also accepted.
 
 - data:
 
@@ -71,7 +71,8 @@ asem(
 
 - test:
 
-  Logical indicating whether to compute posterior fit indices.
+  Character indicating whether to compute posterior fit indices.
+  Defaults to "standard". Change to "none" to skip these computations.
 
 - marginal_correction:
 
@@ -195,22 +196,21 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [220ms]
+#> ✔ Finding posterior mode. [245ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [730ms]
+#> ✔ Computing the Hessian. [799ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/28 marginals.
-#> ⠹ Fitting skew normal to 4/28 marginals.
-#> ⠸ Fitting skew normal to 26/28 marginals.
-#> ✔ Fitting skew normal to 28/28 marginals. [3.8s]
+#> ⠹ Fitting skew normal to 22/28 marginals.
+#> ✔ Fitting skew normal to 28/28 marginals. [3.9s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [322ms]
+#> ✔ Sampling posterior covariances. [330ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 70 iterations
+#> INLAvaan 0.2.1.9001 ended normally after 70 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

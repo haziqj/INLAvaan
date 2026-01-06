@@ -18,7 +18,7 @@ inlavaan(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 1000,
-  test = TRUE,
+  test = "standard",
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -39,7 +39,7 @@ inlavaan(
   described using the lavaan model syntax. See
   [`model.syntax`](https://rdrr.io/pkg/lavaan/man/model.syntax.html) for
   more information. Alternatively, a parameter table (eg. the output of
-  the `lavaanify()` function) is also accepted.
+  the `lavParTable()` function) is also accepted.
 
 - data:
 
@@ -90,7 +90,8 @@ inlavaan(
 
 - test:
 
-  Logical indicating whether to compute posterior fit indices.
+  Character indicating whether to compute posterior fit indices.
+  Defaults to "standard". Change to "none" to skip these computations.
 
 - sn_fit_logthresh:
 
@@ -171,24 +172,24 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [179ms]
+#> ✔ Finding posterior mode. [193ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [405ms]
+#> ✔ Computing the Hessian. [433ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
+#> ⠹ Fitting skew normal to 16/21 marginals.
+#> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [194ms]
+#> ✔ Sampling posterior covariances. [197ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.2s]
+#> ✔ Computing ppp and DIC. [2.3s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 77 iterations
+#> INLAvaan 0.2.1.9001 ended normally after 77 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -42,6 +42,8 @@ A list with fitted parameters:
 
 - `k`: temperature parameter
 
+- `rsq`: R-squared of the fit
+
 Note that `logC` and `k` are not used when fitting from a sample.
 
 ## Details

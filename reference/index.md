@@ -19,7 +19,11 @@ Main lavaan-style functions to estimate SEM.
   [`show(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`coef(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`summary(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  [`vcov(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   : Class For Representing a (Fitted) Latent Variable Model
+- [`fitMeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+  [`fitmeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+  : Fit Measures for a Latent Variable Model estimated using INLA
 
 ## Utility functions
 

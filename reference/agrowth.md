@@ -12,7 +12,7 @@ agrowth(
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
-  test = TRUE,
+  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
@@ -34,7 +34,7 @@ agrowth(
   described using the lavaan model syntax. See
   [`model.syntax`](https://rdrr.io/pkg/lavaan/man/model.syntax.html) for
   more information. Alternatively, a parameter table (eg. the output of
-  the `lavaanify()` function) is also accepted.
+  the `lavParTable()` function) is also accepted.
 
 - data:
 
@@ -71,7 +71,8 @@ agrowth(
 
 - test:
 
-  Logical indicating whether to compute posterior fit indices.
+  Character indicating whether to compute posterior fit indices.
+  Defaults to "standard". Change to "none" to skip these computations.
 
 - marginal_correction:
 
@@ -204,25 +205,25 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [251ms]
+#> ✔ Finding posterior mode. [279ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [425ms]
+#> ✔ Computing the Hessian. [451ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ⠹ Fitting skew normal to 3/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [1.5s]
+#> ⠹ Fitting skew normal to 4/17 marginals.
+#> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [423ms]
+#> ✔ Sampling posterior covariances. [447ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.5s]
+#> ✔ Computing ppp and DIC. [2.8s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 85 iterations
+#> INLAvaan 0.2.1.9001 ended normally after 85 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

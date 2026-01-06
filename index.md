@@ -5,7 +5,7 @@
 
 While Markov Chain Monte Carlo (MCMC) methods remain the gold standard
 for exact Bayesian inference, they can be prohibitively slow for
-iterative model development. [INLAvaan](http://inlavaan.haziqj.ml/)
+iterative model development. [INLAvaan](https://inlavaan.haziqj.ml/)
 offers a rapid alternative for ***la***tent ***va***riable
 ***an***alysis, delivering Bayesian results at (or near) the speed of
 frequentist estimators. It achieves this through a custom, ground-up
@@ -15,10 +15,10 @@ implementation of the [Integrated Nested Laplace Approximation
 
 ## A familiar interface
 
-[INLAvaan](http://inlavaan.haziqj.ml/) is designed to fit seamlessly
+[INLAvaan](https://inlavaan.haziqj.ml/) is designed to fit seamlessly
 into your existing workflow. If you are familiar with the [(b)lavaan
 syntax](https://lavaan.ugent.be/tutorial/syntax1.html), you can begin
-using [INLAvaan](http://inlavaan.haziqj.ml/) immediately.
+using [INLAvaan](https://inlavaan.haziqj.ml/) immediately.
 
 As a first impression of the package, consider the canonical example of
 SEM applied to the Industrialisation and Political Democracy data set of
@@ -186,7 +186,7 @@ print(res$p_compare)
 ## Installation
 
 Install the development version of
-[INLAvaan](http://inlavaan.haziqj.ml/) from GitHub using:
+[INLAvaan](https://inlavaan.haziqj.ml/) from GitHub using:
 
 ``` r
 # install.packages("pak")
@@ -209,7 +209,7 @@ install.packages(
 
 ## Citation
 
-To cite package [INLAvaan](http://inlavaan.haziqj.ml/) in publications
+To cite package [INLAvaan](https://inlavaan.haziqj.ml/) in publications
 use:
 
 > Jamil, H (2025). *INLAvaan: Bayesian structural equation modelling
@@ -230,8 +230,8 @@ A BibTeX entry for LaTeX users is:
 
 ## License
 
-The [INLAvaan](http://inlavaan.haziqj.ml/) package is licensed under the
-[GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html).
+The [INLAvaan](https://inlavaan.haziqj.ml/) package is licensed under
+the [GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 ``` plaintext
 INLAvaan: Bayesian structural equation modelling with INLA

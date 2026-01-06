@@ -17,12 +17,12 @@ Source:
 [`DESCRIPTION`](https://github.com/haziqj/INLAvaan/blob/main/DESCRIPTION)
 
 Jamil H (2026). *INLAvaan: Bayesian Latent Variable Analysis using
-INLA*. R package version 0.2.1, <http://inlavaan.haziqj.ml/>.
+INLA*. R package version 0.2-1.9001, <https://inlavaan.haziqj.ml/>.
 
     @Manual{,
       title = {INLAvaan: Bayesian Latent Variable Analysis using INLA},
       author = {Haziq Jamil},
       year = {2026},
-      note = {R package version 0.2.1},
-      url = {http://inlavaan.haziqj.ml/},
+      note = {R package version 0.2-1.9001},
+      url = {https://inlavaan.haziqj.ml/},
     }

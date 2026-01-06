@@ -86,8 +86,8 @@ The model syntax is similar to that of
 [lavaan](https://lavaan.ugent.be), making it easy to specify the model.
 For further details on the model syntax, refer to the [lavaan
 website](https://lavaan.ugent.be/tutorial/syntax1.html).
-[INLAvaan](http://inlavaan.haziqj.ml/) provides mirror functions for the
-main model fitting functions in [lavaan](https://lavaan.ugent.be):
+[INLAvaan](https://inlavaan.haziqj.ml/) provides mirror functions for
+the main model fitting functions in [lavaan](https://lavaan.ugent.be):
 
 - [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md) mirrors
   [`lavaan::cfa()`](https://rdrr.io/pkg/lavaan/man/cfa.html) for
@@ -110,22 +110,21 @@ mod <- "
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [116ms]
+#> ✔ Finding posterior mode. [119ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [201ms]
+#> ✔ Computing the Hessian. [209ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [638ms]
+#> ✔ Fitting skew normal to 13/13 marginals. [671ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.5s]
+#> ✔ Computing ppp and DIC. [1.7s]
 #> 
 ```
 
-[INLAvaan](http://inlavaan.haziqj.ml/) computes an approximation to the
+[INLAvaan](https://inlavaan.haziqj.ml/) computes an approximation to the
 posterior density by way of a Laplace approximation ([Tierney, Kass, and
 Kadane 1989](#ref-tierney1989fully)). The joint mode and the Hessian
 needs to be computed, which gives a Gaussian distribution for the joint
@@ -166,7 +165,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.1 ended normally after 62 iterations
+#> INLAvaan 0.2.1.9001 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -195,7 +194,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 62 iterations
+#> INLAvaan 0.2.1.9001 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -260,12 +259,13 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■■                               9% | ETA: 18s
-#> Sampling latent variables ■■■■■■■■                          24% | ETA: 15s
-#> Sampling latent variables ■■■■■■■■■■■■■                     40% | ETA: 12s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■                56% | ETA:  8s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           72% | ETA:  5s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       87% | ETA:  3s
+#> Sampling latent variables ■■■                                7% | ETA: 18s
+#> Sampling latent variables ■■■■■■■■                          23% | ETA: 14s
+#> Sampling latent variables ■■■■■■■■■■■■                      38% | ETA: 12s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■                 54% | ETA:  9s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            69% | ETA:  6s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■        84% | ETA:  3s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% | ETA:  0s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
@@ -352,15 +352,14 @@ mod2 <- "
 fit2 <- asem(mod2, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [112ms]
+#> ✔ Finding posterior mode. [132ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [175ms]
+#> ✔ Computing the Hessian. [174ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ⠹ Fitting skew normal to 6/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [529ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [554ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.4s]
@@ -383,11 +382,11 @@ implement [WAICs and
 LOOs](https://ecmerkle.github.io/blavaan/articles/model_comparison.html)
 as alternative model comparison metrics, and these will hopefully also
 be implemented in future versions of
-[INLAvaan](http://inlavaan.haziqj.ml/).
+[INLAvaan](https://inlavaan.haziqj.ml/).
 
 ## Setting priors
 
-The [INLAvaan](http://inlavaan.haziqj.ml/) package uses the same prior
+The [INLAvaan](https://inlavaan.haziqj.ml/) package uses the same prior
 specification syntax as [blavaan](https://ecmerkle.github.io/blavaan/)
 ([Merkle and Rosseel 2018](#ref-merkle2018blavaan); [Merkle et al.
 2021](#ref-merkle2021efficient)), as detailed
@@ -410,7 +409,7 @@ blavaan::dpriors()
 #>   "normal(0,1.5)"
 ```
 
-Note that, [INLAvaan](http://inlavaan.haziqj.ml/) uses the SRS
+Note that, [INLAvaan](https://inlavaan.haziqj.ml/) uses the SRS
 decomposition on variance matrices, and consequently places priors on
 **correlations** instead of *covariances*. If, instead we wished to set
 global priors, say a Gamma distribution on **variances** instead of
@@ -447,10 +446,10 @@ mod <- "
 ## Dependency on R-INLA
 
 Dependency on R-INLA has been temporarily removed for tThe current
-version of [INLAvaan](http://inlavaan.haziqj.ml/) (v0.2-0). For a wide
+version of [INLAvaan](https://inlavaan.haziqj.ml/) (v0.2-0). For a wide
 class LVMs and SEMs where the latent variables are unstructured and
 independent, the current implementation is sufficient. However, future
-versions of [INLAvaan](http://inlavaan.haziqj.ml/) will re-introduce
+versions of [INLAvaan](https://inlavaan.haziqj.ml/) will re-introduce
 dependency on R-INLA to allow for more complex latent structures, such
 as spatial and temporal dependencies.
 

@@ -33,6 +33,9 @@ summary(
   nd = 3L,
   ...
 )
+
+# S4 method for class 'INLAvaan'
+vcov(object)
 ```
 
 ## Arguments
