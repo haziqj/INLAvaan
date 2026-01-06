@@ -11,7 +11,7 @@ acfa(
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 3000,
-  test = TRUE,
+  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
@@ -26,9 +26,9 @@ acfa(
 }
 \arguments{
 \item{model}{A description of the user-specified model. Typically, the model
-    is described using the lavaan model syntax. See            
+    is described using the lavaan model syntax. See 
     \code{\link[lavaan]{model.syntax}} for more information. Alternatively, a
-    parameter table (eg. the output of the \code{lavaanify()} function) is also
+    parameter table (eg. the output of the \code{lavParTable()} function) is also
     accepted.}
 
 \item{data}{An optional data frame containing the observed variables used in
@@ -51,7 +51,8 @@ approximation).}
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
 
-\item{test}{Logical indicating whether to compute posterior fit indices.}
+\item{test}{Character indicating whether to compute posterior fit indices.
+Defaults to "standard". Change to "none" to skip these computations.}
 
 \item{marginal_correction}{Which type of correction to use when fitting the
 skew normal or two-piece Gaussian marginals. \code{"hessian"} computes the full

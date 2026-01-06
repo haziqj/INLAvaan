@@ -13,7 +13,7 @@ inlavaan(
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 1000,
-  test = TRUE,
+  test = "standard",
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
   control = list(),
@@ -27,9 +27,9 @@ inlavaan(
 }
 \arguments{
 \item{model}{A description of the user-specified model. Typically, the model
-    is described using the lavaan model syntax. See            
+    is described using the lavaan model syntax. See 
     \code{\link[lavaan]{model.syntax}} for more information. Alternatively, a
-    parameter table (eg. the output of the \code{lavaanify()} function) is also
+    parameter table (eg. the output of the \code{lavParTable()} function) is also
     accepted.}
 
 \item{data}{An optional data frame containing the observed variables used in
@@ -63,7 +63,8 @@ diagonals, and \code{"none"} applies no correction.}
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
 
-\item{test}{Logical indicating whether to compute posterior fit indices.}
+\item{test}{Character indicating whether to compute posterior fit indices.
+Defaults to "standard". Change to "none" to skip these computations.}
 
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will

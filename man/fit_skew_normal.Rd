@@ -26,6 +26,7 @@ A list with fitted parameters:
 \item \code{alpha}: shape parameter
 \item \code{logC}: log-normalization constant
 \item \code{k}: temperature parameter
+\item \code{rsq}: R-squared of the fit
 }
 
 Note that \code{logC} and \code{k} are not used when fitting from a sample.
