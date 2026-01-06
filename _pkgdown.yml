@@ -24,6 +24,7 @@ reference:
     - agrowth
     - compare
     - INLAvaan-class
+    - fitMeasures,INLAvaan-method
 
 - title: Utility functions
   contents:
