@@ -232,29 +232,10 @@ mod <- "
 ## fit <- asem(mod, dat)  # not run
 ```
 
-
-
 ## Dependency on R-INLA
 
 Dependency on R-INLA has been temporarily removed for tThe current version of `{INLAvaan}` (v0.2-0).
 For a wide class LVMs and SEMs where the latent variables are unstructured and independent, the current implementation is sufficient.
 However, future versions of `{INLAvaan}` will re-introduce dependency on R-INLA to allow for more complex latent structures, such as spatial and temporal dependencies.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## References
