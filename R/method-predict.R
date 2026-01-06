@@ -100,9 +100,13 @@ predict.inlavaan_internal <- function(
         )
         V_eta <- Phi - Phi %*% t(Lambda) %*% Sigmay_inv %*% Lambda %*% Phi
 
-        out[[g]] <- t(apply(mu_eta, 1, function(mu) {
+        outg <- apply(mu_eta, 1, function(mu) {
           mvtnorm::rmvnorm(1, mean = mu, sigma = V_eta)
-        }))
+        })
+        if (is.vector(outg)) {
+          outg <- matrix(outg, nrow = 1)
+        }
+        out[[g]] <- t(outg)
       }
 
       if (nG == 1L) {
