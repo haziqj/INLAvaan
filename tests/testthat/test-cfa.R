@@ -79,7 +79,7 @@ test_that("Method: sampling", {
 
 test_that("Gradients are correct (Finite Difference Check)", {
   suppressMessages(
-    tmp <- capture.output(fit <- acfa(mod, dat, test = NA, debug = TRUE))
+    tmp <- capture.output(fit <- acfa(mod, dat, test = "none", debug = TRUE))
   )
   test_df <- read.table(text = tmp, skip = 1)[, -1]
   colnames(test_df) <- c("fd", "analytic", "diff")

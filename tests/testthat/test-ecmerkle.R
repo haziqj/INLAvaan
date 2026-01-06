@@ -50,6 +50,7 @@ test_that("Missing data", {
     y6 ~~ y8
   "
 
+  # FIXME
   # ECM: Any possibility of a "full information" approach where you skip over
   # the NAs?
   set.seed(9619)
@@ -134,6 +135,7 @@ test_that("4-group model with a bunch of constraints and predict", {
   expect_no_error(out <- capture.output(print(prd)))
 
   # lavPredict(fit) # ECM: I believe these are coming from lavaan
+  # will not create inlavPredict(), just depend on predict
 })
 
 

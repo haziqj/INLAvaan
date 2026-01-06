@@ -94,7 +94,7 @@ test_that("Method: sampling", {
 
 test_that("Gradients are correct (Finite Difference Check)", {
   suppressMessages(
-    tmp <- capture.output(fit <- asem(mod, dat, test = NA, debug = TRUE))
+    tmp <- capture.output(fit <- asem(mod, dat, test = "none", debug = TRUE))
   )
   test_df <- read.table(text = tmp, skip = 1)[, -1]
   colnames(test_df) <- c("fd", "analytic", "diff")
@@ -135,7 +135,7 @@ fit_inl1 <- asem(
   dat,
   marginal_method = "skewnorm",
   debug = TRUE,
-  test = FALSE
+  test = "none"
 )
 fit_inl2 <- asem(
   mod,
@@ -143,14 +143,14 @@ fit_inl2 <- asem(
   marginal_method = "skewnorm",
   marginal_correction = "none",
   debug = TRUE,
-  test = FALSE
+  test = "none"
 )
 fit_inl3 <- asem(
   mod,
   dat,
   marginal_method = "asymgaus",
   debug = TRUE,
-  test = FALSE
+  test = "none"
 )
 
 res <- compare_mcmc(

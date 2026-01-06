@@ -437,6 +437,7 @@ inlavaan <- function(
             levels = c("fxnc", "fx", "fit"),
             labels = c("Uncorrected posterior", "Corrected posterior", "SN fit")
           )
+          x <- NULL # remove no visible binding note
           visual_debug[[j]] <<-
             ggplot2::ggplot(
               plot_df,

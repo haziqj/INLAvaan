@@ -30,7 +30,7 @@ fit_inl <- get_inlavaan_internal(asem(
   mod,
   dat,
   add_priors = FALSE,
-  test = NA,
+  test = "none",
   verbose = FALSE
 ))
 pt <- fit_inl$partable
@@ -103,7 +103,7 @@ test_that("Prior Densities match manual calculation", {
 
 test_that("Gradients are correct (Finite Difference Check)", {
   suppressMessages(
-    tmp <- capture.output(fit <- asem(mod, dat, test = NA, debug = TRUE))
+    tmp <- capture.output(fit <- asem(mod, dat, test = "none", debug = TRUE))
   )
   test_df <- read.table(text = tmp, skip = 1)[, -1]
   colnames(test_df) <- c("fd", "analytic", "diff")

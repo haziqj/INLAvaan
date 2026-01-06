@@ -28,6 +28,7 @@
 #' @importFrom stats pnorm
 #' @importFrom stats qnorm
 #' @importFrom stats quantile
+#' @importFrom stats reshape
 #' @importFrom stats sd
 #' @importFrom stats setNames
 #' @importFrom stats splinefun
