@@ -174,7 +174,7 @@ inlavaan <- function(
     # This is the extra jacobian adjustment for covariances, since dx/dθ affects
     # more than one place if covariance exists
     sd1sd2 <- attr(x, "sd1sd2")
-    jcb <- jcb * sd1sd2
+    jcb <- jcb * sd1sd2 # this adjusts the correlation parameters (diagonals)
     jcb_mat <- attr(x, "jcb_mat")
 
     if (!is.null(jcb_mat)) {
@@ -184,7 +184,7 @@ inlavaan <- function(
         jcb[i, j] <- jcb_mat[k, 3]
       }
     }
-    gll_th <- as.numeric(jcb %*% gll)
+    gll_th <- as.numeric(jcb %*% gll) # this adjusts the cov parameters, if any
     if (isTRUE(ceq.simple)) {
       gll_th <- as.numeric(gll_th %*% ceq.K)
     } # Repack
