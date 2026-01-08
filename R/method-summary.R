@@ -42,6 +42,8 @@ summary_inlavaan <- function(
     )
   }
 
+  vb_correction <- all(!is.na(object@external$inlavaan_internal$vb$correction))
+
   ## ----- Header --------------------------------------------------------------
   if (isTRUE(header)) {
     show_inlavaan(object)
@@ -130,6 +132,12 @@ summary_inlavaan <- function(
       PE$Mode[peidx] <- formatC(summ$Mode[summidx], digits = nd, format = "f")
     }
 
+    # Add KLD from VB correction
+    PE$KLD <- ""
+    if (isTRUE(vb_correction)) {
+      PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
+    }
+
     if (isTRUE(priors)) {
       PE$Prior <- ""
       PE$Prior[peidx] <- summ$Prior[summidx]
@@ -150,6 +158,11 @@ summary_inlavaan <- function(
       "\n",
       sprintf("  %-38s", "Marginalisation method"),
       sprintf("  %10s", toupper(marg_method))
+    ))[2],
+    capture.output(cat(
+      "\n",
+      sprintf("  %-38s", "VB correction"),
+      sprintf("  %10s", toupper(vb_correction))
     ))[2],
     garb[(idxpehead + 2):length(garb)]
   )

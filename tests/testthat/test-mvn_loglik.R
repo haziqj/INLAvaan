@@ -30,6 +30,7 @@ fit_inl <- get_inlavaan_internal(asem(
   mod,
   dat,
   add_priors = FALSE,
+  vb_correction = FALSE,
   test = "none",
   verbose = FALSE
 ))
@@ -42,6 +43,7 @@ test_that("INLAvaan produces same results as lavaan", {
     fit_inl$theta_star_trans[pt$free[pt$free > 0]],
     tolerance = 1e-5
   )
+  expect_no_error(out <- capture.output(summary(fit_inl)))
 })
 
 test_that("Parameter Transformations (pars_to_x) work correctly", {

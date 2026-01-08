@@ -10,6 +10,7 @@ inlavaan(
   model.type = "sem",
   dp = blavaan::dpriors(),
   estimator = "ML",
+  vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 1000,
@@ -48,6 +49,9 @@ inlavaan(
 
 \item{estimator}{The estimator to be used. Currently only \code{"ML"} (maximum
 likelihood) is supported.}
+
+\item{vb_correction}{Logical indicating whether to apply a variational Bayes
+correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 
 \item{marginal_method}{The method for approximating the marginal posterior
 distributions. Options include \code{"skewnorm"} (skew normal), \code{"asymgaus"}

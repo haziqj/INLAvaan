@@ -257,6 +257,8 @@ inlavaan <- function(
   Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
   L <- t(chol(Sigma_theta)) # For whitening: z = L^{-1}(theta - theta*)
 
+  lp_max <- joint_lp(theta_star) # before correction
+
   # Derivatives at optima
   opt$dx <- numDeriv::grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
   if (isTRUE(debug)) {
@@ -264,21 +266,10 @@ inlavaan <- function(
     print(cbind(fd = opt$dx, analytic = grad_an, diff = grad_an - opt$dx))
   }
 
-  # Other info at optima
-  lp_max <- joint_lp(theta_star)
-  if (ceq.simple) {
-    theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star), pt)
-  } else {
-    theta_star_trans <- pars_to_x(theta_star, pt)
-  }
-
   timing <- add_timing(timing, "optim")
 
-  # Marginal log-likelihood (for BF comparison)
-  mloglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
-  timing <- add_timing(timing, "loglik")
-
   ## ----- VB correction -------------------------------------------------------
+  vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- NA
   if (isTRUE(vb_correction)) {
     if (isTRUE(verbose)) {
       cli::cli_progress_step("Performing VB correction.")
@@ -294,27 +285,27 @@ inlavaan <- function(
       mu_new <- mu0 + as.numeric(L %*% eta)
 
       ns <- nrow(Z)
-      log_post_total <- 0
+      lp_total <- 0
       for (i in seq_len(ns)) {
         thetai <- mu_new + Z[i, ]
-        log_post_total <- log_post_total + joint_lp(thetai)
+        lp_total <- lp_total + joint_lp(thetai)
       }
 
-      -1 * (log_post_total / ns)
+      -1 * (lp_total / ns)
     }
 
     vb_gr <- function(eta, mu0, Z) {
       mu_new <- mu0 + as.numeric(L %*% eta)
 
       ns <- nrow(Z)
-      grad_sum <- numeric(length(mu0))
+      lpgrad_total <- numeric(length(mu0))
       for (i in seq_len(ns)) {
         thetai <- mu_new + Z[i, ]
-        grad_sum <- grad_sum + joint_lp_grad(thetai)
+        lpgrad_total <- lpgrad_total + joint_lp_grad(thetai)
       }
 
-      avg_grad_theta <- -1 * grad_sum / ns
-      as.numeric(t(L) %*% avg_grad_theta)
+      lpgrad_avg <- -1 * lpgrad_total / ns
+      as.numeric(t(L) %*% lpgrad_avg)
     }
 
     vb_opt <- nlminb(
@@ -326,10 +317,36 @@ inlavaan <- function(
       control = list(rel.tol = 1e-4)
     )
 
-    vb_correction <- as.numeric(L %*% vb_opt$par)
-    theta_star <- theta_star + vb_correction
+    vb_shift <- as.numeric(L %*% vb_opt$par)
+    vb_kld <- (vb_shift)^2 / (2 * diag(Sigma_theta))
+    vb_kld_global <- lp_max + vb_opt$objective
   }
+
+  vb <- list(
+    opt = vb_opt,
+    correction = vb_shift,
+    kld = vb_kld,
+    kld_global = vb_kld_global
+  )
+
   timing <- add_timing(timing, "vb")
+
+  ## ----- Info at optima ------------------------------------------------------
+  if (isTRUE(vb_correction)) {
+    theta_star <- theta_star + vb_shift
+  }
+  if (ceq.simple) {
+    theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star), pt)
+  } else {
+    theta_star_trans <- pars_to_x(theta_star, pt)
+  }
+
+  # Marginal log-likelihood (for BF comparison)
+  mloglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
+  if (isTRUE(vb_correction)) {
+    mloglik <- mloglik - vb_kld_global
+  }
+  timing <- add_timing(timing, "loglik")
 
   ## ----- Marginal approximations ---------------------------------------------
   # pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
@@ -579,6 +596,7 @@ inlavaan <- function(
       y = parnames
     )
   )
+  summ <- cbind(summ, kld = vb$kld)
 
   pdf_data <- lapply(postmargres, function(x) x$pdf_data)
   names(pdf_data) <- parnames
@@ -686,7 +704,8 @@ inlavaan <- function(
     lavdata = lavdata,
     opt = opt,
     timing = timing[-1], # remove start.time
-    visual_debug = visual_debug
+    visual_debug = visual_debug,
+    vb = vb
   )
   class(out) <- "inlavaan_internal"
 
