@@ -116,8 +116,10 @@ can be found
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">fit_skew_normal</span><span class="op">(</span><span class="va">x_grid</span>, <span class="va">y_log</span>, temp <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         xi      omega      alpha       logC          k        rsq </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.8424454  2.5392261  3.3105054  1.3324227 10.0000000  0.9988780 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           xi        omega        alpha         logC            k         rmse </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.842445393  2.539226101  3.310505376  1.332422700 10.000000000  0.002109188 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         nmad </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.173298470 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">plot_df</span> <span class="op">&lt;-</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span></span>

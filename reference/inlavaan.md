@@ -178,23 +178,23 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [185ms]
+#> ✔ Finding posterior mode. [193ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [356ms]
+#> ✔ Computing the Hessian. [370ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [308ms]
+#> ✔ Performing VB correction. [315ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
+#> ⠹ Fitting skew normal to 20/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [190ms]
+#> ✔ Sampling posterior covariances. [193ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [2.2s]
 #> 
 summary(fit)
@@ -213,8 +213,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.243 
-#>    Effective parameters (pD)                    21.112 
+#>    Deviance (DIC)                             7519.318 
+#>    Effective parameters (pD)                    21.649 
 #> 
 #> Parameter Estimates:
 #> 
@@ -239,10 +239,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.443    0.076    0.231    0.529    0.005       beta(1,1)
-#>     speed             0.469    0.052    0.141    0.346    0.010       beta(1,1)
+#>     textual           0.443    0.075    0.232    0.525    0.005       beta(1,1)
+#>     speed             0.469    0.051    0.141    0.342    0.010       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.048    0.067    0.255    0.000       beta(1,1)
+#>     speed             0.277    0.048    0.068    0.257    0.000       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       

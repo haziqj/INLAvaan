@@ -205,23 +205,25 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [256ms]
+#> ✔ Finding posterior mode. [264ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [374ms]
+#> ✔ Computing the Hessian. [400ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [388ms]
+#> ✔ Performing VB correction. [390ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [1.5s]
+#> ⠹ Fitting skew normal to 10/17 marginals.
+#> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [434ms]
+#> ✔ Sampling posterior covariances. [428ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.7s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [2.8s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9004 ended normally after 85 iterations
@@ -235,12 +237,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.958 
-#>    PPP (Chi-square)                              0.951 
+#>    PPP (Chi-square)                              0.942 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.272 
-#>    Effective parameters (pD)                    16.961 
+#>    Deviance (DIC)                             4996.265 
+#>    Effective parameters (pD)                    16.957 
 #> 
 #> Parameter Estimates:
 #> 
@@ -280,7 +282,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.040   -0.003    0.155    0.001       beta(1,1)
+#>    .s                 0.153    0.040   -0.004    0.152    0.001       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       

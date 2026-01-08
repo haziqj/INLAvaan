@@ -1,13 +1,13 @@
 @media (min-width: 1200px) {
   /* The main content area */
   .container .row main#main {
-    flex: 0 0 65%; /* Equivalent to 10 columns */
-    max-width: 65%;
+    flex: 0 0 63%; /* Equivalent to 10 columns */
+    max-width: 63%;
   }
 
   /* The sidebar/TOC area */
   .container .row aside#sidebar {
-    flex: 0 0 35%; /* Equivalent to 2 columns */
-    max-width: 35%;
+    flex: 0 0 37%; /* Equivalent to 2 columns */
+    max-width: 37%;
   }
 }

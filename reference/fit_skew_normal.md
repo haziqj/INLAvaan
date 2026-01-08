@@ -80,8 +80,10 @@ y_log <- y_log - max(y_log) # normalise to have maximum at zero
 
 res <- fit_skew_normal(x_grid, y_log, temp = 10)
 unlist(res)
-#>         xi      omega      alpha       logC          k        rsq 
-#>  0.8424454  2.5392261  3.3105054  1.3324227 10.0000000  0.9988780 
+#>           xi        omega        alpha         logC            k         rmse 
+#>  0.842445393  2.539226101  3.310505376  1.332422700 10.000000000  0.002109188 
+#>         nmad 
+#>  0.173298470 
 
 plot_df <-
   pivot_longer(
