@@ -148,7 +148,9 @@ fit_inl2 <- asem(
 fit_inl3 <- asem(
   mod,
   dat,
-  marginal_method = "asymgaus",
+  marginal_method = "skewnorm",
+  # marginal_correction = "none",
+  vb_correction = FALSE,
   debug = TRUE,
   test = "none"
 )
@@ -157,7 +159,7 @@ res <- compare_mcmc(
   fit_blav,
   "skewnorm" = fit_inl1,
   "sn_nocor" = fit_inl2,
-  "asymgaus" = fit_inl3,
+  "sn_novb" = fit_inl3,
   show_error = FALSE
 )
 print(res$p_compare)

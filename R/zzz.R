@@ -1,3 +1,4 @@
+# nocov start
 .onLoad <- function(libname, pkgname) {
   # This warms up the qrng/spacefillr connection quietly
   if (requireNamespace("qrng", quietly = TRUE)) {
@@ -11,3 +12,4 @@
 
   invisible()
 }
+# nocov end
