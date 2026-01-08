@@ -15,6 +15,7 @@
 #' @importFrom forcats fct_rev
 #' @importFrom purrr imap
 #' @importFrom purrr map
+#' @importFrom qrng sobol
 #' @importFrom stats approx
 #' @importFrom stats cov2cor
 #' @importFrom stats dbeta

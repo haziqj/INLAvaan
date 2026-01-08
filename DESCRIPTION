@@ -1,7 +1,7 @@
 Type: Package
 Package: INLAvaan
 Title: Bayesian Latent Variable Analysis using INLA
-Version: 0.2-1.9001
+Version: 0.2.0.9004
 Authors@R: c(
     person("Haziq", "Jamil", , "haziq.jamil@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-3298-1010")),
@@ -29,6 +29,7 @@ Imports:
     mvtnorm,
     numDeriv,
     purrr,
+    qrng,
     scales,
     sn,
     statmod,
@@ -45,6 +46,7 @@ Suggests:
     quarto,
     rmarkdown,
     rstan,
+    spacefillr,
     testthat (>= 3.0.0)
 VignetteBuilder: 
     quarto
