@@ -261,14 +261,16 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   logC_hat <- fit$par[4]
   k_hat <- if (is_est_k) exp(fit$par[5]) else temp
 
-  # Calculate Rsquared
-  w <- exp(k_hat * y)
-  w[y < threshold_log_drop] <- 0
-  w <- w / sum(w)
-  rss <- fit$objective
-  yhat <- sum(w * y)
-  tss <- sum(w * (y - yhat)^2)
-  rsq <- 1 - rss / tss
+  # Calculate RMSE and R2 (unweighted)
+  expy <- exp(y)
+  fity <- dsnorm(x, xi_hat, omega_hat, alpha_hat, logC_hat)
+  rss <- sum((expy - fity)^2)
+  tss <- sum(expy^2) # total sum of squares relative to 0
+  rmse <- rss / length(expy)
+  rsq <- 1 - (rss / tss)
+
+  # Normalised max abs deviation (NMAD)
+  nmad <- max(abs(expy - fity)) / max(expy)
 
   list(
     xi = xi_hat,
@@ -276,7 +278,8 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
     alpha = alpha_hat,
     logC = logC_hat,
     k = k_hat,
-    rsq = rsq
+    rmse = rmse,
+    nmad = nmad
   )
 }
 

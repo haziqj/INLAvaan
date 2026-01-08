@@ -477,13 +477,11 @@ inlavaan <- function(
         )
 
         if (isTRUE(debug)) {
-          plot_df <- data.frame(
+          visual_debug[[j]] <<- data.frame(
             x = z,
-            # yc = yy - max(yy),
-            # ync = yync - max(yync),
-            fx = exp(yy - max(yy)),
-            fxnc = exp(yync - max(yync)),
-            fit = dsnorm(
+            Original = exp(yync - max(yync)),
+            Corrected = exp(yy - max(yy)),
+            SN_Fit = dsnorm(
               x = z,
               xi = fit_sn$xi,
               omega = fit_sn$omega,
@@ -491,40 +489,6 @@ inlavaan <- function(
               logC = fit_sn$logC
             )
           )
-
-          # plot_df <- pivot_longer(plot_df, -x)
-          plot_df <- reshape(
-            plot_df,
-            direction = "long",
-            varying = setdiff(names(plot_df), "x"),
-            v.names = "value",
-            timevar = "name",
-            times = setdiff(names(plot_df), "x"),
-            idvar = "x"
-          )
-          row.names(plot_df) <- NULL
-          plot_df <- plot_df[, c("x", "name", "value")]
-
-          plot_df$name <- factor(
-            plot_df$name,
-            levels = c("fxnc", "fx", "fit"),
-            labels = c("Uncorrected posterior", "Corrected posterior", "SN fit")
-          )
-          x <- NULL # remove no visible binding note
-          visual_debug[[j]] <<-
-            ggplot2::ggplot(
-              plot_df,
-              aes(x = x, y = value, col = name, linetype = name)
-            ) +
-            ggplot2::geom_line() +
-            ggplot2::scale_colour_manual(
-              values = c("black", "red3", "#00A6AA")
-            ) +
-            ggplot2::scale_linetype_manual(
-              values = c("solid", "solid", "dashed")
-            ) +
-            ggplot2::theme_minimal() +
-            ggplot2::labs(x = NULL, y = NULL, col = NULL, linewidth = NULL)
         }
 
         # Adjust back to theta space
@@ -540,6 +504,8 @@ inlavaan <- function(
         if (isTRUE(verbose)) cli::cli_progress_update()
       }
       approx_data <- do.call(what = "rbind", approx_data)
+      rownames(approx_data) <- parnames
+      names(visual_debug) <- parnames
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
         post_marg_skewnorm(
