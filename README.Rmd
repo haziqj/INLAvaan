@@ -262,8 +262,7 @@ install.packages(
 
 To cite package `{INLAvaan}` in publications use:
 
-> Jamil, H (2025). _INLAvaan: Bayesian structural equation modelling with INLA
-_. R package version `r packageVersion("INLAvaan")`. URL: <https://inlavaan.haziqj.ml/>
+> Jamil, H (`r format(Sys.time(), "%Y")`). _INLAvaan: Bayesian structural equation modelling with INLA_. R package version `r packageVersion("INLAvaan")`. URL: <https://inlavaan.haziqj.ml/>
 
 A BibTeX entry for LaTeX users is:
 
@@ -271,7 +270,7 @@ A BibTeX entry for LaTeX users is:
 @Manual{,
     title = {INLAvaan: Bayesian structural equation modelling with INLA},
     author = {Haziq Jamil},
-    year = {2025},
+    year = {`r format(Sys.time(), "%Y")`},
     note = {R package version `r packageVersion("INLAvaan")`},
     url = {https://inlavaan.haziqj.ml/},
   }
