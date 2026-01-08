@@ -10,7 +10,7 @@ advanced computational speed of INLA.
 
 Useful links:
 
-- <http://inlavaan.haziqj.ml/>
+- <https://inlavaan.haziqj.ml/>
 
 - <https://github.com/haziqj/INLAvaan>
 

@@ -208,22 +208,25 @@ fit <- agrowth(mod, data = Demo.growth)
 #> ✔ Finding posterior mode. [270ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [443ms]
+#> ✔ Computing the Hessian. [385ms]
+#> 
+#> ℹ Performing VB correction.
+#> ✔ Performing VB correction. [403ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ⠹ Fitting skew normal to 15/17 marginals.
+#> ⠹ Fitting skew normal to 11/17 marginals.
 #> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [442ms]
+#> ✔ Sampling posterior covariances. [427ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.6s]
+#> ✔ Computing ppp and DIC. [2.7s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1.9001 ended normally after 85 iterations
+#> INLAvaan 0.2.0.9004 ended normally after 85 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -233,69 +236,70 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -2557.566 
-#>    PPP (Chi-square)                              0.948 
+#>    Marginal log-likelihood                   -2565.958 
+#>    PPP (Chi-square)                              0.944 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.174 
-#>    Effective parameters (pD)                    16.962 
+#>    Deviance (DIC)                             4996.625 
+#>    Effective parameters (pD)                    17.137 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
+#>    VB correction                                  TRUE
 #> 
 #> Latent Variables:
-#>                    Estimate       SD     2.5%    97.5%    Prior       
-#>   i =~                                                                
-#>     t1                1.000                                           
-#>     t2                1.000                                           
-#>     t3                1.000                                           
-#>     t4                1.000                                           
-#>   s =~                                                                
-#>     t1                0.000                                           
-#>     t2                1.000                                           
-#>     t3                2.000                                           
-#>     t4                3.000                                           
+#>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
+#>   i =~                                                                         
+#>     t1                1.000                                                    
+#>     t2                1.000                                                    
+#>     t3                1.000                                                    
+#>     t4                1.000                                                    
+#>   s =~                                                                         
+#>     t1                0.000                                                    
+#>     t2                1.000                                                    
+#>     t3                2.000                                                    
+#>     t4                3.000                                                    
 #> 
 #> Regressions:
-#>                    Estimate       SD     2.5%    97.5%    Prior       
-#>   i ~                                                                 
-#>     x1                0.608    0.060    0.491    0.726    normal(0,10)
-#>     x2                0.604    0.064    0.478    0.730    normal(0,10)
-#>   s ~                                                                 
-#>     x1                0.262    0.029    0.206    0.318    normal(0,10)
-#>     x2                0.522    0.031    0.462    0.582    normal(0,10)
-#>   t1 ~                                                                
-#>     c1                0.144    0.050    0.046    0.242    normal(0,10)
-#>   t2 ~                                                                
-#>     c2                0.289    0.046    0.199    0.379    normal(0,10)
-#>   t3 ~                                                                
-#>     c3                0.328    0.045    0.240    0.415    normal(0,10)
-#>   t4 ~                                                                
-#>     c4                0.331    0.059    0.216    0.446    normal(0,10)
+#>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
+#>   i ~                                                                          
+#>     x1                0.608    0.060    0.490    0.727    0.001    normal(0,10)
+#>     x2                0.604    0.065    0.477    0.730    0.000    normal(0,10)
+#>   s ~                                                                          
+#>     x1                0.262    0.029    0.206    0.318    0.000    normal(0,10)
+#>     x2                0.522    0.031    0.462    0.582    0.001    normal(0,10)
+#>   t1 ~                                                                         
+#>     c1                0.144    0.050    0.045    0.242    0.001    normal(0,10)
+#>   t2 ~                                                                         
+#>     c2                0.289    0.046    0.199    0.380    0.000    normal(0,10)
+#>   t3 ~                                                                         
+#>     c3                0.328    0.045    0.240    0.415    0.000    normal(0,10)
+#>   t4 ~                                                                         
+#>     c4                0.331    0.059    0.216    0.446    0.000    normal(0,10)
 #> 
 #> Covariances:
-#>                    Estimate       SD     2.5%    97.5%    Prior       
-#>  .i ~~                                                                
-#>    .s                 0.157    0.039   -0.004    0.149       beta(1,1)
+#>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
+#>  .i ~~                                                                         
+#>    .s                 0.153    0.039   -0.002    0.153    0.001       beta(1,1)
 #> 
 #> Intercepts:
-#>                    Estimate       SD     2.5%    97.5%    Prior       
-#>    .t1                0.000                                           
-#>    .t2                0.000                                           
-#>    .t3                0.000                                           
-#>    .t4                0.000                                           
-#>    .i                 0.580    0.062    0.459    0.702    normal(0,10)
-#>    .s                 0.957    0.030    0.900    1.015    normal(0,10)
+#>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
+#>    .t1                0.000                                                    
+#>    .t2                0.000                                                    
+#>    .t3                0.000                                                    
+#>    .t4                0.000                                                    
+#>    .i                 0.580    0.062    0.458    0.703    0.000    normal(0,10)
+#>    .s                 0.957    0.030    0.899    1.015    0.000    normal(0,10)
 #> 
 #> Variances:
-#>                    Estimate       SD     2.5%    97.5%    Prior       
-#>    .t1                0.591    0.081    0.442    0.758 gamma(1,.5)[sd]
-#>    .t2                0.605    0.055    0.504    0.721 gamma(1,.5)[sd]
-#>    .t3                0.489    0.056    0.387    0.605 gamma(1,.5)[sd]
-#>    .t4                0.547    0.098    0.372    0.755 gamma(1,.5)[sd]
-#>    .i                 1.104    0.115    0.896    1.344 gamma(1,.5)[sd]
-#>    .s                 0.230    0.027    0.181    0.286 gamma(1,.5)[sd]
+#>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
+#>    .t1                0.591    0.081    0.441    0.759    0.003 gamma(1,.5)[sd]
+#>    .t2                0.605    0.055    0.503    0.721    0.007 gamma(1,.5)[sd]
+#>    .t3                0.488    0.056    0.386    0.604    0.003 gamma(1,.5)[sd]
+#>    .t4                0.543    0.098    0.367    0.751    0.002 gamma(1,.5)[sd]
+#>    .i                 1.099    0.115    0.891    1.340    0.005 gamma(1,.5)[sd]
+#>    .s                 0.229    0.027    0.181    0.286    0.004 gamma(1,.5)[sd]
 #> 
 ```
