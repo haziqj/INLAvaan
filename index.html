@@ -15,7 +15,8 @@
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Bayesian Latent Variable Analysis using INLA">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<meta property="og:title" content="Bayesian Latent Variable Analysis using INLA">
 <meta name="description" content="INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.">
 <meta property="og:description" content="INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.">
 <meta property="og:image" content="https://inlavaan.haziqj.ml/logo.png">
@@ -108,33 +109,34 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [124ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [126ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [299ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [305ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [247ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [248ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/31 marginals.</span></span>
 <span><span class="co">#&gt; ⠹ Fitting skew normal to 2/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 6/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting skew normal to 10/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting skew normal to 13/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠦ Fitting skew normal to 17/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠧ Fitting skew normal to 21/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠇ Fitting skew normal to 24/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠏ Fitting skew normal to 28/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠋ Fitting skew normal to 31/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 5/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting skew normal to 9/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting skew normal to 12/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting skew normal to 16/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting skew normal to 20/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting skew normal to 23/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠏ Fitting skew normal to 26/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠋ Fitting skew normal to 30/31 marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [1.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling posterior covariances.</span></span>
-<span><span class="co">#&gt; ✔ Sampling posterior covariances. [119ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling posterior covariances. [116ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠸ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ⠼ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ✔ Computing ppp and DIC. [1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
@@ -150,12 +152,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1656.678 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.490 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.467 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3160.360 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    31.479 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3160.785 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    31.691 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -190,16 +192,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%      KLD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.308    0.396    0.057    1.610    0.002       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.308    0.398    0.069    1.629    0.002       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.241    0.735   -0.058    2.819    0.008       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.348    0.732    0.771    3.645    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.241    0.723   -0.039    2.793    0.008       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.348    0.732    0.760    3.635    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.211    0.617   -0.155    2.270    0.014       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.211    0.639   -0.206    2.301    0.014       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.098    0.465   -0.505    1.316    0.010       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.098    0.446   -0.470    1.280    0.010       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.309    0.584    0.240    2.533    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.309    0.585    0.309    2.600    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%      KLD    Prior       </span></span>
@@ -373,13 +375,13 @@
 </h2>
 <p>To cite package <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> in publications use:</p>
 <blockquote>
-<p>Jamil, H (2025). <em>INLAvaan: Bayesian structural equation modelling with INLA</em> . R package version 0.2.0.9004. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
+<p>Jamil, H (2026). <em>INLAvaan: Bayesian structural equation modelling with INLA</em>. R package version 0.2.0.9004. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
 </blockquote>
 <p>A BibTeX entry for LaTeX users is:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">@Manual</span>{,</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="dt">title</span> = {INLAvaan: Bayesian structural equation modelling with INLA},</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="dt">author</span> = {Haziq Jamil},</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="dt">year</span> = {2025},</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="dt">year</span> = {2026},</span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="dt">note</span> = {R package version 0.2.0.9004},</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="dt">url</span> = {https://inlavaan.haziqj.ml/},</span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  }</span></code></pre></div>

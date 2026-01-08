@@ -52,33 +52,34 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [124ms]
+#> ✔ Finding posterior mode. [126ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [299ms]
+#> ✔ Computing the Hessian. [305ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [247ms]
+#> ✔ Performing VB correction. [248ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/31 marginals.
 #> ⠹ Fitting skew normal to 2/31 marginals.
-#> ⠸ Fitting skew normal to 6/31 marginals.
-#> ⠼ Fitting skew normal to 10/31 marginals.
-#> ⠴ Fitting skew normal to 13/31 marginals.
-#> ⠦ Fitting skew normal to 17/31 marginals.
-#> ⠧ Fitting skew normal to 21/31 marginals.
-#> ⠇ Fitting skew normal to 24/31 marginals.
-#> ⠏ Fitting skew normal to 28/31 marginals.
-#> ⠋ Fitting skew normal to 31/31 marginals.
+#> ⠸ Fitting skew normal to 5/31 marginals.
+#> ⠼ Fitting skew normal to 9/31 marginals.
+#> ⠴ Fitting skew normal to 12/31 marginals.
+#> ⠦ Fitting skew normal to 16/31 marginals.
+#> ⠧ Fitting skew normal to 20/31 marginals.
+#> ⠇ Fitting skew normal to 23/31 marginals.
+#> ⠏ Fitting skew normal to 26/31 marginals.
+#> ⠋ Fitting skew normal to 30/31 marginals.
 #> ✔ Fitting skew normal to 31/31 marginals. [1.8s]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [119ms]
+#> ✔ Sampling posterior covariances. [116ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
+#> ⠼ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1s]
 #> 
 
@@ -94,12 +95,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1656.678 
-#>    PPP (Chi-square)                              0.490 
+#>    PPP (Chi-square)                              0.467 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3160.360 
-#>    Effective parameters (pD)                    31.479 
+#>    Deviance (DIC)                             3160.785 
+#>    Effective parameters (pD)                    31.691 
 #> 
 #> Parameter Estimates:
 #> 
@@ -134,16 +135,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.308    0.396    0.057    1.610    0.002       beta(1,1)
+#>    .y5                0.308    0.398    0.069    1.629    0.002       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.241    0.735   -0.058    2.819    0.008       beta(1,1)
-#>    .y6                0.348    0.732    0.771    3.645    0.005       beta(1,1)
+#>    .y4                0.241    0.723   -0.039    2.793    0.008       beta(1,1)
+#>    .y6                0.348    0.732    0.760    3.635    0.005       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.211    0.617   -0.155    2.270    0.014       beta(1,1)
+#>    .y7                0.211    0.639   -0.206    2.301    0.014       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.098    0.465   -0.505    1.316    0.010       beta(1,1)
+#>    .y8                0.098    0.446   -0.470    1.280    0.010       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.309    0.584    0.240    2.533    0.005       beta(1,1)
+#>    .y8                0.309    0.585    0.309    2.600    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
@@ -216,8 +217,8 @@ install.packages(
 To cite package [INLAvaan](https://inlavaan.haziqj.ml/) in publications
 use:
 
-> Jamil, H (2025). *INLAvaan: Bayesian structural equation modelling
-> with INLA* . R package version 0.2.0.9004. URL:
+> Jamil, H (2026). *INLAvaan: Bayesian structural equation modelling
+> with INLA*. R package version 0.2.0.9004. URL:
 > <https://inlavaan.haziqj.ml/>
 
 A BibTeX entry for LaTeX users is:
@@ -226,7 +227,7 @@ A BibTeX entry for LaTeX users is:
 @Manual{,
     title = {INLAvaan: Bayesian structural equation modelling with INLA},
     author = {Haziq Jamil},
-    year = {2025},
+    year = {2026},
     note = {R package version 0.2.0.9004},
     url = {https://inlavaan.haziqj.ml/},
   }

@@ -54,24 +54,24 @@ names(dat) <- sub("^Reaction\\.(.*)$", "Day\\1", names(dat))
 fit <- agrowth(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [97ms]
+#> ✔ Finding posterior mode. [93ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [78ms]
+#> ✔ Computing the Hessian. [77ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [244ms]
+#> ✔ Performing VB correction. [245ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/6 marginals.
-#> ✔ Fitting skew normal to 6/6 marginals. [250ms]
+#> ✔ Fitting skew normal to 6/6 marginals. [252ms]
 #> 
 #> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [164ms]
+#> ✔ Sampling posterior covariances. [162ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.4s]
+#> ✔ Computing ppp and DIC. [1.5s]
 #> 
 coef(fit)
 #>      i~~i       i~1      s~~s       s~1      i~~s         v         v         v 
