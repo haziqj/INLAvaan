@@ -12,6 +12,8 @@
 #'
 #' @param estimator The estimator to be used. Currently only `"ML"` (maximum
 #'   likelihood) is supported.
+#' @param vb_correction Logical indicating whether to apply a variational Bayes
+#'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param marginal_method The method for approximating the marginal posterior
 #'   distributions. Options include `"skewnorm"` (skew normal), `"asymgaus"`
 #'   (two-piece asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
@@ -58,6 +60,7 @@ inlavaan <- function(
   model.type = "sem",
   dp = blavaan::dpriors(),
   estimator = "ML",
+  vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 1000,
@@ -274,6 +277,59 @@ inlavaan <- function(
   # Marginal log-likelihood (for BF comparison)
   mloglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
   timing <- add_timing(timing, "loglik")
+
+  ## ----- VB correction -------------------------------------------------------
+  if (isTRUE(vb_correction)) {
+    if (isTRUE(verbose)) {
+      cli::cli_progress_step("Performing VB correction.")
+    }
+
+    # QMC noise (scrambled Sobol)
+    us <- qrng::sobol(n = 50, d = m, randomize = "Owen", seed = 123)
+    set.seed(NULL)
+    zs <- qnorm(us) %*% t(L)
+
+    vb_ob <- function(eta, mu0, Z) {
+      # eta = t(L) %*% delta, the shift in whitened space
+      mu_new <- mu0 + as.numeric(L %*% eta)
+
+      ns <- nrow(Z)
+      log_post_total <- 0
+      for (i in seq_len(ns)) {
+        thetai <- mu_new + Z[i, ]
+        log_post_total <- log_post_total + joint_lp(thetai)
+      }
+
+      -1 * (log_post_total / ns)
+    }
+
+    vb_gr <- function(eta, mu0, Z) {
+      mu_new <- mu0 + as.numeric(L %*% eta)
+
+      ns <- nrow(Z)
+      grad_sum <- numeric(length(mu0))
+      for (i in seq_len(ns)) {
+        thetai <- mu_new + Z[i, ]
+        grad_sum <- grad_sum + joint_lp_grad(thetai)
+      }
+
+      avg_grad_theta <- -1 * grad_sum / ns
+      as.numeric(t(L) %*% avg_grad_theta)
+    }
+
+    vb_opt <- nlminb(
+      start = rep(0, m),
+      objective = vb_ob,
+      gradient = vb_gr,
+      mu0 = theta_star,
+      Z = zs,
+      control = list(rel.tol = 1e-4)
+    )
+
+    vb_correction <- as.numeric(L %*% vb_opt$par)
+    theta_star <- theta_star + vb_correction
+  }
+  timing <- add_timing(timing, "vb")
 
   ## ----- Marginal approximations ---------------------------------------------
   # pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
