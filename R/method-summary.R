@@ -91,22 +91,30 @@ summary_inlavaan <- function(
     )
     if (is.null(PE$group)) {
       PE$group <- 1
+      PE$group[PE$op == ":="] <- 0
     }
 
     # Now need to put information into PE from pt and summary
     pt <- object@ParTable
     ptfreeidx <- which(pt$free > 0)
+    ptdefidx <- which(pt$op == ":=")
+    ptidx <- c(ptfreeidx, ptdefidx)
     summ <- object@external$inlavaan_internal$summary
     peidx <- match(
       paste0(
-        pt$lhs[ptfreeidx],
-        pt$op[ptfreeidx],
-        pt$rhs[ptfreeidx],
-        pt$group[ptfreeidx]
+        pt$lhs[ptidx],
+        pt$op[ptidx],
+        pt$rhs[ptidx],
+        pt$group[ptidx]
       ),
       paste0(PE$lhs, PE$op, PE$rhs, PE$group)
     )
     summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
+    if (length(ptdefidx) > 0) {
+      # FIXME: I think this should be ok, since pt$free always in increasing
+      # order
+      summidx <- seq_len(nrow(summ))
+    }
 
     char.format <- paste("%", max(8, nd + 5), "s", sep = "")
     PE$SD <- ""
@@ -133,8 +141,11 @@ summary_inlavaan <- function(
     }
 
     # Add NMAD or KLD from VB correction
-    nmad <- fit@external$inlavaan_internal$approx_data[, "nmad"]
-    if (length(nmad) > 0) {
+    nmad <- try(
+      fit@external$inlavaan_internal$approx_data[, "nmad"],
+      silent = TRUE
+    )
+    if (length(nmad) > 0 & !inherits(nmad, "try-error")) {
       PE$NMAD <- ""
       PE$NMAD[peidx] <- formatC(
         nmad[summidx] * 100,
@@ -142,16 +153,19 @@ summary_inlavaan <- function(
         format = "f"
       )
       PE$NMAD[peidx] <- paste0(PE$NMAD[peidx], "%")
+      PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
     } else {
       PE$KLD <- ""
       if (isTRUE(vb_correction)) {
         PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
+        PE$KLD[peidx][is.na(PE$KLD[peidx])] <- ""
       }
     }
 
     if (isTRUE(priors)) {
       PE$Prior <- ""
       PE$Prior[peidx] <- summ$Prior[summidx]
+      PE$Prior[peidx][is.na(PE$Prior[peidx])] <- ""
     }
   }
 

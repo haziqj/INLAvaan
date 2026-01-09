@@ -575,13 +575,13 @@ inlavaan <- function(
 
   timing <- add_timing(timing, "marginals")
 
-  ## ----- Sampling for covariances --------------------------------------------
+  ## ----- Sampling for covariances and defined params -------------------------
   if (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
     if (marginal_method == "sampling") {
       # Do nothing
     } else {
       if (isTRUE(verbose)) {
-        cli::cli_progress_step("Sampling posterior covariances.")
+        cli::cli_progress_step("Sampling covariances and defined parameters.")
       }
 
       if (marginal_method == "skewnorm") {
@@ -610,6 +610,26 @@ inlavaan <- function(
     }
   }
   timing <- add_timing(timing, "covariances")
+
+  # Defined parameters
+  if (any(pt$op == ":=")) {
+    defpars <- get_defpars(
+      theta_star,
+      Sigma_theta,
+      marginal_method,
+      approx_data,
+      pt,
+      lavmodel,
+      lavsamplestats,
+      nsamp = 250
+    )
+    for (def_name in names(defpars)) {
+      tmp_new_summ <- defpars[[def_name]]$summary
+      summ[def_name, names(tmp_new_summ)] <- tmp_new_summ
+      pdf_data[[def_name]] <- defpars[[def_name]]$pdf_data
+    }
+  }
+  timing <- add_timing(timing, "definedpars")
 
   ## ----- Compute ppp and dic -------------------------------------------------
   if (test != "none") {

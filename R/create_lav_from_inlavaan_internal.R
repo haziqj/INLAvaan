@@ -19,6 +19,15 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   pt$par <- pt$parstart
   pt$par[pt$free > 0] <- fit_inlv$theta_star[pt$free[pt$free > 0]]
 
+  # Update defined parameters
+  if (any(pt$op == ":=")) {
+    pt_def_rows <- which(pt$op == ":=")
+    def_names <- pt$names[pt_def_rows]
+
+    pt$est[pt_def_rows] <- fit_inlv$summary[def_names, "Mean"]
+    pt$se[pt_def_rows] <- fit_inlv$summary[def_names, "SD"]
+  }
+
   # Put the diag theta values in the pt (ONLY IF ORDINAL)
   # ov_names <- fit0@Data@ov.names[[1]]  # FIXME: Group 1 only
   # pt$est[pt$lhs %in% ov_names &

@@ -189,6 +189,64 @@ sample_covariances <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
   })
 }
 
+get_defpars <- function(
+  theta_star,
+  Sigma_theta,
+  method,
+  approx_data,
+  pt,
+  lavmodel,
+  lavsamplestats,
+  nsamp = 250
+) {
+  theta_samp <- sample_params(
+    theta_star = theta_star,
+    Sigma_theta = Sigma_theta,
+    method = method,
+    approx_data = approx_data,
+    pt = pt,
+    lavmodel = lavmodel,
+    nsamp = nsamp,
+    return_theta = TRUE
+  )
+
+  pt_def_rows <- which(pt$op == ":=")
+  param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
+  param_map <- param_map[names(param_map) != ""]
+
+  def_funs <- lapply(pt_def_rows, function(i) {
+    expr <- parse(text = pt$rhs[i])
+
+    function(theta) {
+      env_vals <- as.list(theta[param_map])
+      names(env_vals) <- names(param_map)
+      eval(expr, envir = env_vals)
+    }
+  })
+
+  # Apply each function in def_funs to every row of theta_samp
+  def_samp <- sapply(def_funs, function(fn) {
+    apply(theta_samp, 1, fn)
+  })
+  colnames(def_samp) <- pt$names[pt_def_rows]
+
+  # FIXME: Repeated code in post_marg_sampling
+  apply(def_samp, 2, function(y) {
+    Ex <- mean(y)
+    SDx <- sd(y)
+    qq <- quantile(y, probs = c(0.025, 0.5, 0.975))
+    dens <- density(y)
+    xmax <- dens$x[which.max(dens$y)]
+    res <- c(Ex, SDx, qq, xmax)
+    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+
+    list(
+      summary = res,
+      pdf_data = data.frame(x = dens$x, y = dens$y)
+    )
+  })
+}
+
 sample_covariances_fit_sn <- function(
   theta,
   Sigma_theta,
