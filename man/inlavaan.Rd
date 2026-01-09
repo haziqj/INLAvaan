@@ -62,7 +62,7 @@ approximation).}
 \item{marginal_correction}{Which type of correction to use when fitting the
 skew normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
 Hessian-based correction (slow), \code{"shortcut"} (default) computes only
-diagonals, and \code{"none"} applies no correction.}
+diagonals, and \code{"none"} (or \code{FALSE}) applies no correction.}
 
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}

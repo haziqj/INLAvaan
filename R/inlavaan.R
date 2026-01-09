@@ -22,7 +22,7 @@
 #' @param marginal_correction Which type of correction to use when fitting the
 #'   skew normal or two-piece Gaussian marginals. `"hessian"` computes the full
 #'   Hessian-based correction (slow), `"shortcut"` (default) computes only
-#'   diagonals, and `"none"` applies no correction.
+#'   diagonals, and `"none"` (or `FALSE`) applies no correction.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param test Character indicating whether to compute posterior fit indices.
@@ -80,7 +80,11 @@ inlavaan <- function(
 
   ## ----- Check arguments -----------------------------------------------------
   marginal_method <- match.arg(marginal_method)
-  marginal_correction <- match.arg(marginal_correction)
+  if (isFALSE(marginal_correction)) {
+    marginal_correction <- "none"
+  } else {
+    marginal_correction <- match.arg(marginal_correction)
+  }
   optim_method <- match.arg(optim_method)
   if (isTRUE(debug)) {
     verbose <- TRUE

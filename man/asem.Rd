@@ -57,7 +57,7 @@ Defaults to "standard". Change to "none" to skip these computations.}
 \item{marginal_correction}{Which type of correction to use when fitting the
 skew normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
 Hessian-based correction (slow), \code{"shortcut"} (default) computes only
-diagonals, and \code{"none"} applies no correction.}
+diagonals, and \code{"none"} (or \code{FALSE}) applies no correction.}
 
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will
