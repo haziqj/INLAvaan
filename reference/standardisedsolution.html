@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -205,27 +205,52 @@ distribution for the calculation of standardised estimates.</p></dd>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using MVN log-likelihood.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[181ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[187ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[366ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[373ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Performing VB correction. <span style="color: #B2B2B2;">[317ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Performing VB correction. <span style="color: #B2B2B2;">[324ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Using skew normal approximation.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew normal to 0/21 marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 20/21 marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 21/21 marginals. <span style="color: #B2B2B2;">[1.7s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 10/21 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 21/21 marginals. <span style="color: #B2B2B2;">[2s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling covariances and defined parameters.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[193ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[191ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Computing ppp and DIC.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[2.3s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing ppp and DIC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[2.1s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">standardisedsolution</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in loadNamespace(x):</span> there is no package called ‘modeest’</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        lhs op     rhs est.std    se ci.lower ci.upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   visual =~      x1   0.749 0.053    0.651    0.848</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   visual =~      x2   0.420 0.061    0.302    0.536</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   visual =~      x3   0.579 0.058    0.460    0.691</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  textual =~      x4   0.848 0.022    0.804    0.888</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  textual =~      x5   0.853 0.022    0.802    0.896</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  textual =~      x6   0.837 0.024    0.787    0.881</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    speed =~      x7   0.551 0.058    0.438    0.672</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    speed =~      x8   0.703 0.062    0.567    0.815</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    speed =~      x9   0.672 0.072    0.536    0.798</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      x1 ~~      x1   0.436 0.080    0.281    0.576</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11      x2 ~~      x2   0.820 0.051    0.712    0.909</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12      x3 ~~      x3   0.661 0.068    0.523    0.788</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13      x4 ~~      x4   0.280 0.038    0.211    0.354</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14      x5 ~~      x5   0.272 0.038    0.196    0.357</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15      x6 ~~      x6   0.299 0.040    0.223    0.381</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16      x7 ~~      x7   0.693 0.064    0.549    0.808</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17      x8 ~~      x8   0.501 0.086    0.336    0.678</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18      x9 ~~      x9   0.543 0.096    0.363    0.713</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19  visual ~~  visual   1.000 0.000    1.000    1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 textual ~~ textual   1.000 0.000    1.000    1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21   speed ~~   speed   1.000 0.000    1.000    1.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22  visual ~~ textual   0.449 0.065    0.333    0.572</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23  visual ~~   speed   0.469 0.085    0.299    0.629</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 textual ~~   speed   0.283 0.066    0.156    0.400</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

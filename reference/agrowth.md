@@ -205,17 +205,16 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [290ms]
+#> ✔ Finding posterior mode. [262ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [399ms]
+#> ✔ Computing the Hessian. [379ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [425ms]
+#> ✔ Performing VB correction. [410ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ⠹ Fitting skew normal to 5/17 marginals.
 #> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
@@ -223,10 +222,10 @@ fit <- agrowth(mod, data = Demo.growth)
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.6s]
+#> ✔ Computing ppp and DIC. [2.5s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.0.9005 ended normally after 85 iterations
+#> INLAvaan 0.2.0.9006 ended normally after 85 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -237,12 +236,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.958 
-#>    PPP (Chi-square)                              0.941 
+#>    PPP (Chi-square)                              0.940 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.556 
-#>    Effective parameters (pD)                    17.102 
+#>    Deviance (DIC)                             4996.621 
+#>    Effective parameters (pD)                    17.135 
 #> 
 #> Parameter Estimates:
 #> 
@@ -282,7 +281,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.038    0.003    0.154    0.001       beta(1,1)
+#>    .s                 0.153    0.040   -0.005    0.151    0.001       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
