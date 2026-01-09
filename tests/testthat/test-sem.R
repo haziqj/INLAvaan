@@ -32,7 +32,7 @@ test_that("Method: skewnorm", {
   expect_no_error(
     out <- capture.output(summary(fit, postmedian = TRUE, postmode = TRUE))
   )
-  expect_warning(out <- capture.output(summary(fit, standardized = TRUE)))
+  expect_warning(out <- capture.output(summary(fit, rsquare = TRUE)))
   expect_no_error({
     tmp <- get_inlavaan_internal(fit)
     out <- capture.output(print(tmp))
