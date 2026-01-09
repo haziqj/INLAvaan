@@ -25,6 +25,7 @@ reference:
     - compare
     - INLAvaan-class
     - fitMeasures,INLAvaan-method
+    - standardisedsolution
 
 - title: Utility functions
   contents:
