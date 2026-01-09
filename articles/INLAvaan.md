@@ -110,20 +110,20 @@ mod <- "
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [117ms]
+#> ✔ Finding posterior mode. [120ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [209ms]
+#> ✔ Computing the Hessian. [215ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [257ms]
+#> ✔ Performing VB correction. [264ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [659ms]
+#> ✔ Fitting skew normal to 13/13 marginals. [678ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.6s]
+#> ✔ Computing ppp and DIC. [1.7s]
 #> 
 ```
 
@@ -179,7 +179,7 @@ fit
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -8069.067 
-#>    PPP (Chi-square)                              0.333
+#>    PPP (Chi-square)                              0.363
 ```
 
 As a result, most of the methods that work for `lavaan` objects will
@@ -208,12 +208,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -8069.067 
-#>    PPP (Chi-square)                              0.333 
+#>    PPP (Chi-square)                              0.363 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            16031.715 
-#>    Effective parameters (pD)                    12.935 
+#>    Deviance (DIC)                            16032.349 
+#>    Effective parameters (pD)                    13.252 
 #> 
 #> Parameter Estimates:
 #> 
@@ -264,24 +264,24 @@ predictions for observed variables.
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
 #> Sampling latent variables ■■■                                6% | ETA: 17s
-#> Sampling latent variables ■■■■■■■                           19% | ETA: 15s
-#> Sampling latent variables ■■■■■■■■■■■                       35% | ETA: 12s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■                  51% | ETA:  9s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■             66% | ETA:  6s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■        82% | ETA:  3s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■    98% | ETA:  0s
+#> Sampling latent variables ■■■■■■                            18% | ETA: 15s
+#> Sampling latent variables ■■■■■■■■■■■                       33% | ETA: 13s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■                  49% | ETA: 10s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■              64% | ETA:  7s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■         80% | ETA:  4s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■     95% | ETA:  1s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
 #> [1] 100
 head(eta_preds[[1]])
-#>             eta1        eta2
-#> [1,]  1.49908128  0.04988688
-#> [2,]  0.36907040 -0.79309714
-#> [3,] -0.96098054 -1.57815039
-#> [4,] -0.03687197  0.20130596
-#> [5,]  1.99227680 -0.70982955
-#> [6,] -1.35488861 -0.70875383
+#>            eta1       eta2
+#> [1,]  0.2442658 -0.4575716
+#> [2,]  0.6811451 -0.2543381
+#> [3,] -1.1689381 -1.4013571
+#> [4,]  0.3135813 -0.1315501
+#> [5,]  0.8551862 -1.7091163
+#> [6,] -1.7355599 -1.4297417
 ```
 
 This is an S3 object with a summary method that provides posterior means
@@ -295,35 +295,35 @@ summ_eta <- summary(eta_preds)
 str(summ_eta)
 #> List of 6
 #>  $ group_id: NULL
-#>  $ Mean    : num [1:1000, 1:2] 0.978 0.8081 -1.0947 0.0366 1.3767 ...
+#>  $ Mean    : num [1:1000, 1:2] 0.88283 0.76085 -1.06356 0.00921 1.40199 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ SD      : num [1:1000, 1:2] 0.439 0.458 0.457 0.42 0.423 ...
+#>  $ SD      : num [1:1000, 1:2] 0.467 0.422 0.457 0.499 0.41 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 2.5%    : num [1:1000, 1:2] 0.015 0.0291 -2.0012 -0.7887 0.5603 ...
+#>  $ 2.5%    : num [1:1000, 1:2] 0.0266 -0.1069 -2.1032 -0.9398 0.6533 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 50%     : num [1:1000, 1:2] 1.0065 0.7892 -1.0702 0.0535 1.4049 ...
+#>  $ 50%     : num [1:1000, 1:2] 0.9316 0.7505 -1.1071 0.0112 1.4306 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 97.5%   : num [1:1000, 1:2] 1.632 1.752 -0.278 0.8 2.243 ...
+#>  $ 97.5%   : num [1:1000, 1:2] 1.751 1.452 -0.236 0.955 2.196 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
 #>  - attr(*, "class")= chr "summary.predict.inlavaan_internal"
 head(summ_eta$Mean)
-#>             eta1        eta2
-#> [1,]  0.97798058 -0.01552353
-#> [2,]  0.80813985 -0.32622503
-#> [3,] -1.09472348 -1.25055541
-#> [4,]  0.03661736 -0.18476458
-#> [5,]  1.37674925 -1.41849648
-#> [6,] -1.71183056 -0.86154530
+#>              eta1        eta2
+#> [1,]  0.882830467  0.03147014
+#> [2,]  0.760851370 -0.25584673
+#> [3,] -1.063563967 -1.08217809
+#> [4,]  0.009213567 -0.03434552
+#> [5,]  1.401986206 -1.41091061
+#> [6,] -1.774895313 -0.80588152
 ```
 
 ### Plot
@@ -356,28 +356,29 @@ mod2 <- "
 fit2 <- asem(mod2, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [129ms]
+#> ✔ Finding posterior mode. [117ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [151ms]
+#> ✔ Computing the Hessian. [156ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [216ms]
+#> ✔ Performing VB correction. [219ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [524ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [534ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.4s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [1.5s]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>    fit        13   -8069.067 16031.71 12.93508   0.000
-#>   fit2        12   -8088.871 16081.68 11.85692 -19.804
+#>    fit        13   -8069.067 16032.35 13.25191   0.000
+#>   fit2        12   -8088.871 16082.01 12.01988 -19.804
 ```
 
 As a note, there have been several criticisms of the use of Bayes
