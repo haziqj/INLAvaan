@@ -64,10 +64,10 @@ fit <- agrowth(mod, dat)
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/6 marginals.
-#> ✔ Fitting skew normal to 6/6 marginals. [237ms]
+#> ✔ Fitting skew normal to 6/6 marginals. [236ms]
 #> 
-#> ℹ Sampling posterior covariances.
-#> ✔ Sampling posterior covariances. [163ms]
+#> ℹ Sampling covariances and defined parameters.
+#> ✔ Sampling covariances and defined parameters. [161ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.

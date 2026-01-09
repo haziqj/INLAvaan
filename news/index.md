@@ -4,6 +4,7 @@
 
 - Support for lavaan 0.6-21.
 - Implemented variational Bayes mean correction for posterior marginals.
+- Defined parameters are now available, e.g. mediation analysis.
 
 ## INLAvaan 0.2
 
