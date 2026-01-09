@@ -79,7 +79,7 @@ acfa(
   Which type of correction to use when fitting the skew normal or
   two-piece Gaussian marginals. `"hessian"` computes the full
   Hessian-based correction (slow), `"shortcut"` (default) computes only
-  diagonals, and `"none"` applies no correction.
+  diagonals, and `"none"` (or `FALSE`) applies no correction.
 
 - sn_fit_logthresh:
 
@@ -184,21 +184,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [140ms]
+#> ✔ Finding posterior mode. [155ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [337ms]
+#> ✔ Computing the Hessian. [377ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [293ms]
+#> ✔ Performing VB correction. [330ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.6s]
+#> ⠹ Fitting skew normal to 1/21 marginals.
+#> ✔ Fitting skew normal to 21/21 marginals. [1.9s]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2s]
+#> ✔ Computing ppp and DIC. [2.4s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9005 ended normally after 56 iterations
@@ -216,8 +217,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.571 
-#>    Effective parameters (pD)                    21.411 
+#>    Deviance (DIC)                             7518.644 
+#>    Effective parameters (pD)                    21.448 
 #> 
 #> Parameter Estimates:
 #> 

@@ -87,7 +87,7 @@ inlavaan(
   Which type of correction to use when fitting the skew normal or
   two-piece Gaussian marginals. `"hessian"` computes the full
   Hessian-based correction (slow), `"shortcut"` (default) computes only
-  diagonals, and `"none"` applies no correction.
+  diagonals, and `"none"` (or `FALSE`) applies no correction.
 
 - nsamp:
 
@@ -178,24 +178,25 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [185ms]
+#> ✔ Finding posterior mode. [187ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [366ms]
+#> ✔ Computing the Hessian. [374ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ Performing VB correction. [320ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 20/21 marginals.
+#> ⠹ Fitting skew normal to 13/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [201ms]
+#> ✔ Sampling covariances and defined parameters. [188ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.2s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [2.3s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9005 ended normally after 77 iterations
@@ -213,8 +214,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.170 
-#>    Effective parameters (pD)                    21.075 
+#>    Deviance (DIC)                             7519.184 
+#>    Effective parameters (pD)                    21.583 
 #> 
 #> Parameter Estimates:
 #> 
@@ -239,10 +240,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.443    0.077    0.233    0.537    0.005       beta(1,1)
-#>     speed             0.469    0.054    0.137    0.350    0.010       beta(1,1)
+#>     textual           0.443    0.076    0.237    0.534    0.005       beta(1,1)
+#>     speed             0.469    0.050    0.143    0.337    0.010       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.048    0.068    0.258    0.000       beta(1,1)
+#>     speed             0.277    0.047    0.071    0.257    0.000       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       

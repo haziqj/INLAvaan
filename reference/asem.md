@@ -79,7 +79,7 @@ asem(
   Which type of correction to use when fitting the skew normal or
   two-piece Gaussian marginals. `"hessian"` computes the full
   Hessian-based correction (slow), `"shortcut"` (default) computes only
-  diagonals, and `"none"` applies no correction.
+  diagonals, and `"none"` (or `FALSE`) applies no correction.
 
 - sn_fit_logthresh:
 
@@ -196,22 +196,21 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [238ms]
+#> ✔ Finding posterior mode. [274ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [677ms]
+#> ✔ Computing the Hessian. [691ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [605ms]
+#> ✔ Performing VB correction. [880ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/28 marginals.
-#> ⠹ Fitting skew normal to 3/28 marginals.
-#> ⠸ Fitting skew normal to 26/28 marginals.
-#> ✔ Fitting skew normal to 28/28 marginals. [3.6s]
+#> ⠹ Fitting skew normal to 19/28 marginals.
+#> ✔ Fitting skew normal to 28/28 marginals. [3.8s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [329ms]
+#> ✔ Sampling covariances and defined parameters. [345ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9005 ended normally after 70 iterations
@@ -259,16 +258,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.281    0.349    0.041    1.409    0.003       beta(1,1)
+#>    .y5                0.281    0.380    0.016    1.502    0.003       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.274    0.694    0.130    2.858    0.003       beta(1,1)
-#>    .y6                0.343    0.749    0.833    3.776    0.000       beta(1,1)
+#>    .y4                0.274    0.688    0.203    2.898    0.003       beta(1,1)
+#>    .y6                0.343    0.762    0.924    3.908    0.000       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.184    0.654   -0.324    2.245    0.001       beta(1,1)
+#>    .y7                0.184    0.610   -0.269    2.127    0.001       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.107    0.463   -0.521    1.296    0.007       beta(1,1)
+#>    .y8                0.107    0.454   -0.461    1.324    0.007       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.312    0.568    0.257    2.489    0.012       beta(1,1)
+#>    .y8                0.312    0.587    0.312    2.605    0.012       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       

@@ -293,6 +293,11 @@ Main lavaan-style functions to estimate SEM.
 - [`fitMeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
   [`fitmeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
   : Fit Measures for a Latent Variable Model estimated using INLA
+- [`standardisedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
+  [`standardisedSolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
+  [`standardizedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
+  [`standardizedSolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
+  : Standardised solution of a latent variable model
 
 ## Utility functions
 
