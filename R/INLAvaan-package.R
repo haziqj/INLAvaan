@@ -13,6 +13,7 @@
 #' @importFrom dplyr select
 #' @importFrom dplyr ungroup
 #' @importFrom forcats fct_rev
+#' @importFrom modeest mfv1
 #' @importFrom purrr imap
 #' @importFrom purrr map
 #' @importFrom qrng sobol
