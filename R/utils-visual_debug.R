@@ -1,3 +1,4 @@
+# nocov start
 visual_debug <- function(object) {
   if (inherits(object, "INLAvaan")) {
     dat_list <- object@external$inlavaan_internal$visual_debug
@@ -59,3 +60,4 @@ visual_debug <- function(object) {
       )
     )
 }
+# nocov end
