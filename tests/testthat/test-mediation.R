@@ -20,7 +20,7 @@ test_that("Method: skewnorm", {
     total := c + (a*b)
   "
 
-  fit_lav <- sem(mod, dat)
+  fit_lav <- lavaan::sem(mod, dat)
   expect_no_error({
     fit <- asem(
       mod,
