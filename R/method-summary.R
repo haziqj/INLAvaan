@@ -132,10 +132,21 @@ summary_inlavaan <- function(
       PE$Mode[peidx] <- formatC(summ$Mode[summidx], digits = nd, format = "f")
     }
 
-    # Add KLD from VB correction
-    PE$KLD <- ""
-    if (isTRUE(vb_correction)) {
-      PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
+    # Add NMAD or KLD from VB correction
+    nmad <- fit@external$inlavaan_internal$approx_data[, "nmad"]
+    if (length(nmad) > 0) {
+      PE$NMAD <- ""
+      PE$NMAD[peidx] <- formatC(
+        nmad[summidx] * 100,
+        digits = nd - 1,
+        format = "f"
+      )
+      PE$NMAD[peidx] <- paste0(PE$NMAD[peidx], "%")
+    } else {
+      PE$KLD <- ""
+      if (isTRUE(vb_correction)) {
+        PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
+      }
     }
 
     if (isTRUE(priors)) {

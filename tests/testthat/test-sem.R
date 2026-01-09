@@ -158,9 +158,9 @@ fit_inl3 <- asem(
 res <- compare_mcmc(
   fit_blav,
   "skewnorm" = fit_inl1,
-  "sn_nocor" = fit_inl2,
-  "sn_novb" = fit_inl3,
-  show_error = FALSE
+  # "sn_nocor" = fit_inl2,
+  # "sn_novb" = fit_inl3,
+  show_error = !FALSE
 )
 print(res$p_compare)
 # print(res$p_errors)
