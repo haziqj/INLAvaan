@@ -36,9 +36,9 @@ summary_inlavaan <- function(
   nd = 3L,
   ...
 ) {
-  if (isTRUE(standardized) | isTRUE(rsquare)) {
+  if (isTRUE(rsquare)) {
     cli::cli_warn(
-      "{.arg standardized = TRUE} or {.arg rsquare = TRUE} are not implemented yet."
+      "{.arg rsquare = TRUE} is not implemented yet."
     )
   }
 
@@ -80,7 +80,7 @@ summary_inlavaan <- function(
       se = FALSE, # create our own
       zstat = FALSE,
       ci = TRUE,
-      standardized = standardized,
+      standardized = FALSE,
       rsquare = rsquare,
       remove.eq = FALSE,
       remove.system.eq = TRUE,
@@ -138,6 +138,14 @@ summary_inlavaan <- function(
     if (isTRUE(postmode)) {
       PE$Mode <- ""
       PE$Mode[peidx] <- formatC(summ$Mode[summidx], digits = nd, format = "f")
+    }
+
+    # Standardised solution?
+    if (isTRUE(standardized)) {
+      stdlv <- standardisedsolution(object, type = "std.lv")
+      stdall <- standardisedsolution(object, type = "std.all")
+      PE$std.lv <- stdlv$est
+      PE$std.all <- stdall$est
     }
 
     # Add NMAD or KLD from VB correction

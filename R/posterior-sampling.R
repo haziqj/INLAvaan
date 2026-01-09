@@ -199,7 +199,7 @@ get_defpars <- function(
   lavsamplestats,
   nsamp = 250
 ) {
-  theta_samp <- sample_params(
+  x_samp <- sample_params(
     theta_star = theta_star,
     Sigma_theta = Sigma_theta,
     method = method,
@@ -207,7 +207,7 @@ get_defpars <- function(
     pt = pt,
     lavmodel = lavmodel,
     nsamp = nsamp,
-    return_theta = TRUE
+    return_theta = FALSE
   )
 
   pt_def_rows <- which(pt$op == ":=")
@@ -224,9 +224,9 @@ get_defpars <- function(
     }
   })
 
-  # Apply each function in def_funs to every row of theta_samp
+  # Apply each function in def_funs to every row of x_samp
   def_samp <- sapply(def_funs, function(fn) {
-    apply(theta_samp, 1, fn)
+    apply(x_samp, 1, fn)
   })
   colnames(def_samp) <- pt$names[pt_def_rows]
 
