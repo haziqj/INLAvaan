@@ -14,6 +14,10 @@ test_that("Standardised solution", {
     nsamp = 3
   )
   expect_no_error(out <- standardisedsolution(fit))
+  expect_no_error(out <- standardisedSolution(fit))
+  expect_no_error(out <- standardizedsolution(fit))
+  expect_no_error(out <- standardizedSolution(fit))
+
   idx <- which(
     paste0(out$lhs, out$op, out$rhs) %in%
       c("visual~~visual", "textual~~textual", "speed~~speed")
