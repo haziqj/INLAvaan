@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,24 +97,25 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [145ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [133ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [366ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [340ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [339ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [306ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/21 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 21/21 marginals. [1.7s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 4/21 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 21/21 marginals. [1.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [2.3s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [2.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.0.9006 ended normally after 56 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.0.9007 ended normally after 56 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -129,8 +130,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7517.985 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    21.118 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7518.505 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    21.378 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -140,37 +141,37 @@
 <span><span class="co">#&gt; Latent Variables:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;   visual =~                                                                    </span></span>
-<span><span class="co">#&gt;     x1                0.907    0.083    0.746    1.071    0.91%    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x2                0.501    0.081    0.343    0.663    0.04%    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x3                0.663    0.078    0.511    0.818    0.05%    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x1                0.907    0.083    0.746    1.071    0.009    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x2                0.501    0.081    0.343    0.663    0.000    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x3                0.663    0.078    0.511    0.818    0.001    normal(0,10)</span></span>
 <span><span class="co">#&gt;   textual =~                                                                   </span></span>
-<span><span class="co">#&gt;     x4                0.999    0.058    0.888    1.116    0.34%    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x5                1.112    0.063    0.990    1.238    0.03%    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x6                0.926    0.054    0.820    1.032    0.09%    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x4                0.999    0.058    0.888    1.116    0.003    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x5                1.112    0.063    0.990    1.238    0.000    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x6                0.926    0.054    0.820    1.032    0.001    normal(0,10)</span></span>
 <span><span class="co">#&gt;   speed =~                                                                     </span></span>
-<span><span class="co">#&gt;     x7                0.617    0.077    0.463    0.766    0.43%    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x8                0.734    0.077    0.587    0.887    1.94%    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x9                0.681    0.079    0.530    0.838    0.71%    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x7                0.617    0.077    0.463    0.766    0.004    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x8                0.734    0.077    0.587    0.887    0.019    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x9                0.681    0.079    0.530    0.838    0.007    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;   visual ~~                                                                    </span></span>
-<span><span class="co">#&gt;     textual           0.449    0.064    0.317    0.568    0.15%       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.474    0.085    0.298    0.630    0.08%       beta(1,1)</span></span>
+<span><span class="co">#&gt;     textual           0.449    0.064    0.317    0.568    0.002       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.474    0.085    0.298    0.630    0.001       beta(1,1)</span></span>
 <span><span class="co">#&gt;   textual ~~                                                                   </span></span>
-<span><span class="co">#&gt;     speed             0.284    0.071    0.141    0.420    0.26%       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.284    0.071    0.141    0.420    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .x1                0.558    0.121    0.351    0.825    0.12% gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x2                1.144    0.107    0.952    1.370    0.17% gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x3                0.849    0.097    0.676    1.056    0.05% gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x4                0.378    0.049    0.289    0.481    0.15% gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x5                0.453    0.059    0.347    0.579    0.07% gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x6                0.363    0.044    0.283    0.457    0.15% gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x7                0.825    0.090    0.664    1.017    0.06% gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x8                0.508    0.093    0.349    0.711    0.06% gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x9                0.553    0.090    0.398    0.751    0.07% gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x1                0.558    0.121    0.351    0.825    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x2                1.144    0.107    0.952    1.370    0.002 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x3                0.849    0.097    0.676    1.056    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x4                0.378    0.049    0.289    0.481    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x5                0.453    0.059    0.347    0.579    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x6                0.363    0.044    0.283    0.457    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x7                0.825    0.090    0.664    1.017    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x8                0.508    0.093    0.349    0.711    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x9                0.553    0.090    0.398    0.751    0.001 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;     visual            1.000                                                    </span></span>
 <span><span class="co">#&gt;     textual           1.000                                                    </span></span>
 <span><span class="co">#&gt;     speed             1.000</span></span></code></pre></div>
