@@ -178,24 +178,23 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [193ms]
+#> ✔ Finding posterior mode. [188ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [432ms]
+#> ✔ Computing the Hessian. [375ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [356ms]
+#> ✔ Performing VB correction. [324ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
+#> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [198ms]
+#> ✔ Sampling covariances and defined parameters. [199ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.5s]
+#> ✔ Computing ppp and DIC. [2.3s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9006 ended normally after 77 iterations
@@ -213,8 +212,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.330 
-#>    Effective parameters (pD)                    21.156 
+#>    Deviance (DIC)                             7519.227 
+#>    Effective parameters (pD)                    21.604 
 #> 
 #> Parameter Estimates:
 #> 
@@ -239,10 +238,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.443    0.078    0.230    0.536    0.005       beta(1,1)
-#>     speed             0.469    0.052    0.139    0.343    0.010       beta(1,1)
+#>     textual           0.443    0.076    0.234    0.533    0.005       beta(1,1)
+#>     speed             0.469    0.052    0.140    0.343    0.010       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.047    0.068    0.254    0.000       beta(1,1)
+#>     speed             0.277    0.048    0.068    0.255    0.000       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%      KLD    Prior       

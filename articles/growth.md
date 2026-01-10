@@ -38,24 +38,24 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [265ms]
+#> ✔ Finding posterior mode. [272ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [391ms]
+#> ✔ Computing the Hessian. [402ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [412ms]
+#> ✔ Performing VB correction. [430ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
+#> ✔ Fitting skew normal to 17/17 marginals. [1.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [428ms]
+#> ✔ Sampling covariances and defined parameters. [439ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.7s]
+#> ✔ Computing ppp and DIC. [2.8s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9006 ended normally after 85 iterations
@@ -69,12 +69,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.958 
-#>    PPP (Chi-square)                              0.938 
+#>    PPP (Chi-square)                              0.953 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.397 
-#>    Effective parameters (pD)                    17.023 
+#>    Deviance (DIC)                             4995.601 
+#>    Effective parameters (pD)                    16.625 
 #> 
 #> Parameter Estimates:
 #> 
@@ -114,7 +114,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.038    0.002    0.150    0.46%       beta(1,1)
+#>    .s                 0.153    0.040   -0.002    0.155    0.46%       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
