@@ -156,15 +156,19 @@ summary_inlavaan <- function(
     if (length(nmad) > 0 & !inherits(nmad, "try-error")) {
       PE$NMAD <- ""
       PE$NMAD[peidx] <- formatC(
-        nmad[summidx] * 100,
-        digits = nd - 1,
+        nmad[summidx],
+        digits = nd,
         format = "f"
       )
-      PE$NMAD[peidx] <- paste0(PE$NMAD[peidx], "%")
+      # PE$NMAD[peidx] <- paste0(PE$NMAD[peidx], "%")
       PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
     } else {
-      PE$KLD <- ""
-      if (isTRUE(vb_correction)) {
+      kld <- try(
+        fit@external$inlavaan_internal$approx_data[, "kld"],
+        silent = TRUE
+      )
+      if (isTRUE(vb_correction) & !inherits(kld, "try-error")) {
+        PE$KLD <- ""
         PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
         PE$KLD[peidx][is.na(PE$KLD[peidx])] <- ""
       }
