@@ -89,28 +89,29 @@ mod <- "
 ```
 
 The model is fit using
-[`asem()`](https://inlavaan.haziqj.ml/reference/asem.md):
+[`asem()`](https://inlavaan.haziqj.ml/reference/asem.md). The
+`meanstructure = TRUE` argument is supplied to estimate intercepts for
+the variables.
 
 ``` r
 library(INLAvaan)
-fit <- asem(mod, dat)
+fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [21ms]
+#> ✔ Finding posterior mode. [23ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [261ms]
+#> ✔ Computing the Hessian. [307ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [217ms]
+#> ✔ Performing VB correction. [282ms]
 #> 
 #> ℹ Using skew normal approximation.
-#> ⠙ Fitting skew normal to 0/5 marginals.
-#> ✔ Fitting skew normal to 5/5 marginals. [298ms]
+#> ⠙ Fitting skew normal to 0/7 marginals.
+#> ✔ Fitting skew normal to 7/7 marginals. [383ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.2s]
+#> ✔ Computing ppp and DIC. [1.1s]
 #> 
 ```
 
@@ -130,19 +131,19 @@ summary(fit)
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
-#>   Number of model parameters                         5
+#>   Number of model parameters                         7
 #> 
 #>   Number of observations                           100
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -299.429 
-#>    PPP (Chi-square)                              0.562 
+#>    Marginal log-likelihood                    -311.923 
+#>    PPP (Chi-square)                              0.565 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              564.686 
-#>    Effective parameters (pD)                     4.918 
+#>    Deviance (DIC)                              569.336 
+#>    Effective parameters (pD)                     7.209 
 #> 
 #> Parameter Estimates:
 #> 
@@ -152,38 +153,45 @@ summary(fit)
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   Y ~                                                                          
-#>     X          (c)   -0.060    0.120   -0.295    0.175    0.000    normal(0,10)
+#>     X          (c)   -0.060    0.120   -0.296    0.176    0.001    normal(0,10)
 #>   M ~                                                                          
-#>     X          (a)    0.525    0.109    0.312    0.739    0.000    normal(0,10)
+#>     X          (a)    0.525    0.109    0.311    0.740    0.000    normal(0,10)
 #>   Y ~                                                                          
-#>     M          (b)    0.769    0.100    0.572    0.966    0.000    normal(0,10)
+#>     M          (b)    0.769    0.101    0.571    0.966    0.000    normal(0,10)
+#> 
+#> Intercepts:
+#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
+#>    .Y                -0.070    0.100   -0.266    0.126    0.000    normal(0,32)
+#>    .M                 0.126    0.100   -0.071    0.323    0.000    normal(0,32)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                 0.966    0.142    0.726    1.283    0.004 gamma(1,.5)[sd]
-#>    .M                 0.988    0.145    0.743    1.310    0.004 gamma(1,.5)[sd]
+#>    .Y                 0.975    0.144    0.732    1.297    0.004 gamma(1,.5)[sd]
+#>    .M                 0.998    0.147    0.749    1.325    0.004 gamma(1,.5)[sd]
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.407    0.103    0.239    0.615                         
-#>     total             0.350    0.130    0.107    0.623
+#>     ab                0.414    0.096    0.251    0.606                         
+#>     total             0.339    0.138    0.067    0.596
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
 output:
 
+- Both intercepts are non-significant, since we simulated data with true
+  means of zero.
 - Path $a$ (`M ~ X`) estimated at 0.525 (true value 0.5).
 - Path $b$ (`Y ~ M`) estimated at 0.769 (true value 0.7).
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
-  \[-0.295, 0.175\] includes zero, correctly identifying that there is
+  \[-0.296, 0.176\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.407 (true value 0.35). The
-  interval \[0.239, 0.615\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.414 (true value 0.35). The
+  interval \[0.251, 0.606\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.350.
+- Total Effect estimated at 0.339.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.350 in $Y$.
+    of roughly 0.339 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full

@@ -205,24 +205,25 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [272ms]
+#> ✔ Finding posterior mode. [256ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [413ms]
+#> ✔ Computing the Hessian. [386ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [419ms]
+#> ✔ Performing VB correction. [393ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [1.7s]
+#> ⠹ Fitting skew normal to 5/17 marginals.
+#> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [449ms]
+#> ✔ Sampling covariances and defined parameters. [442ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.7s]
+#> ✔ Computing ppp and DIC. [2.6s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9009 ended normally after 85 iterations
@@ -236,12 +237,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.958 
-#>    PPP (Chi-square)                              0.944 
+#>    PPP (Chi-square)                              0.940 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.579 
-#>    Effective parameters (pD)                    17.114 
+#>    Deviance (DIC)                             4996.067 
+#>    Effective parameters (pD)                    16.858 
 #> 
 #> Parameter Estimates:
 #> 
@@ -281,7 +282,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>  .i ~~                                                                
-#>    .s                 0.153    0.040   -0.003    0.154       beta(1,1)
+#>    .s                 0.153    0.039   -0.002    0.152       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%    Prior       

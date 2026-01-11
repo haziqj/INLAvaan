@@ -15,33 +15,33 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [764ms]
+#> ✔ Finding posterior mode. [748ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [2.4s]
+#> ✔ Computing the Hessian. [2.3s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [1.1s]
+#> ✔ Performing VB correction. [1s]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/60 marginals.
-#> ⠹ Fitting skew normal to 7/60 marginals.
-#> ⠸ Fitting skew normal to 14/60 marginals.
-#> ⠼ Fitting skew normal to 21/60 marginals.
-#> ⠴ Fitting skew normal to 29/60 marginals.
-#> ⠦ Fitting skew normal to 37/60 marginals.
-#> ⠧ Fitting skew normal to 45/60 marginals.
-#> ⠇ Fitting skew normal to 52/60 marginals.
-#> ⠏ Fitting skew normal to 60/60 marginals.
-#> ✔ Fitting skew normal to 60/60 marginals. [24.1s]
+#> ⠹ Fitting skew normal to 1/60 marginals.
+#> ⠸ Fitting skew normal to 8/60 marginals.
+#> ⠼ Fitting skew normal to 16/60 marginals.
+#> ⠴ Fitting skew normal to 24/60 marginals.
+#> ⠦ Fitting skew normal to 32/60 marginals.
+#> ⠧ Fitting skew normal to 40/60 marginals.
+#> ⠇ Fitting skew normal to 48/60 marginals.
+#> ⠏ Fitting skew normal to 56/60 marginals.
+#> ✔ Fitting skew normal to 60/60 marginals. [22.8s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [359ms]
+#> ✔ Sampling covariances and defined parameters. [352ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [5.5s]
+#> ✔ Computing ppp and DIC. [5.3s]
 #> 
 summary(fit1)
 #> INLAvaan 0.2.0.9009 ended normally after 145 iterations
@@ -61,8 +61,8 @@ summary(fit1)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7492.296 
-#>    Effective parameters (pD)                    63.440 
+#>    Deviance (DIC)                             7491.600 
+#>    Effective parameters (pD)                    63.093 
 #> 
 #> Parameter Estimates:
 #> 
@@ -90,10 +90,10 @@ summary(fit1)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   visual ~~                                                           
-#>     textual           0.462    0.117    0.221    0.682       beta(1,1)
-#>     speed             0.302    0.072    0.025    0.307       beta(1,1)
+#>     textual           0.462    0.110    0.234    0.667       beta(1,1)
+#>     speed             0.302    0.071    0.027    0.303       beta(1,1)
 #>   textual ~~                                                          
-#>     speed             0.307    0.069    0.028    0.297       beta(1,1)
+#>     speed             0.307    0.069    0.028    0.300       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
@@ -146,10 +146,10 @@ summary(fit1)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   visual ~~                                                           
-#>     textual           0.516    0.103    0.183    0.586       beta(1,1)
-#>     speed             0.499    0.081    0.098    0.416       beta(1,1)
+#>     textual           0.516    0.095    0.194    0.567       beta(1,1)
+#>     speed             0.499    0.074    0.104    0.395       beta(1,1)
 #>   textual ~~                                                          
-#>     speed             0.318    0.075    0.064    0.357       beta(1,1)
+#>     speed             0.318    0.073    0.062    0.350       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
@@ -190,31 +190,31 @@ fit2 <- acfa(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [665ms]
+#> ✔ Finding posterior mode. [613ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [2.1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [1.1s]
+#> ✔ Performing VB correction. [1.2s]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/54 marginals.
-#> ⠹ Fitting skew normal to 6/54 marginals.
-#> ⠸ Fitting skew normal to 15/54 marginals.
-#> ⠼ Fitting skew normal to 24/54 marginals.
-#> ⠴ Fitting skew normal to 33/54 marginals.
-#> ⠦ Fitting skew normal to 42/54 marginals.
-#> ⠧ Fitting skew normal to 50/54 marginals.
-#> ✔ Fitting skew normal to 54/54 marginals. [18.4s]
+#> ⠹ Fitting skew normal to 2/54 marginals.
+#> ⠸ Fitting skew normal to 11/54 marginals.
+#> ⠼ Fitting skew normal to 20/54 marginals.
+#> ⠴ Fitting skew normal to 29/54 marginals.
+#> ⠦ Fitting skew normal to 38/54 marginals.
+#> ⠧ Fitting skew normal to 47/54 marginals.
+#> ✔ Fitting skew normal to 54/54 marginals. [18.2s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [346ms]
+#> ✔ Sampling covariances and defined parameters. [345ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [4.8s]
+#> ✔ Computing ppp and DIC. [4.7s]
 #> 
 
 # Strong invariance
@@ -226,29 +226,29 @@ fit3 <- acfa(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [596ms]
+#> ✔ Finding posterior mode. [600ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [1.7s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [807ms]
+#> ✔ Performing VB correction. [784ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/48 marginals.
-#> ⠹ Fitting skew normal to 7/48 marginals.
-#> ⠸ Fitting skew normal to 18/48 marginals.
-#> ⠼ Fitting skew normal to 28/48 marginals.
+#> ⠹ Fitting skew normal to 5/48 marginals.
+#> ⠸ Fitting skew normal to 15/48 marginals.
+#> ⠼ Fitting skew normal to 26/48 marginals.
 #> ⠴ Fitting skew normal to 37/48 marginals.
 #> ⠦ Fitting skew normal to 47/48 marginals.
-#> ✔ Fitting skew normal to 48/48 marginals. [14.4s]
+#> ✔ Fitting skew normal to 48/48 marginals. [13.6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [344ms]
+#> ✔ Sampling covariances and defined parameters. [343ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [4.3s]
+#> ✔ Computing ppp and DIC. [4.4s]
 #> 
 
 # Compare models
@@ -257,7 +257,7 @@ compare(fit1, fit2, fit3)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>   fit3        48   -3914.203 7510.714 48.58334   0.000
-#>   fit2        54   -3934.744 7482.922 54.66901 -20.541
-#>   fit1        60   -3958.011 7492.296 63.44027 -43.808
+#>   fit3        48   -3914.203 7511.513 48.98286   0.000
+#>   fit2        54   -3934.744 7483.803 55.10947 -20.541
+#>   fit1        60   -3958.011 7491.600 63.09260 -43.808
 ```

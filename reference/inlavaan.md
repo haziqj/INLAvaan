@@ -178,24 +178,23 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [184ms]
+#> ✔ Finding posterior mode. [181ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [379ms]
+#> ✔ Computing the Hessian. [368ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [323ms]
+#> ✔ Performing VB correction. [315ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 3/21 marginals.
+#> ⠹ Fitting skew normal to 17/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [192ms]
+#> ✔ Sampling covariances and defined parameters. [197ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [2.3s]
 #> 
 summary(fit)
@@ -214,8 +213,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.157 
-#>    Effective parameters (pD)                    21.069 
+#>    Deviance (DIC)                             7518.422 
+#>    Effective parameters (pD)                    21.202 
 #> 
 #> Parameter Estimates:
 #> 
@@ -240,10 +239,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   visual ~~                                                           
-#>     textual           0.443    0.078    0.236    0.543       beta(1,1)
-#>     speed             0.469    0.051    0.145    0.345       beta(1,1)
+#>     textual           0.443    0.077    0.234    0.534       beta(1,1)
+#>     speed             0.469    0.052    0.141    0.343       beta(1,1)
 #>   textual ~~                                                          
-#>     speed             0.277    0.049    0.069    0.260       beta(1,1)
+#>     speed             0.277    0.047    0.072    0.256       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
