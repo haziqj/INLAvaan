@@ -90,11 +90,12 @@ mod <- "
 "
 ```
 
-The model is fit using `asem()`:
+The model is fit using `asem()`.
+The `meanstructure = TRUE` argument is supplied to estimate intercepts for the variables.
 
 ```{r}
 library(INLAvaan)
-fit <- asem(mod, dat)
+fit <- asem(mod, dat, meanstructure = TRUE)
 ```
 
 The user may wish to specify different prior distributions for the parameters.
@@ -128,6 +129,7 @@ tot   <- fmt(summ["total", "Mean"])
 ```
 
 
+- Both intercepts are non-significant, since we simulated data with true means of zero.
 - Path $a$ (`M ~ X`) estimated at `r a` (true value 0.5).
 - Path $b$ (`Y ~ M`) estimated at `r b` (true value 0.7).
 - Path $c$ (`Y ~ X`) estimated at `r c`. The 95% Credible Interval [`r c_lo`, `r c_hi`] includes zero, correctly identifying that there is no direct effect.
