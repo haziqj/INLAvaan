@@ -54,6 +54,8 @@ navbar:
         href: articles/eqcon.html
       - text: Multigroup analysis
         href: articles/multigroup.html
+      - text: Mediation analysis
+        href: articles/mediation.html        
       # - text: -------
       # - text: Outro
       #   href: articles/outro.html
