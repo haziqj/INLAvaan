@@ -1,0 +1,152 @@
+---
+title: 'Mediation Analysis'
+# descriotion:
+vignette: >
+  %\VignetteIndexEntry{Structural Equation Modelling}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: '#>'
+bibliography: refs.bib
+---
+
+## Introduction 
+
+Mediation analysis allows researchers to investigate the mechanism by which an independent variable ($X$) influences a dependent variable ($Y$). 
+Rather than just asking "Does X affect Y?", mediation asks "Does X affect Y through an intermediate variable M?"
+
+Common examples include:
+
+ - **Psychology:** Does a therapy ($X$) reduce anxiety ($M$), which in turn improves sleep quality ($Y$)?
+- **Medicine:** Does a new drug ($X$) lower blood pressure ($M$), thereby decreasing the risk of heart attack ($Y$)?
+
+In this vignette, we demonstrate how to estimate a simple mediation model using `{INLAvaan.}`
+We will fit a standard three-variable mediation model:
+
+```{mermaid}
+%%| fig-align: center
+graph LR
+    X((X)) -->|a| M((M))
+    M -->|b| Y((Y))
+    X -->|c| Y
+```
+
+- $a$: The effect of $X$ on $M$.
+- $b$: The effect of $M$ on $Y$.
+- $c$: The direct effect of $X$ on $Y$.
+- $a \times b$: The indirect effect (the mediation effect).
+
+In a mediation model, the "Total Effect" represents the overall impact of $X$ on $Y$, ignoring the specific pathway. 
+It answers the question: 
+"If I change $X$, how much does $Y$ change in _total_, regardless of whether it goes through $M$ or not?".
+
+## Data Simulation 
+
+To verify that `{INLAvaan}` recovers the correct parameters, we simulate data where the "truth" is known. 
+The logic is as follows: Generate...
+
+1. $X$ normally; 
+2. $M$ dependent on $X$ with a coefficient of 0.5; and
+3. $Y$ dependent only on $M$ with a coefficient of 0.7.
+
+Critically, we do not add $X$ to the generation of $Y$. 
+This means the true direct effect ($c$) is 0, and the relationship is fully mediated.
+We expect our model to estimate $a \approx 0.5$, $b \approx 0.7$, and the indirect effect $ab \approx 0.35$. The direct effect $c$ should be close to zero.
+
+```{r}
+set.seed(11)
+n <- 100  # sample size
+
+# 1. Predictor
+X <- rnorm(n)
+
+# 2. Mediator (Path a = 0.5)
+M <- 0.5 * X + rnorm(n)
+
+# 3. Outcome (Path b = 0.7, Path c = 0)
+Y <- 0.7 * M + rnorm(n) 
+
+dat <- data.frame(X = X, Y = Y, M = M)
+```
+
+## Model Specification and Fit
+
+The standard `lavaan` syntax for a mediation model is straightforward (note the use of the `:=` operator to define the indirect effect as a new parameter.):
+
+```{r}
+mod <- "
+  # Direct effect (path c)
+  Y ~ c*X
+
+  # Mediator paths (path a and b)
+  M ~ a*X
+  Y ~ b*M
+
+  # Define Indirect effect (a*b)
+  ab := a*b
+
+  # Define Total effect
+  total := c + (a*b)
+"
+```
+
+The model is fit using `asem()`:
+
+```{r}
+library(INLAvaan)
+fit <- asem(mod, dat)
+```
+
+The user may wish to specify different prior distributions for the parameters.
+See the relevant section in the [Get started](https://inlavaan.haziqj.ml/articles/INLAvaan.html#setting-priors) vignetted for further details.
+
+## Results 
+
+The summary output provides the posterior mean, standard deviation, and 95% credible intervals 
+for all paths.
+
+```{r}
+summary(fit)
+```
+
+Looking at the Regressions and Defined Parameters sections of the output:
+
+```{r}
+#| include: false
+summ <- INLAvaan:::get_inlavaan_internal(fit)$summary
+fmt <- function(x) sprintf("%.3f", x)
+
+a     <- fmt(summ["a", "Mean"])
+b     <- fmt(summ["b", "Mean"])
+c     <- fmt(summ["c", "Mean"])
+c_lo  <- fmt(summ["c", "2.5%"])
+c_hi  <- fmt(summ["c", "97.5%"])
+ab    <- fmt(summ["ab", "Mean"])
+ab_lo <- fmt(summ["ab", "2.5%"])
+ab_hi <- fmt(summ["ab", "97.5%"])
+tot   <- fmt(summ["total", "Mean"])
+```
+
+
+- Path $a$ (`M ~ X`) estimated at `r a` (true value 0.5).
+- Path $b$ (`Y ~ M`) estimated at `r b` (true value 0.7).
+- Path $c$ (`Y ~ X`) estimated at `r c`. The 95% Credible Interval [`r c_lo`, `r c_hi`] includes zero, correctly identifying that there is no direct effect.
+- Indirect Effect $ab$ estimated at `r ab` (true value 0.35). The interval [`r ab_lo`, `r ab_hi`] does not cross zero, indicating significant mediation.
+- Total Effect estimated at `r tot`.
+    * This is the sum of the direct and indirect effects ($c + ab$). 
+    * It tells us that a 1-unit increase in $X$ leads to a total increase of roughly `r tot` in $Y$.
+    * **Note:** In this simulation, even though the *direct* effect is non-significant (close to zero), the *total* effect is significant because the mechanism via $M$ is strong. This illustrates a "full mediation" scenario: $X$ affects $Y$, but *only* because of $M$.
+
+
+
+
+
+
+
+
+
+
+
+
