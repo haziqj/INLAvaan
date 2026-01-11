@@ -57,21 +57,21 @@ fit <- agrowth(mod, dat)
 #> ✔ Finding posterior mode. [92ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [78ms]
+#> ✔ Computing the Hessian. [77ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [334ms]
+#> ✔ Performing VB correction. [307ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/6 marginals.
-#> ✔ Fitting skew normal to 6/6 marginals. [242ms]
+#> ✔ Fitting skew normal to 6/6 marginals. [239ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [157ms]
+#> ✔ Sampling covariances and defined parameters. [154ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.5s]
+#> ✔ Computing ppp and DIC. [1.4s]
 #> 
 coef(fit)
 #>      i~~i       i~1      s~~s       s~1      i~~s         v         v         v 
