@@ -261,8 +261,7 @@ inlavaan <- function(
     theta_star <- opt$par
     H_neg <- opt$hessian
   }
-  if (TRUE) {
-    # estimator == "PML") {
+  if (estimator == "PML") {
     # FIXME: Testing
     # First, the likelihood gradient
     .pars <- theta_star
