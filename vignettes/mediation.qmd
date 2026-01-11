@@ -12,8 +12,6 @@ knitr:
 bibliography: refs.bib
 ---
 
-## Introduction 
-
 Mediation analysis allows researchers to investigate the mechanism by which an independent variable ($X$) influences a dependent variable ($Y$). 
 Rather than just asking "Does X affect Y?", mediation asks "Does X affect Y through an intermediate variable M?"
 
@@ -22,7 +20,7 @@ Common examples include:
  - **Psychology:** Does a therapy ($X$) reduce anxiety ($M$), which in turn improves sleep quality ($Y$)?
 - **Medicine:** Does a new drug ($X$) lower blood pressure ($M$), thereby decreasing the risk of heart attack ($Y$)?
 
-In this vignette, we demonstrate how to estimate a simple mediation model using `{INLAvaan.}`
+In this vignette, we demonstrate how to estimate a simple mediation model using `{INLAvaan}`.
 We will fit a standard three-variable mediation model:
 
 ```{mermaid}
@@ -38,7 +36,7 @@ graph LR
 - $c$: The direct effect of $X$ on $Y$.
 - $a \times b$: The indirect effect (the mediation effect).
 
-In a mediation model, the "Total Effect" represents the overall impact of $X$ on $Y$, ignoring the specific pathway. 
+In a mediation model, the *Total Effect* represents the overall impact of $X$ on $Y$, ignoring the specific pathway. 
 It answers the question: 
 "If I change $X$, how much does $Y$ change in _total_, regardless of whether it goes through $M$ or not?".
 
