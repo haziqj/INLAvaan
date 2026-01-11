@@ -81,9 +81,7 @@
 
 
 
-    <section class="level2"><h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h2>
-<p>Mediation analysis allows researchers to investigate the mechanism by which an independent variable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>) influences a dependent variable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>). Rather than just asking “Does X affect Y?”, mediation asks “Does X affect Y through an intermediate variable M?”</p>
+    <p>Mediation analysis allows researchers to investigate the mechanism by which an independent variable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>) influences a dependent variable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>). Rather than just asking “Does X affect Y?”, mediation asks “Does X affect Y through an intermediate variable M?”</p>
 <p>Common examples include:</p>
 <ul>
 <li>
@@ -91,7 +89,7 @@
 <li>
 <strong>Medicine:</strong> Does a new drug (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>) lower blood pressure (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>), thereby decreasing the risk of heart attack (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>)?</li>
 </ul>
-<p>In this vignette, we demonstrate how to estimate a simple mediation model using <code>{INLAvaan.}</code> We will fit a standard three-variable mediation model:</p>
+<p>In this vignette, we demonstrate how to estimate a simple mediation model using <a href="https://inlavaan.haziqj.ml/">INLAvaan</a>. We will fit a standard three-variable mediation model:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div>
@@ -118,8 +116,8 @@
 <li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>: The indirect effect (the mediation effect).</li>
 </ul>
-<p>In a mediation model, the “Total Effect” represents the overall impact of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>, ignoring the specific pathway. It answers the question: “If I change <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>, how much does <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> change in <em>total</em>, regardless of whether it goes through <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> or not?”.</p>
-</section><section class="level2"><h2 id="data-simulation">Data Simulation<a class="anchor" aria-label="anchor" href="#data-simulation"></a>
+<p>In a mediation model, the <em>Total Effect</em> represents the overall impact of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>, ignoring the specific pathway. It answers the question: “If I change <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>, how much does <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> change in <em>total</em>, regardless of whether it goes through <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> or not?”.</p>
+<section class="level2"><h2 id="data-simulation">Data Simulation<a class="anchor" aria-label="anchor" href="#data-simulation"></a>
 </h2>
 <p>To verify that <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> recovers the correct parameters, we simulate data where the “truth” is known. The logic is as follows: Generate…</p>
 <ol type="1">
@@ -174,21 +172,21 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [23ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [20ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [302ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [255ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [218ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [208ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/5 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 4/5 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 5/5 marginals. [311ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 5/5 marginals. [288ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [942ms]</span></span>
+<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [925ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p>The user may wish to specify different prior distributions for the parameters. See the relevant section in the <a href="https://inlavaan.haziqj.ml/articles/INLAvaan.html#setting-priors">Get started</a> vignetted for further details.</p>
@@ -209,12 +207,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                    -299.429 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.588 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.580 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                              565.153 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                     5.151 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                              565.101 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                     5.125 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -237,19 +235,19 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Defined Parameters:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;     ab                0.403    0.099    0.240    0.600                         </span></span>
-<span><span class="co">#&gt;     total             0.358    0.133    0.112    0.623</span></span></code></pre></div>
+<span><span class="co">#&gt;     ab                0.414    0.099    0.238    0.649                         </span></span>
+<span><span class="co">#&gt;     total             0.353    0.129    0.108    0.613</span></span></code></pre></div>
 </div>
 <p>Looking at the Regressions and Defined Parameters sections of the output:</p>
 <ul>
 <li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> (<code>M ~ X</code>) estimated at 0.525 (true value 0.5).</li>
 <li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math> (<code>Y ~ M</code>) estimated at 0.769 (true value 0.7).</li>
 <li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math> (<code>Y ~ X</code>) estimated at -0.060. The 95% Credible Interval [-0.295, 0.175] includes zero, correctly identifying that there is no direct effect.</li>
-<li>Indirect Effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math> estimated at 0.403 (true value 0.35). The interval [0.240, 0.600] does not cross zero, indicating significant mediation.</li>
-<li>Total Effect estimated at 0.358.
+<li>Indirect Effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math> estimated at 0.414 (true value 0.35). The interval [0.238, 0.649] does not cross zero, indicating significant mediation.</li>
+<li>Total Effect estimated at 0.353.
 <ul>
 <li>This is the sum of the direct and indirect effects (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>+</mo><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">c + ab</annotation></semantics></math>).</li>
-<li>It tells us that a 1-unit increase in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> leads to a total increase of roughly 0.358 in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</li>
+<li>It tells us that a 1-unit increase in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> leads to a total increase of roughly 0.353 in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</li>
 <li>
 <strong>Note:</strong> In this simulation, even though the <em>direct</em> effect is non-significant (close to zero), the <em>total</em> effect is significant because the mechanism via <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> is strong. This illustrates a “full mediation” scenario: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> affects <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>, but <em>only</em> because of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>.</li>
 </ul>

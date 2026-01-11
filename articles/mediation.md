@@ -1,7 +1,5 @@
 # Mediation Analysis
 
-## Introduction
-
 Mediation analysis allows researchers to investigate the mechanism by
 which an independent variable ($X$) influences a dependent variable
 ($Y$). Rather than just asking “Does X affect Y?”, mediation asks “Does
@@ -15,8 +13,8 @@ Common examples include:
   thereby decreasing the risk of heart attack ($Y$)?
 
 In this vignette, we demonstrate how to estimate a simple mediation
-model using `{INLAvaan.}` We will fit a standard three-variable
-mediation model:
+model using [INLAvaan](https://inlavaan.haziqj.ml/). We will fit a
+standard three-variable mediation model:
 
 ``` mermaid
 graph LR
@@ -30,7 +28,7 @@ graph LR
 - $c$: The direct effect of $X$ on $Y$.
 - $a \times b$: The indirect effect (the mediation effect).
 
-In a mediation model, the “Total Effect” represents the overall impact
+In a mediation model, the *Total Effect* represents the overall impact
 of $X$ on $Y$, ignoring the specific pathway. It answers the question:
 “If I change $X$, how much does $Y$ change in *total*, regardless of
 whether it goes through $M$ or not?”.
@@ -98,21 +96,21 @@ library(INLAvaan)
 fit <- asem(mod, dat)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [23ms]
+#> ✔ Finding posterior mode. [20ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [302ms]
+#> ✔ Computing the Hessian. [255ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [218ms]
+#> ✔ Performing VB correction. [208ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/5 marginals.
-#> ⠹ Fitting skew normal to 4/5 marginals.
-#> ✔ Fitting skew normal to 5/5 marginals. [311ms]
+#> ✔ Fitting skew normal to 5/5 marginals. [288ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [942ms]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [925ms]
 #> 
 ```
 
@@ -139,12 +137,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -299.429 
-#>    PPP (Chi-square)                              0.588 
+#>    PPP (Chi-square)                              0.580 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              565.153 
-#>    Effective parameters (pD)                     5.151 
+#>    Deviance (DIC)                              565.101 
+#>    Effective parameters (pD)                     5.125 
 #> 
 #> Parameter Estimates:
 #> 
@@ -167,8 +165,8 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.403    0.099    0.240    0.600                         
-#>     total             0.358    0.133    0.112    0.623
+#>     ab                0.414    0.099    0.238    0.649                         
+#>     total             0.353    0.129    0.108    0.613
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -179,13 +177,13 @@ output:
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.295, 0.175\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.403 (true value 0.35). The
-  interval \[0.240, 0.600\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.414 (true value 0.35). The
+  interval \[0.238, 0.649\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.358.
+- Total Effect estimated at 0.353.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.358 in $Y$.
+    of roughly 0.353 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full
