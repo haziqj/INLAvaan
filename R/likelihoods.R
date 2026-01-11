@@ -71,10 +71,9 @@ pl_fn <- function(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache) {
 
   if (check_mat(Sigma)) {
     return(-1e40)
-    # Sigma <- force_pd(Sigma)
   }
 
-  out <- lavaan___estimator.PML(
+  out <- lavaan___lav_model_objective_pml(
     Sigma.hat = Sigma,
     Mu.hat = lavimplied$mean[[1]],
     TH = lavimplied$th[[1]],
@@ -88,6 +87,38 @@ pl_fn <- function(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache) {
     missing = lavdata@missing
   )
   attr(out, "logl")
+}
+
+pl_grad <- function(
+  x,
+  lavmodel,
+  lavsamplestats,
+  lavdata,
+  lavcache
+) {
+  # 1. Update the model parameters
+  # This updates GLIST inside lavmodel so the gradient uses the new 'x'
+  lavmodel <- lavaan::lav_model_set_parameters(lavmodel, x)
+
+  # 2. Compute Gradient of the Objective Function
+  # For PML, lavaan minimizes the Negative Pairwise Log-Likelihood.
+  # unlike ML, the PML gradient in lav_model_gradient is NOT divided by N.
+  grad_Obj <- lavaan:::lav_model_gradient(
+    lavmodel = lavmodel,
+    GLIST = NULL,
+    lavsamplestats = lavsamplestats,
+    lavdata = lavdata,
+    lavcache = lavcache,
+    type = "free"
+  )
+
+  # 3. Convert to Gradient of Log-Likelihood
+  # grad_Obj = Gradient(-1 * Sum(log_lik))
+  # We want Gradient(Sum(log_lik))
+  # So we just flip the sign. No * ntotal needed.
+  out <- -1 * grad_Obj
+
+  out
 }
 
 # WLS fit function

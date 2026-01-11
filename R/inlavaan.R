@@ -125,6 +125,9 @@ inlavaan <- function(
     loglik <- function(x) {
       pl_fn(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache)
     }
+    grad_loglik <- function(x) {
+      pl_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
+    }
   } else {
     # FIXME: Add Laplace?
     cli::cli_abort("That's not supported yet.")
@@ -258,7 +261,30 @@ inlavaan <- function(
     theta_star <- opt$par
     H_neg <- opt$hessian
   }
-  Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
+  if (TRUE) {
+    # estimator == "PML") {
+    # FIXME: Testing
+    # First, the likelihood gradient
+    .pars <- theta_star
+    if (isTRUE(ceq.simple)) {
+      .pars <- as.numeric(ceq.K %*% theta_star)
+    } # Unpack
+    .x <- pars_to_x(.pars, pt)
+
+    lavopts <- lavoptions
+    lavopts$se <- "robust.huber.white"
+
+    Sigma_theta <- lavaan:::lav_model_vcov(
+      lavmodel = lavaan::lav_model_set_parameters(lavmodel, .x),
+      lavsamplestats = lavsamplestats,
+      lavoptions = lavopts,
+      lavdata = lavdata,
+      lavpartable = lavpartable,
+      lavcache = lavcache
+    )
+  } else {
+    Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
+  }
   L <- t(chol(Sigma_theta)) # For whitening: z = L^{-1}(theta - theta*)
 
   lp_max <- joint_lp(theta_star) # before correction
