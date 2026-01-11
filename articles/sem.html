@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,24 +110,24 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, test <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [232ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [243ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [650ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [661ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [587ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [597ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/28 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 21/28 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 28/28 marginals. [3.7s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 19/28 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 28/28 marginals. [3.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
-<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [343ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [352ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.0.9008 ended normally after 70 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.0.9009 ended normally after 70 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -172,16 +172,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.281    0.386    0.008    1.515    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.281    0.381   -0.001    1.488    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.274    0.711    0.123    2.918    0.009       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.343    0.751    0.884    3.834    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.274    0.695    0.145    2.873    0.009       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.343    0.770    0.795    3.820    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.184    0.648   -0.355    2.188    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.184    0.639   -0.342    2.167    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.107    0.485   -0.494    1.410    0.010       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.107    0.451   -0.422    1.352    0.010       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.312    0.600    0.256    2.607    0.013       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.312    0.587    0.270    2.572    0.013       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>

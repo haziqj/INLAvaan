@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -119,28 +119,27 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/agrowth.html">agrowth</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.growth</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [257ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [262ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [378ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [388ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [400ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [412ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/17 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 1/17 marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fitting skew normal to 17/17 marginals. [1.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
-<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [422ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [431ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [2.7s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [2.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.0.9008 ended normally after 85 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.0.9009 ended normally after 85 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -151,12 +150,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -2565.958 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.948 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.929 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             4996.360 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    17.005 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             4996.406 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    17.028 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -196,7 +195,7 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .i ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .s                 0.153    0.041   -0.006    0.154    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .s                 0.153    0.040   -0.004    0.152    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
