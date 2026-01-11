@@ -14,7 +14,7 @@ utils::globalVariables(c(
 ))
 
 # nocov start
-compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE) {
+compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL) {
   parnames <- unique(names(coef(fit_blavaan)))
 
   # MCMC Histograms
@@ -221,6 +221,27 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE) {
       legend.key.width = unit(1, "cm")
     ) +
     ggplot2::labs(x = NULL, y = NULL, col = NULL, fill = NULL)
+
+  if (!is.null(truth)) {
+    if (length(truth) != length(parnames)) {
+      cli::cli_abort("Length of 'truth' must match number of parameters.")
+    }
+
+    truth_df <- data.frame(
+      name = parnames,
+      truth = as.numeric(truth)
+    )
+
+    p_compare <-
+      p_compare +
+      ggplot2::geom_vline(
+        data = truth_df,
+        aes(xintercept = truth),
+        linetype = "dashed",
+        color = "red",
+        linewidth = 0.5
+      )
+  }
 
   if (isTRUE(show_error)) {
     pos <- if (length(mycols) == 1) "identity" else ggplot2::position_dodge()

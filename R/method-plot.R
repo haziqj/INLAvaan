@@ -1,6 +1,6 @@
 #' @exportS3Method plot inlavaan_internal
 #' @keywords internal
-plot.inlavaan_internal <- function(x, ...) {
+plot.inlavaan_internal <- function(x, truth, ...) {
   all_plots <- list()
   postmode <- x$summary[, "Mode"]
 
@@ -11,9 +11,14 @@ plot.inlavaan_internal <- function(x, ...) {
     p_dens <-
       ggplot(plot_df, aes(x, y)) +
       geom_line() +
-      geom_vline(xintercept = postmode[j], linetype = "dashed", color = "red") +
+      # geom_vline(xintercept = postmode[j], linetype = "dashed", color = "red") +
       theme_minimal() +
       labs(x = NULL, y = NULL, subtitle = param)
+
+    if (!missing(truth)) {
+      p_dens <- p_dens +
+        geom_vline(xintercept = truth[j], linetype = "dotted", color = "blue")
+    }
 
     all_plots[[param]] <- p_dens
   }
