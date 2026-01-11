@@ -64,36 +64,34 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [114ms]
+#> ✔ Finding posterior mode. [110ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [311ms]
+#> ✔ Computing the Hessian. [293ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [253ms]
+#> ✔ Performing VB correction. [242ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/31 marginals.
-#> ⠹ Fitting skew normal to 2/31 marginals.
-#> ⠸ Fitting skew normal to 5/31 marginals.
-#> ⠼ Fitting skew normal to 8/31 marginals.
-#> ⠴ Fitting skew normal to 11/31 marginals.
-#> ⠦ Fitting skew normal to 15/31 marginals.
-#> ⠧ Fitting skew normal to 18/31 marginals.
-#> ⠇ Fitting skew normal to 22/31 marginals.
-#> ⠏ Fitting skew normal to 25/31 marginals.
-#> ⠋ Fitting skew normal to 28/31 marginals.
-#> ⠙ Fitting skew normal to 31/31 marginals.
-#> ✔ Fitting skew normal to 31/31 marginals. [2s]
+#> ⠹ Fitting skew normal to 4/31 marginals.
+#> ⠸ Fitting skew normal to 7/31 marginals.
+#> ⠼ Fitting skew normal to 11/31 marginals.
+#> ⠴ Fitting skew normal to 15/31 marginals.
+#> ⠦ Fitting skew normal to 18/31 marginals.
+#> ⠧ Fitting skew normal to 22/31 marginals.
+#> ⠇ Fitting skew normal to 25/31 marginals.
+#> ⠏ Fitting skew normal to 28/31 marginals.
+#> ⠋ Fitting skew normal to 31/31 marginals.
+#> ✔ Fitting skew normal to 31/31 marginals. [1.9s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [118ms]
+#> ✔ Sampling covariances and defined parameters. [106ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
 #> ⠸ Computing ppp and DIC.
-#> ⠼ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [936ms]
+#> ✔ Computing ppp and DIC. [1s]
 #> 
 
 summary(fit)
@@ -108,12 +106,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1656.678 
-#>    PPP (Chi-square)                              0.465 
+#>    PPP (Chi-square)                              0.488 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3160.175 
-#>    Effective parameters (pD)                    31.386 
+#>    Deviance (DIC)                             3160.140 
+#>    Effective parameters (pD)                    31.369 
 #> 
 #> Parameter Estimates:
 #> 
@@ -148,16 +146,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.308    0.393    0.068    1.606    0.007       beta(1,1)
+#>    .y5                0.308    0.382    0.078    1.575    0.007       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.241    0.696    0.004    2.730    0.007       beta(1,1)
-#>    .y6                0.348    0.711    0.829    3.620    0.029       beta(1,1)
+#>    .y4                0.241    0.726   -0.030    2.811    0.007       beta(1,1)
+#>    .y6                0.348    0.758    0.725    3.705    0.029       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.211    0.657   -0.186    2.395    0.006       beta(1,1)
+#>    .y7                0.211    0.625   -0.086    2.368    0.006       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.098    0.460   -0.466    1.336    0.008       beta(1,1)
+#>    .y8                0.098    0.460   -0.486    1.323    0.008       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.309    0.571    0.276    2.519    0.013       beta(1,1)
+#>    .y8                0.309    0.575    0.231    2.488    0.013       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
