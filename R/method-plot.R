@@ -11,13 +11,23 @@ plot.inlavaan_internal <- function(x, truth, ...) {
     p_dens <-
       ggplot(plot_df, aes(x, y)) +
       geom_line() +
-      # geom_vline(xintercept = postmode[j], linetype = "dashed", color = "red") +
       theme_minimal() +
       labs(x = NULL, y = NULL, subtitle = param)
 
-    if (!missing(truth)) {
+    if (missing(truth)) {
       p_dens <- p_dens +
-        geom_vline(xintercept = truth[j], linetype = "dotted", color = "blue")
+        geom_vline(
+          xintercept = postmode[j],
+          linetype = "dashed",
+          color = "red3"
+        )
+    } else {
+      p_dens <- p_dens +
+        geom_vline(
+          xintercept = truth[j],
+          linetype = "dotted",
+          color = "steelblue3"
+        )
     }
 
     all_plots[[param]] <- p_dens
