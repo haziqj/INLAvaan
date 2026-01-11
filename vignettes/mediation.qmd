@@ -12,7 +12,7 @@ knitr:
 bibliography: refs.bib
 ---
 
-Mediation analysis allows researchers to investigate the mechanism by which an independent variable ($X$) influences a dependent variable ($Y$). 
+Mediation analysis [@yuan2009bayesian] allows researchers to investigate the mechanism by which an independent variable ($X$) influences a dependent variable ($Y$). 
 Rather than just asking "Does X affect Y?", mediation asks "Does X affect Y through an intermediate variable M?"
 
 Common examples include:
@@ -139,14 +139,4 @@ tot   <- fmt(summ["total", "Mean"])
     * It tells us that a 1-unit increase in $X$ leads to a total increase of roughly `r tot` in $Y$.
     * **Note:** In this simulation, even though the *direct* effect is non-significant (close to zero), the *total* effect is significant because the mechanism via $M$ is strong. This illustrates a "full mediation" scenario: $X$ affects $Y$, but *only* because of $M$.
 
-
-
-
-
-
-
-
-
-
-
-
+## References
