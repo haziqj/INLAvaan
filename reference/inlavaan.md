@@ -178,24 +178,25 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [181ms]
+#> ✔ Finding posterior mode. [186ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [368ms]
+#> ✔ Computing the Hessian. [359ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [315ms]
+#> ✔ Performing VB correction. [317ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 17/21 marginals.
+#> ⠹ Fitting skew normal to 2/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [197ms]
+#> ✔ Sampling covariances and defined parameters. [199ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.3s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [2.2s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9009 ended normally after 77 iterations
@@ -213,8 +214,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.422 
-#>    Effective parameters (pD)                    21.202 
+#>    Deviance (DIC)                             7517.548 
+#>    Effective parameters (pD)                    20.765 
 #> 
 #> Parameter Estimates:
 #> 
@@ -239,10 +240,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   visual ~~                                                           
-#>     textual           0.443    0.077    0.234    0.534       beta(1,1)
-#>     speed             0.469    0.052    0.141    0.343       beta(1,1)
+#>     textual           0.443    0.072    0.240    0.523       beta(1,1)
+#>     speed             0.469    0.050    0.142    0.337       beta(1,1)
 #>   textual ~~                                                          
-#>     speed             0.277    0.047    0.072    0.256       beta(1,1)
+#>     speed             0.277    0.047    0.070    0.255       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       

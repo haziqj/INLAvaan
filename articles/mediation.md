@@ -1,9 +1,10 @@
 # Mediation Analysis
 
-Mediation analysis allows researchers to investigate the mechanism by
-which an independent variable ($X$) influences a dependent variable
-($Y$). Rather than just asking “Does X affect Y?”, mediation asks “Does
-X affect Y through an intermediate variable M?”
+Mediation analysis ([Yuan and MacKinnon 2009](#ref-yuan2009bayesian))
+allows researchers to investigate the mechanism by which an independent
+variable ($X$) influences a dependent variable ($Y$). Rather than just
+asking “Does X affect Y?”, mediation asks “Does X affect Y through an
+intermediate variable M?”
 
 Common examples include:
 
@@ -101,14 +102,14 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ Finding posterior mode. [23ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [307ms]
+#> ✔ Computing the Hessian. [296ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [282ms]
+#> ✔ Performing VB correction. [275ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [383ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [390ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.1s]
@@ -138,12 +139,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -311.923 
-#>    PPP (Chi-square)                              0.565 
+#>    PPP (Chi-square)                              0.580 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              569.336 
-#>    Effective parameters (pD)                     7.209 
+#>    Deviance (DIC)                              569.157 
+#>    Effective parameters (pD)                     7.119 
 #> 
 #> Parameter Estimates:
 #> 
@@ -171,8 +172,8 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.414    0.096    0.251    0.606                         
-#>     total             0.339    0.138    0.067    0.596
+#>     ab                0.400    0.088    0.219    0.574                         
+#>     total             0.336    0.124    0.109    0.591
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -185,14 +186,20 @@ output:
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.296, 0.176\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.414 (true value 0.35). The
-  interval \[0.251, 0.606\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.400 (true value 0.35). The
+  interval \[0.219, 0.574\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.339.
+- Total Effect estimated at 0.336.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.339 in $Y$.
+    of roughly 0.336 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full
     mediation” scenario: $X$ affects $Y$, but *only* because of $M$.
+
+## References
+
+Yuan, Ying, and David P. MacKinnon. 2009. “Bayesian Mediation Analysis.”
+*Psychological Methods* 14 (4): 301–22.
+<https://doi.org/10.1037/a0016972>.
