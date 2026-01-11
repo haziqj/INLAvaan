@@ -47,6 +47,7 @@
     <li><a class="dropdown-item" href="articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="articles/multigroup.html">Multigroup analysis</a></li>
+    <li><a class="dropdown-item" href="articles/mediation.html">Mediation analysis</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
@@ -109,36 +110,34 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Using MVN log-likelihood.</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [114ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [110ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [311ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [293ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [253ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [242ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Using skew normal approximation.</span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 2/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 5/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting skew normal to 8/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting skew normal to 11/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠦ Fitting skew normal to 15/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠧ Fitting skew normal to 18/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠇ Fitting skew normal to 22/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠏ Fitting skew normal to 25/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠋ Fitting skew normal to 28/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠙ Fitting skew normal to 31/31 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [2s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 4/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 7/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting skew normal to 11/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting skew normal to 15/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting skew normal to 18/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting skew normal to 22/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting skew normal to 25/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠏ Fitting skew normal to 28/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠋ Fitting skew normal to 31/31 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [1.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
-<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [118ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [106ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠸ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ⠼ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [936ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
@@ -153,12 +152,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1656.678 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.465 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.488 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3160.175 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    31.386 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3160.140 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    31.369 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -193,16 +192,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.308    0.393    0.068    1.606    0.007       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.308    0.382    0.078    1.575    0.007       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.241    0.696    0.004    2.730    0.007       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.348    0.711    0.829    3.620    0.029       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.241    0.726   -0.030    2.811    0.007       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.348    0.758    0.725    3.705    0.029       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.211    0.657   -0.186    2.395    0.006       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.211    0.625   -0.086    2.368    0.006       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.098    0.460   -0.466    1.336    0.008       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.098    0.460   -0.486    1.323    0.008       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.309    0.571    0.276    2.519    0.013       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.309    0.575    0.231    2.488    0.013       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>

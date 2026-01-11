@@ -178,24 +178,24 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [181ms]
+#> ✔ Finding posterior mode. [191ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [366ms]
+#> ✔ Computing the Hessian. [373ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [309ms]
+#> ✔ Performing VB correction. [329ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
+#> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
 #> ✔ Sampling covariances and defined parameters. [198ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.2s]
+#> ✔ Computing ppp and DIC. [2.3s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.0.9008 ended normally after 77 iterations
@@ -213,8 +213,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.501 
-#>    Effective parameters (pD)                    21.241 
+#>    Deviance (DIC)                             7518.904 
+#>    Effective parameters (pD)                    21.443 
 #> 
 #> Parameter Estimates:
 #> 
@@ -239,10 +239,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       
 #>   visual ~~                                                           
-#>     textual           0.443    0.076    0.238    0.538       beta(1,1)
-#>     speed             0.469    0.052    0.141    0.344       beta(1,1)
+#>     textual           0.443    0.079    0.229    0.537       beta(1,1)
+#>     speed             0.469    0.050    0.146    0.341       beta(1,1)
 #>   textual ~~                                                          
-#>     speed             0.277    0.046    0.071    0.253       beta(1,1)
+#>     speed             0.277    0.048    0.069    0.258       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%    Prior       

@@ -15,6 +15,9 @@
   A vignette introducing the INLAvaan package for Bayesian latent
   variable modeling using INLA.
 
+- [Mediation
+  Analysis](https://inlavaan.haziqj.ml/articles/mediation.md):
+
 - [Multigroup
   analysis](https://inlavaan.haziqj.ml/articles/multigroup.md):
 
