@@ -166,47 +166,46 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939)
 #> ✔ Finding posterior mode. [190ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [374ms]
+#> ✔ Computing the Hessian. [365ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [315ms]
+#> ✔ Performing VB correction. [328ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 9/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
+#> ⠹ Fitting skew normal to 18/21 marginals.
+#> ✔ Fitting skew normal to 21/21 marginals. [2s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [197ms]
+#> ✔ Sampling covariances and defined parameters. [216ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.4s]
+#> ✔ Computing ppp and DIC. [2.1s]
 #> 
 standardisedsolution(fit)
-#>        lhs op     rhs est.std    se ci.lower ci.upper
-#> 1   visual =~      x1   0.747 0.061    0.609    0.857
-#> 2   visual =~      x2   0.413 0.059    0.293    0.520
-#> 3   visual =~      x3   0.580 0.053    0.468    0.676
-#> 4  textual =~      x4   0.845 0.025    0.793    0.886
-#> 5  textual =~      x5   0.857 0.023    0.809    0.895
-#> 6  textual =~      x6   0.838 0.024    0.790    0.883
-#> 7    speed =~      x7   0.550 0.058    0.437    0.663
-#> 8    speed =~      x8   0.711 0.061    0.582    0.815
-#> 9    speed =~      x9   0.666 0.066    0.541    0.791
-#> 10      x1 ~~      x1   0.438 0.091    0.266    0.629
-#> 11      x2 ~~      x2   0.826 0.049    0.729    0.914
-#> 12      x3 ~~      x3   0.661 0.060    0.543    0.781
-#> 13      x4 ~~      x4   0.285 0.042    0.214    0.371
-#> 14      x5 ~~      x5   0.265 0.039    0.200    0.345
-#> 15      x6 ~~      x6   0.298 0.040    0.220    0.377
-#> 16      x7 ~~      x7   0.694 0.064    0.561    0.809
-#> 17      x8 ~~      x8   0.491 0.086    0.336    0.661
-#> 18      x9 ~~      x9   0.552 0.087    0.374    0.707
-#> 19  visual ~~  visual   1.000 0.000    1.000    1.000
-#> 20 textual ~~ textual   1.000 0.000    1.000    1.000
-#> 21   speed ~~   speed   1.000 0.000    1.000    1.000
-#> 22  visual ~~ textual   0.444 0.067    0.326    0.592
-#> 23  visual ~~   speed   0.478 0.085    0.297    0.618
-#> 24 textual ~~   speed   0.277 0.070    0.154    0.403
+#>        lhs op     rhs est.std
+#> 1   visual =~      x1   0.753
+#> 2   visual =~      x2   0.421
+#> 3   visual =~      x3   0.586
+#> 4  textual =~      x4   0.849
+#> 5  textual =~      x5   0.855
+#> 6  textual =~      x6   0.838
+#> 7    speed =~      x7   0.554
+#> 8    speed =~      x8   0.720
+#> 9    speed =~      x9   0.682
+#> 10      x1 ~~      x1   0.433
+#> 11      x2 ~~      x2   0.823
+#> 12      x3 ~~      x3   0.656
+#> 13      x4 ~~      x4   0.280
+#> 14      x5 ~~      x5   0.269
+#> 15      x6 ~~      x6   0.298
+#> 16      x7 ~~      x7   0.693
+#> 17      x8 ~~      x8   0.482
+#> 18      x9 ~~      x9   0.534
+#> 19  visual ~~  visual   1.000
+#> 20 textual ~~ textual   1.000
+#> 21   speed ~~   speed   1.000
+#> 22  visual ~~ textual   0.512
+#> 23  visual ~~   speed   0.885
+#> 24 textual ~~   speed   0.462
 ```

@@ -19,7 +19,7 @@
   Analysis](https://inlavaan.haziqj.ml/articles/mediation.md):
 
 - [Multigroup
-  analysis](https://inlavaan.haziqj.ml/articles/multigroup.md):
+  Analysis](https://inlavaan.haziqj.ml/articles/multigroup.md):
 
 - [Structural Equation
   Modelling](https://inlavaan.haziqj.ml/articles/sem.md):

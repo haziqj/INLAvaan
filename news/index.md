@@ -1,6 +1,6 @@
 # Changelog
 
-## INLAvaan (development version)
+## INLAvaan 0.2.1
 
 - Support for lavaan 0.6-21.
 - Implemented variational Bayes mean correction for posterior marginals.
