@@ -13,3 +13,5 @@
 ^vignettes/\.quarto$
 ^vignettes/articles$
 ^cran-comments\.md$
+^inst/hexSticker$
+^inst/dev$

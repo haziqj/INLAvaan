@@ -103,7 +103,7 @@ pl_grad <- function(
   # 2. Compute Gradient of the Objective Function
   # For PML, lavaan minimizes the Negative Pairwise Log-Likelihood.
   # unlike ML, the PML gradient in lav_model_gradient is NOT divided by N.
-  grad_Obj <- lavaan:::lav_model_gradient(
+  grad_Obj <- lavaan___lav_model_gradient(
     lavmodel = lavmodel,
     GLIST = NULL,
     lavsamplestats = lavsamplestats,

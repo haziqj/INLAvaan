@@ -273,7 +273,7 @@ inlavaan <- function(
     lavopts <- lavoptions
     lavopts$se <- "robust.huber.white"
 
-    Sigma_theta <- lavaan:::lav_model_vcov(
+    Sigma_theta <- lavaan___lav_model_vcov(
       lavmodel = lavaan::lav_model_set_parameters(lavmodel, .x),
       lavsamplestats = lavsamplestats,
       lavoptions = lavopts,

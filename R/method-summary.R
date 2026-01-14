@@ -150,7 +150,7 @@ summary_inlavaan <- function(
 
     # Add NMAD or KLD from VB correction
     nmad <- try(
-      fit@external$inlavaan_internal$approx_data[, "nmad"],
+      object@external$inlavaan_internal$approx_data[, "nmad"],
       silent = TRUE
     )
     if (length(nmad) > 0 & !inherits(nmad, "try-error")) {
@@ -164,7 +164,7 @@ summary_inlavaan <- function(
       PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
     } else {
       kld <- try(
-        fit@external$inlavaan_internal$approx_data[, "kld"],
+        object@external$inlavaan_internal$approx_data[, "kld"],
         silent = TRUE
       )
       if (isTRUE(vb_correction) & !inherits(kld, "try-error")) {

@@ -4,11 +4,11 @@
 \name{INLAvaan-package}
 \alias{INLAvaan}
 \alias{INLAvaan-package}
-\title{INLAvaan: Bayesian Latent Variable Analysis using INLA}
+\title{INLAvaan: Approximate Bayesian Latent Variable Analysis}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-INLAvaan is an R package that extends lavaan for Bayesian statistical modeling using Integrated Nested Laplace Approximations (INLA). It offers fast and efficient Bayesian inference for latent variable models, combining lavaan's structural equation modeling framework with the advanced computational speed of INLA.
+Implements approximate Bayesian inference for Structural Equation Models (SEM) using a custom adaptation of the Integrated Nested Laplace Approximation (INLA). Provides a computationally efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian estimation, allowing users to fit latent variable models using the 'lavaan' syntax.
 }
 \seealso{
 Useful links:
@@ -20,12 +20,12 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Haziq Jamil \email{haziq.jamil@gmail.com} (\href{https://orcid.org/0000-0003-3298-1010}{ORCID})
+\strong{Maintainer}: Haziq Jamil \email{haziq.jamil@gmail.com} (\href{https://orcid.org/0000-0003-3298-1010}{ORCID}) [copyright holder]
 
 Other contributors:
 \itemize{
-  \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) [contributor]
-  \item Alvin Bong [contributor]
+  \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) (Contributed to statistical and computational methodology) [contributor]
+  \item Alvin Bong (Contributed to documentation and initial site building) [contributor]
 }
 
 }

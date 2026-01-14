@@ -4,6 +4,7 @@
 ## usethis namespace: start
 #' @import ggplot2
 #' @import methods
+#' @importFrom blavaan dpriors
 #' @importFrom cli cli_abort
 #' @importFrom cli cli_alert_info
 #' @importFrom dplyr filter
