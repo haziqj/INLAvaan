@@ -1,6 +1,6 @@
 ---
 title: 'Equality constraints'
-# descriotion:
+# description:
 vignette: >
   %\VignetteIndexEntry{Equality constraints}
   %\VignetteEngine{quarto::html}

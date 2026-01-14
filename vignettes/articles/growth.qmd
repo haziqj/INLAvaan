@@ -1,6 +1,6 @@
 ---
 title: 'Latent Growth Curve Models'
-# descriotion:
+# description:
 vignette: >
   %\VignetteIndexEntry{Latent Growth Curve Models}
   %\VignetteEngine{quarto::html}

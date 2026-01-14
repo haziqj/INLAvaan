@@ -1,8 +1,8 @@
 ---
-title: 'Multigroup analysis'
+title: 'Multigroup Analysis'
 # descriotion:
 vignette: >
-  %\VignetteIndexEntry{Multigroup analysis}
+  %\VignetteIndexEntry{Multigroup Analysis}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 knitr:

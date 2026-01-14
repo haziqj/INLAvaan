@@ -2,7 +2,7 @@
 title: 'Mediation Analysis'
 # descriotion:
 vignette: >
-  %\VignetteIndexEntry{Structural Equation Modelling}
+  %\VignetteIndexEntry{Mediation Analysis}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 knitr:

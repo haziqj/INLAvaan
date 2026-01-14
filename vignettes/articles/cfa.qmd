@@ -1,6 +1,6 @@
 ---
 title: 'Confirmatory Factor Analysis'
-# descriotion:
+# description:
 vignette: >
   %\VignetteIndexEntry{Confirmatory Factor Analysis}
   %\VignetteEngine{quarto::html}

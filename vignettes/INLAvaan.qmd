@@ -3,7 +3,7 @@ title: 'Get started'
 description: > 
   A vignette introducing the INLAvaan package for Bayesian latent variable modeling using INLA.
 vignette: >
-  %\VignetteIndexEntry{INLAvaan}
+  %\VignetteIndexEntry{Introduction to INLAvaan}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 knitr:
