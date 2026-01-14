@@ -31,8 +31,7 @@ testthat::skip_on_ci()
 testthat::skip_on_cran()
 testthat::skip_if_not(interactive())
 library(rstan)
-library(furrr)
-plan("multisession", workers = parallel::detectCores() - 2)
+future::plan("multisession", workers = future::availableCores() - 2)
 n <- 250
 
 stan_mod <- "
