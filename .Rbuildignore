@@ -12,3 +12,4 @@
 ^pkgdown$
 ^vignettes/\.quarto$
 ^vignettes/articles$
+^cran-comments\.md$
