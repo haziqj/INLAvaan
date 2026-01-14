@@ -30,7 +30,7 @@ jobs:
               label: '(No Suggests)', 
               dependencies: '"hard"', 
               force_suggests: 'false', 
-              check_args: 'c("--no-manual", "--no-vignettes", "--no-build-vignettes")'
+              check_args: 'c("--no-manual", "--no-build-vignettes")'
             }
 
     env:
@@ -74,7 +74,7 @@ jobs:
           # DYNAMIC DEPENDENCIES: 
           # If matrix has 'dependencies' (the special case), use it.
           # Otherwise, pass empty string (which defaults to standard behavior).
-          dependencies: ${{ matrix.config.dependencies || '' }}
+          dependencies: ${{ matrix.config.dependencies || 'c()' }}
 
       - name: Install package on Windows
         if: matrix.config.os == 'windows-latest'
