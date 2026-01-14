@@ -33,7 +33,7 @@ library(tidyverse)
 
 While Markov Chain Monte Carlo (MCMC) methods remain the gold standard for exact Bayesian inference, they can be prohibitively slow for iterative model development. 
 `{INLAvaan}` offers a rapid alternative for <u>**la**</u>tent <u>**va**</u>riable <u>**an**</u>alysis, delivering Bayesian results at (or near) the speed of frequentist estimators.
-It achieves this through a custom, ground-up implementation of the [Integrated Nested Laplace Approximation (INLA)](https://www.r-inla.org), engineered specifically for the [lavaan](https://lavaan.org) modelling framework.
+It achieves this through a custom, ground-up implementation of the [Integrated Nested Laplace Approximation (INLA)](https://www.r-inla.org), engineered specifically for the [lavaan](https://lavaan.ugent.be) modelling framework.
 
 ## A familiar interface
 
@@ -281,8 +281,8 @@ A BibTeX entry for LaTeX users is:
 The `{INLAvaan}` package is licensed under the [GPL-3](https://www.gnu.org/licenses/gpl-3.0.en.html). 
 
 ```plaintext
-INLAvaan: Bayesian structural equation modelling with INLA
-Copyright (C) 2025- Haziq Jamil
+INLAvaan: Bayesian Latent Variable Analysis using INLA
+Copyright (C) 2026 Haziq Jamil
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
