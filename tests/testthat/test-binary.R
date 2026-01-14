@@ -1,4 +1,4 @@
-testthat::skip()
+# testthat::skip()
 library(blavaan)
 library(lavaan)
 
@@ -11,7 +11,7 @@ dat <- lavaan::simulateData(
    y4 | -0.72*t1
    y5 | -1.13*t1",
   ordered = TRUE,
-  sample.nobs = 10000
+  sample.nobs = 1000
 )
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(
@@ -20,6 +20,7 @@ fit <- acfa(
   estimator = "PML",
   ordered = TRUE,
   std.lv = TRUE,
+  parameterization = "theta" ## << important
   # add_priors = !TRUE
   # numerical_grad = TRUE,
   # vb_correction = FALSE,
@@ -27,6 +28,7 @@ fit <- acfa(
 )
 plot(fit, truth = truval)
 
+library(blavaan)
 # fit_lav <- cfa(mod, dat, ordered = TRUE, std.lv = TRUE)
 fit_blav <- bcfa(
   mod,
@@ -40,3 +42,5 @@ fit_blav <- bcfa(
 
 res <- compare_mcmc(fit_blav, inlavaan = fit, truth = truval)
 print(res$p_compare)
+
+# delta vs theta parameterisation
