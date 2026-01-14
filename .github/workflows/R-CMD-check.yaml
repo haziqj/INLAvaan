@@ -13,7 +13,7 @@ jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }}) ${{ matrix.config.label }}
 
     strategy:
       fail-fast: false
@@ -24,10 +24,20 @@ jobs:
           # - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {
+              os: ubuntu-latest, 
+              r: 'release', 
+              label: '(No Suggests)', 
+              dependencies: '"hard"', 
+              force_suggests: 'false', 
+              check_args: 'c("--no-manual", "--no-vignettes", "--no-build-vignettes")'
+            }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      # DYNAMIC ENV VAR: Defaults to 'true' (standard), but 'false' for our special case
+      _R_CHECK_FORCE_SUGGESTS_: ${{ matrix.config.force_suggests || 'true' }}
 
     steps:
       - uses: actions/checkout@v5
@@ -45,6 +55,8 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+          # Note: We keep the extra repo here, but since we restrict dependencies
+          # to "hard" below, INLA won't be installed for the special case anyway.
           extra-repositories: "https://inla.r-inla-download.org/R/testing"
 
       # - name: Install Rcpp from GitHub (R-devel only)
@@ -59,6 +71,10 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
           upgrade: 'TRUE'
+          # DYNAMIC DEPENDENCIES: 
+          # If matrix has 'dependencies' (the special case), use it.
+          # Otherwise, pass empty string (which defaults to standard behavior).
+          dependencies: ${{ matrix.config.dependencies || '' }}
 
       - name: Install package on Windows
         if: matrix.config.os == 'windows-latest'
@@ -67,4 +83,7 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+          # DYNAMIC ARGS:
+          # Use special args for No Suggests, otherwise default to standard.
+          build_args: ${{ matrix.config.check_args || 'c("--no-manual","--compact-vignettes=gs+qpdf")' }}
+          args: ${{ matrix.config.check_args || 'c("--no-manual", "--as-cran")' }}
