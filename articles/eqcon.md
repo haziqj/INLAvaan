@@ -60,14 +60,14 @@ fit <- agrowth(mod, dat)
 #> ✔ Computing the Hessian. [79ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [245ms]
+#> ✔ Performing VB correction. [246ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/6 marginals.
-#> ✔ Fitting skew normal to 6/6 marginals. [246ms]
+#> ✔ Fitting skew normal to 6/6 marginals. [247ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [154ms]
+#> ✔ Sampling covariances and defined parameters. [155ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [1.5s]
