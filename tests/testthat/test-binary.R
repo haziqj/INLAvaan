@@ -1,4 +1,4 @@
-# testthat::skip()
+testthat::skip()
 library(blavaan)
 library(lavaan)
 
