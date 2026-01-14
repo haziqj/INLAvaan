@@ -5,6 +5,7 @@
 #' @import ggplot2
 #' @import methods
 #' @importFrom blavaan dpriors
+#' @importFrom blavaan standardizedPosterior
 #' @importFrom cli cli_abort
 #' @importFrom cli cli_alert_info
 #' @importFrom dplyr filter
@@ -13,11 +14,11 @@
 #' @importFrom dplyr recode
 #' @importFrom dplyr select
 #' @importFrom dplyr ungroup
-#' @importFrom forcats fct_rev
 #' @importFrom modeest mfv1
 #' @importFrom purrr imap
 #' @importFrom purrr map
 #' @importFrom qrng sobol
+#' @importFrom statmod gauss.quad
 #' @importFrom stats approx
 #' @importFrom stats cov2cor
 #' @importFrom stats dbeta

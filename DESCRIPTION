@@ -21,14 +21,12 @@ Imports:
     cli,
     cowplot,
     dplyr,
-    forcats,
     ggplot2,
     lavaan,
     methods,
     modeest,
     mvtnorm,
     numDeriv,
-    purrr,
     qrng,
     scales,
     sn,
@@ -38,7 +36,6 @@ Imports:
     ucminf,
     utils
 Suggests: 
-    furrr,
     knitr,
     lme4,
     psychotools,

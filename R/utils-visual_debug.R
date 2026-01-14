@@ -20,6 +20,7 @@ visual_debug <- function(object) {
     labels = c("Original", "Corrected", "Skew normal fit")
   )
 
+  x <- type <- NULL # no visible binding NOTE
   ggplot2::ggplot(
     plot_df,
     aes(x, value, col = type, linetype = type, linewidth = type)

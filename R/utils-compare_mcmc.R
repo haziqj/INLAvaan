@@ -162,7 +162,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL) {
       values_to = "value"
     ) %>%
     dplyr::mutate(
-      name = forcats::fct_rev(name),
+      name = factor(name, levels = rev(levels(factor(name)))),
       metric = dplyr::recode(
         metric,
         L1_percent = "L1 Error",
