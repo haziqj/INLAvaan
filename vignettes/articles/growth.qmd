@@ -9,7 +9,6 @@ knitr:
   opts_chunk: 
     collapse: true
     comment: '#>'
-bibliography: refs.bib
 ---
 
 ```{r}
