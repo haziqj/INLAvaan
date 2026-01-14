@@ -2,14 +2,45 @@
 % Please edit documentation in R/INLAvaan-package.R
 \docType{package}
 \name{INLAvaan-package}
-\alias{INLAvaan}
 \alias{INLAvaan-package}
+\alias{INLAvaan}
 \title{INLAvaan: Approximate Bayesian Latent Variable Analysis}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
 Implements approximate Bayesian inference for Structural Equation Models (SEM) using a custom adaptation of the Integrated Nested Laplace Approximation (INLA). Provides a computationally efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian estimation, allowing users to fit latent variable models using the 'lavaan' syntax.
 }
+\section{Main features}{
+
+\itemize{
+\item \code{\link[=acfa]{acfa()}}: Approximate Confirmatory Factor Analysis.
+\item \code{\link[=asem]{asem()}}: Approximate Structural Equation Modelling.
+\item \code{\link[=agrowth]{agrowth()}}: Approximate Latent Growth Curve models.
+}
+}
+
+\section{Model specifications}{
+
+Supports advanced 'lavaan' syntax features, including:
+\itemize{
+\item Equality constraints
+\item Defined parameters (e.g., \verb{:=} operator for indirect effects)
+\item Flexible prior specifications
+}
+}
+
+\section{Online vignettes}{
+
+The \href{https://inlavaan.haziqj.ml/}{package website} contains comprehensive examples covering:
+\itemize{
+\item Confirmatory Factor Analysis (CFA)
+\item Structural Equation Models (SEM)
+\item Latent Growth Curve Models
+\item Multigroup and Invariance Testing
+\item Mediation Analysis
+}
+}
+
 \seealso{
 Useful links:
 \itemize{
@@ -24,8 +55,8 @@ Useful links:
 
 Other contributors:
 \itemize{
-  \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) (Contributed to statistical and computational methodology) [contributor]
-  \item Alvin Bong (Contributed to documentation and initial site building) [contributor]
+  \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) (Statistical and computational methodology) [contributor]
+  \item Alvin Bong (Documentation and initial site building) [contributor]
 }
 
 }
