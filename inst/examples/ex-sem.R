@@ -1,3 +1,4 @@
+\donttest{
 # The industrialization and Political Democracy Example from Bollen (1989), page
 # 332
 model <- "
@@ -21,3 +22,4 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 summary(fit)
+}

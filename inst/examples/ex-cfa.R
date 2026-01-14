@@ -7,5 +7,5 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Fit a CFA model with standardised latent variables
-fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
+fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 summary(fit)

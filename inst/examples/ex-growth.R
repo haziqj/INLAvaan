@@ -17,5 +17,5 @@ mod <- "
 utils::data("Demo.growth", package = "lavaan")
 str(Demo.growth)
 
-fit <- agrowth(mod, data = Demo.growth)
+fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 summary(fit)

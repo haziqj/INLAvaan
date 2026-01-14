@@ -1,3 +1,4 @@
+\donttest{
 # The Holzinger and Swineford (1939) example
 HS.model <- "
   visual  =~ x1 + x2 + x3
@@ -14,3 +15,4 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 summary(fit)
+}

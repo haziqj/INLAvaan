@@ -10,7 +10,7 @@ acfa(
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 3000,
+  nsamp = 1000,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
@@ -122,7 +122,7 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Fit a CFA model with standardised latent variables
-fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
+fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 summary(fit)
 }
 \seealso{

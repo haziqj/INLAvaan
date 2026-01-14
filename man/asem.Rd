@@ -10,7 +10,7 @@ asem(
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 3000,
+  nsamp = 1000,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
@@ -113,6 +113,7 @@ For further information regarding these arguments, please refer to the
 \code{\link[lavaan:lavOptions]{lavaan::lavOptions()}} documentation.
 }
 \examples{
+\donttest{
 # The industrialization and Political Democracy Example from Bollen (1989), page
 # 332
 model <- "
@@ -136,6 +137,7 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 summary(fit)
+}
 }
 \seealso{
 Typically, users will interact with the specific latent variable

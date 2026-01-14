@@ -10,7 +10,7 @@ agrowth(
   dp = blavaan::dpriors(),
   estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 3000,
+  nsamp = 1000,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
@@ -130,7 +130,7 @@ mod <- "
 utils::data("Demo.growth", package = "lavaan")
 str(Demo.growth)
 
-fit <- agrowth(mod, data = Demo.growth)
+fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 summary(fit)
 }
 \seealso{
