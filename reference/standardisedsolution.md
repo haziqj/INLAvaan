@@ -160,30 +160,25 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Fit a CFA model with standardised latent variables
-fit <- acfa(HS.model, data = HolzingerSwineford1939)
+fit <- acfa(HS.model, data = HolzingerSwineford1939, test = "none")
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [184ms]
+#> ✔ Finding posterior mode. [180ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [376ms]
+#> ✔ Computing the Hessian. [364ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [318ms]
+#> ✔ Performing VB correction. [308ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 14/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [194ms]
+#> ✔ Sampling covariances and defined parameters. [193ms]
 #> 
-#> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.4s]
-#> 
-standardisedsolution(fit)
+standardisedsolution(fit, nsamp = 100)
 #>        lhs op     rhs est.std
 #> 1   visual =~      x1   0.753
 #> 2   visual =~      x2   0.421

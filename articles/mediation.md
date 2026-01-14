@@ -105,11 +105,11 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ Computing the Hessian. [87ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [243ms]
+#> ✔ Performing VB correction. [242ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [356ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [360ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
@@ -140,12 +140,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -311.923 
-#>    PPP (Chi-square)                              0.561 
+#>    PPP (Chi-square)                              0.563 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              569.020 
-#>    Effective parameters (pD)                     7.051 
+#>    Deviance (DIC)                              569.460 
+#>    Effective parameters (pD)                     7.270 
 #> 
 #> Parameter Estimates:
 #> 
@@ -173,8 +173,8 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.406    0.100    0.238    0.611                         
-#>     total             0.345    0.139    0.075    0.613
+#>     ab                0.405    0.102    0.216    0.612                         
+#>     total             0.350    0.134    0.094    0.578
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -187,13 +187,13 @@ output:
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.296, 0.176\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.406 (true value 0.35). The
-  interval \[0.238, 0.611\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.405 (true value 0.35). The
+  interval \[0.216, 0.612\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.345.
+- Total Effect estimated at 0.350.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.345 in $Y$.
+    of roughly 0.350 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full

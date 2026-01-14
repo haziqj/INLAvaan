@@ -161,6 +161,7 @@ functions instead, including
 ## Examples
 
 ``` r
+# \donttest{
 # The Holzinger and Swineford (1939) example
 HS.model <- "
   visual  =~ x1 + x2 + x3
@@ -178,25 +179,24 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [186ms]
+#> ✔ Finding posterior mode. [191ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [370ms]
+#> ✔ Computing the Hessian. [373ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [309ms]
+#> ✔ Performing VB correction. [317ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 7/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.7s]
+#> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [193ms]
+#> ✔ Sampling covariances and defined parameters. [197ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.3s]
+#> ✔ Computing ppp and DIC. [2.5s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.1 ended normally after 77 iterations
@@ -214,8 +214,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.364 
-#>    Effective parameters (pD)                    21.173 
+#>    Deviance (DIC)                             7518.046 
+#>    Effective parameters (pD)                    21.014 
 #> 
 #> Parameter Estimates:
 #> 
@@ -240,10 +240,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.443    0.076    0.234    0.531    0.001       beta(1,1)
-#>     speed             0.469    0.052    0.141    0.345    0.000       beta(1,1)
+#>     textual           0.443    0.076    0.235    0.534    0.001       beta(1,1)
+#>     speed             0.469    0.051    0.142    0.341    0.000       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.046    0.072    0.253    0.002       beta(1,1)
+#>     speed             0.277    0.046    0.072    0.252    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -260,4 +260,5 @@ summary(fit)
 #>     textual           0.979    0.113    0.778    1.222    0.001 gamma(1,.5)[sd]
 #>     speed             0.366    0.086    0.225    0.562    0.001 gamma(1,.5)[sd]
 #> 
+# }
 ```
