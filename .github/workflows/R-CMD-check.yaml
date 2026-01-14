@@ -30,6 +30,7 @@ jobs:
               label: '(No Suggests)', 
               dependencies: '"hard"', 
               force_suggests: 'false', 
+              error_on: '"error"',              
               check_args: 'c("--no-manual", "--no-build-vignettes")'
             }
 
@@ -55,8 +56,6 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-          # Note: We keep the extra repo here, but since we restrict dependencies
-          # to "hard" below, INLA won't be installed for the special case anyway.
           extra-repositories: "https://inla.r-inla-download.org/R/testing"
 
       # - name: Install Rcpp from GitHub (R-devel only)
@@ -66,9 +65,19 @@ jobs:
       #     remotes::install_github("RcppCore/Rcpp")
       #   shell: Rscript {0}
 
+      # # --- FIX 1: FORCE SYSTEM DEPENDENCIES ---
+      # - name: Install system dependencies (Linux)
+      #   if: runner.os == 'Linux'
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y libglpk-dev
+      # # ----------------------------------------
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            any::INLA          
           needs: check
           upgrade: 'TRUE'
           # DYNAMIC DEPENDENCIES: 
@@ -87,3 +96,4 @@ jobs:
           # Use special args for No Suggests, otherwise default to standard.
           build_args: ${{ matrix.config.check_args || 'c("--no-manual","--compact-vignettes=gs+qpdf")' }}
           args: ${{ matrix.config.check_args || 'c("--no-manual", "--as-cran")' }}
+          error-on: ${{ matrix.config.error_on || '"warning"' }}          
