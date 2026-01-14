@@ -85,7 +85,7 @@ jobs:
 
       - name: Install package on Windows
         if: matrix.config.os == 'windows-latest'
-        run: Rscript -e "install.packages(c('blavaan', 'cowplot', 'dplyr', 'ggplot2', 'lavaan', 'modeest', 'mvtnorm', 'numDeriv', 'qrng', 'scales', 'sn', 'spacefillr', 'statmod', 'tidyr', 'ucminf')); install.packages('.', repos = NULL, type = 'source')"
+        run: Rscript -e "install.packages(c('blavaan', 'cowplot', 'dplyr', 'ggplot2', 'lavaan', 'modeest', 'mvtnorm', 'numDeriv', 'qrng', 'scales', 'sn', 'spacefillr', 'statmod', 'tidyr', 'ucminf', 'lme4', 'psychotools', 'testthat')); install.packages('.', repos = NULL, type = 'source')"
 
       - uses: r-lib/actions/check-r-package@v2
         with:
