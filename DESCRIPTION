@@ -3,16 +3,19 @@ Package: INLAvaan
 Title: Approximate Bayesian Latent Variable Analysis
 Version: 0.2.1
 Authors@R: c(
-    person("Haziq", "Jamil", email = "haziq.jamil@gmail.com", 
-           role = c("aut", "cre", "cph"),
+    person("Haziq", "Jamil", , "haziq.jamil@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-3298-1010")),
     person("Håvard", "Rue", role = "ctb",
-           comment = c(ORCID = "0000-0002-0222-1881",
-                       "Contributed to statistical and computational methodology")),
+           comment = c(ORCID = "0000-0002-0222-1881", "Contributed to statistical and computational methodology")),
     person("Alvin", "Bong", role = "ctb",
            comment = "Contributed to documentation and initial site building")
   )
-Description: Implements approximate Bayesian inference for Structural Equation Models (SEM) using a custom adaptation of the Integrated Nested Laplace Approximation (INLA). Provides a computationally efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian estimation, allowing users to fit latent variable models using the 'lavaan' syntax.
+Description: Implements approximate Bayesian inference for Structural
+    Equation Models (SEM) using a custom adaptation of the Integrated
+    Nested Laplace Approximation (INLA). Provides a computationally
+    efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian
+    estimation, allowing users to fit latent variable models using the
+    'lavaan' syntax.
 License: GPL (>= 3)
 URL: https://inlavaan.haziqj.ml/, https://github.com/haziqj/INLAvaan
 BugReports: https://github.com/haziqj/INLAvaan/issues
@@ -36,6 +39,7 @@ Imports:
     ucminf,
     utils
 Suggests: 
+    future,
     knitr,
     lme4,
     psychotools,
@@ -46,9 +50,9 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: 
     quarto
+Config/Needs/website: rmarkdown
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Config/Needs/website: rmarkdown
