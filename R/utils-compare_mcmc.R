@@ -45,17 +45,13 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL) {
 
   # Create plot
   plot_df <-
-    fit_inlavaan_list %>%
-    purrr::map(function(plot_df_list) {
-      plot_df <-
-        purrr::imap(plot_df_list, function(x, idx) {
-          dplyr::mutate(x, name = idx)
-        }) %>%
-        dplyr::bind_rows() %>%
+    fit_inlavaan_list |>
+    lapply(function(plot_df_list) {
+      dplyr::bind_rows(plot_df_list, .id = "name") |>
         dplyr::mutate(name = factor(name, levels = parnames))
-    }) %>%
-    dplyr::bind_rows(.id = "method") %>%
-    dplyr::mutate(method = factor(method, inlav_names))
+    }) |>
+    dplyr::bind_rows(.id = "method") |>
+    dplyr::mutate(method = factor(method, levels = inlav_names))
 
   # Helper function for Integration
   trapz <- function(x, y) {
