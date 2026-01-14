@@ -69,11 +69,14 @@ pl_fn <- function(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache) {
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
   Sigma <- lavimplied$cov[[1]]
 
+  no_ord <- length(fit@Data@ordered)
+  kappa <- 1 / sqrt(no_ord) # scaling factor for PML
+
   if (check_mat(Sigma)) {
     return(-1e40)
   }
 
-  out <- lavaan___lav_model_objective_pml(
+  pml_objval <- lavaan___lav_model_objective_pml(
     Sigma.hat = Sigma,
     Mu.hat = lavimplied$mean[[1]],
     TH = lavimplied$th[[1]],
@@ -86,7 +89,8 @@ pl_fn <- function(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache) {
     lavcache = lavcache[[1]],
     missing = lavdata@missing
   )
-  attr(out, "logl")
+  out <- attr(pml_objval, "logl")
+  out * kappa
 }
 
 pl_grad <- function(
@@ -96,6 +100,9 @@ pl_grad <- function(
   lavdata,
   lavcache
 ) {
+  no_ord <- length(fit@Data@ordered)
+  kappa <- 1 / sqrt(no_ord) # scaling factor for PML
+
   # 1. Update the model parameters
   # This updates GLIST inside lavmodel so the gradient uses the new 'x'
   lavmodel <- lavaan::lav_model_set_parameters(lavmodel, x)
@@ -118,7 +125,7 @@ pl_grad <- function(
   # So we just flip the sign. No * ntotal needed.
   out <- -1 * grad_Obj
 
-  out
+  out * kappa
 }
 
 # WLS fit function

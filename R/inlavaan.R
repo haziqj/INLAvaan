@@ -114,9 +114,10 @@ inlavaan <- function(
         lavoptions,
         lavcache
       )
+      # generic_obj(x, lavmodel, lavsamplestats, lavdata, lavoptions)
     }
     grad_loglik <- function(x) {
-      mvnorm_loglik_grad(x, lavmodel, lavsamplestats, lavdata, lavoptions)
+      mvnorm_loglik_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
     }
   } else if (estimator == "PML") {
     if (isTRUE(verbose)) {
@@ -261,29 +262,9 @@ inlavaan <- function(
     theta_star <- opt$par
     H_neg <- opt$hessian
   }
-  if (estimator == "PML") {
-    # FIXME: Testing
-    # First, the likelihood gradient
-    .pars <- theta_star
-    if (isTRUE(ceq.simple)) {
-      .pars <- as.numeric(ceq.K %*% theta_star)
-    } # Unpack
-    .x <- pars_to_x(.pars, pt)
-
-    lavopts <- lavoptions
-    lavopts$se <- "robust.huber.white"
-
-    Sigma_theta <- lavaan___lav_model_vcov(
-      lavmodel = lavaan::lav_model_set_parameters(lavmodel, .x),
-      lavsamplestats = lavsamplestats,
-      lavoptions = lavopts,
-      lavdata = lavdata,
-      lavpartable = lavpartable,
-      lavcache = lavcache
-    )
-  } else {
-    Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
-  }
+  Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
+  # return(opt)
+  # return(list(theta = theta_star, Sigma = Sigma_theta))
   L <- t(chol(Sigma_theta)) # For whitening: z = L^{-1}(theta - theta*)
 
   lp_max <- joint_lp(theta_star) # before correction
