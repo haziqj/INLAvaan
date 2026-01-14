@@ -179,20 +179,20 @@ fit <- inlavaan(
 )
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [191ms]
+#> ✔ Finding posterior mode. [193ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [373ms]
+#> ✔ Computing the Hessian. [381ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [317ms]
+#> ✔ Performing VB correction. [320ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [197ms]
+#> ✔ Sampling covariances and defined parameters. [205ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
@@ -214,8 +214,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.046 
-#>    Effective parameters (pD)                    21.014 
+#>    Deviance (DIC)                             7518.988 
+#>    Effective parameters (pD)                    21.485 
 #> 
 #> Parameter Estimates:
 #> 
@@ -240,10 +240,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.443    0.076    0.235    0.534    0.001       beta(1,1)
-#>     speed             0.469    0.051    0.142    0.341    0.000       beta(1,1)
+#>     textual           0.443    0.073    0.238    0.524    0.001       beta(1,1)
+#>     speed             0.469    0.050    0.141    0.338    0.000       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.046    0.072    0.252    0.002       beta(1,1)
+#>     speed             0.277    0.047    0.069    0.253    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

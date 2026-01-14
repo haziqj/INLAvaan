@@ -62,4 +62,4 @@ Other contributors:
 - Håvard Rue ([ORCID](https://orcid.org/0000-0002-0222-1881))
   (Statistical and computational methodology) \[contributor\]
 
-- Alvin Bong (Documentation and initial site building) \[contributor\]
+- Alvin Bong (Initial site build) \[contributor\]

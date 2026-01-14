@@ -11,7 +11,7 @@
   Statistical and computational methodology
 
 - **[Alvin Bong](https://alvinbjl.github.io)**. Contributor.  
-  Documentation and initial site building
+  Initial site build
 
 ## Citation
 
