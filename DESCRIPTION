@@ -8,7 +8,7 @@ Authors@R: c(
     person("Håvard", "Rue", role = "ctb",
            comment = c(ORCID = "0000-0002-0222-1881", "Statistical and computational methodology")),
     person("Alvin", "Bong", role = "ctb",
-           comment = "Documentation and initial site building")
+           comment = "Initial site build")
   )
 Description: Implements approximate Bayesian inference for Structural
     Equation Models (SEM) using a custom adaptation of the Integrated

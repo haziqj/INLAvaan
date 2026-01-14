@@ -56,7 +56,7 @@ Useful links:
 Other contributors:
 \itemize{
   \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) (Statistical and computational methodology) [contributor]
-  \item Alvin Bong (Documentation and initial site building) [contributor]
+  \item Alvin Bong (Initial site build) [contributor]
 }
 
 }
