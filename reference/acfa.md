@@ -187,10 +187,10 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE)
 #> ✔ Finding posterior mode. [135ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [351ms]
+#> ✔ Computing the Hessian. [361ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [299ms]
+#> ✔ Performing VB correction. [304ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
@@ -216,8 +216,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.639 
-#>    Effective parameters (pD)                    21.445 
+#>    Deviance (DIC)                             7518.781 
+#>    Effective parameters (pD)                    21.516 
 #> 
 #> Parameter Estimates:
 #> 
