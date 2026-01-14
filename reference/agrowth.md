@@ -205,24 +205,24 @@ str(Demo.growth)
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [266ms]
+#> ✔ Finding posterior mode. [264ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [378ms]
+#> ✔ Computing the Hessian. [381ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [457ms]
+#> ✔ Performing VB correction. [459ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ⠹ Fitting skew normal to 8/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
+#> ⠹ Fitting skew normal to 14/17 marginals.
+#> ✔ Fitting skew normal to 17/17 marginals. [1.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
 #> ✔ Sampling covariances and defined parameters. [54ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [252ms]
+#> ✔ Computing ppp and DIC. [256ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.1 ended normally after 85 iterations
@@ -236,12 +236,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.958 
-#>    PPP (Chi-square)                              0.940 
+#>    PPP (Chi-square)                              0.910 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4995.604 
-#>    Effective parameters (pD)                    16.626 
+#>    Deviance (DIC)                             4995.277 
+#>    Effective parameters (pD)                    16.463 
 #> 
 #> Parameter Estimates:
 #> 
@@ -281,7 +281,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.041   -0.010    0.153    0.005       beta(1,1)
+#>    .s                 0.153    0.043   -0.018    0.151    0.005       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
