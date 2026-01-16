@@ -6,5 +6,6 @@ test_that("Plot method works", {
   "
   fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
   expect_no_error(plt <- plot(fit))
+  expect_no_error(plt <- plot(fit, truth = coef(fit)))
   expect_equal(length(plt@layers), length(coef(fit)))
 })
