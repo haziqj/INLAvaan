@@ -14,7 +14,7 @@ inlav_model_loglik <- function(
   if (!check_mat(Sigma)) {
     if (lavmodel@estimator == "ML") {
       # Multivariate normal log-likelihood
-      out <- lavaan:::lav_model_loglik(
+      out <- lavaan___lav_model_loglik(
         lavdata = lavdata,
         lavsamplestats = lavsamplestats,
         lavh1 = NULL,
@@ -28,7 +28,7 @@ inlav_model_loglik <- function(
       no_ord <- length(lavdata@ordered)
       kappa <- 1 / sqrt(no_ord) # scaling factor for PML
       kappa <- 1
-      fx <- lavaan:::lav_model_objective(
+      fx <- lavaan___lav_model_objective(
         lavmodel = lavmodel_x,
         GLIST = NULL,
         lavsamplestats = lavsamplestats,
