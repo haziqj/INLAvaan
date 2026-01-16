@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,10 @@
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/multilevel.html">Multilevel SEM</a></li>
     <li><a class="dropdown-item" href="../articles/mediation.html">Mediation analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/missing.html">Missing data</a></li>
+    <li><a class="dropdown-item" href="../articles/binary.html">Binary CFA</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -46,6 +49,7 @@
 <ul><li>Under the hood, use lavaan’s MVN log-likelihood function to compute single- and multi-level log-likelihoods.</li>
 <li>Added support for multi-level SEM models.</li>
 <li>Added support for binary data using PML estimator from lavaan. NOTE: Ordinal is possible in theory, but the package still lacks proper prior support for the thresholds.</li>
+<li>Added support for <code>missing = "ML"</code> to handle FIML for missing data.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.1" id="inlavaan-021">INLAvaan 0.2.1<a class="anchor" aria-label="anchor" href="#inlavaan-021"></a></h2>

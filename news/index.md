@@ -8,6 +8,7 @@
 - Added support for binary data using PML estimator from lavaan. NOTE:
   Ordinal is possible in theory, but the package still lacks proper
   prior support for the thresholds.
+- Added support for `missing = "ML"` to handle FIML for missing data.
 
 ## INLAvaan 0.2.1
 

@@ -2,6 +2,8 @@
 
 ### All vignettes
 
+- [Binary CFA](https://inlavaan.haziqj.ml/articles/binary.md):
+
 - [Confirmatory Factor
   Analysis](https://inlavaan.haziqj.ml/articles/cfa.md):
 
@@ -17,6 +19,8 @@
 
 - [Mediation
   Analysis](https://inlavaan.haziqj.ml/articles/mediation.md):
+
+- [Missing Values](https://inlavaan.haziqj.ml/articles/missing.md):
 
 - [Multigroup
   Analysis](https://inlavaan.haziqj.ml/articles/multigroup.md):

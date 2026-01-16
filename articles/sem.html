@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,10 @@
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/multilevel.html">Multilevel SEM</a></li>
     <li><a class="dropdown-item" href="../articles/mediation.html">Mediation analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/missing.html">Missing data</a></li>
+    <li><a class="dropdown-item" href="../articles/binary.html">Binary CFA</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -107,27 +110,27 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [265ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [255ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [718ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [677ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [646ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [602ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/28 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 17/28 marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 20/28 marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fitting skew normal to 28/28 marginals. [4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
-<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [355ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [348ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [3.3s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1.9000 ended normally after 70 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.1.9002 ended normally after 70 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -138,12 +141,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1644.774 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.538 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.539 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3154.912 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    28.240 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3154.896 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    28.232 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -178,16 +181,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.281    0.387   -0.017    1.501    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.281    0.375    0.011    1.485    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.274    0.723    0.154    2.994    0.009       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.343    0.736    0.851    3.744    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.274    0.729    0.098    2.961    0.009       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.343    0.755    0.906    3.869    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.184    0.648   -0.335    2.208    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.184    0.614   -0.309    2.104    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.107    0.469   -0.505    1.337    0.010       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.107    0.461   -0.451    1.359    0.010       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.312    0.559    0.277    2.474    0.013       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.312    0.573    0.285    2.534    0.013       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
