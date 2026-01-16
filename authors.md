@@ -16,7 +16,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/haziqj/INLAvaan/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/haziqj/INLAvaan/blob/v0.2.1/DESCRIPTION)
 
 Jamil H (2026). *INLAvaan: Approximate Bayesian Latent Variable
 Analysis*. R package version 0.2.1, <https://inlavaan.haziqj.ml/>.

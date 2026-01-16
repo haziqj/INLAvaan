@@ -99,17 +99,17 @@ library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [22ms]
+#> ✔ Finding posterior mode. [23ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [86ms]
+#> ✔ Computing the Hessian. [87ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [239ms]
+#> ✔ Performing VB correction. [244ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [359ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [361ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
@@ -140,12 +140,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -311.923 
-#>    PPP (Chi-square)                              0.602 
+#>    PPP (Chi-square)                              0.584 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              569.442 
-#>    Effective parameters (pD)                     7.262 
+#>    Deviance (DIC)                              569.320 
+#>    Effective parameters (pD)                     7.200 
 #> 
 #> Parameter Estimates:
 #> 
@@ -173,8 +173,8 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.397    0.102    0.207    0.586                         
-#>     total             0.341    0.125    0.080    0.593
+#>     ab                0.406    0.107    0.219    0.609                         
+#>     total             0.347    0.134    0.097    0.619
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -187,13 +187,13 @@ output:
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.296, 0.176\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.397 (true value 0.35). The
-  interval \[0.207, 0.586\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.406 (true value 0.35). The
+  interval \[0.219, 0.609\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.341.
+- Total Effect estimated at 0.347.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.341 in $Y$.
+    of roughly 0.347 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full

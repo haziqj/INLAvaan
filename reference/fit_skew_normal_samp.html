@@ -38,7 +38,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Fit a skew normal distribution to a sample</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/skew-normal.R" class="external-link"><code>R/skew-normal.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.2.1/R/skew-normal.R" class="external-link"><code>R/skew-normal.R</code></a></small>
       <div class="d-none name"><code>fit_skew_normal_samp.Rd</code></div>
     </div>
 
@@ -79,8 +79,8 @@ to the provided numeric vector <code>x</code>.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, mean <span class="op">=</span> <span class="fl">5</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">fit_skew_normal_samp</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        xi     omega     alpha      logC         k       rsq </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6.025375  1.554248 -2.166694        NA        NA        NA </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       xi    omega    alpha     logC        k      rsq </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3.813283 1.526478 2.320540       NA       NA       NA </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
