@@ -3,7 +3,8 @@ inlav_model_loglik <- function(
   lavmodel,
   lavsamplestats,
   lavdata,
-  lavoptions
+  lavoptions,
+  lavcache
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -26,6 +27,7 @@ inlav_model_loglik <- function(
       # Pairwise log-likelihood
       no_ord <- length(lavdata@ordered)
       kappa <- 1 / sqrt(no_ord) # scaling factor for PML
+      kappa <- 1
       fx <- lavaan:::lav_model_objective(
         lavmodel = lavmodel_x,
         GLIST = NULL,
@@ -33,7 +35,11 @@ inlav_model_loglik <- function(
         lavdata = lavdata,
         lavcache = lavcache
       )
-      out <- -1 * kappa * fx
+      logl <- sum(attr(fx, "logl.group"))
+      if (is.na(logl)) {
+        return(-1e40)
+      }
+      out <- kappa * logl
     }
   }
 
@@ -44,13 +50,16 @@ inlav_model_grad <- function(
   x,
   lavmodel,
   lavsamplestats,
-  lavdata
+  lavdata,
+  lavcache
 ) {
   # Gradient of fit function F_ML (not loglik yet)
   grad_F <- lavaan___lav_model_gradient(
     lavmodel = lavaan::lav_model_set_parameters(lavmodel, x),
+    GLIST = NULL,
     lavsamplestats = lavsamplestats,
-    lavdata = lavdata
+    lavdata = lavdata,
+    lavcache = lavcache
   )
 
   out <-

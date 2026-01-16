@@ -94,11 +94,17 @@ summary_inlavaan <- function(
       PE$block[PE$op == ":="] <- 0
     }
 
+    # # If PML, remove intercepts when not estimated
+    # if (object@Model@estimator == "PML") {
+    #   browser()
+    # }
+
     # Now need to put information into PE from pt and summary
     pt <- object@ParTable
     ptfreeidx <- which(pt$free > 0)
     ptdefidx <- which(pt$op == ":=")
-    ptidx <- c(ptfreeidx, ptdefidx)
+    ptdeltaidx <- which(pt$op == "~*~")
+    ptidx <- c(ptfreeidx, ptdefidx, ptdeltaidx)
     summ <- object@external$inlavaan_internal$summary
     peidx <- match(
       paste0(
@@ -110,7 +116,7 @@ summary_inlavaan <- function(
       paste0(PE$lhs, PE$op, PE$rhs, PE$block)
     )
     summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
-    if (length(ptdefidx) > 0) {
+    if (length(ptdefidx) > 0 | length(ptdeltaidx) > 0) {
       # FIXME: I think this should be ok, since pt$free always in increasing
       # order
       summidx <- seq_len(nrow(summ))
@@ -181,6 +187,12 @@ summary_inlavaan <- function(
     }
   }
 
+  # If PML, intercepts shown regardless
+  if (object@Model@estimator == "PML") {
+    int_idx <- PE$est == 0 & pt$op == "~1"
+    PE <- PE[!int_idx, ]
+  }
+
   # Repair credible intervals labels
   garb <- capture.output(PE)
   garb <- gsub("X2.5.", " 2.5%", garb)
@@ -189,8 +201,30 @@ summary_inlavaan <- function(
 
   # Add Parameter Estimates section
   idxpehead <- grep("Parameter Estimates", garb)
-  garb <- c(
-    garb[1:(idxpehead + 1)],
+  idxparameterization <- grep("Parameterization", garb)
+  if (length(idxparameterization) > 0) {
+    garb <- garb[-idxparameterization]
+  }
+
+  newgarb <- garb[1:(idxpehead + 1)]
+  if (length(idxparameterization) > 0) {
+    PARAMZ <- gsub(
+      "^([a-z])",
+      "\\U\\1",
+      object@Options$parameterization,
+      perl = TRUE
+    )
+    newgarb <- c(
+      newgarb,
+      capture.output(cat(
+        "\n",
+        sprintf("  %-38s", "Parameterization"),
+        sprintf("  %10s", PARAMZ)
+      ))[2]
+    )
+  }
+  newgarb <- c(
+    newgarb,
     capture.output(cat(
       "\n",
       sprintf("  %-38s", "Marginalisation method"),
@@ -205,7 +239,7 @@ summary_inlavaan <- function(
   )
 
   # Print
-  cat(paste0(garb, collapse = "\n"))
+  cat(paste0(newgarb, collapse = "\n"))
   cat("\n")
 }
 

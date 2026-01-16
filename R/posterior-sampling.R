@@ -383,3 +383,54 @@ get_dic <- function(
 
   list(dic = Dbar + pD, Dbar = Dbar, Dhat = Dhat, pD = pD)
 }
+
+
+get_thetaparamerization_deltas <- function(
+  theta_star,
+  Sigma_theta,
+  method,
+  approx_data,
+  pt,
+  lavmodel,
+  lavsamplestats,
+  nsamp = 250
+) {
+  x_samp <- sample_params(
+    theta_star = theta_star,
+    Sigma_theta = Sigma_theta,
+    method = method,
+    approx_data = approx_data,
+    pt = pt,
+    lavmodel = lavmodel,
+    nsamp = nsamp,
+    return_theta = FALSE
+  )
+
+  delta_samp <- apply(x_samp, 1, function(xx) {
+    lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
+    lavimplied <- lavaan::lav_model_implied(lavmodel_x, delta = FALSE)
+    Sigma_list <- lavimplied$cov
+    ngroups <- length(Sigma_list)
+    delta_list <- vector("list", ngroups)
+    for (g in seq_len(ngroups)) {
+      delta_list[[g]] <- sqrt(diag(Sigma_list[[g]]))
+    }
+    unlist(delta_list)
+  })
+
+  # FIXME: Repeated code in post_marg_sampling
+  apply(delta_samp, 1, function(y) {
+    Ex <- mean(y)
+    SDx <- sd(y)
+    qq <- quantile(y, probs = c(0.025, 0.5, 0.975))
+    dens <- density(y)
+    xmax <- dens$x[which.max(dens$y)]
+    res <- c(Ex, SDx, qq, xmax)
+    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+
+    list(
+      summary = res,
+      pdf_data = data.frame(x = dens$x, y = dens$y)
+    )
+  })
+}

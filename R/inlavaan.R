@@ -106,6 +106,8 @@ inlavaan <- function(
   if (length(fit0@Data@ordered) > 0) {
     # Redo automatically with PML if ordinal data
     lavargs$estimator <- "PML"
+    lavargs$parameterization <- "theta"
+    lavargs$test <- "none"
     fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
   }
   lavmodel <- fit0@Model
@@ -134,7 +136,14 @@ inlavaan <- function(
       pars <- as.numeric(ceq.K %*% pars)
     } # Unpack
     x <- pars_to_x(pars, pt)
-    ll <- inlav_model_loglik(x, lavmodel, lavsamplestats, lavdata, lavoptions)
+    ll <- inlav_model_loglik(
+      x,
+      lavmodel,
+      lavsamplestats,
+      lavdata,
+      lavoptions,
+      lavcache
+    )
     pld <- 0
     if (isTRUE(add_priors)) {
       pld <- prior_logdens(pars, pt)
@@ -148,7 +157,7 @@ inlavaan <- function(
       pars <- as.numeric(ceq.K %*% pars)
     } # Unpack
     x <- pars_to_x(pars, pt)
-    gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata)
+    gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
 
     # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
     jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
@@ -249,7 +258,6 @@ inlavaan <- function(
   }
 
   timing <- add_timing(timing, "optim")
-
   ## ----- VB correction -------------------------------------------------------
   vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- NA
   if (isTRUE(vb_correction)) {
@@ -603,6 +611,28 @@ inlavaan <- function(
   }
   timing <- add_timing(timing, "definedpars")
 
+  # For binary and ordinal data, sample the deltas
+  if (any(pt$op == "~*~")) {
+    deltapars <- get_thetaparamerization_deltas(
+      theta_star,
+      Sigma_theta,
+      marginal_method,
+      approx_data,
+      pt,
+      lavmodel,
+      lavsamplestats,
+      nsamp = 250
+    )
+    names(deltapars) <- pt$names[which(pt$op == "~*~")]
+
+    for (delta_name in names(deltapars)) {
+      tmp_new_summ <- deltapars[[delta_name]]$summary
+      summ[delta_name, names(tmp_new_summ)] <- tmp_new_summ
+      pdf_data[[delta_name]] <- deltapars[[delta_name]]$pdf_data
+    }
+  }
+  timing <- add_timing(timing, "deltapars")
+
   ## ----- Compute ppp and dic -------------------------------------------------
   if (test != "none") {
     env <- NULL
@@ -635,7 +665,14 @@ inlavaan <- function(
       lavmodel,
       lavsamplestats,
       function(x) {
-        inlav_model_loglik(x, lavmodel, lavsamplestats, lavdata, lavoptions)
+        inlav_model_loglik(
+          x,
+          lavmodel,
+          lavsamplestats,
+          lavdata,
+          lavoptions,
+          lavcache
+        )
       },
       nsamp = nsamp,
       cli_env = env
