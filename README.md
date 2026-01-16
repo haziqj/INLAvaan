@@ -95,7 +95,7 @@ fit <- asem(model, PoliticalDemocracy)
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.1.9001 ended normally after 77 iterations
+#> INLAvaan 0.2.1.9002 ended normally after 77 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
