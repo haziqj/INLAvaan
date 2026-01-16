@@ -1,8 +1,15 @@
+# INLAvaan (development version)
+
+* Under the hood, use lavaan's MVN log-likelihood function to compute single- and multi-level log-likelihoods.
+* Added support for multi-level SEM models.
+* Added support for ordinal data using PML estimator from lavaan.
+
 # INLAvaan 0.2.1
 
 * Support for lavaan 0.6-21.
 * Implemented variational Bayes mean correction for posterior marginals.
 * Defined parameters are now available, e.g. mediation analysis.
+* Prepare for CRAN release.
 
 # INLAvaan 0.2
 
