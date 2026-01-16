@@ -8,7 +8,6 @@ asem(
   model,
   data,
   dp = blavaan::dpriors(),
-  estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = "standard",
@@ -38,9 +37,6 @@ asem(
 \item{dp}{Default prior distributions on different types of
     parameters, typically the result of a call to \code{dpriors()}.
     See the \code{dpriors()} help file for more information.}
-
-\item{estimator}{The estimator to be used. Currently only \code{"ML"} (maximum
-likelihood) is supported.}
 
 \item{marginal_method}{The method for approximating the marginal posterior
 distributions. Options include \code{"skewnorm"} (skew normal), \code{"asymgaus"}

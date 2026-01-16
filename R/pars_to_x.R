@@ -5,10 +5,13 @@ pars_to_x <- function(theta, pt) {
     cli::cli_abort("Parameter table 'pt' must be provided.")
   }
 
+  is_multilvl <- "level" %in% names(pt)
+  if (is_multilvl) {
+    pt$group <- pt$level
+  }
   nG <- max(pt$group)
   idxfree <- pt$free > 0
   pars <- pt$parstart
-  # if (length(theta) != sum(idxfree)) browser()
   pars[idxfree] <- theta
   npt <- length(pars)
   xx <- x <- mapply(function(f, z) f(z), pt$ginv, pars)
@@ -43,7 +46,6 @@ pars_to_x <- function(theta, pt) {
       sd1sd2[j] <- sd1 * sd2
     }
   }
-
   jcb_mat <- jcb_mat[jcb_mat[, 1] != 0 & jcb_mat[, 2] != 0, ]
 
   out <- x[pt$free > 0L & !duplicated(pt$free)]

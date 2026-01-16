@@ -102,6 +102,7 @@ get_ppp <- function(
   pt,
   lavmodel,
   lavsamplestats,
+  lavdata,
   nsamp = 250,
   cli_env = NULL
 ) {
@@ -124,12 +125,14 @@ get_ppp <- function(
     logdet_Sigma + trace_term - logdet_S - nrow(S)
   }
 
-  nG <- max(pt$group)
+  n_blocks <- lavmodel@nblocks
+  n_levels <- lavdata@nlevels
   res <- vector("numeric", length = nrow(x))
   for (i in seq_len(nrow(x))) {
     if (!is.null(cli_env)) {
       cli::cli_progress_update(.envir = cli_env)
     }
+
     xx <- x[i, ]
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
     lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -137,14 +140,47 @@ get_ppp <- function(
     Tobs <- 0
     Trep <- 0
 
-    for (g in seq_len(nG)) {
-      n <- lavsamplestats@nobs[[g]]
-      S <- lavsamplestats@cov[[g]]
-      Sigma <- lavimplied$cov[[g]]
+    # 3. Iterate over BLOCKS (Works for both Single and Multilevel)
+    for (b in seq_len(n_blocks)) {
+      # Map Block -> Group (g) and Level (l)
+      # If single level, l is always 1
+      g <- ceiling(b / n_levels)
+      l <- (b - 1) %% n_levels + 1
+
+      # --- LOGIC BRANCHING ---
+      if (n_levels > 1) {
+        # === MULTILEVEL CASE ===
+        # Extract from YLp[[g]][[2]]
+        cluster_stats <- lavsamplestats@YLp[[g]][[2]]
+
+        if (l == 1) {
+          # Level 1 (Within): Use Total N
+          n <- lavdata@nobs[[g]]
+          S <- cluster_stats$Sigma.W
+        } else {
+          # Level 2 (Between): Use Cluster N
+          n <- lavdata@Lp[[g]]$nclusters[[l]]
+          S <- cluster_stats$Sigma.B
+        }
+
+        keep <- rowSums(S != 0) > 0
+        S_reduced <- S[keep, keep, drop = FALSE]
+        S <- S_reduced
+      } else {
+        # === SINGLE-LEVEL CASE ===
+        # Standard extraction
+        n <- lavsamplestats@nobs[[g]]
+        S <- lavsamplestats@cov[[g]]
+      }
+
+      # Retrieve Model Implied Sigma (Universal)
+      Sigma <- lavimplied$cov[[b]]
+
       if (check_mat(Sigma)) {
         next
       }
 
+      # Simulate and Accumulate
       W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1]
       Srep <- W / (n - 1)
 

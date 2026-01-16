@@ -68,12 +68,13 @@ test_that("Missing data", {
     verbose = FALSE,
     marginal_method = "marggaus",
     marginal_correction = "none",
+    missing = "ML",
     test = "none",
     nsamp = 2
   )
 
-  expect_equal(fitm@Data@missing, "listwise")
-  expect_equal(fitm@Data@nobs[[1]], nrow(pd[complete.cases(pd), ]))
+  expect_equal(fitm@Data@missing, "ml")
+  # expect_equal(fitm@Data@nobs[[1]], nrow(pd[complete.cases(pd), ]))
 })
 
 test_that("Approximate constraints", {

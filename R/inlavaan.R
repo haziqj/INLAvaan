@@ -10,8 +10,6 @@
 #' @inheritParams lavaan::simulateData
 #' @inheritParams blavaan::blavaan
 #'
-#' @param estimator The estimator to be used. Currently only `"ML"` (maximum
-#'   likelihood) is supported.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param marginal_method The method for approximating the marginal posterior
@@ -59,7 +57,6 @@ inlavaan <- function(
   data,
   model.type = "sem",
   dp = blavaan::dpriors(),
-  estimator = "ML",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
@@ -89,49 +86,19 @@ inlavaan <- function(
   if (isTRUE(debug)) {
     verbose <- TRUE
   }
-  # estimator <- match.arg(estimator, choices = c("ML", "PML"))
   lavargs <- list(...)
   lavargs$model <- model
   lavargs$data <- data
-  lavargs$estimator <- estimator
   lavargs$ceq.simple <- TRUE # FIXME: Force ceq.simple rather than eq.constraints
   lavargs$verbose <- FALSE # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
   lavargs$parser <- "old" # To get priors parsed
   lavargs$test <- test
 
-  ## ----- Build joint log posterior -------------------------------------------
-  if (estimator == "ML") {
-    if (isTRUE(verbose)) {
-      cli::cli_alert_info("Using MVN log-likelihood.")
+  if ("estimator" %in% names(lavargs)) {
+    if (!(lavargs$estimator %in% c("ML", "PML"))) {
+      cli::cli_abort("Only 'ML' and 'PML' estimators are supported currently.")
     }
-    loglik <- function(x) {
-      mvnorm_loglik_samplestats(
-        x,
-        lavmodel,
-        lavsamplestats,
-        lavdata,
-        lavoptions,
-        lavcache
-      )
-      # generic_obj(x, lavmodel, lavsamplestats, lavdata, lavoptions)
-    }
-    grad_loglik <- function(x) {
-      mvnorm_loglik_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
-    }
-  } else if (estimator == "PML") {
-    if (isTRUE(verbose)) {
-      cli::cli_alert_info("Using pairwise log-likelihood.")
-    }
-    loglik <- function(x) {
-      pl_fn(x, lavmodel, lavsamplestats, lavdata, lavoptions, lavcache)
-    }
-    grad_loglik <- function(x) {
-      pl_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
-    }
-  } else {
-    # FIXME: Add Laplace?
-    cli::cli_abort("That's not supported yet.")
   }
 
   ## ----- Initialise lavaan object --------------------------------------------
@@ -162,7 +129,7 @@ inlavaan <- function(
       pars <- as.numeric(ceq.K %*% pars)
     } # Unpack
     x <- pars_to_x(pars, pt)
-    ll <- loglik(x)
+    ll <- inlav_model_loglik(x, lavmodel, lavsamplestats, lavdata, lavoptions)
     pld <- 0
     if (isTRUE(add_priors)) {
       pld <- prior_logdens(pars, pt)
@@ -176,7 +143,7 @@ inlavaan <- function(
       pars <- as.numeric(ceq.K %*% pars)
     } # Unpack
     x <- pars_to_x(pars, pt)
-    gll <- grad_loglik(x)
+    gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata)
 
     # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
     jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
@@ -660,6 +627,7 @@ inlavaan <- function(
       pt,
       lavmodel,
       lavsamplestats,
+      lavdata,
       nsamp = nsamp,
       cli_env = env
     )
@@ -671,7 +639,9 @@ inlavaan <- function(
       pt,
       lavmodel,
       lavsamplestats,
-      loglik,
+      function(x) {
+        inlav_model_loglik(x, lavmodel, lavsamplestats, lavdata, lavoptions)
+      },
       nsamp = nsamp,
       cli_env = env
     )
@@ -740,7 +710,6 @@ acfa <- function(
   model,
   data,
   dp = blavaan::dpriors(),
-  estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = "standard",
@@ -788,7 +757,6 @@ asem <- function(
   model,
   data,
   dp = blavaan::dpriors(),
-  estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = "standard",
@@ -834,7 +802,6 @@ agrowth <- function(
   model,
   data,
   dp = blavaan::dpriors(),
-  estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = "standard",

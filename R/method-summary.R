@@ -89,9 +89,9 @@ summary_inlavaan <- function(
       header = TRUE,
       output = "text"
     )
-    if (is.null(PE$group)) {
-      PE$group <- 1
-      PE$group[PE$op == ":="] <- 0
+    if (is.null(PE$block)) {
+      PE$block <- 1
+      PE$block[PE$op == ":="] <- 0
     }
 
     # Now need to put information into PE from pt and summary
@@ -105,9 +105,9 @@ summary_inlavaan <- function(
         pt$lhs[ptidx],
         pt$op[ptidx],
         pt$rhs[ptidx],
-        pt$group[ptidx]
+        pt$block[ptidx]
       ),
-      paste0(PE$lhs, PE$op, PE$rhs, PE$group)
+      paste0(PE$lhs, PE$op, PE$rhs, PE$block)
     )
     summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
     if (length(ptdefidx) > 0) {

@@ -1,4 +1,11 @@
-partable_classify_sem_matrix <- function(lhs, op, rhs, ov.names, std.ov, std.lv) {
+partable_classify_sem_matrix <- function(
+  lhs,
+  op,
+  rhs,
+  ov.names,
+  std.ov,
+  std.lv
+) {
   lhs_is_ov <- lhs %in% ov.names
   rhs_is_ov <- rhs %in% ov.names
 
@@ -37,7 +44,7 @@ partable_classify_sem_matrix <- function(lhs, op, rhs, ov.names, std.ov, std.lv)
 
   if (op == "~") {
     # if (!lhs_is_ov) {
-      return("beta")
+    return("beta")
     # }
   }
 
@@ -116,25 +123,44 @@ partable_transform_funcs <- function(matrix) {
 
   if (grepl("theta_cor|theta_cov|psi_cor|psi_cov", matrix)) {
     g <- atanh
-    g_prime <- function(x) 1 / (1 - x ^ 2)
+    g_prime <- function(x) 1 / (1 - x^2)
     ginv <- tanh
-    ginv_prime <- function(x) 1 - tanh(x) ^ 2
-    ginv_prime2 <- function(x) -2 * safe_tanh(x) * (1 - safe_tanh(x) ^ 2)
+    ginv_prime <- function(x) 1 - tanh(x)^2
+    ginv_prime2 <- function(x) -2 * safe_tanh(x) * (1 - safe_tanh(x)^2)
   }
 
-  return(list(g = g, g_prime = g_prime,  ginv = ginv, ginv_prime = ginv_prime,
-              ginv_prime2 = ginv_prime2))
+  return(list(
+    g = g,
+    g_prime = g_prime,
+    ginv = ginv,
+    ginv_prime = ginv_prime,
+    ginv_prime2 = ginv_prime2
+  ))
 }
 
-inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoptions) {
-  ngroups <- lavdata@ngroups
+inlavaanify_partable <- function(
+  pt,
+  dp = blavaan::dpriors(),
+  lavdata,
+  lavoptions
+) {
+  nlevels <- lavdata@nlevels
+  is_multilvl <- nlevels > 1
+  if (is_multilvl) {
+    pt$group <- pt$level
+  }
+  ngroups <- max(pt$group)
   std_ov <- lavoptions$std.ov
   std_lv <- lavoptions$std.lv
   pt$mat <- NA
 
   for (g in c(0, seq_len(ngroups))) {
     # Identify stuff
-    ov.names <- if (g == 0) NULL else lavdata@ov.names[[g]]
+    if (is_multilvl) {
+      ov.names <- lavdata@ov.names[[1]]
+    } else {
+      ov.names <- if (g == 0) NULL else lavdata@ov.names[[g]]
+    }
     pt$mat[pt$group == g] <- mapply(
       partable_classify_sem_matrix,
       lhs = pt$lhs[pt$group == g],
@@ -175,7 +201,9 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
 
   # Compute starting values in unrestricted space
   pt$parstart <- mapply(
-    function(fun, val) fun(val), pt$g, pt$start,
+    function(fun, val) fun(val),
+    pt$g,
+    pt$start,
     USE.NAMES = FALSE
   )
 
@@ -183,9 +211,15 @@ inlavaanify_partable <- function(pt, dp = blavaan::dpriors(), lavdata, lavoption
   pt$names <- mapply(paste0, pt$lhs, pt$op, pt$rhs)
   where_label <- pt$label != ""
   pt$names[where_label] <- pt$label[where_label]
-  if (max(pt$group) > 1) {
-    pt$names <- paste0(pt$names, ".g", pt$group)
-    pt$names <- gsub(".g1", "", pt$names)
+  if (ngroups > 1) {
+    prefix <- ifelse(is_multilvl, ".l", ".g")
+    pt$names <- paste0(pt$names, prefix, pt$group)
+    pt$names <- gsub(".g1|.l1", "", pt$names)
+  }
+
+  # Remove pt$group if multilevel (interacts with lav_partable_labels())
+  if (is_multilvl) {
+    pt$group <- NULL
   }
 
   # FIXME: Perhaps add a 'inlavaan_partable' class to this object
