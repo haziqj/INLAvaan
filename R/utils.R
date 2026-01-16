@@ -85,3 +85,19 @@ add_timing <- function(timing, part) {
 
   timing
 }
+
+is_lavaan <- function(object) {
+  is(object, "lavaan") & attr(class(object), "package") == "lavaan"
+}
+
+is_blavaan <- function(object) {
+  is(object, "blavaan") & attr(class(object), "package") == "blavaan"
+}
+
+is_INLAvaan <- function(object) {
+  is(object, "INLAvaan") & attr(class(object), "package") == "INLAvaan"
+}
+
+is_inlavaan <- function(object) {
+  is(object, "INLAvaan") & attr(class(object), "package") == "INLAvaan"
+}

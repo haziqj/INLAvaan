@@ -1,9 +1,5 @@
-testthat::skip()
-library(blavaan)
-library(lavaan)
+# Simulate binary data
 set.seed(141)
-
-# Data
 n <- 100
 truval <- c(0.8, 0.7, 0.6, 0.5, 0.4, -1.43, -0.55, -0.13, -0.72, -1.13)
 dat <- lavaan::simulateData(
@@ -18,47 +14,38 @@ dat <- lavaan::simulateData(
 )
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 
-# Scaling factor (kappa)
-fit_lav <- cfa(mod, dat, estimator = "PML", ordered = TRUE, std.lv = TRUE)
-V <- lavaan___lav_model_vcov(
-  # vcov robust sandwich
-  lavmodel = fit_lav@Model,
-  lavsamplestats = fit_lav@SampleStats,
-  lavoptions = fit_lav@Options,
-  lavdata = fit_lav@Data,
-  lavpartable = fit_lav@ParTable,
-  lavcache = fit_lav@Cache
-) *
-  n
-V_naive <- attr(V, "E.inv") # naive vcov (H^{-1})
-(kappa <- sum(diag(V_naive)) / sum(diag(V)))
+test_that("Method: skewnorm", {
+  expect_no_error({
+    fit <- acfa(mod, dat, ordered = TRUE, verbose = FALSE, nsamp = NSAMP)
+  })
+  expect_no_error(out <- capture.output(summary(fit)))
+  expect_no_error(out <- plot(fit))
 
-# Fit INLAvaan
-fit <- acfa(
-  mod,
-  dat,
-  estimator = "PML",
-  ordered = TRUE,
-  std.lv = TRUE,
-  parameterization = "theta" ## << important
-  # add_priors = !TRUE
-  # numerical_grad = TRUE,
-  # vb_correction = FALSE,
-  # marginal_method = "marggaus"
-)
-plot(fit, truth = truval)
+  expect_s4_class(fit, "INLAvaan")
+  expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
+})
 
-# Fit blavaan
+################################################################################
+## CHECK AGAINST MCMC ##########################################################
+################################################################################
+testthat::skip_on_ci()
+testthat::skip_on_cran()
+testthat::skip_if_not(interactive())
+library(blavaan)
+future::plan("multisession", workers = future::availableCores() - 2)
+
 fit_blav <- bcfa(
   mod,
   dat,
   ordered = TRUE,
   std.lv = TRUE,
-  burnin = 500,
-  sample = 1000,
-  n.chains = 1
+  # burnin = 500,
+  # sample = 1000,
+  # n.chains = 1
+  bcontrol = list(cores = 3)
 )
+fit_inl1 <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, debug = TRUE)
 
 # Compare
-res <- compare_mcmc(fit_blav, skewnorm = fit, truth = truval)
+res <- compare_mcmc(fit_blav, INLAvaan = fit_inl1, truth = truval)
 print(res$p_compare)

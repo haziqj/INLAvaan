@@ -52,6 +52,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL) {
     }) %>%
     dplyr::bind_rows(.id = "method") %>%
     dplyr::mutate(method = factor(method, levels = inlav_names))
+  plot_df <- plot_df[!is.na(plot_df$name), ]
 
   # Helper function for Integration
   trapz <- function(x, y) {

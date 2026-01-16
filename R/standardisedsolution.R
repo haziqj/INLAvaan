@@ -25,9 +25,9 @@ standardisedsolution <- function(
   nsamp = 250,
   ...
 ) {
-  if (is(object, "lavaan")) {
+  if (is_lavaan(object)) {
     return(lavaan::standardizedSolution(object))
-  } else if (is(object, "blavaan")) {
+  } else if (is_blavaan(object)) {
     return(blavaan::standardizedPosterior(object))
   }
 
