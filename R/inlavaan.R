@@ -103,6 +103,11 @@ inlavaan <- function(
 
   ## ----- Initialise lavaan object --------------------------------------------
   fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+  if (length(fit0@Data@ordered) > 0) {
+    # Redo automatically with PML if ordinal data
+    lavargs$estimator <- "PML"
+    fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+  }
   lavmodel <- fit0@Model
   lavsamplestats <- fit0@SampleStats
   lavdata <- fit0@Data
@@ -375,8 +380,6 @@ inlavaan <- function(
   if (marginal_method == "sampling") {
     # Do sampling and return results
     if (isTRUE(verbose)) {
-      cli::cli_progress_done()
-      cli::cli_alert_info("Using sampling-based approximation.")
       cli::cli_progress_step("Sampling from posterior.")
     }
     approx_data <- NULL
@@ -384,8 +387,6 @@ inlavaan <- function(
   } else {
     if (marginal_method == "asymgaus") {
       if (isTRUE(verbose)) {
-        cli::cli_progress_done()
-        cli::cli_alert_info("Using asymmetric Gaussian approximation.")
         cli::cli_progress_step("Calibrating asymmetric Gaussians.")
       }
 
@@ -427,8 +428,6 @@ inlavaan <- function(
       }
     } else if (marginal_method == "skewnorm") {
       if (isTRUE(verbose)) {
-        cli::cli_progress_done()
-        cli::cli_alert_info("Using skew normal approximation.")
         j <- 0
         cli::cli_progress_step(
           "Fitting skew normal to {j}/{m} marginal{?s}.",
@@ -497,10 +496,6 @@ inlavaan <- function(
         )
       }
     } else if (marginal_method == "marggaus") {
-      if (isTRUE(verbose)) {
-        cli::cli_alert_info("Using marginal Gaussian approximation.")
-      }
-
       approx_data <- NULL
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {

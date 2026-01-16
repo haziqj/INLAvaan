@@ -1,3 +1,5 @@
+testthat::skip_on_ci()
+testthat::skip_on_cran()
 test_that("Comparison to MCMC", {
   suppressPackageStartupMessages(library(blavaan))
 
@@ -27,8 +29,6 @@ test_that("Comparison to MCMC", {
 ################################################################################
 ## CHECK AGAINST MCMC ##########################################################
 ################################################################################
-testthat::skip_on_ci()
-testthat::skip_on_cran()
 testthat::skip_if_not(interactive())
 library(rstan)
 future::plan("multisession", workers = future::availableCores() - 2)
