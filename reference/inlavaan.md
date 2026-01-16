@@ -14,7 +14,6 @@ inlavaan(
   data,
   model.type = "sem",
   dp = blavaan::dpriors(),
-  estimator = "ML",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
@@ -63,11 +62,6 @@ inlavaan(
   See the
   [`dpriors()`](http://ecmerkle.github.io/blavaan/reference/dpriors.md)
   help file for more information.
-
-- estimator:
-
-  The estimator to be used. Currently only `"ML"` (maximum likelihood)
-  is supported.
 
 - vb_correction:
 
@@ -177,30 +171,28 @@ fit <- inlavaan(
   auto.fix.first = TRUE,
   auto.cov.lv.x = TRUE
 )
-#> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [192ms]
+#> ✔ Finding posterior mode. [195ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [374ms]
+#> ✔ Computing the Hessian. [383ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [324ms]
+#> ✔ Performing VB correction. [323ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 16/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [202ms]
+#> ✔ Sampling covariances and defined parameters. [200ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.5s]
+#> ✔ Computing ppp and DIC. [2.4s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 77 iterations
+#> INLAvaan 0.2.1.9000 ended normally after 77 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -215,8 +207,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.288 
-#>    Effective parameters (pD)                    21.135 
+#>    Deviance (DIC)                             7518.611 
+#>    Effective parameters (pD)                    21.296 
 #> 
 #> Parameter Estimates:
 #> 
@@ -241,10 +233,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.443    0.075    0.237    0.533    0.001       beta(1,1)
-#>     speed             0.469    0.051    0.142    0.340    0.000       beta(1,1)
+#>     textual           0.443    0.077    0.231    0.532    0.001       beta(1,1)
+#>     speed             0.469    0.051    0.138    0.339    0.000       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.049    0.069    0.260    0.002       beta(1,1)
+#>     speed             0.277    0.048    0.068    0.256    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

@@ -97,23 +97,22 @@ the variables.
 ``` r
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
-#> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [23ms]
+#> ✔ Finding posterior mode. [32ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [87ms]
+#> ✔ Computing the Hessian. [88ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [244ms]
+#> ✔ Performing VB correction. [255ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [361ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [363ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.5s]
+#> ✔ Computing ppp and DIC. [1.4s]
 #> 
 ```
 
@@ -129,7 +128,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 5 iterations
+#> INLAvaan 0.2.1.9000 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -140,12 +139,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -311.923 
-#>    PPP (Chi-square)                              0.584 
+#>    PPP (Chi-square)                              0.559 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              569.320 
-#>    Effective parameters (pD)                     7.200 
+#>    Deviance (DIC)                              568.757 
+#>    Effective parameters (pD)                     6.919 
 #> 
 #> Parameter Estimates:
 #> 
@@ -173,8 +172,8 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.406    0.107    0.219    0.609                         
-#>     total             0.347    0.134    0.097    0.619
+#>     ab                0.401    0.101    0.218    0.596                         
+#>     total             0.331    0.129    0.060    0.573
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -187,13 +186,13 @@ output:
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.296, 0.176\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.406 (true value 0.35). The
-  interval \[0.219, 0.609\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.401 (true value 0.35). The
+  interval \[0.218, 0.596\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.347.
+- Total Effect estimated at 0.331.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.347 in $Y$.
+    of roughly 0.331 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full

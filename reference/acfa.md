@@ -9,7 +9,6 @@ acfa(
   model,
   data,
   dp = blavaan::dpriors(),
-  estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = "standard",
@@ -50,11 +49,6 @@ acfa(
   See the
   [`dpriors()`](http://ecmerkle.github.io/blavaan/reference/dpriors.md)
   help file for more information.
-
-- estimator:
-
-  The estimator to be used. Currently only `"ML"` (maximum likelihood)
-  is supported.
 
 - marginal_method:
 
@@ -182,26 +176,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
-#> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [135ms]
+#> ✔ Finding posterior mode. [138ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [371ms]
+#> ✔ Computing the Hessian. [362ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [303ms]
+#> ✔ Performing VB correction. [312ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 17/21 marginals.
 #> ✔ Fitting skew normal to 21/21 marginals. [1.6s]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [194ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 56 iterations
+#> INLAvaan 0.2.1.9000 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -216,8 +208,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.970 
-#>    Effective parameters (pD)                    21.610 
+#>    Deviance (DIC)                             7517.626 
+#>    Effective parameters (pD)                    20.938 
 #> 
 #> Parameter Estimates:
 #> 

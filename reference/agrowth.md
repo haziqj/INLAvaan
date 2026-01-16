@@ -9,7 +9,6 @@ agrowth(
   model,
   data,
   dp = blavaan::dpriors(),
-  estimator = "ML",
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 1000,
   test = "standard",
@@ -50,11 +49,6 @@ agrowth(
   See the
   [`dpriors()`](http://ecmerkle.github.io/blavaan/reference/dpriors.md)
   help file for more information.
-
-- estimator:
-
-  The estimator to be used. Currently only `"ML"` (maximum likelihood)
-  is supported.
 
 - marginal_method:
 
@@ -203,29 +197,27 @@ str(Demo.growth)
 #>  $ c4: num  -1.0064 1.2293 -0.3273 -1.0324 -0.0275 ...
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
-#> ℹ Using MVN log-likelihood.
 #> ℹ Finding posterior mode.
 #> ✔ Finding posterior mode. [265ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [379ms]
+#> ✔ Computing the Hessian. [377ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [454ms]
+#> ✔ Performing VB correction. [458ms]
 #> 
 #> ℹ Using skew normal approximation.
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ⠹ Fitting skew normal to 12/17 marginals.
 #> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
 #> ✔ Sampling covariances and defined parameters. [53ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [251ms]
+#> ✔ Computing ppp and DIC. [252ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1 ended normally after 85 iterations
+#> INLAvaan 0.2.1.9000 ended normally after 85 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -236,12 +228,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.958 
-#>    PPP (Chi-square)                              0.980 
+#>    PPP (Chi-square)                              0.940 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.887 
-#>    Effective parameters (pD)                    17.268 
+#>    Deviance (DIC)                             4996.099 
+#>    Effective parameters (pD)                    16.874 
 #> 
 #> Parameter Estimates:
 #> 
@@ -281,7 +273,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.035    0.011    0.150    0.005       beta(1,1)
+#>    .s                 0.153    0.040    0.004    0.160    0.005       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

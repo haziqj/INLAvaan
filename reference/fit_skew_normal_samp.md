@@ -42,6 +42,6 @@ the provided numeric vector `x`.
 ``` r
 x <- rnorm(100, mean = 5, sd = 1)
 unlist(fit_skew_normal_samp(x))
-#>       xi    omega    alpha     logC        k      rsq 
-#> 3.813283 1.526478 2.320540       NA       NA       NA 
+#>          xi       omega       alpha        logC           k         rsq 
+#>  4.97699983  1.00165085 -0.04803852          NA          NA          NA 
 ```
