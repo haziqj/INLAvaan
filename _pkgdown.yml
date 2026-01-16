@@ -31,6 +31,7 @@ reference:
   contents:
     - dbeta_box
     - dsnorm
+    - qsnorm_fast
     - fit_skew_normal
     - fit_skew_normal_samp
     - is_same_function

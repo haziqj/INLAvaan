@@ -73,7 +73,7 @@
 #'
 #' @return Vector of quantiles.
 #' @export
-qsn_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
+qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   # Recycling inputs to match length of p
   n <- length(p)
   if (length(xi) < n) {
