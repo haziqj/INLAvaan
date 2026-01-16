@@ -1,0 +1,155 @@
+---
+title: 'Multilevel SEM'
+# descriotion:
+vignette: >
+  %\VignetteIndexEntry{Two-level SEM}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: '#>'
+---
+
+Standard SEM assumes that all observations are independent. 
+However, data often have a nested structure (e.g., patients within hospitals, employees within companies, or students within schools). 
+Ignoring this structure assumes independence, leading to underestimated posterior uncertainty (overconfidence) and potentially biased parameter estimates.
+
+This vignette demonstrates how to estimate a two-level SEM using INLAvaan.
+A multilevel SEM decomposes the covariance matrix into separate levels:
+
+1. **Within-level:** Variation among individuals relative to their group mean.
+2. **Between-level:** Variation of the group means themselves.
+
+This allows us to ask distinct questions at each level. 
+For example:
+
+> *"Does a student's individual motivation predict their grades (Level 1), and does the school's overall funding predict average school grades (Level 2)?"*
+
+## The Example Scenario
+
+We will use the `Demo.twolevel` dataset included in the R package `{lavaan}`, but to make it easier to follow, we will interpret the variables within an educational context.
+The data contains the following information:
+
+- **Clusters (`cluster`):** 200 different schools.
+- **Observations:** 2500 students nested within these schools.
+- **Outcomes (`y1`, `y2`, `y3`):** Three distinct survey items measuring "Academic Performance."
+- **Within-level Predictors (`x1`, `x2`, `x3`):** Student-specific factors such as Study Hours, Sleep Hours, and Attendance.
+- **Between-level Predictors (`w1`, `w2`):** School-level factors such as Teacher Experience, and School Budget.
+
+For our model, we assume two latent variables:
+
+1. `fw` measuring individual students aptitude (i.e. student ability)
+2. `fb` measuring school quality, i.e. the shared variance in performance attributable to the school environment.
+
+The envisaged two-level SEM can be visualized as follows:
+
+<style>
+.mermaid-js rect{
+  fill: lightyellow!important;
+}
+</style>
+```{mermaid}
+
+graph LR
+
+    %% --- Level 1: Within (Student) ---
+    subgraph L1 [Level 1: Within-Student]
+        direction LR
+        x1[x1] & x2[x2] & x3[x3] --> fw((fw))
+        fw --> y1_w[y1] & y2_w[y2] & y3_w[y3]
+    end
+    
+    %% --- Separator (Invisible edge to force stacking if needed) ---
+    L1 ~~~ L2
+
+    %% --- Level 2: Between (School) ---
+    subgraph L2 [Level 2: Between-School]
+        direction LR
+        w1[w1] & w2[w2] --> fb((fb))
+        fb --> y1_b[y1] & y2_b[y2] & y3_b[y3]
+    end
+    
+        %% --- Styling ---
+    classDef latent fill:#f9f9f9,stroke:#333,stroke-width:2px,shape:circle;
+    classDef observed fill:#fff,stroke:#333,stroke-width:1px,shape:rect;
+    
+    class fw,fb latent;
+    class x1,x2,x3,w1,w2,y1_b,y2_b,y3_b,y1_w,y2_w,y3_w observed;
+```
+
+
+## Load the Package and Data
+
+First, we load INLAvaan and the dataset.
+
+```{r}
+library(INLAvaan)
+data("Demo.twolevel", package = "lavaan")
+head(Demo.twolevel)
+```
+
+## Model Specification and Fit
+
+In `{INLAvaan}` (following lavaan syntax), we specify the model for each level using the `level: <block>` keywords.
+In our example,
+
+- **Level 1:** We define the latent variable `fw` (Student Ability) and regress it on individual predictors (`x`).
+- **Level 2:** We define the latent variable `fb` (School Quality) and regress it on school-level predictors (`w`).
+
+```{r}
+mod <- "
+  level: 1
+      # Measurement model (Within-student)
+      fw =~ y1 + y2 + y3
+      # Structural model: Individual predictors
+      fw ~ x1 + x2 + x3
+
+  level: 2
+      # Measurement model (Between-school)
+      fb =~ y1 + y2 + y3
+      # Structural model: School-level predictors
+      fb ~ w1 + w2
+"
+```
+
+We use the `asem()` function (Approximate SEM) to fit the model. 
+Crucially, we must specify the `cluster` argument to identify the grouping variable.
+
+```{r}
+fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
+```
+
+## Results 
+
+The summary output provides Bayesian estimates (posterior means, standard deviations, and credible intervals) for *both levels*.
+
+```{r}
+summary(fit)
+```
+
+Notice that, the mean structure is automatically included at both levels, so intercepts for all observed variables are estimated by default.
+This is required because the 'between' component specifically models the variation of the cluster means; without estimating these means (intercepts), it is impossible to decompose the variance into within and between levels.
+Looking at the output above, we can draw substantive conclusions based on our educational scenario:
+
+```{r}
+#| include: false
+est <- coef(fit)
+fmt <- function(x) sprintf("%.3f", x)
+```
+
+
+- **Level 1 [within] Regressions**
+  
+  The path `fw ~ x1` is `r fmt(est["fw~x1"])`. This suggests that for every unit increase in `x1` (e.g., Study Hours), the student's individual ability (`fw`) increases significantly.
+
+- **Level 2 [cluster] Regressions**
+
+  The path `fb ~ w1` is `r fmt(est["fb~w1.l2"])` This suggests a positive relationship between school-level factors (like Teacher Experience) and the overall School Quality (`fb`), though the standard deviation is wider here due to the smaller sample size at Level 2 ($n=200$ schools vs $n=2500$ students).
+
+- **Latent Variables:**
+  
+  The loadings for `y1`, `y2`, and `y3` on both `fw` and `fb` are significant (0 not included in credible interval) and thus confirm that these survey items effectively measure both individual ability and school-level quality.
+
+
+
