@@ -128,20 +128,20 @@
 <span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="st">"eta  =~ y1 + y2 + y3 + y4 + y5"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span>, ordered <span class="op">=</span> <span class="cn">TRUE</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, estimator <span class="op">=</span> <span class="st">"PML"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [184ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [185ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [327ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [329ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [882ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [884ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/10 marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fitting skew normal to 10/10 marginals. [1.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [2.4s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [2.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.1.9002 ended normally after 37 iterations</span></span>
@@ -159,8 +159,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             2135.959 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    12.505 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             2137.563 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    13.306 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -196,11 +196,11 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Scales y*:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior     </span></span>
-<span><span class="co">#&gt;     y1                1.399    0.355    1.030    2.303                       </span></span>
-<span><span class="co">#&gt;     y2                1.244    0.147    1.063    1.672                       </span></span>
-<span><span class="co">#&gt;     y3                1.264    0.168    1.047    1.643                       </span></span>
-<span><span class="co">#&gt;     y4                1.639    0.465    1.077    2.752                       </span></span>
-<span><span class="co">#&gt;     y5                1.146    0.112    1.014    1.442</span></span>
+<span><span class="co">#&gt;     y1                1.400    0.314    1.027    2.178                       </span></span>
+<span><span class="co">#&gt;     y2                1.236    0.136    1.076    1.577                       </span></span>
+<span><span class="co">#&gt;     y3                1.262    0.170    1.056    1.716                       </span></span>
+<span><span class="co">#&gt;     y4                1.659    0.472    1.078    2.703                       </span></span>
+<span><span class="co">#&gt;     y5                1.150    0.116    1.009    1.407</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, truth <span class="op">=</span> <span class="va">truval</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>

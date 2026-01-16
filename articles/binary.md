@@ -65,20 +65,20 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [184ms]
+#> ✔ Finding posterior mode. [185ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [327ms]
+#> ✔ Computing the Hessian. [329ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [882ms]
+#> ✔ Performing VB correction. [884ms]
 #> 
 #> ⠙ Fitting skew normal to 0/10 marginals.
 #> ✔ Fitting skew normal to 10/10 marginals. [1.2s]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [2.4s]
+#> ✔ Computing ppp and DIC. [2.5s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.1.9002 ended normally after 37 iterations
@@ -96,8 +96,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             2135.959 
-#>    Effective parameters (pD)                    12.505 
+#>    Deviance (DIC)                             2137.563 
+#>    Effective parameters (pD)                    13.306 
 #> 
 #> Parameter Estimates:
 #> 
@@ -133,11 +133,11 @@ summary(fit)
 #> 
 #> Scales y*:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
-#>     y1                1.399    0.355    1.030    2.303                       
-#>     y2                1.244    0.147    1.063    1.672                       
-#>     y3                1.264    0.168    1.047    1.643                       
-#>     y4                1.639    0.465    1.077    2.752                       
-#>     y5                1.146    0.112    1.014    1.442
+#>     y1                1.400    0.314    1.027    2.178                       
+#>     y2                1.236    0.136    1.076    1.577                       
+#>     y3                1.262    0.170    1.056    1.716                       
+#>     y4                1.659    0.472    1.078    2.703                       
+#>     y5                1.150    0.116    1.009    1.407
 plot(fit, truth = truval)
 ```
 

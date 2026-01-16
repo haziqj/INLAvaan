@@ -218,20 +218,21 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">asem</span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, test <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[235ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[241ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[656ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[661ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Performing VB correction. <span style="color: #B2B2B2;">[585ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Performing VB correction. <span style="color: #B2B2B2;">[587ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew normal to 0/28 marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 17/28 marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 28/28 marginals. <span style="color: #B2B2B2;">[3.6s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 3/28 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting skew normal to 26/28 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 28/28 marginals. <span style="color: #B2B2B2;">[3.7s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling covariances and defined parameters.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[351ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[350ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.2.1.9002 ended normally after 70 iterations</span>
@@ -279,16 +280,16 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> Covariances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y1 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                0.281    0.390   -0.002    1.524    0.005       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                0.281    0.371    0.017    1.474    0.005       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y2 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                0.274    0.704    0.102    2.868    0.009       beta(1,1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                0.343    0.734    0.819    3.702    0.011       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                0.274    0.699    0.121    2.868    0.009       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                0.343    0.743    0.818    3.736    0.011       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y3 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                0.184    0.612   -0.310    2.095    0.011       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                0.184    0.632   -0.334    2.150    0.011       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y4 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.107    0.470   -0.423    1.419    0.010       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.107    0.464   -0.458    1.364    0.010       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y6 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.312    0.597    0.306    2.636    0.013       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.312    0.575    0.236    2.493    0.013       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>

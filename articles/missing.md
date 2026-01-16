@@ -39,7 +39,7 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [302ms]
+#> ✔ Finding posterior mode. [303ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [1.3s]
@@ -48,18 +48,18 @@ fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ✔ Performing VB correction. [2s]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 3/42 marginals.
-#> ⠸ Fitting skew normal to 16/42 marginals.
-#> ⠼ Fitting skew normal to 28/42 marginals.
-#> ⠴ Fitting skew normal to 42/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [9.8s]
+#> ⠹ Fitting skew normal to 2/42 marginals.
+#> ⠸ Fitting skew normal to 15/42 marginals.
+#> ⠼ Fitting skew normal to 27/42 marginals.
+#> ⠴ Fitting skew normal to 40/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [9.9s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [347ms]
+#> ✔ Sampling covariances and defined parameters. [338ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [4.5s]
+#> ✔ Computing ppp and DIC. [4.6s]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -76,7 +76,7 @@ print(fit1)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -400.884 
-#>    PPP (Chi-square)                              0.362
+#>    PPP (Chi-square)                              0.340
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        1.503        1.383        0.572        0.463        0.952        1.429 
@@ -99,29 +99,29 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [627ms]
+#> ✔ Finding posterior mode. [644ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [2.1s]
+#> ✔ Computing the Hessian. [2.2s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [1.7s]
+#> ✔ Performing VB correction. [1.8s]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 6/42 marginals.
-#> ⠸ Fitting skew normal to 14/42 marginals.
-#> ⠼ Fitting skew normal to 23/42 marginals.
-#> ⠴ Fitting skew normal to 31/42 marginals.
-#> ⠦ Fitting skew normal to 39/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [15.6s]
+#> ⠹ Fitting skew normal to 4/42 marginals.
+#> ⠸ Fitting skew normal to 12/42 marginals.
+#> ⠼ Fitting skew normal to 20/42 marginals.
+#> ⠴ Fitting skew normal to 27/42 marginals.
+#> ⠦ Fitting skew normal to 35/42 marginals.
+#> ⠧ Fitting skew normal to 42/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [16.6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [340ms]
+#> ✔ Sampling covariances and defined parameters. [357ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ⠸ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [5.3s]
+#> ✔ Computing ppp and DIC. [5.5s]
 #> 
 print(fit2)
 #> INLAvaan 0.2.1.9002 ended normally after 85 iterations
@@ -136,7 +136,7 @@ print(fit2)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1314.590 
-#>    PPP (Chi-square)                              0.000
+#>    PPP (Chi-square)                              0.001
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        2.334        2.006        0.642        0.776        0.917        1.051 
