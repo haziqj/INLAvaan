@@ -1,0 +1,73 @@
+---
+title: 'Missing Values'
+# descriotion:
+vignette: >
+  %\VignetteIndexEntry{Missing Values}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: '#>'
+---
+
+`{INLAvaan}` handles missing data in one of two ways: listwise deletion (default, i.e. uses all complete cases) or Full Information Maximum Likelihood (FIML; `missing = "ML"`).
+
+## Simulate Data
+
+```{r}
+library(INLAvaan)
+mod <- "
+    # Latent variable definitions
+    ind60 =~ x1 + x2 + x3
+    dem60 =~ y1 + y2 + y3 + y4
+    dem65 =~ y5 + y6 + y7 + y8
+
+    # Latent regressions
+    dem60 ~ ind60
+    dem65 ~ ind60 + dem60
+
+    # Residual correlations
+    y1 ~~ y5
+    y2 ~~ y4 + y6
+    y3 ~~ y7
+    y4 ~~ y8
+    y6 ~~ y8
+  "
+dat <- lavaan::PoliticalDemocracy
+
+# Simulate missingness (MCAR)
+set.seed(161)
+mis <- matrix(rbinom(prod(dim(dat)), 1, 0.9), nrow(dat), ncol(dat))
+datmiss <- dat * mis
+datmiss[datmiss == 0] <- NA
+```
+
+## Listwise Deletion
+
+```{r}
+fit1 <- asem(mod, datmiss, meanstructure = TRUE)
+fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
+print(fit1)
+coef(fit1)
+```
+
+## Full Information Maximum Likelihood (FIML)
+
+```{r}
+fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
+print(fit2)
+coef(fit2)
+```
+
+```{r}
+plot(
+  coef(fit1), 
+  coef(fit2), 
+  xlab = "Listwise Deletion Estimates", 
+  ylab = "FIML Estimates"
+)
+abline(0, 1)
+```
+
+
