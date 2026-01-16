@@ -198,26 +198,26 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [260ms]
+#> ✔ Finding posterior mode. [266ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [381ms]
+#> ✔ Computing the Hessian. [398ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [426ms]
+#> ✔ Performing VB correction. [400ms]
 #> 
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ⠹ Fitting skew normal to 13/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [1.6s]
+#> ✔ Fitting skew normal to 17/17 marginals. [1.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [53ms]
+#> ✔ Sampling covariances and defined parameters. [52ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [245ms]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [177ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1.9002 ended normally after 85 iterations
+#> INLAvaan 0.2.1.9003 ended normally after 85 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -228,12 +228,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.958 
-#>    PPP (Chi-square)                              0.960 
+#>    PPP (Chi-square)                              0.840 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4995.464 
-#>    Effective parameters (pD)                    16.556 
+#>    Deviance (DIC)                             5005.222 
+#>    Effective parameters (pD)                    21.436 
 #> 
 #> Parameter Estimates:
 #> 
@@ -273,7 +273,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.040   -0.005    0.150    0.005       beta(1,1)
+#>    .s                 0.153    0.042   -0.014    0.150    0.005       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -286,11 +286,11 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .t1                0.591    0.081    0.441    0.759    0.005 gamma(1,.5)[sd]
+#>    .t1                0.591    0.081    0.950    0.441    0.005 gamma(1,.5)[sd]
 #>    .t2                0.605    0.055    0.503    0.721    0.001 gamma(1,.5)[sd]
-#>    .t3                0.488    0.056    0.386    0.604    0.002 gamma(1,.5)[sd]
-#>    .t4                0.543    0.098    0.367    0.751    0.004 gamma(1,.5)[sd]
-#>    .i                 1.099    0.115    0.891    1.340    0.001 gamma(1,.5)[sd]
-#>    .s                 0.229    0.027    0.181    0.286    0.001 gamma(1,.5)[sd]
+#>    .t3                0.488    0.056    0.604    0.386    0.002 gamma(1,.5)[sd]
+#>    .t4                0.543    0.098    1.034    0.366    0.004 gamma(1,.5)[sd]
+#>    .i                 1.099    0.115    1.340    0.891    0.001 gamma(1,.5)[sd]
+#>    .s                 0.229    0.027    0.286    0.181    0.001 gamma(1,.5)[sd]
 #> 
 ```

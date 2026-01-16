@@ -98,19 +98,20 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [35ms]
+#> ✔ Finding posterior mode. [33ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [93ms]
+#> ✔ Computing the Hessian. [92ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [302ms]
+#> ✔ Performing VB correction. [260ms]
 #> 
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [405ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [273ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.5s]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [722ms]
 #> 
 ```
 
@@ -126,7 +127,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.1.9002 ended normally after 5 iterations
+#> INLAvaan 0.2.1.9003 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -137,12 +138,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -311.923 
-#>    PPP (Chi-square)                              0.601 
+#>    PPP (Chi-square)                              0.578 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              569.302 
-#>    Effective parameters (pD)                     7.192 
+#>    Deviance (DIC)                              569.218 
+#>    Effective parameters (pD)                     7.150 
 #> 
 #> Parameter Estimates:
 #> 
@@ -165,13 +166,13 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                 0.975    0.144    0.732    1.297    0.004 gamma(1,.5)[sd]
-#>    .M                 0.998    0.147    0.749    1.325    0.004 gamma(1,.5)[sd]
+#>    .Y                 0.975    0.144    0.732    1.298    0.004 gamma(1,.5)[sd]
+#>    .M                 0.998    0.147    0.750    1.326    0.004 gamma(1,.5)[sd]
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.404    0.099    0.223    0.616                         
-#>     total             0.344    0.138    0.099    0.577
+#>     ab                0.394    0.099    0.236    0.613                         
+#>     total             0.335    0.132    0.081    0.598
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -184,13 +185,13 @@ output:
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.296, 0.176\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.404 (true value 0.35). The
-  interval \[0.223, 0.616\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.394 (true value 0.35). The
+  interval \[0.236, 0.613\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.344.
+- Total Effect estimated at 0.335.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.344 in $Y$.
+    of roughly 0.335 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full

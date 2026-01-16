@@ -36,6 +36,8 @@ Main lavaan-style functions to estimate SEM.
   Density of a Beta distribution on a bounded interval
 - [`dsnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md) : The
   Skew Normal Distribution
+- [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md)
+  : Fast Approximation of Skew-Normal Quantile Function
 - [`fit_skew_normal()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal.md)
   : Fit a skew normal distribution to log-density evaluations
 - [`fit_skew_normal_samp()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal_samp.md)
