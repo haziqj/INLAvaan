@@ -58,6 +58,8 @@ navbar:
         href: articles/multilevel.html
       - text: Mediation analysis
         href: articles/mediation.html
+      - text: Missing data
+        href: articles/missing.html        
       - text: Binary CFA
         href: articles/binary.html
       # - text: -------
