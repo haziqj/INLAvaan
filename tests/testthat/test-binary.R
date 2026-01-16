@@ -16,7 +16,7 @@ mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 
 test_that("Method: skewnorm", {
   expect_no_error({
-    fit <- acfa(mod, dat, ordered = TRUE, verbose = FALSE, nsamp = NSAMP)
+    fit <- acfa(mod, dat, ordered = TRUE, verbose = FALSE, nsamp = 3)
   })
   expect_no_error(out <- capture.output(summary(fit)))
   expect_no_error(out <- plot(fit))
