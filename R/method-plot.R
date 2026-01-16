@@ -4,7 +4,7 @@ plot.inlavaan_internal <- function(x, truth, ...) {
   all_plots <- list()
   postmode <- x$summary[, "Mode"]
 
-  for (j in seq_along(x$pdf_data)) {
+  for (j in seq_len(max(fit$partable$free))) {
     param <- names(x$pdf_data)[j]
     plot_df <- x$pdf_data[[param]]
 

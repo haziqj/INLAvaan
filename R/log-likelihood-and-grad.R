@@ -27,7 +27,6 @@ inlav_model_loglik <- function(
       # Pairwise log-likelihood
       no_ord <- length(lavdata@ordered)
       kappa <- 1 / sqrt(no_ord) # scaling factor for PML
-      kappa <- 1
       fx <- lavaan___lav_model_objective(
         lavmodel = lavmodel_x,
         GLIST = NULL,

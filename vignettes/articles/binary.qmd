@@ -17,10 +17,11 @@ Some notes:
 
 - Using PML is considered a "limited-information" approach, due to pairwise likelihood contributions not utilising the fully joint information in the data.
 - The scale of the PML function will significantly be different, since the total pairwise log-likelihood adds up contributions in pairs. Following the literature on spatial models using composite likelihoods, `{INLAvaan}` adjusts this by a factor of $1/\sqrt{p}$.
+- It is proabably unwise to use the Laplace-approximated marginal likelihood for model comparison. The ppp also may not be suitable for ordinal data and needs a rethink.
 - Bayesian estimation of CFA favours the `parameterization = "theta"` option, since the priors on residual variances are more intuitive to specify. `{INLAvaan}` switches to this by default.
 - For binary models, normal priors for the thresholds should be fine. But looking ahead for ordinal models, the priors for thresholds should be specified in such a way that the ordering is preserved $\tau_0 < \tau_1 < \tau_2 < \cdots < \tau_k$. This is not yet implemented in `{INLAvaan}`.
 
-Having said that, let's take a look at how binary CFA works in `{INLAvaan}`.
+Having said that, let's take a look at how binary CFA can be implemented in `{INLAvaan}`.
 
 ```{r}
 library(INLAvaan)
@@ -44,7 +45,7 @@ head(dat)
 
 # Fit INLAvaan model
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
-fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML", meanstructure = FALSE)
+fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 plot(fit, truth = truval)
 ```
 
