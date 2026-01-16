@@ -25,7 +25,7 @@ sample_params <- function(
           xi <- approx_data[j, "xi"]
           omega <- approx_data[j, "omega"]
           alpha <- approx_data[j, "alpha"]
-          sn::qsn(u[, j], xi = xi, omega = omega, alpha = alpha)
+          qsn_fast(u[, j], xi = xi, omega = omega, alpha = alpha)
         })
       )
     } else if (method == "asymgaus") {
@@ -315,12 +315,11 @@ sample_covariances_fit_sn <- function(
     Ex <- xi + omega * delta * sqrt(2 / pi)
     Vx <- omega^2 * (1 - 2 * delta^2 / pi)
     SDx <- sqrt(Vx)
-    qq <- sn::qsn(
+    qq <- qsn_fast(
       c(0.025, 0.5, 0.975),
       xi = xi,
       omega = omega,
-      alpha = alpha,
-      solver = "RFB"
+      alpha = alpha
     )
 
     x <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
