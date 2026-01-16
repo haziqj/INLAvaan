@@ -5,7 +5,9 @@
 - Under the hood, use lavaan’s MVN log-likelihood function to compute
   single- and multi-level log-likelihoods.
 - Added support for multi-level SEM models.
-- Added support for ordinal data using PML estimator from lavaan.
+- Added support for binary data using PML estimator from lavaan. NOTE:
+  Ordinal is possible in theory, but the package still lacks proper
+  prior support for the thresholds.
 
 ## INLAvaan 0.2.1
 

@@ -21,5 +21,7 @@
 - [Multigroup
   Analysis](https://inlavaan.haziqj.ml/articles/multigroup.md):
 
+- [Multilevel SEM](https://inlavaan.haziqj.ml/articles/multilevel.md):
+
 - [Structural Equation
   Modelling](https://inlavaan.haziqj.ml/articles/sem.md):
