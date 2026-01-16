@@ -54,8 +54,12 @@ navbar:
         href: articles/eqcon.html
       - text: Multigroup analysis
         href: articles/multigroup.html
+      - text: Multilevel SEM
+        href: articles/multilevel.html
       - text: Mediation analysis
-        href: articles/mediation.html        
+        href: articles/mediation.html
+      - text: Binary CFA
+        href: articles/binary.html
       # - text: -------
       # - text: Outro
       #   href: articles/outro.html
