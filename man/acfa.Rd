@@ -9,7 +9,7 @@ acfa(
   data,
   dp = blavaan::dpriors(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 1000,
+  nsamp = 500,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
