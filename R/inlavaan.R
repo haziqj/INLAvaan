@@ -60,7 +60,7 @@ inlavaan <- function(
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
-  nsamp = 1000,
+  nsamp = 500,
   test = "standard",
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
@@ -130,12 +130,17 @@ inlavaan <- function(
   m <- length(PTFREEIDX)
   parnames <- pt$names[PTFREEIDX]
 
+  # Cache partable for prior logdens and grad
+  prior_cache <- prepare_priors_for_optim(pt)
+
   ## ----- Prep work for approximation -----------------------------------------
   joint_lp <- function(pars) {
     if (isTRUE(ceq.simple)) {
-      pars <- as.numeric(ceq.K %*% pars)
-    } # Unpack
-    x <- pars_to_x(pars, pt)
+      pars_unpacked <- as.numeric(ceq.K %*% pars)
+      x <- pars_to_x(pars_unpacked, pt)
+    } else {
+      x <- pars_to_x(pars, pt)
+    }
     ll <- inlav_model_loglik(
       x,
       lavmodel,
@@ -146,7 +151,9 @@ inlavaan <- function(
     )
     pld <- 0
     if (isTRUE(add_priors)) {
-      pld <- prior_logdens(pars, pt)
+      # Always take in packed version
+      # pld <- prior_logdens(pars, pt)
+      pld <- prior_logdens_vectorized(pars, prior_cache, debug = FALSE)
     }
     as.numeric(ll + pld)
   }
@@ -154,13 +161,20 @@ inlavaan <- function(
   joint_lp_grad <- function(pars) {
     # First, the likelihood gradient
     if (isTRUE(ceq.simple)) {
-      pars <- as.numeric(ceq.K %*% pars)
-    } # Unpack
-    x <- pars_to_x(pars, pt)
+      pars_unpacked <- as.numeric(ceq.K %*% pars)
+      x <- pars_to_x(pars_unpacked, pt)
+      jcb <- mapply(
+        function(f, x) f(x),
+        pt$ginv_prime[pt$free > 0],
+        pars_unpacked
+      )
+    } else {
+      x <- pars_to_x(pars, pt)
+      jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
+    }
     gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
 
     # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
-    jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
     jcb <- diag(jcb, length(jcb))
 
     # This is the extra jacobian adjustment for covariances, since dx/dθ affects
@@ -181,10 +195,12 @@ inlavaan <- function(
       gll_th <- as.numeric(gll_th %*% ceq.K)
     } # Repack
 
-    # Second, the prior gradient
+    # Next, the prior gradient
     glp_th <- 0
     if (isTRUE(add_priors)) {
-      glp_th <- prior_grad(pars, pt)
+      # Always take in packed version
+      # glp_th <- prior_grad(pars, pt)
+      glp_th <- prior_grad_vectorized(pars, prior_cache)
     }
 
     as.numeric(gll_th + glp_th)
@@ -743,7 +759,7 @@ acfa <- function(
   data,
   dp = blavaan::dpriors(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 1000,
+  nsamp = 500,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
@@ -790,7 +806,7 @@ asem <- function(
   data,
   dp = blavaan::dpriors(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 1000,
+  nsamp = 500,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
@@ -835,7 +851,7 @@ agrowth <- function(
   data,
   dp = blavaan::dpriors(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 1000,
+  nsamp = 500,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,

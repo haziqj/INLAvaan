@@ -51,11 +51,10 @@ test_that("Straight from textual model", {
   idx <- which(
     pt$names %in% c("visual=~x2", "textual=~x6", "x1~~x1", "textual~~textual")
   )
-  res <- prior_logdens(
-    c(2, 4, 1, 1),
-    lapply(pt, function(x) x[idx]),
-    debug = TRUE
-  )
+  short_pt <- lapply(pt, function(x) x[idx])
+  short_pt$free <- 1:4
+
+  res <- prior_logdens(c(2, 4, 1, 1), short_pt, debug = TRUE)
 
   # Check log densities
   expect_equal(
