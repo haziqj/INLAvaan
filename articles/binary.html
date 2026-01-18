@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,22 +128,22 @@
 <span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="st">"eta  =~ y1 + y2 + y3 + y4 + y5"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span>, ordered <span class="op">=</span> <span class="cn">TRUE</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, estimator <span class="op">=</span> <span class="st">"PML"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [185ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [160ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [336ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [282ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [900ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [745ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/10 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 10/10 marginals. [1s]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 10/10 marginals. [865ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [1.1s]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [564ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1.9003 ended normally after 37 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.1.9004 ended normally after 37 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -158,8 +158,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             2313.547 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                   101.299 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             2306.011 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    97.530 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -195,11 +195,11 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Scales y*:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior     </span></span>
-<span><span class="co">#&gt;     y1                1.435    0.333    1.025    2.262                       </span></span>
-<span><span class="co">#&gt;     y2                1.236    0.140    1.072    1.570                       </span></span>
-<span><span class="co">#&gt;     y3                1.260    0.150    1.059    1.633                       </span></span>
-<span><span class="co">#&gt;     y4                1.692    0.541    1.073    3.029                       </span></span>
-<span><span class="co">#&gt;     y5                1.162    0.120    1.008    1.476</span></span>
+<span><span class="co">#&gt;     y1                1.413    0.317    1.028    2.191                       </span></span>
+<span><span class="co">#&gt;     y2                1.240    0.136    1.067    1.577                       </span></span>
+<span><span class="co">#&gt;     y3                1.270    0.171    1.058    1.674                       </span></span>
+<span><span class="co">#&gt;     y4                1.669    0.491    1.025    2.872                       </span></span>
+<span><span class="co">#&gt;     y5                1.153    0.115    1.015    1.445</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, truth <span class="op">=</span> <span class="va">truval</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>

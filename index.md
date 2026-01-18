@@ -51,38 +51,30 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [110ms]
+#> ✔ Finding posterior mode. [33ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [299ms]
+#> ✔ Computing the Hessian. [98ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [251ms]
+#> ✔ Performing VB correction. [83ms]
 #> 
 #> ⠙ Fitting skew normal to 0/31 marginals.
-#> ⠹ Fitting skew normal to 1/31 marginals.
-#> ⠸ Fitting skew normal to 5/31 marginals.
-#> ⠼ Fitting skew normal to 9/31 marginals.
-#> ⠴ Fitting skew normal to 12/31 marginals.
-#> ⠦ Fitting skew normal to 16/31 marginals.
-#> ⠧ Fitting skew normal to 19/31 marginals.
-#> ⠇ Fitting skew normal to 23/31 marginals.
-#> ⠏ Fitting skew normal to 26/31 marginals.
-#> ⠋ Fitting skew normal to 30/31 marginals.
-#> ✔ Fitting skew normal to 31/31 marginals. [1.8s]
+#> ⠹ Fitting skew normal to 4/31 marginals.
+#> ⠸ Fitting skew normal to 14/31 marginals.
+#> ⠼ Fitting skew normal to 25/31 marginals.
+#> ✔ Fitting skew normal to 31/31 marginals. [592ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [106ms]
+#> ✔ Sampling covariances and defined parameters. [76ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ⠸ Computing ppp and DIC.
-#> ⠼ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [428ms]
+#> ✔ Computing ppp and DIC. [179ms]
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.1.9003 ended normally after 77 iterations
+#> INLAvaan 0.2.1.9004 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -93,12 +85,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1656.678 
-#>    PPP (Chi-square)                              0.157 
+#>    PPP (Chi-square)                              0.152 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3222.833 
-#>    Effective parameters (pD)                    62.715 
+#>    Deviance (DIC)                             3220.976 
+#>    Effective parameters (pD)                    61.787 
 #> 
 #> Parameter Estimates:
 #> 
@@ -109,7 +101,7 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   ind60 =~                                                                     
 #>     x1                1.000                                                    
-#>     x2                2.208    0.145    1.940    2.511    0.004    normal(0,10)
+#>     x2                2.207    0.145    1.940    2.508    0.004    normal(0,10)
 #>     x3                1.843    0.156    1.539    2.149    0.002    normal(0,10)
 #>   dem60 =~                                                                     
 #>     y1                1.000                                                    
@@ -119,7 +111,7 @@ summary(fit)
 #>   dem65 =~                                                                     
 #>     y5                1.000                                                    
 #>     y6                1.232    0.189    0.891    1.633    0.009    normal(0,10)
-#>     y7                1.324    0.170    1.006    1.674    0.004    normal(0,10)
+#>     y7                1.324    0.170    1.006    1.673    0.004    normal(0,10)
 #>     y8                1.313    0.172    0.982    1.659    0.001    normal(0,10)
 #> 
 #> Regressions:
@@ -133,23 +125,23 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.308    0.382    0.069    1.567    0.007       beta(1,1)
+#>    .y5                0.308    0.431    0.063    1.737    0.006       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.241    0.711   -0.080    2.712    0.007       beta(1,1)
-#>    .y6                0.348    0.745    0.747    3.673    0.029       beta(1,1)
+#>    .y4                0.241    0.742   -0.025    2.878    0.007       beta(1,1)
+#>    .y6                0.348    0.733    0.740    3.619    0.028       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.211    0.629   -0.145    2.325    0.006       beta(1,1)
+#>    .y7                0.211    0.622   -0.071    2.368    0.009       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.098    0.475   -0.474    1.387    0.008       beta(1,1)
+#>    .y8                0.098    0.459   -0.501    1.303    0.008       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.309    0.586    0.294    2.590    0.013       beta(1,1)
+#>    .y8                0.309    0.587    0.292    2.593    0.013       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>     ind60             0.455    0.090    0.309    0.661    0.004      gamma(1,1)
 #>    .dem60             3.407    0.791    2.131    5.214    0.001     gamma(1,.9)
-#>    .dem65             0.341    0.201    4.515    0.056    0.034     gamma(1,.5)
-#>    .x1                0.088    0.020    0.133    0.053    0.013 gamma(1,.5)[sd]
+#>    .dem65             0.342    0.201    4.504    0.056    0.034     gamma(1,.5)
+#>    .x1                0.088    0.020    0.133    0.053    0.011 gamma(1,.5)[sd]
 #>    .x2                0.132    0.074    1.405    0.027    0.045 gamma(1,.5)[sd]
 #>    .x3                0.498    0.097    0.339    0.718    0.002 gamma(1,.5)[sd]
 #>    .y1                2.152    0.523    1.312    3.349    0.003 gamma(1,.5)[sd]
@@ -157,7 +149,7 @@ summary(fit)
 #>    .y3                5.423    1.070    3.676    7.857    0.002 gamma(1,.5)[sd]
 #>    .y4                3.163    0.826    5.062    1.847    0.004 gamma(1,.5)[sd]
 #>    .y5                2.557    0.547    1.670    3.802    0.000 gamma(1,.5)[sd]
-#>    .y6                5.166    0.992    3.544    7.424    0.003 gamma(1,.5)[sd]
+#>    .y6                5.162    0.990    3.541    7.411    0.002 gamma(1,.5)[sd]
 #>    .y7                3.611    0.789    2.327    5.403    0.002 gamma(1,.5)[sd]
 #>    .y8                3.300    0.759    2.076    5.035    0.001 gamma(1,.5)[sd]
 ```
@@ -216,7 +208,7 @@ To cite package [INLAvaan](https://inlavaan.haziqj.ml/) in publications
 use:
 
 > Jamil, H (2026). *INLAvaan: Bayesian structural equation modelling
-> with INLA*. R package version 0.2.1.9003. URL:
+> with INLA*. R package version 0.2.1.9004. URL:
 > <https://inlavaan.haziqj.ml/>
 
 A BibTeX entry for LaTeX users is:
@@ -226,7 +218,7 @@ A BibTeX entry for LaTeX users is:
     title = {INLAvaan: Bayesian structural equation modelling with INLA},
     author = {Haziq Jamil},
     year = {2026},
-    note = {R package version 0.2.1.9003},
+    note = {R package version 0.2.1.9004},
     url = {https://inlavaan.haziqj.ml/},
   }
 ```

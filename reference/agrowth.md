@@ -10,7 +10,7 @@ agrowth(
   data,
   dp = blavaan::dpriors(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 1000,
+  nsamp = 500,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
@@ -198,26 +198,25 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [266ms]
+#> ✔ Finding posterior mode. [163ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [398ms]
+#> ✔ Computing the Hessian. [240ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [400ms]
+#> ✔ Performing VB correction. [255ms]
 #> 
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [1.7s]
+#> ✔ Fitting skew normal to 17/17 marginals. [992ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [52ms]
+#> ✔ Sampling covariances and defined parameters. [51ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [177ms]
+#> ✔ Computing ppp and DIC. [174ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1.9003 ended normally after 85 iterations
+#> INLAvaan 0.2.1.9004 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -228,12 +227,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.958 
-#>    PPP (Chi-square)                              0.840 
+#>    PPP (Chi-square)                              0.810 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             5005.222 
-#>    Effective parameters (pD)                    21.436 
+#>    Deviance (DIC)                             4997.746 
+#>    Effective parameters (pD)                    17.698 
 #> 
 #> Parameter Estimates:
 #> 
@@ -273,7 +272,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.042   -0.014    0.150    0.005       beta(1,1)
+#>    .s                 0.153    0.043    0.001    0.170    0.005       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

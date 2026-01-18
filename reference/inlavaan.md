@@ -17,7 +17,7 @@ inlavaan(
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
-  nsamp = 1000,
+  nsamp = 500,
   test = "standard",
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
@@ -172,26 +172,26 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [189ms]
+#> ✔ Finding posterior mode. [72ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [384ms]
+#> ✔ Computing the Hessian. [153ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [331ms]
+#> ✔ Performing VB correction. [158ms]
 #> 
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 18/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.8s]
+#> ⠹ Fitting skew normal to 2/21 marginals.
+#> ✔ Fitting skew normal to 21/21 marginals. [704ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [196ms]
+#> ✔ Sampling covariances and defined parameters. [99ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [825ms]
+#> ✔ Computing ppp and DIC. [379ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1.9003 ended normally after 77 iterations
+#> INLAvaan 0.2.1.9004 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -206,8 +206,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7573.221 
-#>    Effective parameters (pD)                    48.601 
+#>    Deviance (DIC)                             7575.928 
+#>    Effective parameters (pD)                    49.955 
 #> 
 #> Parameter Estimates:
 #> 
@@ -218,24 +218,24 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual =~                                                                    
 #>     x1                1.000                                                    
-#>     x2                0.565    0.113    0.354    0.799    0.024    normal(0,10)
-#>     x3                0.756    0.122    0.528    1.009    0.012    normal(0,10)
+#>     x2                0.569    0.114    0.360    0.807    0.038    normal(0,10)
+#>     x3                0.756    0.122    0.529    1.009    0.011    normal(0,10)
 #>   textual =~                                                                   
 #>     x4                1.000                                                    
 #>     x5                1.120    0.067    0.995    1.257    0.004    normal(0,10)
 #>     x6                0.932    0.057    0.822    1.046    0.000    normal(0,10)
 #>   speed =~                                                                     
 #>     x7                1.000                                                    
-#>     x8                1.217    0.161    0.927    1.560    0.022    normal(0,10)
-#>     x9                1.157    0.218    0.795    1.645    0.025    normal(0,10)
+#>     x8                1.218    0.162    0.928    1.562    0.021    normal(0,10)
+#>     x9                1.156    0.217    0.794    1.641    0.024    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.443    0.076    0.234    0.532    0.001       beta(1,1)
-#>     speed             0.469    0.053    0.344    0.136    0.000       beta(1,1)
+#>     textual           0.443    0.072    0.243    0.526    0.001       beta(1,1)
+#>     speed             0.469    0.051    0.136    0.337    0.000       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.047    0.253    0.069    0.002       beta(1,1)
+#>     speed             0.277    0.047    0.252    0.069    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

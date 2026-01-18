@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -163,19 +163,19 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [152ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [83ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [188ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [90ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [237ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [123ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/13 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 13/13 marginals. [676ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 13/13 marginals. [336ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [664ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [346ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney, Kass, and Kadane 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
@@ -189,7 +189,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots</span></span>
 <span><span class="va">fit</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1.9003 ended normally after 62 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.1.9004 ended normally after 62 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -200,7 +200,7 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -8069.067 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.183</span></span></code></pre></div>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.206</span></span></code></pre></div>
 </div>
 <p>As a result, most of the methods that work for <code>lavaan</code> objects will also work for <code>INLAvaan</code> objects. The most common ones are probably <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</p>
 <div class="cell">
@@ -214,7 +214,7 @@
 <span></span>
 <span><span class="co"># Summary of results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1.9003 ended normally after 62 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.1.9004 ended normally after 62 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -225,12 +225,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -8069.067 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.183 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.206 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            16048.629 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    21.392 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            16049.022 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    21.589 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -271,24 +271,24 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">eta_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■                               9% | ETA: 18s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■                          22% | ETA: 16s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■                      38% | ETA: 12s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■                 55% | ETA:  9s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            70% | ETA:  6s</span></span>
-<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       86% | ETA:  3s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■                             13% | ETA: 18s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■                         27% | ETA: 15s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■                    43% | ETA: 12s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■               59% | ETA:  8s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           75% | ETA:  5s</span></span>
+<span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      91% | ETA:  2s</span></span>
 <span><span class="co">#&gt; Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 100</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            eta1       eta2</span></span>
-<span><span class="co">#&gt; [1,]  0.3711482 -0.9226296</span></span>
-<span><span class="co">#&gt; [2,]  1.4025214 -0.9439494</span></span>
-<span><span class="co">#&gt; [3,] -1.6078413 -1.2060404</span></span>
-<span><span class="co">#&gt; [4,]  0.3467170 -0.1176045</span></span>
-<span><span class="co">#&gt; [5,]  1.0725599 -1.4289490</span></span>
-<span><span class="co">#&gt; [6,] -2.2351189 -0.5991488</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,] -0.4189191 -0.0543842</span></span>
+<span><span class="co">#&gt; [2,]  1.3885180 -0.2973207</span></span>
+<span><span class="co">#&gt; [3,] -0.6671400 -1.0767578</span></span>
+<span><span class="co">#&gt; [4,]  0.2782734  0.1843211</span></span>
+<span><span class="co">#&gt; [5,]  0.8765796 -1.3197506</span></span>
+<span><span class="co">#&gt; [6,] -2.1344818 -0.2487156</span></span></code></pre></div>
 </div>
 <p>This is an S3 object with a summary method that provides posterior means and credible intervals for the latent variables. Alternatively, the user is welcome to perform their own summary statistics on the list of posterior samples returned by <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>.</p>
 <div class="cell">
@@ -297,35 +297,35 @@
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">summ_eta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 6</span></span>
 <span><span class="co">#&gt;  $ group_id: NULL</span></span>
-<span><span class="co">#&gt;  $ Mean    : num [1:1000, 1:2] 0.9133 0.6807 -1.0244 -0.0183 1.3112 ...</span></span>
+<span><span class="co">#&gt;  $ Mean    : num [1:1000, 1:2] 0.9081 0.6504 -1.0751 0.0196 1.3227 ...</span></span>
 <span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
 <span><span class="co">#&gt;   .. ..$ : NULL</span></span>
 <span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
-<span><span class="co">#&gt;  $ SD      : num [1:1000, 1:2] 0.427 0.465 0.457 0.444 0.458 ...</span></span>
+<span><span class="co">#&gt;  $ SD      : num [1:1000, 1:2] 0.46 0.397 0.48 0.417 0.383 ...</span></span>
 <span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
 <span><span class="co">#&gt;   .. ..$ : NULL</span></span>
 <span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
-<span><span class="co">#&gt;  $ 2.5%    : num [1:1000, 1:2] 0.1366 -0.0324 -1.9746 -0.9328 0.4293 ...</span></span>
+<span><span class="co">#&gt;  $ 2.5%    : num [1:1000, 1:2] -0.0139 -0.1326 -2.0154 -0.8381 0.7549 ...</span></span>
 <span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
 <span><span class="co">#&gt;   .. ..$ : NULL</span></span>
 <span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
-<span><span class="co">#&gt;  $ 50%     : num [1:1000, 1:2] 0.9299 0.5898 -0.9769 0.0326 1.3308 ...</span></span>
+<span><span class="co">#&gt;  $ 50%     : num [1:1000, 1:2] 0.91941 0.66427 -1.02571 -0.00363 1.28591 ...</span></span>
 <span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
 <span><span class="co">#&gt;   .. ..$ : NULL</span></span>
 <span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
-<span><span class="co">#&gt;  $ 97.5%   : num [1:1000, 1:2] 1.753 1.559 -0.278 0.637 2.07 ...</span></span>
+<span><span class="co">#&gt;  $ 97.5%   : num [1:1000, 1:2] 1.78 1.39 -0.18 0.69 2.09 ...</span></span>
 <span><span class="co">#&gt;   ..- attr(*, "dimnames")=List of 2</span></span>
 <span><span class="co">#&gt;   .. ..$ : NULL</span></span>
 <span><span class="co">#&gt;   .. ..$ : chr [1:2] "eta1" "eta2"</span></span>
 <span><span class="co">#&gt;  - attr(*, "class")= chr "summary.predict.inlavaan_internal"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">summ_eta</span><span class="op">$</span><span class="va">Mean</span><span class="op">)</span></span>
 <span><span class="co">#&gt;             eta1        eta2</span></span>
-<span><span class="co">#&gt; [1,]  0.91325017  0.01046660</span></span>
-<span><span class="co">#&gt; [2,]  0.68070230 -0.29583819</span></span>
-<span><span class="co">#&gt; [3,] -1.02435867 -1.16076152</span></span>
-<span><span class="co">#&gt; [4,] -0.01834243 -0.09859341</span></span>
-<span><span class="co">#&gt; [5,]  1.31120341 -1.49841064</span></span>
-<span><span class="co">#&gt; [6,] -1.76549666 -0.88001240</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,]  0.90805089 -0.01364974</span></span>
+<span><span class="co">#&gt; [2,]  0.65035709 -0.25004468</span></span>
+<span><span class="co">#&gt; [3,] -1.07509575 -1.29170864</span></span>
+<span><span class="co">#&gt; [4,]  0.01962559 -0.18668339</span></span>
+<span><span class="co">#&gt; [5,]  1.32267712 -1.45572614</span></span>
+<span><span class="co">#&gt; [6,] -1.79437830 -0.87271650</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -353,27 +353,27 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [119ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [57ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [153ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [75ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [285ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [105ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/12 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 12/12 marginals. [544ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 12/12 marginals. [338ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [650ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [341ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model No.params Marg.Loglik      DIC       pD   logBF</span></span>
-<span><span class="co">#&gt;    fit        13   -8069.067 16048.63 21.39214   0.000</span></span>
-<span><span class="co">#&gt;   fit2        12   -8088.871 16099.28 20.65509 -19.804</span></span></code></pre></div>
+<span><span class="co">#&gt;    fit        13   -8069.067 16049.02 21.58874   0.000</span></span>
+<span><span class="co">#&gt;   fit2        12   -8088.871 16097.52 19.77467 -19.804</span></span></code></pre></div>
 </div>
 <p>As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs <span class="citation" data-cites="tendeiro2019review schad2023workflow">(<a href="#ref-tendeiro2019review" role="doc-biblioref">Tendeiro and Kiers 2019</a>; <a href="#ref-schad2023workflow" role="doc-biblioref">Schad et al. 2023</a>)</span>. The <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> package is able to implement <a href="https://ecmerkle.github.io/blavaan/articles/model_comparison.html" class="external-link">WAICs and LOOs</a> as alternative model comparison metrics, and these will hopefully also be implemented in future versions of <a href="https://inlavaan.haziqj.ml/">INLAvaan</a>.</p>
 </section><section class="level2"><h2 id="setting-priors">Setting priors<a class="anchor" aria-label="anchor" href="#setting-priors"></a>

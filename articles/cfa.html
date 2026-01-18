@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,23 +100,23 @@
 <span><span class="co"># Fit a CFA model with standardised latent variables</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [151ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [65ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [379ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [141ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ Performing VB correction. [334ms]</span></span>
+<span><span class="co">#&gt; ✔ Performing VB correction. [117ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/21 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 1/21 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 21/21 marginals. [1.7s]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 21/21 marginals. [630ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [86ms]</span></span>
+<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [90ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1.9003 ended normally after 56 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.1.9004 ended normally after 56 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -131,8 +131,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7550.330 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    37.290 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7551.063 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    37.657 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -151,7 +151,7 @@
 <span><span class="co">#&gt;     x6                0.926    0.054    0.820    1.032    0.001    normal(0,10)</span></span>
 <span><span class="co">#&gt;   speed =~                                                                     </span></span>
 <span><span class="co">#&gt;     x7                0.617    0.077    0.766    0.463    0.004    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x8                0.734    0.077    0.587    0.888    0.019    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x8                0.733    0.076    0.586    0.886    0.016    normal(0,10)</span></span>
 <span><span class="co">#&gt;     x9                0.681    0.079    0.530    0.838    0.007    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>

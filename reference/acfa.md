@@ -10,7 +10,7 @@ acfa(
   data,
   dp = blavaan::dpriors(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 1000,
+  nsamp = 500,
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
@@ -177,22 +177,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [429ms]
+#> ✔ Finding posterior mode. [54ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [397ms]
+#> ✔ Computing the Hessian. [136ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [357ms]
+#> ✔ Performing VB correction. [404ms]
 #> 
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [1.6s]
+#> ✔ Fitting skew normal to 21/21 marginals. [655ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [87ms]
+#> ✔ Computing ppp and DIC. [86ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1.9003 ended normally after 56 iterations
+#> INLAvaan 0.2.1.9004 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -207,8 +207,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7542.580 
-#>    Effective parameters (pD)                    33.415 
+#>    Deviance (DIC)                             7540.785 
+#>    Effective parameters (pD)                    32.518 
 #> 
 #> Parameter Estimates:
 #> 
@@ -227,7 +227,7 @@ summary(fit)
 #>     x6                0.926    0.054    0.820    1.032    0.001    normal(0,10)
 #>   speed =~                                                                     
 #>     x7                0.617    0.077    0.766    0.463    0.004    normal(0,10)
-#>     x8                0.734    0.077    0.587    0.888    0.019    normal(0,10)
+#>     x8                0.733    0.076    0.586    0.886    0.016    normal(0,10)
 #>     x9                0.681    0.079    0.530    0.838    0.007    normal(0,10)
 #> 
 #> Covariances:
