@@ -279,7 +279,10 @@ inlavaan <- function(
   vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- NA
   if (isTRUE(vb_correction)) {
     if (isTRUE(verbose)) {
-      cli::cli_progress_step("Performing VB correction.")
+      cli::cli_progress_step(
+        "Performing VB correction.",
+        msg_done = "VB correction; mean |δ| = {formatC(mean(abs(vb_shift)), format = 'f', digits = 3)}."
+      )
     }
 
     # QMC noise (scrambled Sobol)
