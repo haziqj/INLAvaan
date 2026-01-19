@@ -42,6 +42,7 @@ Suggests:
     knitr,
     lme4,
     psychotools,
+    qsn,
     quarto,
     rmarkdown,
     rstan,
