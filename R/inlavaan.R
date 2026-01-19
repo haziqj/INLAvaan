@@ -274,6 +274,7 @@ inlavaan <- function(
   }
 
   timing <- add_timing(timing, "optim")
+
   ## ----- VB correction -------------------------------------------------------
   vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- NA
   if (isTRUE(vb_correction)) {
@@ -284,7 +285,7 @@ inlavaan <- function(
     # QMC noise (scrambled Sobol)
     us <- qrng::sobol(n = 50, d = m, randomize = "Owen", seed = 123)
     set.seed(NULL)
-    zs <- qnorm(us) %*% t(L)
+    zs <- rbind(0, qnorm(us) %*% t(L)) # Add 0 to "lock at" mode
 
     vb_ob <- function(eta, mu0, Z) {
       # eta = t(L) %*% delta, the shift in whitened space
