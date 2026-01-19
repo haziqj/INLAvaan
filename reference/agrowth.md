@@ -198,23 +198,22 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [176ms]
+#> ✔ Finding posterior mode. [163ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [250ms]
+#> ✔ Computing the Hessian. [239ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.004. [270ms]
+#> ✔ VB correction; mean |δ| = 0.004. [259ms]
 #> 
 #> ⠙ Fitting skew normal to 0/17 marginals.
-#> ⠹ Fitting skew normal to 4/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [1s]
+#> ✔ Fitting skew normal to 17/17 marginals. [985ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [54ms]
+#> ✔ Sampling covariances and defined parameters. [51ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [182ms]
+#> ✔ Computing ppp and DIC. [170ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.1.9005 ended normally after 83 iterations
@@ -228,12 +227,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.794 
-#>    PPP (Chi-square)                              0.830 
+#>    PPP (Chi-square)                              0.870 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             5003.814 
-#>    Effective parameters (pD)                    20.733 
+#>    Deviance (DIC)                             5004.063 
+#>    Effective parameters (pD)                    20.858 
 #> 
 #> Parameter Estimates:
 #> 
@@ -273,7 +272,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.041   -0.007    0.156    0.005       beta(1,1)
+#>    .s                 0.153    0.044    0.157   -0.015    0.005       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
