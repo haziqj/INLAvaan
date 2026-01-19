@@ -65,19 +65,19 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [159ms]
+#> ✔ Finding posterior mode. [158ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [280ms]
+#> ✔ Computing the Hessian. [277ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.119. [756ms]
+#> ✔ VB correction; mean |δ| = 0.119σ. [751ms]
 #> 
 #> ⠙ Fitting skew normal to 0/10 marginals.
 #> ✔ Fitting skew normal to 10/10 marginals. [869ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [560ms]
+#> ✔ Computing ppp and DIC. [558ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.1.9005 ended normally after 37 iterations
@@ -95,8 +95,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             2297.508 
-#>    Effective parameters (pD)                    93.298 
+#>    Deviance (DIC)                             2299.601 
+#>    Effective parameters (pD)                    94.344 
 #> 
 #> Parameter Estimates:
 #> 
@@ -132,11 +132,11 @@ summary(fit)
 #> 
 #> Scales y*:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
-#>     y1                1.430    0.322    1.028    2.241                       
-#>     y2                1.250    0.134    1.072    1.573                       
-#>     y3                1.256    0.161    1.050    1.649                       
-#>     y4                1.598    0.462    1.073    2.804                       
-#>     y5                1.143    0.111    1.014    1.399
+#>     y1                1.377    0.303    1.027    2.253                       
+#>     y2                1.252    0.132    1.070    1.563                       
+#>     y3                1.289    0.182    1.045    1.697                       
+#>     y4                1.600    0.512    1.057    2.960                       
+#>     y5                1.154    0.128    1.015    1.499
 plot(fit, truth = truval)
 ```
 

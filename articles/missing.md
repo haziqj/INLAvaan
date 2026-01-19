@@ -39,23 +39,23 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [116ms]
+#> ✔ Finding posterior mode. [113ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [452ms]
+#> ✔ Computing the Hessian. [451ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.155. [730ms]
+#> ✔ VB correction; mean |δ| = 0.155σ. [761ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
 #> ⠹ Fitting skew normal to 30/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [3.7s]
+#> ✔ Fitting skew normal to 42/42 marginals. [3.6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [193ms]
+#> ✔ Sampling covariances and defined parameters. [191ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [610ms]
+#> ✔ Computing ppp and DIC. [599ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -72,7 +72,7 @@ print(fit1)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -400.490 
-#>    PPP (Chi-square)                              0.366
+#>    PPP (Chi-square)                              0.376
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        1.504        1.381        0.554        0.460        0.941        1.273 
@@ -95,26 +95,26 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [389ms]
+#> ✔ Finding posterior mode. [384ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [1.3s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055. [1s]
+#> ✔ VB correction; mean |δ| = 0.055σ. [1s]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 5/42 marginals.
+#> ⠹ Fitting skew normal to 6/42 marginals.
 #> ⠸ Fitting skew normal to 19/42 marginals.
-#> ⠼ Fitting skew normal to 32/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [9.5s]
+#> ⠼ Fitting skew normal to 33/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [9.4s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [202ms]
+#> ✔ Sampling covariances and defined parameters. [201ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [1.5s]
+#> ✔ Computing ppp and DIC. [1.2s]
 #> 
 print(fit2)
 #> INLAvaan 0.2.1.9005 ended normally after 86 iterations
@@ -129,7 +129,7 @@ print(fit2)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1314.191 
-#>    PPP (Chi-square)                              0.074
+#>    PPP (Chi-square)                              0.084
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        2.334        2.006        0.642        0.775        0.917        1.051 

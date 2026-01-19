@@ -121,13 +121,13 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/agrowth.html">agrowth</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.growth</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [176ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [175ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [253ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [249ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.004. [266ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.004σ. [261ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/17 marginals.</span></span>
 <span><span class="co">#&gt; ⠹ Fitting skew normal to 5/17 marginals.</span></span>
@@ -137,7 +137,7 @@
 <span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [52ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [185ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [180ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.1.9005 ended normally after 83 iterations</span></span>
@@ -151,12 +151,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -2565.794 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.860 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.820 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             5003.520 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    20.586 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             5002.722 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    20.187 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -196,7 +196,7 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .i ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .s                 0.153    0.041    0.155   -0.006    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .s                 0.153    0.039    0.149   -0.004    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>

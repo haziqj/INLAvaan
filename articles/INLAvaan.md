@@ -109,20 +109,20 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [84ms]
+#> ✔ Finding posterior mode. [82ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [91ms]
+#> ✔ Computing the Hessian. [89ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003. [127ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [124ms]
 #> 
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ⠹ Fitting skew normal to 12/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [342ms]
+#> ✔ Fitting skew normal to 13/13 marginals. [330ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [346ms]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [342ms]
 #> 
 ```
 
@@ -178,7 +178,7 @@ fit
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -8068.939 
-#>    PPP (Chi-square)                              0.196
+#>    PPP (Chi-square)                              0.182
 ```
 
 As a result, most of the methods that work for `lavaan` objects will
@@ -207,12 +207,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -8068.939 
-#>    PPP (Chi-square)                              0.196 
+#>    PPP (Chi-square)                              0.182 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            16049.045 
-#>    Effective parameters (pD)                    21.601 
+#>    Deviance (DIC)                            16047.701 
+#>    Effective parameters (pD)                    20.929 
 #> 
 #> Parameter Estimates:
 #> 
@@ -262,24 +262,24 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■■■                             13% | ETA: 18s
-#> Sampling latent variables ■■■■■■■■■                         26% | ETA: 16s
-#> Sampling latent variables ■■■■■■■■■■■■■■                    43% | ETA: 12s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■                58% | ETA:  8s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           74% | ETA:  5s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      90% | ETA:  2s
+#> Sampling latent variables ■■■■■                             14% | ETA: 17s
+#> Sampling latent variables ■■■■■■■■■                         28% | ETA: 15s
+#> Sampling latent variables ■■■■■■■■■■■■■■■                   45% | ETA: 11s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■               61% | ETA:  8s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■          77% | ETA:  4s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■     93% | ETA:  1s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
 #> [1] 100
 head(eta_preds[[1]])
-#>            eta1       eta2
-#> [1,]  0.2331937 -0.2891454
-#> [2,]  0.5594348  0.5079132
-#> [3,] -1.1380733 -1.9113177
-#> [4,] -0.1911490 -0.3786773
-#> [5,]  0.9656571 -0.8587381
-#> [6,] -1.7177652 -1.5161597
+#>             eta1       eta2
+#> [1,]  0.29761916 -0.2232574
+#> [2,]  1.00675765 -0.6497596
+#> [3,] -1.85014977 -0.7897645
+#> [4,] -0.07459392  0.2007803
+#> [5,]  1.58533559 -1.6520193
+#> [6,] -2.58000155 -1.1766901
 ```
 
 This is an S3 object with a summary method that provides posterior means
@@ -293,35 +293,35 @@ summ_eta <- summary(eta_preds)
 str(summ_eta)
 #> List of 6
 #>  $ group_id: NULL
-#>  $ Mean    : num [1:1000, 1:2] 0.9553 0.7508 -1.1149 0.0408 1.3614 ...
+#>  $ Mean    : num [1:1000, 1:2] 0.94136 0.69031 -1.0011 0.00408 1.39291 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ SD      : num [1:1000, 1:2] 0.416 0.386 0.436 0.408 0.452 ...
+#>  $ SD      : num [1:1000, 1:2] 0.403 0.451 0.452 0.388 0.433 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 2.5%    : num [1:1000, 1:2] 0.2017 -0.0502 -1.9952 -0.7769 0.613 ...
+#>  $ 2.5%    : num [1:1000, 1:2] 0.1489 -0.0329 -1.8939 -0.7577 0.6004 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 50%     : num [1:1000, 1:2] 0.9673 0.7323 -1.1427 0.0756 1.2966 ...
+#>  $ 50%     : num [1:1000, 1:2] 0.9465 0.70968 -1.03522 0.00708 1.40918 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 97.5%   : num [1:1000, 1:2] 1.786 1.509 -0.316 0.723 2.25 ...
+#>  $ 97.5%   : num [1:1000, 1:2] 1.737 1.605 -0.174 0.67 2.166 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
 #>  - attr(*, "class")= chr "summary.predict.inlavaan_internal"
 head(summ_eta$Mean)
-#>             eta1       eta2
-#> [1,]  0.95526483 -0.0893201
-#> [2,]  0.75077256 -0.3148940
-#> [3,] -1.11492128 -1.2269936
-#> [4,]  0.04080686 -0.1525007
-#> [5,]  1.36140831 -1.4164331
-#> [6,] -1.83129223 -0.8851975
+#>              eta1        eta2
+#> [1,]  0.941355126 -0.02076095
+#> [2,]  0.690311912 -0.37781295
+#> [3,] -1.001104292 -1.21627772
+#> [4,]  0.004082911 -0.16830759
+#> [5,]  1.392908708 -1.45447883
+#> [6,] -1.700783927 -0.86732158
 ```
 
 ### Plot
@@ -353,27 +353,27 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [56ms]
+#> ✔ Finding posterior mode. [55ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [90ms]
+#> ✔ Computing the Hessian. [88ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003. [102ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [100ms]
 #> 
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [565ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [554ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [313ms]
+#> ✔ Computing ppp and DIC. [309ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>    fit        13   -8068.939 16049.05 21.60111   0.000
-#>   fit2        12   -8088.754 16099.70 20.86754 -19.815
+#>    fit        13   -8068.939 16047.70 20.92917   0.000
+#>   fit2        12   -8088.754 16099.31 20.67242 -19.815
 ```
 
 As a note, there have been several criticisms of the use of Bayes

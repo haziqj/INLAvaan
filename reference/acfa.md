@@ -183,14 +183,14 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ✔ Computing the Hessian. [136ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.013. [400ms]
+#> ✔ VB correction; mean |δ| = 0.013σ. [390ms]
 #> 
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ⠹ Fitting skew normal to 11/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [669ms]
+#> ⠹ Fitting skew normal to 7/21 marginals.
+#> ✔ Fitting skew normal to 21/21 marginals. [665ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [86ms]
+#> ✔ Computing ppp and DIC. [87ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.1.9005 ended normally after 56 iterations
@@ -208,8 +208,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7546.124 
-#>    Effective parameters (pD)                    35.192 
+#>    Deviance (DIC)                             7541.795 
+#>    Effective parameters (pD)                    33.027 
 #> 
 #> Parameter Estimates:
 #> 
