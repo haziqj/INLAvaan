@@ -42,10 +42,10 @@ Suggests:
     knitr,
     lme4,
     psychotools,
-    qsn,
     quarto,
     rmarkdown,
     rstan,
+    sn,
     spacefillr,
     testthat (>= 3.0.0)
 VignetteBuilder: 
