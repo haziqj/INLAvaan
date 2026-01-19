@@ -98,19 +98,19 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [29ms]
+#> ✔ Finding posterior mode. [33ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [63ms]
+#> ✔ Computing the Hessian. [67ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [170ms]
+#> ✔ VB correction; mean |δ| = 0.012. [185ms]
 #> 
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [191ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [214ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [365ms]
+#> ✔ Computing ppp and DIC. [377ms]
 #> 
 ```
 
@@ -126,7 +126,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.1.9004 ended normally after 5 iterations
+#> INLAvaan 0.2.1.9005 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -136,13 +136,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -311.923 
-#>    PPP (Chi-square)                              0.556 
+#>    Marginal log-likelihood                    -311.858 
+#>    PPP (Chi-square)                              0.616 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              568.923 
-#>    Effective parameters (pD)                     7.002 
+#>    Deviance (DIC)                              568.630 
+#>    Effective parameters (pD)                     6.859 
 #> 
 #> Parameter Estimates:
 #> 
@@ -156,7 +156,7 @@ summary(fit)
 #>   M ~                                                                          
 #>     X          (a)    0.525    0.109    0.311    0.740    0.000    normal(0,10)
 #>   Y ~                                                                          
-#>     M          (b)    0.769    0.101    0.571    0.966    0.000    normal(0,10)
+#>     M          (b)    0.769    0.101    0.572    0.966    0.000    normal(0,10)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -165,13 +165,13 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                 0.975    0.144    0.732    1.298    0.004 gamma(1,.5)[sd]
-#>    .M                 0.998    0.147    0.750    1.326    0.004 gamma(1,.5)[sd]
+#>    .Y                 0.976    0.145    0.732    1.299    0.004 gamma(1,.5)[sd]
+#>    .M                 0.997    0.147    0.749    1.326    0.004 gamma(1,.5)[sd]
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.404    0.108    0.226    0.653                         
-#>     total             0.334    0.142    0.069    0.606
+#>     ab                0.401    0.099    0.228    0.589                         
+#>     total             0.328    0.131    0.093    0.560
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -184,13 +184,13 @@ output:
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.296, 0.176\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.404 (true value 0.35). The
-  interval \[0.226, 0.653\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.401 (true value 0.35). The
+  interval \[0.228, 0.589\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.334.
+- Total Effect estimated at 0.328.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.334 in $Y$.
+    of roughly 0.328 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full

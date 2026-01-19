@@ -26,26 +26,25 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [112ms]
+#> ✔ Finding posterior mode. [121ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [274ms]
+#> ✔ Computing the Hessian. [284ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ Performing VB correction. [240ms]
+#> ✔ VB correction; mean |δ| = 0.045. [252ms]
 #> 
 #> ⠙ Fitting skew normal to 0/28 marginals.
-#> ⠹ Fitting skew normal to 7/28 marginals.
-#> ✔ Fitting skew normal to 28/28 marginals. [1.5s]
+#> ✔ Fitting skew normal to 28/28 marginals. [1.6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [207ms]
+#> ✔ Sampling covariances and defined parameters. [211ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [664ms]
+#> ✔ Computing ppp and DIC. [684ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.1.9004 ended normally after 74 iterations
+#> INLAvaan 0.2.1.9005 ended normally after 74 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -55,13 +54,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1644.774 
-#>    PPP (Chi-square)                              0.160 
+#>    Marginal log-likelihood                   -1644.504 
+#>    PPP (Chi-square)                              0.174 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3216.123 
-#>    Effective parameters (pD)                    58.845 
+#>    Deviance (DIC)                             3233.264 
+#>    Effective parameters (pD)                    67.430 
 #> 
 #> Parameter Estimates:
 #> 
@@ -72,18 +71,18 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   ind60 =~                                                                     
 #>     x1                1.000                                                    
-#>     x2                2.211    0.146    1.942    2.514    0.004    normal(0,10)
-#>     x3                1.842    0.156    1.537    2.150    0.002    normal(0,10)
+#>     x2                2.212    0.146    1.943    2.517    0.004    normal(0,10)
+#>     x3                1.842    0.156    1.537    2.149    0.002    normal(0,10)
 #>   dem60 =~                                                                     
 #>     y1                1.000                                                    
-#>     y2         (a)    1.205    0.149    0.928    1.512    0.010    normal(0,10)
-#>     y3         (b)    1.188    0.125    0.950    1.442    0.003    normal(0,10)
-#>     y4         (c)    1.267    0.126    1.024    1.519    0.003    normal(0,10)
+#>     y2         (a)    1.206    0.149    0.929    1.514    0.009    normal(0,10)
+#>     y3         (b)    1.187    0.125    0.950    1.441    0.003    normal(0,10)
+#>     y4         (c)    1.266    0.126    1.023    1.518    0.004    normal(0,10)
 #>   dem65 =~                                                                     
 #>     y5                1.000                                                    
-#>     y6         (a)    1.205    0.149    0.928    1.512    0.010    normal(0,10)
-#>     y7         (b)    1.188    0.125    0.950    1.442    0.003    normal(0,10)
-#>     y8         (c)    1.267    0.126    1.024    1.519    0.003    normal(0,10)
+#>     y6         (a)    1.206    0.149    0.929    1.514    0.009    normal(0,10)
+#>     y7         (b)    1.187    0.125    0.950    1.441    0.003    normal(0,10)
+#>     y8         (c)    1.266    0.126    1.023    1.518    0.004    normal(0,10)
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -96,31 +95,31 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.281    0.366    0.055    1.477    0.005       beta(1,1)
+#>    .y5                0.281    0.376   -0.074    1.399    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.274    0.692    0.260    2.978    0.009       beta(1,1)
-#>    .y6                0.343    0.705    3.588    0.823    0.011       beta(1,1)
+#>    .y4                0.274    0.669    0.104    2.725    0.012       beta(1,1)
+#>    .y6                0.343    0.712    0.865    3.661    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.184    0.647   -0.353    2.187    0.011       beta(1,1)
+#>    .y7                0.185    0.659   -0.356    2.232    0.008       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.107    0.465   -0.492    1.333    0.010       beta(1,1)
+#>    .y8                0.107    0.468   -0.473    1.364    0.010       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.312    0.599    0.246    2.597    0.013       beta(1,1)
+#>    .y8                0.309    0.593    0.227    2.551    0.022       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                0.087    0.020    0.133    0.053    0.007 gamma(1,.5)[sd]
-#>    .x2                0.132    0.074    1.406    0.026    0.045 gamma(1,.5)[sd]
-#>    .x3                0.498    0.097    0.339    0.718    0.002 gamma(1,.5)[sd]
-#>    .y1                2.011    0.492    3.132    1.216    0.004 gamma(1,.5)[sd]
-#>    .y2                7.928    1.469    5.517   11.263    0.003 gamma(1,.5)[sd]
-#>    .y3                5.221    1.035    3.523    7.564    0.001 gamma(1,.5)[sd]
-#>    .y4                3.363    0.803    2.068    5.197    0.003 gamma(1,.5)[sd]
-#>    .y5                2.485    0.527    1.625    3.682    0.001 gamma(1,.5)[sd]
-#>    .y6                5.160    0.972    3.563    7.364    0.002 gamma(1,.5)[sd]
-#>    .y7                3.729    0.784    2.443    5.500    0.002 gamma(1,.5)[sd]
-#>    .y8                3.384    0.754    2.158    5.096    0.002 gamma(1,.5)[sd]
-#>     ind60             0.453    0.090    0.307    0.661    0.004 gamma(1,.5)[sd]
-#>    .dem60             3.932    0.923    2.465    6.061    0.001 gamma(1,.5)[sd]
-#>    .dem65             0.280    0.201    7.868    0.021    0.108 gamma(1,.5)[sd]
+#>    .x1                0.087    0.020    0.133    0.053    0.008 gamma(1,.5)[sd]
+#>    .x2                0.132    0.074    1.402    0.027    0.045 gamma(1,.5)[sd]
+#>    .x3                0.497    0.097    0.339    0.718    0.002 gamma(1,.5)[sd]
+#>    .y1                2.010    0.492    3.131    1.215    0.004 gamma(1,.5)[sd]
+#>    .y2                7.929    1.469    5.518   11.265    0.003 gamma(1,.5)[sd]
+#>    .y3                5.220    1.035    3.522    7.563    0.001 gamma(1,.5)[sd]
+#>    .y4                3.365    0.804    2.070    5.199    0.003 gamma(1,.5)[sd]
+#>    .y5                2.484    0.527    1.625    3.682    0.001 gamma(1,.5)[sd]
+#>    .y6                5.162    0.972    3.564    7.365    0.002 gamma(1,.5)[sd]
+#>    .y7                3.729    0.784    2.444    5.500    0.002 gamma(1,.5)[sd]
+#>    .y8                3.386    0.754    2.160    5.098    0.002 gamma(1,.5)[sd]
+#>     ind60             0.453    0.090    0.308    0.661    0.004 gamma(1,.5)[sd]
+#>    .dem60             3.935    0.923    2.467    6.065    0.001 gamma(1,.5)[sd]
+#>    .dem65             0.279    0.202    8.162    0.020    0.102 gamma(1,.5)[sd]
 ```
