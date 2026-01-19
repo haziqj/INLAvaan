@@ -32,7 +32,6 @@ Imports:
     numDeriv,
     qrng,
     scales,
-    sn,
     statmod,
     stats,
     tidyr,

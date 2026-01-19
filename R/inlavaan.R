@@ -281,7 +281,7 @@ inlavaan <- function(
     if (isTRUE(verbose)) {
       cli::cli_progress_step(
         "Performing VB correction.",
-        msg_done = "VB correction; mean |δ| = {formatC(mean(abs(vb_shift)), format = 'f', digits = 3)}."
+        msg_done = "VB correction; mean |\u03B4| = {formatC(mean(abs(vb_shift)), format = 'f', digits = 3)}."
       )
     }
 
