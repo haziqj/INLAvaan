@@ -49,29 +49,31 @@ model <- "
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
-fit <- asem(model, PoliticalDemocracy, marginal_method = "skewnorm", vb_correction = FALSE)
+fit <- asem(model, PoliticalDemocracy)
 #> ℹ Finding posterior mode.
 #> ✔ Finding posterior mode. [34ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [113ms]
+#> ✔ Computing the Hessian. [97ms]
+#> 
+#> ℹ Performing VB correction.
+#> ✔ VB correction; mean |δ| = 0.043σ. [88ms]
 #> 
 #> ⠙ Fitting skew normal to 0/31 marginals.
-#> ⠹ Fitting skew normal to 5/31 marginals.
-#> ⠸ Fitting skew normal to 16/31 marginals.
-#> ⠼ Fitting skew normal to 27/31 marginals.
-#> ✔ Fitting skew normal to 31/31 marginals. [612ms]
+#> ⠹ Fitting skew normal to 4/31 marginals.
+#> ⠸ Fitting skew normal to 14/31 marginals.
+#> ⠼ Fitting skew normal to 24/31 marginals.
+#> ✔ Fitting skew normal to 31/31 marginals. [624ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [64ms]
+#> ✔ Sampling covariances and defined parameters. [77ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [202ms]
+#> ✔ Computing ppp and DIC. [182ms]
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.1.9006 ended normally after 71 iterations
+#> INLAvaan 0.2.2 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -81,18 +83,18 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1641.277 
-#>    PPP (Chi-square)                              0.174 
+#>    Marginal log-likelihood                   -1656.387 
+#>    PPP (Chi-square)                              0.148 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3224.940 
-#>    Effective parameters (pD)                    64.327 
+#>    Deviance (DIC)                             3221.679 
+#>    Effective parameters (pD)                    62.156 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
-#>    VB correction                                 FALSE
+#>    VB correction                                  TRUE
 #> 
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -122,16 +124,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.294    0.383    0.027    1.529    0.003       beta(1,1)
+#>    .y5                0.294    0.399    0.091    1.649    0.003       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.242    0.692    0.003    2.715    0.004       beta(1,1)
-#>    .y6                0.343    0.702    0.779    3.536    0.019       beta(1,1)
+#>    .y4                0.242    0.749   -0.020    2.914    0.004       beta(1,1)
+#>    .y6                0.343    0.748    0.806    3.740    0.019       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.209    0.619   -0.255    2.174    0.005       beta(1,1)
+#>    .y7                0.209    0.626   -0.206    2.254    0.005       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.099    0.463   -0.496    1.324    0.007       beta(1,1)
+#>    .y8                0.099    0.457   -0.460    1.329    0.007       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.310    0.576    0.258    2.520    0.005       beta(1,1)
+#>    .y8                0.310    0.578    0.289    2.553    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -205,7 +207,7 @@ To cite package [INLAvaan](https://inlavaan.haziqj.ml/) in publications
 use:
 
 > Jamil, H (2026). *INLAvaan: Bayesian structural equation modelling
-> with INLA*. R package version 0.2.1.9006. URL:
+> with INLA*. R package version 0.2.2. URL:
 > <https://inlavaan.haziqj.ml/>
 
 A BibTeX entry for LaTeX users is:
@@ -215,7 +217,7 @@ A BibTeX entry for LaTeX users is:
     title = {INLAvaan: Bayesian structural equation modelling with INLA},
     author = {Haziq Jamil},
     year = {2026},
-    note = {R package version 0.2.1.9006},
+    note = {R package version 0.2.2},
     url = {https://inlavaan.haziqj.ml/},
   }
 ```

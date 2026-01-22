@@ -110,29 +110,31 @@
 <span><span class="st">"</span></span>
 <span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"PoliticalDemocracy"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, marginal_method <span class="op">=</span> <span class="st">"skewnorm"</span>, vb_correction <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
 <span><span class="co">#&gt; ✔ Finding posterior mode. [34ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [113ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [97ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.043σ. [88ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 5/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 16/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting skew normal to 27/31 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [612ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 4/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 14/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting skew normal to 24/31 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [624ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
-<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [64ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [77ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [202ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [182ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1.9006 ended normally after 71 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.2 ended normally after 71 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -142,18 +144,18 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Marginal log-likelihood                   -1641.277 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.174 </span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                   -1656.387 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.148 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3224.940 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    64.327 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3221.679 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    62.156 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginalisation method                     SKEWNORM</span></span>
-<span><span class="co">#&gt;    VB correction                                 FALSE</span></span>
+<span><span class="co">#&gt;    VB correction                                  TRUE</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Latent Variables:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -183,16 +185,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.294    0.383    0.027    1.529    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.294    0.399    0.091    1.649    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.242    0.692    0.003    2.715    0.004       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.343    0.702    0.779    3.536    0.019       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.242    0.749   -0.020    2.914    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.343    0.748    0.806    3.740    0.019       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.209    0.619   -0.255    2.174    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.209    0.626   -0.206    2.254    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.099    0.463   -0.496    1.324    0.007       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.099    0.457   -0.460    1.329    0.007       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.310    0.576    0.258    2.520    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.310    0.578    0.289    2.553    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -366,14 +368,14 @@
 </h2>
 <p>To cite package <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> in publications use:</p>
 <blockquote>
-<p>Jamil, H (2026). <em>INLAvaan: Bayesian structural equation modelling with INLA</em>. R package version 0.2.1.9006. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
+<p>Jamil, H (2026). <em>INLAvaan: Bayesian structural equation modelling with INLA</em>. R package version 0.2.2. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
 </blockquote>
 <p>A BibTeX entry for LaTeX users is:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">@Manual</span>{,</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="dt">title</span> = {INLAvaan: Bayesian structural equation modelling with INLA},</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="dt">author</span> = {Haziq Jamil},</span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="dt">year</span> = {2026},</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="dt">note</span> = {R package version 0.2.1.9006},</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="dt">note</span> = {R package version 0.2.2},</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="dt">url</span> = {https://inlavaan.haziqj.ml/},</span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  }</span></code></pre></div>
 </div>
