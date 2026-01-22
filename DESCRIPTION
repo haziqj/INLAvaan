@@ -1,7 +1,7 @@
 Type: Package
 Package: INLAvaan
 Title: Approximate Bayesian Latent Variable Analysis
-Version: 0.2.1.9006
+Version: 0.2.2
 Authors@R: c(
     person("Haziq", "Jamil", , "haziq.jamil@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-3298-1010")),
@@ -12,7 +12,8 @@ Authors@R: c(
   )
 Description: Implements approximate Bayesian inference for Structural
     Equation Models (SEM) using a custom adaptation of the Integrated
-    Nested Laplace Approximation (INLA). Provides a computationally
+    Nested Laplace Approximation as described in Rue et al. (2009)
+    <doi:10.1111/j.1467-9868.2008.00700.x>. Provides a computationally
     efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian
     estimation, allowing users to fit latent variable models using the
     'lavaan' syntax.

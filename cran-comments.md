@@ -2,7 +2,10 @@
 
 This is a resubmission. In this version I have:
 
-* Ensured the examples do not run longer than 5s.
+* Added method reference to DESCRIPTION.
+* Added missing \value tag to fitMeasures.Rd detailing the return object.
+* Replaced \dontrun with \donttest in examples for those that can run in < 5s.
+* Removed set.seed() in R/inlavaan.R
 
 ## Explanation of NOTE
 
