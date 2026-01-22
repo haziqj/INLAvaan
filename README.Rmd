@@ -68,7 +68,7 @@ model <- "
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
-fit <- asem(model, PoliticalDemocracy)
+fit <- asem(model, PoliticalDemocracy, marginal_method = "skewnorm", vb_correction = FALSE)
 
 summary(fit)
 ```
