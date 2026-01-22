@@ -344,7 +344,6 @@ inlavaan <- function(
   theta_star_vbc <- theta_star
   if (isTRUE(vb_correction)) {
     theta_star_vbc <- theta_star + vb_shift
-    theta_star <- theta_star + vb_shift
   }
   if (ceq.simple) {
     theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star_vbc), pt)
