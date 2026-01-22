@@ -1,23 +1,36 @@
 testthat::skip_on_ci()
 testthat::skip_on_cran()
-test_that("Comparison to MCMC", {
-  suppressPackageStartupMessages(library(blavaan))
 
-  gen_bivariate_data <- function(n, corr = 0.5) {
-    Sigma_true <- matrix(c(1, corr, corr, 1), nrow = 2)
-    x <- mvtnorm::rmvnorm(n, sigma = Sigma_true)
-    data.frame(x1 = x[, 1], x2 = x[, 2])
-  }
+gen_bivariate_data <- function(n, corr = 0.5) {
+  Sigma_true <- matrix(c(1, corr, corr, 1), nrow = 2)
+  x <- mvtnorm::rmvnorm(n, sigma = Sigma_true)
+  data.frame(x1 = x[, 1], x2 = x[, 2])
+}
 
-  mod <- "
+mod <- "
     eta1 =~ 1*x1
     eta2 =~ 1*x2
   "
 
+test_that("Comparison to MCMC", {
+  suppressPackageStartupMessages(library(blavaan))
+  the_prior <- "gamma(10,10)[sd]"
+
   dat100 <- gen_bivariate_data(100)
-  fit100 <- asem(mod, dat100, verbose = FALSE)
+  fit100 <- asem(
+    mod,
+    dat100,
+    verbose = FALSE,
+    dp = blavaan::dpriors(psi = the_prior)
+  )
   tmp <- suppressWarnings(capture.output(
-    fit100_blav <<- bsem(mod, dat100, n.chains = 1, sample = 100)
+    fit100_blav <<- bsem(
+      mod,
+      dat100,
+      n.chains = 1,
+      sample = 10000,
+      dp = blavaan::dpriors(psi = the_prior)
+    )
   ))
   expect_equal(coef(fit100), coef(fit100_blav), tolerance = 0.1)
 
@@ -83,9 +96,9 @@ fit_inlv <- asem(
   mod,
   dat,
   debug = TRUE,
-  dp = blavaan::dpriors(psi = "gamma(1,1)"),
-  sn_fit_temp = 1,
-  sn_fit_logthresh = -1
+  dp = blavaan::dpriors(psi = "gamma(1,1)")
+  # sn_fit_temp = 1,
+  # sn_fit_logthresh = -1
 )
 
 plot_df_stan <-
