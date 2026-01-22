@@ -98,20 +98,19 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [28ms]
+#> ✔ Finding posterior mode. [29ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [62ms]
+#> ✔ Computing the Hessian. [63ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.012σ. [173ms]
+#> ✔ VB correction; mean |δ| = 0.012σ. [172ms]
 #> 
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [201ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [198ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [377ms]
+#> ✔ Computing ppp and DIC. [365ms]
 #> 
 ```
 
@@ -127,7 +126,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.1.9005 ended normally after 5 iterations
+#> INLAvaan 0.2.2 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -138,12 +137,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -311.858 
-#>    PPP (Chi-square)                              0.590 
+#>    PPP (Chi-square)                              0.604 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              569.588 
-#>    Effective parameters (pD)                     7.338 
+#>    Deviance (DIC)                              568.665 
+#>    Effective parameters (pD)                     6.876 
 #> 
 #> Parameter Estimates:
 #> 
@@ -157,12 +156,12 @@ summary(fit)
 #>   M ~                                                                          
 #>     X          (a)    0.525    0.109    0.311    0.740    0.000    normal(0,10)
 #>   Y ~                                                                          
-#>     M          (b)    0.769    0.101    0.572    0.966    0.000    normal(0,10)
+#>     M          (b)    0.771    0.101    0.573    0.968    0.000    normal(0,10)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                -0.070    0.100   -0.266    0.126    0.000    normal(0,32)
-#>    .M                 0.126    0.100   -0.071    0.323    0.000    normal(0,32)
+#>    .Y                -0.071    0.100   -0.267    0.126    0.000    normal(0,32)
+#>    .M                 0.126    0.100   -0.071    0.322    0.000    normal(0,32)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -171,8 +170,8 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.393    0.095    0.229    0.607                         
-#>     total             0.327    0.140    0.054    0.631
+#>     ab                0.403    0.097    0.246    0.596                         
+#>     total             0.347    0.128    0.101    0.592
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -181,17 +180,17 @@ output:
 - Both intercepts are non-significant, since we simulated data with true
   means of zero.
 - Path $a$ (`M ~ X`) estimated at 0.525 (true value 0.5).
-- Path $b$ (`Y ~ M`) estimated at 0.769 (true value 0.7).
+- Path $b$ (`Y ~ M`) estimated at 0.771 (true value 0.7).
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.296, 0.176\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.393 (true value 0.35). The
-  interval \[0.229, 0.607\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.403 (true value 0.35). The
+  interval \[0.246, 0.596\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.327.
+- Total Effect estimated at 0.347.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.327 in $Y$.
+    of roughly 0.347 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full

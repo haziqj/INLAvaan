@@ -45,35 +45,102 @@ https://lavaan.ugent.be/tutorial/groups.html
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-  # Model comparison on multigroup analysis (measurement invariance)
-  HS.model <- "
-    visual  =~ x1 + x2 + x3
-    textual =~ x4 + x5 + x6
-    speed   =~ x7 + x8 + x9
-  "
-  utils::data("HolzingerSwineford1939", package = "lavaan")
+# \donttest{
+# Model comparison on multigroup analysis (measurement invariance)
+HS.model <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+utils::data("HolzingerSwineford1939", package = "lavaan")
 
-  # Configural invariance
-  fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
+# Configural invariance
+fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
+#> ℹ Finding posterior mode.
+#> ✔ Finding posterior mode. [213ms]
+#> 
+#> ℹ Computing the Hessian.
+#> ✔ Computing the Hessian. [689ms]
+#> 
+#> ℹ Performing VB correction.
+#> ✔ VB correction; mean |δ| = 0.022σ. [322ms]
+#> 
+#> ⠙ Fitting skew normal to 0/60 marginals.
+#> ⠹ Fitting skew normal to 15/60 marginals.
+#> ⠸ Fitting skew normal to 42/60 marginals.
+#> ✔ Fitting skew normal to 60/60 marginals. [6.9s]
+#> 
+#> ℹ Sampling covariances and defined parameters.
+#> ✔ Sampling covariances and defined parameters. [203ms]
+#> 
+#> ⠙ Computing ppp and DIC.
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [757ms]
+#> 
 
-  # Weak invariance
-  fit2 <- acfa(
-    HS.model,
-    data = HolzingerSwineford1939,
-    group = "school",
-    group.equal = "loadings"
-  )
+# Weak invariance
+fit2 <- acfa(
+  HS.model,
+  data = HolzingerSwineford1939,
+  group = "school",
+  group.equal = "loadings"
+)
+#> ℹ Finding posterior mode.
+#> ✔ Finding posterior mode. [198ms]
+#> 
+#> ℹ Computing the Hessian.
+#> ✔ Computing the Hessian. [646ms]
+#> 
+#> ℹ Performing VB correction.
+#> ✔ VB correction; mean |δ| = 0.017σ. [338ms]
+#> 
+#> ⠙ Fitting skew normal to 0/54 marginals.
+#> ⠹ Fitting skew normal to 16/54 marginals.
+#> ⠸ Fitting skew normal to 45/54 marginals.
+#> ✔ Fitting skew normal to 54/54 marginals. [5.7s]
+#> 
+#> ℹ Sampling covariances and defined parameters.
+#> ✔ Sampling covariances and defined parameters. [204ms]
+#> 
+#> ⠙ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [762ms]
+#> 
 
-  # Strong invariance
-  fit3 <- acfa(
-    HS.model,
-    data = HolzingerSwineford1939,
-    group = "school",
-    group.equal = c("intercepts", "loadings")
-  )
+# Strong invariance
+fit3 <- acfa(
+  HS.model,
+  data = HolzingerSwineford1939,
+  group = "school",
+  group.equal = c("intercepts", "loadings")
+)
+#> ℹ Finding posterior mode.
+#> ✔ Finding posterior mode. [185ms]
+#> 
+#> ℹ Computing the Hessian.
+#> ✔ Computing the Hessian. [570ms]
+#> 
+#> ℹ Performing VB correction.
+#> ✔ VB correction; mean |δ| = 0.019σ. [267ms]
+#> 
+#> ⠙ Fitting skew normal to 0/48 marginals.
+#> ⠹ Fitting skew normal to 28/48 marginals.
+#> ✔ Fitting skew normal to 48/48 marginals. [4.9s]
+#> 
+#> ℹ Sampling covariances and defined parameters.
+#> ✔ Sampling covariances and defined parameters. [206ms]
+#> 
+#> ⠙ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [739ms]
+#> 
 
-  # Compare models
-  compare(fit1, fit2, fit3)
-} # }
+# Compare models
+compare(fit1, fit2, fit3)
+#> Bayesian Model Comparison (INLAvaan)
+#> Models ordered by marginal log-likelihood
+#> 
+#>  Model No.params Marg.Loglik      DIC       pD   logBF
+#>   fit3        48   -3913.733 7669.337 127.9085   0.000
+#>   fit2        54   -3934.223 7603.640 115.0430 -20.490
+#>   fit1        60   -3957.428 7713.022 173.8033 -43.694
+# }
 ```

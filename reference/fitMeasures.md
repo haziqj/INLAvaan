@@ -28,3 +28,7 @@ fitmeasures(object, fit.measures = "all", baseline.model = NULL)
 - baseline.model:
 
   Not currently used, added for compatability with `{lavaan}`.
+
+## Value
+
+A named numeric vector of fit measures.

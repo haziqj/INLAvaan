@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -174,20 +174,19 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlavaan.haziqj.ml/">INLAvaan</a></span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [28ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [29ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [62ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [63ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.012σ. [173ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.012σ. [172ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/7 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 7/7 marginals. [201ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 7/7 marginals. [198ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [377ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [365ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p>The user may wish to specify different prior distributions for the parameters. See the relevant section in the <a href="https://inlavaan.haziqj.ml/articles/INLAvaan.html#setting-priors">Get started</a> vignetted for further details.</p>
@@ -197,7 +196,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1.9005 ended normally after 5 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.2 ended normally after 5 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -208,12 +207,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                    -311.858 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.590 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.604 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                              569.588 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                     7.338 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                              568.665 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                     6.876 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -227,12 +226,12 @@
 <span><span class="co">#&gt;   M ~                                                                          </span></span>
 <span><span class="co">#&gt;     X          (a)    0.525    0.109    0.311    0.740    0.000    normal(0,10)</span></span>
 <span><span class="co">#&gt;   Y ~                                                                          </span></span>
-<span><span class="co">#&gt;     M          (b)    0.769    0.101    0.572    0.966    0.000    normal(0,10)</span></span>
+<span><span class="co">#&gt;     M          (b)    0.771    0.101    0.573    0.968    0.000    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .Y                -0.070    0.100   -0.266    0.126    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .M                 0.126    0.100   -0.071    0.323    0.000    normal(0,32)</span></span>
+<span><span class="co">#&gt;    .Y                -0.071    0.100   -0.267    0.126    0.000    normal(0,32)</span></span>
+<span><span class="co">#&gt;    .M                 0.126    0.100   -0.071    0.322    0.000    normal(0,32)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -241,20 +240,20 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Defined Parameters:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;     ab                0.393    0.095    0.229    0.607                         </span></span>
-<span><span class="co">#&gt;     total             0.327    0.140    0.054    0.631</span></span></code></pre></div>
+<span><span class="co">#&gt;     ab                0.403    0.097    0.246    0.596                         </span></span>
+<span><span class="co">#&gt;     total             0.347    0.128    0.101    0.592</span></span></code></pre></div>
 </div>
 <p>Looking at the Regressions and Defined Parameters sections of the output:</p>
 <ul>
 <li>Both intercepts are non-significant, since we simulated data with true means of zero.</li>
 <li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> (<code>M ~ X</code>) estimated at 0.525 (true value 0.5).</li>
-<li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math> (<code>Y ~ M</code>) estimated at 0.769 (true value 0.7).</li>
+<li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math> (<code>Y ~ M</code>) estimated at 0.771 (true value 0.7).</li>
 <li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math> (<code>Y ~ X</code>) estimated at -0.060. The 95% Credible Interval [-0.296, 0.176] includes zero, correctly identifying that there is no direct effect.</li>
-<li>Indirect Effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math> estimated at 0.393 (true value 0.35). The interval [0.229, 0.607] does not cross zero, indicating significant mediation.</li>
-<li>Total Effect estimated at 0.327.
+<li>Indirect Effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math> estimated at 0.403 (true value 0.35). The interval [0.246, 0.596] does not cross zero, indicating significant mediation.</li>
+<li>Total Effect estimated at 0.347.
 <ul>
 <li>This is the sum of the direct and indirect effects (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>+</mo><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">c + ab</annotation></semantics></math>).</li>
-<li>It tells us that a 1-unit increase in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> leads to a total increase of roughly 0.327 in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</li>
+<li>It tells us that a 1-unit increase in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> leads to a total increase of roughly 0.347 in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</li>
 <li>
 <strong>Note:</strong> In this simulation, even though the <em>direct</em> effect is non-significant (close to zero), the <em>total</em> effect is significant because the mechanism via <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> is strong. This illustrates a “full mediation” scenario: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> affects <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>, but <em>only</em> because of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>.</li>
 </ul>

@@ -17,8 +17,8 @@
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
 <meta property="og:title" content="Approximate Bayesian Latent Variable Analysis">
-<meta name="description" content="Implements approximate Bayesian inference for Structural Equation Models (SEM) using a custom adaptation of the Integrated Nested Laplace Approximation (INLA). Provides a computationally efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian estimation, allowing users to fit latent variable models using the lavaan syntax.">
-<meta property="og:description" content="Implements approximate Bayesian inference for Structural Equation Models (SEM) using a custom adaptation of the Integrated Nested Laplace Approximation (INLA). Provides a computationally efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian estimation, allowing users to fit latent variable models using the lavaan syntax.">
+<meta name="description" content="Implements approximate Bayesian inference for Structural Equation Models (SEM) using a custom adaptation of the Integrated Nested Laplace Approximation as described in Rue et al. (2009) &lt;doi:10.1111/j.1467-9868.2008.00700.x&gt;. Provides a computationally efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian estimation, allowing users to fit latent variable models using the lavaan syntax.">
+<meta property="og:description" content="Implements approximate Bayesian inference for Structural Equation Models (SEM) using a custom adaptation of the Integrated Nested Laplace Approximation as described in Rue et al. (2009) &lt;doi:10.1111/j.1467-9868.2008.00700.x&gt;. Provides a computationally efficient alternative to Markov Chain Monte Carlo (MCMC) for Bayesian estimation, allowing users to fit latent variable models using the lavaan syntax.">
 <meta property="og:image" content="https://inlavaan.haziqj.ml/logo.png">
 </head>
 <body>
@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,32 +110,29 @@
 <span><span class="st">"</span></span>
 <span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"PoliticalDemocracy"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, marginal_method <span class="op">=</span> <span class="st">"skewnorm"</span>, vb_correction <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [38ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [34ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [107ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.043. [93ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [113ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 7/31 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 17/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 5/31 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 16/31 marginals.</span></span>
 <span><span class="co">#&gt; ⠼ Fitting skew normal to 27/31 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [638ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 31/31 marginals. [612ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
-<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [78ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [64ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [186ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [202ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.1.9005 ended normally after 71 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.1.9006 ended normally after 71 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -145,74 +142,74 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Marginal log-likelihood                   -1656.387 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.170 </span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                   -1641.277 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.174 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3221.308 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    61.970 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3224.940 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    64.327 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginalisation method                     SKEWNORM</span></span>
-<span><span class="co">#&gt;    VB correction                                  TRUE</span></span>
+<span><span class="co">#&gt;    VB correction                                 FALSE</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Latent Variables:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;   ind60 =~                                                                     </span></span>
 <span><span class="co">#&gt;     x1                1.000                                                    </span></span>
-<span><span class="co">#&gt;     x2                2.206    0.145    1.939    2.507    0.005    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x3                1.842    0.156    1.538    2.149    0.002    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x2                2.214    0.145    1.946    2.516    0.005    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x3                1.824    0.154    1.534    2.140    0.007    normal(0,10)</span></span>
 <span><span class="co">#&gt;   dem60 =~                                                                     </span></span>
 <span><span class="co">#&gt;     y1                1.000                                                    </span></span>
-<span><span class="co">#&gt;     y2                1.353    0.215    0.959    1.804    0.008    normal(0,10)</span></span>
-<span><span class="co">#&gt;     y3                1.126    0.166    0.811    1.464    0.002    normal(0,10)</span></span>
-<span><span class="co">#&gt;     y4                1.372    0.171    1.049    1.720    0.002    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y2                1.355    0.206    0.976    1.784    0.010    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y3                1.120    0.160    0.824    1.450    0.008    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y4                1.368    0.173    1.057    1.736    0.009    normal(0,10)</span></span>
 <span><span class="co">#&gt;   dem65 =~                                                                     </span></span>
 <span><span class="co">#&gt;     y5                1.000                                                    </span></span>
-<span><span class="co">#&gt;     y6                1.230    0.188    0.888    1.628    0.009    normal(0,10)</span></span>
-<span><span class="co">#&gt;     y7                1.325    0.170    1.007    1.675    0.003    normal(0,10)</span></span>
-<span><span class="co">#&gt;     y8                1.313    0.172    0.982    1.658    0.001    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y6                1.213    0.178    0.886    1.586    0.015    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y7                1.318    0.169    1.015    1.676    0.011    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y8                1.316    0.176    1.003    1.692    0.012    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Regressions:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;   dem60 ~                                                                      </span></span>
-<span><span class="co">#&gt;     ind60             1.437    0.373    0.705    2.169    0.001    normal(0,10)</span></span>
+<span><span class="co">#&gt;     ind60             1.466    0.381    0.738    2.234    0.003    normal(0,10)</span></span>
 <span><span class="co">#&gt;   dem65 ~                                                                      </span></span>
-<span><span class="co">#&gt;     ind60             0.545    0.242    1.015    0.065    0.001    normal(0,10)</span></span>
-<span><span class="co">#&gt;     dem60             0.858    0.105    0.656    1.068    0.002    normal(0,10)</span></span>
+<span><span class="co">#&gt;     ind60             0.566    0.242    0.100    1.050    0.002    normal(0,10)</span></span>
+<span><span class="co">#&gt;     dem60             0.868    0.106    0.671    1.089    0.021    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.309    0.360    0.094    1.506    0.006       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.294    0.383    0.027    1.529    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.241    0.693   -0.018    2.691    0.007       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.344    0.737    0.781    3.673    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.242    0.692    0.003    2.715    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.343    0.702    0.779    3.536    0.019       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.210    0.646   -0.282    2.251    0.010       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.209    0.619   -0.255    2.174    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.098    0.455   -0.415    1.360    0.008       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.099    0.463   -0.496    1.324    0.007       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.307    0.599    0.269    2.615    0.020       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.310    0.576    0.258    2.520    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;     ind60             0.455    0.090    0.309    0.661    0.004      gamma(1,1)</span></span>
-<span><span class="co">#&gt;    .dem60             3.410    0.792    2.133    5.218    0.001     gamma(1,.9)</span></span>
-<span><span class="co">#&gt;    .dem65             0.342    0.201    4.490    0.057    0.035     gamma(1,.5)</span></span>
-<span><span class="co">#&gt;    .x1                0.087    0.020    0.132    0.053    0.009 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x2                0.132    0.074    1.400    0.027    0.044 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x3                0.497    0.097    0.339    0.718    0.002 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y1                2.151    0.523    1.312    3.348    0.003 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y2                7.634    1.481    5.214   11.003    0.003 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y3                5.422    1.070    3.675    7.856    0.002 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y4                3.165    0.827    5.065    1.849    0.004 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y5                2.556    0.547    1.669    3.801    0.001 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y6                5.160    0.988    3.538    7.400    0.004 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y7                3.611    0.789    2.327    5.402    0.002 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y8                3.302    0.759    2.078    5.038    0.001 gamma(1,.5)[sd]</span></span></code></pre></div>
+<span><span class="co">#&gt;     ind60             0.469    0.092    0.317    0.674    0.003      gamma(1,1)</span></span>
+<span><span class="co">#&gt;    .dem60             3.536    0.809    5.322    2.161    0.009     gamma(1,.9)</span></span>
+<span><span class="co">#&gt;    .dem65             0.350    0.202    4.581    0.057    0.035     gamma(1,.5)</span></span>
+<span><span class="co">#&gt;    .x1                0.085    0.020    0.196    0.050    0.004 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x2                0.127    0.065    1.425    0.021    0.042 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x3                0.493    0.096    0.333    0.708    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y1                2.037    0.498    4.655    1.195    0.008 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y2                7.791    1.444    5.347   10.985    0.004 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y3                5.321    1.037    3.601    7.651    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y4                3.246    0.791    7.739    1.885    0.010 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y5                2.495    0.524    3.667    1.622    0.007 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y6                5.211    0.960    3.591    7.341    0.002 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y7                3.577    0.764    5.283    2.304    0.009 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y8                3.381    0.736    5.005    2.130    0.005 gamma(1,.5)[sd]</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="validation-against-mcmc">Validation against MCMC<a class="anchor" aria-label="anchor" href="#validation-against-mcmc"></a>
@@ -369,14 +366,14 @@
 </h2>
 <p>To cite package <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> in publications use:</p>
 <blockquote>
-<p>Jamil, H (2026). <em>INLAvaan: Bayesian structural equation modelling with INLA</em>. R package version 0.2.1.9005. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
+<p>Jamil, H (2026). <em>INLAvaan: Bayesian structural equation modelling with INLA</em>. R package version 0.2.1.9006. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
 </blockquote>
 <p>A BibTeX entry for LaTeX users is:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">@Manual</span>{,</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="dt">title</span> = {INLAvaan: Bayesian structural equation modelling with INLA},</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="dt">author</span> = {Haziq Jamil},</span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="dt">year</span> = {2026},</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="dt">note</span> = {R package version 0.2.1.9005},</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="dt">note</span> = {R package version 0.2.1.9006},</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="dt">url</span> = {https://inlavaan.haziqj.ml/},</span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  }</span></code></pre></div>
 </div>

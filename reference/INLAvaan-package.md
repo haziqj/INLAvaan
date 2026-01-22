@@ -2,9 +2,11 @@
 
 Implements approximate Bayesian inference for Structural Equation Models
 (SEM) using a custom adaptation of the Integrated Nested Laplace
-Approximation (INLA). Provides a computationally efficient alternative
-to Markov Chain Monte Carlo (MCMC) for Bayesian estimation, allowing
-users to fit latent variable models using the 'lavaan' syntax.
+Approximation as described in Rue et al. (2009)
+[doi:10.1111/j.1467-9868.2008.00700.x](https://doi.org/10.1111/j.1467-9868.2008.00700.x)
+. Provides a computationally efficient alternative to Markov Chain Monte
+Carlo (MCMC) for Bayesian estimation, allowing users to fit latent
+variable models using the 'lavaan' syntax.
 
 ## Main features
 

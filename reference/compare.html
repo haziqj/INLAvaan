@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,37 +86,104 @@ fitting model (the one with the highest Marginal Log-Likelihood).</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span>  <span class="co"># Model comparison on multigroup analysis (measurement invariance)</span></span></span>
-<span class="r-in"><span>  <span class="va">HS.model</span> <span class="op">&lt;-</span> <span class="st">"</span></span></span>
-<span class="r-in"><span><span class="st">    visual  =~ x1 + x2 + x3</span></span></span>
-<span class="r-in"><span><span class="st">    textual =~ x4 + x5 + x6</span></span></span>
-<span class="r-in"><span><span class="st">    speed   =~ x7 + x8 + x9</span></span></span>
-<span class="r-in"><span><span class="st">  "</span></span></span>
-<span class="r-in"><span>  <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># Model comparison on multigroup analysis (measurement invariance)</span></span></span>
+<span class="r-in"><span><span class="va">HS.model</span> <span class="op">&lt;-</span> <span class="st">"</span></span></span>
+<span class="r-in"><span><span class="st">  visual  =~ x1 + x2 + x3</span></span></span>
+<span class="r-in"><span><span class="st">  textual =~ x4 + x5 + x6</span></span></span>
+<span class="r-in"><span><span class="st">  speed   =~ x7 + x8 + x9</span></span></span>
+<span class="r-in"><span><span class="st">"</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Configural invariance</span></span></span>
-<span class="r-in"><span>  <span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Configural invariance</span></span></span>
+<span class="r-in"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[213ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[689ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.022σ. <span style="color: #B2B2B2;">[322ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew normal to 0/60 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 15/60 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting skew normal to 42/60 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 60/60 marginals. <span style="color: #B2B2B2;">[6.9s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling covariances and defined parameters.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[203ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Computing ppp and DIC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing ppp and DIC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[757ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Weak invariance</span></span></span>
-<span class="r-in"><span>  <span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="va">HS.model</span>,</span></span>
-<span class="r-in"><span>    data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span></span>
-<span class="r-in"><span>    group <span class="op">=</span> <span class="st">"school"</span>,</span></span>
-<span class="r-in"><span>    group.equal <span class="op">=</span> <span class="st">"loadings"</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Weak invariance</span></span></span>
+<span class="r-in"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">HS.model</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span></span>
+<span class="r-in"><span>  group <span class="op">=</span> <span class="st">"school"</span>,</span></span>
+<span class="r-in"><span>  group.equal <span class="op">=</span> <span class="st">"loadings"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[198ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[646ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.017σ. <span style="color: #B2B2B2;">[338ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew normal to 0/54 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 16/54 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting skew normal to 45/54 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 54/54 marginals. <span style="color: #B2B2B2;">[5.7s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling covariances and defined parameters.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[204ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Computing ppp and DIC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[762ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Strong invariance</span></span></span>
-<span class="r-in"><span>  <span class="va">fit3</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="va">HS.model</span>,</span></span>
-<span class="r-in"><span>    data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span></span>
-<span class="r-in"><span>    group <span class="op">=</span> <span class="st">"school"</span>,</span></span>
-<span class="r-in"><span>    group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"intercepts"</span>, <span class="st">"loadings"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Strong invariance</span></span></span>
+<span class="r-in"><span><span class="va">fit3</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">HS.model</span>,</span></span>
+<span class="r-in"><span>  data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span></span>
+<span class="r-in"><span>  group <span class="op">=</span> <span class="st">"school"</span>,</span></span>
+<span class="r-in"><span>  group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"intercepts"</span>, <span class="st">"loadings"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[185ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[570ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.019σ. <span style="color: #B2B2B2;">[267ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew normal to 0/48 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 28/48 marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 48/48 marginals. <span style="color: #B2B2B2;">[4.9s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling covariances and defined parameters.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[206ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Computing ppp and DIC.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing ppp and DIC. <span style="color: #B2B2B2;">[739ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Compare models</span></span></span>
-<span class="r-in"><span>  <span class="fu">compare</span><span class="op">(</span><span class="va">fit1</span>, <span class="va">fit2</span>, <span class="va">fit3</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># Compare models</span></span></span>
+<span class="r-in"><span><span class="fu">compare</span><span class="op">(</span><span class="va">fit1</span>, <span class="va">fit2</span>, <span class="va">fit3</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Bayesian Model Comparison (INLAvaan)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Models ordered by marginal log-likelihood</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Model No.params Marg.Loglik      DIC       pD   logBF</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit3        48   -3913.733 7669.337 127.9085   0.000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit2        54   -3934.223 7603.640 115.0430 -20.490</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit1        60   -3957.428 7713.022 173.8033 -43.694</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
