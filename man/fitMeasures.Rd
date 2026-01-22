@@ -18,6 +18,9 @@ computed and returned.}
 
 \item{baseline.model}{Not currently used, added for compatability with \code{{lavaan}}.}
 }
+\value{
+A named numeric vector of fit measures.
+}
 \description{
 Fit Measures for a Latent Variable Model estimated using INLA
 }

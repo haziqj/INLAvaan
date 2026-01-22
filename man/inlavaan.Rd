@@ -105,7 +105,6 @@ sampling-based approaches. It leverages the lavaan package for model
 specification and estimation.
 }
 \examples{
-\donttest{
 # The Holzinger and Swineford (1939) example
 HS.model <- "
   visual  =~ x1 + x2 + x3
@@ -122,7 +121,6 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 summary(fit)
-}
 }
 \seealso{
 Typically, users will interact with the specific latent variable

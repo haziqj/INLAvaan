@@ -75,6 +75,8 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #'   computed and returned.
 #' @param baseline.model Not currently used, added for compatability with `{lavaan}`.
 #'
+#' @returns A named numeric vector of fit measures.
+#'
 #' @importMethodsFrom lavaan fitMeasures
 #' @rdname fitMeasures
 #' @export
