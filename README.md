@@ -61,29 +61,33 @@ model <- "
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
-fit <- asem(model, PoliticalDemocracy, marginal_method = "skewnorm", vb_correction = FALSE)
+fit <- asem(model, PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [34ms]
+#> ✔ Finding posterior mode. [33ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [113ms]
+#> ✔ Computing the Hessian. [96ms]
+#> 
+#> ℹ Performing VB correction.
+#> ✔ VB correction; mean |δ| = 0.043σ. [87ms]
 #> 
 #> ⠙ Fitting skew normal to 0/31 marginals.
-#> ⠹ Fitting skew normal to 5/31 marginals.
-#> ⠸ Fitting skew normal to 16/31 marginals.
-#> ⠼ Fitting skew normal to 27/31 marginals.
-#> ✔ Fitting skew normal to 31/31 marginals. [612ms]
+#> ⠹ Fitting skew normal to 2/31 marginals.
+#> ⠸ Fitting skew normal to 12/31 marginals.
+#> ⠼ Fitting skew normal to 22/31 marginals.
+#> ⠴ Fitting skew normal to 29/31 marginals.
+#> ✔ Fitting skew normal to 31/31 marginals. [692ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [64ms]
+#> ✔ Sampling covariances and defined parameters. [59ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [202ms]
+#> ✔ Computing ppp and DIC. [176ms]
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.1.9006 ended normally after 71 iterations
+#> INLAvaan 0.2.2 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -93,74 +97,74 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1641.277 
-#>    PPP (Chi-square)                              0.174 
+#>    Marginal log-likelihood                   -1656.387 
+#>    PPP (Chi-square)                              0.146 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3224.940 
-#>    Effective parameters (pD)                    64.327 
+#>    Deviance (DIC)                             3228.740 
+#>    Effective parameters (pD)                    65.687 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
-#>    VB correction                                 FALSE
+#>    VB correction                                  TRUE
 #> 
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   ind60 =~                                                                     
 #>     x1                1.000                                                    
-#>     x2                2.214    0.145    1.946    2.516    0.005    normal(0,10)
-#>     x3                1.824    0.154    1.534    2.140    0.007    normal(0,10)
+#>     x2                2.206    0.145    1.939    2.507    0.005    normal(0,10)
+#>     x3                1.825    0.159    1.525    2.149    0.008    normal(0,10)
 #>   dem60 =~                                                                     
 #>     y1                1.000                                                    
-#>     y2                1.355    0.206    0.976    1.784    0.010    normal(0,10)
-#>     y3                1.120    0.160    0.824    1.450    0.008    normal(0,10)
-#>     y4                1.368    0.173    1.057    1.736    0.009    normal(0,10)
+#>     y2                1.353    0.215    0.959    1.804    0.008    normal(0,10)
+#>     y3                1.121    0.169    0.808    1.471    0.007    normal(0,10)
+#>     y4                1.363    0.176    1.045    1.737    0.010    normal(0,10)
 #>   dem65 =~                                                                     
 #>     y5                1.000                                                    
-#>     y6                1.213    0.178    0.886    1.586    0.015    normal(0,10)
-#>     y7                1.318    0.169    1.015    1.676    0.011    normal(0,10)
-#>     y8                1.316    0.176    1.003    1.692    0.012    normal(0,10)
+#>     y6                1.216    0.186    0.880    1.609    0.010    normal(0,10)
+#>     y7                1.318    0.175    1.004    1.690    0.013    normal(0,10)
+#>     y8                1.313    0.179    0.992    1.695    0.012    normal(0,10)
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   dem60 ~                                                                      
-#>     ind60             1.466    0.381    0.738    2.234    0.003    normal(0,10)
+#>     ind60             1.466    0.381    0.738    2.234    0.004    normal(0,10)
 #>   dem65 ~                                                                      
-#>     ind60             0.566    0.242    0.100    1.050    0.002    normal(0,10)
-#>     dem60             0.868    0.106    0.671    1.089    0.021    normal(0,10)
+#>     ind60             0.570    0.245    0.099    1.060    0.002    normal(0,10)
+#>     dem60             0.872    0.113    0.667    1.110    0.013    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.294    0.383    0.027    1.529    0.003       beta(1,1)
+#>    .y5                0.294    0.375    0.066    1.535    0.004       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.242    0.692    0.003    2.715    0.004       beta(1,1)
-#>    .y6                0.343    0.702    0.779    3.536    0.019       beta(1,1)
+#>    .y4                0.243    0.731   -0.031    2.833    0.005       beta(1,1)
+#>    .y6                0.343    0.760    0.762    3.747    0.013       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.209    0.619   -0.255    2.174    0.005       beta(1,1)
+#>    .y7                0.207    0.654   -0.147    2.419    0.006       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.099    0.463   -0.496    1.324    0.007       beta(1,1)
+#>    .y8                0.100    0.478   -0.450    1.421    0.005       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.310    0.576    0.258    2.520    0.005       beta(1,1)
+#>    .y8                0.312    0.615    0.252    2.664    0.006       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ind60             0.469    0.092    0.317    0.674    0.003      gamma(1,1)
-#>    .dem60             3.536    0.809    5.322    2.161    0.009     gamma(1,.9)
-#>    .dem65             0.350    0.202    4.581    0.057    0.035     gamma(1,.5)
-#>    .x1                0.085    0.020    0.196    0.050    0.004 gamma(1,.5)[sd]
-#>    .x2                0.127    0.065    1.425    0.021    0.042 gamma(1,.5)[sd]
-#>    .x3                0.493    0.096    0.333    0.708    0.003 gamma(1,.5)[sd]
-#>    .y1                2.037    0.498    4.655    1.195    0.008 gamma(1,.5)[sd]
-#>    .y2                7.791    1.444    5.347   10.985    0.004 gamma(1,.5)[sd]
-#>    .y3                5.321    1.037    3.601    7.651    0.001 gamma(1,.5)[sd]
-#>    .y4                3.246    0.791    7.739    1.885    0.010 gamma(1,.5)[sd]
-#>    .y5                2.495    0.524    3.667    1.622    0.007 gamma(1,.5)[sd]
-#>    .y6                5.211    0.960    3.591    7.341    0.002 gamma(1,.5)[sd]
-#>    .y7                3.577    0.764    5.283    2.304    0.009 gamma(1,.5)[sd]
-#>    .y8                3.381    0.736    5.005    2.130    0.005 gamma(1,.5)[sd]
+#>     ind60             0.469    0.094    0.314    0.682    0.006      gamma(1,1)
+#>    .dem60             3.535    0.840    5.397    2.113    0.009     gamma(1,.9)
+#>    .dem65             0.344    0.197    4.329    0.058    0.026     gamma(1,.5)
+#>    .x1                0.085    0.020    0.196    0.050    0.017 gamma(1,.5)[sd]
+#>    .x2                0.132    0.066    1.315    0.026    0.034 gamma(1,.5)[sd]
+#>    .x3                0.491    0.095    0.332    0.704    0.003 gamma(1,.5)[sd]
+#>    .y1                2.041    0.506    4.731    1.188    0.011 gamma(1,.5)[sd]
+#>    .y2                7.765    1.479    5.274   11.049    0.003 gamma(1,.5)[sd]
+#>    .y3                5.309    1.041    3.580    7.644    0.002 gamma(1,.5)[sd]
+#>    .y4                3.236    0.823    8.060    1.829    0.011 gamma(1,.5)[sd]
+#>    .y5                2.497    0.529    3.679    1.616    0.005 gamma(1,.5)[sd]
+#>    .y6                5.199    0.980    3.554    7.381    0.003 gamma(1,.5)[sd]
+#>    .y7                3.567    0.771    5.285    2.279    0.007 gamma(1,.5)[sd]
+#>    .y8                3.366    0.760    5.048    2.080    0.006 gamma(1,.5)[sd]
 ```
 
 ## Validation against MCMC
@@ -456,7 +460,7 @@ install.packages(
 To cite package `{INLAvaan}` in publications use:
 
 > Jamil, H (2026). *INLAvaan: Bayesian structural equation modelling
-> with INLA*. R package version 0.2.1.9006. URL:
+> with INLA*. R package version 0.2.2. URL:
 > <https://inlavaan.haziqj.ml/>
 
 A BibTeX entry for LaTeX users is:
@@ -466,7 +470,7 @@ A BibTeX entry for LaTeX users is:
     title = {INLAvaan: Bayesian structural equation modelling with INLA},
     author = {Haziq Jamil},
     year = {2026},
-    note = {R package version 0.2.1.9006},
+    note = {R package version 0.2.2},
     url = {https://inlavaan.haziqj.ml/},
   }
 ```
