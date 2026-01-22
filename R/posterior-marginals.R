@@ -17,7 +17,12 @@ prodfac_lp <- function(z, sigma_asym) {
 
 # Marginalised distribution
 marg_lp <- function(tj, j, theta_star, Sigma_theta, sigma_asym) {
-  L <- t(chol(Sigma_theta))
+  if (TRUE) {
+    L <- t(chol(Sigma_theta))
+  } else {
+    eig <- eigen(Sigma_theta, symmetric = TRUE) # FIXME: If not pos def?
+    L <- eig$vectors %*% diag(sqrt(eig$values))
+  }
   L_inv <- solve(L)
 
   sapply(tj, function(thetaj) {

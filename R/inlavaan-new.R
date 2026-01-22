@@ -260,14 +260,16 @@ inlavaan <- function(
     H_neg <- opt$hessian
   }
   Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
-  # return(opt)
-  # return(list(theta = theta_star, Sigma = Sigma_theta))
-  L <- t(chol(Sigma_theta)) # For whitening: z = L^{-1}(theta - theta*)
-  eig <- eigen(Sigma_theta, symmetric = TRUE)
-  Leig <- eig$vectors %*% diag(sqrt(eig$values))
-  Vscan <- sweep(Sigma_theta, 2, sqrt(diag(Sigma_theta)), "/")
-
   lp_max <- joint_lp(theta_star) # before correction
+
+  # Eigen decomposition for whitening z = L^{-1}(theta - theta*)
+  if (TRUE) {
+    L <- t(chol(Sigma_theta))
+  } else {
+    eig <- eigen(Sigma_theta, symmetric = TRUE) # FIXME: If not pos def?
+    L <- eig$vectors %*% diag(sqrt(eig$values))
+  }
+  Vscan <- sweep(Sigma_theta, 2, sqrt(diag(Sigma_theta)), "/")
 
   # Derivatives at optima
   opt$dx <- numDeriv::grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
@@ -292,34 +294,29 @@ inlavaan <- function(
     # QMC noise (scrambled Sobol)
     us <- qrng::sobol(n = 50, d = m, randomize = "Owen", seed = 123)
     set.seed(NULL)
-    zs <- rbind(0, qnorm(us) %*% t(Leig)) # Add 0 to "lock at" mode
+    zs <- rbind(0, qnorm(us) %*% t(L)) # Add 0 to "lock at" mode
 
-    vb_ob <- function(eta, mu0, Z) {
-      # eta = t(L) %*% delta, the shift in whitened space
-      mu_new <- mu0 + as.numeric(Leig %*% eta)
-
+    vb_ob <- function(delta, mu0, Z) {
+      mu_new <- mu0 + as.numeric(L %*% delta)
       ns <- nrow(Z)
       lp_total <- 0
-      for (i in seq_len(ns)) {
-        thetai <- mu_new + Z[i, ]
-        lp_total <- lp_total + joint_lp(thetai)
+      for (b in seq_len(ns)) {
+        thetab <- mu_new + Z[b, , drop = TRUE]
+        lp_total <- lp_total + joint_lp(thetab)
       }
-
       -1 * (lp_total / ns)
     }
 
     vb_gr <- function(eta, mu0, Z) {
-      mu_new <- mu0 + as.numeric(Leig %*% eta)
-
+      mu_new <- mu0 + as.numeric(L %*% eta)
       ns <- nrow(Z)
       lpgrad_total <- numeric(length(mu0))
-      for (i in seq_len(ns)) {
-        thetai <- mu_new + Z[i, ]
-        lpgrad_total <- lpgrad_total + joint_lp_grad(thetai)
+      for (b in seq_len(ns)) {
+        thetab <- mu_new + Z[b, , drop = TRUE]
+        lpgrad_total <- lpgrad_total + joint_lp_grad(thetab)
       }
-
       lpgrad_avg <- -1 * lpgrad_total / ns
-      as.numeric(t(Leig) %*% lpgrad_avg)
+      as.numeric(t(L) %*% lpgrad_avg)
     }
 
     vb_opt <- nlminb(
@@ -331,7 +328,7 @@ inlavaan <- function(
       control = list(rel.tol = 1e-4)
     )
 
-    vb_shift <- as.numeric(Leig %*% vb_opt$par)
+    vb_shift <- as.numeric(L %*% vb_opt$par)
     vb_kld <- (vb_shift)^2 / (2 * diag(Sigma_theta))
     vb_kld_global <- lp_max + vb_opt$objective
   }
@@ -342,17 +339,18 @@ inlavaan <- function(
     kld = vb_kld,
     kld_global = vb_kld_global
   )
-
   timing <- add_timing(timing, "vb")
 
   ## ----- Info at optima ------------------------------------------------------
+  theta_star_vbc <- theta_star
   if (isTRUE(vb_correction)) {
+    theta_star_vbc <- theta_star + vb_shift
     theta_star <- theta_star + vb_shift
   }
   if (ceq.simple) {
-    theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star), pt)
+    theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star_vbc), pt)
   } else {
-    theta_star_trans <- pars_to_x(theta_star, pt)
+    theta_star_trans <- pars_to_x(theta_star_vbc, pt)
   }
 
   # Marginal log-likelihood (for BF comparison)
@@ -377,9 +375,9 @@ inlavaan <- function(
       # Precompute baseline Hessian (diagonal of Hessian_z at mode)
       Hz0 <- numeric(m)
       for (j in 1:m) {
-        g_fwd <- -1 * joint_lp_grad(theta_star + Leig[, j] * delta_inner)
-        g_bwd <- -1 * joint_lp_grad(theta_star - Leig[, j] * delta_inner)
-        Hz0[j] <- sum(Leig[, j] * (g_fwd - g_bwd)) / (2 * delta_inner)
+        g_fwd <- -1 * joint_lp_grad(theta_star + L[, j] * delta_inner)
+        g_bwd <- -1 * joint_lp_grad(theta_star - L[, j] * delta_inner)
+        Hz0[j] <- sum(L[, j] * (g_fwd - g_bwd)) / (2 * delta_inner)
       }
     }
 
@@ -387,24 +385,23 @@ inlavaan <- function(
       if (marginal_correction == "none") {
         gamma1j <- 0
       } else {
-        th_plus <- theta_star + Vscan[, .j] * delta_outer
+        th_plus <- theta_star + L[, .j] * delta_outer
         if (marginal_correction == "hessian") {
           Htheta1_full <- numDeriv::jacobian(
             function(x) -1 * joint_lp_grad(x),
             th_plus
           )
-          Hz1 <- diag(t(Leig) %*% Htheta1_full %*% Leig)
+          Hz1 <- diag(t(L) %*% Htheta1_full %*% L)
         } else if (marginal_correction == "shortcut") {
           Hz1 <- numeric(m)
           for (jj in 1:m) {
-            g_fwd <- -1 * joint_lp_grad(th_plus + Leig[, jj] * delta_inner)
-            g_bwd <- -1 * joint_lp_grad(th_plus - Leig[, jj] * delta_inner)
-            Hz1[jj] <- sum(Leig[, jj] * (g_fwd - g_bwd)) / (2 * delta_inner)
+            g_fwd <- -1 * joint_lp_grad(th_plus + L[, jj] * delta_inner)
+            g_bwd <- -1 * joint_lp_grad(th_plus - L[, jj] * delta_inner)
+            Hz1[jj] <- sum(L[, jj] * (g_fwd - g_bwd)) / (2 * delta_inner)
           }
         }
         dH_dz <- (Hz1 - Hz0) / delta_outer
-        # gamma1j <- -0.5 * sum(dH_dz[-.j])
-        gamma1j <- -0.5 * sum(dH_dz)
+        gamma1j <- -0.5 * sum(dH_dz[-.j])
       }
       gamma1j
     }
@@ -416,7 +413,13 @@ inlavaan <- function(
       cli::cli_progress_step("Sampling from posterior.")
     }
     approx_data <- NULL
-    postmargres <- post_marg_sampling(theta_star, Sigma_theta, pt, ceq.K, nsamp)
+    postmargres <- post_marg_sampling(
+      theta_star_vbc,
+      Sigma_theta,
+      pt,
+      ceq.K,
+      nsamp
+    )
   } else {
     if (marginal_method == "asymgaus") {
       if (isTRUE(verbose)) {
@@ -429,11 +432,11 @@ inlavaan <- function(
         gamma1j <- get_gamma1(j)
         dplus <- max(
           0.01,
-          lp_max - joint_lp(theta_star + L[, j] * k) - gamma1j * k
+          lp_max - joint_lp(theta_star + Vscan[, j] * k) + gamma1j * k
         )
         dminus <- max(
           0.01,
-          lp_max - joint_lp(theta_star - L[, j] * k) + gamma1j * k
+          lp_max - joint_lp(theta_star - Vscan[, j] * k) + gamma1j * k
         )
         c(
           sigma_plus = sqrt(k^2 / (2 * dplus)),
@@ -454,7 +457,7 @@ inlavaan <- function(
           g_prime = g_prime,
           ginv = ginv,
           ginv_prime = ginv_prime,
-          theta_star = theta_star,
+          theta_star = theta_star_vbc,
           Sigma_theta = Sigma_theta,
           sigma_asym = approx_data
         )
@@ -474,7 +477,6 @@ inlavaan <- function(
         gamma1j <- get_gamma1(j)
 
         for (k in seq_along(z)) {
-          # yync[k] <- joint_lp(theta_star + L[, j] * z[k])
           yync[k] <- joint_lp(theta_star + Vscan[, j] * z[k])
           yy[k] <- yync[k] + gamma1j * z[k]
         }
@@ -524,7 +526,7 @@ inlavaan <- function(
           g_prime = g_prime,
           ginv = ginv,
           ginv_prime = ginv_prime,
-          theta_star = theta_star,
+          theta_star = theta_star_vbc,
           Sigma_theta = Sigma_theta,
           sn_params = approx_data
         )
@@ -539,7 +541,7 @@ inlavaan <- function(
           g_prime = g_prime,
           ginv = ginv,
           ginv_prime = ginv_prime,
-          theta_star = theta_star,
+          theta_star = theta_star_vbc,
           Sigma_theta = Sigma_theta
         )
       }
@@ -592,7 +594,7 @@ inlavaan <- function(
 
       if (marginal_method == "skewnorm") {
         samp_cov <- sample_covariances_fit_sn(
-          theta_star,
+          theta_star_vbc,
           Sigma_theta,
           pt,
           ceq.K,
@@ -600,7 +602,7 @@ inlavaan <- function(
         )
       } else {
         samp_cov <- sample_covariances(
-          theta_star,
+          theta_star_vbc,
           Sigma_theta,
           pt,
           ceq.K,
@@ -620,7 +622,7 @@ inlavaan <- function(
   # Defined parameters
   if (any(pt$op == ":=")) {
     defpars <- get_defpars(
-      theta_star,
+      theta_star_vbc,
       Sigma_theta,
       marginal_method,
       approx_data,
@@ -640,7 +642,7 @@ inlavaan <- function(
   # For binary and ordinal data, sample the deltas
   if (any(pt$op == "~*~")) {
     deltapars <- get_thetaparamerization_deltas(
-      theta_star,
+      theta_star_vbc,
       Sigma_theta,
       marginal_method,
       approx_data,
@@ -671,7 +673,7 @@ inlavaan <- function(
       )
     }
     ppp <- get_ppp(
-      theta_star,
+      theta_star_vbc,
       Sigma_theta,
       marginal_method,
       approx_data,
@@ -683,7 +685,7 @@ inlavaan <- function(
       cli_env = env
     )
     dic_list <- get_dic(
-      theta_star,
+      theta_star_vbc,
       Sigma_theta,
       marginal_method,
       approx_data,
@@ -717,7 +719,8 @@ inlavaan <- function(
     ppp = ppp,
     optim_method = optim_method,
     marginal_method = marginal_method,
-    theta_star = as.numeric(theta_star),
+    theta_star_novbc = as.numeric(theta_star),
+    theta_star = as.numeric(theta_star_vbc),
     Sigma_theta = Sigma_theta,
     theta_star_trans = theta_star_trans,
     approx_data = approx_data,
