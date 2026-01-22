@@ -49,7 +49,7 @@ check_mat <- function(mat) {
     return(TRUE)
   }
   eig <- eigen(mat, TRUE, TRUE)$values
-  mat_is_neg_def <- any(eig < -1e-06 * eig[1])
+  mat_is_neg_def <- any(eig < -1e-06 * eig[1]) | any(eig < 0)
   mat_is_neg_def
 }
 

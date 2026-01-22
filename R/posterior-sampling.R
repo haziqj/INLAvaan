@@ -176,16 +176,14 @@ get_ppp <- function(
       # Retrieve Model Implied Sigma (Universal)
       Sigma <- lavimplied$cov[[b]]
 
-      if (check_mat(Sigma)) {
-        next
+      if (!check_mat(Sigma)) {
+        # Simulate and Accumulate
+        W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1]
+        Srep <- W / (n - 1)
+
+        Tobs <- Tobs + Fdiscrp(S, Sigma)
+        Trep <- Trep + Fdiscrp(Srep, Sigma)
       }
-
-      # Simulate and Accumulate
-      W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1]
-      Srep <- W / (n - 1)
-
-      Tobs <- Tobs + Fdiscrp(S, Sigma)
-      Trep <- Trep + Fdiscrp(Srep, Sigma)
     }
 
     res[i] <- as.numeric(Trep >= Tobs)
@@ -371,13 +369,14 @@ get_dic <- function(
   }
 
   Dhat <- -2 * loglik(xhat)
-  Dbar <- mean(sapply(seq_len(nrow(x)), function(i) {
+  Dbar_samp <- sapply(seq_len(nrow(x)), function(i) {
     if (!is.null(cli_env)) {
       cli::cli_progress_update(.envir = cli_env)
     }
     xx <- x[i, ]
     -2 * loglik(xx)
-  }))
+  })
+  Dbar <- mean(Dbar_samp[Dbar_samp < 1e40])
   pD <- Dbar - Dhat
 
   list(dic = Dbar + pD, Dbar = Dbar, Dhat = Dhat, pD = pD)

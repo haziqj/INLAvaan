@@ -37,8 +37,8 @@ mod <- "
 dat <- lavaan::PoliticalDemocracy
 
 # Simulate missingness (MCAR)
-set.seed(161)
-mis <- matrix(rbinom(prod(dim(dat)), 1, 0.9), nrow(dat), ncol(dat))
+set.seed(221)
+mis <- matrix(rbinom(prod(dim(dat)), 1, 0.99), nrow(dat), ncol(dat))
 datmiss <- dat * mis
 datmiss[datmiss == 0] <- NA
 ```
