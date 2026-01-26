@@ -39,23 +39,23 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [125ms]
+#> ✔ Finding posterior mode. [126ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [448ms]
+#> ✔ Computing the Hessian. [453ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.065σ. [435ms]
+#> ✔ VB correction; mean |δ| = 0.065σ. [436ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 34/42 marginals.
+#> ⠹ Fitting skew normal to 35/42 marginals.
 #> ✔ Fitting skew normal to 42/42 marginals. [3.5s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [225ms]
+#> ✔ Sampling covariances and defined parameters. [227ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [908ms]
+#> ✔ Computing ppp and DIC. [916ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -72,22 +72,22 @@ print(fit1)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -818.105 
-#>    PPP (Chi-square)                              0.070
+#>    PPP (Chi-square)                              0.084
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        1.804        1.739        0.955        0.788        1.517        1.075 
+#>        1.804        1.762        0.964        0.816        1.583        1.100 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        0.719        1.351        1.099        0.615        1.034        0.041 
+#>        0.754        1.425        0.954        0.534        1.113        0.187 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.389        0.479        0.223       -0.224        0.242        0.068 
+#>        0.406        0.501        0.198       -0.285        0.191        0.070 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.151        0.419        1.365        8.133        4.081        3.004 
+#>        0.142        0.420        1.566        7.760        4.077        2.625 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.317        7.074        2.139        4.177        0.518        1.628 
+#>        1.478        6.614        1.969        3.648        0.502        1.352 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>        0.136        5.424        5.534        4.107        7.250        6.635 
+#>        0.154        5.424        5.534        4.107        7.250        6.634 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        8.307        6.834        6.639        5.224        8.267        6.157
+#>        8.306        6.833        6.639        5.223        8.266        6.156
 ```
 
 ## Full Information Maximum Likelihood (FIML)
@@ -95,24 +95,24 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [294ms]
+#> ✔ Finding posterior mode. [282ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [1.1s]
+#> ✔ Computing the Hessian. [816ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.044σ. [531ms]
+#> ✔ VB correction; mean |δ| = 0.044σ. [539ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 15/42 marginals.
-#> ⠸ Fitting skew normal to 35/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [6.1s]
+#> ⠹ Fitting skew normal to 17/42 marginals.
+#> ⠸ Fitting skew normal to 38/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [202ms]
+#> ✔ Sampling covariances and defined parameters. [203ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [928ms]
+#> ✔ Computing ppp and DIC. [922ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.2 ended normally after 93 iterations
@@ -130,19 +130,19 @@ print(fit2)
 #>    PPP (Chi-square)                              0.000
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        2.211        1.822        0.650        0.790        0.953        1.017 
+#>        2.211        1.844        0.650        0.791        0.957        1.025 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        1.044        1.278        1.313        0.546        0.765        0.231 
+#>        1.055        1.301        1.305        0.530        0.757        0.253 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.191        0.490        0.105        0.118        0.279        0.081 
+#>        0.192        0.490        0.101        0.108        0.284        0.083 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.134        0.506        1.589        7.606        3.365        3.021 
+#>        0.129        0.510        1.668        7.436        3.405        2.907 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.750        6.026        2.083        3.746        0.471        4.673 
+#>        1.773        5.887        2.057        3.646        0.459        4.476 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>        0.243        5.060        4.791        3.557        5.462        5.766 
+#>        0.207        5.060        4.791        3.557        5.462        5.768 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        7.152        5.245        5.350        4.087        6.851        4.415
+#>        7.153        5.241        5.354        4.069        6.849        4.414
 ```
 
 ``` r
