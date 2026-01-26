@@ -262,7 +262,7 @@ inlavaan <- function(
   Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
   lp_max <- joint_lp(theta_star) # before correction
 
-  # Eigen decomposition for whitening z = L^{-1}(theta - theta*)
+  # Choleski or eigen decomposition for whitening z = L^{-1}(theta - theta*)
   if (TRUE) {
     L <- t(chol(Sigma_theta))
   } else {
