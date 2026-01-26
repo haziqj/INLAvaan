@@ -373,8 +373,8 @@ inlavaan <- function(
       # Precompute baseline Hessian (diagonal of Hessian_z at mode)
       Hz0 <- numeric(m)
       for (j in 1:m) {
-        g_fwd <- -1 * joint_lp_grad(theta_star + Vscan[, j] * delta_inner)
-        g_bwd <- -1 * joint_lp_grad(theta_star - Vscan[, j] * delta_inner)
+        g_fwd <- -1 * joint_lp_grad(theta_star + L[, j] * delta_inner)
+        g_bwd <- -1 * joint_lp_grad(theta_star - L[, j] * delta_inner)
         Hz0[j] <- sum(L[, j] * (g_fwd - g_bwd)) / (2 * delta_inner)
       }
     }
@@ -383,7 +383,7 @@ inlavaan <- function(
       if (marginal_correction == "none") {
         gamma1j <- 0
       } else {
-        th_plus <- theta_star + L[, .j] * delta_outer
+        th_plus <- theta_star + Vscan[, .j] * delta_outer
         if (marginal_correction == "hessian") {
           Htheta1_full <- numDeriv::jacobian(
             function(x) -1 * joint_lp_grad(x),
@@ -393,8 +393,8 @@ inlavaan <- function(
         } else if (marginal_correction == "shortcut") {
           Hz1 <- numeric(m)
           for (jj in 1:m) {
-            g_fwd <- -1 * joint_lp_grad(th_plus + Vscan[, jj] * delta_inner)
-            g_bwd <- -1 * joint_lp_grad(th_plus - Vscan[, jj] * delta_inner)
+            g_fwd <- -1 * joint_lp_grad(th_plus + L[, jj] * delta_inner)
+            g_bwd <- -1 * joint_lp_grad(th_plus - L[, jj] * delta_inner)
             Hz1[jj] <- sum(L[, jj] * (g_fwd - g_bwd)) / (2 * delta_inner)
           }
         }
