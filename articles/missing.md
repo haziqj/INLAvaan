@@ -42,25 +42,26 @@ fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ✔ Finding posterior mode. [127ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [449ms]
+#> ✔ Computing the Hessian. [443ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.065σ. [429ms]
+#> ✔ VB correction; mean |δ| = 0.065σ. [427ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 36/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [3.5s]
+#> ⠹ Fitting skew normal to 2/42 marginals.
+#> ⠸ Fitting skew normal to 38/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [3.4s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [221ms]
+#> ✔ Sampling covariances and defined parameters. [218ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [884ms]
+#> ✔ Computing ppp and DIC. [872ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.2.2 ended normally after 71 iterations
+#> INLAvaan 0.2.2.9000 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -72,22 +73,22 @@ print(fit1)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -818.105 
-#>    PPP (Chi-square)                              0.126
+#>    PPP (Chi-square)                              0.084
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        1.800        1.742        0.889        0.769        1.418        1.035 
+#>        1.804        1.762        0.964        0.816        1.583        1.100 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        0.715        1.346        1.133        0.660        1.053        0.016 
+#>        0.754        1.425        0.954        0.534        1.113        0.187 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.407        0.482        0.218       -0.196        0.253        0.067 
+#>        0.406        0.501        0.198       -0.285        0.191        0.070 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.150        0.415        1.380        7.999        4.021        3.048 
+#>        0.142        0.420        1.566        7.760        4.077        2.625 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.355        7.086        2.210        4.290        0.522        1.646 
+#>        1.478        6.614        1.969        3.648        0.502        1.352 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>        0.115        5.427        5.534        4.107        7.249        6.633 
+#>        0.154        5.424        5.534        4.107        7.250        6.634 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        8.307        6.832        6.637        5.224        8.270        6.160
+#>        8.306        6.833        6.639        5.223        8.266        6.156
 ```
 
 ## Full Information Maximum Likelihood (FIML)
@@ -95,27 +96,27 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [281ms]
+#> ✔ Finding posterior mode. [278ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [813ms]
+#> ✔ Computing the Hessian. [795ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.044σ. [528ms]
+#> ✔ VB correction; mean |δ| = 0.044σ. [530ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 18/42 marginals.
-#> ⠸ Fitting skew normal to 39/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [6s]
+#> ⠹ Fitting skew normal to 20/42 marginals.
+#> ⠸ Fitting skew normal to 42/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [6.1s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [215ms]
+#> ✔ Sampling covariances and defined parameters. [189ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [918ms]
+#> ✔ Computing ppp and DIC. [904ms]
 #> 
 print(fit2)
-#> INLAvaan 0.2.2 ended normally after 93 iterations
+#> INLAvaan 0.2.2.9000 ended normally after 93 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -127,22 +128,22 @@ print(fit2)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1414.910 
-#>    PPP (Chi-square)                              0.004
+#>    PPP (Chi-square)                              0.000
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        2.206        1.824        0.646        0.789        0.945        1.024 
+#>        2.211        1.844        0.650        0.791        0.957        1.025 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        1.045        1.276        1.315        0.556        0.756        0.244 
+#>        1.055        1.301        1.305        0.530        0.757        0.253 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.193        0.491        0.107        0.120        0.277        0.080 
+#>        0.192        0.490        0.101        0.108        0.284        0.083 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.137        0.503        1.557        7.536        3.337        3.005 
+#>        0.129        0.510        1.668        7.436        3.405        2.907 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.736        5.968        2.041        3.698        0.471        4.676 
+#>        1.773        5.887        2.057        3.646        0.459        4.476 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>        0.226        5.061        4.792        3.557        5.462        5.761 
+#>        0.207        5.060        4.791        3.557        5.462        5.768 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        7.152        5.243        5.351        4.089        6.853        4.415
+#>        7.153        5.241        5.354        4.069        6.849        4.414
 ```
 
 ``` r

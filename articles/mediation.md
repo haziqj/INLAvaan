@@ -98,19 +98,19 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [29ms]
+#> ✔ Finding posterior mode. [28ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [63ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.012σ. [173ms]
+#> ✔ VB correction; mean |δ| = 0.012σ. [172ms]
 #> 
 #> ⠙ Fitting skew normal to 0/7 marginals.
 #> ✔ Fitting skew normal to 7/7 marginals. [198ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [365ms]
+#> ✔ Computing ppp and DIC. [367ms]
 #> 
 ```
 
@@ -126,7 +126,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.2 ended normally after 5 iterations
+#> INLAvaan 0.2.2.9000 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -137,12 +137,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -311.858 
-#>    PPP (Chi-square)                              0.604 
+#>    PPP (Chi-square)                              0.612 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              568.665 
-#>    Effective parameters (pD)                     6.876 
+#>    Deviance (DIC)                              568.307 
+#>    Effective parameters (pD)                     6.697 
 #> 
 #> Parameter Estimates:
 #> 
@@ -152,26 +152,26 @@ summary(fit)
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   Y ~                                                                          
-#>     X          (c)   -0.060    0.120   -0.296    0.176    0.001    normal(0,10)
+#>     X          (c)   -0.060    0.118   -0.291    0.171    0.000    normal(0,10)
 #>   M ~                                                                          
-#>     X          (a)    0.525    0.109    0.311    0.740    0.000    normal(0,10)
+#>     X          (a)    0.525    0.108    0.315    0.736    0.000    normal(0,10)
 #>   Y ~                                                                          
-#>     M          (b)    0.771    0.101    0.573    0.968    0.000    normal(0,10)
+#>     M          (b)    0.771    0.099    0.577    0.964    0.000    normal(0,10)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                -0.071    0.100   -0.267    0.126    0.000    normal(0,32)
-#>    .M                 0.126    0.100   -0.071    0.322    0.000    normal(0,32)
+#>    .Y                -0.071    0.098   -0.263    0.122    0.000    normal(0,32)
+#>    .M                 0.126    0.099   -0.068    0.319    0.000    normal(0,32)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                 0.976    0.145    0.732    1.299    0.004 gamma(1,.5)[sd]
-#>    .M                 0.997    0.147    0.749    1.326    0.004 gamma(1,.5)[sd]
+#>    .Y                 0.977    0.145    0.733    1.303    0.006 gamma(1,.5)[sd]
+#>    .M                 0.998    0.147    0.749    1.325    0.006 gamma(1,.5)[sd]
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.403    0.097    0.246    0.596                         
-#>     total             0.347    0.128    0.101    0.592
+#>     ab                0.403    0.095    0.249    0.593                         
+#>     total             0.347    0.126    0.105    0.587
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -182,10 +182,10 @@ output:
 - Path $a$ (`M ~ X`) estimated at 0.525 (true value 0.5).
 - Path $b$ (`Y ~ M`) estimated at 0.771 (true value 0.7).
 - Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
-  \[-0.296, 0.176\] includes zero, correctly identifying that there is
+  \[-0.291, 0.171\] includes zero, correctly identifying that there is
   no direct effect.
 - Indirect Effect $ab$ estimated at 0.403 (true value 0.35). The
-  interval \[0.246, 0.596\] does not cross zero, indicating significant
+  interval \[0.249, 0.593\] does not cross zero, indicating significant
   mediation.
 - Total Effect estimated at 0.347.
   - This is the sum of the direct and indirect effects ($c + ab$).
