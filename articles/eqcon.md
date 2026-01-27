@@ -53,10 +53,10 @@ dat <- reshape(
 names(dat) <- sub("^Reaction\\.(.*)$", "Day\\1", names(dat))
 fit <- agrowth(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [82ms]
+#> ✔ Finding posterior mode. [81ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [59ms]
+#> ✔ Computing the Hessian. [57ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.052σ. [177ms]
@@ -65,15 +65,15 @@ fit <- agrowth(mod, dat)
 #> ✔ Fitting skew normal to 6/6 marginals. [166ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [99ms]
+#> ✔ Sampling covariances and defined parameters. [92ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [399ms]
+#> ✔ Computing ppp and DIC. [397ms]
 #> 
 coef(fit)
 #>      i~~i       i~1      s~~s       s~1      i~~s         v         v         v 
-#> 12102.824    32.765    39.182     8.520     0.107   622.400   622.400   622.400 
+#> 12218.668    33.363    36.908     8.462     0.112   624.367   624.367   624.367 
 #>         v         v         v         v         v         v         v 
-#>   622.400   622.400   622.400   622.400   622.400   622.400   622.400
+#>   624.367   624.367   624.367   624.367   624.367   624.367   624.367
 ```

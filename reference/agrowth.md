@@ -198,22 +198,22 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [165ms]
+#> ✔ Finding posterior mode. [166ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [252ms]
+#> ✔ Computing the Hessian. [238ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.004σ. [245ms]
+#> ✔ VB correction; mean |δ| = 0.004σ. [257ms]
 #> 
 #> ⠙ Fitting skew normal to 0/17 marginals.
 #> ✔ Fitting skew normal to 17/17 marginals. [1.2s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [50ms]
+#> ✔ Sampling covariances and defined parameters. [79ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [171ms]
+#> ✔ Computing ppp and DIC. [161ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.2 ended normally after 83 iterations
@@ -227,12 +227,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.794 
-#>    PPP (Chi-square)                              0.820 
+#>    PPP (Chi-square)                              0.790 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             5005.992 
-#>    Effective parameters (pD)                    21.822 
+#>    Deviance (DIC)                             5006.528 
+#>    Effective parameters (pD)                    22.090 
 #> 
 #> Parameter Estimates:
 #> 
@@ -255,15 +255,15 @@ summary(fit)
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   i ~                                                                          
-#>     x1                0.608    0.060    0.491    0.726    0.000    normal(0,10)
-#>     x2                0.604    0.064    0.478    0.730    0.000    normal(0,10)
+#>     x1                0.608    0.060    0.490    0.727    0.000    normal(0,10)
+#>     x2                0.604    0.065    0.478    0.731    0.000    normal(0,10)
 #>   s ~                                                                          
 #>     x1                0.262    0.029    0.206    0.318    0.000    normal(0,10)
 #>     x2                0.522    0.031    0.462    0.582    0.000    normal(0,10)
 #>   t1 ~                                                                         
-#>     c1                0.144    0.050    0.046    0.242    0.000    normal(0,10)
+#>     c1                0.144    0.050    0.045    0.242    0.000    normal(0,10)
 #>   t2 ~                                                                         
-#>     c2                0.289    0.046    0.199    0.379    0.000    normal(0,10)
+#>     c2                0.289    0.046    0.199    0.380    0.000    normal(0,10)
 #>   t3 ~                                                                         
 #>     c3                0.328    0.045    0.240    0.415    0.000    normal(0,10)
 #>   t4 ~                                                                         
@@ -272,7 +272,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.155    0.041    0.146   -0.015    0.004       beta(1,1)
+#>    .s                 0.161    0.041    0.146   -0.015    0.005       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -280,16 +280,16 @@ summary(fit)
 #>    .t2                0.000                                                    
 #>    .t3                0.000                                                    
 #>    .t4                0.000                                                    
-#>    .i                 0.580    0.062    0.459    0.702    0.000    normal(0,10)
-#>    .s                 0.958    0.030    0.900    1.015    0.000    normal(0,10)
+#>    .i                 0.580    0.062    0.458    0.703    0.000    normal(0,10)
+#>    .s                 0.957    0.030    0.899    1.016    0.000    normal(0,10)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .t1                0.591    0.080    0.949    0.441    0.003 gamma(1,.5)[sd]
-#>    .t2                0.605    0.055    0.720    0.504    0.001 gamma(1,.5)[sd]
-#>    .t3                0.488    0.056    0.604    0.386    0.001 gamma(1,.5)[sd]
-#>    .t4                0.541    0.097    1.082    0.359    0.008 gamma(1,.5)[sd]
-#>    .i                 1.097    0.114    1.333    0.887    0.001 gamma(1,.5)[sd]
-#>    .s                 0.228    0.027    0.283    0.179    0.002 gamma(1,.5)[sd]
+#>    .t1                0.591    0.081    0.952    0.441    0.004 gamma(1,.5)[sd]
+#>    .t2                0.605    0.055    0.504    0.721    0.001 gamma(1,.5)[sd]
+#>    .t3                0.489    0.056    0.605    0.386    0.002 gamma(1,.5)[sd]
+#>    .t4                0.541    0.097    1.083    0.358    0.009 gamma(1,.5)[sd]
+#>    .i                 1.100    0.115    1.337    0.888    0.000 gamma(1,.5)[sd]
+#>    .s                 0.228    0.027    0.284    0.179    0.002 gamma(1,.5)[sd]
 #> 
 ```
