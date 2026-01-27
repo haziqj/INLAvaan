@@ -1,3 +1,5 @@
+# INLAvaan (development version)
+
 # INLAvaan 0.2.2
 
 * Under the hood, use lavaan's MVN log-likelihood function to compute single- and multi-level log-likelihoods.
