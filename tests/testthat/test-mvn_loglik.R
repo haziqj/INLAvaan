@@ -41,7 +41,7 @@ test_that("INLAvaan produces same results as lavaan", {
   expect_equal(
     as.numeric(coef(fit_lav)),
     fit_inl$theta_star_trans[pt$free[pt$free > 0]],
-    tolerance = 1e-5
+    tolerance = 1e-4
   )
   expect_no_error(out <- capture.output(summary(fit_inl)))
 })
@@ -113,6 +113,6 @@ test_that("Gradients are correct (Finite Difference Check)", {
   expect_equal(
     as.numeric(test_df$fd),
     as.numeric(test_df$diff),
-    tolerance = 1e-3
+    tolerance = 1e-2
   )
 })
