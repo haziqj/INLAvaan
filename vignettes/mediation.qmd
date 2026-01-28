@@ -5,6 +5,9 @@ vignette: >
   %\VignetteIndexEntry{Mediation Analysis}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
+format:
+  html:
+    mermaid-format: png
 knitr:
   opts_chunk: 
     collapse: true
