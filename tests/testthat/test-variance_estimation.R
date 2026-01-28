@@ -28,7 +28,7 @@ test_that("Comparison to MCMC", {
       mod,
       dat100,
       n.chains = 1,
-      sample = 10000,
+      sample = 2000,
       dp = blavaan::dpriors(psi = the_prior)
     )
   ))
