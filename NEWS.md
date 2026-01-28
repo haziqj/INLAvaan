@@ -1,4 +1,8 @@
-# INLAvaan (development version)
+# INLAvaan 0.2.3
+
+* Improved axis scanning, skewness correction, and VB mean correction routine.
+* Bug fixes for CRAN.
+* Updated README example.
 
 # INLAvaan 0.2.2
 
@@ -6,7 +10,6 @@
 * Added support for multi-level SEM models.
 * Added support for binary data using PML estimator from lavaan. NOTE: Ordinal is possible in theory, but the package still lacks proper prior support for the thresholds.
 * Added support for `missing = "ML"` to handle FIML for missing data.
-* Improved axis scanning, skewness correction, and VB mean correction routine.
 
 # INLAvaan 0.2.1
 
