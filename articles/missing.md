@@ -39,16 +39,16 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [127ms]
+#> ✔ Finding posterior mode. [126ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [443ms]
+#> ✔ Computing the Hessian. [442ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.065σ. [427ms]
+#> ✔ VB correction; mean |δ| = 0.065σ. [426ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 2/42 marginals.
+#> ⠹ Fitting skew normal to 1/42 marginals.
 #> ⠸ Fitting skew normal to 38/42 marginals.
 #> ✔ Fitting skew normal to 42/42 marginals. [3.4s]
 #> 
@@ -56,12 +56,12 @@ fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ✔ Sampling covariances and defined parameters. [218ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [872ms]
+#> ✔ Computing ppp and DIC. [867ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.2.2.9000 ended normally after 71 iterations
+#> INLAvaan 0.2.3 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -96,27 +96,27 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [278ms]
+#> ✔ Finding posterior mode. [277ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [795ms]
+#> ✔ Computing the Hessian. [797ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.044σ. [530ms]
+#> ✔ VB correction; mean |δ| = 0.044σ. [529ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
 #> ⠹ Fitting skew normal to 20/42 marginals.
 #> ⠸ Fitting skew normal to 42/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [6.1s]
+#> ✔ Fitting skew normal to 42/42 marginals. [5.9s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [189ms]
+#> ✔ Sampling covariances and defined parameters. [200ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [904ms]
+#> ✔ Computing ppp and DIC. [910ms]
 #> 
 print(fit2)
-#> INLAvaan 0.2.2.9000 ended normally after 93 iterations
+#> INLAvaan 0.2.3 ended normally after 93 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

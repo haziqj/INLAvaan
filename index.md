@@ -25,6 +25,7 @@ SEM applied to the Industrialisation and Political Democracy data set of
 Bollen (1989)[¹](#fn1):
 
 ``` r
+library(INLAvaan)
 model <- "
   # Latent variable definitions
      ind60 =~ x1 + x2 + x3
@@ -57,27 +58,27 @@ fit <- asem(model, PoliticalDemocracy)
 #> ✔ Finding posterior mode. [35ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [94ms]
+#> ✔ Computing the Hessian. [92ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.035σ. [85ms]
+#> ✔ VB correction; mean |δ| = 0.035σ. [84ms]
 #> 
 #> ⠙ Fitting skew normal to 0/30 marginals.
-#> ⠹ Fitting skew normal to 2/30 marginals.
-#> ⠸ Fitting skew normal to 13/30 marginals.
-#> ⠼ Fitting skew normal to 24/30 marginals.
-#> ✔ Fitting skew normal to 30/30 marginals. [558ms]
+#> ⠹ Fitting skew normal to 6/30 marginals.
+#> ⠸ Fitting skew normal to 18/30 marginals.
+#> ⠼ Fitting skew normal to 29/30 marginals.
+#> ✔ Fitting skew normal to 30/30 marginals. [549ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [56ms]
+#> ✔ Sampling covariances and defined parameters. [59ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [196ms]
+#> ✔ Computing ppp and DIC. [192ms]
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.2 ended normally after 80 iterations
+#> INLAvaan 0.2.3 ended normally after 80 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -88,12 +89,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1651.231 
-#>    PPP (Chi-square)                              0.188 
+#>    PPP (Chi-square)                              0.170 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3215.749 
-#>    Effective parameters (pD)                    58.588 
+#>    Deviance (DIC)                             3214.887 
+#>    Effective parameters (pD)                    58.157 
 #> 
 #> Parameter Estimates:
 #> 
@@ -129,16 +130,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.330    0.397    0.144    1.699    0.006       beta(1,1)
+#>    .y5                0.330    0.410    0.132    1.739    0.006       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.216    0.657   -0.074    2.506    0.004       beta(1,1)
-#>    .y6                0.348    0.719    0.967    3.790    0.010       beta(1,1)
+#>    .y4                0.216    0.675   -0.134    2.517    0.004       beta(1,1)
+#>    .y6                0.348    0.748    0.851    3.789    0.010       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.224    0.650    2.299   -0.249    0.005       beta(1,1)
+#>    .y7                0.224    0.658   -0.207    2.378    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.069    0.434   -0.570    1.134    0.004       beta(1,1)
+#>    .y4                0.069    0.448   -0.538    1.218    0.004       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.309    0.587    0.235    2.541    0.005       beta(1,1)
+#>    .y8                0.309    0.579    0.252    2.520    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -167,8 +168,9 @@ comparable to those obtained via MCMC (e.g., via
 of the computational cost.
 
 The figure below illustrates the posterior density overlap for the
-example above. The percentages refer to (one minus) the [Jensen-Shannon
-divergence](https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence),
+example above. The percentages refer to the one minus the
+[Jensen-Shannon
+distance](https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence),
 which gives a measure of similarity between two probability
 distributions.
 
@@ -184,7 +186,14 @@ print(res$p_compare)
 
 ## Installation
 
-Install the development version of
+Install the CRAN version of [INLAvaan](https://inlavaan.haziqj.ml/)
+using:
+
+``` r
+install.packages("INLAvaan")
+```
+
+Alternatively, install the development version of
 [INLAvaan](https://inlavaan.haziqj.ml/) from GitHub using:
 
 ``` r
@@ -211,19 +220,20 @@ install.packages(
 To cite package [INLAvaan](https://inlavaan.haziqj.ml/) in publications
 use:
 
-> Jamil, H (2026). *INLAvaan: Bayesian structural equation modelling
-> with INLA*. R package version 0.2.2. URL:
-> <https://inlavaan.haziqj.ml/>
+> Jamil, H (2026). *INLAvaan: Approximate Bayesian Latent Variable
+> Analysis*. R package version 0.2.3. DOI:
+> [10.32614/CRAN.package.INLAvaan](https://doi.org/10.32614/CRAN.package.INLAvaan)
 
 A BibTeX entry for LaTeX users is:
 
 ``` bibtex
 @Manual{,
-    title = {INLAvaan: Bayesian structural equation modelling with INLA},
+    title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},
     author = {Haziq Jamil},
     year = {2026},
-    note = {R package version 0.2.2},
+    note = {R package version 0.2.3},
     url = {https://inlavaan.haziqj.ml/},
+    doi = {10.32614/CRAN.package.INLAvaan}
   }
 ```
 
@@ -259,4 +269,4 @@ license for the software and the CC BY 4.0 license for the data.
     (pp. xiv, 514). John Wiley & Sons.
     <https://doi.org/10.1002/9781118619179>
 
-2.  R-INLA dependency has been removed temporarily for v0.2-0.
+2.  R-INLA dependency has been removed temporarily from v0.2.0.

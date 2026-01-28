@@ -14,27 +14,27 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [246ms]
+#> ✔ Finding posterior mode. [247ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [715ms]
+#> ✔ Computing the Hessian. [712ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.022σ. [328ms]
+#> ✔ VB correction; mean |δ| = 0.022σ. [332ms]
 #> 
 #> ⠙ Fitting skew normal to 0/60 marginals.
-#> ⠹ Fitting skew normal to 24/60 marginals.
-#> ⠸ Fitting skew normal to 49/60 marginals.
+#> ⠹ Fitting skew normal to 23/60 marginals.
+#> ⠸ Fitting skew normal to 48/60 marginals.
 #> ✔ Fitting skew normal to 60/60 marginals. [7.2s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [198ms]
+#> ✔ Sampling covariances and defined parameters. [200ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [757ms]
+#> ✔ Computing ppp and DIC. [761ms]
 #> 
 summary(fit1)
-#> INLAvaan 0.2.2.9000 ended normally after 138 iterations
+#> INLAvaan 0.2.3 ended normally after 138 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -51,8 +51,8 @@ summary(fit1)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7729.706 
-#>    Effective parameters (pD)                   182.146 
+#>    Deviance (DIC)                             7740.580 
+#>    Effective parameters (pD)                   187.582 
 #> 
 #> Parameter Estimates:
 #> 
@@ -80,10 +80,10 @@ summary(fit1)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.463    0.100    0.640    0.247    0.002       beta(1,1)
-#>     speed             0.311    0.069    0.028    0.298    0.007       beta(1,1)
+#>     textual           0.463    0.115    0.230    0.683    0.002       beta(1,1)
+#>     speed             0.311    0.073    0.022    0.309    0.007       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.308    0.070    0.028    0.301    0.002       beta(1,1)
+#>     speed             0.308    0.065    0.034    0.289    0.002       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -136,10 +136,10 @@ summary(fit1)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.518    0.100    0.193    0.584    0.002       beta(1,1)
-#>     speed             0.515    0.076    0.103    0.403    0.012       beta(1,1)
+#>     textual           0.518    0.093    0.568    0.203    0.002       beta(1,1)
+#>     speed             0.515    0.074    0.399    0.110    0.012       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.326    0.076    0.064    0.361    0.006       beta(1,1)
+#>     speed             0.326    0.076    0.360    0.063    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -179,24 +179,24 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [194ms]
+#> ✔ Finding posterior mode. [199ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [628ms]
+#> ✔ Computing the Hessian. [631ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.017σ. [349ms]
+#> ✔ VB correction; mean |δ| = 0.017σ. [359ms]
 #> 
 #> ⠙ Fitting skew normal to 0/54 marginals.
-#> ⠹ Fitting skew normal to 24/54 marginals.
-#> ⠸ Fitting skew normal to 53/54 marginals.
+#> ⠹ Fitting skew normal to 23/54 marginals.
+#> ⠸ Fitting skew normal to 52/54 marginals.
 #> ✔ Fitting skew normal to 54/54 marginals. [5.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [215ms]
+#> ✔ Sampling covariances and defined parameters. [204ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [759ms]
+#> ✔ Computing ppp and DIC. [760ms]
 #> 
 
 # Strong invariance
@@ -207,24 +207,24 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [206ms]
+#> ✔ Finding posterior mode. [207ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [555ms]
+#> ✔ Computing the Hessian. [559ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.019σ. [482ms]
+#> ✔ VB correction; mean |δ| = 0.019σ. [271ms]
 #> 
 #> ⠙ Fitting skew normal to 0/48 marginals.
-#> ⠹ Fitting skew normal to 6/48 marginals.
+#> ⠹ Fitting skew normal to 7/48 marginals.
 #> ⠸ Fitting skew normal to 38/48 marginals.
-#> ✔ Fitting skew normal to 48/48 marginals. [4.6s]
+#> ✔ Fitting skew normal to 48/48 marginals. [4.7s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [193ms]
+#> ✔ Sampling covariances and defined parameters. [206ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [737ms]
+#> ✔ Computing ppp and DIC. [965ms]
 #> 
 
 # Compare models
@@ -233,7 +233,7 @@ compare(fit1, fit2, fit3)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>   fit3        48   -3913.733 7657.773 122.1262   0.000
-#>   fit2        54   -3934.223 7595.350 110.8984 -20.490
-#>   fit1        60   -3957.428 7729.706 182.1456 -43.694
+#>   fit3        48   -3913.733 7663.785 125.1324   0.000
+#>   fit2        54   -3934.223 7598.388 112.4172 -20.490
+#>   fit1        60   -3957.428 7740.580 187.5824 -43.694
 ```

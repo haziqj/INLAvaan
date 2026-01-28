@@ -19,19 +19,20 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ✔ Finding posterior mode. [64ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [138ms]
+#> ✔ Computing the Hessian. [140ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.013σ. [119ms]
+#> ✔ VB correction; mean |δ| = 0.013σ. [118ms]
 #> 
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [670ms]
+#> ⠹ Fitting skew normal to 20/21 marginals.
+#> ✔ Fitting skew normal to 21/21 marginals. [669ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [95ms]
+#> ✔ Computing ppp and DIC. [94ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.2.9000 ended normally after 56 iterations
+#> INLAvaan 0.2.3 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -46,8 +47,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7607.848 
-#>    Effective parameters (pD)                    66.054 
+#>    Deviance (DIC)                             7589.839 
+#>    Effective parameters (pD)                    57.049 
 #> 
 #> Parameter Estimates:
 #> 

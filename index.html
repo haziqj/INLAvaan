@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,8 @@
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> is designed to fit seamlessly into your existing workflow. If you are familiar with the <a href="https://lavaan.ugent.be/tutorial/syntax1.html" class="external-link">(b)lavaan syntax</a>, you can begin using <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> immediately.</p>
 <p>As a first impression of the package, consider the canonical example of SEM applied to the Industrialisation and Political Democracy data set of Bollen (1989)<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Bollen, K. A. (1989). &lt;em&gt;Structural equations with latent variables&lt;/em&gt; (pp. xiv, 514). John Wiley &amp;amp; Sons. &lt;a href="https://doi.org/10.1002/9781118619179" class="external-link uri"&gt;https://doi.org/10.1002/9781118619179&lt;/a&gt;&lt;/p&gt;'><sup>1</sup></a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlavaan.haziqj.ml/">INLAvaan</a></span><span class="op">)</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">  # Latent variable definitions</span></span>
 <span><span class="st">     ind60 =~ x1 + x2 + x3</span></span>
 <span><span class="st">     dem60 =~ y1 + y2 + y3</span></span>
@@ -118,27 +119,27 @@
 <span><span class="co">#&gt; ✔ Finding posterior mode. [35ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [94ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [92ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.035σ. [85ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.035σ. [84ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/30 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew normal to 2/30 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 13/30 marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting skew normal to 24/30 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 30/30 marginals. [558ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 6/30 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 18/30 marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting skew normal to 29/30 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 30/30 marginals. [549ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
-<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [56ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [59ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ⠹ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [196ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [192ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.2 ended normally after 80 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3 ended normally after 80 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -149,12 +150,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1651.231 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.188 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.170 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3215.749 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    58.588 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3214.887 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    58.157 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -190,16 +191,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.330    0.397    0.144    1.699    0.006       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.330    0.410    0.132    1.739    0.006       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.216    0.657   -0.074    2.506    0.004       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.348    0.719    0.967    3.790    0.010       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.216    0.675   -0.134    2.517    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.348    0.748    0.851    3.789    0.010       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.224    0.650    2.299   -0.249    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.224    0.658   -0.207    2.378    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y8 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.069    0.434   -0.570    1.134    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.069    0.448   -0.538    1.218    0.004       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.309    0.587    0.235    2.541    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.309    0.579    0.252    2.520    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -222,7 +223,7 @@
 <h2 id="validation-against-mcmc">Validation against MCMC<a class="anchor" aria-label="anchor" href="#validation-against-mcmc"></a>
 </h2>
 <p>Computation speed is valuable only when accuracy is preserved. Our method yields posterior distributions that are visually and numerically comparable to those obtained via MCMC (e.g., via <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a>/Stan), but at a fraction of the computational cost.</p>
-<p>The figure below illustrates the posterior density overlap for the example above. The percentages refer to (one minus) the <a href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence" class="external-link">Jensen-Shannon divergence</a>, which gives a measure of similarity between two probability distributions.</p>
+<p>The figure below illustrates the posterior density overlap for the example above. The percentages refer to the one minus the <a href="https://en.wikipedia.org/wiki/Jensen%E2%80%93Shannon_divergence" class="external-link">Jensen-Shannon distance</a>, which gives a measure of similarity between two probability distributions.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("blavaan")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a></span><span class="op">)</span></span>
@@ -234,155 +235,38 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the development version of <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> from GitHub using:</p>
+<p>Install the CRAN version of <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> using:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"INLAvaan"</span><span class="op">)</span></span></code></pre></div>
+<p>Alternatively, install the development version of <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> from GitHub using:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"haziqj/INLAvaan"</span><span class="op">)</span></span></code></pre></div>
-<p><em>Optionally</em><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;R-INLA dependency has been removed temporarily for v0.2-0.&lt;/p&gt;"><sup>2</sup></a>, you may wish to install <a href="https://www.r-inla.org" class="external-link">INLA</a>. Following the official instructions given <a href="https://www.r-inla.org/download-install" class="external-link">here</a>, install the package by running this command in R:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p><em>Optionally</em><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;R-INLA dependency has been removed temporarily from v0.2.0.&lt;/p&gt;"><sup>2</sup></a>, you may wish to install <a href="https://www.r-inla.org" class="external-link">INLA</a>. Following the official instructions given <a href="https://www.r-inla.org/download-install" class="external-link">here</a>, install the package by running this command in R:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span></span>
 <span>  <span class="st">"INLA"</span>,</span>
 <span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"repos"</span><span class="op">)</span>, </span>
 <span>            INLA <span class="op">=</span> <span class="st">"https://inla.r-inla-download.org/R/stable"</span><span class="op">)</span>, </span>
 <span>  dep <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<!-- ## Political democracy data -->
-<!-- The quintessential example for SEM is this model from Bollen (1989) to fit a political democracy data set. -->
-<!-- Eleven observed variables are hypothesized to arise from three latent variables. -->
-<!-- This set includes data from 75 developing countries each assessed on four measures of democracy measured twice (1960 and 1965), and three measures of industrialization measured once (1960).  -->
-<!-- The eleven observed variables are: -->
-<!-- -   `y1`: Freedom of the press, 1960 -->
-<!-- -   `y2`: Freedom of political opposition, 1960 -->
-<!-- -   `y3`: Fairness of elections, 1960 -->
-<!-- -   `y4`: Effectiveness of elected legislature, 1960 -->
-<!-- -   `y5`: Freedom of the press, 1965 -->
-<!-- -   `y6`: Freedom of political opposition, 1965 -->
-<!-- -   `y7`: Fairness of elections, 1965 -->
-<!-- -   `y8`: Effectiveness of elected legislature, 1965 -->
-<!-- -   `y9`: GNP per capita, 1960 -->
-<!-- -   `y10`: Energy consumption per capita, 1960 -->
-<!-- -   `y11`: Percentage of labor force in industry, 1960 -->
-<!-- Variables `y1-y4` and `y5-y8` are typically used as indicators of the latent trait of "political democracy" in 1960 and 1965 respectively, whereas `y9-y11` are used as indicators of industrialization (1960). -->
-<!-- It is theorised that industrialisation influences political democracy, and that political democracy in 1960 influences political democracy in 1965. -->
-<!-- Since the items measure the same latent trait at two time points, there is an assumption that the residuals of these items will be correlated with each other. -->
-<!-- The model is depicted in the figure below. -->
-<!-- ```{r} -->
-<!-- #| echo: false -->
-<!-- knitr::include_graphics("https://lavaan.ugent.be/figures/sem.png") -->
-<!-- ``` -->
-<!-- The corresponding model in `{lavaan}` syntax is: -->
-<!-- ```{r} -->
-<!-- mod <- " -->
-<!--   # latent variables -->
-<!--   dem60 =~ y1 + y2 + y3 + y4 -->
-<!--   dem65 =~ y5 + y6 + y7 + y8 -->
-<!--   ind60 =~ x1 + x2 + x3 -->
-<!--   # latent regressions -->
-<!--   dem60 ~ ind60 -->
-<!--   dem65 ~ ind60 + dem60 -->
-<!--   # residual covariances -->
-<!--   y1 ~~ y5 -->
-<!--   y2 ~~ y4 + y6 -->
-<!--   y3 ~~ y7 -->
-<!--   y4 ~~ y8 -->
-<!--   y6 ~~ y8 -->
-<!-- " -->
-<!-- ``` -->
-<!-- We will fit this model using `{INLAvaan}` and compare the results with `{blavaan}`. -->
-<!-- ```{r} -->
-<!-- #| label: poldemfit -->
-<!-- #| include: false -->
-<!-- #| cache: true -->
-<!-- data("PoliticalDemocracy", package = "lavaan") -->
-<!-- poldemfit <- insem(mod, PoliticalDemocracy, meanstructure = !TRUE, bcontrol = list(num.threads = 6)) -->
-<!-- library(future) -->
-<!-- plan("multisession") -->
-<!-- poldemfit_blav <- bsem( -->
-<!--   model = mod,  -->
-<!--   data = PoliticalDemocracy, -->
-<!--   # meanstructure = TRUE, -->
-<!--   n.chains = 3, -->
-<!--   bcontrol = list(cores = 3) -->
-<!--   # burnin = 5000, -->
-<!--   # sample = 10000 -->
-<!-- ) -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- #| eval: false -->
-<!-- data("PoliticalDemocracy", package = "lavaan") -->
-<!-- poldemfit <- insem(model = mod, data = PoliticalDemocracy) -->
-<!-- summary(poldemfit) -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- #| echo: false -->
-<!-- summary(poldemfit) # -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- #| label: fig-poldem -->
-<!-- #| echo: false -->
-<!-- # -->
-<!-- garb <- capture.output(tmp <- summary(poldemfit)) -->
-<!-- PE_inla <- tibble( -->
-<!--   est = as.numeric(tmp[, "Estimate"]), -->
-<!--   ci.lower = as.numeric(tmp[, "pi.lower"]), -->
-<!--   ci.upper = as.numeric(tmp[, "pi.upper"]) -->
-<!-- ) |> -->
-<!--   mutate(method = "INLAvaan") -->
-<!-- garb <- capture.output(tmp <- summary(poldemfit_blav)) -->
-<!-- PE_blav <- tibble( -->
-<!--   est = as.numeric(tmp[, "Estimate"]), -->
-<!--   ci.lower = as.numeric(tmp[, "pi.lower"]), -->
-<!--   ci.upper = as.numeric(tmp[, "pi.upper"]) -->
-<!-- ) |> -->
-<!--   mutate(method = "blavaan") -->
-<!-- bind_rows( -->
-<!--   PE_inla, PE_blav -->
-<!-- ) |> -->
-<!--   mutate( -->
-<!--     free = rep(partable(poldemfit)$free, 2), -->
-<!--     pxnames = rep(partable(poldemfit)$pxnames, 2), -->
-<!--     type = gsub("\\[[^]]*\\]", "", pxnames) -->
-<!--   ) |> -->
-<!--   drop_na() |> -->
-<!--   mutate(names = factor(rep(names(coef(poldemfit)), 2), levels = rev(names(coef(fit))))) |> -->
-<!--   pivot_wider( -->
-<!--     names_from = method, -->
-<!--     values_from = c(est, ci.lower, ci.upper) -->
-<!--   ) |> -->
-<!--   ggplot(aes(est_INLAvaan, est_blavaan, col = type)) + -->
-<!--   geom_abline(slope = 1, intercept = 0, linetype = 2) + -->
-<!--   geom_point(size = 3) + -->
-<!--   geom_errorbar(aes(xmin = ci.lower_INLAvaan, xmax = ci.upper_INLAvaan), width = 0.1, alpha = 0.3) + -->
-<!--   geom_errorbar(aes(ymin = ci.lower_blavaan, ymax = ci.upper_blavaan), width = 0.1, alpha = 0.3) + -->
-<!--   theme_bw() + -->
-<!--   labs( -->
-<!--     x = "{INLAvaan} estimates", -->
-<!--     y = "{blavaan} estimates", -->
-<!--     col = "Parameter\ntype", -->
-<!--     title = "Comparison of the estimates for the Political Democracy example", -->
-<!--     caption = "MCMC conducted using Stan (3 parallel chains, 500 burnin, and 1500 samples)." -->
-<!--   ) -->
-<!-- cli::cli_h2("Compare timing (seconds)") -->
-<!-- list(poldemfit, poldemfit_blav) |> -->
-<!--   set_names(c("INLAvaan", "blavaan")) |> -->
-<!--   purrr::map_dbl(\(x) x@timing$total)  -->
-<!-- ``` -->
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <p>To cite package <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> in publications use:</p>
 <blockquote>
-<p>Jamil, H (2026). <em>INLAvaan: Bayesian structural equation modelling with INLA</em>. R package version 0.2.2. URL: <a href="https://inlavaan.haziqj.ml/" class="uri">https://inlavaan.haziqj.ml/</a></p>
+<p>Jamil, H (2026). <em>INLAvaan: Approximate Bayesian Latent Variable Analysis</em>. R package version 0.2.3. DOI: <a href="https://doi.org/10.32614/CRAN.package.INLAvaan" class="external-link">10.32614/CRAN.package.INLAvaan</a></p>
 </blockquote>
 <p>A BibTeX entry for LaTeX users is:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">@Manual</span>{,</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>    <span class="dt">title</span> = {INLAvaan: Bayesian structural equation modelling with INLA},</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>    <span class="dt">author</span> = {Haziq Jamil},</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="dt">year</span> = {2026},</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>    <span class="dt">note</span> = {R package version 0.2.2},</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>    <span class="dt">url</span> = {https://inlavaan.haziqj.ml/},</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  }</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="va">@Manual</span>{,</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>    <span class="dt">title</span> = {INLAvaan: Approximate Bayesian Latent Variable Analysis},</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    <span class="dt">author</span> = {Haziq Jamil},</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    <span class="dt">year</span> = {2026},</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    <span class="dt">note</span> = {R package version 0.2.3},</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="dt">url</span> = {https://inlavaan.haziqj.ml/},</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    <span class="dt">doi</span> = {10.32614/CRAN.package.INLAvaan}</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  }</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
@@ -447,6 +331,8 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</cod
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 <li><a href="https://github.com/haziqj/INLAvaan/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/haziqj/INLAvaan/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://app.codecov.io/gh/haziqj/INLAvaan?branch=main" class="external-link"><img src="https://codecov.io/gh/haziqj/INLAvaan/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://cran.r-project.org/package=INLAvaan" class="external-link"><img src="http://www.r-pkg.org/badges/version-ago/INLAvaan" alt="CRAN_Status_Badge_version_ago"></a></li>
+<li><a href="https://cran.r-project.org/package=INLAvaan" class="external-link"><img src="http://cranlogs.r-pkg.org/badges/grand-total/INLAvaan"></a></li>
 </ul>
 </div>
 

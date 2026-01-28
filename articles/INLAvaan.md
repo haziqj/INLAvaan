@@ -109,20 +109,20 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [81ms]
+#> ✔ Finding posterior mode. [84ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [88ms]
+#> ✔ Computing the Hessian. [90ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [124ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [123ms]
 #> 
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [351ms]
+#> ⠹ Fitting skew normal to 11/13 marginals.
+#> ✔ Fitting skew normal to 13/13 marginals. [358ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [342ms]
+#> ✔ Computing ppp and DIC. [338ms]
 #> 
 ```
 
@@ -167,7 +167,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.2.9000 ended normally after 62 iterations
+#> INLAvaan 0.2.3 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -196,7 +196,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.2.9000 ended normally after 62 iterations
+#> INLAvaan 0.2.3 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -262,12 +262,12 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■■■                             14% | ETA: 17s
-#> Sampling latent variables ■■■■■■■■■                         28% | ETA: 15s
-#> Sampling latent variables ■■■■■■■■■■■■■■                    44% | ETA: 11s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■               61% | ETA:  8s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■          77% | ETA:  4s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■     93% | ETA:  1s
+#> Sampling latent variables ■■■■■                             13% | ETA: 17s
+#> Sampling latent variables ■■■■■■■■■                         27% | ETA: 15s
+#> Sampling latent variables ■■■■■■■■■■■■■■                    43% | ETA: 11s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■               60% | ETA:  8s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■          76% | ETA:  5s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■     92% | ETA:  2s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
@@ -359,13 +359,13 @@ fit2 <- asem(mod2, dat)
 #> ✔ Computing the Hessian. [75ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [166ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [106ms]
 #> 
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [308ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [373ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [327ms]
+#> ✔ Computing ppp and DIC. [328ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)

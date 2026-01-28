@@ -19,12 +19,12 @@ Source:
 [`DESCRIPTION`](https://github.com/haziqj/INLAvaan/blob/main/DESCRIPTION)
 
 Jamil H (2026). *INLAvaan: Approximate Bayesian Latent Variable
-Analysis*. R package version 0.2.2.9000, <https://inlavaan.haziqj.ml/>.
+Analysis*. R package version 0.2.3, <https://inlavaan.haziqj.ml/>.
 
     @Manual{,
       title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},
       author = {Haziq Jamil},
       year = {2026},
-      note = {R package version 0.2.2.9000},
+      note = {R package version 0.2.3},
       url = {https://inlavaan.haziqj.ml/},
     }
