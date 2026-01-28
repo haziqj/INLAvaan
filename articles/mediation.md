@@ -104,13 +104,13 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ Computing the Hessian. [62ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.012σ. [170ms]
+#> ✔ VB correction; mean |δ| = 0.012σ. [168ms]
 #> 
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [194ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [192ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [360ms]
+#> ✔ Computing ppp and DIC. [357ms]
 #> 
 ```
 

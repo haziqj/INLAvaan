@@ -120,10 +120,10 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [126ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [125ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [442ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [441ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
 <span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.065σ. [426ms]</span></span>
@@ -134,10 +134,10 @@
 <span><span class="co">#&gt; ✔ Fitting skew normal to 42/42 marginals. [3.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
-<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [218ms]</span></span>
+<span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [220ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [867ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [857ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">fit1</span><span class="op">@</span><span class="va">Data</span><span class="op">@</span><span class="va">nobs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -183,18 +183,18 @@
 <span><span class="co">#&gt; ✔ Computing the Hessian. [797ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.044σ. [529ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.044σ. [527ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/42 marginals.</span></span>
 <span><span class="co">#&gt; ⠹ Fitting skew normal to 20/42 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew normal to 42/42 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew normal to 41/42 marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fitting skew normal to 42/42 marginals. [5.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Sampling covariances and defined parameters.</span></span>
 <span><span class="co">#&gt; ✔ Sampling covariances and defined parameters. [200ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [910ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [907ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.3 ended normally after 93 iterations</span></span>

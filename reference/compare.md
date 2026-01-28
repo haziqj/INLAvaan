@@ -57,25 +57,25 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [224ms]
+#> ✔ Finding posterior mode. [219ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [688ms]
+#> ✔ Computing the Hessian. [695ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.022σ. [304ms]
+#> ✔ VB correction; mean |δ| = 0.022σ. [319ms]
 #> 
 #> ⠙ Fitting skew normal to 0/60 marginals.
-#> ⠹ Fitting skew normal to 15/60 marginals.
-#> ⠸ Fitting skew normal to 41/60 marginals.
-#> ✔ Fitting skew normal to 60/60 marginals. [6.8s]
+#> ⠹ Fitting skew normal to 2/60 marginals.
+#> ⠸ Fitting skew normal to 28/60 marginals.
+#> ⠼ Fitting skew normal to 55/60 marginals.
+#> ✔ Fitting skew normal to 60/60 marginals. [6.9s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [208ms]
+#> ✔ Sampling covariances and defined parameters. [206ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [757ms]
+#> ✔ Computing ppp and DIC. [775ms]
 #> 
 
 # Weak invariance
@@ -86,24 +86,25 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [184ms]
+#> ✔ Finding posterior mode. [205ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [631ms]
+#> ✔ Computing the Hessian. [629ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.017σ. [351ms]
+#> ✔ VB correction; mean |δ| = 0.017σ. [355ms]
 #> 
 #> ⠙ Fitting skew normal to 0/54 marginals.
-#> ⠹ Fitting skew normal to 16/54 marginals.
-#> ⠸ Fitting skew normal to 44/54 marginals.
-#> ✔ Fitting skew normal to 54/54 marginals. [5.7s]
+#> ⠹ Fitting skew normal to 1/54 marginals.
+#> ⠸ Fitting skew normal to 28/54 marginals.
+#> ✔ Fitting skew normal to 54/54 marginals. [5.8s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [208ms]
+#> ✔ Sampling covariances and defined parameters. [191ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [750ms]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [740ms]
 #> 
 
 # Strong invariance
@@ -114,23 +115,24 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [198ms]
+#> ✔ Finding posterior mode. [194ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [566ms]
+#> ✔ Computing the Hessian. [540ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.019σ. [264ms]
+#> ✔ VB correction; mean |δ| = 0.019σ. [256ms]
 #> 
 #> ⠙ Fitting skew normal to 0/48 marginals.
-#> ⠹ Fitting skew normal to 31/48 marginals.
-#> ✔ Fitting skew normal to 48/48 marginals. [4.9s]
+#> ⠹ Fitting skew normal to 15/48 marginals.
+#> ⠸ Fitting skew normal to 46/48 marginals.
+#> ✔ Fitting skew normal to 48/48 marginals. [4.6s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
 #> ✔ Sampling covariances and defined parameters. [203ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [734ms]
+#> ✔ Computing ppp and DIC. [724ms]
 #> 
 
 # Compare models
