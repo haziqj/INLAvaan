@@ -22,17 +22,17 @@ jobs:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
           - {os: windows-latest, r: 'devel'}
-          - {os: ubuntu-latest,   r: 'release', label: 'with OpenBLAS', use_openblas: 'true'}
+          - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
-          - {
-              os: ubuntu-latest, 
-              r: 'release', 
-              label: '(No Suggests)', 
-              dependencies: '"hard"', 
-              force_suggests: 'false', 
-              error_on: '"error"',              
-              check_args: 'c("--no-manual", "--no-build-vignettes")'
-            }
+          # - {
+          #     os: ubuntu-latest, 
+          #     r: 'release', 
+          #     label: '(No Suggests)', 
+          #     dependencies: '"hard"', 
+          #     force_suggests: 'false', 
+          #     error_on: '"error"',              
+          #     check_args: 'c("--no-manual", "--no-build-vignettes")'
+          #   }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -71,13 +71,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libglpk-dev
-          
-      - name: Install OpenBLAS (Linux with OpenBLAS)
-        if: runner.os == 'Linux' && matrix.config.use_openblas == 'true'
-        run: |
-          sudo apt-get install -y libopenblas-dev
-          sudo update-alternatives --set libblas.so.3-x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
-          sudo update-alternatives --set liblapack.so.3-x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
       # -------------------------------------
 
       - uses: r-lib/actions/setup-r-dependencies@v2
