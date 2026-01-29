@@ -2,6 +2,8 @@
 
 ## INLAvaan 0.2.3
 
+CRAN release: 2026-01-28
+
 - Improved axis scanning, skewness correction, and VB mean correction
   routine.
 - Bug fixes for CRAN.
