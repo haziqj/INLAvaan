@@ -1,3 +1,5 @@
+# INLAvaan (development version)
+
 # INLAvaan 0.2.3
 
 * Improved axis scanning, skewness correction, and VB mean correction routine.
