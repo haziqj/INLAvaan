@@ -1,5 +1,7 @@
 # INLAvaan (development version)
 
+* Add params and logscale options to visual_debug
+
 # INLAvaan 0.2.3
 
 * Improved axis scanning, skewness correction, and VB mean correction routine.
