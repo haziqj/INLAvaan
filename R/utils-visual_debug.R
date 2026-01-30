@@ -1,5 +1,5 @@
 # nocov start
-visual_debug <- function(object) {
+visual_debug <- function(object, params, logscale = FALSE) {
   if (inherits(object, "INLAvaan")) {
     dat_list <- object@external$inlavaan_internal$visual_debug
   } else if (inherits(object, "inlavaan_internal")) {
@@ -14,11 +14,30 @@ visual_debug <- function(object) {
     values_to = "value"
   )
   plot_df$name <- factor(plot_df$name, levels = names(coef(object)))
+
+  if (missing(params)) {
+    # do nothing
+  } else {
+    if (is.numeric(params)) {
+      keep_names <- names(coef(object))[params]
+    } else {
+      keep_names <- params
+    }
+    plot_df <- plot_df[plot_df$name %in% keep_names, ]
+  }
+
   plot_df$type <- factor(
     plot_df$type,
     levels = c("Original", "Corrected", "SN_Fit"),
     labels = c("Original", "Corrected", "Skew normal fit")
   )
+  if (isTRUE(logscale)) {
+    plot_df <- plot_df %>%
+      dplyr::mutate(value = ifelse(value <= 0, NA, value))
+    plot_df <- plot_df %>%
+      dplyr::filter(!is.na(value))
+    plot_df$value <- log10(plot_df$value)
+  }
 
   x <- type <- NULL # no visible binding NOTE
   ggplot2::ggplot(
