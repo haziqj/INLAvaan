@@ -104,13 +104,14 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ Computing the Hessian. [62ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.012σ. [170ms]
+#> ✔ VB correction; mean |δ| = 0.012σ. [173ms]
 #> 
 #> ⠙ Fitting skew normal to 0/7 marginals.
-#> ✔ Fitting skew normal to 7/7 marginals. [196ms]
+#> ✔ Fitting skew normal to 7/7 marginals. [197ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [364ms]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [367ms]
 #> 
 ```
 
@@ -126,7 +127,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.3 ended normally after 5 iterations
+#> INLAvaan 0.2.3.9001 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.2.3/vignettes/articles/cfa.qmd" class="external-link"><code>vignettes/articles/cfa.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/articles/cfa.qmd" class="external-link"><code>vignettes/articles/cfa.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -100,22 +100,23 @@
 <span><span class="co"># Fit a CFA model with standardised latent variables</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [65ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [66ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [138ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [140ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.013σ. [119ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.013σ. [121ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/21 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 21/21 marginals. [669ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew normal to 21/21 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 21/21 marginals. [683ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [97ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [96ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3 ended normally after 56 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9001 ended normally after 56 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -130,8 +131,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7585.718 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    54.989 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7586.804 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    55.532 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>

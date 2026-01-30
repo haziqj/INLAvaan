@@ -109,20 +109,20 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [85ms]
+#> ✔ Finding posterior mode. [84ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [90ms]
+#> ✔ Computing the Hessian. [91ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.003σ. [125ms]
 #> 
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [358ms]
+#> ⠹ Fitting skew normal to 10/13 marginals.
+#> ✔ Fitting skew normal to 13/13 marginals. [363ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [343ms]
+#> ✔ Computing ppp and DIC. [346ms]
 #> 
 ```
 
@@ -167,7 +167,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.3 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9001 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -196,7 +196,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.3 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9001 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -264,7 +264,7 @@ predictions for observed variables.
 eta_preds <- predict(fit, nsamp = 100)
 #> Sampling latent variables ■■■■■                             13% | ETA: 18s
 #> Sampling latent variables ■■■■■■■■■                         27% | ETA: 15s
-#> Sampling latent variables ■■■■■■■■■■■■■■                    43% | ETA: 12s
+#> Sampling latent variables ■■■■■■■■■■■■■■                    43% | ETA: 11s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■               59% | ETA:  8s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           75% | ETA:  5s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      91% | ETA:  2s
@@ -353,16 +353,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [56ms]
+#> ✔ Finding posterior mode. [55ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [76ms]
+#> ✔ Computing the Hessian. [75ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [106ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [168ms]
 #> 
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [371ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [315ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [327ms]

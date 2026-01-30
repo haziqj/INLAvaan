@@ -1,5 +1,9 @@
 # Changelog
 
+## INLAvaan (development version)
+
+- Add params and logscale options to visual_debug
+
 ## INLAvaan 0.2.3
 
 CRAN release: 2026-01-28
