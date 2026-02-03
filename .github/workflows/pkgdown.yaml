@@ -59,19 +59,27 @@ jobs:
       # For publishing to pages environment
       pages: write
       id-token: write
+      contents: write
     steps:
       # Usual steps for generating a pkgdown website
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
 
+      - uses: quarto-dev/quarto-actions/setup@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tinytex: true
+
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
+          extra-repositories: "https://inla.r-inla-download.org/R/testing"
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: any::pkgdown, any::quarto, local::.
           needs: website
       # Change the build directory from `docs` to `_site`
       # For parity with where the R WASM package repository is setup
