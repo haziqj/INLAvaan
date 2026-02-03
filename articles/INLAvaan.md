@@ -109,20 +109,19 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [84ms]
+#> ✔ Finding posterior mode. [88ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [91ms]
+#> ✔ Computing the Hessian. [92ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [125ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [129ms]
 #> 
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ⠹ Fitting skew normal to 10/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [363ms]
+#> ✔ Fitting skew normal to 13/13 marginals. [366ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [346ms]
+#> ✔ Computing ppp and DIC. [352ms]
 #> 
 ```
 
@@ -262,12 +261,12 @@ predictions for observed variables.
 
 ``` r
 eta_preds <- predict(fit, nsamp = 100)
-#> Sampling latent variables ■■■■■                             13% | ETA: 18s
-#> Sampling latent variables ■■■■■■■■■                         27% | ETA: 15s
-#> Sampling latent variables ■■■■■■■■■■■■■■                    43% | ETA: 11s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■               59% | ETA:  8s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■           75% | ETA:  5s
-#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      91% | ETA:  2s
+#> Sampling latent variables ■■■■                              10% | ETA: 19s
+#> Sampling latent variables ■■■■■■■■                          24% | ETA: 17s
+#> Sampling latent variables ■■■■■■■■■■■■■                     39% | ETA: 13s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■                 55% | ETA:  9s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■            70% | ETA:  6s
+#> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■       86% | ETA:  3s
 #> Sampling latent variables ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 #> 
 length(eta_preds)
@@ -353,19 +352,19 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [55ms]
+#> ✔ Finding posterior mode. [57ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [75ms]
+#> ✔ Computing the Hessian. [82ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [168ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [190ms]
 #> 
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [315ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [328ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [327ms]
+#> ✔ Computing ppp and DIC. [347ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
