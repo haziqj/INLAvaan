@@ -109,19 +109,19 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [111ms]
+#> ✔ Finding posterior mode. [79ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [94ms]
+#> ✔ Computing the Hessian. [93ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [131ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [116ms]
 #> 
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [360ms]
+#> ✔ Fitting skew normal to 13/13 marginals. [371ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [339ms]
+#> ✔ Computing ppp and DIC. [332ms]
 #> 
 ```
 
@@ -344,16 +344,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [61ms]
+#> ✔ Finding posterior mode. [55ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [85ms]
+#> ✔ Computing the Hessian. [91ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [111ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [106ms]
 #> 
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [305ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [298ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [325ms]

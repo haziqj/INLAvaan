@@ -39,23 +39,24 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [131ms]
+#> ✔ Finding posterior mode. [149ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [472ms]
+#> ✔ Computing the Hessian. [436ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.065σ. [421ms]
+#> ✔ VB correction; mean |δ| = 0.065σ. [431ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 6/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [3.4s]
+#> ⠹ Fitting skew normal to 10/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [3.3s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [203ms]
+#> ✔ Sampling covariances and defined parameters. [200ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [650ms]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [648ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -95,25 +96,25 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [415ms]
+#> ✔ Finding posterior mode. [273ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [799ms]
+#> ✔ Computing the Hessian. [836ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.044σ. [528ms]
+#> ✔ VB correction; mean |δ| = 0.044σ. [542ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 2/42 marginals.
-#> ⠸ Fitting skew normal to 24/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [5.9s]
+#> ⠹ Fitting skew normal to 5/42 marginals.
+#> ⠸ Fitting skew normal to 25/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [6.1s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [204ms]
+#> ✔ Sampling covariances and defined parameters. [200ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [920ms]
+#> ✔ Computing ppp and DIC. [922ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.3.9003 ended normally after 93 iterations

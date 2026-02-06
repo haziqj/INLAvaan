@@ -163,19 +163,19 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [111ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [79ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [94ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [93ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.003σ. [131ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.003σ. [116ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/13 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 13/13 marginals. [360ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 13/13 marginals. [371ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [339ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [332ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney, Kass, and Kadane 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
@@ -345,16 +345,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [61ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [55ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [85ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [91ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.003σ. [111ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.003σ. [106ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/12 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 12/12 marginals. [305ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 12/12 marginals. [298ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
 <span><span class="co">#&gt; ✔ Computing ppp and DIC. [325ms]</span></span>

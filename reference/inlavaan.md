@@ -174,16 +174,16 @@ fit <- inlavaan(
 #> ✔ Finding posterior mode. [70ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [176ms]
+#> ✔ Computing the Hessian. [188ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.032σ. [124ms]
+#> ✔ VB correction; mean |δ| = 0.032σ. [130ms]
 #> 
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [730ms]
+#> ✔ Fitting skew normal to 21/21 marginals. [759ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [91ms]
+#> ✔ Sampling covariances and defined parameters. [93ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ✔ Computing ppp and DIC. [371ms]
