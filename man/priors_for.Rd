@@ -43,5 +43,5 @@ deviations, and not variances. For example, \code{normal(0,10)} means a
 normal distribution with mean 0 and standard deviation 10 (not variance 10).
 }
 \examples{
-dpriors(nu = "normal(0,10)", lambda = "normal(0,1)", rho = "beta(3,3)")
+priors_for(nu = "normal(0,10)", lambda = "normal(0,1)", rho = "beta(3,3)")
 }

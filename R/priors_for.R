@@ -34,7 +34,7 @@
 #' @export
 #'
 #' @examples
-#' dpriors(nu = "normal(0,10)", lambda = "normal(0,1)", rho = "beta(3,3)")
+#' priors_for(nu = "normal(0,10)", lambda = "normal(0,1)", rho = "beta(3,3)")
 priors_for <- function(...) {
   userspec <- list(...)
 
