@@ -39,28 +39,29 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [132ms]
+#> ✔ Finding posterior mode. [124ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [481ms]
+#> ✔ Computing the Hessian. [437ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.065σ. [459ms]
+#> ✔ VB correction; mean |δ| = 0.065σ. [386ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 26/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [3.7s]
+#> ⠹ Fitting skew normal to 8/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [3.1s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [231ms]
+#> ✔ Sampling covariances and defined parameters. [191ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [957ms]
+#> ⠹ Computing ppp and DIC.
+#> ✔ Computing ppp and DIC. [587ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.2.3.9001 ended normally after 71 iterations
+#> INLAvaan 0.2.3.9003 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -72,7 +73,7 @@ print(fit1)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -818.105 
-#>    PPP (Chi-square)                              0.084
+#>    PPP (Chi-square)                              0.102
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        1.804        1.762        0.964        0.816        1.583        1.100 
@@ -95,28 +96,27 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [313ms]
+#> ✔ Finding posterior mode. [258ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [1.1s]
+#> ✔ Computing the Hessian. [724ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.044σ. [555ms]
+#> ✔ VB correction; mean |δ| = 0.044σ. [470ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 8/42 marginals.
-#> ⠸ Fitting skew normal to 28/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [6.2s]
+#> ⠹ Fitting skew normal to 7/42 marginals.
+#> ⠸ Fitting skew normal to 31/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [5.4s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [209ms]
+#> ✔ Sampling covariances and defined parameters. [186ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [952ms]
+#> ✔ Computing ppp and DIC. [808ms]
 #> 
 print(fit2)
-#> INLAvaan 0.2.3.9001 ended normally after 93 iterations
+#> INLAvaan 0.2.3.9003 ended normally after 93 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

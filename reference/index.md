@@ -12,6 +12,8 @@ Main lavaan-style functions to estimate SEM.
   Approximate Bayesian Structural Equation Model
 - [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md) : Fit
   an Approximate Bayesian Growth Curve Model
+- [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md) :
+  Specify priors for a SEM
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
   Compare Bayesian Models Fitted with INLAvaan
 - [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)

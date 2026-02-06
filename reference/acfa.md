@@ -8,7 +8,7 @@ Fit an Approximate Bayesian Confirmatory Factor Analysis Model
 acfa(
   model,
   data,
-  dp = blavaan::dpriors(),
+  dp = priors_for(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 500,
   test = "standard",
@@ -177,22 +177,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [59ms]
+#> ✔ Finding posterior mode. [51ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [451ms]
+#> ✔ Computing the Hessian. [128ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.013σ. [119ms]
+#> ✔ VB correction; mean |δ| = 0.013σ. [104ms]
 #> 
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [729ms]
+#> ✔ Fitting skew normal to 21/21 marginals. [584ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [103ms]
+#> ✔ Computing ppp and DIC. [74ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9001 ended normally after 56 iterations
+#> INLAvaan 0.2.3.9003 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -207,8 +207,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7586.204 
-#>    Effective parameters (pD)                    55.232 
+#>    Deviance (DIC)                             7584.299 
+#>    Effective parameters (pD)                    54.279 
 #> 
 #> Parameter Estimates:
 #> 
