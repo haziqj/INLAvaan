@@ -208,41 +208,40 @@ distribution for the calculation of standardised estimates.</p></dd>
 <span class="r-in"><span><span class="co"># Fit a CFA model with standardised latent variables</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, test <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[117ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[77ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[208ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[140ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.032σ. <span style="color: #B2B2B2;">[182ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.032σ. <span style="color: #B2B2B2;">[134ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew normal to 0/21 marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting skew normal to 5/21 marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 21/21 marginals. <span style="color: #B2B2B2;">[1.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew normal to 21/21 marginals. <span style="color: #B2B2B2;">[721ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Sampling covariances and defined parameters.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[102ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Sampling covariances and defined parameters. <span style="color: #B2B2B2;">[85ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">standardisedsolution</span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        lhs op     rhs est.std    se ci.lower ci.upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   visual =~      x1   0.734 0.095    0.534    0.902</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   visual =~      x2   0.436 0.102    0.251    0.666</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   visual =~      x3   0.590 0.096    0.401    0.795</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   visual =~      x1   0.734 0.094    0.537    0.897</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   visual =~      x2   0.435 0.099    0.252    0.647</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   visual =~      x3   0.589 0.093    0.404    0.789</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4  textual =~      x4   0.850 0.022    0.810    0.890</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5  textual =~      x5   0.852 0.028    0.794    0.890</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6  textual =~      x6   0.838 0.026    0.784    0.879</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7    speed =~      x7   0.546 0.077    0.423    0.732</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8    speed =~      x8   0.695 0.114    0.497    0.922</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9    speed =~      x9   0.652 0.114    0.443    0.889</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10      x1 ~~      x1   0.453 0.136    0.187    0.715</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11      x2 ~~      x2   0.800 0.094    0.556    0.937</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12      x3 ~~      x3   0.643 0.115    0.368    0.839</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7    speed =~      x7   0.547 0.078    0.422    0.734</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8    speed =~      x8   0.695 0.116    0.495    0.923</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9    speed =~      x9   0.653 0.116    0.442    0.895</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10      x1 ~~      x1   0.453 0.134    0.195    0.711</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11      x2 ~~      x2   0.801 0.089    0.581    0.937</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12      x3 ~~      x3   0.644 0.110    0.378    0.837</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 13      x4 ~~      x4   0.276 0.037    0.208    0.344</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 14      x5 ~~      x5   0.273 0.047    0.207    0.369</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 15      x6 ~~      x6   0.297 0.044    0.227    0.385</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16      x7 ~~      x7   0.696 0.090    0.464    0.821</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17      x8 ~~      x8   0.504 0.161    0.150    0.753</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18      x9 ~~      x9   0.562 0.153    0.210    0.803</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16      x7 ~~      x7   0.694 0.092    0.462    0.822</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17      x8 ~~      x8   0.504 0.164    0.149    0.755</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18      x9 ~~      x9   0.560 0.157    0.198    0.804</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 19  visual ~~  visual   1.000 0.000    1.000    1.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20 textual ~~ textual   1.000 0.000    1.000    1.000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 21   speed ~~   speed   1.000 0.000    1.000    1.000</span>

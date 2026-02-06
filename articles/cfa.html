@@ -100,19 +100,19 @@
 <span><span class="co"># Fit a CFA model with standardised latent variables</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [96ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [63ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [232ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [178ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.013σ. [165ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.013σ. [125ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew normal to 0/21 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew normal to 21/21 marginals. [1s]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew normal to 21/21 marginals. [680ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Computing ppp and DIC.</span></span>
-<span><span class="co">#&gt; ✔ Computing ppp and DIC. [105ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing ppp and DIC. [90ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.3.9003 ended normally after 56 iterations</span></span>
@@ -130,8 +130,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7592.980 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    58.620 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7591.309 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    57.784 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -170,7 +170,7 @@
 <span><span class="co">#&gt;    .x5                0.451    0.059    0.574    0.342    0.002 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x6                0.361    0.044    0.453    0.279    0.002 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x7                0.823    0.091    0.661    1.016    0.004 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x8                0.499    0.092    1.006    0.328    0.027 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x8                0.495    0.092    1.046    0.318    0.050 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x9                0.542    0.093    1.146    0.344    0.016 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;     visual            1.000                                                    </span></span>
 <span><span class="co">#&gt;     textual           1.000                                                    </span></span>
