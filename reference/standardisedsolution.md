@@ -162,40 +162,41 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [63ms]
+#> ✔ Finding posterior mode. [117ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [131ms]
+#> ✔ Computing the Hessian. [208ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.032σ. [111ms]
+#> ✔ VB correction; mean |δ| = 0.032σ. [182ms]
 #> 
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [657ms]
+#> ⠹ Fitting skew normal to 5/21 marginals.
+#> ✔ Fitting skew normal to 21/21 marginals. [1.2s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [80ms]
+#> ✔ Sampling covariances and defined parameters. [102ms]
 #> 
 standardisedsolution(fit, nsamp = 100)
 #>        lhs op     rhs est.std    se ci.lower ci.upper
-#> 1   visual =~      x1   0.734 0.094    0.537    0.897
-#> 2   visual =~      x2   0.435 0.099    0.252    0.647
-#> 3   visual =~      x3   0.589 0.093    0.404    0.789
+#> 1   visual =~      x1   0.734 0.095    0.534    0.902
+#> 2   visual =~      x2   0.436 0.102    0.251    0.666
+#> 3   visual =~      x3   0.590 0.096    0.401    0.795
 #> 4  textual =~      x4   0.850 0.022    0.810    0.890
 #> 5  textual =~      x5   0.852 0.028    0.794    0.890
 #> 6  textual =~      x6   0.838 0.026    0.784    0.879
-#> 7    speed =~      x7   0.547 0.078    0.422    0.734
-#> 8    speed =~      x8   0.695 0.116    0.495    0.923
-#> 9    speed =~      x9   0.653 0.116    0.442    0.895
-#> 10      x1 ~~      x1   0.453 0.134    0.195    0.711
-#> 11      x2 ~~      x2   0.801 0.089    0.581    0.937
-#> 12      x3 ~~      x3   0.644 0.110    0.378    0.837
+#> 7    speed =~      x7   0.546 0.077    0.423    0.732
+#> 8    speed =~      x8   0.695 0.114    0.497    0.922
+#> 9    speed =~      x9   0.652 0.114    0.443    0.889
+#> 10      x1 ~~      x1   0.453 0.136    0.187    0.715
+#> 11      x2 ~~      x2   0.800 0.094    0.556    0.937
+#> 12      x3 ~~      x3   0.643 0.115    0.368    0.839
 #> 13      x4 ~~      x4   0.276 0.037    0.208    0.344
 #> 14      x5 ~~      x5   0.273 0.047    0.207    0.369
 #> 15      x6 ~~      x6   0.297 0.044    0.227    0.385
-#> 16      x7 ~~      x7   0.694 0.092    0.462    0.822
-#> 17      x8 ~~      x8   0.504 0.164    0.149    0.755
-#> 18      x9 ~~      x9   0.560 0.157    0.198    0.804
+#> 16      x7 ~~      x7   0.696 0.090    0.464    0.821
+#> 17      x8 ~~      x8   0.504 0.161    0.150    0.753
+#> 18      x9 ~~      x9   0.562 0.153    0.210    0.803
 #> 19  visual ~~  visual   1.000 0.000    1.000    1.000
 #> 20 textual ~~ textual   1.000 0.000    1.000    1.000
 #> 21   speed ~~   speed   1.000 0.000    1.000    1.000

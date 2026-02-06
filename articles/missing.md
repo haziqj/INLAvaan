@@ -39,24 +39,24 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [124ms]
+#> ✔ Finding posterior mode. [214ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [437ms]
+#> ✔ Computing the Hessian. [672ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.065σ. [386ms]
+#> ✔ VB correction; mean |δ| = 0.065σ. [653ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 8/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [3.1s]
+#> ⠹ Fitting skew normal to 23/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [5.4s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [191ms]
+#> ✔ Sampling covariances and defined parameters. [160ms]
 #> 
 #> ⠙ Computing ppp and DIC.
 #> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [587ms]
+#> ✔ Computing ppp and DIC. [572ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -76,15 +76,15 @@ print(fit1)
 #>    PPP (Chi-square)                              0.102
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        1.804        1.762        0.964        0.816        1.583        1.100 
+#>        1.804        1.762        0.964        0.816        1.579        1.100 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
 #>        0.754        1.425        0.954        0.534        1.113        0.187 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.406        0.501        0.198       -0.285        0.191        0.070 
+#>        0.405        0.503        0.198       -0.285        0.190        0.070 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.142        0.420        1.566        7.760        4.077        2.625 
+#>        0.142        0.420        1.566        7.760        4.077        2.623 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.478        6.614        1.969        3.648        0.502        1.352 
+#>        1.478        6.614        1.970        3.650        0.502        1.352 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
 #>        0.154        5.424        5.534        4.107        7.250        6.634 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
@@ -96,24 +96,26 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [258ms]
+#> ✔ Finding posterior mode. [418ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [724ms]
+#> ✔ Computing the Hessian. [1.1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.044σ. [470ms]
+#> ✔ VB correction; mean |δ| = 0.044σ. [786ms]
 #> 
 #> ⠙ Fitting skew normal to 0/42 marginals.
-#> ⠹ Fitting skew normal to 7/42 marginals.
-#> ⠸ Fitting skew normal to 31/42 marginals.
-#> ✔ Fitting skew normal to 42/42 marginals. [5.4s]
+#> ⠹ Fitting skew normal to 1/42 marginals.
+#> ⠸ Fitting skew normal to 14/42 marginals.
+#> ⠼ Fitting skew normal to 28/42 marginals.
+#> ⠴ Fitting skew normal to 41/42 marginals.
+#> ✔ Fitting skew normal to 42/42 marginals. [9.4s]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [186ms]
+#> ✔ Sampling covariances and defined parameters. [148ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [808ms]
+#> ✔ Computing ppp and DIC. [831ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.3.9003 ended normally after 93 iterations

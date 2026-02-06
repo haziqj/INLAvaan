@@ -130,20 +130,20 @@ the `cluster` argument to identify the grouping variable.
 ``` r
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [463ms]
+#> ✔ Finding posterior mode. [730ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [639ms]
+#> ✔ Computing the Hessian. [975ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.021σ. [571ms]
+#> ✔ VB correction; mean |δ| = 0.021σ. [892ms]
 #> 
 #> ⠙ Fitting skew normal to 0/20 marginals.
-#> ⠹ Fitting skew normal to 18/20 marginals.
-#> ✔ Fitting skew normal to 20/20 marginals. [2.9s]
+#> ⠹ Fitting skew normal to 7/20 marginals.
+#> ✔ Fitting skew normal to 20/20 marginals. [4.7s]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [716ms]
+#> ✔ Computing ppp and DIC. [770ms]
 #> 
 ```
 
@@ -166,12 +166,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.526 
-#>    PPP (Chi-square)                              0.008 
+#>    PPP (Chi-square)                              0.004 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24273.298 
-#>    Effective parameters (pD)                    60.034 
+#>    Deviance (DIC)                            24269.941 
+#>    Effective parameters (pD)                    58.355 
 #> 
 #> Parameter Estimates:
 #> 
@@ -216,7 +216,7 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fb =~                                                                        
 #>     y1                1.000                                                    
-#>     y2                0.717    0.051    0.622    0.821    0.021    normal(0,10)
+#>     y2                0.717    0.051    0.621    0.820    0.018    normal(0,10)
 #>     y3                0.587    0.047    0.497    0.682    0.007    normal(0,10)
 #> 
 #> Regressions:
@@ -237,7 +237,7 @@ summary(fit)
 #>    .y1                0.066    0.039    1.269    0.006    0.042 gamma(1,.5)[sd]
 #>    .y2                0.125    0.031    0.330    0.069    0.011 gamma(1,.5)[sd]
 #>    .y3                0.155    0.029    0.291    0.104    0.002 gamma(1,.5)[sd]
-#>    .fb                0.919    0.120    1.174    0.703    0.002 gamma(1,.5)[sd]
+#>    .fb                0.920    0.120    1.174    0.703    0.002 gamma(1,.5)[sd]
 ```
 
 Notice that, the mean structure is automatically included at both
