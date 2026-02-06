@@ -9,8 +9,11 @@ sample_params <- function(
   return_theta = FALSE
 ) {
   R <- cov2cor(Sigma_theta)
-  z <- mvtnorm::rmvnorm(n = nsamp, sigma = R)
+  Lt <- chol(R)
+  z_raw <- matrix(rnorm(nsamp * ncol(R)), nrow = nsamp)
+  z <- z_raw %*% Lt
   u <- apply(z, 2, pnorm)
+  # z <- mvtnorm::rmvnorm(n = nsamp, sigma = R)
 
   # FIXME: Repeated code in post_marg_skewnorm and post_marg_marggaus
   # Use marginals to get theta
@@ -192,12 +195,14 @@ get_ppp <- function(
   mean(res)
 }
 
-sample_covariances <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
+sample_covariances <- function(theta, L, pt, K, nsamp = 1000) {
   pt_cov_rows <- grep("cov", pt$mat)
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
   idxcov <- pt$free[pt_cov_free_rows]
 
-  theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+  z_raw <- matrix(rnorm(nsamp * length(theta)), nrow = nsamp)
+  theta_samp <- sweep(z_raw %*% t(L), 2, theta, "+")
+  # theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
   if (!all(dim(K) == 0)) {
     theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
   }
@@ -283,7 +288,7 @@ get_defpars <- function(
 
 sample_covariances_fit_sn <- function(
   theta,
-  Sigma_theta,
+  L,
   pt,
   K,
   nsamp = 10000
@@ -292,7 +297,9 @@ sample_covariances_fit_sn <- function(
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
   idxcov <- pt$free[pt_cov_free_rows]
 
-  theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+  z_raw <- matrix(rnorm(nsamp * length(theta)), nrow = nsamp)
+  theta_samp <- sweep(z_raw %*% t(L), 2, theta, "+")
+  # theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
   if (!all(dim(K) == 0)) {
     theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
   }

@@ -208,8 +208,11 @@ post_marg_marggaus <- function(
 }
 
 # Sampling approximation
-post_marg_sampling <- function(theta, Sigma_theta, pt, K, nsamp = 1000) {
-  theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+post_marg_sampling <- function(theta, L, pt, K, nsamp = 1000) {
+  z_raw <- matrix(rnorm(nsamp * length(theta)), nrow = nsamp)
+  theta_samp <- sweep(z_raw %*% t(L), 2, theta, "+")
+  # theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
+
   if (!all(dim(K) == 0)) {
     theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
   }

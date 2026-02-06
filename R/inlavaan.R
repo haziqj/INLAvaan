@@ -238,6 +238,12 @@ inlavaan <- function(
       H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
     }
   } else if (optim_method == "ucminf") {
+    if (!requireNamespace("ucminf", quietly = TRUE)) {
+      cli::cli_abort(
+        "The `ucminf` package is required for this optimization method. Please install it using `install.packages('ucminf')`."
+      )
+    }
+
     opt <- ucminf::ucminf(
       par = parstart,
       fn = ob,
@@ -413,7 +419,7 @@ inlavaan <- function(
     approx_data <- NULL
     postmargres <- post_marg_sampling(
       theta_star_vbc,
-      Sigma_theta,
+      L,
       pt,
       ceq.K,
       nsamp
@@ -593,7 +599,7 @@ inlavaan <- function(
       if (marginal_method == "skewnorm") {
         samp_cov <- sample_covariances_fit_sn(
           theta_star_vbc,
-          Sigma_theta,
+          L,
           pt,
           ceq.K,
           nsamp
@@ -601,7 +607,7 @@ inlavaan <- function(
       } else {
         samp_cov <- sample_covariances(
           theta_star_vbc,
-          Sigma_theta,
+          L,
           pt,
           ceq.K,
           nsamp
