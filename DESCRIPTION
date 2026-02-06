@@ -21,7 +21,6 @@ License: GPL (>= 3)
 URL: https://inlavaan.haziqj.ml/, https://github.com/haziqj/INLAvaan
 BugReports: https://github.com/haziqj/INLAvaan/issues
 Imports: 
-    blavaan,
     cli,
     cowplot,
     dplyr,
@@ -39,6 +38,7 @@ Imports:
     ucminf,
     utils
 Suggests: 
+    blavaan,
     future,
     knitr,
     lme4,

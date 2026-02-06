@@ -8,7 +8,7 @@ inlavaan(
   model,
   data,
   model.type = "sem",
-  dp = blavaan::dpriors(),
+  dp = priors_for(),
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),

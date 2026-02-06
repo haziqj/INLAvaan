@@ -7,7 +7,7 @@
 agrowth(
   model,
   data,
-  dp = blavaan::dpriors(),
+  dp = priors_for(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 500,
   test = "standard",

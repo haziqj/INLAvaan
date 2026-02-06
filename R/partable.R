@@ -140,7 +140,7 @@ partable_transform_funcs <- function(matrix) {
 
 inlavaanify_partable <- function(
   pt,
-  dp = blavaan::dpriors(),
+  dp = priors_for(),
   lavdata,
   lavoptions
 ) {

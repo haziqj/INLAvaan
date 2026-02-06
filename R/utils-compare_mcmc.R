@@ -17,6 +17,10 @@ utils::globalVariables(c(
 compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL) {
   parnames <- unique(names(coef(fit_blavaan)))
 
+  if (requireNamespace("blavaan", quietly = TRUE) == FALSE) {
+    cli::cli_abort("blavaan is required for plotting. Please install it.")
+  }
+
   # MCMC Histograms
   draws <- do.call("rbind", blavaan::blavInspect(fit_blavaan, "mcmc"))
   plot_df_blav <-

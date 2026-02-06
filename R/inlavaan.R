@@ -56,7 +56,7 @@ inlavaan <- function(
   model,
   data,
   model.type = "sem",
-  dp = blavaan::dpriors(),
+  dp = priors_for(),
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
@@ -768,7 +768,7 @@ inlavaan <- function(
 acfa <- function(
   model,
   data,
-  dp = blavaan::dpriors(),
+  dp = priors_for(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 500,
   test = "standard",
@@ -815,7 +815,7 @@ acfa <- function(
 asem <- function(
   model,
   data,
-  dp = blavaan::dpriors(),
+  dp = priors_for(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 500,
   test = "standard",
@@ -860,7 +860,7 @@ asem <- function(
 agrowth <- function(
   model,
   data,
-  dp = blavaan::dpriors(),
+  dp = priors_for(),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 500,
   test = "standard",
