@@ -109,19 +109,19 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [79ms]
+#> ✔ Finding posterior mode. [71ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [93ms]
+#> ✔ Computing the Hessian. [101ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [116ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [118ms]
 #> 
 #> ⠙ Fitting skew normal to 0/13 marginals.
-#> ✔ Fitting skew normal to 13/13 marginals. [371ms]
+#> ✔ Fitting skew normal to 13/13 marginals. [349ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [332ms]
+#> ✔ Computing ppp and DIC. [321ms]
 #> 
 ```
 
@@ -166,7 +166,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.3.9003 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9004 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -176,7 +176,7 @@ fit
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -8068.939 
+#>    Marginal log-likelihood                   -8068.961 
 #>    PPP (Chi-square)                              0.114
 ```
 
@@ -195,7 +195,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.3.9003 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9004 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -205,13 +205,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -8068.939 
+#>    Marginal log-likelihood                   -8068.961 
 #>    PPP (Chi-square)                              0.114 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            16067.298 
-#>    Effective parameters (pD)                    30.728 
+#>    Deviance (DIC)                            16067.309 
+#>    Effective parameters (pD)                    30.738 
 #> 
 #> Parameter Estimates:
 #> 
@@ -344,27 +344,27 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [55ms]
+#> ✔ Finding posterior mode. [58ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [91ms]
+#> ✔ Computing the Hessian. [73ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [106ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [101ms]
 #> 
 #> ⠙ Fitting skew normal to 0/12 marginals.
-#> ✔ Fitting skew normal to 12/12 marginals. [298ms]
+#> ✔ Fitting skew normal to 12/12 marginals. [296ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [325ms]
+#> ✔ Computing ppp and DIC. [311ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>    fit        13   -8068.939 16067.30 30.72764   0.000
-#>   fit2        12   -8088.754 16123.62 32.82296 -19.815
+#>    fit        13   -8068.961 16067.31 30.73790   0.000
+#>   fit2        12   -8088.849 16123.63 32.83397 -19.887
 ```
 
 As a note, there have been several criticisms of the use of Bayes

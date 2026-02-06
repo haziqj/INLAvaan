@@ -171,25 +171,25 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [70ms]
+#> ✔ Finding posterior mode. [69ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [188ms]
+#> ✔ Computing the Hessian. [146ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.032σ. [130ms]
+#> ✔ VB correction; mean |δ| = 0.025σ. [122ms]
 #> 
 #> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [759ms]
+#> ✔ Fitting skew normal to 21/21 marginals. [719ms]
 #> 
 #> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [93ms]
+#> ✔ Sampling covariances and defined parameters. [89ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [371ms]
+#> ✔ Computing ppp and DIC. [362ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9003 ended normally after 73 iterations
+#> INLAvaan 0.2.3.9004 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -199,13 +199,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3823.287 
+#>    Marginal log-likelihood                   -3823.645 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7675.759 
-#>    Effective parameters (pD)                    99.880 
+#>    Deviance (DIC)                             7675.898 
+#>    Effective parameters (pD)                   100.019 
 #> 
 #> Parameter Estimates:
 #> 
@@ -230,10 +230,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.445    0.076    0.236    0.534    0.001       beta(1,1)
-#>     speed             0.479    0.051    0.143    0.343    0.022       beta(1,1)
+#>     textual           0.445    0.078    0.246    0.552    0.001       beta(1,1)
+#>     speed             0.479    0.052    0.145    0.349    0.022       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.279    0.049    0.259    0.069    0.002       beta(1,1)
+#>     speed             0.279    0.048    0.259    0.070    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

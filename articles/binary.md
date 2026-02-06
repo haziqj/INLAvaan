@@ -65,22 +65,23 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [168ms]
+#> ✔ Finding posterior mode. [160ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [319ms]
+#> ✔ Computing the Hessian. [268ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.119σ. [779ms]
+#> ✔ VB correction; mean |δ| = 0.104σ. [731ms]
 #> 
 #> ⠙ Fitting skew normal to 0/10 marginals.
-#> ✔ Fitting skew normal to 10/10 marginals. [870ms]
+#> ⠹ Fitting skew normal to 4/10 marginals.
+#> ✔ Fitting skew normal to 10/10 marginals. [849ms]
 #> 
 #> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [573ms]
+#> ✔ Computing ppp and DIC. [538ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9003 ended normally after 37 iterations
+#> INLAvaan 0.2.3.9004 ended normally after 37 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -90,13 +91,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1093.846 
+#>    Marginal log-likelihood                   -1093.586 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             2565.626 
-#>    Effective parameters (pD)                   227.357 
+#>    Deviance (DIC)                             2565.844 
+#>    Effective parameters (pD)                   227.574 
 #> 
 #> Parameter Estimates:
 #> 

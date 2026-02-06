@@ -321,6 +321,8 @@ Main lavaan-style functions to estimate SEM.
   : Helper function to check if two functions are the same
 - [`as_fun_string()`](https://inlavaan.haziqj.ml/reference/as_fun_string.md)
   : Convert function to single string
+- [`SobolOwen`](https://inlavaan.haziqj.ml/reference/SobolOwen.md) : A
+  Sobol sequence with Owen scrambling
 
 # Articles
 
