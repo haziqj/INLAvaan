@@ -102,7 +102,19 @@ is_inlavaan <- function(object) {
   is(object, "INLAvaan") & attr(class(object), "package") == "INLAvaan"
 }
 
-dmode <- function(x) {
-  d <- density(x)
+dmode <- function(x, na.rm = TRUE) {
+  if (na.rm) {
+    x <- x[!is.na(x)]
+  }
+  if (length(x) == 0) {
+    return(NA)
+  }
+  if (length(x) == 1) {
+    return(x)
+  }
+  if (stats::sd(x) < .Machine$double.eps^0.5) {
+    return(mean(x))
+  }
+  d <- stats::density(x)
   d$x[which.max(d$y)]
 }

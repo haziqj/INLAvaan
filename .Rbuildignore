@@ -16,3 +16,4 @@
 ^inst/hexSticker$
 ^inst/dev$
 ^CRAN-SUBMISSION$
+^data-raw$

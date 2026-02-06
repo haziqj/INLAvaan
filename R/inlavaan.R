@@ -298,7 +298,8 @@ inlavaan <- function(
     }
 
     # QMC noise (scrambled Sobol)
-    us <- qrng::sobol(n = 50, d = m, randomize = "Owen", seed = 123)
+    us <- sobol_owen(n = 50, d = m)
+    # us <- qrng::sobol(n = 50, d = m, randomize = "Owen", seed = 123)
     zs <- rbind(0, qnorm(us) %*% t(L)) # Add 0 to "lock at" mode
 
     vb_ob <- function(delta, mu0, Z) {

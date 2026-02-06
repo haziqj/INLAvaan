@@ -35,7 +35,6 @@
 #' @importFrom graphics abline
 #' @importFrom graphics grid
 #' @importFrom graphics par
-#' @importFrom qrng sobol
 #' @importFrom statmod gauss.quad
 #' @importFrom stats approx
 #' @importFrom stats cov2cor
