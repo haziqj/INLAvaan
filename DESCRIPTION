@@ -24,6 +24,8 @@ Imports:
     cli,
     cowplot,
     dplyr,
+    ggplot2,
+    graphics,
     lavaan,
     methods,
     modeest,
