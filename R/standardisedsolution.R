@@ -80,7 +80,7 @@ standardisedsolution <- function(
     ci_lower = apply(xstd_samp, 2, quantile, probs = (1 - level) / 2),
     ci_upper = apply(xstd_samp, 2, quantile, probs = 1 - (1 - level) / 2),
     median = apply(xstd_samp, 2, median),
-    mode = apply(xstd_samp, 2, modeest::mfv1)
+    mode = apply(xstd_samp, 2, dmode)
   )
 
   out <- lavaan::standardizedSolution(

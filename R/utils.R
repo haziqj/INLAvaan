@@ -101,3 +101,8 @@ is_INLAvaan <- function(object) {
 is_inlavaan <- function(object) {
   is(object, "INLAvaan") & attr(class(object), "package") == "INLAvaan"
 }
+
+dmode <- function(x) {
+  d <- density(x)
+  d$x[which.max(d$y)]
+}

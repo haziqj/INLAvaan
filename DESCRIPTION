@@ -22,13 +22,11 @@ URL: https://inlavaan.haziqj.ml/, https://github.com/haziqj/INLAvaan
 BugReports: https://github.com/haziqj/INLAvaan/issues
 Imports: 
     cli,
-    cowplot,
     dplyr,
     ggplot2,
     graphics,
     lavaan,
     methods,
-    modeest,
     numDeriv,
     qrng,
     scales,
