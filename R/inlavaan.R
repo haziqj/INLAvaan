@@ -229,13 +229,10 @@ inlavaan <- function(
       cli::cli_progress_step("Computing the Hessian.")
     }
     if (isTRUE(numerical_grad)) {
-      H_neg <- numDeriv::hessian(
-        func = ob,
-        x = theta_star,
-        method.args = list(eps = 1e-4, d = 0.0005) # high stability
-      )
+      H_neg <- fast_hessian(ob, theta_star)
     } else {
-      H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
+      # H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
+      H_neg <- fast_jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
     }
   } else if (optim_method == "ucminf") {
     if (!requireNamespace("ucminf", quietly = TRUE)) {
@@ -276,7 +273,7 @@ inlavaan <- function(
   Vscan <- sweep(Sigma_theta, 2, sqrt(diag(Sigma_theta)), "/")
 
   # Derivatives at optima
-  opt$dx <- numDeriv::grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
+  opt$dx <- fast_grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
   if (isTRUE(debug)) {
     grad_an <- -1 * joint_lp_grad(theta_star)
     print(cbind(fd = opt$dx, analytic = grad_an, diff = grad_an - opt$dx))
@@ -285,7 +282,7 @@ inlavaan <- function(
   timing <- add_timing(timing, "optim")
 
   ## ----- VB correction -------------------------------------------------------
-  vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- NA
+  vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- n_qmc <- NA
   if (isTRUE(vb_correction)) {
     if (isTRUE(verbose)) {
       cli::cli_progress_step(
@@ -392,7 +389,7 @@ inlavaan <- function(
       } else {
         th_plus <- theta_star + Vscan[, .j] * delta_outer
         if (marginal_correction == "hessian") {
-          Htheta1_full <- numDeriv::jacobian(
+          Htheta1_full <- fast_jacobian(
             function(x) -1 * joint_lp_grad(x),
             th_plus
           )

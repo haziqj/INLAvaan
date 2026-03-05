@@ -85,7 +85,6 @@ add_timing <- function(timing, part) {
 
   timing
 }
-
 is_lavaan <- function(object) {
   is(object, "lavaan") & attr(class(object), "package") == "lavaan"
 }

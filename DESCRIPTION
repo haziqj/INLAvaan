@@ -27,7 +27,6 @@ Imports:
     graphics,
     lavaan,
     methods,
-    numDeriv,
     scales,
     statmod,
     stats,
