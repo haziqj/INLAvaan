@@ -130,20 +130,20 @@ the `cluster` argument to identify the grouping variable.
 ``` r
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [503ms]
+#> ✔ Finding posterior mode. [518ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [650ms]
+#> ✔ Computing the Hessian. [664ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.035σ. [596ms]
+#> ✔ VB correction; mean |δ| = 0.019σ. [520ms]
 #> 
-#> ⠙ Fitting skew normal to 0/20 marginals.
-#> ⠹ Fitting skew normal to 20/20 marginals.
-#> ✔ Fitting skew normal to 20/20 marginals. [3.1s]
+#> ⠙ Fitting skew-normal to 0/20 marginals.
+#> ⠹ Fitting skew-normal to 19/20 marginals.
+#> ✔ Fitting skew-normal to 20/20 marginals. [3.1s]
 #> 
-#> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [813ms]
+#> ⠙ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [751ms]
 #> 
 ```
 
@@ -154,7 +154,7 @@ standard deviations, and credible intervals) for *both levels*.
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.3.9004 ended normally after 108 iterations
+#> INLAvaan 0.2.3.9005 ended normally after 108 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -165,13 +165,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                  -12185.851 
-#>    PPP (Chi-square)                              0.002 
+#>    Marginal log-likelihood                  -12185.483 
+#>    PPP (Chi-square)                              0.012 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24271.008 
-#>    Effective parameters (pD)                    58.843 
+#>    Deviance (DIC)                            24262.672 
+#>    Effective parameters (pD)                    54.737 
 #> 
 #> Parameter Estimates:
 #> 
@@ -185,13 +185,13 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fw =~                                                                        
 #>     y1                1.000                                                    
-#>     y2                0.774    0.034    0.708    0.843    0.004    normal(0,10)
-#>     y3                0.734    0.033    0.671    0.801    0.003    normal(0,10)
+#>     y2                0.775    0.034    0.709    0.845    0.003    normal(0,10)
+#>     y3                0.735    0.033    0.671    0.801    0.003    normal(0,10)
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fw ~                                                                         
-#>     x1                0.510    0.023    0.465    0.555    0.001    normal(0,10)
+#>     x1                0.510    0.023    0.464    0.555    0.001    normal(0,10)
 #>     x2                0.407    0.022    0.364    0.451    0.001    normal(0,10)
 #>     x3                0.205    0.021    0.164    0.246    0.000    normal(0,10)
 #> 
@@ -204,10 +204,10 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .y1                0.987    0.046    1.079    0.899    0.001 gamma(1,.5)[sd]
-#>    .y2                1.069    0.039    1.147    0.994    0.001 gamma(1,.5)[sd]
+#>    .y1                0.987    0.046    1.078    0.899    0.001 gamma(1,.5)[sd]
+#>    .y2                1.069    0.039    1.148    0.994    0.001 gamma(1,.5)[sd]
 #>    .y3                1.013    0.037    1.087    0.943    0.001 gamma(1,.5)[sd]
-#>    .fw                0.548    0.041    0.631    0.472    0.003 gamma(1,.5)[sd]
+#>    .fw                0.549    0.041    0.631    0.472    0.003 gamma(1,.5)[sd]
 #> 
 #> 
 #> Level 2 [cluster]:
@@ -216,7 +216,7 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fb =~                                                                        
 #>     y1                1.000                                                    
-#>     y2                0.717    0.051    0.622    0.821    0.021    normal(0,10)
+#>     y2                0.720    0.051    0.625    0.825    0.027    normal(0,10)
 #>     y3                0.587    0.047    0.497    0.682    0.007    normal(0,10)
 #> 
 #> Regressions:
@@ -234,10 +234,10 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .y1                0.066    0.039    1.269    0.006    0.042 gamma(1,.5)[sd]
-#>    .y2                0.125    0.031    0.330    0.069    0.011 gamma(1,.5)[sd]
-#>    .y3                0.155    0.029    0.291    0.104    0.002 gamma(1,.5)[sd]
-#>    .fb                0.919    0.120    1.174    0.703    0.002 gamma(1,.5)[sd]
+#>    .y1                0.066    0.039    1.275    0.005    0.041 gamma(1,.5)[sd]
+#>    .y2                0.126    0.031    0.335    0.070    0.006 gamma(1,.5)[sd]
+#>    .y3                0.156    0.029    0.292    0.104    0.002 gamma(1,.5)[sd]
+#>    .fb                0.925    0.121    1.181    0.708    0.002 gamma(1,.5)[sd]
 ```
 
 Notice that, the mean structure is automatically included at both

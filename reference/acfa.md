@@ -9,6 +9,7 @@ acfa(
   model,
   data,
   dp = priors_for(),
+  vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 500,
   test = "standard",
@@ -45,15 +46,19 @@ acfa(
 
   Default prior distributions on different types of parameters,
   typically the result of a call to
-  [`dpriors()`](http://ecmerkle.github.io/blavaan/reference/dpriors.md).
-  See the
-  [`dpriors()`](http://ecmerkle.github.io/blavaan/reference/dpriors.md)
-  help file for more information.
+  [`dpriors()`](https://blavaan.org/reference/dpriors.html). See the
+  [`dpriors()`](https://blavaan.org/reference/dpriors.html) help file
+  for more information.
+
+- vb_correction:
+
+  Logical indicating whether to apply a variational Bayes correction for
+  the posterior mean vector of estimates. Defaults to `TRUE`.
 
 - marginal_method:
 
   The method for approximating the marginal posterior distributions.
-  Options include `"skewnorm"` (skew normal), `"asymgaus"` (two-piece
+  Options include `"skewnorm"` (skew-normal), `"asymgaus"` (two-piece
   asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
   approximation), and `"sampling"` (sampling from the joint Laplace
   approximation).
@@ -70,20 +75,20 @@ acfa(
 
 - marginal_correction:
 
-  Which type of correction to use when fitting the skew normal or
+  Which type of correction to use when fitting the skew-normal or
   two-piece Gaussian marginals. `"hessian"` computes the full
   Hessian-based correction (slow), `"shortcut"` (default) computes only
   diagonals, and `"none"` (or `FALSE`) applies no correction.
 
 - sn_fit_logthresh:
 
-  The log-threshold for fitting the skew normal. Points with
+  The log-threshold for fitting the skew-normal. Points with
   log-posterior drop below this threshold (relative to the maximum) will
   be excluded from the fit. Defaults to `-6`.
 
 - sn_fit_temp:
 
-  Temperature parameter for fitting the skew normal. If `NA`, the
+  Temperature parameter for fitting the skew-normal. If `NA`, the
   temperature will be included in the optimisation during the skew
   normal fit.
 
@@ -177,22 +182,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [56ms]
+#> ✔ Finding posterior mode. [54ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [144ms]
+#> ✔ Computing the Hessian. [135ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.008σ. [120ms]
+#> ✔ VB correction; mean |δ| = 0.008σ. [122ms]
 #> 
-#> ⠙ Fitting skew normal to 0/21 marginals.
-#> ✔ Fitting skew normal to 21/21 marginals. [649ms]
+#> ⠙ Fitting skew-normal to 0/21 marginals.
+#> ✔ Fitting skew-normal to 21/21 marginals. [649ms]
 #> 
-#> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [92ms]
+#> ⠙ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [80ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9004 ended normally after 56 iterations
+#> INLAvaan 0.2.3.9005 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -202,13 +207,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3830.975 
+#>    Marginal log-likelihood                   -3830.865 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7584.377 
-#>    Effective parameters (pD)                    54.358 
+#>    Deviance (DIC)                             7576.944 
+#>    Effective parameters (pD)                    50.661 
 #> 
 #> Parameter Estimates:
 #> 
@@ -218,37 +223,37 @@ summary(fit)
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual =~                                                                    
-#>     x1                0.906    0.083    0.744    1.071    0.011    normal(0,10)
-#>     x2                0.500    0.081    0.343    0.660    0.001    normal(0,10)
-#>     x3                0.662    0.078    0.511    0.818    0.005    normal(0,10)
+#>     x1                0.907    0.083    0.745    1.072    0.010    normal(0,10)
+#>     x2                0.501    0.081    0.343    0.660    0.001    normal(0,10)
+#>     x3                0.663    0.078    0.512    0.818    0.005    normal(0,10)
 #>   textual =~                                                                   
-#>     x4                0.999    0.058    0.889    1.116    0.004    normal(0,10)
-#>     x5                1.114    0.064    0.993    1.244    0.004    normal(0,10)
-#>     x6                0.927    0.055    0.823    1.038    0.004    normal(0,10)
+#>     x4                1.000    0.058    0.890    1.118    0.004    normal(0,10)
+#>     x5                1.113    0.064    0.991    1.242    0.005    normal(0,10)
+#>     x6                0.924    0.055    0.820    1.035    0.004    normal(0,10)
 #>   speed =~                                                                     
-#>     x7                0.615    0.074    0.758    0.466    0.004    normal(0,10)
-#>     x8                0.725    0.076    0.987    0.569    0.027    normal(0,10)
-#>     x9                0.686    0.079    0.538    0.848    0.034    normal(0,10)
+#>     x7                0.610    0.075    0.753    0.458    0.006    normal(0,10)
+#>     x8                0.724    0.076    0.987    0.568    0.028    normal(0,10)
+#>     x9                0.689    0.079    0.541    0.852    0.035    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.449    0.064    0.319    0.568    0.001       beta(1,1)
-#>     speed             0.474    0.086    0.302    0.639    0.021       beta(1,1)
+#>     textual           0.449    0.064    0.318    0.567    0.001       beta(1,1)
+#>     speed             0.467    0.086    0.297    0.633    0.019       beta(1,1)
 #>   textual ~~                                                                   
 #>     speed             0.280    0.071    0.138    0.415    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                0.544    0.119    1.395    0.306    0.021 gamma(1,.5)[sd]
-#>    .x2                1.144    0.106    0.952    1.366    0.001 gamma(1,.5)[sd]
-#>    .x3                0.846    0.097    1.253    0.665    0.002 gamma(1,.5)[sd]
+#>    .x1                0.560    0.117    1.347    0.330    0.022 gamma(1,.5)[sd]
+#>    .x2                1.146    0.106    0.953    1.368    0.001 gamma(1,.5)[sd]
+#>    .x3                0.852    0.097    1.257    0.670    0.002 gamma(1,.5)[sd]
 #>    .x4                0.376    0.049    0.477    0.286    0.002 gamma(1,.5)[sd]
-#>    .x5                0.451    0.059    0.574    0.342    0.002 gamma(1,.5)[sd]
-#>    .x6                0.361    0.044    0.453    0.279    0.002 gamma(1,.5)[sd]
-#>    .x7                0.823    0.091    0.661    1.016    0.004 gamma(1,.5)[sd]
-#>    .x8                0.495    0.092    1.046    0.318    0.050 gamma(1,.5)[sd]
-#>    .x9                0.542    0.093    1.146    0.344    0.016 gamma(1,.5)[sd]
+#>    .x5                0.453    0.059    0.575    0.344    0.002 gamma(1,.5)[sd]
+#>    .x6                0.363    0.044    0.455    0.281    0.002 gamma(1,.5)[sd]
+#>    .x7                0.824    0.091    0.662    1.018    0.004 gamma(1,.5)[sd]
+#>    .x8                0.501    0.092    1.047    0.324    0.044 gamma(1,.5)[sd]
+#>    .x9                0.561    0.090    1.115    0.373    0.012 gamma(1,.5)[sd]
 #>     visual            1.000                                                    
 #>     textual           1.000                                                    
 #>     speed             1.000                                                    

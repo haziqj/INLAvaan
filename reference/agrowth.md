@@ -9,6 +9,7 @@ agrowth(
   model,
   data,
   dp = priors_for(),
+  vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 500,
   test = "standard",
@@ -45,15 +46,19 @@ agrowth(
 
   Default prior distributions on different types of parameters,
   typically the result of a call to
-  [`dpriors()`](http://ecmerkle.github.io/blavaan/reference/dpriors.md).
-  See the
-  [`dpriors()`](http://ecmerkle.github.io/blavaan/reference/dpriors.md)
-  help file for more information.
+  [`dpriors()`](https://blavaan.org/reference/dpriors.html). See the
+  [`dpriors()`](https://blavaan.org/reference/dpriors.html) help file
+  for more information.
+
+- vb_correction:
+
+  Logical indicating whether to apply a variational Bayes correction for
+  the posterior mean vector of estimates. Defaults to `TRUE`.
 
 - marginal_method:
 
   The method for approximating the marginal posterior distributions.
-  Options include `"skewnorm"` (skew normal), `"asymgaus"` (two-piece
+  Options include `"skewnorm"` (skew-normal), `"asymgaus"` (two-piece
   asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
   approximation), and `"sampling"` (sampling from the joint Laplace
   approximation).
@@ -70,20 +75,20 @@ agrowth(
 
 - marginal_correction:
 
-  Which type of correction to use when fitting the skew normal or
+  Which type of correction to use when fitting the skew-normal or
   two-piece Gaussian marginals. `"hessian"` computes the full
   Hessian-based correction (slow), `"shortcut"` (default) computes only
   diagonals, and `"none"` (or `FALSE`) applies no correction.
 
 - sn_fit_logthresh:
 
-  The log-threshold for fitting the skew normal. Points with
+  The log-threshold for fitting the skew-normal. Points with
   log-posterior drop below this threshold (relative to the maximum) will
   be excluded from the fit. Defaults to `-6`.
 
 - sn_fit_temp:
 
-  Temperature parameter for fitting the skew normal. If `NA`, the
+  Temperature parameter for fitting the skew-normal. If `NA`, the
   temperature will be included in the optimisation during the skew
   normal fit.
 
@@ -198,25 +203,22 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [157ms]
+#> ✔ Finding posterior mode. [163ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [237ms]
+#> ✔ Computing the Hessian. [238ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.004σ. [251ms]
+#> ✔ VB correction; mean |δ| = 0.005σ. [197ms]
 #> 
-#> ⠙ Fitting skew normal to 0/17 marginals.
-#> ✔ Fitting skew normal to 17/17 marginals. [944ms]
+#> ⠙ Fitting skew-normal to 0/17 marginals.
+#> ✔ Fitting skew-normal to 17/17 marginals. [969ms]
 #> 
-#> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [60ms]
-#> 
-#> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [170ms]
+#> ⠙ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [135ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9004 ended normally after 83 iterations
+#> INLAvaan 0.2.3.9005 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -226,13 +228,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -2566.086 
-#>    PPP (Chi-square)                              0.830 
+#>    Marginal log-likelihood                   -2565.970 
+#>    PPP (Chi-square)                              0.850 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             5007.622 
-#>    Effective parameters (pD)                    22.626 
+#>    Deviance (DIC)                             5005.101 
+#>    Effective parameters (pD)                    21.377 
 #> 
 #> Parameter Estimates:
 #> 
@@ -272,7 +274,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.155    0.045    0.158   -0.018    0.004       beta(1,1)
+#>    .s                 0.152    0.052   -0.019    0.183    0.004       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -285,11 +287,11 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .t1                0.591    0.080    0.949    0.441    0.003 gamma(1,.5)[sd]
+#>    .t1                0.588    0.080    0.951    0.438    0.004 gamma(1,.5)[sd]
 #>    .t2                0.605    0.055    0.720    0.504    0.001 gamma(1,.5)[sd]
-#>    .t3                0.488    0.056    0.604    0.386    0.001 gamma(1,.5)[sd]
-#>    .t4                0.541    0.097    1.082    0.359    0.008 gamma(1,.5)[sd]
-#>    .i                 1.097    0.114    1.333    0.887    0.001 gamma(1,.5)[sd]
+#>    .t3                0.487    0.056    0.603    0.385    0.001 gamma(1,.5)[sd]
+#>    .t4                0.543    0.097    1.082    0.360    0.007 gamma(1,.5)[sd]
+#>    .i                 1.098    0.114    1.334    0.888    0.001 gamma(1,.5)[sd]
 #>    .s                 0.228    0.027    0.283    0.179    0.002 gamma(1,.5)[sd]
 #> 
 ```

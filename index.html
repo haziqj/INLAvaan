@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -227,7 +227,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("blavaan")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a></span><span class="op">)</span></span>
-<span><span class="va">fit_blav</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://ecmerkle.github.io/blavaan/reference/bsem.html" class="external-link">bsem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
+<span><span class="va">fit_blav</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://blavaan.org/reference/bsem.html" class="external-link">bsem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">INLAvaan</span><span class="fu">:::</span><span class="fu">compare_mcmc</span><span class="op">(</span><span class="va">fit_blav</span>, INLAvaan <span class="op">=</span> <span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">p_compare</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-fig-compare-poldem-1.png" alt="" width="100%"></p>

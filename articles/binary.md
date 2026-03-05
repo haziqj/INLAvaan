@@ -65,23 +65,23 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [160ms]
+#> ✔ Finding posterior mode. [164ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [268ms]
+#> ✔ Computing the Hessian. [289ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.104σ. [731ms]
+#> ✔ VB correction; mean |δ| = 0.134σ. [478ms]
 #> 
-#> ⠙ Fitting skew normal to 0/10 marginals.
-#> ⠹ Fitting skew normal to 4/10 marginals.
-#> ✔ Fitting skew normal to 10/10 marginals. [849ms]
+#> ⠙ Fitting skew-normal to 0/10 marginals.
+#> ⠹ Fitting skew-normal to 3/10 marginals.
+#> ✔ Fitting skew-normal to 10/10 marginals. [829ms]
 #> 
-#> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [538ms]
+#> ⠙ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [567ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9004 ended normally after 37 iterations
+#> INLAvaan 0.2.3.9005 ended normally after 37 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -91,13 +91,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1093.586 
+#>    Marginal log-likelihood                   -1094.328 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             2565.844 
-#>    Effective parameters (pD)                   227.574 
+#>    Deviance (DIC)                             2555.679 
+#>    Effective parameters (pD)                   222.254 
 #> 
 #> Parameter Estimates:
 #> 
@@ -108,19 +108,19 @@ summary(fit)
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
 #>   eta =~                                                                     
-#>     y1                0.854    0.382    0.240    1.721    0.096  normal(0,10)
-#>     y2                0.622    0.236    0.227    1.148    0.029  normal(0,10)
-#>     y3                0.623    0.236    0.227    1.149    0.023  normal(0,10)
-#>     y4                1.195    0.499    0.437    2.352    0.077  normal(0,10)
-#>     y5                0.518    0.229    0.121    1.018    0.050  normal(0,10)
+#>     y1                0.937    0.420    0.120    1.767    0.206  normal(0,10)
+#>     y2                0.775    0.309    0.276    1.475    0.040  normal(0,10)
+#>     y3                0.691    0.267    0.248    1.287    0.031  normal(0,10)
+#>     y4                1.583    0.815   -0.008    3.187    0.318  normal(0,10)
+#>     y5                0.648    0.280    0.188    1.277    0.050  normal(0,10)
 #> 
 #> Thresholds:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
-#>     y1|t1            -2.430    0.571   -0.075   -3.746    0.310 normal(0,1.5)
-#>     y2|t1            -0.853    0.151   -0.168   -1.299    0.112 normal(0,1.5)
-#>     y3|t1            -0.315    0.087    0.040   -0.512    0.017 normal(0,1.5)
-#>     y4|t1            -1.350    0.425   -0.521   -2.188    0.220 normal(0,1.5)
-#>     y5|t1            -1.289    0.172   -0.534   -1.738    0.186 normal(0,1.5)
+#>     y1|t1            -2.173    0.348   -0.554   -3.354    0.066 normal(0,1.5)
+#>     y2|t1            -0.792    0.117   -0.258   -1.147    0.037 normal(0,1.5)
+#>     y3|t1            -0.302    0.084    0.041   -0.493    0.009 normal(0,1.5)
+#>     y4|t1            -1.008    0.216    0.046   -2.285    0.114 normal(0,1.5)
+#>     y5|t1            -1.227    0.137   -0.601   -1.646    0.035 normal(0,1.5)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
@@ -133,11 +133,11 @@ summary(fit)
 #> 
 #> Scales y*:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
-#>     y1                1.347    0.232    1.049    1.904                       
-#>     y2                1.196    0.138    1.024    1.529                       
-#>     y3                1.202    0.127    1.034    1.493                       
-#>     y4                1.577    0.390    1.111    2.562                       
-#>     y5                1.144    0.115    1.008    1.429
+#>     y1                1.411    0.270    1.007    1.979                       
+#>     y2                1.294    0.198    1.044    1.759                       
+#>     y3                1.231    0.159    1.032    1.612                       
+#>     y4                1.947    0.609    1.038    3.147                       
+#>     y5                1.205    0.155    1.018    1.579
 plot(fit, truth = truval)
 ```
 

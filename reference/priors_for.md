@@ -1,7 +1,7 @@
 # Specify priors for a SEM
 
 Specify priors for a SEM, similar to how
-[`blavaan::dpriors()`](http://ecmerkle.github.io/blavaan/reference/dpriors.md)
+[`blavaan::dpriors()`](https://blavaan.org/reference/dpriors.html)
 works.
 
 ## Usage

@@ -14,28 +14,25 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [271ms]
+#> ✔ Finding posterior mode. [282ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [696ms]
+#> ✔ Computing the Hessian. [750ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.024σ. [316ms]
+#> ✔ VB correction; mean |δ| = 0.023σ. [490ms]
 #> 
-#> ⠙ Fitting skew normal to 0/60 marginals.
-#> ⠹ Fitting skew normal to 6/60 marginals.
-#> ⠸ Fitting skew normal to 33/60 marginals.
-#> ⠼ Fitting skew normal to 59/60 marginals.
-#> ✔ Fitting skew normal to 60/60 marginals. [6.9s]
+#> ⠙ Fitting skew-normal to 0/60 marginals.
+#> ⠹ Fitting skew-normal to 3/60 marginals.
+#> ⠸ Fitting skew-normal to 29/60 marginals.
+#> ⠼ Fitting skew-normal to 55/60 marginals.
+#> ✔ Fitting skew-normal to 60/60 marginals. [7s]
 #> 
-#> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [199ms]
-#> 
-#> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [766ms]
+#> ⠙ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [613ms]
 #> 
 summary(fit1)
-#> INLAvaan 0.2.3.9004 ended normally after 138 iterations
+#> INLAvaan 0.2.3.9005 ended normally after 138 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -47,13 +44,13 @@ summary(fit1)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3958.118 
+#>    Marginal log-likelihood                   -3957.993 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7730.847 
-#>    Effective parameters (pD)                   182.825 
+#>    Deviance (DIC)                             7738.542 
+#>    Effective parameters (pD)                   186.623 
 #> 
 #> Parameter Estimates:
 #> 
@@ -67,24 +64,24 @@ summary(fit1)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual =~                                                                    
 #>     x1                1.000                                                    
-#>     x2                0.407    0.135    0.150    0.680    0.132    normal(0,10)
-#>     x3                0.590    0.143    0.870    0.309    0.193    normal(0,10)
+#>     x2                0.420    0.134    0.683    0.157    0.120    normal(0,10)
+#>     x3                0.601    0.143    0.881    0.319    0.197    normal(0,10)
 #>   textual =~                                                                   
 #>     x4                1.000                                                    
-#>     x5                1.203    0.105    1.010    1.420    0.009    normal(0,10)
-#>     x6                0.893    0.083    0.740    1.066    0.010    normal(0,10)
+#>     x5                1.212    0.106    1.017    1.434    0.007    normal(0,10)
+#>     x6                0.895    0.084    0.742    1.070    0.008    normal(0,10)
 #>   speed =~                                                                     
 #>     x7                1.000                                                    
-#>     x8                1.240    0.298    0.738    1.902    0.032    normal(0,10)
-#>     x9                1.062    0.302    0.567    1.742    0.049    normal(0,10)
+#>     x8                1.326    0.336    0.745    2.062    0.080    normal(0,10)
+#>     x9                1.104    0.295    0.573    1.731    0.259    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.463    0.119    0.232    0.698    0.002       beta(1,1)
-#>     speed             0.311    0.074    0.027    0.317    0.007       beta(1,1)
+#>     textual           0.460    0.100    0.257    0.649    0.003       beta(1,1)
+#>     speed             0.301    0.121    0.433   -0.040    0.006       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.308    0.069    0.032    0.301    0.002       beta(1,1)
+#>     speed             0.307    0.092    0.359   -0.000    0.003       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -103,18 +100,18 @@ summary(fit1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                0.408    0.188    2.955    0.110    0.153 gamma(1,.5)[sd]
-#>    .x2                1.347    0.166    1.053    1.702    0.004 gamma(1,.5)[sd]
-#>    .x3                0.978    0.141    1.602    0.719    0.053 gamma(1,.5)[sd]
+#>    .x1                0.403    0.190    2.884    0.111    0.159 gamma(1,.5)[sd]
+#>    .x2                1.349    0.166    1.054    1.704    0.004 gamma(1,.5)[sd]
+#>    .x3                0.981    0.142    1.652    0.716    0.061 gamma(1,.5)[sd]
 #>    .x4                0.446    0.073    0.602    0.315    0.004 gamma(1,.5)[sd]
-#>    .x5                0.466    0.088    0.910    0.308    0.008 gamma(1,.5)[sd]
-#>    .x6                0.297    0.053    0.556    0.202    0.007 gamma(1,.5)[sd]
-#>    .x7                0.871    0.131    1.148    0.634    0.013 gamma(1,.5)[sd]
-#>    .x8                0.517    0.115    1.323    0.292    0.037 gamma(1,.5)[sd]
-#>    .x9                0.672    0.113    1.296    0.456    0.022 gamma(1,.5)[sd]
-#>     visual            1.083    0.270    0.652    1.704    0.215 gamma(1,.5)[sd]
-#>     textual           0.889    0.151    1.213    0.622    0.009 gamma(1,.5)[sd]
-#>     speed             0.300    0.121    1.200    0.119    0.050 gamma(1,.5)[sd]
+#>    .x5                0.467    0.088    0.912    0.310    0.007 gamma(1,.5)[sd]
+#>    .x6                0.300    0.053    0.558    0.205    0.007 gamma(1,.5)[sd]
+#>    .x7                0.871    0.131    1.147    0.632    0.010 gamma(1,.5)[sd]
+#>    .x8                0.531    0.114    1.301    0.310    0.031 gamma(1,.5)[sd]
+#>    .x9                0.684    0.112    1.294    0.469    0.019 gamma(1,.5)[sd]
+#>     visual            1.109    0.274    0.668    1.734    0.208 gamma(1,.5)[sd]
+#>     textual           0.901    0.152    1.230    0.634    0.006 gamma(1,.5)[sd]
+#>     speed             0.314    0.123    1.487    0.118    0.069 gamma(1,.5)[sd]
 #> 
 #> 
 #> Group 2 [Grant-White]:
@@ -123,24 +120,24 @@ summary(fit1)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual =~                                                                    
 #>     x1                1.000                                                    
-#>     x2                0.770    0.172    0.459    1.134    0.023    normal(0,10)
-#>     x3                1.000    0.202    0.654    1.445    0.024    normal(0,10)
+#>     x2                0.795    0.178    0.475    1.174    0.024    normal(0,10)
+#>     x3                1.031    0.212    0.669    1.498    0.025    normal(0,10)
 #>   textual =~                                                                   
 #>     x4                1.000                                                    
-#>     x5                1.000    0.089    0.834    1.184    0.005    normal(0,10)
+#>     x5                1.007    0.090    0.839    1.194    0.006    normal(0,10)
 #>     x6                0.977    0.087    0.813    1.156    0.008    normal(0,10)
 #>   speed =~                                                                     
 #>     x7                1.000                                                    
-#>     x8                1.280    0.188    0.950    1.685    0.017    normal(0,10)
-#>     x9                1.144    0.225    0.768    1.646    0.060    normal(0,10)
+#>     x8                1.317    0.198    0.969    1.747    0.021    normal(0,10)
+#>     x9                1.186    0.253    0.735    1.729    0.175    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.518    0.099    0.188    0.578    0.002       beta(1,1)
-#>     speed             0.515    0.074    0.403    0.111    0.012       beta(1,1)
+#>     textual           0.516    0.109    0.180    0.607    0.002       beta(1,1)
+#>     speed             0.509    0.105    0.475    0.064    0.009       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.326    0.074    0.061    0.352    0.006       beta(1,1)
+#>     speed             0.325    0.086    0.384    0.048    0.005       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -160,17 +157,17 @@ summary(fit1)
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>    .x1                0.750    0.136    1.445    0.503    0.009 gamma(1,.5)[sd]
-#>    .x2                0.925    0.128    0.699    1.201    0.003 gamma(1,.5)[sd]
-#>    .x3                0.559    0.110    1.203    0.353    0.015 gamma(1,.5)[sd]
-#>    .x4                0.329    0.067    0.697    0.209    0.011 gamma(1,.5)[sd]
-#>    .x5                0.432    0.075    0.591    0.299    0.005 gamma(1,.5)[sd]
-#>    .x6                0.419    0.072    0.572    0.292    0.004 gamma(1,.5)[sd]
-#>    .x7                0.645    0.103    0.468    0.870    0.001 gamma(1,.5)[sd]
-#>    .x8                0.426    0.111    1.204    0.227    0.018 gamma(1,.5)[sd]
-#>    .x9                0.516    0.109    1.276    0.298    0.023 gamma(1,.5)[sd]
-#>     visual            0.556    0.162    1.730    0.277    0.042 gamma(1,.5)[sd]
-#>     textual           0.947    0.154    1.278    0.676    0.003 gamma(1,.5)[sd]
-#>     speed             0.417    0.118    1.264    0.211    0.033 gamma(1,.5)[sd]
+#>    .x2                0.927    0.129    0.700    1.203    0.003 gamma(1,.5)[sd]
+#>    .x3                0.565    0.110    1.201    0.360    0.014 gamma(1,.5)[sd]
+#>    .x4                0.329    0.067    0.697    0.208    0.012 gamma(1,.5)[sd]
+#>    .x5                0.434    0.075    0.594    0.301    0.005 gamma(1,.5)[sd]
+#>    .x6                0.422    0.072    0.576    0.294    0.004 gamma(1,.5)[sd]
+#>    .x7                0.646    0.103    0.468    0.871    0.001 gamma(1,.5)[sd]
+#>    .x8                0.429    0.111    1.232    0.226    0.017 gamma(1,.5)[sd]
+#>    .x9                0.531    0.108    1.250    0.318    0.022 gamma(1,.5)[sd]
+#>     visual            0.578    0.163    1.781    0.291    0.041 gamma(1,.5)[sd]
+#>     textual           0.955    0.155    1.288    0.682    0.004 gamma(1,.5)[sd]
+#>     speed             0.440    0.120    1.258    0.231    0.021 gamma(1,.5)[sd]
 
 # Weak invariance
 fit2 <- acfa(
@@ -180,24 +177,21 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [195ms]
+#> ✔ Finding posterior mode. [200ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [636ms]
+#> ✔ Computing the Hessian. [682ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.014σ. [444ms]
+#> ✔ VB correction; mean |δ| = 0.017σ. [475ms]
 #> 
-#> ⠙ Fitting skew normal to 0/54 marginals.
-#> ⠹ Fitting skew normal to 5/54 marginals.
-#> ⠸ Fitting skew normal to 35/54 marginals.
-#> ✔ Fitting skew normal to 54/54 marginals. [5.5s]
+#> ⠙ Fitting skew-normal to 0/54 marginals.
+#> ⠹ Fitting skew-normal to 4/54 marginals.
+#> ⠸ Fitting skew-normal to 32/54 marginals.
+#> ✔ Fitting skew-normal to 54/54 marginals. [5.7s]
 #> 
-#> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [197ms]
-#> 
-#> ⠙ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [746ms]
+#> ⠙ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [590ms]
 #> 
 
 # Strong invariance
@@ -208,24 +202,21 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [198ms]
+#> ✔ Finding posterior mode. [200ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [543ms]
+#> ✔ Computing the Hessian. [599ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.015σ. [258ms]
+#> ✔ VB correction; mean |δ| = 0.015σ. [333ms]
 #> 
-#> ⠙ Fitting skew normal to 0/48 marginals.
-#> ⠹ Fitting skew normal to 21/48 marginals.
-#> ✔ Fitting skew normal to 48/48 marginals. [4.6s]
+#> ⠙ Fitting skew-normal to 0/48 marginals.
+#> ⠹ Fitting skew-normal to 20/48 marginals.
+#> ✔ Fitting skew-normal to 48/48 marginals. [4.7s]
 #> 
-#> ℹ Sampling covariances and defined parameters.
-#> ✔ Sampling covariances and defined parameters. [205ms]
-#> 
-#> ⠙ Computing ppp and DIC.
-#> ⠹ Computing ppp and DIC.
-#> ✔ Computing ppp and DIC. [734ms]
+#> ⠙ Posterior sampling and summarising.
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [690ms]
 #> 
 
 # Compare models
@@ -234,7 +225,7 @@ compare(fit1, fit2, fit3)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>   fit3        48   -3914.197 7660.270 123.4008   0.000
-#>   fit2        54   -3934.800 7597.812 112.1412 -20.603
-#>   fit1        60   -3958.118 7730.847 182.8254 -43.921
+#>   fit3        48   -3914.306 7661.392 123.9949   0.000
+#>   fit2        54   -3934.649 7590.891 108.7053 -20.343
+#>   fit1        60   -3957.993 7738.542 186.6227 -43.687
 ```
