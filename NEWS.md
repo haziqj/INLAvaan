@@ -1,6 +1,10 @@
 # INLAvaan (development version)
 
-* Add params and logscale options to visual_debug
+* Use Cholesky factorisation of the precision matrix for covariance and log-determinant calculations, replacing raw `solve()`.
+* Draw posterior samples once and store them; all downstream consumers (covariances, defined parameters, ppp, DIC, `predict()`, `standardisedsolution()`) now reuse a single draw.
+* Use pre-computed Owen-scrambled Sobol sequence; fall back to `{qrng}` when larger sequences are needed. QMC sample size now scales with model dimension.
+* Add `vb_correction` argument to `acfa()`, `asem()`, and `agrowth()`.
+* Add params and logscale options to visual_debug.
 
 # INLAvaan 0.2.3
 
