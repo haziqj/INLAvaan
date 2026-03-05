@@ -1,3 +1,27 @@
+# ---------------------------------------------------------------------------
+# Shared helper: summarise a numeric vector of posterior samples into the
+# standard (Mean, SD, 2.5%, 50%, 97.5%, Mode) list + pdf_data table.
+# ---------------------------------------------------------------------------
+summarise_samples <- function(y) {
+  Ex <- mean(y)
+  SDx <- stats::sd(y)
+  qq <- stats::quantile(y, probs = c(0.025, 0.5, 0.975))
+  dens <- stats::density(y)
+  xmax <- dens$x[which.max(dens$y)]
+  res <- c(Ex, SDx, qq, xmax)
+  names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+  list(
+    summary = res,
+    pdf_data = data.frame(x = dens$x, y = dens$y)
+  )
+}
+
+# ---------------------------------------------------------------------------
+# Core sampling function: draw from the Gaussian-copula posterior.
+# Returns a list with:
+#   $theta_samp  - nsamp x m matrix in the internal (theta) parameterisation
+#   $x_samp      - nsamp x p matrix in the lavaan (x) parameterisation
+# ---------------------------------------------------------------------------
 sample_params <- function(
   theta_star,
   Sigma_theta,
@@ -5,17 +29,14 @@ sample_params <- function(
   approx_data,
   pt,
   lavmodel,
-  nsamp = 1000,
-  return_theta = FALSE
+  nsamp = 1000
 ) {
   R <- cov2cor(Sigma_theta)
   Lt <- chol(R)
   z_raw <- matrix(rnorm(nsamp * ncol(R)), nrow = nsamp)
   z <- z_raw %*% Lt
   u <- apply(z, 2, pnorm)
-  # z <- mvtnorm::rmvnorm(n = nsamp, sigma = R)
 
-  # FIXME: Repeated code in post_marg_skewnorm and post_marg_marggaus
   # Use marginals to get theta
   if (method == "sampling") {
     D <- diag(sqrt(diag(Sigma_theta)))
@@ -76,12 +97,9 @@ sample_params <- function(
     theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
   }
 
-  if (return_theta) {
-    return(theta)
-  } else {
-    x <- t(apply(theta, 1, pars_to_x, pt = pt))
-    return(x)
-  }
+  x <- t(apply(theta, 1, pars_to_x, pt = pt))
+
+  list(theta_samp = theta, x_samp = x)
 }
 
 # 1. Get correlation matrix R = cov2cor(Sigma_theta)
@@ -98,27 +116,12 @@ sample_params <- function(
 # Then ppp = P(T(Srep, Sigma) >= T(S, Sigma))
 
 get_ppp <- function(
-  theta_star,
-  Sigma_theta,
-  method,
-  approx_data,
-  pt,
+  x_samp,
   lavmodel,
   lavsamplestats,
   lavdata,
-  nsamp = 250,
   cli_env = NULL
 ) {
-  x <- sample_params(
-    theta_star = theta_star,
-    Sigma_theta = Sigma_theta,
-    method = method,
-    approx_data = approx_data,
-    pt = pt,
-    lavmodel = lavmodel,
-    nsamp = nsamp,
-    return_theta = FALSE
-  )
 
   #log |Sigma| + trace(S Sigma^{-1}) - log |S| - p
   Fdiscrp <- function(S, Sigma) {
@@ -130,13 +133,13 @@ get_ppp <- function(
 
   n_blocks <- lavmodel@nblocks
   n_levels <- lavdata@nlevels
-  res <- vector("numeric", length = nrow(x))
-  for (i in seq_len(nrow(x))) {
+  res <- vector("numeric", length = nrow(x_samp))
+  for (i in seq_len(nrow(x_samp))) {
     if (!is.null(cli_env)) {
       cli::cli_progress_update(.envir = cli_env)
     }
 
-    xx <- x[i, ]
+    xx <- x_samp[i, ]
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
     lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
@@ -195,59 +198,18 @@ get_ppp <- function(
   mean(res)
 }
 
-sample_covariances <- function(theta, L, pt, K, nsamp = 1000) {
+sample_covariances <- function(x_samp, pt) {
   pt_cov_rows <- grep("cov", pt$mat)
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
   idxcov <- pt$free[pt_cov_free_rows]
 
-  z_raw <- matrix(rnorm(nsamp * length(theta)), nrow = nsamp)
-  theta_samp <- sweep(z_raw %*% t(L), 2, theta, "+")
-  # theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
-  if (!all(dim(K) == 0)) {
-    theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
-  }
-  x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
+  cov_samp <- x_samp[, idxcov, drop = FALSE]
+  colnames(cov_samp) <- pt$names[pt_cov_free_rows]
 
-  cov_samp <- x_samp[idxcov, , drop = FALSE]
-  rownames(cov_samp) <- pt$names[pt_cov_free_rows]
-
-  # FIXME: Repeated code in post_marg_sampling
-  apply(cov_samp, 1, function(y) {
-    Ex <- mean(y)
-    SDx <- sd(y)
-    qq <- quantile(y, probs = c(0.025, 0.5, 0.975))
-    dens <- density(y)
-    xmax <- dens$x[which.max(dens$y)]
-    res <- c(Ex, SDx, qq, xmax)
-    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
-
-    list(
-      summary = res,
-      pdf_data = data.frame(x = dens$x, y = dens$y)
-    )
-  })
+  apply(cov_samp, 2, summarise_samples)
 }
 
-get_defpars <- function(
-  theta_star,
-  Sigma_theta,
-  method,
-  approx_data,
-  pt,
-  lavmodel,
-  lavsamplestats,
-  nsamp = 250
-) {
-  x_samp <- sample_params(
-    theta_star = theta_star,
-    Sigma_theta = Sigma_theta,
-    method = method,
-    approx_data = approx_data,
-    pt = pt,
-    lavmodel = lavmodel,
-    nsamp = nsamp,
-    return_theta = FALSE
-  )
+get_defpars <- function(x_samp, pt) {
 
   pt_def_rows <- which(pt$op == ":=")
   param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
@@ -269,45 +231,18 @@ get_defpars <- function(
   })
   colnames(def_samp) <- pt$names[pt_def_rows]
 
-  # FIXME: Repeated code in post_marg_sampling
-  apply(def_samp, 2, function(y) {
-    Ex <- mean(y)
-    SDx <- sd(y)
-    qq <- quantile(y, probs = c(0.025, 0.5, 0.975))
-    dens <- density(y)
-    xmax <- dens$x[which.max(dens$y)]
-    res <- c(Ex, SDx, qq, xmax)
-    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
-
-    list(
-      summary = res,
-      pdf_data = data.frame(x = dens$x, y = dens$y)
-    )
-  })
+  apply(def_samp, 2, summarise_samples)
 }
 
-sample_covariances_fit_sn <- function(
-  theta,
-  L,
-  pt,
-  K,
-  nsamp = 10000
-) {
+sample_covariances_fit_sn <- function(x_samp, pt) {
   pt_cov_rows <- grep("cov", pt$mat)
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
   idxcov <- pt$free[pt_cov_free_rows]
 
-  z_raw <- matrix(rnorm(nsamp * length(theta)), nrow = nsamp)
-  theta_samp <- sweep(z_raw %*% t(L), 2, theta, "+")
-  # theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
-  if (!all(dim(K) == 0)) {
-    theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
-  }
-  x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
-  cov_samp <- x_samp[idxcov, , drop = FALSE]
-  rownames(cov_samp) <- pt$names[pt_cov_free_rows]
+  cov_samp <- x_samp[, idxcov, drop = FALSE]
+  colnames(cov_samp) <- pt$names[pt_cov_free_rows]
 
-  sn_params <- apply(cov_samp, 1, fit_skew_normal_samp)
+  sn_params <- apply(cov_samp, 2, fit_skew_normal_samp)
   sn_params <- do.call("rbind", lapply(sn_params, unlist))
 
   # FIXME: Repeated code in post_marg_skewnorm
@@ -347,28 +282,13 @@ sample_covariances_fit_sn <- function(
 }
 
 get_dic <- function(
+  x_samp,
   theta_star,
-  Sigma_theta,
-  method,
-  approx_data,
   pt,
   lavmodel,
-  lavsamplestats,
   loglik,
-  nsamp = 250,
   cli_env = NULL
 ) {
-  x <- sample_params(
-    theta_star = theta_star,
-    Sigma_theta = Sigma_theta,
-    method = method,
-    approx_data = approx_data,
-    pt = pt,
-    lavmodel = lavmodel,
-    nsamp = nsamp,
-    return_theta = FALSE
-  )
-
   if (lavmodel@ceq.simple.only) {
     xhat <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
   } else {
@@ -376,11 +296,11 @@ get_dic <- function(
   }
 
   Dhat <- -2 * loglik(xhat)
-  Dbar_samp <- sapply(seq_len(nrow(x)), function(i) {
+  Dbar_samp <- sapply(seq_len(nrow(x_samp)), function(i) {
     if (!is.null(cli_env)) {
       cli::cli_progress_update(.envir = cli_env)
     }
-    xx <- x[i, ]
+    xx <- x_samp[i, ]
     -2 * loglik(xx)
   })
   Dbar <- mean(Dbar_samp[Dbar_samp < 1e40])
@@ -390,27 +310,7 @@ get_dic <- function(
 }
 
 
-get_thetaparamerization_deltas <- function(
-  theta_star,
-  Sigma_theta,
-  method,
-  approx_data,
-  pt,
-  lavmodel,
-  lavsamplestats,
-  nsamp = 250
-) {
-  x_samp <- sample_params(
-    theta_star = theta_star,
-    Sigma_theta = Sigma_theta,
-    method = method,
-    approx_data = approx_data,
-    pt = pt,
-    lavmodel = lavmodel,
-    nsamp = nsamp,
-    return_theta = FALSE
-  )
-
+get_thetaparamerization_deltas <- function(x_samp, lavmodel) {
   delta_samp <- apply(x_samp, 1, function(xx) {
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
     lavimplied <- lavaan::lav_model_implied(lavmodel_x, delta = FALSE)
@@ -423,19 +323,5 @@ get_thetaparamerization_deltas <- function(
     unlist(delta_list)
   })
 
-  # FIXME: Repeated code in post_marg_sampling
-  apply(delta_samp, 1, function(y) {
-    Ex <- mean(y)
-    SDx <- sd(y)
-    qq <- quantile(y, probs = c(0.025, 0.5, 0.975))
-    dens <- density(y)
-    xmax <- dens$x[which.max(dens$y)]
-    res <- c(Ex, SDx, qq, xmax)
-    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
-
-    list(
-      summary = res,
-      pdf_data = data.frame(x = dens$x, y = dens$y)
-    )
-  })
+  apply(delta_samp, 1, summarise_samples)
 }

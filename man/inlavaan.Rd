@@ -50,13 +50,13 @@ inlavaan(
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 
 \item{marginal_method}{The method for approximating the marginal posterior
-distributions. Options include \code{"skewnorm"} (skew normal), \code{"asymgaus"}
+distributions. Options include \code{"skewnorm"} (skew-normal), \code{"asymgaus"}
 (two-piece asymmetric Gaussian), \code{"marggaus"} (marginalising the Laplace
 approximation), and \code{"sampling"} (sampling from the joint Laplace
 approximation).}
 
 \item{marginal_correction}{Which type of correction to use when fitting the
-skew normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
+skew-normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
 Hessian-based correction (slow), \code{"shortcut"} (default) computes only
 diagonals, and \code{"none"} (or \code{FALSE}) applies no correction.}
 
@@ -66,11 +66,11 @@ diagonals, and \code{"none"} (or \code{FALSE}) applies no correction.}
 \item{test}{Character indicating whether to compute posterior fit indices.
 Defaults to "standard". Change to "none" to skip these computations.}
 
-\item{sn_fit_logthresh}{The log-threshold for fitting the skew normal. Points
+\item{sn_fit_logthresh}{The log-threshold for fitting the skew-normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will
 be excluded from the fit. Defaults to \code{-6}.}
 
-\item{sn_fit_temp}{Temperature parameter for fitting the skew normal. If
+\item{sn_fit_temp}{Temperature parameter for fitting the skew-normal. If
 \code{NA}, the temperature will be included in the optimisation during the skew
 normal fit.}
 
@@ -100,7 +100,7 @@ An S4 object of class \code{INLAvaan} which is a subclass of the
 \description{
 This function fits a Bayesian latent variable model by approximating the
 posterior distributions of the model parameters using various methods,
-including skew normal, asymmetric Gaussian, marginal Gaussian, or
+including skew-normal, asymmetric Gaussian, marginal Gaussian, or
 sampling-based approaches. It leverages the lavaan package for model
 specification and estimation.
 }

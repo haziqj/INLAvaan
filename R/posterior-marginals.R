@@ -203,28 +203,7 @@ post_marg_marggaus <- function(
 }
 
 # Sampling approximation
-post_marg_sampling <- function(theta, L, pt, K, nsamp = 1000) {
-  z_raw <- matrix(rnorm(nsamp * length(theta)), nrow = nsamp)
-  theta_samp <- sweep(z_raw %*% t(L), 2, theta, "+")
-  # theta_samp <- mvtnorm::rmvnorm(nsamp, mean = theta, sigma = Sigma_theta)
-
-  if (!all(dim(K) == 0)) {
-    theta_samp <- t(apply(theta_samp, 1, function(pars) as.numeric(K %*% pars)))
-  }
-  x_samp <- apply(theta_samp, 1, pars_to_x, pt = pt)
-
-  apply(x_samp, 1, function(y) {
-    Ex <- mean(y)
-    SDx <- stats::sd(y)
-    qq <- quantile(y, probs = c(0.025, 0.5, 0.975))
-    dens <- density(y)
-    xmax <- dens$x[which.max(dens$y)]
-    res <- c(Ex, SDx, qq, xmax)
-    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
-
-    list(
-      summary = res,
-      pdf_data = data.frame(x = dens$x, y = dens$y)
-    )
-  })
+# Accepts pre-computed x_samp (nsamp x p matrix) and summarises each parameter
+post_marg_sampling <- function(x_samp) {
+  apply(x_samp, 2, summarise_samples)
 }

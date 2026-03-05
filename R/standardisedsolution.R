@@ -34,19 +34,24 @@ standardisedsolution <- function(
   fit_inlv <- get_inlavaan_internal(object)
   pt <- fit_inlv$partable
 
-  x_samp <- with(
-    fit_inlv,
-    sample_params(
-      theta_star = theta_star,
-      Sigma_theta = Sigma_theta,
-      method = marginal_method,
-      approx_data = approx_data,
-      pt = partable,
-      lavmodel = lavmodel,
-      nsamp = nsamp,
-      return_theta = FALSE
+  # Reuse stored samples if nsamp matches, otherwise re-draw
+  if (!is.null(fit_inlv$x_samp) && nrow(fit_inlv$x_samp) == nsamp) {
+    x_samp <- fit_inlv$x_samp
+  } else {
+    samp <- with(
+      fit_inlv,
+      sample_params(
+        theta_star = theta_star,
+        Sigma_theta = Sigma_theta,
+        method = marginal_method,
+        approx_data = approx_data,
+        pt = partable,
+        lavmodel = lavmodel,
+        nsamp = nsamp
+      )
     )
-  )
+    x_samp <- samp$x_samp
+  }
 
   xstd_samp <- vector("list", nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {

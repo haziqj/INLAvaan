@@ -2,7 +2,7 @@
 #'
 #' This function fits a Bayesian latent variable model by approximating the
 #' posterior distributions of the model parameters using various methods,
-#' including skew normal, asymmetric Gaussian, marginal Gaussian, or
+#' including skew-normal, asymmetric Gaussian, marginal Gaussian, or
 #' sampling-based approaches. It leverages the lavaan package for model
 #' specification and estimation.
 #'
@@ -13,22 +13,22 @@
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param marginal_method The method for approximating the marginal posterior
-#'   distributions. Options include `"skewnorm"` (skew normal), `"asymgaus"`
+#'   distributions. Options include `"skewnorm"` (skew-normal), `"asymgaus"`
 #'   (two-piece asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
 #'   approximation), and `"sampling"` (sampling from the joint Laplace
 #'   approximation).
 #' @param marginal_correction Which type of correction to use when fitting the
-#'   skew normal or two-piece Gaussian marginals. `"hessian"` computes the full
+#'   skew-normal or two-piece Gaussian marginals. `"hessian"` computes the full
 #'   Hessian-based correction (slow), `"shortcut"` (default) computes only
 #'   diagonals, and `"none"` (or `FALSE`) applies no correction.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param test Character indicating whether to compute posterior fit indices.
 #'   Defaults to "standard". Change to "none" to skip these computations.
-#' @param sn_fit_logthresh The log-threshold for fitting the skew normal. Points
+#' @param sn_fit_logthresh The log-threshold for fitting the skew-normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
-#' @param sn_fit_temp Temperature parameter for fitting the skew normal. If
+#' @param sn_fit_temp Temperature parameter for fitting the skew-normal. If
 #'   `NA`, the temperature will be included in the optimisation during the skew
 #'   normal fit.
 #' @param control A list of control parameters for the optimiser.
@@ -268,9 +268,9 @@ inlavaan <- function(
   # Cholesky-factorise the precision (neg. Hessian), then derive covariance
   # via triangular backsolve — avoids a raw solve() on a dense matrix.
   H_sym <- 0.5 * (H_neg + t(H_neg))
-  R_prec <- chol(H_sym)                     # upper Cholesky of precision
-  L <- backsolve(R_prec, diag(m))           # L L^T = Sigma_theta (upper tri)
-  Sigma_theta <- tcrossprod(L)              # reconstruct covariance
+  R_prec <- chol(H_sym) # upper Cholesky of precision
+  L <- backsolve(R_prec, diag(m)) # L L^T = Sigma_theta (upper tri)
+  Sigma_theta <- tcrossprod(L) # reconstruct covariance
   lp_max <- joint_lp(theta_star) # before correction
 
   Vscan <- sweep(Sigma_theta, 2, sqrt(diag(Sigma_theta)), "/")
@@ -412,18 +412,7 @@ inlavaan <- function(
   }
 
   if (marginal_method == "sampling") {
-    # Do sampling and return results
-    if (isTRUE(verbose)) {
-      cli::cli_progress_step("Sampling from posterior.")
-    }
     approx_data <- NULL
-    postmargres <- post_marg_sampling(
-      theta_star_vbc,
-      L,
-      pt,
-      ceq.K,
-      nsamp
-    )
   } else {
     if (marginal_method == "asymgaus") {
       if (isTRUE(verbose)) {
@@ -470,7 +459,7 @@ inlavaan <- function(
       if (isTRUE(verbose)) {
         j <- 0
         cli::cli_progress_step(
-          "Fitting skew normal to {j}/{m} marginal{?s}.",
+          "Fitting skew-normal to {j}/{m} marginal{?s}.",
           spinner = TRUE
         )
       }
@@ -562,6 +551,40 @@ inlavaan <- function(
     )
   }
 
+  ## ----- Draw posterior samples (once) ---------------------------------------
+  has_extra_samp_work <-
+    (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 &&
+      marginal_method != "sampling") ||
+    any(pt$op == ":=") ||
+    any(pt$op == "~*~") ||
+    test != "none"
+  samp_env <- NULL
+  if (isTRUE(verbose)) {
+    samp_msg <- if (has_extra_samp_work) {
+      "Posterior sampling and summarising."
+    } else {
+      "Drawing posterior samples."
+    }
+    samp_env <- environment()
+    cli::cli_progress_step(samp_msg, spinner = TRUE, .envir = samp_env)
+  }
+  samp <- sample_params(
+    theta_star = theta_star_vbc,
+    Sigma_theta = Sigma_theta,
+    method = marginal_method,
+    approx_data = approx_data,
+    pt = pt,
+    lavmodel = lavmodel,
+    nsamp = nsamp
+  )
+  theta_samp <- samp$theta_samp # nsamp x m
+  x_samp <- samp$x_samp # nsamp x p
+  timing <- add_timing(timing, "sampling")
+
+  if (marginal_method == "sampling") {
+    postmargres <- post_marg_sampling(x_samp)
+  }
+
   summ <- do.call(
     "rbind",
     Map(
@@ -590,28 +613,12 @@ inlavaan <- function(
   ## ----- Sampling for covariances and defined params -------------------------
   if (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
     if (marginal_method == "sampling") {
-      # Do nothing
+      # Already covered by post_marg_sampling above
     } else {
-      if (isTRUE(verbose)) {
-        cli::cli_progress_step("Sampling covariances and defined parameters.")
-      }
-
       if (marginal_method == "skewnorm") {
-        samp_cov <- sample_covariances_fit_sn(
-          theta_star_vbc,
-          L,
-          pt,
-          ceq.K,
-          nsamp
-        )
+        samp_cov <- sample_covariances_fit_sn(x_samp, pt)
       } else {
-        samp_cov <- sample_covariances(
-          theta_star_vbc,
-          L,
-          pt,
-          ceq.K,
-          nsamp
-        )
+        samp_cov <- sample_covariances(x_samp, pt)
       }
 
       for (cov_name in names(samp_cov)) {
@@ -625,16 +632,7 @@ inlavaan <- function(
 
   # Defined parameters
   if (any(pt$op == ":=")) {
-    defpars <- get_defpars(
-      theta_star_vbc,
-      Sigma_theta,
-      marginal_method,
-      approx_data,
-      pt,
-      lavmodel,
-      lavsamplestats,
-      nsamp = 250
-    )
+    defpars <- get_defpars(x_samp, pt)
     for (def_name in names(defpars)) {
       tmp_new_summ <- defpars[[def_name]]$summary
       summ[def_name, names(tmp_new_summ)] <- tmp_new_summ
@@ -645,16 +643,7 @@ inlavaan <- function(
 
   # For binary and ordinal data, sample the deltas
   if (any(pt$op == "~*~")) {
-    deltapars <- get_thetaparamerization_deltas(
-      theta_star_vbc,
-      Sigma_theta,
-      marginal_method,
-      approx_data,
-      pt,
-      lavmodel,
-      lavsamplestats,
-      nsamp = 250
-    )
+    deltapars <- get_thetaparamerization_deltas(x_samp, lavmodel)
     names(deltapars) <- pt$names[which(pt$op == "~*~")]
 
     for (delta_name in names(deltapars)) {
@@ -667,36 +656,19 @@ inlavaan <- function(
 
   ## ----- Compute ppp and dic -------------------------------------------------
   if (test != "none") {
-    env <- NULL
-    if (isTRUE(verbose)) {
-      env <- environment()
-      cli::cli_progress_step(
-        "Computing ppp and DIC.",
-        spinner = TRUE,
-        .envir = env
-      )
-    }
     ppp <- get_ppp(
-      theta_star_vbc,
-      Sigma_theta,
-      marginal_method,
-      approx_data,
-      pt,
-      lavmodel,
-      lavsamplestats,
-      lavdata,
-      nsamp = nsamp,
-      cli_env = env
+      x_samp = x_samp,
+      lavmodel = lavmodel,
+      lavsamplestats = lavsamplestats,
+      lavdata = lavdata,
+      cli_env = samp_env
     )
     dic_list <- get_dic(
-      theta_star_vbc,
-      Sigma_theta,
-      marginal_method,
-      approx_data,
-      pt,
-      lavmodel,
-      lavsamplestats,
-      function(x) {
+      x_samp = x_samp,
+      theta_star = theta_star_vbc,
+      pt = pt,
+      lavmodel = lavmodel,
+      loglik = function(x) {
         inlav_model_loglik(
           x,
           lavmodel,
@@ -706,8 +678,7 @@ inlavaan <- function(
           lavcache
         )
       },
-      nsamp = nsamp,
-      cli_env = env
+      cli_env = samp_env
     )
   } else {
     ppp <- dic_list <- NULL
@@ -728,6 +699,8 @@ inlavaan <- function(
     Sigma_theta = Sigma_theta,
     theta_star_trans = theta_star_trans,
     approx_data = approx_data,
+    theta_samp = theta_samp,
+    x_samp = x_samp,
     pdf_data = pdf_data,
     partable = pt,
     lavmodel = lavmodel,
