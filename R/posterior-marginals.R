@@ -17,13 +17,8 @@ prodfac_lp <- function(z, sigma_asym) {
 
 # Marginalised distribution
 marg_lp <- function(tj, j, theta_star, Sigma_theta, sigma_asym) {
-  if (TRUE) {
-    L <- t(chol(Sigma_theta))
-  } else {
-    eig <- eigen(Sigma_theta, symmetric = TRUE) # FIXME: If not pos def?
-    L <- eig$vectors %*% diag(sqrt(eig$values))
-  }
-  L_inv <- solve(L)
+  R <- chol(Sigma_theta)               # upper Cholesky: R^T R = Sigma
+  L <- t(R)                            # lower Cholesky
 
   sapply(tj, function(thetaj) {
     # First compute conditional expectation
@@ -32,8 +27,8 @@ marg_lp <- function(tj, j, theta_star, Sigma_theta, sigma_asym) {
       Sigma_theta[-j, j] / Sigma_theta[j, j] * (thetaj - theta_star[j])
     theta_new[j] <- thetaj
 
-    # Convert to z and get prodfac_lp
-    z_new <- as.numeric(L_inv %*% (theta_new - theta_star))
+    # Convert to z via triangular solve (avoids forming L^{-1})
+    z_new <- forwardsolve(L, theta_new - theta_star)
     prodfac_lp(z_new, sigma_asym)
   })
 }

@@ -265,16 +265,14 @@ inlavaan <- function(
     theta_star <- opt$par
     H_neg <- opt$hessian
   }
-  Sigma_theta <- solve(0.5 * (H_neg + t(H_neg)))
+  # Cholesky-factorise the precision (neg. Hessian), then derive covariance
+  # via triangular backsolve — avoids a raw solve() on a dense matrix.
+  H_sym <- 0.5 * (H_neg + t(H_neg))
+  R_prec <- chol(H_sym)                     # upper Cholesky of precision
+  L <- backsolve(R_prec, diag(m))           # L L^T = Sigma_theta (upper tri)
+  Sigma_theta <- tcrossprod(L)              # reconstruct covariance
   lp_max <- joint_lp(theta_star) # before correction
 
-  # Choleski or eigen decomposition for whitening z = L^{-1}(theta - theta*)
-  if (TRUE) {
-    L <- t(chol(Sigma_theta))
-  } else {
-    eig <- eigen(Sigma_theta, symmetric = TRUE) # FIXME: If not pos def?
-    L <- eig$vectors %*% diag(sqrt(eig$values))
-  }
   Vscan <- sweep(Sigma_theta, 2, sqrt(diag(Sigma_theta)), "/")
 
   # Derivatives at optima
@@ -359,7 +357,8 @@ inlavaan <- function(
   }
 
   # Marginal log-likelihood (for BF comparison)
-  mloglik <- lp_max + (m / 2) * log(2 * pi) + 0.5 * log(det(Sigma_theta))
+  # log det(Sigma) = -2 sum(log(diag(R_prec))) from the precision Cholesky
+  mloglik <- lp_max + (m / 2) * log(2 * pi) - sum(log(diag(R_prec)))
   if (isTRUE(vb_correction)) {
     mloglik <- mloglik - vb_kld_global
   }
