@@ -1,28 +1,20 @@
 sobol_owen <- function(n, d) {
-  if (d > ncol(SobolOwen)) {
-    cli::cli_abort(
-      "Requested D = {d} exceeds stored SobolOwen table (max {ncol(SobolOwen)})."
-    )
+  N <- nrow(SobolOwen)
+  D <- ncol(SobolOwen)
+
+  # If within stored table dimensions, use it directly
+  if (n <= N && d <= D) {
+    return(SobolOwen[seq_len(n), seq_len(d), drop = FALSE])
   }
 
-  if (n > nrow(SobolOwen)) {
-    cli::cli_alert_warning(
-      "Requested N = {n} exceeds stored SobolOwen table (max {nrow(SobolOwen)}). Recycling."
-    )
-    idx <- rep(seq_len(nrow(SobolOwen)), length.out = n)
-    return(SobolOwen[idx, 1:d, drop = FALSE])
-  } else {
-    idx <- seq_len(n)
+  # Otherwise, fall back to qrng if available
+  if (requireNamespace("qrng", quietly = TRUE)) {
+    return(qrng::sobol(n = n, d = d, randomize = "Owen"))
   }
 
-  SobolOwen[idx, seq_len(d), drop = FALSE]
+  # No fallback available — error with guidance
+  cli::cli_abort(c(
+    "Requested Sobol sequence ({n} x {d}) exceeds stored table ({N} x {D}).",
+    "i" = "Install the {.pkg qrng} package to generate larger sequences on the fly."
+  ))
 }
-
-#' A Sobol sequence with Owen scrambling
-#'
-#' A Sobol sequence with Owen scrambling, pre-stored for up to N = 100 and D =
-#' 1000.
-#'
-#' @format A matrix with 100 rows and 1000 columns, where each column is a
-#'   scrambled Sobol sequence.
-"SobolOwen"

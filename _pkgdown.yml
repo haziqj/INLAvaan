@@ -37,7 +37,6 @@ reference:
     - fit_skew_normal_samp
     - is_same_function
     - as_fun_string
-    - SobolOwen
 
 navbar:
   structure:
