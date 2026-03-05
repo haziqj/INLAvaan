@@ -8,6 +8,7 @@ agrowth(
   model,
   data,
   dp = priors_for(),
+  vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   nsamp = 500,
   test = "standard",
@@ -37,6 +38,9 @@ agrowth(
 \item{dp}{Default prior distributions on different types of
     parameters, typically the result of a call to \code{dpriors()}.
     See the \code{dpriors()} help file for more information.}
+
+\item{vb_correction}{Logical indicating whether to apply a variational Bayes
+correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 
 \item{marginal_method}{The method for approximating the marginal posterior
 distributions. Options include \code{"skewnorm"} (skew normal), \code{"asymgaus"}
