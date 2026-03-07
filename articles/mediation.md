@@ -104,16 +104,16 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ Computing the Hessian. [40ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.012σ. [188ms]
+#> ✔ VB correction; mean |δ| = 0.012σ. [194ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/7 marginals.
-#> ✔ Fitting skew-normal to 7/7 marginals. [139ms]
+#> ✔ Fitting skew-normal to 7/7 marginals. [140ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [37ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [323ms]
+#> ✔ Posterior sampling and summarising. [329ms]
 #> 
 ```
 

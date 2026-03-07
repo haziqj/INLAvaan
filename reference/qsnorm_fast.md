@@ -61,3 +61,12 @@ statistical applications.
 Luu, T. (2016). *Fast and accurate parallel computation of quantile
 functions for random number generation* \#' (Doctoral thesis). UCL
 (University College London). <https://discovery.ucl.ac.uk/1482128/>
+
+## Examples
+
+``` r
+qsnorm_fast(c(0.025, 0.5, 0.975))
+#> [1] -1.959964  0.000000  1.959964
+qsnorm_fast(c(0.025, 0.5, 0.975), xi = 2, omega = 0.5, alpha = 1)
+#> [1] 1.498880 2.272476 3.119482
+```

@@ -42,7 +42,7 @@ fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ✔ Finding posterior mode. [132ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [158ms]
+#> ✔ Computing the Hessian. [159ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.069σ. [462ms]
@@ -52,10 +52,10 @@ fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ✔ Fitting skew-normal to 42/42 marginals. [1.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [564ms]
+#> ✔ Adjusting copula correlations (NORTA). [570ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [513ms]
+#> ✔ Posterior sampling and summarising. [514ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -95,23 +95,23 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [263ms]
+#> ✔ Finding posterior mode. [266ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [241ms]
+#> ✔ Computing the Hessian. [246ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [498ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [509ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/42 marginals.
-#> ⠹ Fitting skew-normal to 6/42 marginals.
+#> ⠹ Fitting skew-normal to 5/42 marginals.
 #> ✔ Fitting skew-normal to 42/42 marginals. [3.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [518ms]
+#> ✔ Adjusting copula correlations (NORTA). [526ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [773ms]
+#> ✔ Posterior sampling and summarising. [781ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.3.9008 ended normally after 93 iterations

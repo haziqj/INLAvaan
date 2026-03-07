@@ -221,20 +221,19 @@ fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ✔ Finding posterior mode. [152ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [73ms]
+#> ✔ Computing the Hessian. [64ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.005σ. [233ms]
+#> ✔ VB correction; mean |δ| = 0.005σ. [164ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/17 marginals.
-#> ⠹ Fitting skew-normal to 3/17 marginals.
-#> ✔ Fitting skew-normal to 17/17 marginals. [802ms]
+#> ✔ Fitting skew-normal to 17/17 marginals. [591ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [112ms]
+#> ✔ Adjusting copula correlations (NORTA). [108ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [134ms]
+#> ✔ Posterior sampling and summarising. [125ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9008 ended normally after 83 iterations
