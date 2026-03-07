@@ -167,13 +167,13 @@
 <span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.003σ. [85ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/13 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 13/13 marginals. [280ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 13/13 marginals. [270ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [97ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [95ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [306ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [300ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney, Kass, and Kadane 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
@@ -343,22 +343,23 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [61ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [60ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
 <span><span class="co">#&gt; ✔ Computing the Hessian. [29ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.002σ. [187ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.002σ. [186ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/12 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 12/12 marginals. [235ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew-normal to 9/12 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 12/12 marginals. [240ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [63ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [64ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [261ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [260ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>

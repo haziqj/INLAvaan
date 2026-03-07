@@ -39,23 +39,23 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [137ms]
+#> ✔ Finding posterior mode. [138ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [170ms]
+#> ✔ Computing the Hessian. [169ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.069σ. [487ms]
+#> ✔ VB correction; mean |δ| = 0.069σ. [489ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/42 marginals.
 #> ⠹ Fitting skew-normal to 34/42 marginals.
 #> ✔ Fitting skew-normal to 42/42 marginals. [2.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [592ms]
+#> ✔ Adjusting copula correlations (NORTA). [598ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [534ms]
+#> ✔ Posterior sampling and summarising. [547ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -95,24 +95,24 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [267ms]
+#> ✔ Finding posterior mode. [268ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [243ms]
+#> ✔ Computing the Hessian. [244ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [507ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [510ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/42 marginals.
 #> ⠹ Fitting skew-normal to 2/42 marginals.
-#> ⠸ Fitting skew-normal to 41/42 marginals.
-#> ✔ Fitting skew-normal to 42/42 marginals. [3.3s]
+#> ⠸ Fitting skew-normal to 40/42 marginals.
+#> ✔ Fitting skew-normal to 42/42 marginals. [3.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [533ms]
+#> ✔ Adjusting copula correlations (NORTA). [536ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [791ms]
+#> ✔ Posterior sampling and summarising. [795ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.3.9008 ended normally after 93 iterations
