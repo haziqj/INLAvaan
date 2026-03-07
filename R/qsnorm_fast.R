@@ -72,6 +72,11 @@
 #' @param alpha Shape parameter (numeric vector).
 #'
 #' @return Vector of quantiles.
+#'
+#' @examples
+#' qsnorm_fast(c(0.025, 0.5, 0.975))
+#' qsnorm_fast(c(0.025, 0.5, 0.975), xi = 2, omega = 0.5, alpha = 1)
+#'
 #' @export
 qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   # Recycling inputs to match length of p

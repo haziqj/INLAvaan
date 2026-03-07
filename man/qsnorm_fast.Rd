@@ -46,6 +46,11 @@ This approach is significantly faster than standard numerical inversion
 (e.g., \code{uniroot}) while maintaining sufficient precision for most
 statistical applications.
 }
+\examples{
+qsnorm_fast(c(0.025, 0.5, 0.975))
+qsnorm_fast(c(0.025, 0.5, 0.975), xi = 2, omega = 0.5, alpha = 1)
+
+}
 \references{
 Luu, T. (2016). \emph{Fast and accurate parallel computation of
 quantile functions for random number generation} #' (Doctoral thesis). UCL
