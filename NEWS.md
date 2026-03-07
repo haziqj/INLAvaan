@@ -7,6 +7,7 @@
 * Add `vb_correction` argument to `acfa()`, `asem()`, and `agrowth()`.
 * Add params and logscale options to visual_debug.
 * Small optimisations to volume correction of skew-normal marginalisation.
+* `{ggplot2}` is now optional; plots work with base R graphics.
 
 # INLAvaan 0.2.3
 
