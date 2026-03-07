@@ -15,6 +15,8 @@ acfa(
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
+  samp_copula = TRUE,
+  sn_fit_sample = TRUE,
   sn_fit_temp = NA,
   control = list(),
   verbose = TRUE,
@@ -86,6 +88,19 @@ acfa(
   log-posterior drop below this threshold (relative to the maximum) will
   be excluded from the fit. Defaults to `-6`.
 
+- samp_copula:
+
+  Logical. When `TRUE` (default), posterior samples are drawn using the
+  copula method with the fitted marginals (e.g. skew-normal or
+  asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
+  samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- sn_fit_sample:
+
+  Logical. When `TRUE` (default), a parametric skew-normal is fitted to
+  the posterior samples for covariance and defined parameters. When
+  `FALSE`, these are summarised using kernel density estimation instead.
+
 - sn_fit_temp:
 
   Temperature parameter for fitting the skew-normal. If `NA`, the
@@ -117,7 +132,7 @@ acfa(
 - numerical_grad:
 
   Logical indicating whether to use numerical gradients for the
-  optimisation.
+  optimisation. Defaults to `FALSE` to use analytical gradients.
 
 - ...:
 
@@ -182,22 +197,26 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [54ms]
+#> ✔ Finding posterior mode. [65ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [135ms]
+#> ✔ Computing the Hessian. [42ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.008σ. [122ms]
+#> ✔ VB correction; mean |δ| = 0.008σ. [103ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [649ms]
+#> ⠹ Fitting skew-normal to 17/21 marginals.
+#> ✔ Fitting skew-normal to 21/21 marginals. [671ms]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [183ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [80ms]
+#> ✔ Posterior sampling and summarising. [85ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9005 ended normally after 56 iterations
+#> INLAvaan 0.2.3.9006 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -212,8 +231,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7576.944 
-#>    Effective parameters (pD)                    50.661 
+#>    Deviance (DIC)                             7559.886 
+#>    Effective parameters (pD)                    42.132 
 #> 
 #> Parameter Estimates:
 #> 
@@ -232,8 +251,8 @@ summary(fit)
 #>     x6                0.924    0.055    0.820    1.035    0.004    normal(0,10)
 #>   speed =~                                                                     
 #>     x7                0.610    0.075    0.753    0.458    0.006    normal(0,10)
-#>     x8                0.724    0.076    0.987    0.568    0.028    normal(0,10)
-#>     x9                0.689    0.079    0.541    0.852    0.035    normal(0,10)
+#>     x8                0.724    0.076    0.989    0.567    0.029    normal(0,10)
+#>     x9                0.688    0.079    0.540    0.851    0.033    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -252,7 +271,7 @@ summary(fit)
 #>    .x5                0.453    0.059    0.575    0.344    0.002 gamma(1,.5)[sd]
 #>    .x6                0.363    0.044    0.455    0.281    0.002 gamma(1,.5)[sd]
 #>    .x7                0.824    0.091    0.662    1.018    0.004 gamma(1,.5)[sd]
-#>    .x8                0.501    0.092    1.047    0.324    0.044 gamma(1,.5)[sd]
+#>    .x8                0.501    0.092    1.042    0.325    0.041 gamma(1,.5)[sd]
 #>    .x9                0.561    0.090    1.115    0.373    0.012 gamma(1,.5)[sd]
 #>     visual            1.000                                                    
 #>     textual           1.000                                                    

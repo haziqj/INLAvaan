@@ -130,20 +130,23 @@ the `cluster` argument to identify the grouping variable.
 ``` r
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [518ms]
+#> ✔ Finding posterior mode. [521ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [664ms]
+#> ✔ Computing the Hessian. [182ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.019σ. [520ms]
+#> ✔ VB correction; mean |δ| = 0.019σ. [524ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/20 marginals.
-#> ⠹ Fitting skew-normal to 19/20 marginals.
-#> ✔ Fitting skew-normal to 20/20 marginals. [3.1s]
+#> ⠹ Fitting skew-normal to 3/20 marginals.
+#> ✔ Fitting skew-normal to 20/20 marginals. [3.2s]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [156ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [751ms]
+#> ✔ Posterior sampling and summarising. [764ms]
 #> 
 ```
 
@@ -154,7 +157,7 @@ standard deviations, and credible intervals) for *both levels*.
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.3.9005 ended normally after 108 iterations
+#> INLAvaan 0.2.3.9006 ended normally after 108 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -166,12 +169,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.483 
-#>    PPP (Chi-square)                              0.012 
+#>    PPP (Chi-square)                              0.020 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24262.672 
-#>    Effective parameters (pD)                    54.737 
+#>    Deviance (DIC)                            24247.265 
+#>    Effective parameters (pD)                    47.033 
 #> 
 #> Parameter Estimates:
 #> 
@@ -216,7 +219,7 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fb =~                                                                        
 #>     y1                1.000                                                    
-#>     y2                0.720    0.051    0.625    0.825    0.027    normal(0,10)
+#>     y2                0.720    0.051    0.625    0.825    0.028    normal(0,10)
 #>     y3                0.587    0.047    0.497    0.682    0.007    normal(0,10)
 #> 
 #> Regressions:

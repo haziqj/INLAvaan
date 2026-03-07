@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,19 +103,22 @@
 <span><span class="co">#&gt; ✔ Finding posterior mode. [84ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [149ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [65ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.008σ. [111ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.008σ. [106ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/21 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 21/21 marginals. [681ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 21/21 marginals. [678ms]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [191ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [87ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [78ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9005 ended normally after 56 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9006 ended normally after 56 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -130,8 +133,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7588.179 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    56.278 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7562.018 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    43.198 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -150,8 +153,8 @@
 <span><span class="co">#&gt;     x6                0.924    0.055    0.820    1.035    0.004    normal(0,10)</span></span>
 <span><span class="co">#&gt;   speed =~                                                                     </span></span>
 <span><span class="co">#&gt;     x7                0.610    0.075    0.753    0.458    0.006    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x8                0.724    0.076    0.987    0.568    0.028    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x9                0.689    0.079    0.541    0.852    0.035    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x8                0.724    0.076    0.989    0.567    0.029    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x9                0.688    0.079    0.540    0.851    0.033    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -170,7 +173,7 @@
 <span><span class="co">#&gt;    .x5                0.453    0.059    0.575    0.344    0.002 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x6                0.363    0.044    0.455    0.281    0.002 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x7                0.824    0.091    0.662    1.018    0.004 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x8                0.501    0.092    1.047    0.324    0.044 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x8                0.501    0.092    1.042    0.325    0.041 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x9                0.561    0.090    1.115    0.373    0.012 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;     visual            1.000                                                    </span></span>
 <span><span class="co">#&gt;     textual           1.000                                                    </span></span>

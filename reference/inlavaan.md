@@ -14,13 +14,15 @@ inlavaan(
   data,
   model.type = "sem",
   dp = priors_for(),
+  test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 500,
-  test = "standard",
+  samp_copula = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
+  sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
   debug = FALSE,
@@ -62,6 +64,11 @@ inlavaan(
   [`dpriors()`](https://blavaan.org/reference/dpriors.html) help file
   for more information.
 
+- test:
+
+  Character indicating whether to compute posterior fit indices.
+  Defaults to "standard". Change to "none" to skip these computations.
+
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
@@ -87,10 +94,12 @@ inlavaan(
   The number of samples to draw for all sampling-based approaches
   (including posterior sampling for model fit indices).
 
-- test:
+- samp_copula:
 
-  Character indicating whether to compute posterior fit indices.
-  Defaults to "standard". Change to "none" to skip these computations.
+  Logical. When `TRUE` (default), posterior samples are drawn using the
+  copula method with the fitted marginals (e.g. skew-normal or
+  asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
+  samples are drawn from the Gaussian (Laplace) approximation. Only re
 
 - sn_fit_logthresh:
 
@@ -103,6 +112,12 @@ inlavaan(
   Temperature parameter for fitting the skew-normal. If `NA`, the
   temperature will be included in the optimisation during the skew
   normal fit.
+
+- sn_fit_sample:
+
+  Logical. When `TRUE` (default), a parametric skew-normal is fitted to
+  the posterior samples for covariance and defined parameters. When
+  `FALSE`, these are summarised using kernel density estimation instead.
 
 - control:
 
@@ -129,7 +144,7 @@ inlavaan(
 - numerical_grad:
 
   Logical indicating whether to use numerical gradients for the
-  optimisation.
+  optimisation. Defaults to `FALSE` to use analytical gradients.
 
 - ...:
 
@@ -170,22 +185,26 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [69ms]
+#> ✔ Finding posterior mode. [76ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [152ms]
+#> ✔ Computing the Hessian. [44ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.022σ. [111ms]
+#> ✔ VB correction; mean |δ| = 0.022σ. [114ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [737ms]
+#> ⠹ Fitting skew-normal to 20/21 marginals.
+#> ✔ Fitting skew-normal to 21/21 marginals. [729ms]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [187ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [323ms]
+#> ✔ Posterior sampling and summarising. [310ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9005 ended normally after 73 iterations
+#> INLAvaan 0.2.3.9006 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -200,8 +219,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7674.851 
-#>    Effective parameters (pD)                    99.559 
+#>    Deviance (DIC)                             7583.796 
+#>    Effective parameters (pD)                    54.031 
 #> 
 #> Parameter Estimates:
 #> 
@@ -212,8 +231,8 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual =~                                                                    
 #>     x1                1.000                                                    
-#>     x2                0.584    0.116    0.373    0.828    0.041    normal(0,10)
-#>     x3                0.774    0.126    0.547    1.044    0.062    normal(0,10)
+#>     x2                0.585    0.116    0.373    0.829    0.042    normal(0,10)
+#>     x3                0.771    0.126    0.543    1.040    0.058    normal(0,10)
 #>   textual =~                                                                   
 #>     x4                1.000                                                    
 #>     x5                1.124    0.067    0.998    1.260    0.004    normal(0,10)
@@ -226,10 +245,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.445    0.077    0.546    0.244    0.001       beta(1,1)
-#>     speed             0.470    0.096    0.453    0.077    0.013       beta(1,1)
+#>     textual           0.445    0.099    0.209    0.599    0.001       beta(1,1)
+#>     speed             0.470    0.075    0.413    0.121    0.013       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.278    0.059    0.286    0.057    0.002       beta(1,1)
+#>     speed             0.278    0.062    0.298    0.055    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -242,8 +261,8 @@ summary(fit)
 #>    .x7                0.831    0.091    0.668    1.024    0.004 gamma(1,.5)[sd]
 #>    .x8                0.507    0.090    1.023    0.335    0.031 gamma(1,.5)[sd]
 #>    .x9                0.547    0.092    1.136    0.352    0.015 gamma(1,.5)[sd]
-#>     visual            0.787    0.150    1.608    0.512    0.061 gamma(1,.5)[sd]
+#>     visual            0.787    0.149    1.605    0.513    0.060 gamma(1,.5)[sd]
 #>     textual           0.983    0.113    1.220    0.778    0.002 gamma(1,.5)[sd]
-#>     speed             0.356    0.092    1.018    0.188    0.047 gamma(1,.5)[sd]
+#>     speed             0.359    0.092    0.978    0.195    0.029 gamma(1,.5)[sd]
 #> 
 ```

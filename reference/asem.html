@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,6 +61,8 @@
 <span>  test <span class="op">=</span> <span class="st">"standard"</span>,</span>
 <span>  marginal_correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shortcut"</span>, <span class="st">"hessian"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>  sn_fit_logthresh <span class="op">=</span> <span class="op">-</span><span class="fl">6</span>,</span>
+<span>  samp_copula <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sn_fit_sample <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  sn_fit_temp <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -132,6 +134,21 @@ with log-posterior drop below this threshold (relative to the maximum) will
 be excluded from the fit. Defaults to <code>-6</code>.</p></dd>
 
 
+<dt id="arg-samp-copula">samp_copula<a class="anchor" aria-label="anchor" href="#arg-samp-copula"></a></dt>
+<dd><p>Logical. When <code>TRUE</code> (default), posterior samples are
+drawn using the copula method with the fitted marginals (e.g.
+skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
+When <code>FALSE</code>, samples are drawn from the Gaussian (Laplace)
+approximation. Only re</p></dd>
+
+
+<dt id="arg-sn-fit-sample">sn_fit_sample<a class="anchor" aria-label="anchor" href="#arg-sn-fit-sample"></a></dt>
+<dd><p>Logical. When <code>TRUE</code> (default), a parametric
+skew-normal is fitted to the posterior samples for covariance and defined
+parameters. When <code>FALSE</code>, these are summarised using kernel density
+estimation instead.</p></dd>
+
+
 <dt id="arg-sn-fit-temp">sn_fit_temp<a class="anchor" aria-label="anchor" href="#arg-sn-fit-temp"></a></dt>
 <dd><p>Temperature parameter for fitting the skew-normal. If
 <code>NA</code>, the temperature will be included in the optimisation during the skew
@@ -163,7 +180,7 @@ mode. Options include <code>"nlminb"</code> (default), <code>"ucminf"</code>, an
 
 <dt id="arg-numerical-grad">numerical_grad<a class="anchor" aria-label="anchor" href="#arg-numerical-grad"></a></dt>
 <dd><p>Logical indicating whether to use numerical gradients
-for the optimisation.</p></dd>
+for the optimisation. Defaults to <code>FALSE</code> to use analytical gradients.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -223,22 +240,25 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">asem</span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, test <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[106ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[104ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[253ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[70ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.048σ. <span style="color: #B2B2B2;">[214ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.048σ. <span style="color: #B2B2B2;">[224ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting skew-normal to 0/28 marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew-normal to 28/28 marginals. <span style="color: #B2B2B2;">[1.6s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting skew-normal to 28/28 marginals. <span style="color: #B2B2B2;">[1.5s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Adjusting copula correlations (NORTA).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjusting copula correlations (NORTA). <span style="color: #B2B2B2;">[272ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior sampling and summarising. <span style="color: #B2B2B2;">[225ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior sampling and summarising. <span style="color: #B2B2B2;">[222ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.2.3.9005 ended normally after 74 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.2.3.9006 ended normally after 74 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                      BAYES</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
@@ -283,16 +303,16 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> Covariances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y1 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                0.281    0.389   -0.037    1.488    0.002       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                0.281    0.379   -0.035    1.451    0.002       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y2 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                0.281    0.667    2.759    0.144    0.006       beta(1,1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                0.349    0.749    0.904    3.844    0.010       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                0.281    0.729    0.207    3.066    0.006       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                0.349    0.741    0.909    3.821    0.010       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y3 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                0.185    0.561    1.917   -0.284    0.008       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                0.185    0.607    2.040   -0.341    0.008       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y4 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.111    0.448   -0.338    1.414    0.007       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.111    0.477   -0.363    1.500    0.007       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y6 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.318    0.511    0.340    2.348    0.005       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.318    0.597    0.285    2.627    0.005       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
@@ -304,12 +324,12 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y3                5.255    1.039    3.537    7.594    0.001 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                3.383    0.773    5.087    2.064    0.007 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                2.480    0.523    3.649    1.610    0.004 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                5.184    0.947    3.588    7.284    0.001 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                5.184    0.946    3.587    7.283    0.001 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                3.768    0.784    5.520    2.462    0.005 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                3.436    0.735    5.058    2.187    0.006 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ind60             0.454    0.089    0.307    0.655    0.003 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .dem60             3.939    0.905    5.966    2.436    0.003 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .dem65             0.289    0.201    8.206    0.019    0.049 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .dem65             0.289    0.201    8.203    0.019    0.049 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>

@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -120,26 +120,29 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [165ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [162ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [478ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [149ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.069σ. [512ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.069σ. [511ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/42 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew-normal to 8/42 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 42/42 marginals. [3.3s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew-normal to 13/42 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 42/42 marginals. [3.4s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [594ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [536ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [535ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">fit1</span><span class="op">@</span><span class="va">Data</span><span class="op">@</span><span class="va">nobs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9005 ended normally after 71 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9006 ended normally after 71 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -151,20 +154,20 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                    -818.397 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.092</span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.076</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 </span></span>
 <span><span class="co">#&gt;        1.816        1.752        1.024        0.829        1.552        1.131 </span></span>
 <span><span class="co">#&gt;    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 </span></span>
-<span><span class="co">#&gt;        0.758        1.447        0.930        0.519        1.117        0.178 </span></span>
+<span><span class="co">#&gt;        0.758        1.447        0.930        0.520        1.114        0.178 </span></span>
 <span><span class="co">#&gt;       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 </span></span>
-<span><span class="co">#&gt;        0.424        0.510        0.217       -0.281        0.188        0.069 </span></span>
+<span><span class="co">#&gt;        0.424        0.509        0.217       -0.282        0.188        0.069 </span></span>
 <span><span class="co">#&gt;       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 </span></span>
-<span><span class="co">#&gt;        0.147        0.424        1.607        7.808        4.079        2.728 </span></span>
+<span><span class="co">#&gt;        0.147        0.425        1.607        7.808        4.079        2.728 </span></span>
 <span><span class="co">#&gt;       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 </span></span>
-<span><span class="co">#&gt;        1.540        6.660        1.998        3.888        0.506        1.429 </span></span>
+<span><span class="co">#&gt;        1.540        6.660        1.998        3.888        0.506        1.427 </span></span>
 <span><span class="co">#&gt; dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 </span></span>
-<span><span class="co">#&gt;        0.157        5.424        5.534        4.107        7.250        6.634 </span></span>
+<span><span class="co">#&gt;        0.156        5.424        5.534        4.107        7.250        6.634 </span></span>
 <span><span class="co">#&gt;         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 </span></span>
 <span><span class="co">#&gt;        8.307        6.833        6.639        5.223        8.266        6.157</span></span></code></pre></div>
 </div>
@@ -174,25 +177,28 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [267ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [266ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [851ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [251ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.041σ. [641ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.041σ. [639ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/42 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew-normal to 6/42 marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting skew-normal to 26/42 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 42/42 marginals. [6.1s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew-normal to 8/42 marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting skew-normal to 29/42 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 42/42 marginals. [6s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [532ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [807ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [803ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9005 ended normally after 93 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9006 ended normally after 93 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -204,7 +210,7 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1415.125 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.002</span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.000</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 </span></span>
 <span><span class="co">#&gt;        2.223        1.838        0.653        0.794        0.961        1.042 </span></span>

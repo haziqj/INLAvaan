@@ -15,6 +15,8 @@ agrowth(
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
+  samp_copula = TRUE,
+  sn_fit_sample = TRUE,
   sn_fit_temp = NA,
   control = list(),
   verbose = TRUE,
@@ -86,6 +88,19 @@ agrowth(
   log-posterior drop below this threshold (relative to the maximum) will
   be excluded from the fit. Defaults to `-6`.
 
+- samp_copula:
+
+  Logical. When `TRUE` (default), posterior samples are drawn using the
+  copula method with the fitted marginals (e.g. skew-normal or
+  asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
+  samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- sn_fit_sample:
+
+  Logical. When `TRUE` (default), a parametric skew-normal is fitted to
+  the posterior samples for covariance and defined parameters. When
+  `FALSE`, these are summarised using kernel density estimation instead.
+
 - sn_fit_temp:
 
   Temperature parameter for fitting the skew-normal. If `NA`, the
@@ -117,7 +132,7 @@ agrowth(
 - numerical_grad:
 
   Logical indicating whether to use numerical gradients for the
-  optimisation.
+  optimisation. Defaults to `FALSE` to use analytical gradients.
 
 - ...:
 
@@ -203,22 +218,25 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [163ms]
+#> ✔ Finding posterior mode. [157ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [238ms]
+#> ✔ Computing the Hessian. [67ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.005σ. [197ms]
+#> ✔ VB correction; mean |δ| = 0.005σ. [195ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/17 marginals.
-#> ✔ Fitting skew-normal to 17/17 marginals. [969ms]
+#> ✔ Fitting skew-normal to 17/17 marginals. [957ms]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [158ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [135ms]
+#> ✔ Posterior sampling and summarising. [143ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9005 ended normally after 83 iterations
+#> INLAvaan 0.2.3.9006 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -229,12 +247,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.970 
-#>    PPP (Chi-square)                              0.850 
+#>    PPP (Chi-square)                              0.890 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             5005.101 
-#>    Effective parameters (pD)                    21.377 
+#>    Deviance (DIC)                             5000.716 
+#>    Effective parameters (pD)                    19.184 
 #> 
 #> Parameter Estimates:
 #> 
@@ -274,7 +292,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.152    0.052   -0.019    0.183    0.004       beta(1,1)
+#>    .s                 0.152    0.041    0.151   -0.008    0.004       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

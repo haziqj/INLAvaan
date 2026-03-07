@@ -2,6 +2,10 @@
 
 ## INLAvaan (development version)
 
+- Implement NORTA (NORmal To Anything) correlation adjustment for the SN
+  copula, so that posterior samples have both correct skew-normal
+  marginals and correct Pearson correlations. Copula sampling is now the
+  default (`samp_copula = TRUE`).
 - Use Cholesky factorisation of the precision matrix for covariance and
   log-determinant calculations, replacing raw
   [`solve()`](https://rdrr.io/r/base/solve.html).

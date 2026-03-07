@@ -15,6 +15,8 @@ asem(
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
+  samp_copula = TRUE,
+  sn_fit_sample = TRUE,
   sn_fit_temp = NA,
   control = list(),
   verbose = TRUE,
@@ -86,6 +88,19 @@ asem(
   log-posterior drop below this threshold (relative to the maximum) will
   be excluded from the fit. Defaults to `-6`.
 
+- samp_copula:
+
+  Logical. When `TRUE` (default), posterior samples are drawn using the
+  copula method with the fitted marginals (e.g. skew-normal or
+  asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
+  samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- sn_fit_sample:
+
+  Logical. When `TRUE` (default), a parametric skew-normal is fitted to
+  the posterior samples for covariance and defined parameters. When
+  `FALSE`, these are summarised using kernel density estimation instead.
+
 - sn_fit_temp:
 
   Temperature parameter for fitting the skew-normal. If `NA`, the
@@ -117,7 +132,7 @@ asem(
 - numerical_grad:
 
   Logical indicating whether to use numerical gradients for the
-  optimisation.
+  optimisation. Defaults to `FALSE` to use analytical gradients.
 
 - ...:
 
@@ -194,22 +209,25 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [106ms]
+#> ✔ Finding posterior mode. [104ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [253ms]
+#> ✔ Computing the Hessian. [70ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.048σ. [214ms]
+#> ✔ VB correction; mean |δ| = 0.048σ. [224ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/28 marginals.
-#> ✔ Fitting skew-normal to 28/28 marginals. [1.6s]
+#> ✔ Fitting skew-normal to 28/28 marginals. [1.5s]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [272ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [225ms]
+#> ✔ Posterior sampling and summarising. [222ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9005 ended normally after 74 iterations
+#> INLAvaan 0.2.3.9006 ended normally after 74 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -254,16 +272,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.281    0.389   -0.037    1.488    0.002       beta(1,1)
+#>    .y5                0.281    0.379   -0.035    1.451    0.002       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.281    0.667    2.759    0.144    0.006       beta(1,1)
-#>    .y6                0.349    0.749    0.904    3.844    0.010       beta(1,1)
+#>    .y4                0.281    0.729    0.207    3.066    0.006       beta(1,1)
+#>    .y6                0.349    0.741    0.909    3.821    0.010       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.185    0.561    1.917   -0.284    0.008       beta(1,1)
+#>    .y7                0.185    0.607    2.040   -0.341    0.008       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.111    0.448   -0.338    1.414    0.007       beta(1,1)
+#>    .y8                0.111    0.477   -0.363    1.500    0.007       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.318    0.511    0.340    2.348    0.005       beta(1,1)
+#>    .y8                0.318    0.597    0.285    2.627    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -275,11 +293,11 @@ summary(fit)
 #>    .y3                5.255    1.039    3.537    7.594    0.001 gamma(1,.5)[sd]
 #>    .y4                3.383    0.773    5.087    2.064    0.007 gamma(1,.5)[sd]
 #>    .y5                2.480    0.523    3.649    1.610    0.004 gamma(1,.5)[sd]
-#>    .y6                5.184    0.947    3.588    7.284    0.001 gamma(1,.5)[sd]
+#>    .y6                5.184    0.946    3.587    7.283    0.001 gamma(1,.5)[sd]
 #>    .y7                3.768    0.784    5.520    2.462    0.005 gamma(1,.5)[sd]
 #>    .y8                3.436    0.735    5.058    2.187    0.006 gamma(1,.5)[sd]
 #>     ind60             0.454    0.089    0.307    0.655    0.003 gamma(1,.5)[sd]
 #>    .dem60             3.939    0.905    5.966    2.436    0.003 gamma(1,.5)[sd]
-#>    .dem65             0.289    0.201    8.206    0.019    0.049 gamma(1,.5)[sd]
+#>    .dem65             0.289    0.201    8.203    0.019    0.049 gamma(1,.5)[sd]
 #> 
 ```

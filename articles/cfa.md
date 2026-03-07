@@ -19,19 +19,22 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ✔ Finding posterior mode. [84ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [149ms]
+#> ✔ Computing the Hessian. [65ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.008σ. [111ms]
+#> ✔ VB correction; mean |δ| = 0.008σ. [106ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [681ms]
+#> ✔ Fitting skew-normal to 21/21 marginals. [678ms]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [191ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [87ms]
+#> ✔ Posterior sampling and summarising. [78ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9005 ended normally after 56 iterations
+#> INLAvaan 0.2.3.9006 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -46,8 +49,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7588.179 
-#>    Effective parameters (pD)                    56.278 
+#>    Deviance (DIC)                             7562.018 
+#>    Effective parameters (pD)                    43.198 
 #> 
 #> Parameter Estimates:
 #> 
@@ -66,8 +69,8 @@ summary(fit)
 #>     x6                0.924    0.055    0.820    1.035    0.004    normal(0,10)
 #>   speed =~                                                                     
 #>     x7                0.610    0.075    0.753    0.458    0.006    normal(0,10)
-#>     x8                0.724    0.076    0.987    0.568    0.028    normal(0,10)
-#>     x9                0.689    0.079    0.541    0.852    0.035    normal(0,10)
+#>     x8                0.724    0.076    0.989    0.567    0.029    normal(0,10)
+#>     x9                0.688    0.079    0.540    0.851    0.033    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -86,7 +89,7 @@ summary(fit)
 #>    .x5                0.453    0.059    0.575    0.344    0.002 gamma(1,.5)[sd]
 #>    .x6                0.363    0.044    0.455    0.281    0.002 gamma(1,.5)[sd]
 #>    .x7                0.824    0.091    0.662    1.018    0.004 gamma(1,.5)[sd]
-#>    .x8                0.501    0.092    1.047    0.324    0.044 gamma(1,.5)[sd]
+#>    .x8                0.501    0.092    1.042    0.325    0.041 gamma(1,.5)[sd]
 #>    .x9                0.561    0.090    1.115    0.373    0.012 gamma(1,.5)[sd]
 #>     visual            1.000                                                    
 #>     textual           1.000                                                    

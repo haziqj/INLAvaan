@@ -109,19 +109,22 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [78ms]
+#> ✔ Finding posterior mode. [73ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [102ms]
+#> ✔ Computing the Hessian. [43ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [96ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [88ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/13 marginals.
-#> ✔ Fitting skew-normal to 13/13 marginals. [377ms]
+#> ✔ Fitting skew-normal to 13/13 marginals. [345ms]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [104ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [298ms]
+#> ✔ Posterior sampling and summarising. [296ms]
 #> 
 ```
 
@@ -166,7 +169,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.3.9005 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9006 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -177,7 +180,7 @@ fit
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -8068.820 
-#>    PPP (Chi-square)                              0.112
+#>    PPP (Chi-square)                              0.266
 ```
 
 As a result, most of the methods that work for `lavaan` objects will
@@ -195,7 +198,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.3.9005 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9006 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -206,12 +209,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -8068.820 
-#>    PPP (Chi-square)                              0.112 
+#>    PPP (Chi-square)                              0.266 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            16067.500 
-#>    Effective parameters (pD)                    30.827 
+#>    Deviance (DIC)                            16041.027 
+#>    Effective parameters (pD)                    17.591 
 #> 
 #> Parameter Estimates:
 #> 
@@ -265,12 +268,12 @@ length(eta_preds)
 #> [1] 100
 head(eta_preds[[1]])
 #>            eta1        eta2
-#> [1,]  1.8970476 -0.20680123
-#> [2,]  1.0938638  0.06760976
-#> [3,] -1.6184598 -1.01368341
-#> [4,] -0.4222612  0.04017420
-#> [5,]  2.1360855 -1.39645355
-#> [6,] -1.6407250 -1.12934703
+#> [1,]  1.8970476 -0.20680120
+#> [2,]  1.0938638  0.06760977
+#> [3,] -1.6184598 -1.01368326
+#> [4,] -0.4222611  0.04017448
+#> [5,]  2.1360854 -1.39645379
+#> [6,] -1.6407250 -1.12934715
 ```
 
 This is an S3 object with a summary method that provides posterior means
@@ -307,12 +310,12 @@ str(summ_eta)
 #>  - attr(*, "class")= chr "summary.predict.inlavaan_internal"
 head(summ_eta$Mean)
 #>             eta1       eta2
-#> [1,]  0.98392409 -0.1279203
-#> [2,]  0.72285152 -0.3039225
-#> [3,] -1.07539889 -1.2025158
-#> [4,]  0.08094306 -0.1629403
-#> [5,]  1.41924548 -1.3721422
-#> [6,] -1.66312196 -0.8198493
+#> [1,]  0.98392407 -0.1279203
+#> [2,]  0.72285150 -0.3039224
+#> [3,] -1.07539891 -1.2025156
+#> [4,]  0.08094306 -0.1629399
+#> [5,]  1.41924538 -1.3721424
+#> [6,] -1.66312197 -0.8198494
 ```
 
 ### Plot
@@ -344,27 +347,30 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [55ms]
+#> ✔ Finding posterior mode. [59ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [79ms]
+#> ✔ Computing the Hessian. [29ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.002σ. [72ms]
+#> ✔ VB correction; mean |δ| = 0.002σ. [77ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/12 marginals.
-#> ✔ Fitting skew-normal to 12/12 marginals. [313ms]
+#> ✔ Fitting skew-normal to 12/12 marginals. [311ms]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [48ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [273ms]
+#> ✔ Posterior sampling and summarising. [277ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model No.params Marg.Loglik      DIC       pD   logBF
-#>    fit        13   -8068.820 16067.50 30.82714   0.000
-#>   fit2        12   -8088.718 16127.96 35.00340 -19.898
+#>    fit        13   -8068.820 16041.03 17.59074   0.000
+#>   fit2        12   -8088.718 16094.78 18.41311 -19.898
 ```
 
 As a note, there have been several criticisms of the use of Bayes

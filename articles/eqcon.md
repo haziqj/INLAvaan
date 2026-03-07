@@ -56,20 +56,23 @@ fit <- agrowth(mod, dat)
 #> ✔ Finding posterior mode. [87ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [78ms]
+#> ✔ Computing the Hessian. [43ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.297σ. [147ms]
+#> ✔ VB correction; mean |δ| = 0.297σ. [148ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/6 marginals.
-#> ✔ Fitting skew-normal to 6/6 marginals. [178ms]
+#> ✔ Fitting skew-normal to 6/6 marginals. [176ms]
+#> 
+#> ℹ Adjusting copula correlations (NORTA).
+#> ✔ Adjusting copula correlations (NORTA). [34ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [327ms]
+#> ✔ Posterior sampling and summarising. [333ms]
 #> 
 coef(fit)
 #>      i~~i       i~1      s~~s       s~1      i~~s         v         v         v 
-#> 12061.073    32.696    39.910     9.445     0.122   622.716   622.716   622.716 
+#> 12061.073    32.696    39.911     9.446     0.122   622.716   622.716   622.716 
 #>         v         v         v         v         v         v         v 
 #>   622.716   622.716   622.716   622.716   622.716   622.716   622.716
 ```

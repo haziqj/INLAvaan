@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="inlavaan-development-version">INLAvaan (development version)<a class="anchor" aria-label="anchor" href="#inlavaan-development-version"></a></h2>
-<ul><li>Use Cholesky factorisation of the precision matrix for covariance and log-determinant calculations, replacing raw <code><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve()</a></code>.</li>
+<ul><li>Implement NORTA (NORmal To Anything) correlation adjustment for the SN copula, so that posterior samples have both correct skew-normal marginals and correct Pearson correlations. Copula sampling is now the default (<code>samp_copula = TRUE</code>).</li>
+<li>Use Cholesky factorisation of the precision matrix for covariance and log-determinant calculations, replacing raw <code><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve()</a></code>.</li>
 <li>Draw posterior samples once and store them; all downstream consumers (covariances, defined parameters, ppp, DIC, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="../reference/standardisedsolution.html">standardisedsolution()</a></code>) now reuse a single draw.</li>
 <li>Use pre-computed Owen-scrambled Sobol sequence; fall back to <code>{qrng}</code> when larger sequences are needed. QMC sample size now scales with model dimension.</li>
 <li>Add <code>vb_correction</code> argument to <code><a href="../reference/acfa.html">acfa()</a></code>, <code><a href="../reference/asem.html">asem()</a></code>, and <code><a href="../reference/agrowth.html">agrowth()</a></code>.</li>
