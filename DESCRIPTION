@@ -22,18 +22,15 @@ URL: https://inlavaan.haziqj.ml/, https://github.com/haziqj/INLAvaan
 BugReports: https://github.com/haziqj/INLAvaan/issues
 Imports: 
     cli,
-    dplyr,
-    ggplot2,
     graphics,
     lavaan,
     methods,
-    scales,
     statmod,
     stats,
-    tidyr,
     utils
 Suggests: 
     blavaan,
+    ggplot2,
     future,
     knitr,
     lme4,
@@ -42,6 +39,7 @@ Suggests:
     quarto,
     rmarkdown,
     rstan,
+    scales,
     sn,
     testthat (>= 3.0.0),
     ucminf

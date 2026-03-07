@@ -1,42 +1,23 @@
-library(sn)
-library(tidyr)
-library(ggplot2)
-
+# Fit a SN curve to gamma log-density
 logdens <- function(x) dgamma(x, shape = 3, rate = 1, log = TRUE)
 
 x_grid <- seq(0.1, 8, length.out = 21)
-y_log <- sapply(x_grid, logdens)
-y_log <- y_log - max(y_log) # normalise to have maximum at zero
+y_log  <- sapply(x_grid, logdens)
+y_log  <- y_log - max(y_log)  # normalise to have maximum at zero
 
 res <- fit_skew_normal(x_grid, y_log, temp = 10)
 unlist(res)
 
-plot_df <-
-  pivot_longer(
-    tibble(
-      x = seq(0.1, 8, length.out = 200),
-      truth = exp(logdens(x)),
-      approx = dsnorm(x, xi = res$xi, omega = res$omega, alpha = res$alpha)
-    ),
-    cols = c("truth", "approx"),
-    names_to = "type",
-    values_to = "density"
-  )
+# Compare truth vs skew-normal approximation
+x_fine <- seq(0.1, 8, length.out = 200)
+y_true <- exp(logdens(x_fine))
+y_sn   <- dsnorm(x_fine, xi = res$xi, omega = res$omega, alpha = res$alpha)
 
-ggplot() +
-  # truth as filled area
-  geom_area(
-    data = subset(plot_df, type == "truth"),
-    aes(x, density, fill = "Truth"),
-    alpha = 0.38
-  ) +
-  # approx as blue line
-  geom_line(
-    data = subset(plot_df, type == "approx"),
-    aes(x = x, y = density, col = "SN Approx."),
-    linewidth = 1
-  ) +
-  scale_fill_manual(name = NULL, values = "#131516") +
-  scale_colour_manual(name = NULL, values = "#00A6AA") +
-  theme_minimal() +
-  theme(legend.position = "top")
+plot(x_fine, y_true, type = "n", xlab = "x", ylab = "Density", bty = "n")
+polygon(c(x_fine, rev(x_fine)), c(y_true, rep(0, length(x_fine))),
+        col = adjustcolor("#131516", 0.25), border = NA)
+lines(x_fine, y_sn, col = "#00A6AA", lwd = 2)
+legend("topright", legend = c("Truth", "SN Approx."),
+       fill = c(adjustcolor("#131516", 0.25), NA), border = NA,
+       col = c(NA, "#00A6AA"), lwd = c(NA, 2), lty = c(NA, 1),
+       bty = "n")

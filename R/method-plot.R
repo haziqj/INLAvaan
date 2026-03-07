@@ -1,90 +1,104 @@
 #' @exportS3Method plot inlavaan_internal
 #' @keywords internal
-plot.inlavaan_internal <- function(x, truth, ...) {
-  # 1. Calculate Grid Dimensions
-  #    Determine how many rows/cols needed based on number of plots
+plot.inlavaan_internal <- function(x, truth, use_ggplot = TRUE, ...) {
   n_params <- max(x$partable$free)
+  param_names <- names(x$pdf_data)[seq_len(n_params)]
+  postmode <- x$summary[, "Mode"]
+
+  use_ggplot <- isTRUE(use_ggplot) &&
+    requireNamespace("ggplot2", quietly = TRUE)
+
+  if (use_ggplot) {
+    # --- ggplot2 version (facet_wrap, no extra dependency) ---
+    plot_df <- do.call(rbind, Map(
+      function(nm, df) { df$name <- nm; df },
+      param_names, x$pdf_data[param_names]
+    ))
+    rownames(plot_df) <- NULL
+    plot_df$name <- factor(plot_df$name, levels = param_names)
+
+    vline_df <- data.frame(
+      name = factor(param_names, levels = param_names),
+      xint = if (missing(truth)) postmode[seq_len(n_params)] else truth
+    )
+
+    x <- xint <- NULL # no visible binding NOTE
+    p <- ggplot2::ggplot(plot_df, ggplot2::aes(x, y)) +
+      ggplot2::geom_line() +
+      ggplot2::facet_wrap(~name, scales = "free") +
+      ggplot2::theme_minimal() +
+      ggplot2::labs(x = NULL, y = NULL)
+
+    if (missing(truth)) {
+      p <- p + ggplot2::geom_vline(
+        data = vline_df,
+        ggplot2::aes(xintercept = xint),
+        linetype = "dashed", color = "red3"
+      )
+    } else {
+      p <- p + ggplot2::geom_vline(
+        data = vline_df,
+        ggplot2::aes(xintercept = xint),
+        linetype = "dotted", color = "steelblue3"
+      )
+    }
+
+    return(p)
+  }
+
+  # --- base R fallback ---
   n_cols <- ceiling(sqrt(n_params))
   n_rows <- ceiling(n_params / n_cols)
 
-  # 2. Setup Graphics Parameters
-  #    Save current settings (op) and restore them on exit (Crucial for packages!)
-  #    mfrow: sets the grid layout
-  #    mar: sets margins (bottom, left, top, right) to be "minimal"
-  op <- par(mfrow = c(n_rows, n_cols), mar = c(2, 2, 3, 1))
+  layout_mat <- matrix(seq_len(n_rows * n_cols), nrow = n_rows, ncol = n_cols,
+                       byrow = TRUE)
+  layout_mat <- rbind(rep(n_rows * n_cols + 1, n_cols), layout_mat)
+  layout(layout_mat, heights = c(0.8, rep(4, n_rows)))
+  op <- par(mar = c(2, 2, 2, 1), oma = c(0, 0, 0, 0))
   on.exit(par(op))
 
-  postmode <- x$summary[, "Mode"]
-
-  # 3. Plot Loop
   for (j in seq_len(n_params)) {
-    param <- names(x$pdf_data)[j]
+    param <- param_names[j]
     plot_df <- x$pdf_data[[param]]
 
-    # Base plot equivalent to geom_line + theme_minimal
     plot(
       plot_df$x,
       plot_df$y,
-      type = "l", # Line plot
-      main = param, # Title (subtitle in ggplot)
+      type = "l",
+      main = param,
+      font.main = 1,
       xlab = "",
-      ylab = "", # Remove axis labels
-      bty = "n", # "n" = No box (mimics theme_minimal)
-      axes = TRUE, # Keep numbers
+      ylab = "",
+      bty = "n",
+      axes = TRUE,
       col = "black",
       ...
     )
 
-    # Optional: Add grid lines to mimic theme_minimal
-    grid(col = "lightgray", lty = "dotted")
+    # grid(col = "lightgray", lty = "solid")
 
-    # Add Vertical Lines
     if (missing(truth)) {
-      abline(v = postmode[j], lty = 2, col = "red3") # lty 2 = dashed
+      abline(v = postmode[j], lty = 2, col = "red3")
     } else {
-      abline(v = truth[j], lty = 3, col = "steelblue3") # lty 3 = dotted
+      abline(v = truth[j], lty = 3, col = "steelblue3")
     }
   }
 
-  # Base R plots directly to the device, so we don't return an object
+  remaining <- n_rows * n_cols - n_params
+  for (i in seq_len(remaining)) plot.new()
+
+  par(mar = c(0, 0, 0, 0))
+  plot.new()
+  if (missing(truth)) {
+    legend("center", legend = "Mode", col = "red3", lty = 2,
+           horiz = TRUE, bty = "n", cex = 0.9, seg.len = 1.5)
+  } else {
+    legend("center", legend = "Truth", col = "steelblue3", lty = 3,
+           horiz = TRUE, bty = "n", cex = 0.9, seg.len = 1.5)
+  }
+
   invisible(NULL)
 }
-
-# plot.inlavaan_internal <- function(x, truth, ...) {
-#   all_plots <- list()
-#   postmode <- x$summary[, "Mode"]
-#
-#   for (j in seq_len(max(x$partable$free))) {
-#     param <- names(x$pdf_data)[j]
-#     plot_df <- x$pdf_data[[param]]
-#
-#     p_dens <-
-#       ggplot(plot_df, aes(x, y)) +
-#       geom_line() +
-#       theme_minimal() +
-#       labs(x = NULL, y = NULL, subtitle = param)
-#
-#     if (missing(truth)) {
-#       p_dens <- p_dens +
-#         geom_vline(
-#           xintercept = postmode[j],
-#           linetype = "dashed",
-#           color = "red3"
-#         )
-#     } else {
-#       p_dens <- p_dens +
-#         geom_vline(
-#           xintercept = truth[j],
-#           linetype = "dotted",
-#           color = "steelblue3"
-#         )
-#     }
-#
-#     all_plots[[param]] <- p_dens
-#   }
-#
-#   cowplot::plot_grid(plotlist = all_plots)
-# }
 
 #' @param x An object of class [INLAvaan].
 #' @param y Not used.

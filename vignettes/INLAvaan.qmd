@@ -19,7 +19,6 @@ toc: true
 #| include: false
 library(INLAvaan)
 library(lavaan)
-library(dplyr)
 ```
 
 
@@ -33,10 +32,6 @@ Before we begin make sure you have installed the INLAvaan package from GitHub by
 ```{r}
 #| label: install-instructions
 #| eval: false
-# Run this if you have not yet installed INLAvaan
-install.packages("pak")
-pak::pak("haziqj/INLAvaan")
-
 # Load all libraries for this example
 library(INLAvaan)
 library(tidyverse)
@@ -81,7 +76,7 @@ pop_mod <- "
 "
 set.seed(123)
 dat <- lavaan::simulateData(pop_mod, sample.nobs = 1000)
-glimpse(dat)
+str(dat)
 ```
 
 From the code above, note the true values of the parameters, including the factor loadings $\Lambda$, regression coefficient $\beta$ between the two latent variables, as well as the residual and latent variances $\Theta$ and $\Psi$ respectively.
@@ -207,15 +202,15 @@ The default global priors are derived from `{blavaan}`:
 
 ```{r}
 #| label: priors-default
-blavaan::dpriors()
+priors_for()  # similar to blavaan::dpriors()
 ```
 
-Note that, `{INLAvaan}` uses the SRS decomposition on variance matrices, and consequently places priors on **correlations** instead of *covariances*.
-If, instead we wished to set global priors, say a Gamma distribution on **variances** instead of **standard deviations** (default), then we would do the following:
+Note that, `{INLAvaan}` uses the separation strategy for variance matrices, and consequently places priors on **correlations** instead of *covariances*.
+If, instead we wished to set global priors, say a gamma distribution on **variances** instead of **standard deviations** (default), then we would do the following:
 
 ```{r}
 #| label: priors-global
-DP <- blavaan::dpriors(theta = "gamma(1,1)", psi = "gamma(1,1)")
+DP <- priors_for(theta = "gamma(1,1)", psi = "gamma(1,1)")
 DP
 ## fit <- asem(mod, dat, dpriors = DP)  # not run
 ```

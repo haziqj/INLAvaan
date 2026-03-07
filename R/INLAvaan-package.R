@@ -22,27 +22,29 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @import ggplot2
 #' @import methods
 #' @importFrom cli cli_abort
 #' @importFrom cli cli_alert_info
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_by
-#' @importFrom dplyr mutate
-#' @importFrom dplyr recode
-#' @importFrom dplyr select
-#' @importFrom dplyr ungroup
+#' @importFrom grDevices adjustcolor
+#' @importFrom grDevices recordPlot
 #' @importFrom graphics abline
+#' @importFrom graphics barplot
 #' @importFrom graphics grid
+#' @importFrom graphics layout
+#' @importFrom graphics legend
+#' @importFrom graphics lines
+#' @importFrom graphics mtext
 #' @importFrom graphics par
+#' @importFrom graphics plot.new
+#' @importFrom graphics polygon
 #' @importFrom statmod gauss.quad
+#' @importFrom stats aggregate
 #' @importFrom stats approx
 #' @importFrom stats cov2cor
 #' @importFrom stats dbeta
 #' @importFrom stats density
 #' @importFrom stats dgamma
 #' @importFrom stats dnorm
-#' @importFrom stats dnorm dgamma
 #' @importFrom stats median
 #' @importFrom stats nlminb
 #' @importFrom stats optimize
@@ -55,7 +57,6 @@
 #' @importFrom stats setNames
 #' @importFrom stats splinefun
 #' @importFrom stats uniroot
-#' @importFrom tidyr %>% pivot_longer
 #' @importFrom utils capture.output
 #' @importFrom utils getFromNamespace
 #' @importFrom utils head

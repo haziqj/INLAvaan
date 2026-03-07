@@ -489,20 +489,19 @@ inlavaan <- function(
           temp = sn_fit_temp
         )
 
-        if (isTRUE(debug)) {
-          visual_debug[[j]] <<- data.frame(
+        # Useful visual debug
+        visual_debug[[j]] <<- data.frame(
+          x = z,
+          Original = exp(yync - max(yync)),
+          Corrected = exp(yy - max(yy)),
+          SN_Fit = dsnorm(
             x = z,
-            Original = exp(yync - max(yync)),
-            Corrected = exp(yy - max(yy)),
-            SN_Fit = dsnorm(
-              x = z,
-              xi = fit_sn$xi,
-              omega = fit_sn$omega,
-              alpha = fit_sn$alpha,
-              logC = fit_sn$logC
-            )
+            xi = fit_sn$xi,
+            omega = fit_sn$omega,
+            alpha = fit_sn$alpha,
+            logC = fit_sn$logC
           )
-        }
+        )
 
         # Adjust back to theta space
         fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
