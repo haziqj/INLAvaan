@@ -14,6 +14,8 @@ acfa(
   test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
   sn_fit_logthresh = -6,
+  samp_copula = TRUE,
+  sn_fit_sample = TRUE,
   sn_fit_temp = NA,
   control = list(),
   verbose = TRUE,
@@ -63,6 +65,17 @@ diagonals, and \code{"none"} (or \code{FALSE}) applies no correction.}
 with log-posterior drop below this threshold (relative to the maximum) will
 be excluded from the fit. Defaults to \code{-6}.}
 
+\item{samp_copula}{Logical. When \code{TRUE} (default), posterior samples are
+drawn using the copula method with the fitted marginals (e.g.
+skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
+When \code{FALSE}, samples are drawn from the Gaussian (Laplace)
+approximation. Only re}
+
+\item{sn_fit_sample}{Logical. When \code{TRUE} (default), a parametric
+skew-normal is fitted to the posterior samples for covariance and defined
+parameters. When \code{FALSE}, these are summarised using kernel density
+estimation instead.}
+
 \item{sn_fit_temp}{Temperature parameter for fitting the skew-normal. If
 \code{NA}, the temperature will be included in the optimisation during the skew
 normal fit.}
@@ -81,7 +94,7 @@ mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"opt
 (BFGS).}
 
 \item{numerical_grad}{Logical indicating whether to use numerical gradients
-for the optimisation.}
+for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
 
 \item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan::lavaan} model fitting
 function.}

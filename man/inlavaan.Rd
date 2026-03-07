@@ -9,13 +9,15 @@ inlavaan(
   data,
   model.type = "sem",
   dp = priors_for(),
+  test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 500,
-  test = "standard",
+  samp_copula = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
+  sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
   debug = FALSE,
@@ -46,6 +48,9 @@ inlavaan(
     parameters, typically the result of a call to \code{dpriors()}.
     See the \code{dpriors()} help file for more information.}
 
+\item{test}{Character indicating whether to compute posterior fit indices.
+Defaults to "standard". Change to "none" to skip these computations.}
+
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 
@@ -63,8 +68,11 @@ diagonals, and \code{"none"} (or \code{FALSE}) applies no correction.}
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
 
-\item{test}{Character indicating whether to compute posterior fit indices.
-Defaults to "standard". Change to "none" to skip these computations.}
+\item{samp_copula}{Logical. When \code{TRUE} (default), posterior samples are
+drawn using the copula method with the fitted marginals (e.g.
+skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
+When \code{FALSE}, samples are drawn from the Gaussian (Laplace)
+approximation. Only re}
 
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew-normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will
@@ -73,6 +81,11 @@ be excluded from the fit. Defaults to \code{-6}.}
 \item{sn_fit_temp}{Temperature parameter for fitting the skew-normal. If
 \code{NA}, the temperature will be included in the optimisation during the skew
 normal fit.}
+
+\item{sn_fit_sample}{Logical. When \code{TRUE} (default), a parametric
+skew-normal is fitted to the posterior samples for covariance and defined
+parameters. When \code{FALSE}, these are summarised using kernel density
+estimation instead.}
 
 \item{control}{A list of control parameters for the optimiser.}
 
@@ -88,7 +101,7 @@ mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"opt
 (BFGS).}
 
 \item{numerical_grad}{Logical indicating whether to use numerical gradients
-for the optimisation.}
+for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
 
 \item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan::lavaan} model fitting
 function.}

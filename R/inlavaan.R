@@ -10,6 +10,8 @@
 #' @inheritParams lavaan::simulateData
 #' @inheritParams blavaan::blavaan
 #'
+#' @param test Character indicating whether to compute posterior fit indices.
+#'   Defaults to "standard". Change to "none" to skip these computations.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param marginal_method The method for approximating the marginal posterior
@@ -23,14 +25,21 @@
 #'   diagonals, and `"none"` (or `FALSE`) applies no correction.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
-#' @param test Character indicating whether to compute posterior fit indices.
-#'   Defaults to "standard". Change to "none" to skip these computations.
+#' @param samp_copula Logical. When `TRUE` (default), posterior samples are
+#'   drawn using the copula method with the fitted marginals (e.g.
+#'   skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
+#'   When `FALSE`, samples are drawn from the Gaussian (Laplace)
+#'   approximation. Only re
 #' @param sn_fit_logthresh The log-threshold for fitting the skew-normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
 #' @param sn_fit_temp Temperature parameter for fitting the skew-normal. If
 #'   `NA`, the temperature will be included in the optimisation during the skew
 #'   normal fit.
+#' @param sn_fit_sample Logical. When `TRUE` (default), a parametric
+#'   skew-normal is fitted to the posterior samples for covariance and defined
+#'   parameters. When `FALSE`, these are summarised using kernel density
+#'   estimation instead.
 #' @param control A list of control parameters for the optimiser.
 #' @param verbose Logical indicating whether to print progress messages.
 #' @param debug Logical indicating whether to return debug information.
@@ -40,7 +49,7 @@
 #'   mode. Options include `"nlminb"` (default), `"ucminf"`, and `"optim"`
 #'   (BFGS).
 #' @param numerical_grad Logical indicating whether to use numerical gradients
-#'   for the optimisation.
+#'   for the optimisation. Defaults to `FALSE` to use analytical gradients.
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
 #'   function.
 #'
@@ -57,13 +66,15 @@ inlavaan <- function(
   data,
   model.type = "sem",
   dp = priors_for(),
+  test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "hessian", "none"),
   nsamp = 500,
-  test = "standard",
+  samp_copula = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
+  sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
   debug = FALSE,
@@ -549,6 +560,16 @@ inlavaan <- function(
     )
   }
 
+  ## ----- NORTA adjustment for SN copula sampling ----------------------------
+  R_star <- NULL
+  if (marginal_method == "skewnorm" && isTRUE(samp_copula)) {
+    if (isTRUE(verbose)) {
+      cli::cli_progress_step("Adjusting copula correlations (NORTA).")
+    }
+    R_star <- norta_adjust_R(cov2cor(Sigma_theta), approx_data)
+  }
+  timing <- add_timing(timing, "norta")
+
   ## ----- Draw posterior samples (once) ---------------------------------------
   has_extra_samp_work <-
     (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 &&
@@ -569,14 +590,15 @@ inlavaan <- function(
   samp <- sample_params(
     theta_star = theta_star_vbc,
     Sigma_theta = Sigma_theta,
-    method = marginal_method,
+    method = if (isTRUE(samp_copula)) marginal_method else "sampling",
     approx_data = approx_data,
     pt = pt,
     lavmodel = lavmodel,
-    nsamp = nsamp
+    nsamp = nsamp,
+    R_star = R_star
   )
-  theta_samp <- samp$theta_samp # nsamp x m
-  x_samp <- samp$x_samp # nsamp x p
+  theta_samp <- samp$theta_samp
+  x_samp <- samp$x_samp
   timing <- add_timing(timing, "sampling")
 
   if (marginal_method == "sampling") {
@@ -613,7 +635,7 @@ inlavaan <- function(
     if (marginal_method == "sampling") {
       # Already covered by post_marg_sampling above
     } else {
-      if (marginal_method == "skewnorm") {
+      if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
         samp_cov <- sample_covariances_fit_sn(x_samp, pt)
       } else {
         samp_cov <- sample_covariances(x_samp, pt)
@@ -695,6 +717,7 @@ inlavaan <- function(
     theta_star_novbc = as.numeric(theta_star),
     theta_star = as.numeric(theta_star_vbc),
     Sigma_theta = Sigma_theta,
+    R_star = R_star,
     theta_star_trans = theta_star_trans,
     approx_data = approx_data,
     theta_samp = theta_samp,
@@ -746,13 +769,15 @@ acfa <- function(
   model,
   data,
   dp = priors_for(),
+  test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 500,
-  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
+  nsamp = 500,
+  samp_copula = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
+  sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
   debug = FALSE,
@@ -794,13 +819,15 @@ asem <- function(
   model,
   data,
   dp = priors_for(),
+  test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 500,
-  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
+  nsamp = 500,
+  samp_copula = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
+  sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
   debug = FALSE,
@@ -840,13 +867,15 @@ agrowth <- function(
   model,
   data,
   dp = priors_for(),
+  test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 500,
-  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
+  nsamp = 500,
+  samp_copula = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = NA,
+  sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
   debug = FALSE,
