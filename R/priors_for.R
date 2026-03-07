@@ -40,7 +40,7 @@ priors_for <- function(...) {
 
   # Ensure the user didn't just pass strings without names
   if (length(userspec) > 0 && is.null(names(userspec))) {
-    cli::cli_abort(
+    cli_abort(
       "priors_for ERROR: All arguments must be named (e.g., `lambda = 'normal(0,1)'`)"
     )
   }

@@ -7,7 +7,7 @@ inlav_fit_measures <- function(
 
   # Has the model converged?
   if (object@Fit@npar > 0L & !object@optim$converged) {
-    cli::cli_alert_warning("Optimiser did not converge.")
+    cli_alert_warning("Optimiser did not converge.")
   }
 
   # # Do we have a test statistic?

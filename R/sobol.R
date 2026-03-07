@@ -13,7 +13,7 @@ sobol_owen <- function(n, d) {
   }
 
   # No fallback available — error with guidance
-  cli::cli_abort(c(
+  cli_abort(c(
     "Requested Sobol sequence ({n} x {d}) exceeds stored table ({N} x {D}).",
     "i" = "Install the {.pkg qrng} package to generate larger sequences on the fly."
   ))

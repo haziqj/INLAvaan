@@ -130,7 +130,7 @@ predict.inlavaan_internal <- function(
       out
     }
 
-    cli::cli_progress_bar(
+    cli_progress_bar(
       "Sampling latent variables",
       total = nsamp,
       clear = FALSE
@@ -138,11 +138,11 @@ predict.inlavaan_internal <- function(
     out <- vector("list", nsamp)
     for (i in seq_len(nsamp)) {
       out[[i]] <- sample_lv(x_samp[i, ])
-      cli::cli_progress_update()
+      cli_progress_update()
     }
-    cli::cli_progress_done()
+    cli_progress_done()
   } else {
-    cli::cli_abort("Only type = 'lv' is currently implemented.")
+    cli_abort("Only type = 'lv' is currently implemented.")
   }
 
   attr(out, "nobs") <- lavdata@nobs

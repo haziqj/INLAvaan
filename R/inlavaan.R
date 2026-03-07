@@ -108,7 +108,7 @@ inlavaan <- function(
 
   if ("estimator" %in% names(lavargs)) {
     if (!(lavargs$estimator %in% c("ML", "PML"))) {
-      cli::cli_abort("Only 'ML' and 'PML' estimators are supported currently.")
+      cli_abort("Only 'ML' and 'PML' estimators are supported currently.")
     }
   }
 
@@ -221,7 +221,7 @@ inlavaan <- function(
 
   ## ----- Start optimisation --------------------------------------------------
   if (isTRUE(verbose)) {
-    cli::cli_progress_step("Finding posterior mode.")
+    cli_progress_step("Finding posterior mode.")
   }
 
   ob <- function(x) -1 * joint_lp(x)
@@ -237,7 +237,7 @@ inlavaan <- function(
     )
     theta_star <- opt$par
     if (isTRUE(verbose)) {
-      cli::cli_progress_step("Computing the Hessian.")
+      cli_progress_step("Computing the Hessian.")
     }
     if (isTRUE(numerical_grad)) {
       H_neg <- fast_hessian(ob, theta_star)
@@ -247,7 +247,7 @@ inlavaan <- function(
     }
   } else if (optim_method == "ucminf") {
     if (!requireNamespace("ucminf", quietly = TRUE)) {
-      cli::cli_abort(
+      cli_abort(
         "The `ucminf` package is required for this optimization method. Please install it using `install.packages('ucminf')`."
       )
     }
@@ -296,7 +296,7 @@ inlavaan <- function(
   vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- n_qmc <- NA
   if (isTRUE(vb_correction)) {
     if (isTRUE(verbose)) {
-      cli::cli_progress_step(
+      cli_progress_step(
         "Performing VB correction.",
         msg_done = "VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift)),
                     format = 'f', digits = 3)}\U03C3."
@@ -424,7 +424,7 @@ inlavaan <- function(
   } else {
     if (marginal_method == "asymgaus") {
       if (isTRUE(verbose)) {
-        cli::cli_progress_step("Calibrating asymmetric Gaussians.")
+        cli_progress_step("Calibrating asymmetric Gaussians.")
       }
 
       obtain_approx_data <- function(j) {
@@ -466,7 +466,7 @@ inlavaan <- function(
     } else if (marginal_method == "skewnorm") {
       if (isTRUE(verbose)) {
         j <- 0
-        cli::cli_progress_step(
+        cli_progress_step(
           "Fitting skew-normal to {j}/{m} marginal{?s}.",
           spinner = TRUE
         )
@@ -513,7 +513,7 @@ inlavaan <- function(
       approx_data <- visual_debug <- vector("list", length = m)
       for (j in seq_len(m)) {
         approx_data[[j]] <- obtain_approx_data(j)
-        if (isTRUE(verbose)) cli::cli_progress_update()
+        if (isTRUE(verbose)) cli_progress_update()
       }
       approx_data <- do.call(what = "rbind", approx_data)
       rownames(approx_data) <- parnames
@@ -562,7 +562,7 @@ inlavaan <- function(
   R_star <- NULL
   if (marginal_method == "skewnorm" && isTRUE(samp_copula)) {
     if (isTRUE(verbose)) {
-      cli::cli_progress_step("Adjusting copula correlations (NORTA).")
+      cli_progress_step("Adjusting copula correlations (NORTA).")
     }
     R_star <- norta_adjust_R(cov2cor(Sigma_theta), approx_data)
   }
@@ -583,7 +583,7 @@ inlavaan <- function(
       "Drawing posterior samples."
     }
     samp_env <- environment()
-    cli::cli_progress_step(samp_msg, spinner = TRUE, .envir = samp_env)
+    cli_progress_step(samp_msg, spinner = TRUE, .envir = samp_env)
   }
   samp <- sample_params(
     theta_star = theta_star_vbc,

@@ -15,7 +15,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
   parnames <- unique(names(coef(fit_blavaan)))
 
   if (requireNamespace("blavaan", quietly = TRUE) == FALSE) {
-    cli::cli_abort("blavaan is required for plotting. Please install it.")
+    cli_abort("blavaan is required for plotting. Please install it.")
   }
 
   # MCMC Histograms
@@ -231,7 +231,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
 
     if (!is.null(truth)) {
       if (length(truth) != length(parnames)) {
-        cli::cli_abort("Length of 'truth' must match number of parameters.")
+        cli_abort("Length of 'truth' must match number of parameters.")
       }
 
       truth_df <- data.frame(
@@ -295,7 +295,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
   truth_vec <- NULL
   if (!is.null(truth)) {
     if (length(truth) != length(parnames)) {
-      cli::cli_abort("Length of 'truth' must match number of parameters.")
+      cli_abort("Length of 'truth' must match number of parameters.")
     }
     truth_vec <- setNames(as.numeric(truth), parnames)
   }

@@ -25,7 +25,6 @@ Imports:
     graphics,
     lavaan,
     methods,
-    statmod,
     stats,
     utils
 Suggests: 

@@ -138,7 +138,7 @@ get_ppp <- function(
   res <- vector("numeric", length = nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
     if (!is.null(cli_env)) {
-      cli::cli_progress_update(.envir = cli_env)
+      cli_progress_update(.envir = cli_env)
     }
 
     xx <- x_samp[i, ]
@@ -300,7 +300,7 @@ get_dic <- function(
   Dhat <- -2 * loglik(xhat)
   Dbar_samp <- sapply(seq_len(nrow(x_samp)), function(i) {
     if (!is.null(cli_env)) {
-      cli::cli_progress_update(.envir = cli_env)
+      cli_progress_update(.envir = cli_env)
     }
     xx <- x_samp[i, ]
     -2 * loglik(xx)

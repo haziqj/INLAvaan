@@ -2,7 +2,7 @@ pars_to_x <- function(theta, pt) {
   # Convert unrestricted theta-side parameters to lavaan-side parameters x.
   # Always receive UNPACKED theta and returns PACKED theta.
   if (is.null(pt) | missing(pt)) {
-    cli::cli_abort("Parameter table 'pt' must be provided.")
+    cli_abort("Parameter table 'pt' must be provided.")
   }
 
   is_multilvl <- "level" %in% names(pt)

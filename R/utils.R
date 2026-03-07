@@ -61,7 +61,7 @@ force_pd <- function(x) {
 # Get internal inlavaan object
 get_inlavaan_internal <- function(object) {
   if (!inherits(object, "INLAvaan")) {
-    cli::cli_abort("Object must be of class {.var INLAvaan}")
+    cli_abort("Object must be of class {.var INLAvaan}")
   }
   object@external$inlavaan_internal
 }

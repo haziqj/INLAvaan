@@ -37,7 +37,7 @@ summary_inlavaan <- function(
   ...
 ) {
   if (isTRUE(rsquare)) {
-    cli::cli_warn(
+    cli_warn(
       "{.arg rsquare = TRUE} is not implemented yet."
     )
   }

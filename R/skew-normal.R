@@ -36,13 +36,13 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   # NOTE: y is the density evaluations at x on the log scale, i.e. log f(x).
   # y should ideally be normalized so max(y) = 0 for numerical stability
   if (max(y) > 0) {
-    cli::cli_warn(
+    cli_warn(
       "In {.fn fit_skew_normal}, log density {.arg y} should be normalized so that max(y) = 0 for numerical stability. Automatically normalizing now."
     )
     y <- y - max(y)
   }
   if (threshold_log_drop >= 0) {
-    cli::cli_abort(
+    cli_abort(
       "In {.fn fit_skew_normal}, {.arg threshold_log_drop} must be negative."
     )
   }

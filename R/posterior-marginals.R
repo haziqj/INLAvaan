@@ -124,7 +124,7 @@ post_marg_skewnorm <- function(
   fx <- fx / C
 
   # Compute mean and variance using GH quadrature
-  quad <- statmod::gauss.quad(61, kind = "hermite")
+  quad <- .gauss_hermite(61)
   nodes <- quad$nodes * sqrt(2)
   weights <- quad$weights / sqrt(pi)
   ginvz <- ginv(xi + omega * nodes)
