@@ -110,22 +110,23 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [116ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [185ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [90ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [141ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.048σ. [206ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.048σ. [320ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/28 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 28/28 marginals. [969ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 28/28 marginals. [1.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [287ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [264ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [480ms]</span></span>
+<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [420ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.3.9008 ended normally after 74 iterations</span></span>
@@ -139,12 +140,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1644.616 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.238 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.196 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3207.206 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    54.423 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3208.277 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    54.959 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -179,28 +180,28 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.271    0.413   -0.056    1.546    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.271    0.411   -0.106    1.507    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.274    0.755    0.212    3.158    0.006       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.343    0.746    0.811    3.740    0.013       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.274    0.701    0.203    2.951    0.006       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.343    0.746    0.821    3.752    0.013       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.175    0.628    2.052   -0.408    0.010       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.176    0.599    1.940   -0.408    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.101    0.506   -0.492    1.486    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.101    0.473   -0.441    1.415    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.310    0.593    0.261    2.589    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.310    0.592    0.245    2.565    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;    .x1                0.086    0.020    0.196    0.051    0.005 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x2                0.127    0.064    1.433    0.020    0.038 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .x2                0.127    0.065    1.424    0.021    0.040 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x3                0.493    0.096    0.333    0.709    0.003 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .y1                1.963    0.479    4.476    1.153    0.008 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .y2                7.787    1.397    5.432   10.888    0.001 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .y3                5.171    1.020    3.484    7.468    0.001 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .y4                3.326    0.766    7.173    2.021    0.008 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y5                2.439    0.514    3.589    1.583    0.005 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y6                5.109    0.931    3.537    7.175    0.002 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y5                2.439    0.514    3.588    1.582    0.005 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y6                5.109    0.932    3.537    7.175    0.002 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .y7                3.708    0.772    5.434    2.422    0.006 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .y8                3.378    0.726    4.981    2.143    0.005 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;     ind60             0.447    0.088    0.303    0.644    0.003 gamma(1,.5)[sd]</span></span>

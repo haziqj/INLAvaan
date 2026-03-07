@@ -197,19 +197,19 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [56ms]
+#> ✔ Finding posterior mode. [82ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [52ms]
+#> ✔ Computing the Hessian. [75ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.008σ. [90ms]
+#> ✔ VB correction; mean |δ| = 0.008σ. [133ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [444ms]
+#> ✔ Fitting skew-normal to 21/21 marginals. [665ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [193ms]
+#> ✔ Adjusting copula correlations (NORTA). [198ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [75ms]
@@ -230,8 +230,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7555.464 
-#>    Effective parameters (pD)                    39.921 
+#>    Deviance (DIC)                             7555.478 
+#>    Effective parameters (pD)                    39.928 
 #> 
 #> Parameter Estimates:
 #> 
@@ -251,7 +251,7 @@ summary(fit)
 #>   speed =~                                                                     
 #>     x7                0.609    0.075    0.752    0.458    0.004    normal(0,10)
 #>     x8                0.725    0.075    0.869    0.573    0.015    normal(0,10)
-#>     x9                0.686    0.079    0.537    0.846    0.025    normal(0,10)
+#>     x9                0.686    0.079    0.537    0.846    0.023    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
