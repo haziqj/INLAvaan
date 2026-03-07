@@ -185,23 +185,23 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [105ms]
+#> ✔ Finding posterior mode. [75ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [66ms]
+#> ✔ Computing the Hessian. [43ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.022σ. [137ms]
+#> ✔ VB correction; mean |δ| = 0.022σ. [88ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ⠹ Fitting skew-normal to 5/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [746ms]
+#> ✔ Fitting skew-normal to 21/21 marginals. [474ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [195ms]
+#> ✔ Adjusting copula correlations (NORTA). [190ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [269ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [300ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9008 ended normally after 73 iterations
@@ -219,8 +219,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7590.799 
-#>    Effective parameters (pD)                    57.533 
+#>    Deviance (DIC)                             7590.231 
+#>    Effective parameters (pD)                    57.249 
 #> 
 #> Parameter Estimates:
 #> 
@@ -246,9 +246,9 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
 #>     textual           0.443    0.092    0.577    0.215    0.001       beta(1,1)
-#>     speed             0.467    0.084    0.435    0.105    0.014       beta(1,1)
+#>     speed             0.467    0.084    0.434    0.105    0.014       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.065    0.306    0.053    0.002       beta(1,1)
+#>     speed             0.277    0.064    0.306    0.053    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -259,10 +259,10 @@ summary(fit)
 #>    .x5                0.450    0.059    0.572    0.342    0.002 gamma(1,.5)[sd]
 #>    .x6                0.361    0.044    0.453    0.279    0.002 gamma(1,.5)[sd]
 #>    .x7                0.829    0.091    0.666    1.022    0.004 gamma(1,.5)[sd]
-#>    .x8                0.507    0.090    1.015    0.336    0.027 gamma(1,.5)[sd]
+#>    .x8                0.507    0.090    1.014    0.336    0.027 gamma(1,.5)[sd]
 #>    .x9                0.548    0.091    1.121    0.357    0.019 gamma(1,.5)[sd]
-#>     visual            0.791    0.149    1.534    0.524    0.041 gamma(1,.5)[sd]
-#>     textual           0.980    0.113    1.217    0.775    0.002 gamma(1,.5)[sd]
-#>     speed             0.350    0.090    1.053    0.178    0.062 gamma(1,.5)[sd]
+#>     visual            0.791    0.149    1.534    0.524    0.040 gamma(1,.5)[sd]
+#>     textual           0.980    0.113    1.216    0.775    0.003 gamma(1,.5)[sd]
+#>     speed             0.351    0.090    1.051    0.178    0.061 gamma(1,.5)[sd]
 #> 
 ```

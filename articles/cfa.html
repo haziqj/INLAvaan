@@ -100,22 +100,22 @@
 <span><span class="co"># Fit a CFA model with standardised latent variables</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [111ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [71ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [87ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [55ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.008σ. [143ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.008σ. [91ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/21 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 21/21 marginals. [711ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 21/21 marginals. [451ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [191ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [187ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [74ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [75ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.3.9008 ended normally after 56 iterations</span></span>
@@ -133,8 +133,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7559.702 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    42.040 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7554.542 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    39.460 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -154,7 +154,7 @@
 <span><span class="co">#&gt;   speed =~                                                                     </span></span>
 <span><span class="co">#&gt;     x7                0.609    0.075    0.752    0.458    0.004    normal(0,10)</span></span>
 <span><span class="co">#&gt;     x8                0.725    0.075    0.869    0.573    0.015    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x9                0.686    0.079    0.537    0.846    0.023    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x9                0.686    0.079    0.537    0.846    0.025    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>

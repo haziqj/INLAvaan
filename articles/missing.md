@@ -39,24 +39,23 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [220ms]
+#> ✔ Finding posterior mode. [132ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [220ms]
+#> ✔ Computing the Hessian. [158ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.069σ. [729ms]
+#> ✔ VB correction; mean |δ| = 0.069σ. [462ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/42 marginals.
-#> ⠹ Fitting skew-normal to 16/42 marginals.
-#> ✔ Fitting skew-normal to 42/42 marginals. [3.3s]
+#> ⠹ Fitting skew-normal to 39/42 marginals.
+#> ✔ Fitting skew-normal to 42/42 marginals. [1.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [545ms]
+#> ✔ Adjusting copula correlations (NORTA). [564ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [496ms]
+#> ✔ Posterior sampling and summarising. [513ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -73,18 +72,18 @@ print(fit1)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -818.397 
-#>    PPP (Chi-square)                              0.072
+#>    PPP (Chi-square)                              0.068
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        1.797        1.730        0.982        0.798        1.525        1.100 
+#>        1.797        1.730        0.980        0.798        1.505        1.100 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        0.740        1.407        0.897        0.486        1.083        0.179 
+#>        0.740        1.407        0.897        0.485        1.081        0.179 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.406        0.501        0.205       -0.273        0.189        0.066 
+#>        0.403        0.501        0.205       -0.273        0.189        0.066 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.142        0.409        1.563        7.619        3.957        2.649 
+#>        0.142        0.410        1.563        7.619        3.957        2.649 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.464        6.500        1.971        3.961        0.492        1.376 
+#>        1.463        6.500        1.971        3.963        0.492        1.369 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
 #>        0.147        5.412        5.512        4.084        7.218        6.585 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
@@ -96,24 +95,23 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [411ms]
+#> ✔ Finding posterior mode. [263ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [307ms]
+#> ✔ Computing the Hessian. [241ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [760ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [498ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/42 marginals.
-#> ⠹ Fitting skew-normal to 9/42 marginals.
-#> ⠸ Fitting skew-normal to 33/42 marginals.
-#> ✔ Fitting skew-normal to 42/42 marginals. [5.4s]
+#> ⠹ Fitting skew-normal to 6/42 marginals.
+#> ✔ Fitting skew-normal to 42/42 marginals. [3.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [473ms]
+#> ✔ Adjusting copula correlations (NORTA). [518ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [745ms]
+#> ✔ Posterior sampling and summarising. [773ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.3.9008 ended normally after 93 iterations
@@ -143,7 +141,7 @@ coef(fit2)
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
 #>        0.208        5.052        4.775        3.542        5.436        5.733 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        7.128        5.220        5.332        4.036        6.828        4.388
+#>        7.129        5.220        5.332        4.036        6.828        4.388
 ```
 
 ``` r
