@@ -68,20 +68,20 @@ fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ✔ Finding posterior mode. [164ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [76ms]
+#> ✔ Computing the Hessian. [77ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.134σ. [429ms]
+#> ✔ VB correction; mean |δ| = 0.134σ. [431ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/10 marginals.
-#> ✔ Fitting skew-normal to 10/10 marginals. [479ms]
+#> ✔ Fitting skew-normal to 10/10 marginals. [483ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [79ms]
+#> ✔ Adjusting copula correlations (NORTA). [80ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [556ms]
+#> ✔ Posterior sampling and summarising. [552ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9008 ended normally after 37 iterations
