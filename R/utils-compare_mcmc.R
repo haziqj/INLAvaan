@@ -165,8 +165,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
 
   # --- Plotting ---
   use_ggplot <- isTRUE(use_ggplot) &&
-    requireNamespace("ggplot2", quietly = TRUE) &&
-    requireNamespace("scales", quietly = TRUE)
+    requireNamespace("ggplot2", quietly = TRUE)
 
   if (use_ggplot) {
     # --- ggplot2 version ---
@@ -192,7 +191,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
         position = ggplot2::position_dodge()
       ) +
       ggplot2::coord_flip() +
-      ggplot2::scale_y_continuous(labels = scales::percent) +
+      ggplot2::scale_y_continuous(labels = function(x) paste0(round(x * 100), "%")) +
       ggplot2::scale_fill_manual(values = mycols) +
       ggplot2::facet_grid(. ~ metric, scales = "free_x") +
       ggplot2::theme_minimal() +
@@ -266,7 +265,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
       ))
       rownames(label_df) <- NULL
       label_df <- merge(label_df, metrics_df, by = c("name", "method"))
-      label_df$JS_percent <- scales::percent(1 - label_df$JS_percent, 0.1)
+      label_df$JS_percent <- paste0(round((1 - label_df$JS_percent) * 100, 1), "%")
 
       p_compare <-
         p_compare +

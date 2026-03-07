@@ -46,6 +46,8 @@ test_that("Comparison to MCMC", {
 ## CHECK AGAINST MCMC ##########################################################
 ################################################################################
 testthat::skip_if_not(interactive())
+testthat::skip_if_not_installed("rstan")
+testthat::skip_if_not_installed("future")
 library(rstan)
 future::plan("multisession", workers = future::availableCores() - 2)
 n <- 250

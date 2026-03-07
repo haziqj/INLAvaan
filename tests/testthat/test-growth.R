@@ -107,6 +107,7 @@ test_that("Gradients are correct (Finite Difference Check)", {
 testthat::skip_on_ci()
 testthat::skip_on_cran()
 testthat::skip_if_not(interactive())
+testthat::skip_if_not_installed("future")
 library(blavaan)
 future::plan("multisession", workers = future::availableCores() - 2)
 
