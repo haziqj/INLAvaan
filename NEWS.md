@@ -6,6 +6,7 @@
 * Use pre-computed Owen-scrambled Sobol sequence; fall back to `{qrng}` when larger sequences are needed. QMC sample size now scales with model dimension.
 * Add `vb_correction` argument to `acfa()`, `asem()`, and `agrowth()`.
 * Add params and logscale options to visual_debug.
+* Small optimisations to volume correction of skew-normal marginalisation.
 
 # INLAvaan 0.2.3
 
