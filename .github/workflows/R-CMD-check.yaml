@@ -80,12 +80,12 @@ jobs:
           upgrade: 'TRUE'
           # DYNAMIC DEPENDENCIES: 
           # If matrix has 'dependencies' (the special case), use it.
-          # Otherwise, pass empty string (which defaults to standard behavior).
-          dependencies: ${{ matrix.config.dependencies || 'c()' }}
+          # Otherwise, use "all" (the action default) to resolve all dep types.
+          dependencies: ${{ matrix.config.dependencies || '"all"' }}
 
       - name: Install package on Windows
         if: matrix.config.os == 'windows-latest'
-        run: Rscript -e "install.packages(c('blavaan', 'cowplot', 'dplyr', 'ggplot2', 'lavaan', 'modeest', 'mvtnorm', 'numDeriv', 'qrng', 'scales', 'sn', 'spacefillr', 'statmod', 'tidyr', 'ucminf', 'lme4', 'psychotools', 'testthat')); install.packages('.', repos = NULL, type = 'source')"
+        run: Rscript -e "install.packages(c('blavaan', 'ggplot2', 'knitr', 'lavaan', 'lme4', 'qrng', 'quarto', 'testthat', 'ucminf')); install.packages('.', repos = NULL, type = 'source')"
 
       - uses: r-lib/actions/check-r-package@v2
         with:
