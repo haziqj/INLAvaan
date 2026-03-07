@@ -130,23 +130,23 @@ the `cluster` argument to identify the grouping variable.
 ``` r
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [521ms]
+#> ✔ Finding posterior mode. [602ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [182ms]
+#> ✔ Computing the Hessian. [192ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.019σ. [524ms]
+#> ✔ VB correction; mean |δ| = 0.019σ. [385ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/20 marginals.
-#> ⠹ Fitting skew-normal to 3/20 marginals.
-#> ✔ Fitting skew-normal to 20/20 marginals. [3.2s]
+#> ⠹ Fitting skew-normal to 13/20 marginals.
+#> ✔ Fitting skew-normal to 20/20 marginals. [1.7s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [156ms]
+#> ✔ Adjusting copula correlations (NORTA). [162ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [764ms]
+#> ✔ Posterior sampling and summarising. [725ms]
 #> 
 ```
 
@@ -157,7 +157,7 @@ standard deviations, and credible intervals) for *both levels*.
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.3.9006 ended normally after 108 iterations
+#> INLAvaan 0.2.3.9008 ended normally after 108 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -169,12 +169,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.483 
-#>    PPP (Chi-square)                              0.020 
+#>    PPP (Chi-square)                              0.008 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24247.265 
-#>    Effective parameters (pD)                    47.033 
+#>    Deviance (DIC)                            24252.080 
+#>    Effective parameters (pD)                    49.441 
 #> 
 #> Parameter Estimates:
 #> 
@@ -188,15 +188,15 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fw =~                                                                        
 #>     y1                1.000                                                    
-#>     y2                0.775    0.034    0.709    0.845    0.003    normal(0,10)
-#>     y3                0.735    0.033    0.671    0.801    0.003    normal(0,10)
+#>     y2                0.774    0.034    0.708    0.843    0.003    normal(0,10)
+#>     y3                0.733    0.033    0.670    0.800    0.002    normal(0,10)
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fw ~                                                                         
-#>     x1                0.510    0.023    0.464    0.555    0.001    normal(0,10)
-#>     x2                0.407    0.022    0.364    0.451    0.001    normal(0,10)
-#>     x3                0.205    0.021    0.164    0.246    0.000    normal(0,10)
+#>     x1                0.509    0.023    0.464    0.554    0.001    normal(0,10)
+#>     x2                0.406    0.022    0.363    0.450    0.001    normal(0,10)
+#>     x3                0.204    0.021    0.163    0.246    0.001    normal(0,10)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -207,10 +207,10 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .y1                0.987    0.046    1.078    0.899    0.001 gamma(1,.5)[sd]
-#>    .y2                1.069    0.039    1.148    0.994    0.001 gamma(1,.5)[sd]
-#>    .y3                1.013    0.037    1.087    0.943    0.001 gamma(1,.5)[sd]
-#>    .fw                0.549    0.041    0.631    0.472    0.003 gamma(1,.5)[sd]
+#>    .y1                0.985    0.046    1.076    0.896    0.003 gamma(1,.5)[sd]
+#>    .y2                1.067    0.039    1.146    0.992    0.001 gamma(1,.5)[sd]
+#>    .y3                1.012    0.037    1.085    0.942    0.001 gamma(1,.5)[sd]
+#>    .fw                0.547    0.041    0.629    0.470    0.004 gamma(1,.5)[sd]
 #> 
 #> 
 #> Level 2 [cluster]:
@@ -219,28 +219,28 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fb =~                                                                        
 #>     y1                1.000                                                    
-#>     y2                0.720    0.051    0.625    0.825    0.028    normal(0,10)
-#>     y3                0.587    0.047    0.497    0.682    0.007    normal(0,10)
+#>     y2                0.717    0.051    0.622    0.820    0.018    normal(0,10)
+#>     y3                0.585    0.047    0.496    0.680    0.007    normal(0,10)
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   fb ~                                                                         
-#>     w1                0.164    0.079    0.010    0.318    0.000    normal(0,10)
-#>     w2                0.130    0.076   -0.020    0.279    0.000    normal(0,10)
+#>     w1                0.161    0.079    0.007    0.315    0.001    normal(0,10)
+#>     w2                0.126    0.076   -0.023    0.276    0.001    normal(0,10)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .y1                0.024    0.075   -0.122    0.171    0.000    normal(0,32)
-#>    .y2               -0.016    0.060   -0.134    0.102    0.000    normal(0,32)
-#>    .y3               -0.042    0.054    0.064   -0.149    0.001    normal(0,32)
+#>    .y1                0.021    0.075   -0.126    0.168    0.001    normal(0,32)
+#>    .y2               -0.019    0.060   -0.137    0.099    0.001    normal(0,32)
+#>    .y3               -0.045    0.054   -0.151    0.062    0.001    normal(0,32)
 #>    .fb                0.000                                                    
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .y1                0.066    0.039    1.275    0.005    0.041 gamma(1,.5)[sd]
-#>    .y2                0.126    0.031    0.335    0.070    0.006 gamma(1,.5)[sd]
-#>    .y3                0.156    0.029    0.292    0.104    0.002 gamma(1,.5)[sd]
-#>    .fb                0.925    0.121    1.181    0.708    0.002 gamma(1,.5)[sd]
+#>    .y1                0.069    0.042    1.203    0.008    0.091 gamma(1,.5)[sd]
+#>    .y2                0.126    0.031    0.333    0.070    0.008 gamma(1,.5)[sd]
+#>    .y3                0.154    0.029    0.291    0.103    0.002 gamma(1,.5)[sd]
+#>    .fb                0.919    0.120    1.174    0.703    0.002 gamma(1,.5)[sd]
 ```
 
 Notice that, the mean structure is automatically included at both
@@ -253,13 +253,13 @@ substantive conclusions based on our educational scenario:
 
 - **Level 1 \[within\] Regressions**
 
-  The path `fw ~ x1` is 0.510. This suggests that for every unit
+  The path `fw ~ x1` is 0.509. This suggests that for every unit
   increase in `x1` (e.g., Study Hours), the student’s individual ability
   (`fw`) increases significantly.
 
 - **Level 2 \[cluster\] Regressions**
 
-  The path `fb ~ w1` is 0.164 This suggests a positive relationship
+  The path `fb ~ w1` is 0.161 This suggests a positive relationship
   between school-level factors (like Teacher Experience) and the overall
   School Quality (`fb`), though the standard deviation is wider here due
   to the smaller sample size at Level 2 ($n = 200$ schools vs $n = 2500$

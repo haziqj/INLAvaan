@@ -16,25 +16,25 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [84ms]
+#> ✔ Finding posterior mode. [75ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [65ms]
+#> ✔ Computing the Hessian. [58ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.008σ. [106ms]
+#> ✔ VB correction; mean |δ| = 0.008σ. [96ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [678ms]
+#> ✔ Fitting skew-normal to 21/21 marginals. [483ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [191ms]
+#> ✔ Adjusting copula correlations (NORTA). [193ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [78ms]
+#> ✔ Posterior sampling and summarising. [82ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9006 ended normally after 56 iterations
+#> INLAvaan 0.2.3.9008 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -49,8 +49,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7562.018 
-#>    Effective parameters (pD)                    43.198 
+#>    Deviance (DIC)                             7563.276 
+#>    Effective parameters (pD)                    43.827 
 #> 
 #> Parameter Estimates:
 #> 
@@ -60,37 +60,37 @@ summary(fit)
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual =~                                                                    
-#>     x1                0.907    0.083    0.745    1.072    0.010    normal(0,10)
-#>     x2                0.501    0.081    0.343    0.660    0.001    normal(0,10)
-#>     x3                0.663    0.078    0.512    0.818    0.005    normal(0,10)
+#>     x1                0.905    0.083    0.743    1.069    0.012    normal(0,10)
+#>     x2                0.500    0.081    0.342    0.659    0.000    normal(0,10)
+#>     x3                0.661    0.078    0.510    0.816    0.004    normal(0,10)
 #>   textual =~                                                                   
-#>     x4                1.000    0.058    0.890    1.118    0.004    normal(0,10)
-#>     x5                1.113    0.064    0.991    1.242    0.005    normal(0,10)
-#>     x6                0.924    0.055    0.820    1.035    0.004    normal(0,10)
+#>     x4                0.999    0.058    0.889    1.116    0.004    normal(0,10)
+#>     x5                1.112    0.064    0.991    1.241    0.004    normal(0,10)
+#>     x6                0.923    0.055    0.819    1.033    0.004    normal(0,10)
 #>   speed =~                                                                     
-#>     x7                0.610    0.075    0.753    0.458    0.006    normal(0,10)
-#>     x8                0.724    0.076    0.989    0.567    0.029    normal(0,10)
-#>     x9                0.688    0.079    0.540    0.851    0.033    normal(0,10)
+#>     x7                0.609    0.075    0.752    0.458    0.004    normal(0,10)
+#>     x8                0.725    0.075    0.869    0.573    0.015    normal(0,10)
+#>     x9                0.686    0.079    0.537    0.846    0.025    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.449    0.064    0.318    0.567    0.001       beta(1,1)
-#>     speed             0.467    0.086    0.297    0.633    0.019       beta(1,1)
+#>     textual           0.448    0.064    0.318    0.567    0.001       beta(1,1)
+#>     speed             0.466    0.086    0.297    0.632    0.021       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.280    0.071    0.138    0.415    0.003       beta(1,1)
+#>     speed             0.279    0.071    0.137    0.414    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                0.560    0.117    1.347    0.330    0.022 gamma(1,.5)[sd]
-#>    .x2                1.146    0.106    0.953    1.368    0.001 gamma(1,.5)[sd]
-#>    .x3                0.852    0.097    1.257    0.670    0.002 gamma(1,.5)[sd]
-#>    .x4                0.376    0.049    0.477    0.286    0.002 gamma(1,.5)[sd]
-#>    .x5                0.453    0.059    0.575    0.344    0.002 gamma(1,.5)[sd]
-#>    .x6                0.363    0.044    0.455    0.281    0.002 gamma(1,.5)[sd]
-#>    .x7                0.824    0.091    0.662    1.018    0.004 gamma(1,.5)[sd]
-#>    .x8                0.501    0.092    1.042    0.325    0.041 gamma(1,.5)[sd]
-#>    .x9                0.561    0.090    1.115    0.373    0.012 gamma(1,.5)[sd]
+#>    .x1                0.557    0.117    1.373    0.321    0.013 gamma(1,.5)[sd]
+#>    .x2                1.145    0.106    0.952    1.366    0.001 gamma(1,.5)[sd]
+#>    .x3                0.851    0.097    1.257    0.669    0.002 gamma(1,.5)[sd]
+#>    .x4                0.375    0.049    0.584    0.285    0.002 gamma(1,.5)[sd]
+#>    .x5                0.452    0.059    0.574    0.343    0.002 gamma(1,.5)[sd]
+#>    .x6                0.362    0.044    0.454    0.281    0.002 gamma(1,.5)[sd]
+#>    .x7                0.823    0.091    0.661    1.016    0.003 gamma(1,.5)[sd]
+#>    .x8                0.504    0.091    1.009    0.333    0.024 gamma(1,.5)[sd]
+#>    .x9                0.561    0.090    1.117    0.372    0.010 gamma(1,.5)[sd]
 #>     visual            1.000                                                    
 #>     textual           1.000                                                    
 #>     speed             1.000

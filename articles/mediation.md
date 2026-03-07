@@ -98,22 +98,22 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [38ms]
+#> ✔ Finding posterior mode. [34ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [35ms]
+#> ✔ Computing the Hessian. [42ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.012σ. [129ms]
+#> ✔ VB correction; mean |δ| = 0.012σ. [204ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/7 marginals.
-#> ✔ Fitting skew-normal to 7/7 marginals. [193ms]
+#> ✔ Fitting skew-normal to 7/7 marginals. [142ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [31ms]
+#> ✔ Adjusting copula correlations (NORTA). [38ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [340ms]
+#> ✔ Posterior sampling and summarising. [330ms]
 #> 
 ```
 
@@ -129,7 +129,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.3.9006 ended normally after 5 iterations
+#> INLAvaan 0.2.3.9008 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -144,8 +144,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              568.422 
-#>    Effective parameters (pD)                     6.760 
+#>    Deviance (DIC)                              568.417 
+#>    Effective parameters (pD)                     6.758 
 #> 
 #> Parameter Estimates:
 #> 
@@ -155,26 +155,26 @@ summary(fit)
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   Y ~                                                                          
-#>     X          (c)   -0.060    0.118   -0.291    0.171    0.000    normal(0,10)
+#>     X          (c)   -0.059    0.118   -0.290    0.172    0.001    normal(0,10)
 #>   M ~                                                                          
-#>     X          (a)    0.525    0.108    0.315    0.736    0.000    normal(0,10)
+#>     X          (a)    0.526    0.108    0.315    0.737    0.001    normal(0,10)
 #>   Y ~                                                                          
-#>     M          (b)    0.771    0.099    0.577    0.964    0.000    normal(0,10)
+#>     M          (b)    0.772    0.099    0.578    0.965    0.001    normal(0,10)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                -0.071    0.098   -0.263    0.122    0.000    normal(0,32)
-#>    .M                 0.126    0.099   -0.068    0.319    0.000    normal(0,32)
+#>    .Y                -0.070    0.098   -0.262    0.122    0.001    normal(0,32)
+#>    .M                 0.126    0.099   -0.067    0.320    0.001    normal(0,32)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                 0.977    0.145    0.733    1.303    0.006 gamma(1,.5)[sd]
-#>    .M                 0.998    0.147    0.749    1.325    0.006 gamma(1,.5)[sd]
+#>    .Y                 0.977    0.145    0.733    1.300    0.004 gamma(1,.5)[sd]
+#>    .M                 0.998    0.147    0.750    1.326    0.005 gamma(1,.5)[sd]
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.402    0.099    0.220    0.622                         
-#>     total             0.349    0.139    0.079    0.612
+#>     ab                0.403    0.100    0.221    0.624                         
+#>     total             0.351    0.139    0.081    0.615
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -182,18 +182,18 @@ output:
 
 - Both intercepts are non-significant, since we simulated data with true
   means of zero.
-- Path $a$ (`M ~ X`) estimated at 0.525 (true value 0.5).
-- Path $b$ (`Y ~ M`) estimated at 0.771 (true value 0.7).
-- Path $c$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
-  \[-0.291, 0.171\] includes zero, correctly identifying that there is
+- Path $a$ (`M ~ X`) estimated at 0.526 (true value 0.5).
+- Path $b$ (`Y ~ M`) estimated at 0.772 (true value 0.7).
+- Path $c$ (`Y ~ X`) estimated at -0.059. The 95% Credible Interval
+  \[-0.290, 0.172\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.402 (true value 0.35). The
-  interval \[0.220, 0.622\] does not cross zero, indicating significant
+- Indirect Effect $ab$ estimated at 0.403 (true value 0.35). The
+  interval \[0.221, 0.624\] does not cross zero, indicating significant
   mediation.
-- Total Effect estimated at 0.349.
+- Total Effect estimated at 0.351.
   - This is the sum of the direct and indirect effects ($c + ab$).
   - It tells us that a 1-unit increase in $X$ leads to a total increase
-    of roughly 0.349 in $Y$.
+    of roughly 0.351 in $Y$.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
     because the mechanism via $M$ is strong. This illustrates a “full

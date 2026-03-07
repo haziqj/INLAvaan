@@ -22,6 +22,10 @@
   [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md), and
   [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md).
 - Add params and logscale options to visual_debug.
+- Small optimisations to volume correction of skew-normal
+  marginalisation.
+- [ggplot2](https://ggplot2.tidyverse.org) is now optional; plots work
+  with base R graphics.
 
 ## INLAvaan 0.2.3
 

@@ -9,15 +9,15 @@ agrowth(
   model,
   data,
   dp = priors_for(),
+  test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 500,
-  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
-  sn_fit_logthresh = -6,
+  nsamp = 500,
   samp_copula = TRUE,
-  sn_fit_sample = TRUE,
+  sn_fit_logthresh = -6,
   sn_fit_temp = NA,
+  sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
   debug = FALSE,
@@ -52,6 +52,11 @@ agrowth(
   [`dpriors()`](https://blavaan.org/reference/dpriors.html) help file
   for more information.
 
+- test:
+
+  Character indicating whether to compute posterior fit indices.
+  Defaults to "standard". Change to "none" to skip these computations.
+
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
@@ -65,16 +70,6 @@ agrowth(
   approximation), and `"sampling"` (sampling from the joint Laplace
   approximation).
 
-- nsamp:
-
-  The number of samples to draw for all sampling-based approaches
-  (including posterior sampling for model fit indices).
-
-- test:
-
-  Character indicating whether to compute posterior fit indices.
-  Defaults to "standard". Change to "none" to skip these computations.
-
 - marginal_correction:
 
   Which type of correction to use when fitting the skew-normal or
@@ -82,11 +77,10 @@ agrowth(
   Hessian-based correction (slow), `"shortcut"` (default) computes only
   diagonals, and `"none"` (or `FALSE`) applies no correction.
 
-- sn_fit_logthresh:
+- nsamp:
 
-  The log-threshold for fitting the skew-normal. Points with
-  log-posterior drop below this threshold (relative to the maximum) will
-  be excluded from the fit. Defaults to `-6`.
+  The number of samples to draw for all sampling-based approaches
+  (including posterior sampling for model fit indices).
 
 - samp_copula:
 
@@ -95,17 +89,23 @@ agrowth(
   asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
   samples are drawn from the Gaussian (Laplace) approximation. Only re
 
-- sn_fit_sample:
+- sn_fit_logthresh:
 
-  Logical. When `TRUE` (default), a parametric skew-normal is fitted to
-  the posterior samples for covariance and defined parameters. When
-  `FALSE`, these are summarised using kernel density estimation instead.
+  The log-threshold for fitting the skew-normal. Points with
+  log-posterior drop below this threshold (relative to the maximum) will
+  be excluded from the fit. Defaults to `-6`.
 
 - sn_fit_temp:
 
   Temperature parameter for fitting the skew-normal. If `NA`, the
   temperature will be included in the optimisation during the skew
   normal fit.
+
+- sn_fit_sample:
+
+  Logical. When `TRUE` (default), a parametric skew-normal is fitted to
+  the posterior samples for covariance and defined parameters. When
+  `FALSE`, these are summarised using kernel density estimation instead.
 
 - control:
 
@@ -218,25 +218,25 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [157ms]
+#> ✔ Finding posterior mode. [156ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [67ms]
+#> ✔ Computing the Hessian. [74ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.005σ. [195ms]
+#> ✔ VB correction; mean |δ| = 0.005σ. [241ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/17 marginals.
-#> ✔ Fitting skew-normal to 17/17 marginals. [957ms]
+#> ✔ Fitting skew-normal to 17/17 marginals. [634ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [158ms]
+#> ✔ Adjusting copula correlations (NORTA). [118ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [143ms]
+#> ✔ Posterior sampling and summarising. [139ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9006 ended normally after 83 iterations
+#> INLAvaan 0.2.3.9008 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -251,8 +251,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             5000.716 
-#>    Effective parameters (pD)                    19.184 
+#>    Deviance (DIC)                             5000.578 
+#>    Effective parameters (pD)                    19.115 
 #> 
 #> Parameter Estimates:
 #> 
@@ -275,24 +275,24 @@ summary(fit)
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   i ~                                                                          
-#>     x1                0.608    0.060    0.491    0.726    0.000    normal(0,10)
-#>     x2                0.604    0.064    0.478    0.730    0.000    normal(0,10)
+#>     x1                0.608    0.060    0.490    0.726    0.001    normal(0,10)
+#>     x2                0.604    0.064    0.478    0.730    0.001    normal(0,10)
 #>   s ~                                                                          
-#>     x1                0.262    0.029    0.206    0.318    0.000    normal(0,10)
-#>     x2                0.522    0.031    0.462    0.582    0.000    normal(0,10)
+#>     x1                0.262    0.029    0.206    0.318    0.001    normal(0,10)
+#>     x2                0.522    0.031    0.462    0.582    0.001    normal(0,10)
 #>   t1 ~                                                                         
-#>     c1                0.144    0.050    0.046    0.242    0.000    normal(0,10)
+#>     c1                0.143    0.050    0.046    0.242    0.001    normal(0,10)
 #>   t2 ~                                                                         
-#>     c2                0.289    0.046    0.199    0.379    0.000    normal(0,10)
+#>     c2                0.289    0.046    0.199    0.379    0.001    normal(0,10)
 #>   t3 ~                                                                         
-#>     c3                0.328    0.045    0.240    0.415    0.000    normal(0,10)
+#>     c3                0.327    0.045    0.240    0.415    0.001    normal(0,10)
 #>   t4 ~                                                                         
-#>     c4                0.331    0.059    0.216    0.446    0.000    normal(0,10)
+#>     c4                0.330    0.059    0.216    0.445    0.001    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.152    0.041    0.151   -0.008    0.004       beta(1,1)
+#>    .s                 0.151    0.041    0.152   -0.007    0.002       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -300,16 +300,16 @@ summary(fit)
 #>    .t2                0.000                                                    
 #>    .t3                0.000                                                    
 #>    .t4                0.000                                                    
-#>    .i                 0.580    0.062    0.459    0.702    0.000    normal(0,10)
-#>    .s                 0.958    0.030    0.900    1.015    0.000    normal(0,10)
+#>    .i                 0.580    0.062    0.459    0.702    0.001    normal(0,10)
+#>    .s                 0.957    0.030    0.900    1.015    0.001    normal(0,10)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .t1                0.588    0.080    0.951    0.438    0.004 gamma(1,.5)[sd]
-#>    .t2                0.605    0.055    0.720    0.504    0.001 gamma(1,.5)[sd]
-#>    .t3                0.487    0.056    0.603    0.385    0.001 gamma(1,.5)[sd]
-#>    .t4                0.543    0.097    1.082    0.360    0.007 gamma(1,.5)[sd]
-#>    .i                 1.098    0.114    1.334    0.888    0.001 gamma(1,.5)[sd]
+#>    .t1                0.588    0.080    0.948    0.438    0.003 gamma(1,.5)[sd]
+#>    .t2                0.605    0.055    0.503    0.720    0.001 gamma(1,.5)[sd]
+#>    .t3                0.487    0.056    0.602    0.385    0.001 gamma(1,.5)[sd]
+#>    .t4                0.543    0.097    1.084    0.360    0.007 gamma(1,.5)[sd]
+#>    .i                 1.097    0.114    1.333    0.887    0.000 gamma(1,.5)[sd]
 #>    .s                 0.228    0.027    0.283    0.179    0.002 gamma(1,.5)[sd]
 #> 
 ```

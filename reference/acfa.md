@@ -9,15 +9,15 @@ acfa(
   model,
   data,
   dp = priors_for(),
+  test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  nsamp = 500,
-  test = "standard",
   marginal_correction = c("shortcut", "hessian", "none"),
-  sn_fit_logthresh = -6,
+  nsamp = 500,
   samp_copula = TRUE,
-  sn_fit_sample = TRUE,
+  sn_fit_logthresh = -6,
   sn_fit_temp = NA,
+  sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
   debug = FALSE,
@@ -52,6 +52,11 @@ acfa(
   [`dpriors()`](https://blavaan.org/reference/dpriors.html) help file
   for more information.
 
+- test:
+
+  Character indicating whether to compute posterior fit indices.
+  Defaults to "standard". Change to "none" to skip these computations.
+
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
@@ -65,16 +70,6 @@ acfa(
   approximation), and `"sampling"` (sampling from the joint Laplace
   approximation).
 
-- nsamp:
-
-  The number of samples to draw for all sampling-based approaches
-  (including posterior sampling for model fit indices).
-
-- test:
-
-  Character indicating whether to compute posterior fit indices.
-  Defaults to "standard". Change to "none" to skip these computations.
-
 - marginal_correction:
 
   Which type of correction to use when fitting the skew-normal or
@@ -82,11 +77,10 @@ acfa(
   Hessian-based correction (slow), `"shortcut"` (default) computes only
   diagonals, and `"none"` (or `FALSE`) applies no correction.
 
-- sn_fit_logthresh:
+- nsamp:
 
-  The log-threshold for fitting the skew-normal. Points with
-  log-posterior drop below this threshold (relative to the maximum) will
-  be excluded from the fit. Defaults to `-6`.
+  The number of samples to draw for all sampling-based approaches
+  (including posterior sampling for model fit indices).
 
 - samp_copula:
 
@@ -95,17 +89,23 @@ acfa(
   asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
   samples are drawn from the Gaussian (Laplace) approximation. Only re
 
-- sn_fit_sample:
+- sn_fit_logthresh:
 
-  Logical. When `TRUE` (default), a parametric skew-normal is fitted to
-  the posterior samples for covariance and defined parameters. When
-  `FALSE`, these are summarised using kernel density estimation instead.
+  The log-threshold for fitting the skew-normal. Points with
+  log-posterior drop below this threshold (relative to the maximum) will
+  be excluded from the fit. Defaults to `-6`.
 
 - sn_fit_temp:
 
   Temperature parameter for fitting the skew-normal. If `NA`, the
   temperature will be included in the optimisation during the skew
   normal fit.
+
+- sn_fit_sample:
+
+  Logical. When `TRUE` (default), a parametric skew-normal is fitted to
+  the posterior samples for covariance and defined parameters. When
+  `FALSE`, these are summarised using kernel density estimation instead.
 
 - control:
 
@@ -197,26 +197,25 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [65ms]
+#> ✔ Finding posterior mode. [57ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [42ms]
+#> ✔ Computing the Hessian. [54ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.008σ. [103ms]
+#> ✔ VB correction; mean |δ| = 0.008σ. [91ms]
 #> 
 #> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ⠹ Fitting skew-normal to 17/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [671ms]
+#> ✔ Fitting skew-normal to 21/21 marginals. [451ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [183ms]
+#> ✔ Adjusting copula correlations (NORTA). [195ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [85ms]
+#> ✔ Posterior sampling and summarising. [75ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9006 ended normally after 56 iterations
+#> INLAvaan 0.2.3.9008 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -231,8 +230,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7559.886 
-#>    Effective parameters (pD)                    42.132 
+#>    Deviance (DIC)                             7555.464 
+#>    Effective parameters (pD)                    39.921 
 #> 
 #> Parameter Estimates:
 #> 
@@ -242,37 +241,37 @@ summary(fit)
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual =~                                                                    
-#>     x1                0.907    0.083    0.745    1.072    0.010    normal(0,10)
-#>     x2                0.501    0.081    0.343    0.660    0.001    normal(0,10)
-#>     x3                0.663    0.078    0.512    0.818    0.005    normal(0,10)
+#>     x1                0.905    0.083    0.743    1.069    0.012    normal(0,10)
+#>     x2                0.500    0.081    0.342    0.659    0.000    normal(0,10)
+#>     x3                0.661    0.078    0.510    0.816    0.004    normal(0,10)
 #>   textual =~                                                                   
-#>     x4                1.000    0.058    0.890    1.118    0.004    normal(0,10)
-#>     x5                1.113    0.064    0.991    1.242    0.005    normal(0,10)
-#>     x6                0.924    0.055    0.820    1.035    0.004    normal(0,10)
+#>     x4                0.999    0.058    0.889    1.116    0.004    normal(0,10)
+#>     x5                1.112    0.064    0.991    1.241    0.004    normal(0,10)
+#>     x6                0.923    0.055    0.819    1.033    0.004    normal(0,10)
 #>   speed =~                                                                     
-#>     x7                0.610    0.075    0.753    0.458    0.006    normal(0,10)
-#>     x8                0.724    0.076    0.989    0.567    0.029    normal(0,10)
-#>     x9                0.688    0.079    0.540    0.851    0.033    normal(0,10)
+#>     x7                0.609    0.075    0.752    0.458    0.004    normal(0,10)
+#>     x8                0.725    0.075    0.869    0.573    0.015    normal(0,10)
+#>     x9                0.686    0.079    0.537    0.846    0.025    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.449    0.064    0.318    0.567    0.001       beta(1,1)
-#>     speed             0.467    0.086    0.297    0.633    0.019       beta(1,1)
+#>     textual           0.448    0.064    0.318    0.567    0.001       beta(1,1)
+#>     speed             0.466    0.086    0.297    0.632    0.021       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.280    0.071    0.138    0.415    0.003       beta(1,1)
+#>     speed             0.279    0.071    0.137    0.414    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                0.560    0.117    1.347    0.330    0.022 gamma(1,.5)[sd]
-#>    .x2                1.146    0.106    0.953    1.368    0.001 gamma(1,.5)[sd]
-#>    .x3                0.852    0.097    1.257    0.670    0.002 gamma(1,.5)[sd]
-#>    .x4                0.376    0.049    0.477    0.286    0.002 gamma(1,.5)[sd]
-#>    .x5                0.453    0.059    0.575    0.344    0.002 gamma(1,.5)[sd]
-#>    .x6                0.363    0.044    0.455    0.281    0.002 gamma(1,.5)[sd]
-#>    .x7                0.824    0.091    0.662    1.018    0.004 gamma(1,.5)[sd]
-#>    .x8                0.501    0.092    1.042    0.325    0.041 gamma(1,.5)[sd]
-#>    .x9                0.561    0.090    1.115    0.373    0.012 gamma(1,.5)[sd]
+#>    .x1                0.557    0.117    1.373    0.321    0.013 gamma(1,.5)[sd]
+#>    .x2                1.145    0.106    0.952    1.366    0.001 gamma(1,.5)[sd]
+#>    .x3                0.851    0.097    1.257    0.669    0.002 gamma(1,.5)[sd]
+#>    .x4                0.375    0.049    0.584    0.285    0.002 gamma(1,.5)[sd]
+#>    .x5                0.452    0.059    0.574    0.343    0.002 gamma(1,.5)[sd]
+#>    .x6                0.362    0.044    0.454    0.281    0.002 gamma(1,.5)[sd]
+#>    .x7                0.823    0.091    0.661    1.016    0.003 gamma(1,.5)[sd]
+#>    .x8                0.504    0.091    1.009    0.333    0.024 gamma(1,.5)[sd]
+#>    .x9                0.561    0.090    1.117    0.372    0.010 gamma(1,.5)[sd]
 #>     visual            1.000                                                    
 #>     textual           1.000                                                    
 #>     speed             1.000                                                    
