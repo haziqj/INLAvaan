@@ -40,23 +40,23 @@ test_that("as_fun_string flattens functions to single string", {
   expect_match(res, "x\\^2 \\+ 1")
 })
 
-test_that("check_mat identifies problematic matrices", {
+test_that("is_bad_cov identifies problematic matrices", {
   # 1. Positive Definite (Good) -> Should return FALSE
   mat_pd <- matrix(c(2, 0.5, 0.5, 2), 2, 2)
-  expect_false(check_mat(mat_pd))
+  expect_false(is_bad_cov(mat_pd))
 
   # 2. Negative Definite (Bad) -> Should return TRUE
   mat_nd <- matrix(c(-2, 0.5, 0.5, -2), 2, 2)
-  expect_true(check_mat(mat_nd))
+  expect_true(is_bad_cov(mat_nd))
 
   # 3. NA/Inf/NaN (Bad) -> Should return TRUE
   mat_na <- mat_pd
   mat_na[1, 1] <- NA
-  expect_true(check_mat(mat_na))
+  expect_true(is_bad_cov(mat_na))
 
   mat_inf <- mat_pd
   mat_inf[1, 1] <- Inf
-  expect_true(check_mat(mat_inf))
+  expect_true(is_bad_cov(mat_inf))
 })
 
 test_that("force_pd corrects non-PD matrices", {

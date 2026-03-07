@@ -37,20 +37,10 @@ as_fun_string <- function(f) {
   gsub("\\s+", " ", paste(deparse(f), collapse = " "))
 }
 
-# Check if matrix is negative definite
-check_mat <- function(mat) {
-  if (any(is.nan(mat))) {
-    return(TRUE)
-  }
-  if (any(is.na(mat))) {
-    return(TRUE)
-  }
-  if (any(is.infinite(mat))) {
-    return(TRUE)
-  }
-  eig <- eigen(mat, TRUE, TRUE)$values
-  mat_is_neg_def <- any(eig < -1e-06 * eig[1]) | any(eig < 0)
-  mat_is_neg_def
+# Check if matrix is a bad covariance (not PD, or contains NA/NaN/Inf)
+is_bad_cov <- function(mat) {
+  if (any(!is.finite(mat))) return(TRUE)
+  tryCatch({ chol(mat); FALSE }, error = function(e) TRUE)
 }
 
 # Force matrix to be positive definite

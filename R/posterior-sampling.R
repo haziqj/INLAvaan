@@ -184,7 +184,7 @@ get_ppp <- function(
       # Retrieve Model Implied Sigma (Universal)
       Sigma <- lavimplied$cov[[b]]
 
-      if (!check_mat(Sigma)) {
+      if (!is_bad_cov(Sigma)) {
         # Simulate and Accumulate
         W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1]
         Srep <- W / (n - 1)

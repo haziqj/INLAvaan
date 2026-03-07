@@ -11,7 +11,7 @@ inlav_model_loglik <- function(
   Sigma <- lavimplied$cov[[1]]
 
   out <- -1e40
-  if (!check_mat(Sigma)) {
+  if (!is_bad_cov(Sigma)) {
     if (lavmodel@estimator == "ML") {
       # Multivariate normal log-likelihood
       out <- lavaan___lav_model_loglik(

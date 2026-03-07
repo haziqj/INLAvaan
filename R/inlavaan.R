@@ -385,13 +385,11 @@ inlavaan <- function(
     delta_inner <- 0.001 # for rate of change of gradients (2nd deriv)
 
     if (marginal_correction %in% c("shortcut", "hessian")) {
-      # Precompute baseline Hessian (diagonal of Hessian_z at mode)
-      Hz0 <- numeric(m)
-      for (j in 1:m) {
-        g_fwd <- -1 * joint_lp_grad(theta_star + L[, j] * delta_inner)
-        g_bwd <- -1 * joint_lp_grad(theta_star - L[, j] * delta_inner)
-        Hz0[j] <- sum(L[, j] * (g_fwd - g_bwd)) / (2 * delta_inner)
-      }
+      # In whitened Z-space, the Hessian at the mode is identity by
+      # construction. NOTE: Previously used a FD here due to different numerical
+      # properties in the Richardson-based extrapolation of numDeriv. Now we
+      # have our own FD implementation.
+      Hz0 <- rep(1, m)
     }
 
     get_gamma1 <- function(.j) {
@@ -407,10 +405,11 @@ inlavaan <- function(
           Hz1 <- diag(t(L) %*% Htheta1_full %*% L)
         } else if (marginal_correction == "shortcut") {
           Hz1 <- numeric(m)
-          for (jj in 1:m) {
+          g0_shifted <- -1 * joint_lp_grad(th_plus)
+          jj_idx <- setdiff(seq_len(m), .j) # skip .j (not needed)
+          for (jj in jj_idx) {
             g_fwd <- -1 * joint_lp_grad(th_plus + L[, jj] * delta_inner)
-            g_bwd <- -1 * joint_lp_grad(th_plus - L[, jj] * delta_inner)
-            Hz1[jj] <- sum(L[, jj] * (g_fwd - g_bwd)) / (2 * delta_inner)
+            Hz1[jj] <- sum(L[, jj] * (g_fwd - g0_shifted)) / delta_inner
           }
         }
         dH_dz <- (Hz1 - Hz0) / delta_outer
@@ -474,7 +473,7 @@ inlavaan <- function(
       }
 
       obtain_approx_data <- function(j) {
-        z <- seq(-4, 4, length = 31)
+        z <- seq(-4, 4, length = 21)
         yync <- yy <- numeric(length(z))
         gamma1j <- get_gamma1(j)
 
