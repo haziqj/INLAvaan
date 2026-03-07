@@ -142,7 +142,7 @@ test_that("4-group model with a bunch of constraints and predict", {
 
 test_that("Constraint on correlations", {
   # ECM: This is a place where I think blavaan will constrain correlations
-  # instead of covariances. #  that might not be the right thing to do, but
+  # instead of covariances. That might not be the right thing to do, but
   # equality constraints on covariances are already weird.
 
   HS.modelc <- "

@@ -113,7 +113,7 @@ test_that("Missing data", {
   expect_equal(output, target, tolerance = 1e-5)
 
   # FIML
-  suppressWarnings(fit <- lavaan::sem(mod, PoliticalDemocracy, missing = "ML"))
+  suppressWarnings(fit <- lavaan::sem(mod, dat, missing = "ML"))
   target <- as.numeric(lavaan::logLik(fit))
   output <- inlav_model_loglik(
     coef(fit),

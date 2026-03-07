@@ -95,5 +95,3 @@ test_that("Gradients are correct (Finite Difference Check)", {
     tolerance = 1e-3
   )
 })
-print(res$p_errors)
-print(res$metrics_df, n = 1000)

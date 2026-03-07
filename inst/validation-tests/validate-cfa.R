@@ -28,3 +28,5 @@ res <- compare_mcmc(
   "sampling" = fit_inl3
 )
 print(res$p_compare)
+print(res$p_errors)
+print(res$metrics_df, n = 1000)
