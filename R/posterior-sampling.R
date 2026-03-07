@@ -29,10 +29,12 @@ sample_params <- function(
   approx_data,
   pt,
   lavmodel,
-  nsamp = 1000
+  nsamp = 1000,
+  R_star = NULL  # NORTA-adjusted correlation matrix for SN copula
 ) {
   R <- cov2cor(Sigma_theta)
-  Lt <- chol(R)
+  R_use <- if (method == "skewnorm" && !is.null(R_star)) R_star else R
+  Lt <- chol(R_use)
   z_raw <- matrix(rnorm(nsamp * ncol(R)), nrow = nsamp)
   z <- z_raw %*% Lt
   u <- apply(z, 2, pnorm)
