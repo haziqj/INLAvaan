@@ -32,8 +32,10 @@ Suggests:
     ggplot2,
     knitr,
     lme4,
+    numDeriv,
     qrng,
     quarto,
+    sn,
     testthat (>= 3.0.0),
     ucminf
 VignetteBuilder: 
