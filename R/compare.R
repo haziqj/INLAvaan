@@ -1,22 +1,34 @@
 #' Compare Bayesian Models Fitted with INLAvaan
 #'
-#' Compare Bayesian Models Fitted with INLAvaan
+#' Compare two or more Bayesian SEM fitted with INLAvaan, reporting model-fit
+#' statistics and (optionally) fit indices side by side.
 #'
-#' The function computes the log Bayes Factor (logBF) relative to the best
-#' fitting model (the one with the highest Marginal Log-Likelihood).
+#' @details
+#' The default table always includes:
 #'
-#' The output table sorts models by descending Marginal Log-Likelihood.
-#'   - **Marg.Loglik**: The approximated marginal log-likelihood.
-#'   - **DIC**: Deviance Information Criterion (if available).
-#'   - **pD**: Effective number of parameters (if available).
-#'   - **logBF**: The natural logarithm of the Bayes Factor relative to the best model.
+#'   - **npar**: Number of free parameters.
+#'   - **Marg.Loglik**: Approximated marginal log-likelihood.
+#'   - **logBF**: Natural-log Bayes factor relative to the best model.
+#'   - **DIC** / **pD**: Deviance Information Criterion and effective number
+#'     of parameters (when `test != "none"` was used during fitting).
 #'
-#' @param x,y,... An object of class `INLAvaan` or `inlavaan_internal`.
+#' Set `fit.measures` to a character vector of measure names (anything
+#' returned by [fitMeasures()][lavaan::fitMeasures]) to append extra columns.
+#' Use `fit.measures = "all"` to include every available measure.
+#'
+#' @param x,y,... Objects of class [INLAvaan] (or `inlavaan_internal`).
+#' @param fit.measures Character vector of additional fit-measure names to
+#'   include (e.g. `"BRMSEA"`, `"BCFI"`).
+#'   Use `"all"` to include every measure returned by [fitMeasures()][lavaan::fitMeasures].
+#'   The default (`NULL`) shows only the core comparison statistics.
+#' @param baseline.model An optional [INLAvaan] baseline (null) model, passed
+#'   to [fitMeasures()][lavaan::fitMeasures] when incremental indices (BCFI,
+#'   BTLI, BNFI) are requested.
 #'
 #' @return A data frame of class `compare.inlavaan_internal` containing model
-#'   fit statistics.
+#'   fit statistics, sorted by descending marginal log-likelihood.
 #'
-#' @references https://lavaan.ugent.be/tutorial/groups.html
+#' @references <https://lavaan.ugent.be/tutorial/groups.html>
 #'
 #' @example inst/examples/ex-model_comparison.R
 #' @export
@@ -27,60 +39,121 @@ setGeneric("compare", function(x, y, ...) standardGeneric("compare"))
 #' @export
 setMethod("compare", "INLAvaan", function(x, y, ...) {
   mc <- match.call()
-  call_list <- as.list(mc)[-1]
-  modnames <- sapply(call_list, deparse)
-  FUN <- utils::getFromNamespace("compare.inlavaan_internal", "INLAvaan")
-  mc[[1]] <- FUN
-  eval(mc, parent.frame())
+  dots <- list(...)
+
+  # Separate model objects from named options in ...
+  model_objs <- list(x, y)
+  model_exprs <- list(mc$x, mc$y)
+
+  # Walk through ... : unnamed or INLAvaan/inlavaan_internal args are models
+  dot_names <- names(dots)
+  opt_names <- c("fit.measures", "baseline.model")
+  for (i in seq_along(dots)) {
+    nm <- if (is.null(dot_names)) "" else dot_names[i]
+    if (nm %in% opt_names) next
+    model_objs  <- c(model_objs, list(dots[[i]]))
+    # Get the expression from the call (mc has "", "x", "y", then ... args)
+    model_exprs <- c(model_exprs, list(mc[[i + 3L]]))
+  }
+
+  modnames <- vapply(model_exprs, deparse, character(1))
+
+  compare_impl(
+    models         = model_objs,
+    modnames       = modnames,
+    fit.measures   = dots$fit.measures,
+    baseline.model = dots$baseline.model
+  )
 })
 
+#' @exportS3Method compare inlavaan_internal
 compare.inlavaan_internal <- function(x, y, ...) {
-  # Capture user-supplied names
-  call_list <- as.list(substitute(list(x, y, ...)))[-1]
-  modnames <- sapply(call_list, deparse)
+  mc <- match.call()
+  dots <- list(...)
 
-  # Collect model objects
-  models <- list(x, y, ...)
-  nmod <- length(models)
+  model_objs <- list(x, y)
+  model_exprs <- list(mc$x, mc$y)
 
-  models <- lapply(models, function(x) {
-    if (inherits(x, "INLAvaan")) {
-      return(x@external$inlavaan_internal)
-    } else if (inherits(x, "inlavaan_internal")) {
-      return(x)
-    }
+  dot_names <- names(dots)
+  opt_names <- c("fit.measures", "baseline.model")
+  for (i in seq_along(dots)) {
+    nm <- if (is.null(dot_names)) "" else dot_names[i]
+    if (nm %in% opt_names) next
+    model_objs  <- c(model_objs, list(dots[[i]]))
+    model_exprs <- c(model_exprs, list(mc[[i + 3L]]))
+  }
+
+  modnames <- vapply(model_exprs, deparse, character(1))
+
+  compare_impl(
+    models         = model_objs,
+    modnames       = modnames,
+    fit.measures   = dots$fit.measures,
+    baseline.model = dots$baseline.model
+  )
+}
+
+# ---- Internal workhorse ------------------------------------------------------
+
+compare_impl <- function(models, modnames, fit.measures = NULL,
+                         baseline.model = NULL) {
+  # Normalise to internal objects, keeping originals for fitMeasures()
+  originals <- models
+  internals <- lapply(models, function(m) {
+    if (inherits(m, "INLAvaan")) m@external$inlavaan_internal
+    else if (inherits(m, "inlavaan_internal")) m
+    else cli_abort("Each model must be an {.cls INLAvaan} or {.cls inlavaan_internal} object.")
   })
 
-  # Extract criteria
-  marg_ll <- sapply(models, function(m) m$mloglik)
-  DIC <- unlist(sapply(models, function(m) m$DIC$dic))
-  pD <- unlist(sapply(models, function(m) m$DIC$pD))
-  m <- sapply(models, function(m) length(m$theta_star))
+  nmod <- length(internals)
+  npar    <- vapply(internals, function(m) length(m$theta_star), integer(1))
+  marg_ll <- vapply(internals, function(m) m$mloglik, numeric(1))
+  DIC_vec <- vapply(internals, function(m) m$DIC$dic %||% NA_real_, numeric(1))
+  pD_vec  <- vapply(internals, function(m) m$DIC$pD  %||% NA_real_, numeric(1))
 
-  # Identify best model by highest marginal log-likelihood
-  best_idx <- which.max(marg_ll)
-  best_ll <- marg_ll[best_idx]
+  best_ll <- max(marg_ll)
+  logBF   <- marg_ll - best_ll
 
-  # Compute log Bayes Factors and BF relative to best model
-  logBF <- marg_ll - best_ll
-  BF <- exp(logBF)
-
-  # Create comparison table
   out <- data.frame(
-    Model = modnames,
-    No.params = m,
+    Model       = modnames,
+    npar        = npar,
     Marg.Loglik = marg_ll,
-    DIC = if (is.null(DIC)) "" else DIC,
-    pD = if (is.null(pD)) "" else pD,
-    logBF = round(logBF, 3),
-    # BF            = round(BF, 3),
+    logBF       = round(logBF, 3),
     stringsAsFactors = FALSE
   )
 
-  # Order table by (best first)
+  # Append DIC/pD if any model has them
+  if (!all(is.na(DIC_vec))) {
+    out$DIC <- round(DIC_vec, 3)
+    out$pD  <- round(pD_vec, 3)
+  }
+
+  # Append extra fit measures if requested
+  if (!is.null(fit.measures)) {
+    has_inlavaan <- vapply(originals, function(m) is(m, "INLAvaan"), logical(1))
+    if (!all(has_inlavaan)) {
+      cli_warn("Fit measures require {.cls INLAvaan} objects; skipping for {.cls inlavaan_internal} models.")
+    } else {
+      # Retrieve fitMeasures for each model
+      fm_list <- lapply(originals, function(m) {
+        tryCatch(
+          fitMeasures(m, fit.measures = fit.measures,
+                      baseline.model = baseline.model),
+          error = function(e) NULL
+        )
+      })
+      # Union of all measure names
+      all_names <- unique(unlist(lapply(fm_list, names)))
+      for (nm in all_names) {
+        out[[nm]] <- vapply(fm_list, function(fm) {
+          if (is.null(fm) || is.na(fm[nm])) NA_real_ else round(fm[nm], 4)
+        }, numeric(1))
+      }
+    }
+  }
+
   out <- out[order(-out$Marg.Loglik), ]
   rownames(out) <- NULL
-
   class(out) <- c("compare.inlavaan_internal", class(out))
   out
 }

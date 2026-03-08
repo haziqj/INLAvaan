@@ -11,26 +11,38 @@ compare(x, y, ...)
 \S4method{compare}{INLAvaan}(x, y, ...)
 }
 \arguments{
-\item{x, y, ...}{An object of class \code{INLAvaan} or \code{inlavaan_internal}.}
+\item{x, y, ...}{Objects of class \link{INLAvaan} (or \code{inlavaan_internal}).}
+
+\item{fit.measures}{Character vector of additional fit-measure names to
+include (e.g. \code{"BRMSEA"}, \code{"BCFI"}).
+Use \code{"all"} to include every measure returned by \link[lavaan:fitMeasures]{fitMeasures()}.
+The default (\code{NULL}) shows only the core comparison statistics.}
+
+\item{baseline.model}{An optional \link{INLAvaan} baseline (null) model, passed
+to \link[lavaan:fitMeasures]{fitMeasures()} when incremental indices (BCFI,
+BTLI, BNFI) are requested.}
 }
 \value{
 A data frame of class \code{compare.inlavaan_internal} containing model
-fit statistics.
+fit statistics, sorted by descending marginal log-likelihood.
 }
 \description{
-Compare Bayesian Models Fitted with INLAvaan
+Compare two or more Bayesian SEM fitted with INLAvaan, reporting model-fit
+statistics and (optionally) fit indices side by side.
 }
 \details{
-The function computes the log Bayes Factor (logBF) relative to the best
-fitting model (the one with the highest Marginal Log-Likelihood).
-
-The output table sorts models by descending Marginal Log-Likelihood.
+The default table always includes:
 \itemize{
-\item \strong{Marg.Loglik}: The approximated marginal log-likelihood.
-\item \strong{DIC}: Deviance Information Criterion (if available).
-\item \strong{pD}: Effective number of parameters (if available).
-\item \strong{logBF}: The natural logarithm of the Bayes Factor relative to the best model.
+\item \strong{npar}: Number of free parameters.
+\item \strong{Marg.Loglik}: Approximated marginal log-likelihood.
+\item \strong{logBF}: Natural-log Bayes factor relative to the best model.
+\item \strong{DIC} / \strong{pD}: Deviance Information Criterion and effective number
+of parameters (when \code{test != "none"} was used during fitting).
 }
+
+Set \code{fit.measures} to a character vector of measure names (anything
+returned by \link[lavaan:fitMeasures]{fitMeasures()}) to append extra columns.
+Use \code{fit.measures = "all"} to include every available measure.
 }
 \examples{
 \donttest{
@@ -63,8 +75,15 @@ fit3 <- acfa(
 
 # Compare models
 compare(fit1, fit2, fit3)
+
+# With exta fit measures
+compare(fit1, fit2, fit.measures = c("BRMSEA", "BMc"))
+
+# With incremental indices (needs a baseline model)
+compare(fit2, fit3, fit.measures = c("BCFI", "BTLI"),
+        baseline.model = fit1)
 }
 }
 \references{
-https://lavaan.ugent.be/tutorial/groups.html
+\url{https://lavaan.ugent.be/tutorial/groups.html}
 }

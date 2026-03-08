@@ -28,4 +28,11 @@ fit3 <- acfa(
 
 # Compare models
 compare(fit1, fit2, fit3)
+
+# With exta fit measures
+compare(fit1, fit2, fit.measures = c("BRMSEA", "BMc"))
+
+# With incremental indices (needs a baseline model)
+compare(fit2, fit3, fit.measures = c("BCFI", "BTLI"),
+        baseline.model = fit1)
 }
