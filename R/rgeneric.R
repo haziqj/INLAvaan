@@ -17,7 +17,7 @@
 #     # FIXME: These are indices for free parameters theta. But sometimes, with
 #     # fixed parameter values we still need the indices...
 #
-#     force_pd <- function(x) {
+#     make_pd <- function(x) {
 #       ed <- eigen(x, symmetric = TRUE, only.values = TRUE)
 #       if (any (ed$values < 0)) {
 #         ed <- eigen(x, symmetric = TRUE)
@@ -30,7 +30,7 @@
 #       }
 #       out
 #     }
-#     assign("force_pd", force_pd, envir = envir)
+#     assign("make_pd", make_pd, envir = envir)
 #
 #     # Indices of free parameters
 #     idx_lam   <- partable$free[partable$mat == "lambda" & partable$free > 0]
@@ -119,7 +119,7 @@
 #       Theta[cbind(I, J)] <- values
 #       Theta[cbind(J, I)] <- values
 #
-#       Theta <- force_pd(Theta)  # force pd
+#       Theta <- make_pd(Theta)  # force pd
 #     }
 #
 #     # Psi matrix
@@ -131,7 +131,7 @@
 #       Psi[cbind(I, J)] <- values
 #       Psi[cbind(J, I)] <- values
 #
-#       Psi <- force_pd(Psi)  # force pd
+#       Psi <- make_pd(Psi)  # force pd
 #     }
 #
 #     if (isTRUE(debug)) {

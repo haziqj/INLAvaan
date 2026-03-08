@@ -56,21 +56,16 @@ predict.inlavaan_internal <- function(
   lavmodel <- object$lavmodel
   lavdata <- object$lavdata
 
-  # Reuse stored samples if nsamp matches, otherwise re-draw
-  if (!is.null(object$x_samp) && nrow(object$x_samp) == nsamp) {
-    x_samp <- object$x_samp
-  } else {
-    samp <- sample_params(
-      theta_star = theta_star,
-      Sigma_theta = Sigma_theta,
-      method = marginal_method,
-      approx_data = approx_data,
-      pt = pt,
-      lavmodel = lavmodel,
-      nsamp = nsamp
-    )
-    x_samp <- samp$x_samp
-  }
+  samp <- sample_params(
+    theta_star = theta_star,
+    Sigma_theta = Sigma_theta,
+    method = marginal_method,
+    approx_data = approx_data,
+    pt = pt,
+    lavmodel = lavmodel,
+    nsamp = nsamp
+  )
+  x_samp <- samp$x_samp
 
   nG <- lavdata@ngroups
   group_labels <- lavdata@group.label

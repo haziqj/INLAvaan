@@ -43,19 +43,11 @@ is_bad_cov <- function(mat) {
   tryCatch({ chol(mat); FALSE }, error = function(e) TRUE)
 }
 
-# Force matrix to be positive definite
-force_pd <- function(x) {
-  ed <- eigen(x, symmetric = TRUE, only.values = TRUE)
-  if (any(ed$values < 0)) {
-    ed <- eigen(x, symmetric = TRUE)
-    eval <- ed$values
-    evec <- ed$vectors
-    eval[eval < 0] <- .Machine$double.eps
-    out <- evec %*% diag(eval) %*% t(evec)
-  } else {
-    out <- x
-  }
-  out
+# Nearest PD via eigenvalue clamping
+make_pd <- function(X, tol = 1e-8) {
+  e <- eigen(X, symmetric = TRUE)
+  vals <- pmax(e$values, tol * max(e$values))
+  e$vectors %*% (vals * t(e$vectors))
 }
 
 # Get internal inlavaan object

@@ -25,6 +25,7 @@
 #' @import methods
 #' @importFrom cli cli_abort
 #' @importFrom cli cli_alert_info
+#' @importFrom cli cli_inform
 #' @importFrom cli cli_alert_warning
 #' @importFrom cli cli_progress_bar
 #' @importFrom cli cli_progress_done

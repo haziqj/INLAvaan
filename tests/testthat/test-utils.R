@@ -59,16 +59,16 @@ test_that("is_bad_cov identifies problematic matrices", {
   expect_true(is_bad_cov(mat_inf))
 })
 
-test_that("force_pd corrects non-PD matrices", {
+test_that("make_pd corrects non-PD matrices", {
   # Case 1: Already PD -> Should remain unchanged
   mat_pd <- matrix(c(2, 1, 1, 2), 2, 2)
-  expect_equal(force_pd(mat_pd), mat_pd)
+  expect_equal(make_pd(mat_pd), mat_pd)
 
   # Case 2: Non-PD -> Should become PD
   # Create a matrix with negative eigenvalues
   mat_bad <- matrix(c(1, 2, 2, 1), 2, 2) # Eigenvalues: 3, -1
 
-  mat_fixed <- force_pd(mat_bad)
+  mat_fixed <- make_pd(mat_bad)
 
   # Check that it is now PD (all eigenvalues > 0)
   eigs <- eigen(mat_fixed)$values

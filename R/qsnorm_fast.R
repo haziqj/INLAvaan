@@ -113,46 +113,38 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   res[u == 0] <- -Inf
   res[u == 1] <- Inf
 
+  # ---- Symmetry relation: Q(-alpha, u) = -Q(alpha, 1 - u) ----
+  # Fold negative alpha to positive so all downstream code assumes a >= 0.
+  flip <- (a < 0)
+  u[flip] <- 1 - u[flip]
+  a[flip] <- -a[flip]
+
   # Pre-processing for a
   # If a == 1, u = sqrt(u)
   idx_a1 <- (a == 1)
   u[idx_a1] <- sqrt(u[idx_a1])
 
-  # If a == -1, u = sqrt(1 - u)
-  idx_am1 <- (a == -1)
-  u[idx_am1] <- sqrt(1 - u[idx_am1])
-
   # Standard normal quantile (z in C code)
   z <- stats::qnorm(u)
 
-  # Base result for a=0, 1, -1 is z (sign handled later)
-  # But we calculate the approximation for general 'a'
-
-  A <- abs(a)
-  sign_a <- sign(a)
-  # Fix sign_a for 0 case to avoid issues, though a=0 is handled by fallback
-  sign_a[sign_a == 0] <- 1
+  A <- a  # a >= 0 after fold
 
   # --- Region Checks ---
   # right_limit = erf(const_tol / A)
   # erf(x) = 2 * pnorm(x * sqrt(2)) - 1
   right_limit <- 2 * stats::pnorm((CONST_TOL / A) * SQRT2) - 1
 
-  # Mask for calculations (skip 0/1/Inf boundaries)
-  mask <- (u > 0) & (u < 1) & (a != 0) & (a != 1) & (a != -1)
+  # Mask for calculations (skip 0/1/Inf boundaries and a=0,1 special cases)
+  mask <- (u > 0) & (u < 1) & (a != 0) & (a != 1)
 
   if (!any(mask)) {
-    # If only special cases, return early
     res[!mask] <- z[!mask]
-    # Handle the sign flip for a < 0 cases that fell through special handling
-    neg_mask <- (a < 0) & !mask
-    res[neg_mask] <- -res[neg_mask]
+    res[flip] <- -res[flip]
     return(res)
   }
 
   # Process masked elements
   u_m <- u[mask]
-  a_m <- a[mask]
   A_m <- A[mask]
   z_m <- z[mask]
   rl_m <- right_limit[mask]
@@ -160,39 +152,15 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   final_vals <- z_m # Default to z, will overwrite
 
   # 1. Tail Region (Using Lambert W approximation 'plog')
-  # a > 0 && u > right_limit
-  idx_tail_pos <- (a_m > 0) & (u_m > rl_m)
-  # a < 0 && (1 - u) > right_limit
-  idx_tail_neg <- (a_m < 0) & ((1 - u_m) > rl_m)
+  # a >= 0, so only positive tail check needed
+  idx_tail <- (u_m > rl_m)
 
-  # Erf Inverse helper: erf_inv(x) = qnorm((1+x)/2)/sqrt(2)
-  # Erfc Inverse helper: erfc_inv(x) = qnorm(x/2, lower=F)/sqrt(2)
-
-  if (any(idx_tail_pos)) {
-    # returns sqrt(2) * erf_inv(u) -> qnorm((1+u)/2)
-    # The C code uses: 1.414... * erf_inv(u)
-    # erf_inv(u) = qnorm((1+u)/2) / sqrt(2)
-    # So result is simply qnorm((1+u)/2)
-    # Wait, strict reading of C: return 1.414... * GMRFLib_erf_inv(u)
-    # Yes, that simplifies to qnorm((1+u)/2).
-    # However, this block in C seems to handle the *extreme* tail specifically?
-    # Actually, looking at the code, it returns immediately.
-    final_vals[idx_tail_pos] <- stats::qnorm((1 + u_m[idx_tail_pos]) / 2)
-  }
-
-  if (any(idx_tail_neg)) {
-    # return -1.414... * erfc_inv(u)
-    # erfc_inv(u) = qnorm(u/2, lower=FALSE) / sqrt(2)
-    # result = -qnorm(u/2, lower=FALSE)
-    final_vals[idx_tail_neg] <- -stats::qnorm(
-      u_m[idx_tail_neg] / 2,
-      lower.tail = FALSE
-    )
+  if (any(idx_tail)) {
+    final_vals[idx_tail] <- stats::qnorm((1 + u_m[idx_tail]) / 2)
   }
 
   # 2. Main Expansion Region
-  # Identify points NOT handled by the explicit tail checks above
-  idx_main <- !(idx_tail_pos | idx_tail_neg)
+  idx_main <- !idx_tail
 
   if (any(idx_main)) {
     u_sub <- u_m[idx_main]
@@ -200,14 +168,12 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
     z_sub <- z_m[idx_main]
 
     # Expansion point 'x'
-    # x = GMRFLib_cdfnorm_inv(0.5 - 0.318... * atan(A));
     val_x <- 0.5 - 0.31830988618379067154 * atan(A_sub)
     x_pt <- stats::qnorm(val_x)
 
     # Precompute terms
     expon <- exp(-0.5 * x_pt^2)
-    errfn <- 1.0 # From C code
-    # efder = expon * sqrt(2/pi) * A / errfn
+    errfn <- 1.0
     efder <- expon * 0.79788456080286535588 * A_sub / errfn
 
     # Coefficients c0 - c5
@@ -248,7 +214,6 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
     c5 <- 0.0083333333333333333333 * expon * term_c5_num / (errfn^5)
 
     # Check "Deep Tail" sub-condition within main block using plog
-    # h = 0.75 * pow(ABS(tol / c5), 0.2);
     h <- 0.75 * abs(TOL / c5)^0.2
     left_limit <- x_pt - h
 
@@ -258,37 +223,19 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
     # -- Deep Tail Calculation (using plog) --
     if (any(idx_deep)) {
       u_d <- u_sub[idx_deep]
-      a_d <- a_m[idx_main][idx_deep] # Use signed 'a' here
       A_d <- A_sub[idx_deep]
 
-      # Constants
       C_PLOG <- 6.2831853071795864769 # 2*pi
 
-      # Plog inputs
-      # if a > 0: -sqrt(2 * plog(1 / (2pi * u * a)) / (1 + a^2))
-      # if a < 0:  sqrt(2 * plog(1 / (2pi * (1-u) * |a|)) / (1 + a^2))
-
-      plog_arg <- numeric(length(u_d))
-      pos_a_d <- (a_d > 0)
-
-      if (any(pos_a_d)) {
-        arg <- 1 / (C_PLOG * u_d[pos_a_d] * a_d[pos_a_d])
-        val <- -sqrt(2 * .plog(arg) / (1 + a_d[pos_a_d]^2))
-        plog_arg[pos_a_d] <- val
-      }
-      if (any(!pos_a_d)) {
-        arg <- 1 / (C_PLOG * (1 - u_d[!pos_a_d]) * abs(a_d[!pos_a_d]))
-        val <- sqrt(2 * .plog(arg) / (1 + a_d[!pos_a_d]^2))
-        plog_arg[!pos_a_d] <- val
-      }
-      res_sub[idx_deep] <- plog_arg
+      # a >= 0 guaranteed: -sqrt(2 * plog(1 / (2pi * u * a)) / (1 + a^2))
+      arg <- 1 / (C_PLOG * u_d * A_d)
+      res_sub[idx_deep] <- -sqrt(2 * .plog(arg) / (1 + A_d^2))
     }
 
     # -- Taylor Expansion Calculation --
     if (any(!idx_deep)) {
       h_val <- z_sub[!idx_deep] - x_pt[!idx_deep]
 
-      # Polynomial evaluation: c0 + h*(c1 + h*(c2 + ...))
       poly <- c0 +
         h_val *
           (c1[!idx_deep] +
@@ -300,16 +247,14 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
       res_sub[!idx_deep] <- poly
     }
 
-    # Store results back
     final_vals[idx_main] <- res_sub
   }
 
-  # Final Sign Adjustment
-  # return (a < 0 ? -res : res)
-  idx_neg_a <- (a_m < 0)
-  final_vals[idx_neg_a] <- -final_vals[idx_neg_a]
-
   res[mask] <- final_vals
+
+  # Apply symmetry flip for originally-negative alpha
+  res[flip] <- -res[flip]
+
   return(res)
 }
 

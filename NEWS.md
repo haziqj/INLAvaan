@@ -8,6 +8,8 @@
 * Add params and logscale options to visual_debug.
 * Small optimisations to volume correction of skew-normal marginalisation.
 * `{ggplot2}` is now optional; plots work with base R graphics.
+* Fixed bug in `qsnorm_fast()` that incorrectly handled sign symmetries.
+* New `samplin()` function to produce draws from the posterior (or prior) SEM generative model.
 
 # INLAvaan 0.2.3
 

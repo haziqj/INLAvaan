@@ -5,9 +5,29 @@
 \alias{fitmeasures,INLAvaan-method}
 \title{Fit Measures for a Latent Variable Model estimated using INLA}
 \usage{
-\S4method{fitMeasures}{INLAvaan}(object, fit.measures = "all", baseline.model = NULL)
+\S4method{fitMeasures}{INLAvaan}(
+  object,
+  fit.measures = "all",
+  baseline.model = NULL,
+  h1.model = NULL,
+  fm.args = list(standard.test = "default", scaled.test = "default", rmsea.ci.level =
+    0.9, rmsea.close.h0 = 0.05, rmsea.notclose.h0 = 0.08, robust = TRUE, cat.check.pd =
+    TRUE),
+  output = "vector",
+  ...
+)
 
-\S4method{fitmeasures}{INLAvaan}(object, fit.measures = "all", baseline.model = NULL)
+\S4method{fitmeasures}{INLAvaan}(
+  object,
+  fit.measures = "all",
+  baseline.model = NULL,
+  h1.model = NULL,
+  fm.args = list(standard.test = "default", scaled.test = "default", rmsea.ci.level =
+    0.9, rmsea.close.h0 = 0.05, rmsea.notclose.h0 = 0.08, robust = TRUE, cat.check.pd =
+    TRUE),
+  output = "vector",
+  ...
+)
 }
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
@@ -16,7 +36,27 @@
 only a single or a few fit measures are specified by name, only those are
 computed and returned.}
 
-\item{baseline.model}{Not currently used, added for compatability with \code{{lavaan}}.}
+\item{baseline.model}{An optional \link{INLAvaan} object representing the
+baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
+BNFI). Must have been fitted with \code{test != "none"}.}
+
+\item{h1.model}{Ignored (included for compatibility with the lavaan
+generic).}
+
+\item{fm.args}{Ignored (included for compatibility with the lavaan
+generic).}
+
+\item{output}{Ignored (included for compatibility with the lavaan
+generic).}
+
+\item{...}{Additional arguments. Currently supports:
+\describe{
+\item{\code{rescale}}{Character string controlling how the Bayesian chi-square
+is computed, following \code{blavaan::blavFitIndices()}. Options are \code{"devM"}
+(default) which uses the deviance rescaled by \code{pD} from DIC, or \code{"MCMC"}
+which uses the classical chi-square (\code{(N-1) * F_ML}) and classical
+degrees of freedom (\code{p - npar}) at each posterior sample.}
+}}
 }
 \value{
 A named numeric vector of fit measures.

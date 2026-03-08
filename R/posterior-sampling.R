@@ -38,6 +38,7 @@ sample_params <- function(
   z_raw <- matrix(rnorm(nsamp * ncol(R)), nrow = nsamp)
   z <- z_raw %*% Lt
   u <- apply(z, 2, pnorm)
+  if (!is.matrix(u)) u <- matrix(u, nrow = 1)  # nsamp == 1 edge case
 
   # Use marginals to get theta
   if (method == "sampling") {
