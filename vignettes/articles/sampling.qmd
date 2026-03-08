@@ -19,6 +19,7 @@ toc: true
 ```{r}
 #| label: setup
 #| include: false
+library(INLAvaan)
 library(ggplot2)
 set.seed(83)
 ```
