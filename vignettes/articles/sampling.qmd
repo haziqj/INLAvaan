@@ -19,9 +19,8 @@ toc: true
 ```{r}
 #| label: setup
 #| include: false
-devtools::load_all()
 library(ggplot2)
-set.seed(42)
+set.seed(83)
 ```
 
 ## Purpose
