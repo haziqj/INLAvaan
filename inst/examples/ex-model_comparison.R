@@ -26,13 +26,12 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 
-# Compare models
+# Compare models (fit1 = configural = baseline, always first argument)
 compare(fit1, fit2, fit3)
 
-# With exta fit measures
+# With extra fit measures
 compare(fit1, fit2, fit.measures = c("BRMSEA", "BMc"))
 
-# With incremental indices (needs a baseline model)
-compare(fit2, fit3, fit.measures = c("BCFI", "BTLI"),
-        baseline.model = fit1)
+# With incremental indices (baseline = fit1, passed to fitMeasures())
+compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
 }

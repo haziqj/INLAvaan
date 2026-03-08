@@ -6,21 +6,22 @@
 \alias{compare,INLAvaan-class}
 \title{Compare Bayesian Models Fitted with INLAvaan}
 \usage{
-compare(x, y, ...)
+compare(x, y, ..., fit.measures = NULL)
 
-\S4method{compare}{INLAvaan}(x, y, ...)
+\S4method{compare}{INLAvaan}(x, y, ..., fit.measures = NULL)
 }
 \arguments{
-\item{x, y, ...}{Objects of class \link{INLAvaan} (or \code{inlavaan_internal}).}
+\item{x}{An \link{INLAvaan} (or \code{inlavaan_internal}) object used as the
+\strong{baseline} (null) model. It is included in the comparison table and
+passed to \link[lavaan:fitMeasures]{fitMeasures()} for incremental indices.}
+
+\item{y, ...}{One or more \link{INLAvaan} (or \code{inlavaan_internal}) objects to
+compare against the baseline.}
 
 \item{fit.measures}{Character vector of additional fit-measure names to
-include (e.g. \code{"BRMSEA"}, \code{"BCFI"}).
-Use \code{"all"} to include every measure returned by \link[lavaan:fitMeasures]{fitMeasures()}.
-The default (\code{NULL}) shows only the core comparison statistics.}
-
-\item{baseline.model}{An optional \link{INLAvaan} baseline (null) model, passed
-to \link[lavaan:fitMeasures]{fitMeasures()} when incremental indices (BCFI,
-BTLI, BNFI) are requested.}
+include (e.g. \code{"BRMSEA"}, \code{"BCFI"}). Use \code{"all"} to include every
+measure returned by \link[lavaan:fitMeasures]{fitMeasures()}. The default
+(\code{NULL}) shows only the core comparison statistics.}
 }
 \value{
 A data frame of class \code{compare.inlavaan_internal} containing model
@@ -31,6 +32,12 @@ Compare two or more Bayesian SEM fitted with INLAvaan, reporting model-fit
 statistics and (optionally) fit indices side by side.
 }
 \details{
+The first argument \code{x} serves as the \strong{baseline} (null) model.
+All models (including the baseline) appear in the comparison table. The
+baseline is also passed to \link[lavaan:fitMeasures]{fitMeasures()} when
+incremental fit indices (BCFI, BTLI, BNFI) are requested via
+\code{fit.measures}.
+
 The default table always includes:
 \itemize{
 \item \strong{npar}: Number of free parameters.
@@ -73,15 +80,14 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 
-# Compare models
+# Compare models (fit1 = configural = baseline, always first argument)
 compare(fit1, fit2, fit3)
 
-# With exta fit measures
+# With extra fit measures
 compare(fit1, fit2, fit.measures = c("BRMSEA", "BMc"))
 
-# With incremental indices (needs a baseline model)
-compare(fit2, fit3, fit.measures = c("BCFI", "BTLI"),
-        baseline.model = fit1)
+# With incremental indices (baseline = fit1, passed to fitMeasures())
+compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
 }
 }
 \references{

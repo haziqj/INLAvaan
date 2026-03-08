@@ -4,6 +4,12 @@
 #' statistics and (optionally) fit indices side by side.
 #'
 #' @details
+#' The first argument `x` serves as the **baseline** (null) model.
+#' All models (including the baseline) appear in the comparison table. The
+#' baseline is also passed to [fitMeasures()][lavaan::fitMeasures] when
+#' incremental fit indices (BCFI, BTLI, BNFI) are requested via
+#' `fit.measures`.
+#'
 #' The default table always includes:
 #'
 #'   - **npar**: Number of free parameters.
@@ -16,14 +22,15 @@
 #' returned by [fitMeasures()][lavaan::fitMeasures]) to append extra columns.
 #' Use `fit.measures = "all"` to include every available measure.
 #'
-#' @param x,y,... Objects of class [INLAvaan] (or `inlavaan_internal`).
+#' @param x An [INLAvaan] (or `inlavaan_internal`) object used as the
+#'   **baseline** (null) model. It is included in the comparison table and
+#'   passed to [fitMeasures()][lavaan::fitMeasures] for incremental indices.
+#' @param y,... One or more [INLAvaan] (or `inlavaan_internal`) objects to
+#'   compare against the baseline.
 #' @param fit.measures Character vector of additional fit-measure names to
-#'   include (e.g. `"BRMSEA"`, `"BCFI"`).
-#'   Use `"all"` to include every measure returned by [fitMeasures()][lavaan::fitMeasures].
-#'   The default (`NULL`) shows only the core comparison statistics.
-#' @param baseline.model An optional [INLAvaan] baseline (null) model, passed
-#'   to [fitMeasures()][lavaan::fitMeasures] when incremental indices (BCFI,
-#'   BTLI, BNFI) are requested.
+#'   include (e.g. `"BRMSEA"`, `"BCFI"`). Use `"all"` to include every
+#'   measure returned by [fitMeasures()][lavaan::fitMeasures]. The default
+#'   (`NULL`) shows only the core comparison statistics.
 #'
 #' @return A data frame of class `compare.inlavaan_internal` containing model
 #'   fit statistics, sorted by descending marginal log-likelihood.
@@ -32,71 +39,56 @@
 #'
 #' @example inst/examples/ex-model_comparison.R
 #' @export
-setGeneric("compare", function(x, y, ...) standardGeneric("compare"))
+setGeneric("compare", function(x, y, ..., fit.measures = NULL)
+  standardGeneric("compare"))
 
 #' @rdname compare
 #' @aliases compare,INLAvaan-class
 #' @export
-setMethod("compare", "INLAvaan", function(x, y, ...) {
+setMethod("compare", "INLAvaan", function(x, y, ..., fit.measures = NULL) {
   mc <- match.call()
   dots <- list(...)
 
-  # Separate model objects from named options in ...
-  model_objs <- list(x, y)
-  model_exprs <- list(mc$x, mc$y)
-
-  # Walk through ... : unnamed or INLAvaan/inlavaan_internal args are models
-  dot_names <- names(dots)
-  opt_names <- c("fit.measures", "baseline.model")
-  for (i in seq_along(dots)) {
-    nm <- if (is.null(dot_names)) "" else dot_names[i]
-    if (nm %in% opt_names) next
-    model_objs  <- c(model_objs, list(dots[[i]]))
-    # Get the expression from the call (mc has "", "x", "y", then ... args)
-    model_exprs <- c(model_exprs, list(mc[[i + 3L]]))
-  }
+  # x = baseline, y + unnamed ... = models to compare
+  model_objs  <- c(list(x, y), dots)
+  model_exprs <- c(list(mc$x, mc$y),
+                    as.list(mc)[-1][!names(as.list(mc)[-1]) %in%
+                      c("x", "y", "fit.measures")])
 
   modnames <- vapply(model_exprs, deparse, character(1))
 
   compare_impl(
-    models         = model_objs,
-    modnames       = modnames,
-    fit.measures   = dots$fit.measures,
-    baseline.model = dots$baseline.model
+    models       = model_objs,
+    modnames     = modnames,
+    fit.measures = fit.measures,
+    baseline     = x
   )
 })
 
 #' @exportS3Method compare inlavaan_internal
-compare.inlavaan_internal <- function(x, y, ...) {
+compare.inlavaan_internal <- function(x, y, ..., fit.measures = NULL) {
   mc <- match.call()
   dots <- list(...)
 
-  model_objs <- list(x, y)
-  model_exprs <- list(mc$x, mc$y)
-
-  dot_names <- names(dots)
-  opt_names <- c("fit.measures", "baseline.model")
-  for (i in seq_along(dots)) {
-    nm <- if (is.null(dot_names)) "" else dot_names[i]
-    if (nm %in% opt_names) next
-    model_objs  <- c(model_objs, list(dots[[i]]))
-    model_exprs <- c(model_exprs, list(mc[[i + 3L]]))
-  }
+  model_objs  <- c(list(x, y), dots)
+  model_exprs <- c(list(mc$x, mc$y),
+                    as.list(mc)[-1][!names(as.list(mc)[-1]) %in%
+                      c("x", "y", "fit.measures")])
 
   modnames <- vapply(model_exprs, deparse, character(1))
 
   compare_impl(
-    models         = model_objs,
-    modnames       = modnames,
-    fit.measures   = dots$fit.measures,
-    baseline.model = dots$baseline.model
+    models       = model_objs,
+    modnames     = modnames,
+    fit.measures = fit.measures,
+    baseline     = x
   )
 }
 
 # ---- Internal workhorse ------------------------------------------------------
 
 compare_impl <- function(models, modnames, fit.measures = NULL,
-                         baseline.model = NULL) {
+                         baseline = NULL) {
   # Normalise to internal objects, keeping originals for fitMeasures()
   originals <- models
   internals <- lapply(models, function(m) {
@@ -134,11 +126,13 @@ compare_impl <- function(models, modnames, fit.measures = NULL,
     if (!all(has_inlavaan)) {
       cli_warn("Fit measures require {.cls INLAvaan} objects; skipping for {.cls inlavaan_internal} models.")
     } else {
-      # Retrieve fitMeasures for each model
+      # baseline (x) is used for incremental indices
+      baseline_obj <- if (is(baseline, "INLAvaan")) baseline else NULL
+
       fm_list <- lapply(originals, function(m) {
         tryCatch(
           fitMeasures(m, fit.measures = fit.measures,
-                      baseline.model = baseline.model),
+                      baseline.model = baseline_obj),
           error = function(e) NULL
         )
       })
