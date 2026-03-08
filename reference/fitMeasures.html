@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,11 @@
     <li><a class="dropdown-item" href="../articles/mediation.html">Mediation analysis</a></li>
     <li><a class="dropdown-item" href="../articles/missing.html">Missing data</a></li>
     <li><a class="dropdown-item" href="../articles/binary.html">Binary CFA</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -52,10 +57,30 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for class 'INLAvaan'</span></span>
-<span><span class="fu">fitMeasures</span><span class="op">(</span><span class="va">object</span>, fit.measures <span class="op">=</span> <span class="st">"all"</span>, baseline.model <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">fitMeasures</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  fit.measures <span class="op">=</span> <span class="st">"all"</span>,</span>
+<span>  baseline.model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  h1.model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fm.args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>standard.test <span class="op">=</span> <span class="st">"default"</span>, scaled.test <span class="op">=</span> <span class="st">"default"</span>, rmsea.ci.level <span class="op">=</span></span>
+<span>    <span class="fl">0.9</span>, rmsea.close.h0 <span class="op">=</span> <span class="fl">0.05</span>, rmsea.notclose.h0 <span class="op">=</span> <span class="fl">0.08</span>, robust <span class="op">=</span> <span class="cn">TRUE</span>, cat.check.pd <span class="op">=</span></span>
+<span>    <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  output <span class="op">=</span> <span class="st">"vector"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S4 method for class 'INLAvaan'</span></span>
-<span><span class="fu">fitmeasures</span><span class="op">(</span><span class="va">object</span>, fit.measures <span class="op">=</span> <span class="st">"all"</span>, baseline.model <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">fitmeasures</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  fit.measures <span class="op">=</span> <span class="st">"all"</span>,</span>
+<span>  baseline.model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  h1.model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fm.args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>standard.test <span class="op">=</span> <span class="st">"default"</span>, scaled.test <span class="op">=</span> <span class="st">"default"</span>, rmsea.ci.level <span class="op">=</span></span>
+<span>    <span class="fl">0.9</span>, rmsea.close.h0 <span class="op">=</span> <span class="fl">0.05</span>, rmsea.notclose.h0 <span class="op">=</span> <span class="fl">0.08</span>, robust <span class="op">=</span> <span class="cn">TRUE</span>, cat.check.pd <span class="op">=</span></span>
+<span>    <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  output <span class="op">=</span> <span class="st">"vector"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,7 +98,36 @@ computed and returned.</p></dd>
 
 
 <dt id="arg-baseline-model">baseline.model<a class="anchor" aria-label="anchor" href="#arg-baseline-model"></a></dt>
-<dd><p>Not currently used, added for compatability with <code>{lavaan}</code>.</p></dd>
+<dd><p>An optional <a href="INLAvaan-package.html">INLAvaan</a> object representing the
+baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
+BNFI). Must have been fitted with <code>test != "none"</code>.</p></dd>
+
+
+<dt id="arg-h-model">h1.model<a class="anchor" aria-label="anchor" href="#arg-h-model"></a></dt>
+<dd><p>Ignored (included for compatibility with the lavaan
+generic).</p></dd>
+
+
+<dt id="arg-fm-args">fm.args<a class="anchor" aria-label="anchor" href="#arg-fm-args"></a></dt>
+<dd><p>Ignored (included for compatibility with the lavaan
+generic).</p></dd>
+
+
+<dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
+<dd><p>Ignored (included for compatibility with the lavaan
+generic).</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional arguments. Currently supports:</p><dl><dt><code>rescale</code></dt>
+<dd><p>Character string controlling how the Bayesian chi-square
+is computed, following <code><a href="https://blavaan.org/reference/blavFitIndices.html" class="external-link">blavaan::blavFitIndices()</a></code>. Options are <code>"devM"</code>
+(default) which uses the deviance rescaled by <code>pD</code> from DIC, or <code>"MCMC"</code>
+which uses the classical chi-square (<code>(N-1) * F_ML</code>) and classical
+degrees of freedom (<code>p - npar</code>) at each posterior sample.</p></dd>
+
+
+</dl></dd>
 
 </dl></div>
     <div class="section level2">

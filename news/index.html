@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,11 @@
     <li><a class="dropdown-item" href="../articles/mediation.html">Mediation analysis</a></li>
     <li><a class="dropdown-item" href="../articles/missing.html">Missing data</a></li>
     <li><a class="dropdown-item" href="../articles/binary.html">Binary CFA</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -55,6 +60,9 @@
 <li>Small optimisations to volume correction of skew-normal marginalisation.</li>
 <li>
 <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> is now optional; plots work with base R graphics.</li>
+<li>Fixed bug in <code><a href="../reference/qsnorm_fast.html">qsnorm_fast()</a></code> that incorrectly handled sign symmetries.</li>
+<li>New <code><a href="../reference/sampling.html">sampling()</a></code> function to produce draws from the posterior (or prior) SEM generative model.</li>
+<li>New Bayesian Fit Indices included in <code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">fitmeasures()</a></code>; summary statistics available via <code><a href="../reference/bfit_indices.html">bfit_indices()</a></code>.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.3" id="inlavaan-023">INLAvaan 0.2.3<a class="anchor" aria-label="anchor" href="#inlavaan-023"></a></h2><p class="text-muted">CRAN release: 2026-01-28</p>

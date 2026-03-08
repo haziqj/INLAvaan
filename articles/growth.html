@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,13 @@
     <li><a class="dropdown-item" href="../articles/mediation.html">Mediation analysis</a></li>
     <li><a class="dropdown-item" href="../articles/missing.html">Missing data</a></li>
     <li><a class="dropdown-item" href="../articles/binary.html">Binary CFA</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -121,25 +128,25 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/agrowth.html">agrowth</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.growth</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [180ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [285ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [87ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [137ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.005σ. [174ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.005σ. [278ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/17 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 17/17 marginals. [626ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 17/17 marginals. [1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [121ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [117ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [134ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [127ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9008 ended normally after 83 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9009 ended normally after 83 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -150,12 +157,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -2565.970 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.910 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.960 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             5002.535 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    20.094 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             4994.850 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    16.251 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -195,7 +202,7 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .i ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .s                 0.151    0.042    0.154   -0.010    0.002       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .s                 0.151    0.038   -0.008    0.142    0.002       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -208,12 +215,12 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .t1                0.588    0.080    0.948    0.438    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .t1                0.588    0.080    0.439    0.754    0.003 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .t2                0.605    0.055    0.503    0.720    0.001 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .t3                0.487    0.056    0.602    0.385    0.001 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .t4                0.543    0.097    1.084    0.360    0.007 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .i                 1.097    0.114    1.333    0.887    0.000 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .s                 0.228    0.027    0.283    0.179    0.002 gamma(1,.5)[sd]</span></span></code></pre></div>
+<span><span class="co">#&gt;    .t3                0.487    0.056    0.385    0.602    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .t4                0.543    0.097    0.364    0.743    0.007 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .i                 1.097    0.114    0.887    1.333    0.000 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .s                 0.228    0.027    0.179    0.283    0.002 gamma(1,.5)[sd]</span></span></code></pre></div>
 </div>
 
 

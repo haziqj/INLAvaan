@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +52,13 @@
     <li><a class="dropdown-item" href="../articles/mediation.html">Mediation analysis</a></li>
     <li><a class="dropdown-item" href="../articles/missing.html">Missing data</a></li>
     <li><a class="dropdown-item" href="../articles/binary.html">Binary CFA</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -214,23 +221,23 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [582ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [798ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [189ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [279ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.019σ. [381ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.019σ. [541ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/20 marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting skew-normal to 14/20 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 20/20 marginals. [1.7s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting skew-normal to 6/20 marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 20/20 marginals. [2.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [158ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [139ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [713ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [652ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
@@ -239,7 +246,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9008 ended normally after 108 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9009 ended normally after 108 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -251,12 +258,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                  -12185.483 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.010 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.024 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            24251.935 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    49.369 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24192.820 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    19.811 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -289,10 +296,10 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .y1                0.985    0.046    1.076    0.896    0.003 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y2                1.067    0.039    1.146    0.992    0.001 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y3                1.012    0.037    1.085    0.942    0.001 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .fw                0.547    0.041    0.629    0.470    0.004 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y1                0.985    0.046    0.896    1.076    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y2                1.067    0.039    0.992    1.146    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y3                1.012    0.037    0.942    1.085    0.001 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .fw                0.547    0.041    0.470    0.629    0.004 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Level 2 [cluster]:</span></span>
@@ -319,10 +326,10 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .y1                0.069    0.042    1.203    0.008    0.091 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y2                0.126    0.031    0.333    0.070    0.008 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .y3                0.154    0.029    0.291    0.103    0.002 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .fb                0.919    0.120    1.174    0.703    0.002 gamma(1,.5)[sd]</span></span></code></pre></div>
+<span><span class="co">#&gt;    .y1                0.069    0.042    0.012    0.170    0.091 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y2                0.126    0.031    0.071    0.192    0.008 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y3                0.154    0.029    0.104    0.216    0.002 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .fb                0.919    0.120    0.703    1.174    0.002 gamma(1,.5)[sd]</span></span></code></pre></div>
 </div>
 <p>Notice that, the mean structure is automatically included at both levels, so intercepts for all observed variables are estimated by default. This is required because the ‘between’ component specifically models the variation of the cluster means; without estimating these means (intercepts), it is impossible to decompose the variance into within and between levels. Looking at the output above, we can draw substantive conclusions based on our educational scenario:</p>
 <ul>

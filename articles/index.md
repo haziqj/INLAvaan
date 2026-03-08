@@ -9,6 +9,13 @@
 
 - [Equality constraints](https://inlavaan.haziqj.ml/articles/eqcon.md):
 
+- [Bayesian Fit
+  Indices](https://inlavaan.haziqj.ml/articles/fit-indices.md):
+
+  A guide to the Bayesian fit indices available in INLAvaan, including
+  mathematical definitions, worked examples, and comparison with
+  blavaan.
+
 - [Latent Growth Curve
   Models](https://inlavaan.haziqj.ml/articles/growth.md):
 
@@ -26,6 +33,12 @@
   Analysis](https://inlavaan.haziqj.ml/articles/multigroup.md):
 
 - [Multilevel SEM](https://inlavaan.haziqj.ml/articles/multilevel.md):
+
+- [Sampling from the Generative
+  Model](https://inlavaan.haziqj.ml/articles/sampling.md):
+
+  Draw model parameters, latent variables, and observed data from the
+  generative SEM—useful for posterior and prior predictive checks.
 
 - [Structural Equation
   Modelling](https://inlavaan.haziqj.ml/articles/sem.md):

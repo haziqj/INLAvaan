@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,13 @@
     <li><a class="dropdown-item" href="../articles/mediation.html">Mediation analysis</a></li>
     <li><a class="dropdown-item" href="../articles/missing.html">Missing data</a></li>
     <li><a class="dropdown-item" href="../articles/binary.html">Binary CFA</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -137,26 +144,26 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^Reaction\\.(.*)$"</span>, <span class="st">"Day\\1"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/agrowth.html">agrowth</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [74ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [113ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [88ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [105ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.297σ. [288ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.297σ. [337ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/6 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 6/6 marginals. [146ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting skew-normal to 6/6 marginals. [195ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [48ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [66ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [308ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [271ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      i~~i       i~1      s~~s       s~1      i~~s         v         v         v </span></span>
-<span><span class="co">#&gt; 12062.688    32.723    39.729     9.638     0.123   622.613   622.613   622.613 </span></span>
+<span><span class="co">#&gt; 12062.679    32.723    39.728     9.637     0.123   622.613   622.613   622.613 </span></span>
 <span><span class="co">#&gt;         v         v         v         v         v         v         v </span></span>
 <span><span class="co">#&gt;   622.613   622.613   622.613   622.613   622.613   622.613   622.613</span></span></code></pre></div>
 </div>
