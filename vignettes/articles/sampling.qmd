@@ -128,7 +128,7 @@ We can overlay the `sampling()` histogram (drawn via the copula method) on top o
 #| label: fig-copula-vs-pdf
 #| fig-cap: "Copula samples (histogram) versus the fitted skew-normal marginal (red curve) for all free parameters."
 # 1. Draw copula samples
-samp_cop <- sampling(fit, type = "lavaan", nsamp = 5000, samp_copula = TRUE)
+samp_cop <- sampling(fit, type = "lavaan", nsamp = 1000, samp_copula = TRUE)
 
 # 2. Retrieve the fitted skew-normal densities
 int <- fit@external$inlavaan_internal
@@ -150,9 +150,9 @@ curve_df$param <- factor(curve_df$param, levels = par_names)
 # 4. Plot
 ggplot(hist_df, aes(x = value)) +
   geom_histogram(aes(y = after_stat(density)), bins = 50,
-                 fill = "steelblue", alpha = 0.5) +
+                 fill = "grey40", alpha = 0.5) +
   geom_line(data = curve_df, aes(x = x, y = y),
-            colour = "firebrick", linewidth = 0.8) +
+            colour = "#00A6AA", linewidth = 0.8) +
   facet_wrap(~param, scales = "free") +
   labs(x = "Parameter value", y = "Density",
        title = "Copula samples vs. fitted skew-normal posterior") +
@@ -189,7 +189,7 @@ ggplot(both_df, aes(x = value, fill = method)) +
   geom_histogram(aes(y = after_stat(density)), bins = 50,
                  alpha = 0.45, position = "identity") +
   facet_wrap(~param, scales = "free") +
-  scale_fill_manual(values = c(Copula = "steelblue", Gaussian = "darkorange")) +
+  scale_fill_manual(values = c(Copula = "#00A6AA", Gaussian = "#F18F00")) +
   labs(x = "Parameter value", y = "Density", fill = "Method",
        title = "Copula vs. Gaussian posterior sampling") +
   theme_minimal(base_size = 11) +
@@ -207,8 +207,8 @@ This is useful for checking whether the priors imply sensible ranges for the obs
 
 ```{r}
 #| label: prior-predictive
-y_prior <- sampling(fit, type = "observed", nsamp = 2000, prior = TRUE)
-y_post  <- sampling(fit, type = "observed", nsamp = 2000, prior = FALSE)
+y_prior <- sampling(fit, type = "observed", nsamp = 10000, prior = TRUE)
+y_post  <- sampling(fit, type = "observed", nsamp = 10000, prior = FALSE)
 ```
 
 ```{r}
@@ -222,7 +222,7 @@ df_pp <- data.frame(
 ggplot(df_pp, aes(x = x1, fill = source)) +
   geom_histogram(aes(y = after_stat(density)), bins = 50,
                  alpha = 0.5, position = "identity") +
-  scale_fill_manual(values = c(Prior = "darkorange", Posterior = "steelblue")) +
+  scale_fill_manual(values = c(Prior = "#F18F00", Posterior = "#00A6AA")) +
   labs(x = "x1", y = "Density", fill = NULL,
        title = "Prior vs. posterior predictive distribution of x1") +
   theme_minimal(base_size = 12) +

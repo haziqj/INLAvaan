@@ -23,7 +23,9 @@ reference:
     - asem
     - agrowth
     - priors_for
+    - sampling
     - compare
+    - bfit_indices
     - INLAvaan-class
     - fitMeasures,INLAvaan-method
     - standardisedsolution
@@ -40,7 +42,7 @@ reference:
 
 navbar:
   structure:
-    left:  [intro, articles, reference, news]
+    left:  [intro, articles, extras, reference, news]
     right: [search, github, lightswitch]
   components:
     articles:
@@ -64,7 +66,9 @@ navbar:
         href: articles/missing.html
       - text: Binary CFA
         href: articles/binary.html
-      - text: -------
+    extras:
+      text: Articles
+      menu:
       - text: Sampling from the generative model
         href: articles/sampling.html
       - text: Bayesian fit indices
