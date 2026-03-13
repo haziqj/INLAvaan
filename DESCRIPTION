@@ -25,6 +25,7 @@ Imports:
     graphics,
     lavaan,
     methods,
+    parallel,
     stats,
     utils
 Suggests: 

@@ -17,3 +17,4 @@
 ^inst/dev$
 ^CRAN-SUBMISSION$
 ^data-raw$
+^inst/workflows$

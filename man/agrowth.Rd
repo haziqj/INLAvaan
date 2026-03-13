@@ -23,6 +23,7 @@ agrowth(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 )
 }
@@ -95,6 +96,14 @@ mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"opt
 
 \item{numerical_grad}{Logical indicating whether to use numerical gradients
 for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
+
+\item{cores}{Integer or \code{NULL}. Number of cores for parallel marginal
+fitting. When \code{NULL} (default), serial execution is used unless the number
+of free parameters exceeds 120, in which case parallelisation is enabled
+automatically using all available physical cores. Set to \code{1L} to force
+serial execution. If \code{cores > 1}, marginal fits are distributed across
+cores using \code{\link[parallel:mclapply]{parallel::mclapply()}} (fork-based; no parallelism on
+Windows).}
 
 \item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan::lavaan} model fitting
 function.}

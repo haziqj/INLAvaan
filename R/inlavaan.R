@@ -50,6 +50,13 @@
 #'   (BFGS).
 #' @param numerical_grad Logical indicating whether to use numerical gradients
 #'   for the optimisation. Defaults to `FALSE` to use analytical gradients.
+#' @param cores Integer or `NULL`. Number of cores for parallel marginal
+#'   fitting. When `NULL` (default), serial execution is used unless the number
+#'   of free parameters exceeds 120, in which case parallelisation is enabled
+#'   automatically using all available physical cores. Set to `1L` to force
+#'   serial execution. If `cores > 1`, marginal fits are distributed across
+#'   cores using [parallel::mclapply()] (fork-based; no parallelism on
+#'   Windows).
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
 #'   function.
 #'
@@ -81,12 +88,17 @@ inlavaan <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 ) {
   start.time0 <- proc.time()[3]
   timing <- list(start.time = start.time0)
 
   ## ----- Check arguments -----------------------------------------------------
+  if (!is.null(cores)) {
+    cores <- as.integer(cores)
+    if (is.na(cores) || cores < 1L) cores <- 1L
+  }
   marginal_method <- match.arg(marginal_method)
   if (isFALSE(marginal_correction)) {
     marginal_correction <- "none"
@@ -374,6 +386,8 @@ inlavaan <- function(
   timing <- add_timing(timing, "loglik")
 
   ## ----- Marginal approximations ---------------------------------------------
+  if (isTRUE(verbose)) cli_progress_done()
+
   # pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
   pars_list <- setNames(as.list(1:m), parnames)
   visual_debug <- NULL
@@ -422,10 +436,29 @@ inlavaan <- function(
   if (marginal_method == "sampling") {
     approx_data <- NULL
   } else {
-    if (marginal_method == "asymgaus") {
-      if (isTRUE(verbose)) {
-        cli_progress_step("Calibrating asymmetric Gaussians.")
+    # --- Resolve effective core count for marginal fitting ------------------
+    if (is.null(cores)) {
+      # Auto: serial for small m, parallel for large m
+      if (m > 120L) {
+        eff_cores <- parallel::detectCores(logical = FALSE)
+        if (is.na(eff_cores) || eff_cores < 2L) eff_cores <- 1L
+      } else {
+        eff_cores <- 1L
       }
+    } else {
+      eff_cores <- cores
+    }
+    if (eff_cores > 1L && .Platform$OS.type == "windows") {
+      cli_alert_warning(
+        "Parallel marginal fitting uses forking and is not available on
+        Windows. Falling back to serial."
+      )
+      eff_cores <- 1L
+    }
+    eff_cores <- min(eff_cores, m)
+
+    if (marginal_method == "asymgaus") {
+
 
       obtain_approx_data <- function(j) {
         # Gauge the drop in joint_lp in whitened Z space
@@ -445,10 +478,12 @@ inlavaan <- function(
         )
       }
 
-      approx_data <- list()
-      for (j in seq_len(m)) {
-        approx_data[[j]] <- obtain_approx_data(j)
-      }
+      approx_data <- run_parallel_or_serial(
+        m = m, FUN = obtain_approx_data, cores = eff_cores,
+        verbose = verbose,
+        msg_serial = "Calibrating {j}/{m} asymmetric Gaussian{?s}.",
+        msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores} cores)."
+      )
       approx_data <- do.call(what = "rbind", approx_data)
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
@@ -464,13 +499,6 @@ inlavaan <- function(
         )
       }
     } else if (marginal_method == "skewnorm") {
-      if (isTRUE(verbose)) {
-        j <- 0
-        cli_progress_step(
-          "Fitting skew-normal to {j}/{m} marginal{?s}.",
-          spinner = TRUE
-        )
-      }
 
       obtain_approx_data <- function(j) {
         z <- seq(-4, 4, length = 21)
@@ -489,8 +517,7 @@ inlavaan <- function(
           temp = sn_fit_temp
         )
 
-        # Useful visual debug
-        visual_debug[[j]] <<- data.frame(
+        vd <- data.frame(
           x = z,
           Original = exp(yync - max(yync)),
           Corrected = exp(yy - max(yy)),
@@ -507,16 +534,19 @@ inlavaan <- function(
         fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
         fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
 
-        c(unlist(fit_sn), gamma1 = gamma1j)
+        list(fit = c(unlist(fit_sn), gamma1 = gamma1j), visual_debug = vd)
       }
 
-      approx_data <- visual_debug <- vector("list", length = m)
-      for (j in seq_len(m)) {
-        approx_data[[j]] <- obtain_approx_data(j)
-        if (isTRUE(verbose)) cli_progress_update()
-      }
-      approx_data <- do.call(what = "rbind", approx_data)
+      all_results <- run_parallel_or_serial(
+        m = m, FUN = obtain_approx_data, cores = eff_cores,
+        verbose = verbose,
+        msg_serial = "Fitting {j}/{m} skew-normal marginal{?s}.",
+        msg_parallel = "Fitting {done}/{m} skew-normal marginals ({cores}\U00D7)."
+      )
+
+      approx_data <- do.call(what = "rbind", lapply(all_results, `[[`, "fit"))
       rownames(approx_data) <- parnames
+      visual_debug <- lapply(all_results, `[[`, "visual_debug")
       names(visual_debug) <- parnames
 
       post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
@@ -781,6 +811,7 @@ acfa <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 ) {
   sc <- sys.call()
@@ -831,6 +862,7 @@ asem <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 ) {
   sc <- sys.call()
@@ -879,6 +911,7 @@ agrowth <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 ) {
   sc <- sys.call()

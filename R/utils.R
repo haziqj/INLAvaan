@@ -99,3 +99,47 @@ dmode <- function(x, na.rm = TRUE) {
   d <- stats::density(x)
   d$x[which.max(d$y)]
 }
+
+# ---------------------------------------------------------------------------
+# Parallel or serial lapply with cli progress (chunked for parallel)
+# ---------------------------------------------------------------------------
+run_parallel_or_serial <- function(m, FUN, cores = 1L, verbose = FALSE,
+                                   msg_serial = NULL, msg_parallel = NULL) {
+  if (cores > 1L) {
+    # Parallel: process in chunks of `cores` for progress feedback
+    if (verbose) {
+      msg <- if (!is.null(msg_parallel)) msg_parallel
+             else "Processing {m} items ({cores} cores)."
+      done <- 0L
+      cli_progress_step(
+        msg,
+        spinner = TRUE
+      )
+    }
+    chunk_ids <- split(seq_len(m), ceiling(seq_len(m) / cores))
+    results <- vector("list", m)
+    for (ch in chunk_ids) {
+      results[ch] <- parallel::mclapply(ch, FUN, mc.cores = cores)
+      if (verbose) {
+        done <- max(ch)
+        cli_progress_update()
+      }
+    }
+  } else {
+    # Serial with per-item progress
+    if (verbose) {
+      j <- 0L
+      cli_progress_step(
+        if (!is.null(msg_serial)) msg_serial
+        else "Processing {j}/{m} item{?s}.",
+        spinner = TRUE
+      )
+    }
+    results <- vector("list", m)
+    for (j in seq_len(m)) {
+      results[[j]] <- FUN(j)
+      if (verbose) cli_progress_update()
+    }
+  }
+  results
+}
