@@ -29,13 +29,15 @@
 - Fixed bug in
   [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md)
   that incorrectly handled sign symmetries.
-- New [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
+- NEW [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
   function to produce draws from the posterior (or prior) SEM generative
   model.
-- New Bayesian Fit Indices included in
+- NEW Bayesian Fit Indices included in
   [`fitmeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html);
   summary statistics available via
   [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md).
+- NEW parallelism feature for skew normal fit, automatically runs on
+  total available cores when $m > 120$.
 
 ## INLAvaan 0.2.3
 

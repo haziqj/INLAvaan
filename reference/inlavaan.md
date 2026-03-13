@@ -29,6 +29,7 @@ inlavaan(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 )
 ```
@@ -146,6 +147,17 @@ inlavaan(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- cores:
+
+  Integer or `NULL`. Number of cores for parallel marginal fitting. When
+  `NULL` (default), serial execution is used unless the number of free
+  parameters exceeds 120, in which case parallelisation is enabled
+  automatically using all available physical cores. Set to `1L` to force
+  serial execution. If `cores > 1`, marginal fits are distributed across
+  cores using
+  [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
+  (fork-based; no parallelism on Windows).
+
 - ...:
 
   Additional arguments to be passed to the
@@ -185,25 +197,25 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [104ms]
+#> ✔ Finding posterior mode. [67ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [65ms]
+#> ✔ Computing the Hessian. [43ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.022σ. [147ms]
+#> ✔ VB correction; mean |δ| = 0.022σ. [98ms]
 #> 
-#> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [720ms]
+#> ⠙ Fitting 0/21 skew-normal marginals.
+#> ✔ Fitting 21/21 skew-normal marginals. [454ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [150ms]
+#> ✔ Adjusting copula correlations (NORTA). [146ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [266ms]
+#> ✔ Posterior sampling and summarising. [298ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9009 ended normally after 73 iterations
+#> INLAvaan 0.2.3.9010 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -218,8 +230,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7521.021 
-#>    Effective parameters (pD)                    22.644 
+#>    Deviance (DIC)                             7521.019 
+#>    Effective parameters (pD)                    22.642 
 #> 
 #> Parameter Estimates:
 #> 
@@ -258,10 +270,10 @@ summary(fit)
 #>    .x5                0.450    0.059    0.342    0.572    0.002 gamma(1,.5)[sd]
 #>    .x6                0.361    0.044    0.279    0.453    0.002 gamma(1,.5)[sd]
 #>    .x7                0.829    0.091    0.666    1.022    0.004 gamma(1,.5)[sd]
-#>    .x8                0.507    0.090    0.339    0.693    0.027 gamma(1,.5)[sd]
+#>    .x8                0.507    0.090    0.340    0.693    0.027 gamma(1,.5)[sd]
 #>    .x9                0.548    0.091    0.371    0.727    0.019 gamma(1,.5)[sd]
-#>     visual            0.791    0.149    0.525    1.110    0.041 gamma(1,.5)[sd]
-#>     textual           0.980    0.113    0.775    1.217    0.002 gamma(1,.5)[sd]
-#>     speed             0.350    0.090    0.188    0.539    0.062 gamma(1,.5)[sd]
+#>     visual            0.791    0.149    0.525    1.110    0.040 gamma(1,.5)[sd]
+#>     textual           0.980    0.113    0.775    1.216    0.003 gamma(1,.5)[sd]
+#>     speed             0.351    0.090    0.189    0.540    0.061 gamma(1,.5)[sd]
 #> 
 ```

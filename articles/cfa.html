@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9009</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9010</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,25 +107,25 @@
 <span><span class="co"># Fit a CFA model with standardised latent variables</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [109ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [72ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [85ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [56ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.008σ. [140ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.008σ. [90ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Fitting skew-normal to 0/21 marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting skew-normal to 21/21 marginals. [704ms]</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 0/21 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 21/21 skew-normal marginals. [426ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [166ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [154ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [73ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [83ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9009 ended normally after 56 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9010 ended normally after 56 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -140,8 +140,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7518.601 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    21.490 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7516.221 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    20.300 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -161,7 +161,7 @@
 <span><span class="co">#&gt;   speed =~                                                                     </span></span>
 <span><span class="co">#&gt;     x7                0.609    0.075    0.458    0.752    0.004    normal(0,10)</span></span>
 <span><span class="co">#&gt;     x8                0.725    0.075    0.573    0.869    0.015    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x9                0.686    0.079    0.537    0.846    0.023    normal(0,10)</span></span>
+<span><span class="co">#&gt;     x9                0.686    0.079    0.537    0.846    0.025    normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>

@@ -16,25 +16,25 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [109ms]
+#> ✔ Finding posterior mode. [72ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [85ms]
+#> ✔ Computing the Hessian. [56ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.008σ. [140ms]
+#> ✔ VB correction; mean |δ| = 0.008σ. [90ms]
 #> 
-#> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [704ms]
+#> ⠙ Fitting 0/21 skew-normal marginals.
+#> ✔ Fitting 21/21 skew-normal marginals. [426ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [166ms]
+#> ✔ Adjusting copula correlations (NORTA). [154ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [73ms]
+#> ✔ Posterior sampling and summarising. [83ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9009 ended normally after 56 iterations
+#> INLAvaan 0.2.3.9010 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -49,8 +49,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.601 
-#>    Effective parameters (pD)                    21.490 
+#>    Deviance (DIC)                             7516.221 
+#>    Effective parameters (pD)                    20.300 
 #> 
 #> Parameter Estimates:
 #> 
@@ -70,7 +70,7 @@ summary(fit)
 #>   speed =~                                                                     
 #>     x7                0.609    0.075    0.458    0.752    0.004    normal(0,10)
 #>     x8                0.725    0.075    0.573    0.869    0.015    normal(0,10)
-#>     x9                0.686    0.079    0.537    0.846    0.023    normal(0,10)
+#>     x9                0.686    0.079    0.537    0.846    0.025    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

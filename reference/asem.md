@@ -24,6 +24,7 @@ asem(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 )
 ```
@@ -134,6 +135,17 @@ asem(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- cores:
+
+  Integer or `NULL`. Number of cores for parallel marginal fitting. When
+  `NULL` (default), serial execution is used unless the number of free
+  parameters exceeds 120, in which case parallelisation is enabled
+  automatically using all available physical cores. Set to `1L` to force
+  serial execution. If `cores > 1`, marginal fits are distributed across
+  cores using
+  [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
+  (fork-based; no parallelism on Windows).
+
 - ...:
 
   Additional arguments to be passed to the
@@ -209,25 +221,25 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [159ms]
+#> ✔ Finding posterior mode. [93ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [106ms]
+#> ✔ Computing the Hessian. [69ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.048σ. [296ms]
+#> ✔ VB correction; mean |δ| = 0.048σ. [190ms]
 #> 
-#> ⠙ Fitting skew-normal to 0/28 marginals.
-#> ✔ Fitting skew-normal to 28/28 marginals. [1.5s]
+#> ⠙ Fitting 0/28 skew-normal marginals.
+#> ✔ Fitting 28/28 skew-normal marginals. [892ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [238ms]
+#> ✔ Adjusting copula correlations (NORTA). [243ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [158ms]
+#> ✔ Posterior sampling and summarising. [220ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9009 ended normally after 74 iterations
+#> INLAvaan 0.2.3.9010 ended normally after 74 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -275,9 +287,9 @@ summary(fit)
 #>    .y5                0.271    0.359   -0.036    1.374    0.003       beta(1,1)
 #>  .y2 ~~                                                                        
 #>    .y4                0.274    0.691    0.169    2.883    0.006       beta(1,1)
-#>    .y6                0.343    0.734    0.858    3.738    0.013       beta(1,1)
+#>    .y6                0.343    0.734    0.857    3.738    0.013       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.176    0.589   -0.277    2.033    0.005       beta(1,1)
+#>    .y7                0.175    0.589   -0.290    2.023    0.010       beta(1,1)
 #>  .y4 ~~                                                                        
 #>    .y8                0.101    0.428   -0.512    1.166    0.005       beta(1,1)
 #>  .y6 ~~                                                                        
@@ -286,14 +298,14 @@ summary(fit)
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>    .x1                0.086    0.020    0.051    0.131    0.005 gamma(1,.5)[sd]
-#>    .x2                0.127    0.065    0.031    0.276    0.040 gamma(1,.5)[sd]
+#>    .x2                0.127    0.064    0.031    0.275    0.038 gamma(1,.5)[sd]
 #>    .x3                0.493    0.096    0.333    0.709    0.003 gamma(1,.5)[sd]
 #>    .y1                1.963    0.479    1.155    3.026    0.008 gamma(1,.5)[sd]
 #>    .y2                7.787    1.397    5.432   10.888    0.001 gamma(1,.5)[sd]
 #>    .y3                5.171    1.020    3.484    7.468    0.001 gamma(1,.5)[sd]
 #>    .y4                3.326    0.766    2.023    5.015    0.008 gamma(1,.5)[sd]
-#>    .y5                2.439    0.514    1.582    3.588    0.005 gamma(1,.5)[sd]
-#>    .y6                5.109    0.932    3.537    7.175    0.002 gamma(1,.5)[sd]
+#>    .y5                2.439    0.514    1.583    3.589    0.005 gamma(1,.5)[sd]
+#>    .y6                5.109    0.931    3.537    7.175    0.002 gamma(1,.5)[sd]
 #>    .y7                3.708    0.772    2.422    5.434    0.006 gamma(1,.5)[sd]
 #>    .y8                3.378    0.726    2.143    4.981    0.005 gamma(1,.5)[sd]
 #>     ind60             0.447    0.088    0.303    0.644    0.003 gamma(1,.5)[sd]

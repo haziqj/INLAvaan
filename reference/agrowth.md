@@ -24,6 +24,7 @@ agrowth(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 )
 ```
@@ -134,6 +135,17 @@ agrowth(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- cores:
+
+  Integer or `NULL`. Number of cores for parallel marginal fitting. When
+  `NULL` (default), serial execution is used unless the number of free
+  parameters exceeds 120, in which case parallelisation is enabled
+  automatically using all available physical cores. Set to `1L` to force
+  serial execution. If `cores > 1`, marginal fits are distributed across
+  cores using
+  [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
+  (fork-based; no parallelism on Windows).
+
 - ...:
 
   Additional arguments to be passed to the
@@ -218,25 +230,26 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [233ms]
+#> ✔ Finding posterior mode. [154ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [119ms]
+#> ✔ Computing the Hessian. [75ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.005σ. [266ms]
+#> ✔ VB correction; mean |δ| = 0.005σ. [155ms]
 #> 
-#> ⠙ Fitting skew-normal to 0/17 marginals.
-#> ✔ Fitting skew-normal to 17/17 marginals. [947ms]
+#> ⠙ Fitting 0/17 skew-normal marginals.
+#> ⠹ Fitting 7/17 skew-normal marginals.
+#> ✔ Fitting 17/17 skew-normal marginals. [603ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [113ms]
+#> ✔ Adjusting copula correlations (NORTA). [99ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [127ms]
+#> ✔ Posterior sampling and summarising. [131ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9009 ended normally after 83 iterations
+#> INLAvaan 0.2.3.9010 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

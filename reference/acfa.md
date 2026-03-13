@@ -24,6 +24,7 @@ acfa(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  cores = NULL,
   ...
 )
 ```
@@ -134,6 +135,17 @@ acfa(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- cores:
+
+  Integer or `NULL`. Number of cores for parallel marginal fitting. When
+  `NULL` (default), serial execution is used unless the number of free
+  parameters exceeds 120, in which case parallelisation is enabled
+  automatically using all available physical cores. Set to `1L` to force
+  serial execution. If `cores > 1`, marginal fits are distributed across
+  cores using
+  [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
+  (fork-based; no parallelism on Windows).
+
 - ...:
 
   Additional arguments to be passed to the
@@ -197,26 +209,25 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [96ms]
+#> ✔ Finding posterior mode. [67ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [60ms]
+#> ✔ Computing the Hessian. [41ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.008σ. [128ms]
+#> ✔ VB correction; mean |δ| = 0.008σ. [87ms]
 #> 
-#> ⠙ Fitting skew-normal to 0/21 marginals.
-#> ⠹ Fitting skew-normal to 1/21 marginals.
-#> ✔ Fitting skew-normal to 21/21 marginals. [650ms]
+#> ⠙ Fitting 0/21 skew-normal marginals.
+#> ✔ Fitting 21/21 skew-normal marginals. [406ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [162ms]
+#> ✔ Adjusting copula correlations (NORTA). [173ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [73ms]
+#> ✔ Posterior sampling and summarising. [82ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9009 ended normally after 56 iterations
+#> INLAvaan 0.2.3.9010 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -231,8 +242,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7516.495 
-#>    Effective parameters (pD)                    20.437 
+#>    Deviance (DIC)                             7516.504 
+#>    Effective parameters (pD)                    20.441 
 #> 
 #> Parameter Estimates:
 #> 
@@ -252,7 +263,7 @@ summary(fit)
 #>   speed =~                                                                     
 #>     x7                0.609    0.075    0.458    0.752    0.004    normal(0,10)
 #>     x8                0.725    0.075    0.573    0.869    0.015    normal(0,10)
-#>     x9                0.686    0.079    0.537    0.846    0.023    normal(0,10)
+#>     x9                0.686    0.079    0.537    0.846    0.025    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
