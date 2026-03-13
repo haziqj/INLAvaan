@@ -9,8 +9,9 @@
 * Small optimisations to volume correction of skew-normal marginalisation.
 * `{ggplot2}` is now optional; plots work with base R graphics.
 * Fixed bug in `qsnorm_fast()` that incorrectly handled sign symmetries.
-* New `sampling()` function to produce draws from the posterior (or prior) SEM generative model.
-* New Bayesian Fit Indices included in `fitmeasures()`; summary statistics available via `bfit_indices()`.
+* NEW `sampling()` function to produce draws from the posterior (or prior) SEM generative model.
+* NEW Bayesian Fit Indices included in `fitmeasures()`; summary statistics available via `bfit_indices()`.
+* NEW parallelism feature for skew normal fit, automatically runs on total available cores when $m>120$.
 
 # INLAvaan 0.2.3
 
