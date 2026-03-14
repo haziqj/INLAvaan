@@ -1,7 +1,6 @@
 get_SEM_param_matrix <- function(x, mat, lavmodel) {
   nG <- lavmodel@ngroups
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
-  lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
   GLIST <- Map(
     function(mat, dn) {
@@ -44,13 +43,9 @@ predict.inlavaan_internal <- function(
   object,
   type = c("lv", "yhat", "ov", "ypred", "ydist"),
   nsamp = 250,
-  cores = 1L,
   ...
 ) {
   type <- match.arg(type)
-  cores <- as.integer(cores)
-  if (is.na(cores) || cores < 1L) cores <- 1L
-  if (cores > 1L && .Platform$OS.type == "windows") cores <- 1L
 
   theta_star <- object$theta_star
   Sigma_theta <- object$Sigma_theta
@@ -88,36 +83,42 @@ predict.inlavaan_internal <- function(
         B <- glist$beta
         alpha <- glist$alpha
 
-        IminB <- if (is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
-        if (is.null(alpha)) {
-          alpha <- 0
+        if (is.null(alpha)) alpha <- 0
+
+        if (is.null(B)) {
+          # Pure CFA: IminB_inv = I, so Phi = Psi
+          Phi <- Psi
+          front <- Lambda
+        } else {
+          IminB_inv <- solve(diag(nrow(B)) - B)
+          Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
+          front <- Lambda %*% IminB_inv
         }
-        IminB_inv <- solve(IminB)
 
-        front <- Lambda %*% IminB_inv
-        Sigmay <- front %*% Psi %*% t(front) + Theta
-        Sigmay_inv <- solve(Sigmay)
+        Sigmay_inv <- solve(front %*% Psi %*% t(front) + Theta)
 
-        Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
-        mu_eta <- t(
-          as.numeric(alpha) + Phi %*% t(Lambda) %*% Sigmay_inv %*% t(y[[g]])
-        )
-        V_eta <- Phi - Phi %*% t(Lambda) %*% Sigmay_inv %*% Lambda %*% Phi
+        # Precompute Phi %*% t(Lambda) %*% Sigmay_inv (used for both mu and V)
+        PhiLtSinv <- Phi %*% t(Lambda) %*% Sigmay_inv
 
-        outg <- apply(mu_eta, 1, function(mu) {
-          z_raw <- rnorm(length(mu))
-          as.vector(mu + t(chol(V_eta)) %*% z_raw)
-          # mvtnorm::rmvnorm(1, mean = mu, sigma = V_eta)
-        })
-        if (is.vector(outg)) {
-          outg <- matrix(outg, nrow = 1)
-        }
-        out[[g]] <- t(outg)
+        # Conditional mean: n x nlv matrix
+        mu_eta <- t(as.numeric(alpha) + PhiLtSinv %*% t(y[[g]]))
+
+        # Conditional variance (same for all obs given theta)
+        V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
+        chol_V <- t(chol(V_eta))
+
+        # Vectorised draw: one rnorm batch for all observations
+        n_obs <- nrow(mu_eta)
+        nlv <- ncol(mu_eta)
+        Z <- matrix(rnorm(n_obs * nlv), nrow = nlv, ncol = n_obs)
+        outg <- mu_eta + t(chol_V %*% Z)
+
+        out[[g]] <- outg
       }
 
       if (nG == 1L) {
-        out <- do.call(rbind, out)
-        colnames(out) <- colnames(Psi)
+        colnames(out[[1L]]) <- colnames(Psi)
+        out <- out[[1L]]
       } else {
         out <- do.call(
           rbind,
@@ -130,35 +131,16 @@ predict.inlavaan_internal <- function(
     }
 
     out <- vector("list", nsamp)
-    if (cores > 1L) {
-      done <- 0L
-      cli_progress_bar(
-        paste0("Sampling latent variables (", cores, "\U00D7)"),
-        total = nsamp,
-        clear = FALSE
-      )
-      chunk_size <- max(cores, ceiling(nsamp / 20))
-      chunk_ids <- split(seq_len(nsamp), ceiling(seq_len(nsamp) / chunk_size))
-      for (ch in chunk_ids) {
-        out[ch] <- parallel::mclapply(ch, function(i) {
-          sample_lv(x_samp[i, ])
-        }, mc.cores = cores)
-        done <- max(ch)
-        cli_progress_update(set = done)
-      }
-      cli_progress_done()
-    } else {
-      cli_progress_bar(
-        "Sampling latent variables",
-        total = nsamp,
-        clear = FALSE
-      )
-      for (i in seq_len(nsamp)) {
-        out[[i]] <- sample_lv(x_samp[i, ])
-        cli_progress_update()
-      }
-      cli_progress_done()
+    cli_progress_bar(
+      "Sampling latent variables",
+      total = nsamp,
+      clear = FALSE
+    )
+    for (i in seq_len(nsamp)) {
+      out[[i]] <- sample_lv(x_samp[i, ])
+      cli_progress_update()
     }
+    cli_progress_done()
   } else {
     cli_abort("Only type = 'lv' is currently implemented.")
   }
@@ -268,11 +250,10 @@ print.summary.predict.inlavaan_internal <- function(x, stat = "Mean", ...) {
 #' @rdname INLAvaan-class
 #' @param object An object of class [INLAvaan].
 #' @export
-setMethod("predict", "INLAvaan", function(object, nsamp = 1000, cores = 1L, ...) {
+setMethod("predict", "INLAvaan", function(object, nsamp = 1000, ...) {
   predict.inlavaan_internal(
     object@external$inlavaan_internal,
     nsamp = nsamp,
-    cores = cores,
     ...
   )
 })
