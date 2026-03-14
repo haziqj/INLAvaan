@@ -14,7 +14,7 @@
 \usage{
 \S4method{plot}{INLAvaan,ANY}(x, y, ...)
 
-\S4method{predict}{INLAvaan}(object, nsamp = 1000, ...)
+\S4method{predict}{INLAvaan}(object, nsamp = 1000, cores = 1L, ...)
 
 \S4method{show}{INLAvaan}(object)
 
@@ -47,6 +47,14 @@
 
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
+
+\item{cores}{Integer or \code{NULL}. Number of cores for parallel marginal
+fitting. When \code{NULL} (default), serial execution is used unless the number
+of free parameters exceeds 120, in which case parallelisation is enabled
+automatically using all available physical cores. Set to \code{1L} to force
+serial execution. If \code{cores > 1}, marginal fits are distributed across
+cores using \code{\link[parallel:mclapply]{parallel::mclapply()}} (fork-based; no parallelism on
+Windows).}
 
 \item{header}{Logical; if TRUE, print model fit information header.}
 

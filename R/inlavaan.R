@@ -482,7 +482,7 @@ inlavaan <- function(
         m = m, FUN = obtain_approx_data, cores = eff_cores,
         verbose = verbose,
         msg_serial = "Calibrating {j}/{m} asymmetric Gaussian{?s}.",
-        msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores} cores)."
+        msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores}\U00D7)."
       )
       approx_data <- do.call(what = "rbind", approx_data)
 
@@ -587,6 +587,7 @@ inlavaan <- function(
       ginv_prime = pt$ginv_prime[PTFREEIDX]
     )
   }
+  timing <- add_timing(timing, "marginals")
 
   ## ----- NORTA adjustment for SN copula sampling ----------------------------
   R_star <- NULL
@@ -655,8 +656,6 @@ inlavaan <- function(
 
   summ <- as.data.frame(summ)
   summ$Prior <- pt$prior[PTFREEIDX]
-
-  timing <- add_timing(timing, "marginals")
 
   ## ----- Sampling for covariances and defined params -------------------------
   if (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {

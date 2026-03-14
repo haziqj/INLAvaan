@@ -44,9 +44,13 @@ predict.inlavaan_internal <- function(
   object,
   type = c("lv", "yhat", "ov", "ypred", "ydist"),
   nsamp = 250,
+  cores = 1L,
   ...
 ) {
   type <- match.arg(type)
+  cores <- as.integer(cores)
+  if (is.na(cores) || cores < 1L) cores <- 1L
+  if (cores > 1L && .Platform$OS.type == "windows") cores <- 1L
 
   theta_star <- object$theta_star
   Sigma_theta <- object$Sigma_theta
@@ -125,17 +129,36 @@ predict.inlavaan_internal <- function(
       out
     }
 
-    cli_progress_bar(
-      "Sampling latent variables",
-      total = nsamp,
-      clear = FALSE
-    )
     out <- vector("list", nsamp)
-    for (i in seq_len(nsamp)) {
-      out[[i]] <- sample_lv(x_samp[i, ])
-      cli_progress_update()
+    if (cores > 1L) {
+      done <- 0L
+      cli_progress_bar(
+        paste0("Sampling latent variables (", cores, "\U00D7)"),
+        total = nsamp,
+        clear = FALSE
+      )
+      chunk_size <- max(cores, ceiling(nsamp / 20))
+      chunk_ids <- split(seq_len(nsamp), ceiling(seq_len(nsamp) / chunk_size))
+      for (ch in chunk_ids) {
+        out[ch] <- parallel::mclapply(ch, function(i) {
+          sample_lv(x_samp[i, ])
+        }, mc.cores = cores)
+        done <- max(ch)
+        cli_progress_update(set = done)
+      }
+      cli_progress_done()
+    } else {
+      cli_progress_bar(
+        "Sampling latent variables",
+        total = nsamp,
+        clear = FALSE
+      )
+      for (i in seq_len(nsamp)) {
+        out[[i]] <- sample_lv(x_samp[i, ])
+        cli_progress_update()
+      }
+      cli_progress_done()
     }
-    cli_progress_done()
   } else {
     cli_abort("Only type = 'lv' is currently implemented.")
   }
@@ -245,10 +268,11 @@ print.summary.predict.inlavaan_internal <- function(x, stat = "Mean", ...) {
 #' @rdname INLAvaan-class
 #' @param object An object of class [INLAvaan].
 #' @export
-setMethod("predict", "INLAvaan", function(object, nsamp = 1000, ...) {
+setMethod("predict", "INLAvaan", function(object, nsamp = 1000, cores = 1L, ...) {
   predict.inlavaan_internal(
     object@external$inlavaan_internal,
     nsamp = nsamp,
+    cores = cores,
     ...
   )
 })

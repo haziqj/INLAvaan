@@ -146,8 +146,13 @@ compare_impl <- function(models, modnames, fit.measures = NULL,
     }
   }
 
-  out <- out[order(-out$Marg.Loglik), ]
+  if (is.null(fit.measures)) {
+    out <- out[order(-out$Marg.Loglik), ]
+  }
+
   rownames(out) <- NULL
+  attr(out, "fit_measures_used") <- !is.null(fit.measures)
+  attr(out, "baseline_name") <- modnames[1]
   class(out) <- c("compare.inlavaan_internal", class(out))
   out
 }
@@ -155,7 +160,11 @@ compare_impl <- function(models, modnames, fit.measures = NULL,
 #' @exportS3Method print compare.inlavaan_internal
 print.compare.inlavaan_internal <- function(x, ...) {
   cat("Bayesian Model Comparison (INLAvaan)\n")
-  cat("Models ordered by marginal log-likelihood\n\n")
+  if (isTRUE(attr(x, "fit_measures_used"))) {
+    cat("Baseline model:", attr(x, "baseline_name"), "\n\n")
+  } else {
+    cat("Models ordered by marginal log-likelihood\n\n")
+  }
   print.data.frame(x, row.names = FALSE)
   invisible(x)
 }
