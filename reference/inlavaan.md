@@ -197,25 +197,25 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [67ms]
+#> ✔ Finding posterior mode. [76ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [43ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.022σ. [98ms]
+#> ✔ VB correction; mean |δ| = 0.022σ. [87ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [454ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [441ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [146ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [298ms]
+#> ✔ Posterior sampling and summarising. [294ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9010 ended normally after 73 iterations
+#> INLAvaan 0.2.3.9011 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

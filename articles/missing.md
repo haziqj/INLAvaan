@@ -39,28 +39,28 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [136ms]
+#> ✔ Finding posterior mode. [135ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [167ms]
+#> ✔ Computing the Hessian. [162ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.069σ. [486ms]
+#> ✔ VB correction; mean |δ| = 0.069σ. [468ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 34/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [2s]
+#> ⠹ Fitting 37/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [1.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [508ms]
+#> ✔ Adjusting copula correlations (NORTA). [497ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [551ms]
+#> ✔ Posterior sampling and summarising. [521ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.2.3.9010 ended normally after 71 iterations
+#> INLAvaan 0.2.3.9011 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -95,27 +95,26 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [266ms]
+#> ✔ Finding posterior mode. [264ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [243ms]
+#> ✔ Computing the Hessian. [240ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [514ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [502ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 2/42 skew-normal marginals.
-#> ⠸ Fitting 40/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.3s]
+#> ⠹ Fitting 6/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [504ms]
+#> ✔ Adjusting copula correlations (NORTA). [483ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [794ms]
+#> ✔ Posterior sampling and summarising. [776ms]
 #> 
 print(fit2)
-#> INLAvaan 0.2.3.9010 ended normally after 93 iterations
+#> INLAvaan 0.2.3.9011 ended normally after 93 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

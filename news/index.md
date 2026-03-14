@@ -38,6 +38,8 @@
   [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md).
 - NEW parallelism feature for skew normal fit, automatically runs on
   total available cores when $m > 120$.
+- NEW [`predict()`](https://rdrr.io/r/stats/predict.html) may be slow at
+  times, so added `cores` argument too.
 
 ## INLAvaan 0.2.3
 

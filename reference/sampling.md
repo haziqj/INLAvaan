@@ -116,22 +116,22 @@ individual-specific factor scores \\\boldsymbol\eta \mid
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [27ms]
+#> ✔ Finding posterior mode. [20ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [19ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.058σ. [52ms]
+#> ✔ VB correction; mean |δ| = 0.058σ. [53ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [85ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [91ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [20ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [253ms]
+#> ✔ Posterior sampling and summarising. [228ms]
 #> 
 
 # Posterior samples of lavaan-side parameters

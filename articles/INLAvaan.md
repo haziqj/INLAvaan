@@ -110,16 +110,16 @@ fit <- asem(mod, dat)
 #> ✔ Computing the Hessian. [48ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [79ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [78ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [244ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [243ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [76ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [361ms]
+#> ✔ Posterior sampling and summarising. [363ms]
 #> 
 ```
 
@@ -164,7 +164,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.3.9010 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9011 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -193,7 +193,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.3.9010 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9011 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -345,20 +345,20 @@ fit2 <- asem(mod2, dat)
 #> ✔ Finding posterior mode. [53ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [28ms]
+#> ✔ Computing the Hessian. [27ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.002σ. [68ms]
+#> ✔ VB correction; mean |δ| = 0.002σ. [69ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ⠹ Fitting 11/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [200ms]
+#> ⠹ Fitting 2/12 skew-normal marginals.
+#> ✔ Fitting 12/12 skew-normal marginals. [202ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [49ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [253ms]
+#> ✔ Posterior sampling and summarising. [257ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)

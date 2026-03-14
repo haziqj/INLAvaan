@@ -230,26 +230,25 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [154ms]
+#> ✔ Finding posterior mode. [153ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [75ms]
+#> ✔ Computing the Hessian. [74ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.005σ. [155ms]
+#> ✔ VB correction; mean |δ| = 0.005σ. [154ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 7/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [603ms]
+#> ✔ Fitting 17/17 skew-normal marginals. [569ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [99ms]
+#> ✔ Adjusting copula correlations (NORTA). [97ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [131ms]
+#> ✔ Posterior sampling and summarising. [126ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9010 ended normally after 83 iterations
+#> INLAvaan 0.2.3.9011 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
