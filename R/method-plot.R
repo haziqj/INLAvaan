@@ -1,9 +1,25 @@
 #' @exportS3Method plot inlavaan_internal
 #' @keywords internal
-plot.inlavaan_internal <- function(x, truth, use_ggplot = TRUE, ...) {
-  n_params <- max(x$partable$free)
-  param_names <- names(x$pdf_data)[seq_len(n_params)]
+plot.inlavaan_internal <- function(x, truth, params = "all",
+                                   nrow = NULL, ncol = NULL,
+                                   use_ggplot = TRUE, ...) {
+  all_names <- names(x$pdf_data)
   postmode <- x$summary[, "Mode"]
+
+  # Resolve which parameters to plot
+  if (identical(params, "all")) {
+    param_names <- all_names
+  } else {
+    bad <- setdiff(params, all_names)
+    if (length(bad) > 0) {
+      stop(
+        "Unknown parameter(s): ", paste(bad, collapse = ", "),
+        "\nAvailable: ", paste(all_names, collapse = ", ")
+      )
+    }
+    param_names <- params
+  }
+  n_plot <- length(param_names)
 
   use_ggplot <- isTRUE(use_ggplot) &&
     requireNamespace("ggplot2", quietly = TRUE)
@@ -17,15 +33,16 @@ plot.inlavaan_internal <- function(x, truth, use_ggplot = TRUE, ...) {
     rownames(plot_df) <- NULL
     plot_df$name <- factor(plot_df$name, levels = param_names)
 
+    modes <- postmode[param_names]
     vline_df <- data.frame(
       name = factor(param_names, levels = param_names),
-      xint = if (missing(truth)) postmode[seq_len(n_params)] else truth
+      xint = if (missing(truth)) modes else truth
     )
 
     x <- xint <- NULL # no visible binding NOTE
     p <- ggplot2::ggplot(plot_df, ggplot2::aes(x, y)) +
       ggplot2::geom_line() +
-      ggplot2::facet_wrap(~name, scales = "free") +
+      ggplot2::facet_wrap(~name, scales = "free", nrow = nrow, ncol = ncol) +
       ggplot2::theme_minimal() +
       ggplot2::labs(x = NULL, y = NULL)
 
@@ -47,8 +64,16 @@ plot.inlavaan_internal <- function(x, truth, use_ggplot = TRUE, ...) {
   }
 
   # --- base R fallback ---
-  n_cols <- ceiling(sqrt(n_params))
-  n_rows <- ceiling(n_params / n_cols)
+  if (!is.null(ncol) && !is.null(nrow)) {
+    n_cols <- ncol; n_rows <- nrow
+  } else if (!is.null(ncol)) {
+    n_cols <- ncol; n_rows <- ceiling(n_plot / n_cols)
+  } else if (!is.null(nrow)) {
+    n_rows <- nrow; n_cols <- ceiling(n_plot / n_rows)
+  } else {
+    n_cols <- ceiling(sqrt(n_plot))
+    n_rows <- ceiling(n_plot / n_cols)
+  }
 
   layout_mat <- matrix(seq_len(n_rows * n_cols), nrow = n_rows, ncol = n_cols,
                        byrow = TRUE)
@@ -57,7 +82,7 @@ plot.inlavaan_internal <- function(x, truth, use_ggplot = TRUE, ...) {
   op <- par(mar = c(2, 2, 2, 1), oma = c(0, 0, 0, 0))
   on.exit(par(op))
 
-  for (j in seq_len(n_params)) {
+  for (j in seq_len(n_plot)) {
     param <- param_names[j]
     plot_df <- x$pdf_data[[param]]
 
@@ -75,16 +100,14 @@ plot.inlavaan_internal <- function(x, truth, use_ggplot = TRUE, ...) {
       ...
     )
 
-    # grid(col = "lightgray", lty = "solid")
-
     if (missing(truth)) {
-      abline(v = postmode[j], lty = 2, col = "red3")
+      abline(v = postmode[param], lty = 2, col = "red3")
     } else {
       abline(v = truth[j], lty = 3, col = "steelblue3")
     }
   }
 
-  remaining <- n_rows * n_cols - n_params
+  remaining <- n_rows * n_cols - n_plot
   for (i in seq_len(remaining)) plot.new()
 
   par(mar = c(0, 0, 0, 0))

@@ -12,7 +12,10 @@
 * NEW `sampling()` function to produce draws from the posterior (or prior) SEM generative model.
 * NEW Bayesian Fit Indices included in `fitmeasures()`; summary statistics available via `bfit_indices()`.
 * NEW parallelism feature for skew normal fit, automatically runs on total available cores when $m>120$.
-* NEW `predict()` may be slow at times, so added `cores` argument too.
+* NEW `predict()` now able to generate predictions for observed data.
+* For defined params, it's possible to fit a skew normal approximation to the posterior marginal based on the samples by calling `sn_fit_sample = TRUE`.
+* Improved `plot()` method.
+
 
 # INLAvaan 0.2.3
 

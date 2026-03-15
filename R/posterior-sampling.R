@@ -267,6 +267,65 @@ get_defpars <- function(x_samp, pt) {
   apply(def_samp, 2, summarise_samples)
 }
 
+get_defpars_fit_sn <- function(x_samp, pt) {
+
+  pt_def_rows <- which(pt$op == ":=")
+  param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
+  param_map <- param_map[names(param_map) != ""]
+
+  def_funs <- lapply(pt_def_rows, function(i) {
+    expr <- parse(text = pt$rhs[i])
+
+    function(theta) {
+      env_vals <- as.list(theta[param_map])
+      names(env_vals) <- names(param_map)
+      eval(expr, envir = env_vals)
+    }
+  })
+
+  def_samp <- sapply(def_funs, function(fn) {
+    apply(x_samp, 1, fn)
+  })
+  colnames(def_samp) <- pt$names[pt_def_rows]
+
+  sn_params <- apply(def_samp, 2, fit_skew_normal_samp)
+  sn_params <- do.call("rbind", lapply(sn_params, unlist))
+
+  apply(sn_params, 1, function(y) {
+    xi <- y["xi"]
+    omega <- y["omega"]
+    alpha <- y["alpha"]
+    delta <- alpha / sqrt(1 + alpha^2)
+
+    Ex <- xi + omega * delta * sqrt(2 / pi)
+    Vx <- omega^2 * (1 - 2 * delta^2 / pi)
+    SDx <- sqrt(Vx)
+    qq <- qsnorm_fast(
+      c(0.025, 0.5, 0.975),
+      xi = xi,
+      omega = omega,
+      alpha = alpha
+    )
+
+    x <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
+    fx <- dsnorm(x, xi = xi, omega = omega, alpha = alpha)
+
+    xmax <- optimize(
+      function(x) dsnorm(x, xi = xi, omega = omega, alpha = alpha),
+      interval = range(x),
+      maximum = TRUE
+    )$maximum
+
+    res <- c(Ex, SDx, qq, xmax)
+    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+
+    list(
+      summary = res,
+      pdf_data = data.frame(x = x, y = fx)
+    )
+  })
+}
+
 sample_covariances_fit_sn <- function(x_samp, pt) {
   pt_cov_rows <- grep("cov", pt$mat)
   pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]

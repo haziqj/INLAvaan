@@ -679,7 +679,12 @@ inlavaan <- function(
 
   # Defined parameters
   if (any(pt$op == ":=")) {
-    defpars <- get_defpars(x_samp, pt)
+    if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
+      defpars <- get_defpars_fit_sn(x_samp, pt)
+    } else {
+      defpars <- get_defpars(x_samp, pt)
+    }
+    
     for (def_name in names(defpars)) {
       tmp_new_summ <- defpars[[def_name]]$summary
       summ[def_name, names(tmp_new_summ)] <- tmp_new_summ
