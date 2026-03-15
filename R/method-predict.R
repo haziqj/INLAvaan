@@ -141,8 +141,174 @@ predict.inlavaan_internal <- function(
       cli_progress_update()
     }
     cli_progress_done()
+  } else if (type == "ov") {
+    # --- Observed value imputation for missing data ---
+    # For each posterior draw of model parameters, compute the model-implied
+    # covariance Sigma(theta) and mean mu(theta), then draw missing values
+    # from their conditional distribution given observed values:
+    #   y_mis | y_obs, theta ~ N(mu_cond, Sigma_cond)
+    nlevels <- lavdata@nlevels
+
+    # Pre-compute per-block ov names for naming model-implied matrices
+    ov_names_block <- NULL
+    if (nlevels > 1L) {
+      nblocks <- lavmodel@nblocks
+      ov_names_block <- vector("list", nblocks)
+      for (b in seq_len(nblocks)) {
+        g_b <- ceiling(b / nlevels)
+        ov_all <- lavdata@ov.names[[g_b]]
+        ov_names_block[[b]] <- unique(
+          pt$lhs[pt$block == b & pt$op == "~~" &
+                   pt$lhs == pt$rhs & pt$lhs %in% ov_all]
+        )
+      }
+    }
+
+    sample_ov <- function(xx) {
+      lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
+      lavimplied <- lavaan::lav_model_implied(lavmodel_x)
+
+      out <- vector("list", nG)
+      names(out) <- group_labels
+
+      for (g in seq_len(nG)) {
+        yg <- y[[g]]
+        p <- ncol(yg)
+        n_obs <- nrow(yg)
+        outg <- yg
+
+        if (nlevels == 1L) {
+          Sigma_y <- lavimplied$cov[[g]]
+          mu_y <- if (!is.null(lavimplied$mean)) {
+            as.numeric(lavimplied$mean[[g]])
+          } else {
+            rep(0, p)
+          }
+        } else {
+          # Multilevel: marginal covariance = within + between
+          block_w <- (g - 1) * nlevels + 1
+          block_b <- (g - 1) * nlevels + 2
+
+          Sigma_w <- lavimplied$cov[[block_w]]
+          Sigma_b <- lavimplied$cov[[block_b]]
+
+          # Name the model-implied matrices using per-block ov names
+          if (!is.null(ov_names_block)) {
+            nw <- ov_names_block[[block_w]]
+            if (length(nw) == nrow(Sigma_w)) {
+              rownames(Sigma_w) <- colnames(Sigma_w) <- nw
+            }
+            nb <- ov_names_block[[block_b]]
+            if (length(nb) == nrow(Sigma_b)) {
+              rownames(Sigma_b) <- colnames(Sigma_b) <- nb
+            }
+          }
+
+          var_names <- colnames(yg)
+          if (is.null(var_names)) var_names <- lavdata@ov.names[[g]]
+          Sigma_y <- matrix(0, p, p, dimnames = list(var_names, var_names))
+
+          vn_w <- rownames(Sigma_w)
+          w_in_data <- match(vn_w, var_names)
+          w_keep <- !is.na(w_in_data)
+          if (any(w_keep)) {
+            idx <- w_in_data[w_keep]
+            Sigma_y[idx, idx] <- Sigma_y[idx, idx] +
+              Sigma_w[w_keep, w_keep, drop = FALSE]
+          }
+
+          vn_b <- rownames(Sigma_b)
+          b_in_data <- match(vn_b, var_names)
+          b_keep <- !is.na(b_in_data)
+          if (any(b_keep)) {
+            idx <- b_in_data[b_keep]
+            Sigma_y[idx, idx] <- Sigma_y[idx, idx] +
+              Sigma_b[b_keep, b_keep, drop = FALSE]
+          }
+
+          mu_y <- rep(0, p)
+          names(mu_y) <- var_names
+          if (!is.null(lavimplied$mean)) {
+            mu_b <- as.numeric(lavimplied$mean[[block_b]])
+            names(mu_b) <- vn_b
+            b_match <- intersect(var_names, vn_b)
+            mu_y[match(b_match, var_names)] <- mu_b[b_match]
+          }
+        }
+
+        # Detect missing values
+        na_mat <- is.na(yg)
+        if (!any(na_mat)) {
+          out[[g]] <- outg
+          next
+        }
+
+        # Group cases by missing-data pattern for efficiency
+        patterns <- apply(na_mat, 1, function(r) {
+          paste(which(r), collapse = ",")
+        })
+        unique_patterns <- unique(patterns[patterns != ""])
+
+        for (pat in unique_patterns) {
+          mis_idx <- as.integer(strsplit(pat, ",")[[1]])
+          obs_idx <- setdiff(seq_len(p), mis_idx)
+          case_rows <- which(patterns == pat)
+
+          Sigma_oo <- Sigma_y[obs_idx, obs_idx, drop = FALSE]
+          Sigma_mo <- Sigma_y[mis_idx, obs_idx, drop = FALSE]
+          Sigma_mm <- Sigma_y[mis_idx, mis_idx, drop = FALSE]
+
+          A <- Sigma_mo %*% solve(Sigma_oo)
+          Sigma_cond <- Sigma_mm - A %*% t(Sigma_mo)
+          Sigma_cond <- (Sigma_cond + t(Sigma_cond)) / 2
+          chol_cond <- t(chol(Sigma_cond))
+
+          n_mis <- length(mis_idx)
+          n_cases <- length(case_rows)
+
+          y_obs_centred <- yg[case_rows, obs_idx, drop = FALSE] -
+            matrix(mu_y[obs_idx], nrow = n_cases,
+                   ncol = length(obs_idx), byrow = TRUE)
+          mu_cond <- matrix(mu_y[mis_idx], nrow = n_cases,
+                            ncol = n_mis, byrow = TRUE) +
+            y_obs_centred %*% t(A)
+
+          Z <- matrix(rnorm(n_cases * n_mis),
+                      nrow = n_mis, ncol = n_cases)
+          draws <- mu_cond + t(chol_cond %*% Z)
+          outg[case_rows, mis_idx] <- draws
+        }
+
+        out[[g]] <- outg
+      }
+
+      if (nG == 1L) {
+        cn <- colnames(y[[1L]])
+        if (is.null(cn)) cn <- lavdata@ov.names[[1L]]
+        colnames(out[[1L]]) <- cn
+        out <- out[[1L]]
+      } else {
+        out <- do.call(
+          rbind,
+          Map(function(g, df) data.frame(group = g, df), names(out), out)
+        )
+      }
+      rownames(out) <- NULL
+      out
+    }
+
+    out <- vector("list", nsamp)
+    cli_progress_bar("Imputing observed values", total = nsamp, clear = FALSE)
+    for (i in seq_len(nsamp)) {
+      out[[i]] <- sample_ov(x_samp[i, ])
+      cli_progress_update()
+    }
+    cli_progress_done()
   } else {
-    cli_abort("Only type = 'lv' is currently implemented.")
+    cli_abort(c(
+      "Type {.val {type}} is not yet implemented.",
+      "i" = "Supported types: {.val lv}, {.val ov}."
+    ))
   }
 
   attr(out, "nobs") <- lavdata@nobs
@@ -250,9 +416,16 @@ print.summary.predict.inlavaan_internal <- function(x, stat = "Mean", ...) {
 #' @rdname INLAvaan-class
 #' @param object An object of class [INLAvaan].
 #' @export
-setMethod("predict", "INLAvaan", function(object, nsamp = 1000, ...) {
+setMethod("predict", "INLAvaan", function(
+  object,
+  type = c("lv", "ov"),
+  nsamp = 1000,
+  ...
+) {
+  type <- match.arg(type)
   predict.inlavaan_internal(
     object@external$inlavaan_internal,
+    type = type,
     nsamp = nsamp,
     ...
   )

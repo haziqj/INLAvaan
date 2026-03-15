@@ -123,6 +123,7 @@ get_ppp <- function(
   lavmodel,
   lavsamplestats,
   lavdata,
+  lavpartable = NULL,
   cli_env = NULL
 ) {
 
@@ -136,6 +137,22 @@ get_ppp <- function(
 
   n_blocks <- lavmodel@nblocks
   n_levels <- lavdata@nlevels
+
+  # Pre-compute per-block observed variable names (needed for alignment)
+  ov_names_block <- vector("list", n_blocks)
+  for (b in seq_len(n_blocks)) {
+    g <- ceiling(b / n_levels)
+    ov_all <- lavdata@ov.names[[g]]
+    if (!is.null(lavpartable)) {
+      ov_names_block[[b]] <- unique(
+        lavpartable$lhs[lavpartable$block == b &
+                          lavpartable$op == "~~" &
+                          lavpartable$lhs == lavpartable$rhs &
+                          lavpartable$lhs %in% ov_all]
+      )
+    }
+  }
+
   res <- vector("numeric", length = nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
     if (!is.null(cli_env)) {
@@ -161,6 +178,7 @@ get_ppp <- function(
         # === MULTILEVEL CASE ===
         # Extract from YLp[[g]][[2]]
         cluster_stats <- lavsamplestats@YLp[[g]][[2]]
+        ov_all <- lavdata@ov.names[[g]]
 
         if (l == 1) {
           # Level 1 (Within): Use Total N
@@ -172,9 +190,10 @@ get_ppp <- function(
           S <- cluster_stats$Sigma.B
         }
 
+        # Name S using the overall ov ordering, then filter zero-variance
+        rownames(S) <- colnames(S) <- ov_all
         keep <- rowSums(S != 0) > 0
-        S_reduced <- S[keep, keep, drop = FALSE]
-        S <- S_reduced
+        S <- S[keep, keep, drop = FALSE]
       } else {
         # === SINGLE-LEVEL CASE ===
         # Standard extraction
@@ -185,9 +204,20 @@ get_ppp <- function(
       # Retrieve Model Implied Sigma (Universal)
       Sigma <- lavimplied$cov[[b]]
 
+      # Name Sigma using per-block ov names and align with S
+      if (n_levels > 1 && length(ov_names_block[[b]]) == nrow(Sigma)) {
+        rownames(Sigma) <- colnames(Sigma) <- ov_names_block[[b]]
+        shared <- intersect(rownames(S), rownames(Sigma))
+        if (length(shared) > 0) {
+          S <- S[shared, shared, drop = FALSE]
+          Sigma <- Sigma[shared, shared, drop = FALSE]
+        }
+      }
+
       if (!is_bad_cov(Sigma)) {
         # Simulate and Accumulate
-        W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1]
+        p <- nrow(Sigma)
+        W <- matrix(stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1], p, p)
         Srep <- W / (n - 1)
 
         Tobs <- Tobs + Fdiscrp(S, Sigma)

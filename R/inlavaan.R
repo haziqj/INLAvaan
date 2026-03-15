@@ -708,6 +708,7 @@ inlavaan <- function(
       lavmodel = lavmodel,
       lavsamplestats = lavsamplestats,
       lavdata = lavdata,
+      lavpartable = lavpartable,
       cli_env = samp_env
     )
     dic_list <- get_dic(
