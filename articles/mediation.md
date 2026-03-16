@@ -98,22 +98,22 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [34ms]
+#> ✔ Finding posterior mode. [33ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [64ms]
+#> ✔ Computing the Hessian. [61ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.012σ. [168ms]
+#> ✔ VB correction; mean |δ| = 0.012σ. [162ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fitting 7/7 skew-normal marginals. [120ms]
+#> ✔ Fitting 7/7 skew-normal marginals. [111ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [27ms]
+#> ✔ Adjusting copula correlations (NORTA). [23ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [332ms]
+#> ✔ Posterior sampling and summarising. [292ms]
 #> 
 ```
 
@@ -129,7 +129,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.3.9011 ended normally after 5 iterations
+#> INLAvaan 0.2.3.9012 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -173,8 +173,8 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.403    0.100    0.221    0.624                         
-#>     total             0.351    0.139    0.081    0.615
+#>     ab                0.403    0.099    0.209    0.598                         
+#>     total             0.351    0.139    0.080    0.623
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
@@ -188,7 +188,7 @@ output:
   \[-0.290, 0.172\] includes zero, correctly identifying that there is
   no direct effect.
 - Indirect Effect $ab$ estimated at 0.403 (true value 0.35). The
-  interval \[0.221, 0.624\] does not cross zero, indicating significant
+  interval \[0.209, 0.598\] does not cross zero, indicating significant
   mediation.
 - Total Effect estimated at 0.351.
   - This is the sum of the direct and indirect effects ($c + ab$).

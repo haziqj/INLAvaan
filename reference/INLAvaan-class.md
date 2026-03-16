@@ -11,7 +11,7 @@ class. Several S4 methods are available.
 plot(x, y, ...)
 
 # S4 method for class 'INLAvaan'
-predict(object, nsamp = 1000, cores = 1L, ...)
+predict(object, type = c("lv", "ov"), nsamp = 1000, ...)
 
 # S4 method for class 'INLAvaan'
 show(object)
@@ -58,21 +58,15 @@ vcov(object)
   An object of class
   [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md).
 
+- type:
+
+  Character; `"lv"` (default) returns predicted latent variable scores,
+  `"ov"` returns predicted observed variable values.
+
 - nsamp:
 
   The number of samples to draw for all sampling-based approaches
   (including posterior sampling for model fit indices).
-
-- cores:
-
-  Integer or `NULL`. Number of cores for parallel marginal fitting. When
-  `NULL` (default), serial execution is used unless the number of free
-  parameters exceeds 120, in which case parallelisation is enabled
-  automatically using all available physical cores. Set to `1L` to force
-  serial execution. If `cores > 1`, marginal fits are distributed across
-  cores using
-  [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
-  (fork-based; no parallelism on Windows).
 
 - header:
 

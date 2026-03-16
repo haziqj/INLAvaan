@@ -38,8 +38,13 @@
   [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md).
 - NEW parallelism feature for skew normal fit, automatically runs on
   total available cores when $m > 120$.
-- NEW [`predict()`](https://rdrr.io/r/stats/predict.html) may be slow at
-  times, so added `cores` argument too.
+- NEW [`predict()`](https://rdrr.io/r/stats/predict.html) now able to
+  generate predictions for observed data.
+- For defined params, it’s possible to fit a skew normal approximation
+  to the posterior marginal based on the samples by calling
+  `sn_fit_sample = TRUE`.
+- Improved [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+  method.
 
 ## INLAvaan 0.2.3
 

@@ -197,25 +197,25 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [69ms]
+#> ✔ Finding posterior mode. [105ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [51ms]
+#> ✔ Computing the Hessian. [65ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.022σ. [90ms]
+#> ✔ VB correction; mean |δ| = 0.022σ. [135ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [451ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [702ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [140ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [309ms]
+#> ✔ Posterior sampling and summarising. [270ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9011 ended normally after 73 iterations
+#> INLAvaan 0.2.3.9012 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -230,8 +230,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7521.019 
-#>    Effective parameters (pD)                    22.642 
+#>    Deviance (DIC)                             7521.021 
+#>    Effective parameters (pD)                    22.644 
 #> 
 #> Parameter Estimates:
 #> 
@@ -270,10 +270,10 @@ summary(fit)
 #>    .x5                0.450    0.059    0.342    0.572    0.002 gamma(1,.5)[sd]
 #>    .x6                0.361    0.044    0.279    0.453    0.002 gamma(1,.5)[sd]
 #>    .x7                0.829    0.091    0.666    1.022    0.004 gamma(1,.5)[sd]
-#>    .x8                0.507    0.090    0.340    0.693    0.027 gamma(1,.5)[sd]
+#>    .x8                0.507    0.090    0.339    0.693    0.027 gamma(1,.5)[sd]
 #>    .x9                0.548    0.091    0.371    0.727    0.019 gamma(1,.5)[sd]
-#>     visual            0.791    0.149    0.525    1.110    0.040 gamma(1,.5)[sd]
-#>     textual           0.980    0.113    0.775    1.216    0.003 gamma(1,.5)[sd]
-#>     speed             0.351    0.090    0.189    0.540    0.061 gamma(1,.5)[sd]
+#>     visual            0.791    0.149    0.525    1.110    0.041 gamma(1,.5)[sd]
+#>     textual           0.980    0.113    0.775    1.217    0.002 gamma(1,.5)[sd]
+#>     speed             0.350    0.090    0.188    0.539    0.062 gamma(1,.5)[sd]
 #> 
 ```

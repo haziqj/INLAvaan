@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9011</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9012</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -181,22 +181,22 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlavaan.haziqj.ml/">INLAvaan</a></span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [34ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [33ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [64ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [61ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.012σ. [168ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.012σ. [162ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/7 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 7/7 skew-normal marginals. [120ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 7/7 skew-normal marginals. [111ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [27ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [23ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [332ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [292ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p>The user may wish to specify different prior distributions for the parameters. See the relevant section in the <a href="https://inlavaan.haziqj.ml/articles/INLAvaan.html#setting-priors">Get started</a> vignetted for further details.</p>
@@ -206,7 +206,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9011 ended normally after 5 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9012 ended normally after 5 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -250,8 +250,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Defined Parameters:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;     ab                0.403    0.100    0.221    0.624                         </span></span>
-<span><span class="co">#&gt;     total             0.351    0.139    0.081    0.615</span></span></code></pre></div>
+<span><span class="co">#&gt;     ab                0.403    0.099    0.209    0.598                         </span></span>
+<span><span class="co">#&gt;     total             0.351    0.139    0.080    0.623</span></span></code></pre></div>
 </div>
 <p>Looking at the Regressions and Defined Parameters sections of the output:</p>
 <ul>
@@ -259,7 +259,7 @@
 <li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> (<code>M ~ X</code>) estimated at 0.526 (true value 0.5).</li>
 <li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math> (<code>Y ~ M</code>) estimated at 0.772 (true value 0.7).</li>
 <li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math> (<code>Y ~ X</code>) estimated at -0.059. The 95% Credible Interval [-0.290, 0.172] includes zero, correctly identifying that there is no direct effect.</li>
-<li>Indirect Effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math> estimated at 0.403 (true value 0.35). The interval [0.221, 0.624] does not cross zero, indicating significant mediation.</li>
+<li>Indirect Effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math> estimated at 0.403 (true value 0.35). The interval [0.209, 0.598] does not cross zero, indicating significant mediation.</li>
 <li>Total Effect estimated at 0.351.
 <ul>
 <li>This is the sum of the direct and indirect effects (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>+</mo><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">c + ab</annotation></semantics></math>).</li>
