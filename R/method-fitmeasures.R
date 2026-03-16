@@ -1,20 +1,35 @@
 # --- Bayesian fit index helpers -----------------------------------------------
 
 # Saturated log-likelihood (constant for ML; sum across groups)
+# Under FIML, uses the pattern-based formula to stay on the same scale as
+# inlav_model_loglik (which delegates to lavaan:::lav_model_loglik).
 compute_loglik_sat <- function(lavsamplestats, lavdata) {
   ngroups <- lavdata@ngroups
   logl_sat <- 0
   for (g in seq_len(ngroups)) {
-    logl_sat <- logl_sat + lavaan___lav_mvnorm_loglik_samplestats(
-      sample.mean = lavsamplestats@mean[[g]],
-      sample.cov  = lavsamplestats@cov[[g]],
-      sample.nobs = lavsamplestats@nobs[[g]],
-      Mu          = lavsamplestats@mean[[g]],
-      Sigma       = lavsamplestats@cov[[g]],
-      x.idx       = lavsamplestats@x.idx[[g]],
-      x.mean      = lavsamplestats@mean.x[[g]],
-      x.cov       = lavsamplestats@cov.x[[g]]
-    )
+    if (lavsamplestats@missing.flag) {
+      logl_sat <- logl_sat +
+        lavaan___lav_mvnorm_missing_loglik_samplestats(
+          Yp     = lavsamplestats@missing[[g]],
+          Mu     = lavsamplestats@mean[[g]],
+          Sigma  = lavsamplestats@cov[[g]],
+          x.idx  = lavsamplestats@x.idx[[g]],
+          x.mean = lavsamplestats@mean.x[[g]],
+          x.cov  = lavsamplestats@cov.x[[g]]
+        )
+    } else {
+      logl_sat <- logl_sat +
+        lavaan___lav_mvnorm_loglik_samplestats(
+          sample.mean = lavsamplestats@mean[[g]],
+          sample.cov  = lavsamplestats@cov[[g]],
+          sample.nobs = lavsamplestats@nobs[[g]],
+          Mu          = lavsamplestats@mean[[g]],
+          Sigma       = lavsamplestats@cov[[g]],
+          x.idx       = lavsamplestats@x.idx[[g]],
+          x.mean      = lavsamplestats@mean.x[[g]],
+          x.cov       = lavsamplestats@cov.x[[g]]
+        )
+    }
   }
   logl_sat
 }
