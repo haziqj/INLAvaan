@@ -28,7 +28,8 @@ library(tidyverse)
 [![R-CMD-check](https://github.com/haziqj/INLAvaan/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/haziqj/INLAvaan/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/haziqj/INLAvaan/branch/main/graph/badge.svg)](https://app.codecov.io/gh/haziqj/INLAvaan?branch=main)
 [![CRAN_Status_Badge_version_ago](http://www.r-pkg.org/badges/version-ago/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
-[![](http://cranlogs.r-pkg.org/badges/grand-total/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
+[![Dependencies](https://tinyverse.netlify.app/badge/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
+[![CRAN Downloads](http://cranlogs.r-pkg.org/badges/grand-total/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
 <!-- badges: end -->
 
 > Efficient approximate Bayesian inference for Structural Equation Models.
