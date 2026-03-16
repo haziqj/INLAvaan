@@ -30,7 +30,7 @@ sample_params <- function(
   pt,
   lavmodel,
   nsamp = 1000,
-  R_star = NULL  # NORTA-adjusted correlation matrix for SN copula
+  R_star = NULL # NORTA-adjusted correlation matrix for SN copula
 ) {
   R <- cov2cor(Sigma_theta)
   R_use <- if (method == "skewnorm" && !is.null(R_star)) R_star else R
@@ -38,7 +38,9 @@ sample_params <- function(
   z_raw <- matrix(rnorm(nsamp * ncol(R)), nrow = nsamp)
   z <- z_raw %*% Lt
   u <- apply(z, 2, pnorm)
-  if (!is.matrix(u)) u <- matrix(u, nrow = 1)  # nocov – nsamp == 1 edge case
+  if (!is.matrix(u)) {
+    u <- matrix(u, nrow = 1)
+  } # nocov – nsamp == 1 edge case
 
   # Use marginals to get theta
   if (method == "sampling") {
@@ -126,7 +128,6 @@ get_ppp <- function(
   lavpartable = NULL,
   cli_env = NULL
 ) {
-
   #log |Sigma| + trace(S Sigma^{-1}) - log |S| - p
   Fdiscrp <- function(S, Sigma) {
     logdet_Sigma <- as.numeric(determinant(Sigma, logarithm = TRUE)$modulus)
@@ -145,10 +146,12 @@ get_ppp <- function(
     ov_all <- lavdata@ov.names[[g]]
     if (!is.null(lavpartable)) {
       ov_names_block[[b]] <- unique(
-        lavpartable$lhs[lavpartable$block == b &
-                          lavpartable$op == "~~" &
-                          lavpartable$lhs == lavpartable$rhs &
-                          lavpartable$lhs %in% ov_all]
+        lavpartable$lhs[
+          lavpartable$block == b &
+            lavpartable$op == "~~" &
+            lavpartable$lhs == lavpartable$rhs &
+            lavpartable$lhs %in% ov_all
+        ]
       )
     }
   }
@@ -174,7 +177,8 @@ get_ppp <- function(
       l <- (b - 1) %% n_levels + 1
 
       # --- LOGIC BRANCHING ---
-      if (n_levels > 1) { # nocov start
+      if (n_levels > 1) {
+        # nocov start
         # === MULTILEVEL CASE ===
         # Extract from YLp[[g]][[2]]
         cluster_stats <- lavsamplestats@YLp[[g]][[2]]
@@ -194,7 +198,8 @@ get_ppp <- function(
         rownames(S) <- colnames(S) <- ov_all
         keep <- rowSums(S != 0) > 0
         S <- S[keep, keep, drop = FALSE]
-      } else { # nocov end
+      } else {
+        # nocov end
         # === SINGLE-LEVEL CASE ===
         # Standard extraction
         n <- lavsamplestats@nobs[[g]]
@@ -243,7 +248,6 @@ sample_covariances <- function(x_samp, pt) {
 }
 
 get_defpars <- function(x_samp, pt) {
-
   pt_def_rows <- which(pt$op == ":=")
   param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
   param_map <- param_map[names(param_map) != ""]
@@ -268,7 +272,6 @@ get_defpars <- function(x_samp, pt) {
 }
 
 get_defpars_fit_sn <- function(x_samp, pt) {
-
   pt_def_rows <- which(pt$op == ":=")
   param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
   param_map <- param_map[names(param_map) != ""]
@@ -290,6 +293,7 @@ get_defpars_fit_sn <- function(x_samp, pt) {
 
   sn_params <- apply(def_samp, 2, fit_skew_normal_samp)
   sn_params <- do.call("rbind", lapply(sn_params, unlist))
+  sn_params <- cbind(sn_params, logC = 0, k = 0, rmse = 0, nmad = 0, gamma1 = 0)
 
   apply(sn_params, 1, function(y) {
     xi <- y["xi"]
@@ -321,7 +325,17 @@ get_defpars_fit_sn <- function(x_samp, pt) {
 
     list(
       summary = res,
-      pdf_data = data.frame(x = x, y = fx)
+      pdf_data = data.frame(x = x, y = fx),
+      sn_params = c(
+        xi = xi,
+        omega = omega,
+        alpha = alpha,
+        logC = NA_real_,
+        k = NA_real_,
+        rmse = NA_real_,
+        nmad = NA_real_,
+        gamma1 = NA_real_
+      )
     )
   })
 }
@@ -368,7 +382,17 @@ sample_covariances_fit_sn <- function(x_samp, pt) {
 
     list(
       summary = res,
-      pdf_data = data.frame(x = x, y = fx)
+      pdf_data = data.frame(x = x, y = fx),
+      sn_params = c(
+        xi = xi,
+        omega = omega,
+        alpha = alpha,
+        logC = NA_real_,
+        k = NA_real_,
+        rmse = NA_real_,
+        nmad = NA_real_,
+        gamma1 = NA_real_
+      )
     )
   })
 }
@@ -381,9 +405,11 @@ get_dic <- function(
   loglik,
   cli_env = NULL
 ) {
-  if (lavmodel@ceq.simple.only) { # nocov start
+  if (lavmodel@ceq.simple.only) {
+    # nocov start
     xhat <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
-  } else { # nocov end
+  } else {
+    # nocov end
     xhat <- pars_to_x(theta_star, pt)
   }
 

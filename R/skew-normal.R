@@ -373,9 +373,6 @@ fit_skew_normal_samp <- function(x) {
   list(
     xi = xi_hat,
     omega = omega_hat,
-    alpha = alpha_hat,
-    logC = NA,
-    k = NA,
-    rsq = NA
+    alpha = alpha_hat
   )
 }

@@ -293,12 +293,12 @@ inlavaan <- function(
   # model specification string.
   H_sym <- 0.5 * (H_neg + t(H_neg))
   canon_perm <- order(parnames)
-  inv_perm  <- order(canon_perm)
-  H_canon   <- H_sym[canon_perm, canon_perm]
-  R_prec    <- chol(H_canon)           # upper Cholesky of canonical precision
-  L_canon   <- backsolve(R_prec, diag(m)) # L_c L_c^T = Sigma_canon (upper tri)
-  L <- L_canon[inv_perm, ]             # rows back to original param order
-  Sigma_theta <- tcrossprod(L)         # reconstruct covariance
+  inv_perm <- order(canon_perm)
+  H_canon <- H_sym[canon_perm, canon_perm]
+  R_prec <- chol(H_canon) # upper Cholesky of canonical precision
+  L_canon <- backsolve(R_prec, diag(m)) # L_c L_c^T = Sigma_canon (upper tri)
+  L <- L_canon[inv_perm, ] # rows back to original param order
+  Sigma_theta <- tcrossprod(L) # reconstruct covariance
   dimnames(Sigma_theta) <- list(parnames, parnames)
   lp_max <- joint_lp(theta_star) # before correction
 
@@ -395,7 +395,9 @@ inlavaan <- function(
   timing <- add_timing(timing, "loglik")
 
   ## ----- Marginal approximations ---------------------------------------------
-  if (isTRUE(verbose)) cli_progress_done()
+  if (isTRUE(verbose)) {
+    cli_progress_done()
+  }
 
   # pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
   pars_list <- setNames(as.list(1:m), parnames)
@@ -409,10 +411,16 @@ inlavaan <- function(
 
     get_gamma1 <- function(.j) {
       compute_gamma1j(
-        j = .j, method = marginal_correction,
-        theta_star = theta_star, Vscan = Vscan, L = L,
-        inv_perm = inv_perm, joint_lp_grad = joint_lp_grad,
-        delta_outer = delta_outer, delta_inner = delta_inner, m = m
+        j = .j,
+        method = marginal_correction,
+        theta_star = theta_star,
+        Vscan = Vscan,
+        L = L,
+        inv_perm = inv_perm,
+        joint_lp_grad = joint_lp_grad,
+        delta_outer = delta_outer,
+        delta_inner = delta_inner,
+        m = m
       )
     }
   }
@@ -442,8 +450,6 @@ inlavaan <- function(
     eff_cores <- min(eff_cores, m)
 
     if (marginal_method == "asymgaus") {
-
-
       obtain_approx_data <- function(j) {
         # Gauge the drop in joint_lp in whitened Z space
         k <- 2
@@ -463,7 +469,9 @@ inlavaan <- function(
       }
 
       approx_data <- run_parallel_or_serial(
-        m = m, FUN = obtain_approx_data, cores = eff_cores,
+        m = m,
+        FUN = obtain_approx_data,
+        cores = eff_cores,
         verbose = verbose,
         msg_serial = "Calibrating {j}/{m} asymmetric Gaussian{?s}.",
         msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores}\U00D7)."
@@ -483,7 +491,6 @@ inlavaan <- function(
         )
       }
     } else if (marginal_method == "skewnorm") {
-
       obtain_approx_data <- function(j) {
         z <- seq(-4, 4, length = 21)
         yync <- yy <- numeric(length(z))
@@ -522,7 +529,9 @@ inlavaan <- function(
       }
 
       all_results <- run_parallel_or_serial(
-        m = m, FUN = obtain_approx_data, cores = eff_cores,
+        m = m,
+        FUN = obtain_approx_data,
+        cores = eff_cores,
         verbose = verbose,
         msg_serial = "Fitting {j}/{m} skew-normal marginal{?s}.",
         msg_parallel = "Fitting {done}/{m} skew-normal marginals ({cores}\U00D7)."
@@ -648,6 +657,8 @@ inlavaan <- function(
     } else {
       if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
         samp_cov <- sample_covariances_fit_sn(x_samp, pt)
+        sn_rows <- do.call(rbind, lapply(samp_cov, `[[`, "sn_params"))
+        approx_data <- rbind(approx_data, sn_rows)
       } else {
         samp_cov <- sample_covariances(x_samp, pt)
       }
@@ -665,6 +676,8 @@ inlavaan <- function(
   if (any(pt$op == ":=")) {
     if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
       defpars <- get_defpars_fit_sn(x_samp, pt)
+      sn_rows <- do.call(rbind, lapply(defpars, `[[`, "sn_params"))
+      approx_data <- rbind(approx_data, sn_rows)
     } else {
       defpars <- get_defpars(x_samp, pt)
     }

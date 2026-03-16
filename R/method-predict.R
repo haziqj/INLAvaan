@@ -958,6 +958,7 @@ predict.inlavaan_internal <- function(
 print.predict.inlavaan_internal <- function(
   x,
   n = 10L,
+  nd = 3L,
   ...
 ) {
   type <- attr(x, "type")
@@ -973,15 +974,13 @@ print.predict.inlavaan_internal <- function(
   if (is.numeric(first) && !is.matrix(first) && !is.data.frame(first)) {
     n_total <- length(first)
     if (n_total > n) {
-      print(first[seq_len(n)])
+      print(first[seq_len(n)], digits = nd)
       cat(col_grey(paste0("# ", symbol$info, " ", n_total - n, " more value",
                           if (n_total - n == 1L) "" else "s", "\n")))
-      # cat(col_grey(paste0("# ", symbol$info,
-      #                     " Use `print(n = ...)` to see more values\n")))
       cat(col_grey(paste0("# ", symbol$info,
                           " Use `summary()` to see summary statistics\n")))
     } else {
-      print(first)
+      print(first, digits = nd)
     }
     return(invisible(x))
   }
@@ -989,15 +988,13 @@ print.predict.inlavaan_internal <- function(
   # Matrix / data frame output
   nr <- nrow(first)
   if (!is.null(nr) && nr > n) {
-    print(first[seq_len(n), , drop = FALSE])
+    print(as.data.frame(first[seq_len(n), , drop = FALSE]), digits = nd)
     cat(col_grey(paste0("# ", symbol$info, " ", nr - n, " more row",
                         if (nr - n == 1L) "" else "s", "\n")))
-    # cat(col_grey(paste0("# ", symbol$info,
-    #                     " Use `print(n = ...)` to see more rows\n")))
     cat(col_grey(paste0("# ", symbol$info,
                         " Use `summary()` to see summary statistics\n")))
   } else {
-    print(first)
+    print(as.data.frame(first), digits = nd)
   }
   invisible(x)
 }
@@ -1023,6 +1020,10 @@ summary.predict.inlavaan_internal <- function(object, ...) {
   Mean <- apply(arr, c(1, 2), mean)
   SD <- apply(arr, c(1, 2), sd)
   Q <- apply(arr, c(1, 2), quantile, probs = c(0.025, 0.5, 0.975))
+  Mode <- apply(arr, c(1, 2), function(x) {
+    d <- density(x)
+    d$x[which.max(d$y)]
+  })
 
   res <- list(
     group_id = group_id,
@@ -1030,7 +1031,8 @@ summary.predict.inlavaan_internal <- function(object, ...) {
     SD = SD,
     `2.5%` = Q[1, , ],
     `50%` = Q[2, , ],
-    `97.5%` = Q[3, , ]
+    `97.5%` = Q[3, , ],
+    Mode = Mode
   )
   structure(res, class = "summary.predict.inlavaan_internal")
 }
@@ -1041,19 +1043,18 @@ print.summary.predict.inlavaan_internal <- function(
   x,
   stat = "Mean",
   n = 10L,
+  nd = 3L,
   ...
 ) {
   cat(paste0(stat, " of predicted values from inlavaan model\n\n"))
   mat <- x[[stat]]
   nr <- nrow(mat)
   if (!is.null(nr) && nr > n) {
-    print(mat[seq_len(n), , drop = FALSE])
+    print(as.data.frame(mat[seq_len(n), , drop = FALSE]), digits = nd)
     cat(col_grey(paste0("# ", symbol$info, " ", nr - n, " more row",
                         if (nr - n == 1L) "" else "s", "\n")))
-    cat(col_grey(paste0("# ", symbol$info,
-                        " Use `print(n = ...)` to see more rows\n")))
   } else {
-    print(mat)
+    print(as.data.frame(mat), digits = nd)
   }
 }
 
