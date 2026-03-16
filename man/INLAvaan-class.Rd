@@ -45,6 +45,9 @@
 
 \item{object}{An object of class \link{INLAvaan}.}
 
+\item{type}{Character; \code{"lv"} (default) returns predicted latent variable
+scores, \code{"ov"} returns predicted observed variable values.}
+
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
 

@@ -415,6 +415,8 @@ print.summary.predict.inlavaan_internal <- function(x, stat = "Mean", ...) {
 #' @inheritParams inlavaan
 #' @rdname INLAvaan-class
 #' @param object An object of class [INLAvaan].
+#' @param type Character; `"lv"` (default) returns predicted latent variable
+#'   scores, `"ov"` returns predicted observed variable values.
 #' @export
 setMethod("predict", "INLAvaan", function(
   object,

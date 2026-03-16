@@ -4,7 +4,7 @@ plot.inlavaan_internal <- function(x, truth, params = "all",
                                    nrow = NULL, ncol = NULL,
                                    use_ggplot = TRUE, ...) {
   all_names <- names(x$pdf_data)
-  postmode <- x$summary[, "Mode"]
+  postmode <- setNames(x$summary[, "Mode"], rownames(x$summary))
 
   # Resolve which parameters to plot
   if (identical(params, "all")) {
@@ -34,10 +34,18 @@ plot.inlavaan_internal <- function(x, truth, params = "all",
     plot_df$name <- factor(plot_df$name, levels = param_names)
 
     modes <- postmode[param_names]
-    vline_df <- data.frame(
-      name = factor(param_names, levels = param_names),
-      xint = if (missing(truth)) modes else truth
-    )
+    if (missing(truth)) {
+      vline_df <- data.frame(
+        name = factor(param_names, levels = param_names),
+        xint = modes
+      )
+    } else {
+      n_truth <- min(length(truth), length(param_names))
+      vline_df <- data.frame(
+        name = factor(param_names[seq_len(n_truth)], levels = param_names),
+        xint = truth[seq_len(n_truth)]
+      )
+    }
 
     x <- xint <- NULL # no visible binding NOTE
     p <- ggplot2::ggplot(plot_df, ggplot2::aes(x, y)) +
