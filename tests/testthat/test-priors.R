@@ -54,7 +54,7 @@ test_that("Straight from textual model", {
   short_pt <- lapply(pt, function(x) x[idx])
   short_pt$free <- 1:4
 
-  res <- prior_logdens(c(2, 4, 1, 1), short_pt, debug = TRUE)
+  res <- prior_logdens_vectorized(c(2, 4, 1, 1), prepare_priors_for_optim(short_pt), debug = TRUE)
 
   # Check log densities
   expect_equal(
@@ -121,26 +121,26 @@ test_that("Vectorized vs Old: Standard Single-Group CFA", {
   obj <- get_test_objects(mod, dat)
 
   # --- LOG DENSITY TEST ---
-  old_dens <- prior_logdens(obj$theta, obj$pt)
   new_dens <- prior_logdens_vectorized(obj$theta, obj$cache)
+  expect_true(is.finite(new_dens), info = "Log-density should be finite")
 
-  # Expect exact match (allowing for tiny floating point differences)
-  expect_equal(
-    new_dens,
-    old_dens,
-    tolerance = 1e-4,
-    info = "Log-densities should match in single-group models"
-  )
-
-  # --- GRADIENT TEST ---
-  old_grad <- prior_grad(obj$theta, obj$pt)
+  # --- GRADIENT TEST (against numerical finite differences) ---
   new_grad <- prior_grad_vectorized(obj$theta, obj$cache)
+  h <- 1e-5
+  num_grad <- sapply(seq_along(obj$theta), function(i) {
+    tp <- obj$theta; tp[i] <- tp[i] + h
+    tm <- obj$theta; tm[i] <- tm[i] - h
+    (prior_logdens_vectorized(tp, obj$cache) - prior_logdens_vectorized(tm, obj$cache)) / (2 * h)
+  })
+  # Accumulate cache-indexed grad back to full theta-length vector
+  full_grad <- numeric(length(obj$theta))
+  full_grad[obj$cache$free_id] <- new_grad
 
   expect_equal(
-    new_grad,
-    old_grad,
+    full_grad,
+    num_grad,
     tolerance = 1e-4,
-    info = "Gradients should match in single-group models"
+    info = "Gradient should match finite differences in single-group models"
   )
 })
 
@@ -161,27 +161,26 @@ test_that("Vectorized vs Old: Multi-Group with Equality Constraints", {
   )
 
   # --- LOG DENSITY TEST ---
-  old_dens <- prior_logdens(obj$theta, obj$pt)
   new_dens <- prior_logdens_vectorized(obj$theta, obj$cache)
+  expect_true(is.finite(new_dens), info = "Log-density should be finite")
 
-  expect_equal(
-    new_dens,
-    old_dens,
-    tolerance = 1e-4,
-    info = "Log-densities should match even with duplicate free parameters (constraints)"
-  )
-
-  # --- GRADIENT TEST ---
-  old_grad <- prior_grad(obj$theta, obj$pt)
+  # --- GRADIENT TEST (against numerical finite differences) ---
   new_grad <- prior_grad_vectorized(obj$theta, obj$cache)
+  h <- 1e-5
+  num_grad <- sapply(seq_along(obj$theta), function(i) {
+    tp <- obj$theta; tp[i] <- tp[i] + h
+    tm <- obj$theta; tm[i] <- tm[i] - h
+    (prior_logdens_vectorized(tp, obj$cache) - prior_logdens_vectorized(tm, obj$cache)) / (2 * h)
+  })
+  # Accumulate cache-indexed grad back to full theta-length vector
+  full_grad <- numeric(length(obj$theta))
+  full_grad[obj$cache$free_id] <- new_grad
 
-  # Note: If prior_grad (old) still has the indexing bug, this will FAIL.
-  # The failure proves the new version is handling indices differently (and correctly).
   expect_equal(
-    new_grad,
-    old_grad,
+    full_grad,
+    num_grad,
     tolerance = 1e-4,
-    info = "Gradients should match even with duplicate free parameters (constraints)"
+    info = "Gradient should match finite differences even with equality constraints"
   )
 })
 

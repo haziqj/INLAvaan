@@ -98,7 +98,7 @@ test_that("Prior Densities match manual calculation", {
   pt_mini <- pt
   pt_mini$prior[-c(2)] <- NA # Keep only one normal prior
 
-  lp_mini_pkg <- prior_logdens(theta, pt_mini)
+  lp_mini_pkg <- prior_logdens_vectorized(theta, prepare_priors_for_optim(pt_mini))
 
   expect_equal(lp_mini_pkg, lp_normal, tolerance = 1e-6)
 })
