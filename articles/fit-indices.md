@@ -114,9 +114,9 @@ diagnostics.
 ``` r
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.329        0.000     7520.677       22.472        0.097 
+#>           21    -3823.429        0.000     7518.249       21.158        0.093 
 #>    BGammaHat adjBGammaHat          BMc     grad_inf grad_inf_rel      grad_l2 
-#>        0.955        0.911        0.900     2.35e-03     2.38e-02     4.41e-03
+#>        0.956        0.917        0.902     2.35e-03     1.50e-02     4.41e-03
 ```
 
 ### Posterior distributions of fit indices
@@ -131,7 +131,7 @@ bfi
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 500): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc 
-#>        0.097        0.955        0.911        0.900
+#>        0.094        0.956        0.916        0.901
 ```
 
 Calling [`summary()`](https://rdrr.io/r/base/summary.html) provides a
@@ -144,10 +144,10 @@ summary(bfi)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 500):
 #> 
 #>               Mean    SD X2.5.  X50. X97.5.  Mode
-#> BRMSEA       0.097 0.006 0.087 0.096  0.109 0.094
-#> BGammaHat    0.955 0.005 0.944 0.956  0.963 0.958
-#> adjBGammaHat 0.911 0.010 0.889 0.912  0.927 0.915
-#> BMc          0.900 0.011 0.876 0.901  0.918 0.905
+#> BRMSEA       0.094 0.005 0.085 0.093  0.105 0.093
+#> BGammaHat    0.956 0.005 0.945 0.956  0.963 0.957
+#> adjBGammaHat 0.916 0.009 0.896 0.917  0.931 0.918
+#> BMc          0.901 0.011 0.877 0.902  0.918 0.903
 ```
 
 You can also access the raw per-sample vectors for custom analysis:
@@ -188,11 +188,11 @@ Now pass the baseline model to `fitMeasures()` or
 ``` r
 fitMeasures(fit, baseline.model = fit_null)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.329        0.000     7520.677       22.472        0.096 
+#>           21    -3823.429        0.000     7518.249       21.158        0.093 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.955        0.911        0.900        0.928        0.886        0.907 
+#>        0.956        0.917        0.902        0.930        0.895        0.907 
 #>     grad_inf grad_inf_rel      grad_l2 
-#>     2.35e-03     2.38e-02     4.41e-03
+#>     2.35e-03     1.50e-02     4.41e-03
 ```
 
 ``` r
@@ -202,13 +202,13 @@ summary(bfi_inc)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 500):
 #> 
 #>               Mean    SD X2.5.  X50. X97.5.  Mode
-#> BRMSEA       0.096 0.006 0.087 0.095  0.107 0.094
-#> BGammaHat    0.956 0.005 0.945 0.956  0.964 0.958
-#> adjBGammaHat 0.912 0.010 0.891 0.913  0.928 0.915
-#> BMc          0.901 0.011 0.878 0.902  0.919 0.905
-#> BCFI         0.929 0.008 0.912 0.930  0.943 0.932
-#> BTLI         0.887 0.013 0.860 0.889  0.909 0.892
-#> BNFI         0.907 0.008 0.891 0.908  0.920 0.910
+#> BRMSEA       0.093 0.005 0.084 0.093  0.103 0.092
+#> BGammaHat    0.956 0.005 0.947 0.956  0.964 0.957
+#> adjBGammaHat 0.917 0.009 0.899 0.918  0.932 0.919
+#> BMc          0.902 0.010 0.881 0.903  0.919 0.904
+#> BCFI         0.929 0.008 0.913 0.930  0.943 0.931
+#> BTLI         0.894 0.012 0.870 0.895  0.914 0.896
+#> BNFI         0.906 0.008 0.891 0.907  0.919 0.907
 ```
 
 ## Rescaling: `"devM"` vs `"MCMC"`
@@ -225,10 +225,10 @@ summary(bfi_mcmc)
 #> Posterior summary of MCMC-based Bayesian fit indices (nsamp = 500):
 #> 
 #>               Mean    SD X2.5.  X50. X97.5.  Mode
-#> BRMSEA       0.108 0.005 0.100 0.107  0.122 0.108
-#> BGammaHat    0.941 0.006 0.927 0.942  0.949 0.942
-#> adjBGammaHat 0.890 0.010 0.863 0.891  0.905 0.891
-#> BMc          0.869 0.012 0.837 0.871  0.887 0.871
+#> BRMSEA       0.107 0.005 0.099 0.107  0.117 0.108
+#> BGammaHat    0.942 0.005 0.932 0.942  0.950 0.942
+#> adjBGammaHat 0.892 0.009 0.872 0.892  0.906 0.891
+#> BMc          0.871 0.010 0.849 0.871  0.888 0.870
 ```
 
 The two methods will generally produce different results, especially

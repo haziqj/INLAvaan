@@ -119,31 +119,31 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Finding posterior mode. [20ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [19ms]
+#> ✔ Computing the Hessian. [18ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.058σ. [48ms]
+#> ✔ VB correction; mean |δ| = 0.046σ. [49ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [80ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [90ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [20ms]
+#> ✔ Adjusting copula correlations (NORTA). [19ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [191ms]
+#> ✔ Posterior sampling and summarising. [194ms]
 #> 
 
 # Posterior samples of lavaan-side parameters
 samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  0.9580200   1.214026 0.8416350 0.9676524 0.5581594      0.5385468
-#> [2,]  0.7800591   1.528342 1.0865340 1.1207096 0.5624717      0.4212445
-#> [3,]  0.6202297   1.315603 0.8871460 1.2140984 0.6602677      0.5463749
-#> [4,]  0.9106892   1.475247 0.9293472 1.1533877 0.5580853      0.3446589
-#> [5,]  1.1017463   1.827681 0.8558841 0.8975253 0.6507901      0.2385495
-#> [6,]  0.9134663   1.057034 0.8220244 0.9925146 0.6958564      0.7747635
+#> [1,]  0.9350305  1.1403914 0.8573310 0.9677979 0.5695408      0.5365136
+#> [2,]  0.7626082  1.4237882 1.1012496 1.1209406 0.5736859      0.4191708
+#> [3,]  0.6049732  1.2316181 0.9027063 1.2143598 0.6699997      0.5444877
+#> [4,]  0.8895426  1.3760469 0.9445016 1.1535841 0.5694410      0.3431477
+#> [5,]  1.0730886  1.6943765 0.8710540 0.8977388 0.6606651      0.2364049
+#> [6,]  0.8922192  0.9987508 0.8379706 0.9926374 0.7046513      0.7705492
 
 # Compare copula vs Gaussian sampling
 s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)

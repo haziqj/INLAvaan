@@ -2,33 +2,10 @@
 
 ## INLAvaan (development version)
 
-- Implement NORTA (NORmal To Anything) correlation adjustment for the SN
+- NEW NORTA (NORmal To Anything) correlation adjustment for the SN
   copula, so that posterior samples have both correct skew-normal
   marginals and correct Pearson correlations. Copula sampling is now the
   default (`samp_copula = TRUE`).
-- Use Cholesky factorisation of the precision matrix for covariance and
-  log-determinant calculations, replacing raw
-  [`solve()`](https://rdrr.io/r/base/solve.html).
-- Draw posterior samples once and store them; all downstream consumers
-  (covariances, defined parameters, ppp, DIC,
-  [`predict()`](https://rdrr.io/r/stats/predict.html),
-  [`standardisedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md))
-  now reuse a single draw.
-- Use pre-computed Owen-scrambled Sobol sequence; fall back to `{qrng}`
-  when larger sequences are needed. QMC sample size now scales with
-  model dimension.
-- Add `vb_correction` argument to
-  [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),
-  [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md), and
-  [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md).
-- Add params and logscale options to visual_debug.
-- Small optimisations to volume correction of skew-normal
-  marginalisation.
-- [ggplot2](https://ggplot2.tidyverse.org) is now optional; plots work
-  with base R graphics.
-- Fixed bug in
-  [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md)
-  that incorrectly handled sign symmetries.
 - NEW [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
   function to produce draws from the posterior (or prior) SEM generative
   model.
@@ -39,12 +16,33 @@
 - NEW parallelism feature for skew normal fit, automatically runs on
   total available cores when $m > 120$.
 - NEW [`predict()`](https://rdrr.io/r/stats/predict.html) now able to
-  generate predictions for observed data.
+  generate predictions for observed and missing data imputation,
+  respecting multilevel structure if present.
 - For defined params, it’s possible to fit a skew normal approximation
   to the posterior marginal based on the samples by calling
   `sn_fit_sample = TRUE`.
 - Improved [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
   method.
+- FIX bug in efficient volume correction method (new
+  `marginal_correction = "shortcut"` implementation).  
+- Small optimisations to volume correction of skew-normal
+  marginalisation, making it faster to run.
+- FIX bug in
+  [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md)
+  that incorrectly handled sign symmetries.
+- Use Cholesky factorisation of the precision matrix for covariance and
+  log-determinant calculations, replacing raw
+  [`solve()`](https://rdrr.io/r/base/solve.html).
+- Use pre-computed Owen-scrambled Sobol sequence; fall back to `{qrng}`
+  when larger sequences are needed. QMC sample size now scales with
+  model dimension.
+- Add `vb_correction` argument to
+  [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),
+  [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md), and
+  [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md).
+- Add params and logscale options to visual_debug.
+- [ggplot2](https://ggplot2.tidyverse.org) is now optional; plots work
+  with base R graphics.
 
 ## INLAvaan 0.2.3
 

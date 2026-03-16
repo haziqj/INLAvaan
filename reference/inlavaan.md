@@ -17,7 +17,7 @@ inlavaan(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
@@ -88,7 +88,10 @@ inlavaan(
   Which type of correction to use when fitting the skew-normal or
   two-piece Gaussian marginals. `"hessian"` computes the full
   Hessian-based correction (slow), `"shortcut"` (default) computes only
-  diagonals, and `"none"` (or `FALSE`) applies no correction.
+  diagonals (full z-trace plus Schur complement correction),
+  `"super_shortcut"` uses the original partial-trace approximation
+  (faster but L-dependent), and `"none"` (or `FALSE`) applies no
+  correction.
 
 - nsamp:
 
@@ -197,26 +200,25 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [121ms]
+#> ✔ Finding posterior mode. [117ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [68ms]
+#> ✔ Computing the Hessian. [66ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.022σ. [136ms]
+#> ✔ VB correction; mean |δ| = 0.032σ. [138ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 4/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [696ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [734ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [132ms]
+#> ✔ Adjusting copula correlations (NORTA). [148ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [281ms]
+#> ✔ Posterior sampling and summarising. [287ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9012 ended normally after 73 iterations
+#> INLAvaan 0.2.3.9015 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -226,13 +228,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3823.329 
+#>    Marginal log-likelihood                   -3823.429 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7521.021 
-#>    Effective parameters (pD)                    22.644 
+#>    Deviance (DIC)                             7518.551 
+#>    Effective parameters (pD)                    21.310 
 #> 
 #> Parameter Estimates:
 #> 
@@ -243,38 +245,38 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual =~                                                                    
 #>     x1                1.000                                                    
-#>     x2                0.575    0.113    0.364    0.807    0.025    normal(0,10)
-#>     x3                0.763    0.124    0.535    1.020    0.035    normal(0,10)
+#>     x2                0.573    0.115    0.366    0.816    0.046    normal(0,10)
+#>     x3                0.762    0.127    0.541    1.039    0.085    normal(0,10)
 #>   textual =~                                                                   
 #>     x4                1.000                                                    
-#>     x5                1.122    0.066    0.996    1.257    0.005    normal(0,10)
-#>     x6                0.933    0.057    0.824    1.050    0.004    normal(0,10)
+#>     x5                1.117    0.066    0.992    1.252    0.005    normal(0,10)
+#>     x6                0.929    0.057    0.822    1.047    0.007    normal(0,10)
 #>   speed =~                                                                     
 #>     x7                1.000                                                    
-#>     x8                1.251    0.169    0.953    1.617    0.014    normal(0,10)
-#>     x9                1.222    0.269    0.747    1.801    0.179    normal(0,10)
+#>     x8                1.210    0.158    0.926    1.545    0.024    normal(0,10)
+#>     x9                1.141    0.211    0.791    1.614    0.021    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.443    0.074    0.249    0.538    0.001       beta(1,1)
-#>     speed             0.467    0.054    0.138    0.350    0.014       beta(1,1)
+#>     textual           0.442    0.073    0.249    0.536    0.001       beta(1,1)
+#>     speed             0.466    0.054    0.140    0.352    0.013       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.277    0.049    0.066    0.258    0.002       beta(1,1)
+#>     speed             0.275    0.049    0.066    0.259    0.002       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                0.561    0.116    0.343    0.796    0.012 gamma(1,.5)[sd]
-#>    .x2                1.139    0.105    0.947    1.359    0.001 gamma(1,.5)[sd]
-#>    .x3                0.841    0.096    0.661    1.039    0.005 gamma(1,.5)[sd]
-#>    .x4                0.377    0.049    0.286    0.478    0.002 gamma(1,.5)[sd]
-#>    .x5                0.450    0.059    0.342    0.572    0.002 gamma(1,.5)[sd]
-#>    .x6                0.361    0.044    0.279    0.453    0.002 gamma(1,.5)[sd]
-#>    .x7                0.829    0.091    0.666    1.022    0.004 gamma(1,.5)[sd]
-#>    .x8                0.507    0.090    0.339    0.693    0.027 gamma(1,.5)[sd]
-#>    .x9                0.548    0.091    0.371    0.727    0.019 gamma(1,.5)[sd]
-#>     visual            0.791    0.149    0.525    1.110    0.041 gamma(1,.5)[sd]
-#>     textual           0.980    0.113    0.775    1.217    0.002 gamma(1,.5)[sd]
-#>     speed             0.350    0.090    0.188    0.539    0.062 gamma(1,.5)[sd]
+#>    .x1                0.580    0.114    0.364    0.811    0.007 gamma(1,.5)[sd]
+#>    .x2                1.137    0.105    0.946    1.357    0.001 gamma(1,.5)[sd]
+#>    .x3                0.843    0.096    0.662    1.040    0.006 gamma(1,.5)[sd]
+#>    .x4                0.378    0.049    0.287    0.479    0.002 gamma(1,.5)[sd]
+#>    .x5                0.450    0.059    0.341    0.572    0.002 gamma(1,.5)[sd]
+#>    .x6                0.360    0.044    0.279    0.452    0.002 gamma(1,.5)[sd]
+#>    .x7                0.826    0.091    0.664    1.018    0.003 gamma(1,.5)[sd]
+#>    .x8                0.505    0.090    0.339    0.692    0.022 gamma(1,.5)[sd]
+#>    .x9                0.556    0.090    0.380    0.731    0.014 gamma(1,.5)[sd]
+#>     visual            0.792    0.149    0.529    1.112    0.033 gamma(1,.5)[sd]
+#>     textual           0.978    0.112    0.774    1.214    0.002 gamma(1,.5)[sd]
+#>     speed             0.356    0.091    0.196    0.550    0.038 gamma(1,.5)[sd]
 #> 
 ```

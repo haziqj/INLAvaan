@@ -101,19 +101,19 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ Finding posterior mode. [33ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [62ms]
+#> ✔ Computing the Hessian. [61ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.012σ. [161ms]
+#> ✔ VB correction; mean |δ| = 0.011σ. [161ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fitting 7/7 skew-normal marginals. [112ms]
+#> ✔ Fitting 7/7 skew-normal marginals. [117ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [23ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [291ms]
+#> ✔ Posterior sampling and summarising. [292ms]
 #> 
 ```
 
@@ -129,7 +129,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.3.9012 ended normally after 5 iterations
+#> INLAvaan 0.2.3.9015 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -139,13 +139,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -312.007 
+#>    Marginal log-likelihood                    -312.053 
 #>    PPP (Chi-square)                              0.598 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              568.417 
-#>    Effective parameters (pD)                     6.758 
+#>    Deviance (DIC)                              568.424 
+#>    Effective parameters (pD)                     6.765 
 #> 
 #> Parameter Estimates:
 #> 
@@ -173,7 +173,7 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.403    0.099    0.209    0.598                         
+#>     ab                0.404    0.099    0.209    0.598                         
 #>     total             0.351    0.139    0.080    0.623
 ```
 
@@ -187,7 +187,7 @@ output:
 - Path $c$ (`Y ~ X`) estimated at -0.059. The 95% Credible Interval
   \[-0.290, 0.172\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $ab$ estimated at 0.403 (true value 0.35). The
+- Indirect Effect $ab$ estimated at 0.404 (true value 0.35). The
   interval \[0.209, 0.598\] does not cross zero, indicating significant
   mediation.
 - Total Effect estimated at 0.351.
