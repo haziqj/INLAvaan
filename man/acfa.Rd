@@ -11,7 +11,7 @@ acfa(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
@@ -57,7 +57,9 @@ approximation).}
 \item{marginal_correction}{Which type of correction to use when fitting the
 skew-normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
 Hessian-based correction (slow), \code{"shortcut"} (default) computes only
-diagonals, and \code{"none"} (or \code{FALSE}) applies no correction.}
+diagonals (full z-trace plus Schur complement correction),
+\code{"super_shortcut"} uses the original partial-trace approximation (faster
+but L-dependent), and \code{"none"} (or \code{FALSE}) applies no correction.}
 
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}

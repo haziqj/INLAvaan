@@ -17,19 +17,28 @@ prodfac_lp <- function(z, sigma_asym) {
 
 # Marginalised distribution
 marg_lp <- function(tj, j, theta_star, Sigma_theta, sigma_asym) {
-  R <- chol(Sigma_theta)               # upper Cholesky: R^T R = Sigma
-  L <- t(R)                            # lower Cholesky
+  # Canonical-ordered Cholesky whitening — permutation invariant
+  pnames    <- colnames(Sigma_theta)
+  cperm     <- if (!is.null(pnames)) order(pnames) else seq_len(nrow(Sigma_theta))
+  iperm     <- order(cperm)
+  R         <- chol(Sigma_theta[cperm, cperm]) # canonical upper Cholesky
+  L_canon   <- t(R)                            # lower Cholesky in canonical order
+  # Rows → original order; cols stay canonical z-order
+  L         <- L_canon[iperm, ]
+  # L^{-1} for whitening: solve L x = b via canonical Cholesky
+  # L^{-1} = L_canon^{-1} P, which is forwardsolve(L_canon, P x)
 
   sapply(tj, function(thetaj) {
-    # First compute conditional expectation
+    # Conditional expectation
     theta_new <- rep(NA, length(theta_star))
     theta_new[-j] <- theta_star[-j] +
       Sigma_theta[-j, j] / Sigma_theta[j, j] * (thetaj - theta_star[j])
     theta_new[j] <- thetaj
 
-    # Convert to z via triangular solve (avoids forming L^{-1})
-    z_new <- forwardsolve(L, theta_new - theta_star)
-    prodfac_lp(z_new, sigma_asym)
+    # Whiten via canonical Cholesky: z = L^{-1}(θ - θ*)
+    diff_canon <- (theta_new - theta_star)[cperm]
+    z_new <- forwardsolve(L_canon, diff_canon)
+    prodfac_lp(z_new, sigma_asym[cperm, , drop = FALSE])
   })
 }
 

@@ -22,7 +22,9 @@
 #' @param marginal_correction Which type of correction to use when fitting the
 #'   skew-normal or two-piece Gaussian marginals. `"hessian"` computes the full
 #'   Hessian-based correction (slow), `"shortcut"` (default) computes only
-#'   diagonals, and `"none"` (or `FALSE`) applies no correction.
+#'   diagonals (full z-trace plus Schur complement correction),
+#'   `"super_shortcut"` uses the original partial-trace approximation (faster
+#'   but L-dependent), and `"none"` (or `FALSE`) applies no correction.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param samp_copula Logical. When `TRUE` (default), posterior samples are
@@ -76,7 +78,7 @@ inlavaan <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
@@ -286,11 +288,18 @@ inlavaan <- function(
     H_neg <- opt$hessian
   }
   # Cholesky-factorise the precision (neg. Hessian), then derive covariance
-  # via triangular backsolve — avoids a raw solve() on a dense matrix.
+  # via triangular backsolve. We first sort parameters into a canonical order
+  # (by name) so results don't depend on the latent-variable ordering in the
+  # model specification string.
   H_sym <- 0.5 * (H_neg + t(H_neg))
-  R_prec <- chol(H_sym) # upper Cholesky of precision
-  L <- backsolve(R_prec, diag(m)) # L L^T = Sigma_theta (upper tri)
-  Sigma_theta <- tcrossprod(L) # reconstruct covariance
+  canon_perm <- order(parnames)
+  inv_perm  <- order(canon_perm)
+  H_canon   <- H_sym[canon_perm, canon_perm]
+  R_prec    <- chol(H_canon)           # upper Cholesky of canonical precision
+  L_canon   <- backsolve(R_prec, diag(m)) # L_c L_c^T = Sigma_canon (upper tri)
+  L <- L_canon[inv_perm, ]             # rows back to original param order
+  Sigma_theta <- tcrossprod(L)         # reconstruct covariance
+  dimnames(Sigma_theta) <- list(parnames, parnames)
   lp_max <- joint_lp(theta_star) # before correction
 
   Vscan <- sweep(Sigma_theta, 2, sqrt(diag(Sigma_theta)), "/")
@@ -398,38 +407,13 @@ inlavaan <- function(
     delta_outer <- 0.01 # for rate of change of Hessian (3rd deriv)
     delta_inner <- 0.001 # for rate of change of gradients (2nd deriv)
 
-    if (marginal_correction %in% c("shortcut", "hessian")) {
-      # In whitened Z-space, the Hessian at the mode is identity by
-      # construction. NOTE: Previously used a FD here due to different numerical
-      # properties in the Richardson-based extrapolation of numDeriv. Now we
-      # have our own FD implementation.
-      Hz0 <- rep(1, m)
-    }
-
     get_gamma1 <- function(.j) {
-      if (marginal_correction == "none") {
-        gamma1j <- 0
-      } else {
-        th_plus <- theta_star + Vscan[, .j] * delta_outer
-        if (marginal_correction == "hessian") {
-          Htheta1_full <- fast_jacobian(
-            function(x) -1 * joint_lp_grad(x),
-            th_plus
-          )
-          Hz1 <- diag(t(L) %*% Htheta1_full %*% L)
-        } else if (marginal_correction == "shortcut") {
-          Hz1 <- numeric(m)
-          g0_shifted <- -1 * joint_lp_grad(th_plus)
-          jj_idx <- setdiff(seq_len(m), .j) # skip .j (not needed)
-          for (jj in jj_idx) {
-            g_fwd <- -1 * joint_lp_grad(th_plus + L[, jj] * delta_inner)
-            Hz1[jj] <- sum(L[, jj] * (g_fwd - g0_shifted)) / delta_inner
-          }
-        }
-        dH_dz <- (Hz1 - Hz0) / delta_outer
-        gamma1j <- -0.5 * sum(dH_dz[-.j])
-      }
-      gamma1j
+      compute_gamma1j(
+        j = .j, method = marginal_correction,
+        theta_star = theta_star, Vscan = Vscan, L = L,
+        inv_perm = inv_perm, joint_lp_grad = joint_lp_grad,
+        delta_outer = delta_outer, delta_inner = delta_inner, m = m
+      )
     }
   }
 
@@ -684,7 +668,7 @@ inlavaan <- function(
     } else {
       defpars <- get_defpars(x_samp, pt)
     }
-    
+
     for (def_name in names(defpars)) {
       tmp_new_summ <- defpars[[def_name]]$summary
       summ[def_name, names(tmp_new_summ)] <- tmp_new_summ
@@ -804,7 +788,7 @@ acfa <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
@@ -855,7 +839,7 @@ asem <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
@@ -904,7 +888,7 @@ agrowth <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "none"),
+  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,

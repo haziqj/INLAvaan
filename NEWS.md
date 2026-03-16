@@ -1,21 +1,20 @@
 # INLAvaan (development version)
 
-* Implement NORTA (NORmal To Anything) correlation adjustment for the SN copula, so that posterior samples have both correct skew-normal marginals and correct Pearson correlations. Copula sampling is now the default (`samp_copula = TRUE`).
-* Use Cholesky factorisation of the precision matrix for covariance and log-determinant calculations, replacing raw `solve()`.
-* Draw posterior samples once and store them; all downstream consumers (covariances, defined parameters, ppp, DIC, `predict()`, `standardisedsolution()`) now reuse a single draw.
-* Use pre-computed Owen-scrambled Sobol sequence; fall back to `{qrng}` when larger sequences are needed. QMC sample size now scales with model dimension.
-* Add `vb_correction` argument to `acfa()`, `asem()`, and `agrowth()`.
-* Add params and logscale options to visual_debug.
-* Small optimisations to volume correction of skew-normal marginalisation.
-* `{ggplot2}` is now optional; plots work with base R graphics.
-* Fixed bug in `qsnorm_fast()` that incorrectly handled sign symmetries.
+* NEW NORTA (NORmal To Anything) correlation adjustment for the SN copula, so that posterior samples have both correct skew-normal marginals and correct Pearson correlations. Copula sampling is now the default (`samp_copula = TRUE`).
 * NEW `sampling()` function to produce draws from the posterior (or prior) SEM generative model.
 * NEW Bayesian Fit Indices included in `fitmeasures()`; summary statistics available via `bfit_indices()`.
 * NEW parallelism feature for skew normal fit, automatically runs on total available cores when $m>120$.
 * NEW `predict()` now able to generate predictions for observed data.
 * For defined params, it's possible to fit a skew normal approximation to the posterior marginal based on the samples by calling `sn_fit_sample = TRUE`.
 * Improved `plot()` method.
-
+* FIX bug in efficient volume correction method (new `marginal_correction = "shortcut"` implementation).  
+* Small optimisations to volume correction of skew-normal marginalisation, making it faster to run.
+* FIX bug in `qsnorm_fast()` that incorrectly handled sign symmetries.
+* Use Cholesky factorisation of the precision matrix for covariance and log-determinant calculations, replacing raw `solve()`.
+* Use pre-computed Owen-scrambled Sobol sequence; fall back to `{qrng}` when larger sequences are needed. QMC sample size now scales with model dimension.
+* Add `vb_correction` argument to `acfa()`, `asem()`, and `agrowth()`.
+* Add params and logscale options to visual_debug.
+* `{ggplot2}` is now optional; plots work with base R graphics.
 
 # INLAvaan 0.2.3
 
