@@ -14,7 +14,15 @@
 \usage{
 \S4method{plot}{INLAvaan,ANY}(x, y, ...)
 
-\S4method{predict}{INLAvaan}(object, type = c("lv", "ov"), nsamp = 1000, ...)
+\S4method{predict}{INLAvaan}(
+  object,
+  type = c("lv", "yhat", "ov", "ypred", "ydist", "ymis", "ovmis"),
+  newdata = NULL,
+  level = 1L,
+  nsamp = 1000,
+  ymis_only = FALSE,
+  ...
+)
 
 \S4method{show}{INLAvaan}(object)
 
@@ -45,11 +53,35 @@
 
 \item{object}{An object of class \link{INLAvaan}.}
 
-\item{type}{Character; \code{"lv"} (default) returns predicted latent variable
-scores, \code{"ov"} returns predicted observed variable values.}
+\item{type}{Character string specifying the type of prediction:
+\describe{
+\item{\code{"lv"}}{(default) Posterior draws of latent variable scores
+\eqn{\eta | y, \theta}.}
+\item{\code{"yhat"}, \code{"ov"}}{Predicted means for observed variables
+\eqn{E(y | \eta, \theta) = \nu + \Lambda \eta}; no residual noise.}
+\item{\code{"ypred"}, \code{"ydist"}}{Predicted observed values including
+residual noise \eqn{y = \nu + \Lambda \eta + \varepsilon},
+\eqn{\varepsilon \sim N(0, \Theta)}.}
+\item{\code{"ymis"}, \code{"ovmis"}}{Imputed values for missing observations,
+drawn from the conditional distribution
+\eqn{y_{mis} | y_{obs}, \theta}.}
+}}
+
+\item{newdata}{An optional data frame of new observations. If supplied,
+predictions are computed for \code{newdata} rather than the original training
+data. Not supported for \code{type = "ymis"}.}
+
+\item{level}{Integer; for \code{type = "lv"} in multilevel models, specifies
+whether level 1 or level 2 latent variables are desired (default \code{1L}).}
 
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
+
+\item{ymis_only}{Logical; only applies when \code{type = "ymis"}. When \code{TRUE},
+returns only the imputed values as a named numeric vector per sample,
+with names of the form \code{"varname[rowindex]"} (matching the blavaan
+convention). When \code{FALSE} (default), returns the full data matrix with
+missing values filled in.}
 
 \item{header}{Logical; if TRUE, print model fit information header.}
 

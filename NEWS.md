@@ -4,7 +4,7 @@
 * NEW `sampling()` function to produce draws from the posterior (or prior) SEM generative model.
 * NEW Bayesian Fit Indices included in `fitmeasures()`; summary statistics available via `bfit_indices()`.
 * NEW parallelism feature for skew normal fit, automatically runs on total available cores when $m>120$.
-* NEW `predict()` now able to generate predictions for observed data.
+* NEW `predict()` now able to generate predictions for observed and missing data imputation, respecting multilevel structure if present.
 * For defined params, it's possible to fit a skew normal approximation to the posterior marginal based on the samples by calling `sn_fit_sample = TRUE`.
 * Improved `plot()` method.
 * FIX bug in efficient volume correction method (new `marginal_correction = "shortcut"` implementation).  
