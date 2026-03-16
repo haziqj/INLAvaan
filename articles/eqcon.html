@@ -144,26 +144,26 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^Reaction\\.(.*)$"</span>, <span class="st">"Day\\1"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/agrowth.html">agrowth</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [77ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [116ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [96ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [110ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.297σ. [295ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.297σ. [345ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/6 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 6/6 skew-normal marginals. [128ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 6/6 skew-normal marginals. [174ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [36ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [51ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [320ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [299ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      i~~i       i~1      s~~s       s~1      i~~s         v         v         v </span></span>
-<span><span class="co">#&gt; 12062.688    32.723    39.729     9.638     0.123   622.613   622.613   622.613 </span></span>
+<span><span class="co">#&gt; 12062.679    32.723    39.728     9.637     0.123   622.613   622.613   622.613 </span></span>
 <span><span class="co">#&gt;         v         v         v         v         v         v         v </span></span>
 <span><span class="co">#&gt;   622.613   622.613   622.613   622.613   622.613   622.613   622.613</span></span></code></pre></div>
 </div>
