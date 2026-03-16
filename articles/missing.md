@@ -39,23 +39,23 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [217ms]
+#> ✔ Finding posterior mode. [137ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [219ms]
+#> ✔ Computing the Hessian. [169ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.069σ. [724ms]
+#> ✔ VB correction; mean |δ| = 0.069σ. [485ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 17/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.2s]
+#> ⠹ Fitting 34/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [453ms]
+#> ✔ Adjusting copula correlations (NORTA). [515ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [457ms]
+#> ✔ Posterior sampling and summarising. [542ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -75,15 +75,15 @@ print(fit1)
 #>    PPP (Chi-square)                              0.458
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        1.797        1.730        0.982        0.798        1.525        1.100 
+#>        1.797        1.730        0.980        0.798        1.505        1.100 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        0.740        1.407        0.897        0.486        1.083        0.179 
+#>        0.740        1.407        0.897        0.485        1.081        0.179 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.406        0.501        0.205       -0.273        0.189        0.066 
+#>        0.403        0.501        0.205       -0.273        0.189        0.066 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.142        0.409        1.563        7.619        3.957        2.649 
+#>        0.142        0.410        1.563        7.619        3.957        2.649 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.464        6.500        1.971        3.961        0.492        1.376 
+#>        1.463        6.500        1.971        3.963        0.492        1.369 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
 #>        0.147        5.412        5.512        4.084        7.218        6.585 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
@@ -95,24 +95,24 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [415ms]
+#> ✔ Finding posterior mode. [271ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [307ms]
+#> ✔ Computing the Hessian. [242ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [750ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [507ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 11/42 skew-normal marginals.
-#> ⠸ Fitting 35/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.3s]
+#> ⠹ Fitting 3/42 skew-normal marginals.
+#> ⠸ Fitting 42/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [431ms]
+#> ✔ Adjusting copula correlations (NORTA). [484ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [713ms]
+#> ✔ Posterior sampling and summarising. [787ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.3.9012 ended normally after 93 iterations
@@ -142,7 +142,7 @@ coef(fit2)
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
 #>        0.208        5.052        4.775        3.542        5.436        5.733 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        7.128        5.220        5.332        4.036        6.828        4.388
+#>        7.129        5.220        5.332        4.036        6.828        4.388
 ```
 
 ``` r
