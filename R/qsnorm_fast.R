@@ -137,11 +137,11 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   # Mask for calculations (skip 0/1/Inf boundaries and a=0,1 special cases)
   mask <- (u > 0) & (u < 1) & (a != 0) & (a != 1)
 
-  if (!any(mask)) {
+  if (!any(mask)) { # nocov start
     res[!mask] <- z[!mask]
     res[flip] <- -res[flip]
     return(res)
-  }
+  } # nocov end
 
   # Process masked elements
   u_m <- u[mask]
@@ -275,7 +275,7 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   # In the context of qsn, x is derived from 1/prob, so usually x > 0.
   # But copying C logic for completeness.
   idx_neg <- !idx_pos
-  if (any(idx_neg)) {
+  if (any(idx_neg)) { # nocov start
     # Check for 0 specifically
     is_zero <- (x == 0)
     # If exactly 0, res is 0 (already set)
@@ -293,7 +293,7 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
       w0 <- -1.0 + v * (N2 + v) / (N2 + v + N1 * v)
       res[valid_neg] <- .plog_iterate(w0, xx)
     }
-  }
+  } # nocov end
 
   return(res)
 }

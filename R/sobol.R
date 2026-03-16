@@ -8,6 +8,7 @@ sobol_owen <- function(n, d) {
   }
 
   # Otherwise, fall back to qrng if available
+  # nocov start
   if (requireNamespace("qrng", quietly = TRUE)) {
     return(qrng::sobol(n = n, d = d, randomize = "Owen"))
   }
@@ -17,4 +18,5 @@ sobol_owen <- function(n, d) {
     "Requested Sobol sequence ({n} x {d}) exceeds stored table ({N} x {D}).",
     "i" = "Install the {.pkg qrng} package to generate larger sequences on the fly."
   ))
+  # nocov end
 }

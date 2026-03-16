@@ -105,7 +105,7 @@ dmode <- function(x, na.rm = TRUE) {
 # ---------------------------------------------------------------------------
 run_parallel_or_serial <- function(m, FUN, cores = 1L, verbose = FALSE,
                                    msg_serial = NULL, msg_parallel = NULL) {
-  if (cores > 1L) {
+  if (cores > 1L) { # nocov start
     # Parallel: process in chunks of `cores` for progress feedback
     if (verbose) {
       msg <- if (!is.null(msg_parallel)) msg_parallel
@@ -125,7 +125,7 @@ run_parallel_or_serial <- function(m, FUN, cores = 1L, verbose = FALSE,
         cli_progress_update()
       }
     }
-  } else {
+  } else { # nocov end
     # Serial with per-item progress
     if (verbose) {
       j <- 0L

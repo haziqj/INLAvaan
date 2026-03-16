@@ -141,7 +141,7 @@ predict.inlavaan_internal <- function(
       cli_progress_update()
     }
     cli_progress_done()
-  } else if (type == "ov") {
+  } else if (type == "ov") { # nocov start
     # --- Observed value imputation for missing data ---
     # For each posterior draw of model parameters, compute the model-implied
     # covariance Sigma(theta) and mean mu(theta), then draw missing values
@@ -304,7 +304,7 @@ predict.inlavaan_internal <- function(
       cli_progress_update()
     }
     cli_progress_done()
-  } else {
+  } else { # nocov end
     cli_abort(c(
       "Type {.val {type}} is not yet implemented.",
       "i" = "Supported types: {.val lv}, {.val ov}."

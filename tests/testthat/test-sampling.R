@@ -119,3 +119,11 @@ test_that("sampling() type = 'implied' prior = TRUE works", {
   expect_true(is.matrix(s[[1]]$cov))
   expect_equal(nrow(s[[1]]$cov), 6)
 })
+
+test_that("sampling.inlavaan_internal S3 dispatch works", {
+  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 5)
+  int <- INLAvaan:::get_inlavaan_internal(fit)
+  s <- INLAvaan:::sampling.inlavaan_internal(int, type = "lavaan", nsamp = 5)
+  expect_true(is.matrix(s))
+  expect_equal(nrow(s), 5)
+})

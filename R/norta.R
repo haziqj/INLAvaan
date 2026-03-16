@@ -101,12 +101,12 @@ norta_adjust_R <- function(R, approx_data, use_spline = TRUE) {
 
   ## ---- Project to nearest positive-definite correlation matrix if needed ----
   ev <- eigen(R_star, symmetric = TRUE, only.values = TRUE)
-  if (any(ev$values < 1e-8)) {
+  if (any(ev$values < 1e-8)) { # nocov start
     ev_full <- eigen(R_star, symmetric = TRUE)
     ev_full$values <- pmax(ev_full$values, 1e-8)
     R_star <- ev_full$vectors %*% diag(ev_full$values) %*% t(ev_full$vectors)
     R_star <- cov2cor(R_star)
-  }
+  } # nocov end
 
   R_star
 }

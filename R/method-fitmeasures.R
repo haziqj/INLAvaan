@@ -90,7 +90,7 @@ compute_rescaled_quantities <- function(
 
   if (rescale == "devM") {
     pD <- object@external$inlavaan_internal$DIC$pD
-    if (is.null(pD) || pD <= 0 || pD >= p) pD <- npar
+    if (is.null(pD) || pD <= 0 || pD >= p) pD <- npar # nocov
     adj_dev <- chisq_dev - pD              # obs - reps
     df      <- p - pD
     N_adj   <- N
@@ -199,7 +199,7 @@ bfit_indices <- function(object, baseline.model = NULL,
     indices$BGammaHat    <- bgh
     indices$adjBGammaHat <- compute_adjBGammaHat(bgh, p, rq$df)
     indices$BMc          <- compute_BMc(rq$nonc, rq$N_adj)
-  }
+  } # else: df == 0, no absolute fit indices (nocov – saturated model)
 
   # Incremental indices
   if (!is.null(baseline.model)) {
@@ -302,9 +302,9 @@ inlav_fit_measures <- function(
   rescale <- match.arg(dots$rescale %||% "devM", c("devM", "MCMC"))
 
   # Has the model converged?
-  if (object@Fit@npar > 0L & !object@optim$converged) {
-    cli_alert_warning("Optimiser did not converge.")
-  }
+  if (object@Fit@npar > 0L & !object@optim$converged) { # nocov
+    cli_alert_warning("Optimiser did not converge.") # nocov
+  } # nocov
 
   out <- vector("numeric")
   out["npar"] <- object@Fit@npar

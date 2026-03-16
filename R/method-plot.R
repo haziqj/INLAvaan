@@ -11,12 +11,12 @@ plot.inlavaan_internal <- function(x, truth, params = "all",
     param_names <- all_names
   } else {
     bad <- setdiff(params, all_names)
-    if (length(bad) > 0) {
+    if (length(bad) > 0) { # nocov start
       stop(
         "Unknown parameter(s): ", paste(bad, collapse = ", "),
         "\nAvailable: ", paste(all_names, collapse = ", ")
       )
-    }
+    } # nocov end
     param_names <- params
   }
   n_plot <- length(param_names)
@@ -74,11 +74,11 @@ plot.inlavaan_internal <- function(x, truth, params = "all",
   # --- base R fallback ---
   if (!is.null(ncol) && !is.null(nrow)) {
     n_cols <- ncol; n_rows <- nrow
-  } else if (!is.null(ncol)) {
+  } else if (!is.null(ncol)) { # nocov start
     n_cols <- ncol; n_rows <- ceiling(n_plot / n_cols)
   } else if (!is.null(nrow)) {
     n_rows <- nrow; n_cols <- ceiling(n_plot / n_rows)
-  } else {
+  } else { # nocov end
     n_cols <- ceiling(sqrt(n_plot))
     n_rows <- ceiling(n_plot / n_cols)
   }

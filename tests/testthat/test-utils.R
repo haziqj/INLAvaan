@@ -77,3 +77,24 @@ test_that("make_pd corrects non-PD matrices", {
   # Check that it is still symmetric
   expect_true(isSymmetric(mat_fixed))
 })
+
+test_that("is_lavaan / is_blavaan identify objects correctly", {
+  mod <- "visual =~ x1 + x2 + x3"
+  dat <- lavaan::HolzingerSwineford1939
+  lav_fit <- lavaan::cfa(mod, dat)
+
+  expect_true(is_lavaan(lav_fit))
+  expect_false(isTRUE(is_lavaan(list())))
+  expect_false(is_blavaan(lav_fit))
+})
+
+test_that("dmode handles edge cases", {
+  expect_true(is.na(dmode(numeric(0))))
+  expect_equal(dmode(42), 42)
+  # Constant vector: returns mean
+  expect_equal(dmode(rep(5, 10)), 5)
+})
+
+test_that("get_inlavaan_internal errors for non-INLAvaan", {
+  expect_error(get_inlavaan_internal(list()), "Object must be of class")
+})

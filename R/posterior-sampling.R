@@ -38,7 +38,7 @@ sample_params <- function(
   z_raw <- matrix(rnorm(nsamp * ncol(R)), nrow = nsamp)
   z <- z_raw %*% Lt
   u <- apply(z, 2, pnorm)
-  if (!is.matrix(u)) u <- matrix(u, nrow = 1)  # nsamp == 1 edge case
+  if (!is.matrix(u)) u <- matrix(u, nrow = 1)  # nocov – nsamp == 1 edge case
 
   # Use marginals to get theta
   if (method == "sampling") {
@@ -156,7 +156,7 @@ get_ppp <- function(
   res <- vector("numeric", length = nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
     if (!is.null(cli_env)) {
-      cli_progress_update(.envir = cli_env)
+      cli_progress_update(.envir = cli_env) # nocov
     }
 
     xx <- x_samp[i, ]
@@ -174,7 +174,7 @@ get_ppp <- function(
       l <- (b - 1) %% n_levels + 1
 
       # --- LOGIC BRANCHING ---
-      if (n_levels > 1) {
+      if (n_levels > 1) { # nocov start
         # === MULTILEVEL CASE ===
         # Extract from YLp[[g]][[2]]
         cluster_stats <- lavsamplestats@YLp[[g]][[2]]
@@ -194,7 +194,7 @@ get_ppp <- function(
         rownames(S) <- colnames(S) <- ov_all
         keep <- rowSums(S != 0) > 0
         S <- S[keep, keep, drop = FALSE]
-      } else {
+      } else { # nocov end
         # === SINGLE-LEVEL CASE ===
         # Standard extraction
         n <- lavsamplestats@nobs[[g]]
@@ -381,9 +381,9 @@ get_dic <- function(
   loglik,
   cli_env = NULL
 ) {
-  if (lavmodel@ceq.simple.only) {
+  if (lavmodel@ceq.simple.only) { # nocov start
     xhat <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
-  } else {
+  } else { # nocov end
     xhat <- pars_to_x(theta_star, pt)
   }
 

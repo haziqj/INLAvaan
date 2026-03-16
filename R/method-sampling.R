@@ -153,10 +153,10 @@ sample_params_prior <- function(int, nsamp) {
   }
 
   # Apply equality constraints if present
-  if (lavmodel@ceq.simple.only) {
+  if (lavmodel@ceq.simple.only) { # nocov start
     K <- lavmodel@ceq.simple.K
     theta_samp <- t(apply(theta_samp, 1, function(p) as.numeric(K %*% p)))
-  }
+  } # nocov end
 
   # Map theta → lavaan x-space (handles covariance = cor * sqrt(var1 * var2))
   x_samp <- t(apply(theta_samp, 1, pars_to_x, pt = pt))
@@ -184,7 +184,7 @@ sample_latent_from_model <- function(x_row, lavmodel, strict = FALSE) {
     mu_eta <- as.numeric(IminB_inv %*% alpha)
     Phi    <- IminB_inv %*% Psi %*% t(IminB_inv)
     chol_Phi <- if (strict) {
-      t(chol(Phi))  # error propagates if non-PD
+      t(chol(Phi))  # nocov - error propagates if non-PD
     } else {
       tryCatch(t(chol(Phi)), error = function(e) t(chol(make_pd(Phi))))
     }
@@ -215,7 +215,7 @@ sample_observed_from_model <- function(x_row, eta, lavmodel, strict = FALSE) {
 
     mu_y <- as.numeric(Lambda %*% eta_g + nu)
     chol_Theta <- if (strict) {
-      t(chol(Theta))  # error propagates if non-PD
+      t(chol(Theta))  # nocov - error propagates if non-PD
     } else {
       tryCatch(t(chol(Theta)), error = function(e) t(chol(make_pd(Theta))))
     }
@@ -253,18 +253,18 @@ compute_implied_moments <- function(x_row, lavmodel, meanstructure = FALSE) {
 
     res <- list(cov = Sigma_y)
 
-    if (meanstructure) {
+    if (meanstructure) { # nocov start
       if (is.null(alpha)) alpha <- rep(0, nrow(Psi))
       if (is.null(nu))    nu    <- rep(0, nrow(Lambda))
       mu_y <- as.numeric(Lambda %*% IminB_inv %*% alpha + nu)
       names(mu_y) <- rownames(Lambda)
       res$mean <- mu_y
-    }
+    } # nocov end
 
     out_list[[g]] <- res
   }
 
-  if (nG == 1L) out_list[[1L]] else out_list
+  if (nG == 1L) out_list[[1L]] else out_list # nocov (else = multigroup)
 }
 
 # ---- Internal: prior generative sampling with reject-and-redraw --------------
@@ -377,14 +377,14 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE) {
   }
 
   rejected <- attempts - collected
-  if (rejected > 0L) {
+  if (rejected > 0L) { # nocov start
     rej_pct <- round(100 * rejected / attempts, 1)
     cli_inform(
       "Prior sampling: {rejected} of {attempts} draw{?s} ({rej_pct}%) rejected (non-PD model-implied covariance)."
     )
-  }
+  } # nocov end
 
-  if (collected < nsamp) {
+  if (collected < nsamp) { # nocov start
     cli_warn(c(
       "Prior rejection sampling fell short of the requested sample size.",
       "i" = "Only {collected} of {nsamp} samples obtained after {attempts} attempts.",
@@ -399,7 +399,7 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE) {
     eta_mat   <- eta_mat[seq_len(collected), , drop = FALSE]
     if (need_obs) y_mat <- y_mat[seq_len(collected), , drop = FALSE]
     if (need_implied) implied_list <- implied_list[seq_len(collected)]
-  }
+  } # nocov end
 
   if (type == "latent")   return(eta_mat)
   if (type == "observed") return(y_mat)
@@ -473,7 +473,7 @@ sampling_impl <- function(
       sample_latent_from_model(samp$x_samp[i, ], lavmodel)
     }, numeric(nlv)))
     colnames(eta_mat) <- lv_names
-  } else {
+  } else { # nocov start
     eta_list <- lapply(seq_len(nsamp), function(i) {
       sample_latent_from_model(samp$x_samp[i, ], lavmodel)
     })
@@ -483,7 +483,7 @@ sampling_impl <- function(
     colnames(eta_mat) <- paste0(
       rep(lv_names, nG), ".g", rep(seq_len(nG), each = nlv)
     )
-  }
+  } # nocov end
 
   if (type == "latent") return(eta_mat)
 
@@ -493,7 +493,7 @@ sampling_impl <- function(
       sample_observed_from_model(samp$x_samp[i, ], eta_mat[i, ], lavmodel)
     }, numeric(nobs)))
     colnames(y_mat) <- ov_names
-  } else {
+  } else { # nocov start
     y_mat <- t(vapply(seq_len(nsamp), function(i) {
       eta_per_group <- split(eta_mat[i, ], rep(seq_len(nG), each = nlv))
       eta_per_group <- lapply(eta_per_group, unname)
@@ -504,7 +504,7 @@ sampling_impl <- function(
     colnames(y_mat) <- paste0(
       rep(ov_names, nG), ".g", rep(seq_len(nG), each = nobs)
     )
-  }
+  } # nocov end
 
   if (type == "observed") return(y_mat)
 

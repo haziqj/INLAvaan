@@ -211,3 +211,18 @@ test_that("Vectorized version handles different Prior Types correctly", {
   expect_equal(length(res_grad), 3)
   expect_true(all(is.finite(res_grad)))
 })
+
+test_that("dbeta_box with log = TRUE returns log-density", {
+  x <- seq(0, 100, length.out = 20)
+  ld  <- dbeta_box(x, shape1 = 2, shape2 = 5, a = 0, b = 100, log = TRUE)
+  nld <- dbeta_box(x, shape1 = 2, shape2 = 5, a = 0, b = 100, log = FALSE)
+  expect_equal(ld, log(nld))
+  expect_true(all(is.finite(ld[x > 0 & x < 100])))
+})
+
+test_that("dbeta_box stops when b <= a", {
+  expect_error(dbeta_box(0.5, shape1 = 1, shape2 = 1, a = 1, b = 0),
+               "Require finite scalars with b > a")
+  expect_error(dbeta_box(0.5, shape1 = 1, shape2 = 1, a = 0, b = 0),
+               "Require finite scalars with b > a")
+})

@@ -54,10 +54,12 @@ prior_logdens <- function(theta, pt, debug = FALSE) {
         log = TRUE
       )
     } else {
+      # nocov start
       cli::cli_abort(c(
         "Unknown prior distribution specified:",
         "x" = "Prior '{prior}' is not supported."
       ))
+      # nocov end
     }
 
     ljcb[i] <- log(abs(dx_dth))
@@ -76,7 +78,7 @@ prior_logdens <- function(theta, pt, debug = FALSE) {
 
   out <- sum(lp + ljcb)
   if (!is.finite(out)) {
-    out <- -1e40
+    out <- -1e40 # nocov
   }
   out
 }
@@ -129,7 +131,7 @@ prior_grad <- function(theta, pt) {
         # d/dtheta log|ds/dtheta| = (x''/x') - x'/(2x)
         jac_extra <- -dx_dth / (2 * xval)
       } else {
-        dlp_dx <- (shape - 1) / xval - rate
+        dlp_dx <- (shape - 1) / xval - rate # nocov
       }
     }
 

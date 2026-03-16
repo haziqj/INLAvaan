@@ -132,3 +132,29 @@ test_that("bfit_indices details has expected fields", {
   expect_equal(bfi$details$nsamp, 5)
   expect_equal(bfi$details$rescale, "devM")
 })
+
+test_that("print.fitmeasures.inlavaan_internal formats output", {
+  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3)
+  fm <- fitMeasures(fit)
+  expect_output(print(fm), "npar")
+  expect_output(print(fm), "margloglik")
+})
+
+test_that("fitMeasures errors on unrecognised measure names", {
+  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3)
+  expect_error(fitMeasures(fit, fit.measures = "nonexistent_measure"))
+})
+
+test_that("bfit_indices errors for non-INLAvaan object", {
+  expect_error(bfit_indices("not_a_model"), class = "error")
+})
+
+test_that("bfit_indices errors when DIC not available and rescale = devM", {
+  fit_no_test <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  expect_error(bfit_indices(fit_no_test, rescale = "devM"), "DIC not available")
+})
+
+test_that("bfit_indices errors for non-INLAvaan baseline.model", {
+  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3)
+  expect_error(bfit_indices(fit, baseline.model = "not_a_model"), class = "error")
+})

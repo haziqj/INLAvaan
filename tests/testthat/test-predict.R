@@ -24,3 +24,17 @@ test_that("Multigroup predict method works", {
   expect_equal(length(prd), NSAMP)
   expect_equal(nrow(prd_summ$Mean), nrow(dat))
 })
+
+test_that("Predict method works for SEM model (B-matrix path)", {
+  sem_mod <- "
+    ind60 =~ x1 + x2 + x3
+    dem60 =~ y1 + y2 + y3 + y4
+    dem60 ~ ind60
+  "
+  sem_dat <- lavaan::PoliticalDemocracy
+  fit <- asem(sem_mod, sem_dat, verbose = FALSE, nsamp = NSAMP)
+  prd <- predict(fit, nsamp = NSAMP)
+  prd_summ <- summary(prd)
+  expect_equal(length(prd), NSAMP)
+  expect_equal(nrow(prd_summ$Mean), nrow(sem_dat))
+})
