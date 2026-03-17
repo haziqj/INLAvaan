@@ -162,40 +162,40 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [122ms]
+#> ✔ Finding posterior mode. [69ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [68ms]
+#> ✔ Computing the Hessian. [45ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.032σ. [140ms]
+#> ✔ VB correction; mean |δ| = 0.032σ. [119ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [771ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [473ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [163ms]
+#> ✔ Adjusting copula correlations (NORTA). [151ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [87ms]
+#> ✔ Posterior sampling and summarising. [93ms]
 #> 
 standardisedsolution(fit, nsamp = 100)
 #>        lhs op     rhs est.std    se ci.lower ci.upper
 #> 1   visual =~      x1   0.756 0.056    0.641    0.856
-#> 2   visual =~      x2   0.426 0.063    0.302    0.549
+#> 2   visual =~      x2   0.426 0.063    0.302    0.548
 #> 3   visual =~      x3   0.587 0.058    0.481    0.702
 #> 4  textual =~      x4   0.847 0.022    0.800    0.886
 #> 5  textual =~      x5   0.854 0.022    0.809    0.892
 #> 6  textual =~      x6   0.837 0.024    0.788    0.882
-#> 7    speed =~      x7   0.542 0.063    0.400    0.652
+#> 7    speed =~      x7   0.542 0.063    0.401    0.652
 #> 8    speed =~      x8   0.701 0.064    0.570    0.824
 #> 9    speed =~      x9   0.669 0.064    0.530    0.787
-#> 10      x1 ~~      x1   0.426 0.084    0.267    0.589
-#> 11      x2 ~~      x2   0.815 0.055    0.699    0.909
+#> 10      x1 ~~      x1   0.425 0.084    0.267    0.589
+#> 11      x2 ~~      x2   0.815 0.054    0.700    0.909
 #> 12      x3 ~~      x3   0.651 0.069    0.507    0.769
 #> 13      x4 ~~      x4   0.283 0.037    0.215    0.360
 #> 14      x5 ~~      x5   0.270 0.037    0.204    0.345
-#> 15      x6 ~~      x6   0.299 0.039    0.222    0.379
+#> 15      x6 ~~      x6   0.300 0.039    0.222    0.379
 #> 16      x7 ~~      x7   0.703 0.067    0.574    0.840
 #> 17      x8 ~~      x8   0.505 0.090    0.320    0.675
 #> 18      x9 ~~      x9   0.549 0.086    0.381    0.719

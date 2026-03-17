@@ -116,34 +116,34 @@ individual-specific factor scores \\\boldsymbol\eta \mid
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [21ms]
+#> ✔ Finding posterior mode. [24ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [20ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.046σ. [60ms]
+#> ✔ VB correction; mean |δ| = 0.046σ. [54ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [84ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [99ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [20ms]
+#> ✔ Adjusting copula correlations (NORTA). [21ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [203ms]
+#> ✔ Posterior sampling and summarising. [239ms]
 #> 
 
 # Posterior samples of lavaan-side parameters
 samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  0.9350305  1.1403914 0.8573310 0.9677979 0.5695408      0.5365136
-#> [2,]  0.7626082  1.4237882 1.1012496 1.1209406 0.5736859      0.4191708
-#> [3,]  0.6049732  1.2316181 0.9027063 1.2143598 0.6699997      0.5444877
-#> [4,]  0.8895426  1.3760469 0.9445016 1.1535841 0.5694410      0.3431477
-#> [5,]  1.0730886  1.6943765 0.8710540 0.8977388 0.6606651      0.2364049
-#> [6,]  0.8922192  0.9987508 0.8379706 0.9926374 0.7046513      0.7705492
+#> [1,]  0.9351334  1.1403874 0.8573333 0.9677982 0.5695414      0.5361894
+#> [2,]  0.7626550  1.4237906 1.1012486 1.1209414 0.5736819      0.4187968
+#> [3,]  0.6050378  1.2316236 0.9027038 1.2143590 0.6699958      0.5441404
+#> [4,]  0.8896217  1.3760452 0.9445026 1.1535840 0.5694401      0.3426932
+#> [5,]  1.0732691  1.6943712 0.8710569 0.8977361 0.6606677      0.2358091
+#> [6,]  0.8922995  0.9987471 0.8379728 0.9926385 0.7046513      0.7695038
 
 # Compare copula vs Gaussian sampling
 s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)

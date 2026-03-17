@@ -53,26 +53,26 @@ dat <- reshape(
 names(dat) <- sub("^Reaction\\.(.*)$", "Day\\1", names(dat))
 fit <- agrowth(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [123ms]
+#> ✔ Finding posterior mode. [75ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [114ms]
+#> ✔ Computing the Hessian. [92ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.224σ. [340ms]
+#> ✔ VB correction; mean |δ| = 0.224σ. [296ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [190ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [134ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [51ms]
+#> ✔ Adjusting copula correlations (NORTA). [35ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [326ms]
+#> ✔ Posterior sampling and summarising. [321ms]
 #> 
 coef(fit)
 #>      i~~i       i~1      s~~s       s~1      i~~s         v         v         v 
-#> 12110.496    32.739    39.203     9.443     0.124   622.727   622.727   622.727 
+#> 12110.505    32.739    39.199     9.443     0.124   622.727   622.727   622.727 
 #>         v         v         v         v         v         v         v 
 #>   622.727   622.727   622.727   622.727   622.727   622.727   622.727
 ```

@@ -224,22 +224,22 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [150ms]
+#> ✔ Finding posterior mode. [101ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [109ms]
+#> ✔ Computing the Hessian. [68ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.040σ. [302ms]
+#> ✔ VB correction; mean |δ| = 0.040σ. [191ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ✔ Fitting 28/28 skew-normal marginals. [1.5s]
+#> ✔ Fitting 28/28 skew-normal marginals. [897ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [229ms]
+#> ✔ Adjusting copula correlations (NORTA). [225ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [163ms]
+#> ✔ Posterior sampling and summarising. [217ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9015 ended normally after 74 iterations
@@ -309,10 +309,10 @@ summary(fit)
 #>    .y4                3.350    0.769    2.039    5.043    0.006 gamma(1,.5)[sd]
 #>    .y5                2.455    0.517    1.593    3.611    0.005 gamma(1,.5)[sd]
 #>    .y6                5.129    0.936    3.550    7.204    0.002 gamma(1,.5)[sd]
-#>    .y7                3.727    0.776    2.435    5.462    0.006 gamma(1,.5)[sd]
-#>    .y8                3.400    0.730    2.159    5.011    0.005 gamma(1,.5)[sd]
+#>    .y7                3.728    0.776    2.436    5.463    0.006 gamma(1,.5)[sd]
+#>    .y8                3.401    0.730    2.161    5.014    0.006 gamma(1,.5)[sd]
 #>     ind60             0.449    0.088    0.304    0.647    0.003 gamma(1,.5)[sd]
 #>    .dem60             3.891    0.895    2.410    5.899    0.002 gamma(1,.5)[sd]
-#>    .dem65             0.285    0.199    0.036    0.777    0.050 gamma(1,.5)[sd]
+#>    .dem65             0.285    0.199    0.036    0.777    0.049 gamma(1,.5)[sd]
 #> 
 ```

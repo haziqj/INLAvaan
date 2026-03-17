@@ -169,9 +169,9 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">fitMeasures</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         npar   margloglik          ppp          dic        p_dic       BRMSEA </span></span>
-<span><span class="co">#&gt;           21    -3823.429        0.000     7519.925       21.997        0.095 </span></span>
+<span><span class="co">#&gt;           21    -3823.429        0.000     7519.138       21.603        0.094 </span></span>
 <span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc     grad_inf grad_inf_rel      grad_l2 </span></span>
-<span><span class="co">#&gt;        0.956        0.914        0.901     2.35e-03     1.50e-02     4.41e-03</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.956        0.916        0.902     2.34e-03     1.53e-02     4.41e-03</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="posterior-distributions-of-fit-indices">Posterior distributions of fit indices<a class="anchor" aria-label="anchor" href="#posterior-distributions-of-fit-indices"></a>
 </h3>
@@ -183,7 +183,7 @@
 <span><span class="co">#&gt; Posterior summary of devM-based Bayesian fit indices (nsamp = 500): </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;       BRMSEA    BGammaHat adjBGammaHat          BMc </span></span>
-<span><span class="co">#&gt;        0.095        0.956        0.914        0.902</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.094        0.956        0.915        0.902</span></span></code></pre></div>
 </div>
 <p>Calling <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> provides a table of posterior summaries (Mean, SD, 2.5%, 50%, 97.5%, Mode) for each index.</p>
 <div class="cell">
@@ -193,10 +193,10 @@
 <span><span class="co">#&gt; Posterior summary of devM-based Bayesian fit indices (nsamp = 500):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;               Mean    SD X2.5.  X50. X97.5.  Mode</span></span>
-<span><span class="co">#&gt; BRMSEA       0.095 0.005 0.086 0.094  0.106 0.094</span></span>
-<span><span class="co">#&gt; BGammaHat    0.956 0.005 0.945 0.956  0.963 0.957</span></span>
-<span><span class="co">#&gt; adjBGammaHat 0.914 0.009 0.893 0.915  0.928 0.916</span></span>
-<span><span class="co">#&gt; BMc          0.902 0.010 0.878 0.903  0.918 0.904</span></span></code></pre></div>
+<span><span class="co">#&gt; BRMSEA       0.094 0.005 0.085 0.094  0.106 0.094</span></span>
+<span><span class="co">#&gt; BGammaHat    0.956 0.005 0.945 0.956  0.963 0.958</span></span>
+<span><span class="co">#&gt; adjBGammaHat 0.915 0.009 0.894 0.916  0.930 0.920</span></span>
+<span><span class="co">#&gt; BMc          0.902 0.011 0.877 0.903  0.918 0.907</span></span></code></pre></div>
 </div>
 <p>You can also access the raw per-sample vectors for custom analysis:</p>
 <div class="cell">
@@ -234,11 +234,11 @@
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">fitMeasures</span><span class="op">(</span><span class="va">fit</span>, baseline.model <span class="op">=</span> <span class="va">fit_null</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         npar   margloglik          ppp          dic        p_dic       BRMSEA </span></span>
-<span><span class="co">#&gt;           21    -3823.429        0.000     7519.925       21.997        0.095 </span></span>
+<span><span class="co">#&gt;           21    -3823.429        0.000     7519.138       21.603        0.094 </span></span>
 <span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI </span></span>
-<span><span class="co">#&gt;        0.956        0.913        0.901        0.929        0.888        0.907 </span></span>
+<span><span class="co">#&gt;        0.956        0.916        0.902        0.930        0.891        0.907 </span></span>
 <span><span class="co">#&gt;     grad_inf grad_inf_rel      grad_l2 </span></span>
-<span><span class="co">#&gt;     2.35e-03     1.50e-02     4.41e-03</span></span></code></pre></div>
+<span><span class="co">#&gt;     2.34e-03     1.53e-02     4.41e-03</span></span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
@@ -248,13 +248,13 @@
 <span><span class="co">#&gt; Posterior summary of devM-based Bayesian fit indices (nsamp = 500):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;               Mean    SD X2.5.  X50. X97.5.  Mode</span></span>
-<span><span class="co">#&gt; BRMSEA       0.095 0.006 0.086 0.094  0.109 0.094</span></span>
-<span><span class="co">#&gt; BGammaHat    0.956 0.005 0.943 0.956  0.964 0.957</span></span>
-<span><span class="co">#&gt; adjBGammaHat 0.913 0.010 0.888 0.915  0.929 0.916</span></span>
-<span><span class="co">#&gt; BMc          0.901 0.011 0.872 0.903  0.919 0.904</span></span>
-<span><span class="co">#&gt; BCFI         0.929 0.009 0.906 0.930  0.942 0.931</span></span>
-<span><span class="co">#&gt; BTLI         0.888 0.014 0.853 0.890  0.909 0.892</span></span>
-<span><span class="co">#&gt; BNFI         0.907 0.008 0.885 0.908  0.920 0.909</span></span></code></pre></div>
+<span><span class="co">#&gt; BRMSEA       0.094 0.005 0.085 0.093  0.106 0.092</span></span>
+<span><span class="co">#&gt; BGammaHat    0.956 0.005 0.945 0.957  0.964 0.958</span></span>
+<span><span class="co">#&gt; adjBGammaHat 0.916 0.009 0.895 0.917  0.931 0.920</span></span>
+<span><span class="co">#&gt; BMc          0.902 0.011 0.878 0.903  0.919 0.907</span></span>
+<span><span class="co">#&gt; BCFI         0.930 0.008 0.911 0.931  0.943 0.934</span></span>
+<span><span class="co">#&gt; BTLI         0.892 0.013 0.863 0.893  0.911 0.898</span></span>
+<span><span class="co">#&gt; BNFI         0.907 0.008 0.889 0.908  0.919 0.908</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="rescaling-devm-vs-mcmc">Rescaling: <code>"devM"</code> vs <code>"MCMC"</code>
 <a class="anchor" aria-label="anchor" href="#rescaling-devm-vs-mcmc"></a>
@@ -268,10 +268,10 @@
 <span><span class="co">#&gt; Posterior summary of MCMC-based Bayesian fit indices (nsamp = 500):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;               Mean    SD X2.5.  X50. X97.5.  Mode</span></span>
-<span><span class="co">#&gt; BRMSEA       0.107 0.005 0.099 0.107  0.117 0.106</span></span>
-<span><span class="co">#&gt; BGammaHat    0.942 0.005 0.932 0.943  0.950 0.944</span></span>
-<span><span class="co">#&gt; adjBGammaHat 0.892 0.009 0.872 0.893  0.907 0.894</span></span>
-<span><span class="co">#&gt; BMc          0.871 0.010 0.848 0.872  0.889 0.874</span></span></code></pre></div>
+<span><span class="co">#&gt; BRMSEA       0.107 0.004 0.100 0.107  0.118 0.107</span></span>
+<span><span class="co">#&gt; BGammaHat    0.942 0.005 0.931 0.943  0.950 0.943</span></span>
+<span><span class="co">#&gt; adjBGammaHat 0.892 0.008 0.871 0.892  0.906 0.893</span></span>
+<span><span class="co">#&gt; BMc          0.871 0.010 0.847 0.872  0.888 0.872</span></span></code></pre></div>
 </div>
 <p>The two methods will generally produce different results, especially with informative priors or when <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math> deviates substantially from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.</p>
 </section><section class="level2"><h2 id="sec-differences">Differences from blavaan<a class="anchor" aria-label="anchor" href="#sec-differences"></a>
