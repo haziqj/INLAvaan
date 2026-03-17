@@ -66,6 +66,7 @@
 #' @importFrom stats splinefun
 #' @importFrom stats uniroot
 #' @importFrom utils capture.output
+#' @importFrom MASS ginv
 #' @importFrom utils getFromNamespace
 #' @importFrom utils head
 #' @importFrom utils packageVersion

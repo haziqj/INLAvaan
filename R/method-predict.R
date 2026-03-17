@@ -315,14 +315,14 @@ predict.inlavaan_internal <- function(
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
-        LAMBDA <- lavaan:::lav_model_lambda(
+        LAMBDA <- lavaan___lav_model_lambda(
           lavmodel = lavmodel_x, remove.dummy.lv = FALSE
         )
-        VETA <- lavaan:::lav_model_veta(lavmodel = lavmodel_x)
-        EETA <- lavaan:::lav_model_eeta(
+        VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
+        EETA <- lavaan___lav_model_eeta(
           lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
         )
-        EY <- lavaan:::lav_model_ey(
+        EY <- lavaan___lav_model_ey(
           lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
         )
         Sigma.hat <- lavimplied$cov
@@ -343,7 +343,7 @@ predict.inlavaan_internal <- function(
           group.idx <- (g - 1) * nlevels + seq_len(nlevels)
           implied.group <- lapply(lavimplied, function(x) x[group.idx])
 
-          decomp <- lavaan:::lav_mvnorm_cluster_implied22l(
+          decomp <- lavaan___lav_mvnorm_cluster_implied22l(
             Lp = Lp, implied = implied.group
           )
           MB.j <- compute_ml_ranef(y_g, Lp, decomp)
@@ -511,14 +511,14 @@ predict.inlavaan_internal <- function(
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
-        LAMBDA <- lavaan:::lav_model_lambda(
+        LAMBDA <- lavaan___lav_model_lambda(
           lavmodel = lavmodel_x, remove.dummy.lv = FALSE
         )
-        VETA <- lavaan:::lav_model_veta(lavmodel = lavmodel_x)
-        EETA <- lavaan:::lav_model_eeta(
+        VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
+        EETA <- lavaan___lav_model_eeta(
           lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
         )
-        EY <- lavaan:::lav_model_ey(
+        EY <- lavaan___lav_model_ey(
           lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
         )
         Sigma.hat <- lavimplied$cov
@@ -542,7 +542,7 @@ predict.inlavaan_internal <- function(
           group.idx <- (g - 1) * nlevels + seq_len(nlevels)
           implied.group <- lapply(lavimplied, function(x) x[group.idx])
 
-          decomp <- lavaan:::lav_mvnorm_cluster_implied22l(
+          decomp <- lavaan___lav_mvnorm_cluster_implied22l(
             Lp = Lp, implied = implied.group
           )
           MB.j <- compute_ml_ranef(y_g, Lp, decomp)
