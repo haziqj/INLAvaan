@@ -326,7 +326,7 @@ predict.inlavaan_internal <- function(
           lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
         )
         Sigma.hat <- lavimplied$cov
-        Sigma.inv <- lapply(Sigma.hat, MASS::ginv)
+        Sigma.inv <- lapply(Sigma.hat, ginv_base)
 
         out <- vector("list", nG)
         names(out) <- group_labels
@@ -522,7 +522,7 @@ predict.inlavaan_internal <- function(
           lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
         )
         Sigma.hat <- lavimplied$cov
-        Sigma.inv <- lapply(Sigma.hat, MASS::ginv)
+        Sigma.inv <- lapply(Sigma.hat, ginv_base)
 
         nmat <- lavmodel_x@nmat
 

@@ -9,6 +9,20 @@ cli_messages <- c(
   "Navigating the seas of stochasticity"
 )
 
+# Moore-Penrose pseudoinverse (replaces MASS::ginv, uses only base svd)
+ginv_base <- function(X, tol = sqrt(.Machine$double.eps)) {
+  s <- svd(X)
+  pos <- s$d > max(tol * s$d[1], 0)
+  if (all(pos)) {
+    s$v %*% (1 / s$d * t(s$u))
+  } else if (!any(pos)) {
+    array(0, dim(X)[2:1])
+  } else {
+    s$v[, pos, drop = FALSE] %*%
+      ((1 / s$d[pos]) * t(s$u[, pos, drop = FALSE]))
+  }
+}
+
 #' Helper function to check if two functions are the same
 #'
 #' @param f,g Functions to compare.

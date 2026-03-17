@@ -24,7 +24,6 @@ Imports:
     cli,
     graphics,
     lavaan,
-    MASS,
     methods,
     parallel,
     stats,
