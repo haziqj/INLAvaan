@@ -104,22 +104,22 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [129ms]
+#> ✔ Finding posterior mode. [132ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [72ms]
+#> ✔ Computing the Hessian. [74ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.003σ. [122ms]
+#> ✔ VB correction; mean |δ| = 0.003σ. [126ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [403ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [416ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [82ms]
+#> ✔ Adjusting copula correlations (NORTA). [83ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [319ms]
+#> ✔ Posterior sampling and summarising. [332ms]
 #> 
 ```
 
@@ -280,7 +280,7 @@ posterior samples returned by
 ``` r
 summ_eta <- summary(eta_preds)
 str(summ_eta)
-#> List of 6
+#> List of 7
 #>  $ group_id: NULL
 #>  $ Mean    : num [1:1000, 1:2] 1.0424 0.7527 -1.1579 0.0209 1.5541 ...
 #>   ..- attr(*, "dimnames")=List of 2
@@ -299,6 +299,10 @@ str(summ_eta)
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
 #>  $ 97.5%   : num [1:1000, 1:2] 1.924 1.415 -0.459 1.032 2.465 ...
+#>   ..- attr(*, "dimnames")=List of 2
+#>   .. ..$ : NULL
+#>   .. ..$ : chr [1:2] "eta1" "eta2"
+#>  $ Mode    : num [1:1000, 1:2] 1.020059 0.735468 -1.044907 -0.000315 1.586217 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
@@ -342,22 +346,22 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [79ms]
+#> ✔ Finding posterior mode. [82ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [44ms]
+#> ✔ Computing the Hessian. [43ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.002σ. [96ms]
+#> ✔ VB correction; mean |δ| = 0.002σ. [97ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [305ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [312ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [60ms]
+#> ✔ Adjusting copula correlations (NORTA). [61ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [221ms]
+#> ✔ Posterior sampling and summarising. [231ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
