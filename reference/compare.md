@@ -89,14 +89,14 @@ fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ✔ Finding posterior mode. [225ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [225ms]
+#> ✔ Computing the Hessian. [223ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.028σ. [579ms]
+#> ✔ VB correction; mean |δ| = 0.028σ. [581ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 17/60 skew-normal marginals.
-#> ⠸ Fitting 44/60 skew-normal marginals.
+#> ⠹ Fitting 19/60 skew-normal marginals.
+#> ⠸ Fitting 47/60 skew-normal marginals.
 #> ✔ Fitting 60/60 skew-normal marginals. [6.6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
@@ -115,24 +115,24 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [212ms]
+#> ✔ Finding posterior mode. [196ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [218ms]
+#> ✔ Computing the Hessian. [221ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.017σ. [277ms]
+#> ✔ VB correction; mean |δ| = 0.017σ. [288ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
 #> ⠹ Fitting 20/54 skew-normal marginals.
 #> ⠸ Fitting 48/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [5.7s]
+#> ✔ Fitting 54/54 skew-normal marginals. [5.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [535ms]
+#> ✔ Adjusting copula correlations (NORTA). [543ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [958ms]
+#> ✔ Posterior sampling and summarising. [956ms]
 #> 
 
 # Strong invariance
@@ -143,24 +143,24 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [193ms]
+#> ✔ Finding posterior mode. [195ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [190ms]
+#> ✔ Computing the Hessian. [176ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.013σ. [248ms]
+#> ✔ VB correction; mean |δ| = 0.013σ. [268ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 1/48 skew-normal marginals.
-#> ⠸ Fitting 35/48 skew-normal marginals.
+#> ⠹ Fitting 2/48 skew-normal marginals.
+#> ⠸ Fitting 36/48 skew-normal marginals.
 #> ✔ Fitting 48/48 skew-normal marginals. [4.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [614ms]
+#> ✔ Adjusting copula correlations (NORTA). [603ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [957ms]
+#> ✔ Posterior sampling and summarising. [960ms]
 #> 
 
 # Compare models (fit1 = configural = baseline, always first argument)
