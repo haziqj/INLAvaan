@@ -165,22 +165,22 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [101ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [70ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [49ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [47ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.003σ. [150ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.003σ. [78ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 13/13 skew-normal marginals. [255ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 13/13 skew-normal marginals. [254ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [76ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [80ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [294ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [356ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney, Kass, and Kadane 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
@@ -354,22 +354,22 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [54ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [58ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
 <span><span class="co">#&gt; ✔ Computing the Hessian. [29ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.002σ. [66ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.002σ. [65ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 12/12 skew-normal marginals. [209ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 12/12 skew-normal marginals. [205ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [50ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [48ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [262ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [259ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
