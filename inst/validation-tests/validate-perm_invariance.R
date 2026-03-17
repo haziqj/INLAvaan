@@ -33,21 +33,19 @@ cat("=== shortcut (Q2) ===\n")
 cat(sprintf("Max |diff|: %.2e\n", max(abs(coef1 - coef2))))
 tinytest::expect_equal(coef1, coef2, tolerance = 1e-4)
 
-## --- super_shortcut (Q3, partial trace) --------------------------------------
-fit3 <- acfa(mod1, dat, std.lv = TRUE, marginal_correction = "super_shortcut")
-fit4 <- acfa(mod2, dat, std.lv = TRUE, marginal_correction = "super_shortcut")
+## --- shortcut_fd (Q2, forward difference) ------------------------------------
+fit3 <- acfa(mod1, dat, std.lv = TRUE, marginal_correction = "shortcut_fd")
+fit4 <- acfa(mod2, dat, std.lv = TRUE, marginal_correction = "shortcut_fd")
 
 coef3 <- coef(fit3)
 class(coef3) <- "numeric"
 coef4 <- coef(fit4)[parnames]
 class(coef4) <- "numeric"
 
-cat("\n=== super_shortcut (Q3) ===\n")
+cat("\n=== shortcut_fd (Q2, forward diff) ===\n")
 cat(sprintf("Max |diff|: %.2e\n", max(abs(coef3 - coef4))))
-# super_shortcut uses canonical Cholesky so is reproducible, but has larger
-# numerical variation across model orderings due to L-dependence
-tinytest::expect_equal(coef3, coef4, tolerance = 5e-3)
+tinytest::expect_equal(coef3, coef4, tolerance = 1e-4)
 
-## --- Compare shortcut vs super_shortcut --------------------------------------
-cat("\n=== shortcut vs super_shortcut (same model) ===\n")
+## --- Compare shortcut vs shortcut_fd -----------------------------------------
+cat("\n=== shortcut vs shortcut_fd (same model) ===\n")
 cat(sprintf("Max |diff|: %.2e\n", max(abs(coef1 - coef3))))

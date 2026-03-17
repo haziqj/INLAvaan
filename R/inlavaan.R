@@ -21,10 +21,11 @@
 #'   approximation).
 #' @param marginal_correction Which type of correction to use when fitting the
 #'   skew-normal or two-piece Gaussian marginals. `"hessian"` computes the full
-#'   Hessian-based correction (slow), `"shortcut"` (default) computes only
-#'   diagonals (full z-trace plus Schur complement correction),
-#'   `"super_shortcut"` uses the original partial-trace approximation (faster
-#'   but L-dependent), and `"none"` (or `FALSE`) applies no correction.
+#'   `"shortcut"` (default) computes only diagonals via central differences
+#'   (full z-trace plus Schur complement correction), `"shortcut_fd"` is the
+#'   same formula using forward differences (roughly half the cost, less
+#'   accurate), `"hessian"` computes the full Hessian-based correction (slow),
+#'   and `"none"` (or `FALSE`) applies no correction.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param samp_copula Logical. When `TRUE` (default), posterior samples are
@@ -35,9 +36,9 @@
 #' @param sn_fit_logthresh The log-threshold for fitting the skew-normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
-#' @param sn_fit_temp Temperature parameter for fitting the skew-normal. If
-#'   `NA`, the temperature will be included in the optimisation during the skew
-#'   normal fit.
+#' @param sn_fit_temp Temperature parameter for fitting the skew-normal.
+#'   Defaults to `1` (weights are the density values themselves). If
+#'   `NA`, the temperature is included as an additional optimisation parameter.
 #' @param sn_fit_sample Logical. When `TRUE` (default), a parametric
 #'   skew-normal is fitted to the posterior samples for covariance and defined
 #'   parameters. When `FALSE`, these are summarised using kernel density
@@ -78,11 +79,11 @@ inlavaan <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
+  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
-  sn_fit_temp = NA,
+  sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
@@ -416,7 +417,6 @@ inlavaan <- function(
         theta_star = theta_star,
         Vscan = Vscan,
         L = L,
-        inv_perm = inv_perm,
         joint_lp_grad = joint_lp_grad,
         delta_outer = delta_outer,
         delta_inner = delta_inner,
@@ -801,11 +801,11 @@ acfa <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
+  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
-  sn_fit_temp = NA,
+  sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
@@ -852,11 +852,11 @@ asem <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
+  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
-  sn_fit_temp = NA,
+  sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
@@ -901,11 +901,11 @@ agrowth <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
+  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
-  sn_fit_temp = NA,
+  sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,

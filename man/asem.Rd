@@ -11,11 +11,11 @@ asem(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "hessian", "super_shortcut", "none"),
+  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 500,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
-  sn_fit_temp = NA,
+  sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = TRUE,
@@ -56,10 +56,11 @@ approximation).}
 
 \item{marginal_correction}{Which type of correction to use when fitting the
 skew-normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
-Hessian-based correction (slow), \code{"shortcut"} (default) computes only
-diagonals (full z-trace plus Schur complement correction),
-\code{"super_shortcut"} uses the original partial-trace approximation (faster
-but L-dependent), and \code{"none"} (or \code{FALSE}) applies no correction.}
+\code{"shortcut"} (default) computes only diagonals via central differences
+(full z-trace plus Schur complement correction), \code{"shortcut_fd"} is the
+same formula using forward differences (roughly half the cost, less
+accurate), \code{"hessian"} computes the full Hessian-based correction (slow),
+and \code{"none"} (or \code{FALSE}) applies no correction.}
 
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
@@ -74,9 +75,9 @@ approximation. Only re}
 with log-posterior drop below this threshold (relative to the maximum) will
 be excluded from the fit. Defaults to \code{-6}.}
 
-\item{sn_fit_temp}{Temperature parameter for fitting the skew-normal. If
-\code{NA}, the temperature will be included in the optimisation during the skew
-normal fit.}
+\item{sn_fit_temp}{Temperature parameter for fitting the skew-normal.
+Defaults to \code{1} (weights are the density values themselves). If
+\code{NA}, the temperature is included as an additional optimisation parameter.}
 
 \item{sn_fit_sample}{Logical. When \code{TRUE} (default), a parametric
 skew-normal is fitted to the posterior samples for covariance and defined

@@ -265,7 +265,10 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
       ))
       rownames(label_df) <- NULL
       label_df <- merge(label_df, metrics_df, by = c("name", "method"))
-      label_df$JS_percent <- paste0(round((1 - label_df$JS_percent) * 100, 1), "%")
+      label_df$JS_percent <- {
+        vals <- (1 - label_df$JS_percent) * 100
+        ifelse(vals >= 99.95, "100%", sprintf("%.1f%%", vals))
+      }
 
       p_compare <-
         p_compare +
@@ -334,7 +337,8 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
     if (isTRUE(show_error)) {
       m_sub <- metrics_df[metrics_df$name == pnm, , drop = FALSE]
       for (i in seq_len(nrow(m_sub))) {
-        lbl <- paste0(round(100 * (1 - m_sub$JS_percent[i]), 1), "%")
+        val <- 100 * (1 - m_sub$JS_percent[i])
+        lbl <- if (val >= 99.95) "100%" else sprintf("%.1f%%", val)
         mtext(lbl, side = 3, line = -1.2 - (i - 1) * 1,
               col = mycols[as.character(m_sub$method[i])], cex = 0.7, adj = 0.95)
       }
