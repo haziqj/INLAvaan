@@ -128,14 +128,6 @@ get_ppp <- function(
   lavpartable = NULL,
   cli_env = NULL
 ) {
-  #log |Sigma| + trace(S Sigma^{-1}) - log |S| - p
-  Fdiscrp <- function(S, Sigma) {
-    logdet_Sigma <- as.numeric(determinant(Sigma, logarithm = TRUE)$modulus)
-    logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
-    trace_term <- sum(diag(solve(Sigma, S)))
-    logdet_Sigma + trace_term - logdet_S - nrow(S)
-  }
-
   n_blocks <- lavmodel@nblocks
   n_levels <- lavdata@nlevels
 
@@ -156,6 +148,37 @@ get_ppp <- function(
     }
   }
 
+  # Pre-compute per-block observed stats (S, n, logdet_S) — invariant across
+  # samples, so we avoid redundant extraction and determinant calls in the loop.
+  block_obs <- vector("list", n_blocks)
+  for (b in seq_len(n_blocks)) {
+    g <- ceiling(b / n_levels)
+    l <- (b - 1) %% n_levels + 1
+
+    if (n_levels > 1) {
+      # nocov start
+      cluster_stats <- lavsamplestats@YLp[[g]][[2]]
+      ov_all <- lavdata@ov.names[[g]]
+      if (l == 1) {
+        n <- lavdata@nobs[[g]]
+        S <- cluster_stats$Sigma.W
+      } else {
+        n <- lavdata@Lp[[g]]$nclusters[[l]]
+        S <- cluster_stats$Sigma.B
+      }
+      rownames(S) <- colnames(S) <- ov_all
+      keep <- rowSums(S != 0) > 0
+      S <- S[keep, keep, drop = FALSE]
+      # nocov end
+    } else {
+      n <- lavsamplestats@nobs[[g]]
+      S <- lavsamplestats@cov[[g]]
+    }
+
+    logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
+    block_obs[[b]] <- list(S = S, n = n, logdet_S = logdet_S)
+  }
+
   res <- vector("numeric", length = nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
     if (!is.null(cli_env)) {
@@ -169,64 +192,42 @@ get_ppp <- function(
     Tobs <- 0
     Trep <- 0
 
-    # 3. Iterate over BLOCKS (Works for both Single and Multilevel)
     for (b in seq_len(n_blocks)) {
-      # Map Block -> Group (g) and Level (l)
-      # If single level, l is always 1
-      g <- ceiling(b / n_levels)
-      l <- (b - 1) %% n_levels + 1
+      S <- block_obs[[b]]$S
+      n <- block_obs[[b]]$n
+      logdet_S <- block_obs[[b]]$logdet_S
 
-      # --- LOGIC BRANCHING ---
-      if (n_levels > 1) {
-        # nocov start
-        # === MULTILEVEL CASE ===
-        # Extract from YLp[[g]][[2]]
-        cluster_stats <- lavsamplestats@YLp[[g]][[2]]
-        ov_all <- lavdata@ov.names[[g]]
-
-        if (l == 1) {
-          # Level 1 (Within): Use Total N
-          n <- lavdata@nobs[[g]]
-          S <- cluster_stats$Sigma.W
-        } else {
-          # Level 2 (Between): Use Cluster N
-          n <- lavdata@Lp[[g]]$nclusters[[l]]
-          S <- cluster_stats$Sigma.B
-        }
-
-        # Name S using the overall ov ordering, then filter zero-variance
-        rownames(S) <- colnames(S) <- ov_all
-        keep <- rowSums(S != 0) > 0
-        S <- S[keep, keep, drop = FALSE]
-      } else {
-        # nocov end
-        # === SINGLE-LEVEL CASE ===
-        # Standard extraction
-        n <- lavsamplestats@nobs[[g]]
-        S <- lavsamplestats@cov[[g]]
-      }
-
-      # Retrieve Model Implied Sigma (Universal)
       Sigma <- lavimplied$cov[[b]]
 
-      # Name Sigma using per-block ov names and align with S
+      # Align dimensions for multilevel models
       if (n_levels > 1 && length(ov_names_block[[b]]) == nrow(Sigma)) {
+        # nocov start
         rownames(Sigma) <- colnames(Sigma) <- ov_names_block[[b]]
         shared <- intersect(rownames(S), rownames(Sigma))
         if (length(shared) > 0) {
           S <- S[shared, shared, drop = FALSE]
           Sigma <- Sigma[shared, shared, drop = FALSE]
+          logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
         }
+        # nocov end
       }
 
       if (!is_bad_cov(Sigma)) {
-        # Simulate and Accumulate
         p <- nrow(Sigma)
+
+        # Cholesky of Sigma — shared for logdet, inverse, and both discrepancies
+        L <- chol(Sigma)
+        logdet_Sigma <- 2 * sum(log(diag(L)))
+        Sigma_inv <- chol2inv(L)
+
+        # Wishart draw for replicated data
         W <- matrix(stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1], p, p)
         Srep <- W / (n - 1)
+        logdet_Srep <- as.numeric(determinant(Srep, logarithm = TRUE)$modulus)
 
-        Tobs <- Tobs + Fdiscrp(S, Sigma)
-        Trep <- Trep + Fdiscrp(Srep, Sigma)
+        # F(S, Sigma) = log|Sigma| + tr(Sigma^{-1} S) - log|S| - p
+        Tobs <- Tobs + logdet_Sigma + sum(Sigma_inv * S) - logdet_S - p
+        Trep <- Trep + logdet_Sigma + sum(Sigma_inv * Srep) - logdet_Srep - p
       }
     }
 

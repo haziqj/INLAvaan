@@ -59,7 +59,7 @@ setGeneric("sampling", function(object, ...) standardGeneric("sampling"))
 setMethod("sampling", "INLAvaan", function(
   object,
   type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
-  nsamp = 500L,
+  nsamp = 1000L,
   samp_copula = TRUE,
   prior = FALSE,
   ...
@@ -76,7 +76,7 @@ setMethod("sampling", "INLAvaan", function(
 sampling.inlavaan_internal <- function(
   object,
   type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
-  nsamp = 500L,
+  nsamp = 1000L,
   samp_copula = TRUE,
   prior = FALSE,
   ...
@@ -419,7 +419,7 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE) {
 sampling_impl <- function(
   int,
   type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
-  nsamp = 500L,
+  nsamp = 1000L,
   samp_copula = TRUE,
   prior = FALSE,
   meanstructure = FALSE,

@@ -13,7 +13,7 @@ inlavaan(
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
-  nsamp = 500,
+  nsamp = 1000,
   samp_copula = TRUE,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,

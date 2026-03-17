@@ -10,7 +10,7 @@ sampling(object, ...)
 \S4method{sampling}{INLAvaan}(
   object,
   type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
-  nsamp = 500L,
+  nsamp = 1000L,
   samp_copula = TRUE,
   prior = FALSE,
   ...
