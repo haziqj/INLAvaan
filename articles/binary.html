@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9015</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9016</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,26 +135,26 @@
 <span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="st">"eta  =~ y1 + y2 + y3 + y4 + y5"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span>, ordered <span class="op">=</span> <span class="cn">TRUE</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, estimator <span class="op">=</span> <span class="st">"PML"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [163ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [170ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [75ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [80ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.134σ. [424ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.134σ. [447ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/10 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 10/10 skew-normal marginals. [502ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 5/10 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 10/10 skew-normal marginals. [728ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [52ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [56ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [553ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [1.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9015 ended normally after 37 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9016 ended normally after 37 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -169,8 +169,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             2127.621 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                     8.225 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             2126.012 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                     7.420 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -181,19 +181,19 @@
 <span><span class="co">#&gt; Latent Variables:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior     </span></span>
 <span><span class="co">#&gt;   eta =~                                                                     </span></span>
-<span><span class="co">#&gt;     y1                0.782    0.340    0.231    1.553    0.073  normal(0,10)</span></span>
-<span><span class="co">#&gt;     y2                0.609    0.224    0.253    1.119    0.066  normal(0,10)</span></span>
-<span><span class="co">#&gt;     y3                0.580    0.219    0.207    1.065    0.028  normal(0,10)</span></span>
-<span><span class="co">#&gt;     y4                1.073    0.399    0.505    2.010    0.082  normal(0,10)</span></span>
-<span><span class="co">#&gt;     y5                0.477    0.215    0.110    0.950    0.030  normal(0,10)</span></span>
+<span><span class="co">#&gt;     y1                0.825    0.329    0.302    1.576    0.049  normal(0,10)</span></span>
+<span><span class="co">#&gt;     y2                0.640    0.248    0.244    1.205    0.025  normal(0,10)</span></span>
+<span><span class="co">#&gt;     y3                0.627    0.237    0.235    1.157    0.011  normal(0,10)</span></span>
+<span><span class="co">#&gt;     y4                1.121    0.442    0.473    2.154    0.013  normal(0,10)</span></span>
+<span><span class="co">#&gt;     y5                0.520    0.225    0.149    1.025    0.017  normal(0,10)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Thresholds:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior     </span></span>
-<span><span class="co">#&gt;     y1|t1            -2.215    0.368   -3.059   -1.641    0.051 normal(0,1.5)</span></span>
-<span><span class="co">#&gt;     y2|t1            -0.792    0.117   -1.054   -0.597    0.062 normal(0,1.5)</span></span>
-<span><span class="co">#&gt;     y3|t1            -0.310    0.086   -0.494   -0.158    0.016 normal(0,1.5)</span></span>
-<span><span class="co">#&gt;     y4|t1            -1.006    0.237   -1.559   -0.658    0.069 normal(0,1.5)</span></span>
-<span><span class="co">#&gt;     y5|t1            -1.235    0.140   -1.549   -1.003    0.068 normal(0,1.5)</span></span>
+<span><span class="co">#&gt;     y1|t1            -2.195    0.353   -3.018   -1.670    0.030 normal(0,1.5)</span></span>
+<span><span class="co">#&gt;     y2|t1            -0.795    0.127   -1.087   -0.600    0.061 normal(0,1.5)</span></span>
+<span><span class="co">#&gt;     y3|t1            -0.300    0.083   -0.482   -0.155    0.013 normal(0,1.5)</span></span>
+<span><span class="co">#&gt;     y4|t1            -0.994    0.222   -1.514   -0.673    0.034 normal(0,1.5)</span></span>
+<span><span class="co">#&gt;     y5|t1            -1.239    0.153   -1.592   -1.006    0.072 normal(0,1.5)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior     </span></span>
@@ -206,11 +206,11 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Scales y*:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior     </span></span>
-<span><span class="co">#&gt;     y1                1.299    0.214    1.025    1.793                       </span></span>
-<span><span class="co">#&gt;     y2                1.190    0.125    1.035    1.486                       </span></span>
-<span><span class="co">#&gt;     y3                1.169    0.116    1.022    1.447                       </span></span>
-<span><span class="co">#&gt;     y4                1.490    0.287    1.133    2.121                       </span></span>
-<span><span class="co">#&gt;     y5                1.119    0.096    1.006    1.353</span></span>
+<span><span class="co">#&gt;     y1                1.325    0.217    1.047    1.832                       </span></span>
+<span><span class="co">#&gt;     y2                1.203    0.137    1.031    1.532                       </span></span>
+<span><span class="co">#&gt;     y3                1.194    0.127    1.030    1.511                       </span></span>
+<span><span class="co">#&gt;     y4                1.519    0.337    1.104    2.383                       </span></span>
+<span><span class="co">#&gt;     y5                1.141    0.110    1.012    1.429</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, truth <span class="op">=</span> <span class="va">truval</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
