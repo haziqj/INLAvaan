@@ -92,8 +92,8 @@ post_marg_asymgaus <- function(
   qfj_orig <- stats::splinefun(Fx, x, method = "monoH.FC")
 
   # Combine results
-  res <- c(Ex, SDx, qfj_orig(c(0.025, 0.5, 0.975)), xmax)
-  names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+  res <- c(Ex, SDx, qfj_orig(c(0.025, 0.25, 0.5, 0.75, 0.975)), xmax)
+  names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
 
   list(
     summary = res,
@@ -144,7 +144,7 @@ post_marg_skewnorm <- function(
 
   # Compute quantiles
   qq <- ginv(qsnorm_fast(
-    c(0.025, 0.5, 0.975),
+    c(0.025, 0.25, 0.5, 0.75, 0.975),
     xi = xi,
     omega = omega,
     alpha = alpha
@@ -155,7 +155,7 @@ post_marg_skewnorm <- function(
 
   # Combine results
   res <- c(Ex, SDx, qq, xmax)
-  names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+  names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
 
   list(
     summary = res,
@@ -182,7 +182,7 @@ post_marg_marggaus <- function(
   x_sd <- abs(ginv_prime(thetaj_mean)) * thetaj_sd
 
   # Compute quantiles
-  qq <- ginv(qnorm(c(0.025, 0.5, 0.975), mean = thetaj_mean, sd = thetaj_sd))
+  qq <- ginv(qnorm(c(0.025, 0.25, 0.5, 0.75, 0.975), mean = thetaj_mean, sd = thetaj_sd))
 
   # Build PDF data
   tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
@@ -203,7 +203,7 @@ post_marg_marggaus <- function(
 
   # Combine results
   res <- c(x_mean, x_sd, qq, xmax)
-  names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+  names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
 
   list(
     summary = res,

@@ -275,13 +275,15 @@ bfit_indices <- function(object, baseline.model = NULL,
 summary.bfit_indices <- function(object, ...) {
   summ_one <- function(x) {
     x <- x[is.finite(x)]
-    if (length(x) < 3) return(rep(NA_real_, 6))
+    if (length(x) < 3) return(rep(NA_real_, 8))
     dens <- stats::density(x)
     c(
       Mean   = mean(x),
       SD     = stats::sd(x),
       `2.5%` = stats::quantile(x, 0.025, names = FALSE),
+      `25%`  = stats::quantile(x, 0.250, names = FALSE),
       `50%`  = stats::quantile(x, 0.500, names = FALSE),
+      `75%`  = stats::quantile(x, 0.750, names = FALSE),
       `97.5%`= stats::quantile(x, 0.975, names = FALSE),
       Mode   = dens$x[which.max(dens$y)]
     )

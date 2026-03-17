@@ -5,11 +5,11 @@
 summarise_samples <- function(y) {
   Ex <- mean(y)
   SDx <- stats::sd(y)
-  qq <- stats::quantile(y, probs = c(0.025, 0.5, 0.975))
+  qq <- stats::quantile(y, probs = c(0.025, 0.25, 0.5, 0.75, 0.975))
   dens <- stats::density(y)
   xmax <- dens$x[which.max(dens$y)]
   res <- c(Ex, SDx, qq, xmax)
-  names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+  names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
   list(
     summary = res,
     pdf_data = data.frame(x = dens$x, y = dens$y)
@@ -306,7 +306,7 @@ get_defpars_fit_sn <- function(x_samp, pt) {
     Vx <- omega^2 * (1 - 2 * delta^2 / pi)
     SDx <- sqrt(Vx)
     qq <- qsnorm_fast(
-      c(0.025, 0.5, 0.975),
+      c(0.025, 0.25, 0.5, 0.75, 0.975),
       xi = xi,
       omega = omega,
       alpha = alpha
@@ -322,7 +322,7 @@ get_defpars_fit_sn <- function(x_samp, pt) {
     )$maximum
 
     res <- c(Ex, SDx, qq, xmax)
-    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+    names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
 
     list(
       summary = res,
@@ -363,7 +363,7 @@ sample_covariances_fit_sn <- function(x_samp, pt) {
     Vx <- omega^2 * (1 - 2 * delta^2 / pi)
     SDx <- sqrt(Vx)
     qq <- qsnorm_fast(
-      c(0.025, 0.5, 0.975),
+      c(0.025, 0.25, 0.5, 0.75, 0.975),
       xi = xi,
       omega = omega,
       alpha = alpha
@@ -379,7 +379,7 @@ sample_covariances_fit_sn <- function(x_samp, pt) {
     )$maximum
 
     res <- res <- c(Ex, SDx, qq, xmax)
-    names(res) <- c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode")
+    names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
 
     list(
       summary = res,

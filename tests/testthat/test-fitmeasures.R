@@ -113,7 +113,7 @@ test_that("summary.bfit_indices returns data.frame with correct columns", {
   bfi <- bfit_indices(fit)
   tab <- summary(bfi)
   expect_s3_class(tab, "data.frame")
-  expect_equal(colnames(tab), c("Mean", "SD", "2.5%", "50%", "97.5%", "Mode"))
+  expect_equal(colnames(tab), c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode"))
   expect_equal(nrow(tab), length(bfi$indices))
   expect_equal(rownames(tab), names(bfi$indices))
 })
