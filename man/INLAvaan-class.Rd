@@ -46,6 +46,9 @@ diagnostics(object, ...)
   rsquare = FALSE,
   postmedian = FALSE,
   postmode = FALSE,
+  nmad = TRUE,
+  kld = FALSE,
+  vb_shift = FALSE,
   priors = TRUE,
   nd = 3L,
   ...
@@ -100,6 +103,15 @@ missing values filled in.}
 \item{postmedian}{Logical; if TRUE, include posterior median in estimates.}
 
 \item{postmode}{Logical; if TRUE, include posterior mode in estimates.}
+
+\item{nmad}{Logical; if TRUE (default), include the NMAD column for
+skew-normal marginal fit quality.}
+
+\item{kld}{Logical; if FALSE (default), omit the per-parameter KLD column.
+Set to TRUE to show it.}
+
+\item{vb_shift}{Logical; if FALSE (default), omit the VB shift column
+(shift in units of posterior SD). Set to TRUE to show it.}
 
 \item{priors}{Logical; if TRUE, include prior information in estimates.}
 

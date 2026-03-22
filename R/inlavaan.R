@@ -649,7 +649,7 @@ inlavaan <- function(
       y = parnames
     )
   )
-  summ <- cbind(summ, kld = vb$kld)
+  summ <- cbind(summ, kld = vb$kld, vb_shift_sigma = vb$correction / sqrt(diag(Sigma_theta)))
 
   pdf_data <- lapply(postmargres, function(x) x$pdf_data)
   names(pdf_data) <- parnames

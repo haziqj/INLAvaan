@@ -32,6 +32,9 @@ summary_inlavaan <- function(
   rsquare = FALSE,
   postmedian = FALSE,
   postmode = FALSE,
+  nmad = TRUE,
+  kld = FALSE,
+  vb_shift = FALSE,
   priors = TRUE,
   nd = 3L,
   ...
@@ -154,29 +157,35 @@ summary_inlavaan <- function(
       PE$std.all <- stdall$est
     }
 
-    # Add NMAD or KLD from VB correction
-    nmad <- try(
-      object@external$inlavaan_internal$approx_data[, "nmad"],
-      silent = TRUE
-    )
-    if (length(nmad) > 0 & !inherits(nmad, "try-error")) {
-      PE$NMAD <- ""
-      PE$NMAD[peidx] <- formatC(
-        nmad[summidx],
-        digits = nd,
-        format = "f"
+    # NMAD (skewnorm marginal fit quality)
+    if (isTRUE(nmad)) {
+      nmad_vals <- tryCatch(
+        object@external$inlavaan_internal$approx_data[, "nmad"],
+        error = function(e) NULL
       )
-      # PE$NMAD[peidx] <- paste0(PE$NMAD[peidx], "%")
-      PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
-    } else {
-      kld <- try(
-        object@external$inlavaan_internal$approx_data[, "kld"],
-        silent = TRUE
-      )
-      if (isTRUE(vb_correction) & !inherits(kld, "try-error")) {
+      if (!is.null(nmad_vals) && !all(is.na(nmad_vals))) {
+        PE$NMAD <- ""
+        PE$NMAD[peidx] <- formatC(nmad_vals[summidx], digits = nd, format = "f")
+        PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
+      }
+    }
+
+    # KLD and VB shift in units of posterior SD (opt-in)
+    if (isTRUE(vb_correction)) {
+      if (isTRUE(kld)) {
         PE$KLD <- ""
         PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
-        PE$KLD[peidx][is.na(PE$KLD[peidx])] <- ""
+        PE$KLD[peidx][grepl("NA", PE$KLD[peidx])] <- ""
+      }
+
+      if (isTRUE(vb_shift)) {
+        PE$VBshift <- ""
+        PE$VBshift[peidx] <- formatC(
+          summ$vb_shift_sigma[summidx],
+          digits = nd,
+          format = "f"
+        )
+        PE$VBshift[peidx][grepl("NA", PE$VBshift[peidx])] <- ""
       }
     }
 
@@ -250,6 +259,12 @@ summary_inlavaan <- function(
 #' @param rsquare Logical; if TRUE, include R-square values.
 #' @param postmedian Logical; if TRUE, include posterior median in estimates.
 #' @param postmode Logical; if TRUE, include posterior mode in estimates.
+#' @param nmad Logical; if TRUE (default), include the NMAD column for
+#'   skew-normal marginal fit quality.
+#' @param kld Logical; if FALSE (default), omit the per-parameter KLD column.
+#'   Set to TRUE to show it.
+#' @param vb_shift Logical; if FALSE (default), omit the VB shift column
+#'   (shift in units of posterior SD). Set to TRUE to show it.
 #' @param priors Logical; if TRUE, include prior information in estimates.
 #' @param nd Integer; number of decimal places to print for numeric values.
 #'
