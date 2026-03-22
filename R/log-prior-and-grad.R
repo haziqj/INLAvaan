@@ -22,40 +22,47 @@ prepare_priors_for_optim <- function(pt) {
   prior_type <- integer(n) # 0=None, 1=Normal, 2=Gamma, 3=Beta
   p1 <- numeric(n) # mu / shape / a
   p2 <- numeric(n) # sd / rate / b
-  is_sd_prior <- logical(n) # Special flag for Gamma[sd]
+  is_sd_prior <- logical(n) # Special flag for [sd] qualifier
+  is_prec_prior <- logical(n) # Special flag for [prec] qualifier
 
   raw_priors <- pt$prior[idx]
 
+  # Detect [prec] qualifier (valid for any distribution)
+  is_prec_prior <- grepl("\\[prec\\]", raw_priors)
+
+  # Strip ALL qualifiers before numeric parsing
+  clean_priors <- gsub("\\[sd\\]|\\[prec\\]", "", raw_priors)
+
   # Parse Normal
-  is_norm <- grepl("normal", raw_priors)
+  is_norm <- grepl("normal", clean_priors)
   if (any(is_norm)) {
     prior_type[is_norm] <- 1L
     # Parse string "normal(0,1)" -> c(0, 1)
     # Using efficient vectorized parsing approach
-    clean <- gsub("normal\\(|\\)", "", raw_priors[is_norm])
+    clean <- gsub("normal\\(|\\)", "", clean_priors[is_norm])
     splits <- strsplit(clean, ",")
     p1[is_norm] <- as.numeric(sapply(splits, `[`, 1))
     p2[is_norm] <- as.numeric(sapply(splits, `[`, 2))
   }
 
   # Parse Gamma
-  is_gamma <- grepl("gamma", raw_priors)
+  is_gamma <- grepl("gamma", clean_priors)
   if (any(is_gamma)) {
     prior_type[is_gamma] <- 2L
-    is_sd <- grepl("\\[sd\\]", raw_priors[is_gamma])
+    is_sd <- grepl("\\[sd\\]", raw_priors[is_gamma]) & !is_prec_prior[is_gamma]
     is_sd_prior[is_gamma] <- is_sd
 
-    clean <- gsub("gamma\\(|\\)|\\[sd\\]", "", raw_priors[is_gamma])
+    clean <- gsub("gamma\\(|\\)", "", clean_priors[is_gamma])
     splits <- strsplit(clean, ",")
     p1[is_gamma] <- as.numeric(sapply(splits, `[`, 1))
     p2[is_gamma] <- as.numeric(sapply(splits, `[`, 2))
   }
 
   # Parse Beta
-  is_beta <- grepl("beta", raw_priors)
+  is_beta <- grepl("beta", clean_priors)
   if (any(is_beta)) {
     prior_type[is_beta] <- 3L
-    clean <- gsub("beta\\(|\\)", "", raw_priors[is_beta])
+    clean <- gsub("beta\\(|\\)", "", clean_priors[is_beta])
     splits <- strsplit(clean, ",")
     p1[is_beta] <- as.numeric(sapply(splits, `[`, 1))
     p2[is_beta] <- as.numeric(sapply(splits, `[`, 2))
@@ -71,6 +78,7 @@ prepare_priors_for_optim <- function(pt) {
     p1 = p1,
     p2 = p2,
     is_sd_prior = is_sd_prior,
+    is_prec_prior = is_prec_prior,
     prior_names = raw_priors # Just for names(grad)
   )
 }
@@ -189,7 +197,36 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
     lp[idx_beta] <- val
   }
 
-  # 4. Final Summation
+  # 4. Handle [prec] qualifier: prior is on precision (1/x) rather than x
+  # Re-evaluate lp at 1/xval and apply Jacobian |d(1/x)/dx| = 1/x^2
+  idx_prec <- which(cache$is_prec_prior %||% logical(n))
+  if (length(idx_prec) > 0) {
+    ip_norm  <- idx_prec[cache$prior_type[idx_prec] == 1L]
+    ip_gamma <- idx_prec[cache$prior_type[idx_prec] == 2L]
+    ip_beta  <- idx_prec[cache$prior_type[idx_prec] == 3L]
+
+    if (length(ip_norm) > 0) {
+      lp[ip_norm] <- dnorm(
+        1 / xval[ip_norm], cache$p1[ip_norm], cache$p2[ip_norm], log = TRUE
+      )
+    }
+    if (length(ip_gamma) > 0) {
+      lp[ip_gamma] <- dgamma(
+        1 / xval[ip_gamma], cache$p1[ip_gamma], cache$p2[ip_gamma], log = TRUE
+      )
+    }
+    if (length(ip_beta) > 0) {
+      y <- (1 / xval[ip_beta] + 1) / 2
+      lp[ip_beta] <- dbeta(
+        y, shape1 = cache$p1[ip_beta], shape2 = cache$p2[ip_beta], log = TRUE
+      ) - 0.69314718
+    }
+
+    # Jacobian: |d(1/x)/dx| = 1/x^2 — multiply dx_dth by 1/x^2
+    dx_dth[idx_prec] <- dx_dth[idx_prec] / (xval[idx_prec]^2)
+  }
+
+  # 5. Final Summation
   # log|J| + log(dens)
   ljcb <- log(abs(dx_dth))
 
@@ -320,6 +357,41 @@ prior_grad_vectorized <- function(theta, cache) {
     b <- cache$p2[idx_beta]
     xv <- xval[idx_beta]
     dlp_dx[idx_beta] <- 0.5 * (a - 1) / (xv + 1) - 0.5 * (b - 1) / (1 - xv)
+  }
+
+  # Handle [prec] qualifier: prior is on precision (1/x)
+  # Chain rule: dlp_dx = (d log p(tau) / d tau)|_{tau=1/x} * (-1/x^2)
+  # Jacobian extra: d/d(theta) log|d(1/x)/dx| = -2 * x'(theta) / x
+  idx_prec <- which(cache$is_prec_prior %||% logical(n))
+  if (length(idx_prec) > 0) {
+    pv <- 1 / xval[idx_prec] # precision values
+
+    ip_norm  <- which(cache$prior_type[idx_prec] == 1L)
+    ip_gamma <- which(cache$prior_type[idx_prec] == 2L)
+    ip_beta  <- which(cache$prior_type[idx_prec] == 3L)
+
+    raw_dlp_dprec <- numeric(length(idx_prec))
+
+    if (length(ip_norm) > 0) {
+      raw_dlp_dprec[ip_norm] <- -(pv[ip_norm] - cache$p1[idx_prec[ip_norm]]) /
+        (cache$p2[idx_prec[ip_norm]]^2)
+    }
+    if (length(ip_gamma) > 0) {
+      raw_dlp_dprec[ip_gamma] <- (cache$p1[idx_prec[ip_gamma]] - 1) / pv[ip_gamma] -
+        cache$p2[idx_prec[ip_gamma]]
+    }
+    if (length(ip_beta) > 0) {
+      pv_b <- pv[ip_beta]
+      a_b <- cache$p1[idx_prec[ip_beta]]
+      b_b <- cache$p2[idx_prec[ip_beta]]
+      raw_dlp_dprec[ip_beta] <- 0.5 * (a_b - 1) / (pv_b + 1) - 0.5 * (b_b - 1) / (1 - pv_b)
+    }
+
+    # Chain: dlp_dx = dlp_dprec * d(1/x)/dx = dlp_dprec * (-1/x^2)
+    dlp_dx[idx_prec] <- raw_dlp_dprec * (-1 / xval[idx_prec]^2)
+
+    # Jacobian: d/d(theta) log(1/x^2) = -2 * x'/x
+    jac_extra[idx_prec] <- -2 * dx_dth[idx_prec] / xval[idx_prec]
   }
 
   # 4. Chain Rule Assembly

@@ -24,17 +24,35 @@
 #' deviations, and not variances. For example, \code{normal(0,10)} means a
 #' normal distribution with mean 0 and standard deviation 10 (not variance 10).
 #'
+#' @section Scale qualifiers:
+#' For variance parameters (\code{theta}, \code{psi}), the prior distribution
+#' can be placed on a transformed scale by appending a qualifier:
+#' \itemize{
+#'   \item \code{[sd]}: Prior is on the standard deviation \eqn{\sigma}.
+#'     Example: \code{"gamma(1,0.5)[sd]"} places a Gamma(1, 0.5) prior on
+#'     \eqn{\sigma = \sqrt{\text{variance}}}.
+#'   \item \code{[prec]}: Prior is on the precision \eqn{\tau = 1/\sigma^2}.
+#'     Example: \code{"gamma(1,1)[prec]"} places a Gamma(1, 1) prior on
+#'     \eqn{\tau = 1/\text{variance}}. This is the parameterisation used by
+#'     blavaan and corresponds to an Inverse-Gamma prior on the variance.
+#' }
+#' The necessary Jacobian adjustment is applied automatically in both cases.
+#'
 #' @param ... Named arguments specifying prior distributions for lavaan
 #'   parameter types.
 #'
 #' @returns A named character vector of prior specifications, where names
 #'   correspond to lavaan parameter types (e.g., "lambda", "beta", "theta",
 #'   etc.) and values are character strings specifying the prior distribution
-#'   (e.g., \code{"normal(0,10)"}, \code{"gamma(1,0.5)[sd]"}, etc.).
+#'   (e.g., \code{"normal(0,10)"}, \code{"gamma(1,0.5)[sd]"},
+#'   \code{"gamma(1,1)[prec]"}, etc.).
 #' @export
 #'
 #' @examples
 #' priors_for(nu = "normal(0,10)", lambda = "normal(0,1)", rho = "beta(3,3)")
+#'
+#' # Precision-scale prior for residual variances (blavaan-style)
+#' priors_for(theta = "gamma(1,1)[prec]")
 priors_for <- function(...) {
   userspec <- list(...)
 
