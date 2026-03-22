@@ -211,6 +211,40 @@ test_that("Vectorized version handles different Prior Types correctly", {
   expect_true(all(is.finite(res_grad)))
 })
 
+test_that("Beta prior gradient with tanh transform matches numerical", {
+  # Regression test: non-trivial Beta(5,5) on correlation with tanh transform
+  # Previously the gradient was off by a factor of 2
+  cache <- list(
+    free_id = 1L,
+    trans_type = 2L,   # tanh (correlation)
+    prior_type = 3L,   # beta
+    p1 = 5,            # beta(5,5)
+    p2 = 5,
+    is_sd_prior = FALSE,
+    prior_names = "rho"
+  )
+
+  h <- 1e-7
+  for (th in c(-0.8, -0.3, 0.0, 0.3, 0.8)) {
+    ag <- as.numeric(prior_grad_vectorized(th, cache))
+    ng <- (prior_logdens_vectorized(th + h, cache) -
+           prior_logdens_vectorized(th - h, cache)) / (2 * h)
+    expect_equal(ag, ng, tolerance = 1e-5,
+      info = paste0("Beta(5,5) tanh gradient at theta=", th))
+  }
+
+  # Also test asymmetric Beta(2,8)
+  cache$p1 <- 2
+  cache$p2 <- 8
+  for (th in c(-0.5, 0.0, 0.5)) {
+    ag <- as.numeric(prior_grad_vectorized(th, cache))
+    ng <- (prior_logdens_vectorized(th + h, cache) -
+           prior_logdens_vectorized(th - h, cache)) / (2 * h)
+    expect_equal(ag, ng, tolerance = 1e-5,
+      info = paste0("Beta(2,8) tanh gradient at theta=", th))
+  }
+})
+
 test_that("dbeta_box with log = TRUE returns log-density", {
   x <- seq(0, 100, length.out = 20)
   ld  <- dbeta_box(x, shape1 = 2, shape2 = 5, a = 0, b = 100, log = TRUE)

@@ -356,7 +356,11 @@ prior_grad_vectorized <- function(theta, cache) {
     a <- cache$p1[idx_beta]
     b <- cache$p2[idx_beta]
     xv <- xval[idx_beta]
-    dlp_dx[idx_beta] <- 0.5 * (a - 1) / (xv + 1) - 0.5 * (b - 1) / (1 - xv)
+    # d/dx log p_X(x) = d/dy log dbeta(y,a,b) * dy/dx
+    #   = [(a-1)/y - (b-1)/(1-y)] * 1/2, with y = (x+1)/2
+    #   = [(a-1)/((x+1)/2) - (b-1)/((1-x)/2)] * 1/2
+    #   = (a-1)/(x+1) - (b-1)/(1-x)
+    dlp_dx[idx_beta] <- (a - 1) / (xv + 1) - (b - 1) / (1 - xv)
   }
 
   # Handle [prec] qualifier: prior is on precision (1/x)
@@ -384,7 +388,7 @@ prior_grad_vectorized <- function(theta, cache) {
       pv_b <- pv[ip_beta]
       a_b <- cache$p1[idx_prec[ip_beta]]
       b_b <- cache$p2[idx_prec[ip_beta]]
-      raw_dlp_dprec[ip_beta] <- 0.5 * (a_b - 1) / (pv_b + 1) - 0.5 * (b_b - 1) / (1 - pv_b)
+      raw_dlp_dprec[ip_beta] <- (a_b - 1) / (pv_b + 1) - (b_b - 1) / (1 - pv_b)
     }
 
     # Chain: dlp_dx = dlp_dprec * d(1/x)/dx = dlp_dprec * (-1/x^2)

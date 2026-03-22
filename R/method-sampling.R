@@ -5,10 +5,21 @@
 #' are drawn from the **posterior** distribution; set `prior = TRUE` to draw
 #' from the **prior** instead (useful for prior predictive checks).
 #'
+#' @details
+#' Each row of the output corresponds to a **fresh parameter draw**: a new
+#' \eqn{\boldsymbol\theta^{(s)}} is sampled and then propagated through the
+#' generative chain to produce one latent vector and one observed vector. This
+#' makes `sampling()` ideal for **prior and posterior predictive checks**
+#' (e.g., density overlays, test statistic distributions).
+#'
 #' The generative chain is:
-#' \deqn{\boldsymbol\theta \sim \pi(\boldsymbol\theta \mid \mathbf{y})}
-#' \deqn{\boldsymbol\eta \sim N((\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\alpha,\,\boldsymbol\Phi)}
-#' \deqn{\mathbf{y}^* \sim N(\boldsymbol\Lambda\boldsymbol\eta + \boldsymbol\nu,\,\boldsymbol\Theta)}
+#' \deqn{\boldsymbol\theta^{(s)} \sim \pi(\boldsymbol\theta \mid \mathbf{y})}
+#' \deqn{\boldsymbol\eta^{(s)} \sim N((\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\alpha,\,\boldsymbol\Phi)}
+#' \deqn{\mathbf{y}^{*(s)} \sim N(\boldsymbol\Lambda\boldsymbol\eta^{(s)} + \boldsymbol\nu,\,\boldsymbol\Theta)}
+#'
+#' If you need **complete replicate datasets** (many observations from a single
+#' parameter draw) — for example, for simulation-based calibration (SBC) — use
+#' [simulate()] instead.
 #'
 #' This is distinct from [predict()], which computes individual-specific
 #' factor scores \eqn{\boldsymbol\eta \mid \mathbf{y},\boldsymbol\theta}
@@ -46,7 +57,9 @@
 #'
 #' @returns A matrix or named list, depending on `type`.
 #'
-#' @seealso [predict()], [bfit_indices()]
+#' @seealso [simulate()] for generating complete replicate datasets (e.g.,
+#'   for SBC); [predict()] for individual-specific factor scores;
+#'   [bfit_indices()] for Bayesian fit indices.
 #'
 #' @example inst/examples/ex-sampling.R
 #' @name sampling

@@ -62,10 +62,20 @@ are drawn from the \strong{posterior} distribution; set \code{prior = TRUE} to d
 from the \strong{prior} instead (useful for prior predictive checks).
 }
 \details{
+Each row of the output corresponds to a \strong{fresh parameter draw}: a new
+\eqn{\boldsymbol\theta^{(s)}} is sampled and then propagated through the
+generative chain to produce one latent vector and one observed vector. This
+makes \code{sampling()} ideal for \strong{prior and posterior predictive checks}
+(e.g., density overlays, test statistic distributions).
+
 The generative chain is:
-\deqn{\boldsymbol\theta \sim \pi(\boldsymbol\theta \mid \mathbf{y})}
-\deqn{\boldsymbol\eta \sim N((\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\alpha,\,\boldsymbol\Phi)}
-\deqn{\mathbf{y}^* \sim N(\boldsymbol\Lambda\boldsymbol\eta + \boldsymbol\nu,\,\boldsymbol\Theta)}
+\deqn{\boldsymbol\theta^{(s)} \sim \pi(\boldsymbol\theta \mid \mathbf{y})}
+\deqn{\boldsymbol\eta^{(s)} \sim N((\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\alpha,\,\boldsymbol\Phi)}
+\deqn{\mathbf{y}^{*(s)} \sim N(\boldsymbol\Lambda\boldsymbol\eta^{(s)} + \boldsymbol\nu,\,\boldsymbol\Theta)}
+
+If you need \strong{complete replicate datasets} (many observations from a single
+parameter draw) — for example, for simulation-based calibration (SBC) — use
+\code{\link[=simulate]{simulate()}} instead.
 
 This is distinct from \code{\link[=predict]{predict()}}, which computes individual-specific
 factor scores \eqn{\boldsymbol\eta \mid \mathbf{y},\boldsymbol\theta}
@@ -87,5 +97,7 @@ s_gaus <- sampling(fit, nsamp = 500, samp_copula = FALSE)
 y_prior <- sampling(fit, type = "observed", nsamp = 500, prior = TRUE)
 }
 \seealso{
-\code{\link[=predict]{predict()}}, \code{\link[=bfit_indices]{bfit_indices()}}
+\code{\link[=simulate]{simulate()}} for generating complete replicate datasets (e.g.,
+for SBC); \code{\link[=predict]{predict()}} for individual-specific factor scores;
+\code{\link[=bfit_indices]{bfit_indices()}} for Bayesian fit indices.
 }

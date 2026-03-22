@@ -10,6 +10,7 @@
 * For defined params, it's possible to fit a skew normal approximation to the posterior marginal based on the samples by calling `sn_fit_sample = TRUE`.
 * Improved `plot()` method.
 * FIX bug in efficient volume correction method (new `marginal_correction = "shortcut"` implementation).  
+* FIX bug in gradient computation for non-uniform beta priors.
 * Small optimisations to volume correction of skew-normal marginalisation, making it faster to run.
 * FIX bug in `qsnorm_fast()` that incorrectly handled sign symmetries.
 * Use Cholesky factorisation of the precision matrix for covariance and log-determinant calculations, replacing raw `solve()`.
