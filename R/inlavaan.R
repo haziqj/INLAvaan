@@ -621,6 +621,8 @@ inlavaan <- function(
   )
   theta_samp <- samp$theta_samp
   x_samp <- samp$x_samp
+  vcov_x <- cov(x_samp)
+  dimnames(vcov_x) <- list(parnames, parnames)
   timing <- add_timing(timing, "sampling")
 
   if (marginal_method == "sampling") {
@@ -748,6 +750,7 @@ inlavaan <- function(
     theta_star = as.numeric(theta_star_vbc),
     Sigma_theta = Sigma_theta,
     R_star = R_star,
+    vcov_x = vcov_x,
     theta_star_trans = theta_star_trans,
     approx_data = approx_data,
     nsamp = nsamp,

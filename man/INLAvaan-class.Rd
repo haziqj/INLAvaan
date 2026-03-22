@@ -42,7 +42,7 @@
   ...
 )
 
-\S4method{vcov}{INLAvaan}(object)
+\S4method{vcov}{INLAvaan}(object, type = c("lavaan", "theta"), ...)
 }
 \arguments{
 \item{x}{An object of class \link{INLAvaan}.}
@@ -53,19 +53,10 @@
 
 \item{object}{An object of class \link{INLAvaan}.}
 
-\item{type}{Character string specifying the type of prediction:
-\describe{
-\item{\code{"lv"}}{(default) Posterior draws of latent variable scores
-\eqn{\eta | y, \theta}.}
-\item{\code{"yhat"}, \code{"ov"}}{Predicted means for observed variables
-\eqn{E(y | \eta, \theta) = \nu + \Lambda \eta}; no residual noise.}
-\item{\code{"ypred"}, \code{"ydist"}}{Predicted observed values including
-residual noise \eqn{y = \nu + \Lambda \eta + \varepsilon},
-\eqn{\varepsilon \sim N(0, \Theta)}.}
-\item{\code{"ymis"}, \code{"ovmis"}}{Imputed values for missing observations,
-drawn from the conditional distribution
-\eqn{y_{mis} | y_{obs}, \theta}.}
-}}
+\item{type}{Character. \code{"lavaan"} (default) returns the posterior
+covariance matrix of the model parameters computed from posterior
+samples (matching lavaan output). \code{"theta"} returns the Laplace
+approximation covariance in the internal parameterisation.}
 
 \item{newdata}{An optional data frame of new observations. If supplied,
 predictions are computed for \code{newdata} rather than the original training

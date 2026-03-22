@@ -141,7 +141,10 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@loglik <- list()
 
   ## ----- Update vcov slot ----------------------------------------------------
-  fit0@vcov <- list(vcov = fit_inlv$Sigma_theta) # NOTE: This is the Laplace vcov
+  fit0@vcov <- list(
+    vcov = fit_inlv$vcov_x,          # Sample-based vcov (lavaan parameterisation)
+    vcov_theta = fit_inlv$Sigma_theta # Laplace vcov (theta parameterisation)
+  )
 
   ## ----- Update test slot ----------------------------------------------------
   fit0@test <- fit0@Fit@test
