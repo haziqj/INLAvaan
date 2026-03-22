@@ -128,12 +128,19 @@ sample_params_prior <- function(int, nsamp) {
       )[[1]])
       x_natural[, j] <- stats::rnorm(nsamp, par[1], par[2])
     } else if (grepl("^gamma", prior_str)) {
-      is_sd <- grepl("\\[sd\\]", prior_str)
+      is_sd   <- grepl("\\[sd\\]", prior_str)
+      is_prec <- grepl("\\[prec\\]", prior_str)
       par <- as.numeric(strsplit(
-        gsub("gamma\\(|\\)|\\[sd\\]", "", prior_str), ","
+        gsub("gamma\\(|\\)|\\[sd\\]|\\[prec\\]", "", prior_str), ","
       )[[1]])
       raw <- stats::rgamma(nsamp, shape = par[1], rate = par[2])
-      x_natural[, j] <- if (is_sd) raw^2 else raw
+      if (is_sd) {
+        x_natural[, j] <- raw^2        # SD → variance
+      } else if (is_prec) {
+        x_natural[, j] <- 1 / raw      # precision → variance
+      } else {
+        x_natural[, j] <- raw
+      }
     } else if (grepl("^beta", prior_str)) {
       par <- as.numeric(strsplit(
         gsub("beta\\(|\\)", "", prior_str), ","
