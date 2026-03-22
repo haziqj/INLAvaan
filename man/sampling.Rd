@@ -13,6 +13,7 @@ sampling(object, ...)
   nsamp = 1000L,
   samp_copula = TRUE,
   prior = FALSE,
+  silent = FALSE,
   ...
 )
 }
@@ -51,6 +52,10 @@ Ignored when \code{prior = TRUE}.}
 \item{prior}{Logical. When \code{TRUE}, parameters are drawn from the prior
 distribution and then propagated through the generative model. When
 \code{FALSE} (default), parameters come from the posterior.}
+
+\item{silent}{Logical. When \code{TRUE}, suppresses the informational message
+about rejected non-PD draws during prior rejection sampling. Default
+\code{FALSE}.}
 }
 \value{
 A matrix or named list, depending on \code{type}.

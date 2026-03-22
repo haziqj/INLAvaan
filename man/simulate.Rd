@@ -11,6 +11,7 @@
   sample.nobs = NULL,
   prior = FALSE,
   samp_copula = TRUE,
+  silent = FALSE,
   ...
 )
 }
@@ -31,16 +32,19 @@ when \code{FALSE} (default), from the posterior.}
 posterior parameter draws use the copula method. Ignored when
 \code{prior = TRUE}.}
 
+\item{silent}{Logical. When \code{TRUE}, suppresses the informational message
+about rejected non-PD draws. Default \code{FALSE}.}
+
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-A list of length \code{nsim}. Each element is a list with:
-\describe{
-\item{\code{data}}{A data frame with \code{sample.nobs} rows.}
-\item{\code{lavaan}}{Named numeric vector of lavaan-side (constrained)
-parameter values used to generate the data.}
-\item{\code{theta}}{Named numeric vector of INLAvaan-side (unconstrained)
-parameter values.}
+A list of length \code{nsim}. Each element is a data frame with
+\code{sample.nobs} rows and two attributes:
+\itemize{
+\item \code{"truth"} — named numeric vector of lavaan-side (x-space, constrained)
+parameter values used to generate the dataset.
+\item \code{"truth_theta"} — named numeric vector of the corresponding unconstrained
+(theta-space) parameter values.
 }
 }
 \description{
@@ -77,12 +81,13 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 
 # Simulate one replicate dataset from the posterior
 sims <- simulate(fit, nsim = 1)
-head(sims[[1]]$data)
-sims[[1]]$lavaan  # true parameter values used
+head(sims[[1]])                    # data frame
+attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
+attr(sims[[1]], "truth_theta")     # corresponding unconstrained (theta-space) parameters
 
 # Simulate from the prior (e.g., for SBC)
 sims_prior <- simulate(fit, nsim = 5, prior = TRUE)
-lapply(sims_prior, function(s) dim(s$data))
+lapply(sims_prior, nrow)
 }
 \seealso{
 \code{\link[=sampling]{sampling()}} for single-observation draws from the predictive

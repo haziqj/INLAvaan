@@ -35,6 +35,8 @@
 #' @param samp_copula Logical. When `TRUE` (default) and `prior = FALSE`,
 #'   posterior parameter draws use the copula method. Ignored when
 #'   `prior = TRUE`.
+#' @param silent Logical. When `TRUE`, suppresses the informational message
+#'   about rejected non-PD draws. Default `FALSE`.
 #' @param ... Additional arguments (currently unused).
 #'
 #' @returns A list of length `nsim`. Each element is a data frame with
@@ -62,6 +64,7 @@ setMethod(
     sample.nobs = NULL,
     prior = FALSE,
     samp_copula = TRUE,
+    silent = FALSE,
     ...
   ) {
     if (!is.null(seed)) {
@@ -153,7 +156,7 @@ setMethod(
     }
 
     rejected <- attempts - collected
-    if (rejected > 0L) {
+    if (rejected > 0L && !isTRUE(silent)) {
       rej_pct <- round(100 * rejected / attempts, 1)
       cli_inform(
         "simulate: {rejected} of {attempts} draw{?s} ({rej_pct}%) rejected (non-PD model-implied covariance)."

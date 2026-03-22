@@ -53,6 +53,9 @@
 #' @param prior Logical. When `TRUE`, parameters are drawn from the prior
 #'   distribution and then propagated through the generative model. When
 #'   `FALSE` (default), parameters come from the posterior.
+#' @param silent Logical. When `TRUE`, suppresses the informational message
+#'   about rejected non-PD draws during prior rejection sampling. Default
+#'   `FALSE`.
 #' @param ... Additional arguments (currently unused).
 #'
 #' @returns A matrix or named list, depending on `type`.
@@ -75,12 +78,14 @@ setMethod("sampling", "INLAvaan", function(
   nsamp = 1000L,
   samp_copula = TRUE,
   prior = FALSE,
+  silent = FALSE,
   ...
 ) {
   sampling_impl(
     object@external$inlavaan_internal,
     type = type, nsamp = nsamp, samp_copula = samp_copula, prior = prior,
     meanstructure = isTRUE(object@Options$meanstructure),
+    silent = silent,
     ...
   )
 })
@@ -92,11 +97,13 @@ sampling.inlavaan_internal <- function(
   nsamp = 1000L,
   samp_copula = TRUE,
   prior = FALSE,
+  silent = FALSE,
   ...
 ) {
   sampling_impl(
     object,
     type = type, nsamp = nsamp, samp_copula = samp_copula, prior = prior,
+    silent = silent,
     ...
   )
 }
@@ -294,7 +301,7 @@ compute_implied_moments <- function(x_row, lavmodel, meanstructure = FALSE) {
 # and redrawn.  This preserves the exact prior distribution rather than silently
 # projecting non-PD matrices to PD space via make_pd().
 
-sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE) {
+sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE, silent = FALSE) {
   pt       <- int$partable
   xnames   <- pt$names[pt$free > 0 & !duplicated(pt$free)]
   lavmodel <- int$lavmodel
@@ -397,7 +404,7 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE) {
   }
 
   rejected <- attempts - collected
-  if (rejected > 0L) { # nocov start
+  if (rejected > 0L && !isTRUE(silent)) { # nocov start
     rej_pct <- round(100 * rejected / attempts, 1)
     cli_inform(
       "Prior sampling: {rejected} of {attempts} draw{?s} ({rej_pct}%) rejected (non-PD model-implied covariance)."
@@ -443,6 +450,7 @@ sampling_impl <- function(
   samp_copula = TRUE,
   prior = FALSE,
   meanstructure = FALSE,
+  silent = FALSE,
   ...
 ) {
   type <- match.arg(type)
@@ -450,7 +458,7 @@ sampling_impl <- function(
   # For prior sampling with generative draws, use reject-and-redraw to preserve
   # the exact prior (no silent PD projection).
   if (isTRUE(prior) && type %in% c("latent", "observed", "implied", "all")) {
-    return(sampling_prior_generative(int, type, nsamp, meanstructure))
+    return(sampling_prior_generative(int, type, nsamp, meanstructure, silent = silent))
   }
 
   # Step 1: draw parameters
