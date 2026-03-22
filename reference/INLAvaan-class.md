@@ -4,9 +4,17 @@ This is a class that extends the
 [lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html)
 class. Several S4 methods are available.
 
+Extract convergence and approximation-quality diagnostics from a fitted
+INLAvaan model.
+
 ## Usage
 
 ``` r
+diagnostics(object, ...)
+
+# S4 method for class 'INLAvaan'
+diagnostics(object, type = c("global", "param"), ...)
+
 # S4 method for class 'INLAvaan,ANY'
 plot(x, y, ...)
 
@@ -37,16 +45,40 @@ summary(
   rsquare = FALSE,
   postmedian = FALSE,
   postmode = FALSE,
+  nmad = TRUE,
+  kld = FALSE,
+  vb_shift = FALSE,
   priors = TRUE,
   nd = 3L,
   ...
 )
 
+timing(object, ...)
+
 # S4 method for class 'INLAvaan'
-vcov(object)
+timing(object, what = "total", ...)
+
+# S4 method for class 'INLAvaan'
+vcov(object, type = c("lavaan", "theta"), ...)
 ```
 
 ## Arguments
+
+- object:
+
+  An object of class
+  [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md).
+
+- ...:
+
+  Additional arguments passed to the plot function.
+
+- type:
+
+  Character. `"lavaan"` (default) returns the posterior covariance
+  matrix of the model parameters computed from posterior samples
+  (matching lavaan output). `"theta"` returns the Laplace approximation
+  covariance in the internal parameterisation.
 
 - x:
 
@@ -56,39 +88,6 @@ vcov(object)
 - y:
 
   Not used.
-
-- ...:
-
-  Not used.
-
-- object:
-
-  An object of class
-  [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md).
-
-- type:
-
-  Character string specifying the type of prediction:
-
-  `"lv"`
-
-  :   (default) Posterior draws of latent variable scores \\\eta \| y,
-      \theta\\.
-
-  `"yhat"`, `"ov"`
-
-  :   Predicted means for observed variables \\E(y \| \eta, \theta) =
-      \nu + \Lambda \eta\\; no residual noise.
-
-  `"ypred"`, `"ydist"`
-
-  :   Predicted observed values including residual noise \\y = \nu +
-      \Lambda \eta + \varepsilon\\, \\\varepsilon \sim N(0, \Theta)\\.
-
-  `"ymis"`, `"ovmis"`
-
-  :   Imputed values for missing observations, drawn from the
-      conditional distribution \\y\_{mis} \| y\_{obs}, \theta\\.
 
 - newdata:
 
@@ -142,6 +141,21 @@ vcov(object)
 
   Logical; if TRUE, include posterior mode in estimates.
 
+- nmad:
+
+  Logical; if TRUE (default), include the NMAD column for skew-normal
+  marginal fit quality.
+
+- kld:
+
+  Logical; if FALSE (default), omit the per-parameter KLD column. Set to
+  TRUE to show it.
+
+- vb_shift:
+
+  Logical; if FALSE (default), omit the VB shift column (shift in units
+  of posterior SD). Set to TRUE to show it.
+
 - priors:
 
   Logical; if TRUE, include prior information in estimates.
@@ -149,6 +163,136 @@ vcov(object)
 - nd:
 
   Integer; number of decimal places to print for numeric values.
+
+- what:
+
+  Character vector of timing segment names to return, or `"all"` to
+  return every segment. Defaults to `"total"`. Available segments
+  (depending on model options): `"init"`, `"optim"`, `"vb"`, `"loglik"`,
+  `"marginals"`, `"norta"`, `"sampling"`, `"covariances"`,
+  `"definedpars"`, `"deltapars"`, `"test"`, `"total"`.
+
+- points:
+
+  Logical. If `TRUE`, overlay data points on the curves (applies to
+  `sn_fit` and `sn_fit_log` types).
+
+## Value
+
+For `type = "global"`, a named numeric vector (class
+`"diagnostics.INLAvaan"`). For `type = "param"`, a data frame (class
+`c("diagnostics.INLAvaan.param", "data.frame")`).
+
+## Details
+
+**Global diagnostics** (`type = "global"`):
+
+- `npar`:
+
+  Number of free parameters.
+
+- `nsamp`:
+
+  Number of posterior samples drawn.
+
+- `converged`:
+
+  1 if the optimiser converged, 0 otherwise.
+
+- `iterations`:
+
+  Number of optimiser iterations.
+
+- `grad_inf`:
+
+  L-infinity norm of the analytic gradient at the mode (max \|grad\|).
+  Should be ~0 at convergence.
+
+- `grad_inf_rel`:
+
+  Relative L-infinity norm of the analytic gradient (max \|grad\| /
+  (\|par\| + 1e-6)).
+
+- `grad_l2`:
+
+  L2 (Euclidean) norm of the analytic gradient at the mode.
+
+- `hess_cond`:
+
+  Condition number of the Hessian (precision matrix) computed from
+  \\\Sigma\_\theta\\. Large values indicate near-singularity.
+
+- `vb_kld_global`:
+
+  Global KL divergence from the VB mean correction (NA if VB correction
+  was not applied).
+
+- `vb_applied`:
+
+  1 if VB correction was applied, 0 otherwise.
+
+- `kld_max`:
+
+  Maximum per-parameter KL divergence from the VB correction.
+
+- `kld_mean`:
+
+  Mean per-parameter KL divergence.
+
+- `nmad_max`:
+
+  Maximum normalised max-absolute-deviation across marginals
+  (skew-normal method only; NA otherwise).
+
+- `nmad_mean`:
+
+  Mean NMAD across marginals.
+
+**Per-parameter diagnostics** (`type = "param"`): A data frame with
+columns:
+
+- `param`:
+
+  Parameter name.
+
+- `grad`:
+
+  Analytic gradient of the negative log-posterior at the mode. Should be
+  ~0 at convergence.
+
+- `grad_num`:
+
+  Numerical (finite-difference) gradient at the mode. Should agree with
+  `grad`; large discrepancies indicate a bug in the analytic gradient.
+
+- `grad_diff`:
+
+  Difference `grad_num - grad`: should be ~0.
+
+- `grad_abs`:
+
+  Absolute analytic gradient.
+
+- `grad_rel`:
+
+  Relative analytic gradient \|grad\| / (\|par\| + 1e-6).
+
+- `kld`:
+
+  Per-parameter KL divergence from the VB correction.
+
+- `vb_shift`:
+
+  VB correction shift (in original scale).
+
+- `vb_shift_sigma`:
+
+  VB shift in units of posterior SD.
+
+- `nmad`:
+
+  Normalised max-absolute-deviation of the skew-normal fit (NA when not
+  using the skewnorm method).
 
 ## Slots
 

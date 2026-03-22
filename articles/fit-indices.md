@@ -25,13 +25,12 @@ This vignette covers:
 
 Let ${\mathbf{θ}}^{(s)}$ denote the $s$-th posterior draw of the model
 parameters ($s = 1,\ldots,S$). The per-sample deviance chi-square is
-$$\chi_{s}^{2} = 2\lbrack\ell_{\text{sat}} - \ell\left( {\mathbf{θ}}^{(s)} \right)\rbrack,$$
+$$\chi_{s}^{2} = 2\left\lbrack \ell_{\text{sat}} - \ell({\mathbf{θ}}^{(s)}) \right\rbrack,$$
 where $\ell_{\text{sat}}$ is the log-likelihood of the saturated model
-(sample moments equal model moments) and
-$\ell\left( {\mathbf{θ}}^{(s)} \right)$ is the log-likelihood evaluated
-at the $s$-th draw. This equals
-$N\, F_{\text{ML}}\left( {\mathbf{θ}}^{(s)} \right)$, where
-$F_{\text{ML}}$ is the ML discrepancy function.
+(sample moments equal model moments) and $\ell({\mathbf{θ}}^{(s)})$ is
+the log-likelihood evaluated at the $s$-th draw. This equals
+$N\, F_{\text{ML}}({\mathbf{θ}}^{(s)})$, where $F_{\text{ML}}$ is the ML
+discrepancy function.
 
 ### Rescaling
 
@@ -50,7 +49,7 @@ where $q$ is the number of free parameters and $G$ is the number of
 groups.
 
 In both cases the per-sample noncentrality parameter is
-${\widehat{\lambda}}_{s} = \max\left( d_{s} - {df},\, 0 \right)$.
+${\widehat{\lambda}}_{s} = {\max}(d_{s} - {df},\, 0)$.
 
 ### Absolute fit indices
 
@@ -66,10 +65,10 @@ where $v = \sum_{g}p_{g}$ is the total number of observed variables
 across groups.
 
 **Adjusted BGammaHat.**
-$$\text{adjBGammaHat}_{s} = 1 - \frac{p}{df}(1 - \text{BGammaHat}_{s}).$$
+$$\text{adjBGammaHat}_{s} = 1 - \frac{p}{df}\left( 1 - \text{BGammaHat}_{s} \right).$$
 
 **BMc (McDonald’s centrality index).**
-$$\text{BMc}_{s} = \exp\!( - \frac{1}{2}{\widehat{\lambda}}_{s}/N_{\text{adj}}).$$
+$$\text{BMc}_{s} = {\exp}\!\left( - \frac{1}{2}{\widehat{\lambda}}_{s}/N_{\text{adj}} \right).$$
 
 ### Incremental fit indices
 
@@ -114,9 +113,9 @@ diagnostics.
 ``` r
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.429        0.000     7517.685       20.877        0.092 
-#>    BGammaHat adjBGammaHat          BMc     grad_inf grad_inf_rel      grad_l2 
-#>        0.957        0.919        0.903     2.34e-03     1.53e-02     4.41e-03
+#>           21    -3823.429        0.000     7517.172       20.620        0.091 
+#>    BGammaHat adjBGammaHat          BMc 
+#>        0.957        0.920        0.903
 ```
 
 ### Posterior distributions of fit indices
@@ -131,7 +130,7 @@ bfi
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc 
-#>        0.092        0.957        0.919        0.903
+#>        0.091        0.957        0.920        0.903
 ```
 
 Calling [`summary()`](https://rdrr.io/r/base/summary.html) provides a
@@ -144,10 +143,10 @@ summary(bfi)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.092 0.005 0.084 0.088 0.091 0.095  0.102 0.090
-#> BGammaHat    0.957 0.004 0.947 0.954 0.957 0.960  0.964 0.958
-#> adjBGammaHat 0.919 0.008 0.901 0.914 0.920 0.925  0.933 0.922
-#> BMc          0.903 0.010 0.882 0.897 0.904 0.910  0.919 0.907
+#> BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.102 0.091
+#> BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.964 0.957
+#> adjBGammaHat 0.920 0.009 0.901 0.915 0.921 0.926  0.934 0.921
+#> BMc          0.903 0.010 0.880 0.897 0.904 0.911  0.920 0.904
 ```
 
 You can also access the raw per-sample vectors for custom analysis:
@@ -188,11 +187,9 @@ Now pass the baseline model to `fitMeasures()` or
 ``` r
 fitMeasures(fit, baseline.model = fit_null)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.429        0.000     7517.685       20.877        0.092 
+#>           21    -3823.429        0.000     7517.172       20.620        0.091 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.957        0.919        0.903        0.930        0.896        0.907 
-#>     grad_inf grad_inf_rel      grad_l2 
-#>     2.34e-03     1.53e-02     4.41e-03
+#>        0.957        0.920        0.903        0.931        0.898        0.907
 ```
 
 ``` r
@@ -202,13 +199,13 @@ summary(bfi_inc)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.092 0.005 0.083 0.088 0.091 0.094  0.103 0.089
-#> BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.965 0.959
-#> adjBGammaHat 0.920 0.009 0.900 0.915 0.921 0.926  0.934 0.924
-#> BMc          0.904 0.010 0.880 0.898 0.905 0.911  0.921 0.908
-#> BCFI         0.931 0.008 0.913 0.927 0.932 0.936  0.944 0.934
-#> BTLI         0.897 0.012 0.870 0.890 0.898 0.905  0.916 0.902
-#> BNFI         0.907 0.008 0.890 0.903 0.908 0.913  0.920 0.911
+#> BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.101 0.092
+#> BGammaHat    0.957 0.004 0.948 0.954 0.957 0.960  0.964 0.956
+#> adjBGammaHat 0.920 0.008 0.903 0.916 0.921 0.926  0.934 0.920
+#> BMc          0.904 0.010 0.883 0.898 0.904 0.910  0.920 0.903
+#> BCFI         0.931 0.007 0.915 0.927 0.931 0.936  0.943 0.930
+#> BTLI         0.898 0.011 0.875 0.892 0.899 0.906  0.916 0.897
+#> BNFI         0.907 0.007 0.892 0.903 0.907 0.912  0.919 0.906
 ```
 
 ## Rescaling: `"devM"` vs `"MCMC"`
@@ -225,10 +222,10 @@ summary(bfi_mcmc)
 #> Posterior summary of MCMC-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.107 0.004 0.100 0.104 0.106 0.109  0.115 0.105
-#> BGammaHat    0.943 0.004 0.934 0.940 0.943 0.946  0.949 0.944
-#> adjBGammaHat 0.893 0.008 0.877 0.888 0.894 0.898  0.905 0.895
-#> BMc          0.872 0.009 0.854 0.867 0.873 0.879  0.887 0.875
+#> BRMSEA       0.107 0.004 0.100 0.103 0.106 0.109  0.116 0.105
+#> BGammaHat    0.943 0.004 0.933 0.940 0.943 0.946  0.950 0.945
+#> adjBGammaHat 0.893 0.008 0.874 0.888 0.894 0.899  0.905 0.897
+#> BMc          0.872 0.010 0.850 0.866 0.873 0.880  0.887 0.877
 ```
 
 The two methods will generally produce different results, especially

@@ -18,6 +18,12 @@
 - NEW [`predict()`](https://rdrr.io/r/stats/predict.html) now able to
   generate predictions for observed and missing data imputation,
   respecting multilevel structure if present.
+- NEW
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  function to compute a range of global and per-parameter diagnostics
+  for fitted models.
+- [`vcov()`](https://rdrr.io/r/stats/vcov.html) now returns the
+  covariance matrix of the lavaan-side parameters.
 - For defined params, it’s possible to fit a skew normal approximation
   to the posterior marginal based on the samples by calling
   `sn_fit_sample = TRUE`.

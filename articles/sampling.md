@@ -28,10 +28,10 @@ $\mathbf{B}$, $\mathbf{α}$, $\mathbf{ν}$, and $\mathbf{\Theta}$ are
 constructed. The generative chain is:
 
 **1. Latent variables.**
-$${\mathbf{η}}^{(s)} \sim \mathcal{N}\!((\mathbf{I} - \mathbf{B})^{-1}{\mathbf{α}},\;\mathbf{\Phi}),\qquad\mathbf{\Phi} = (\mathbf{I} - \mathbf{B})^{-1}\mathbf{\Psi}\,\left\lbrack (\mathbf{I} - \mathbf{B})^{-1} \right\rbrack\prime.$$
+$${\mathbf{η}}^{(s)} \sim \mathcal{N}\!\left( (\mathbf{I} - \mathbf{B})^{-1}{\mathbf{α}},\;\mathbf{\Phi} \right),\qquad\mathbf{\Phi} = (\mathbf{I} - \mathbf{B})^{-1}\mathbf{\Psi}\,\lbrack(\mathbf{I} - \mathbf{B})^{-1}\rbrack^{\prime}.$$
 
 **2. Observed variables.**
-$$\mathbf{y}^{*{(s)}} \sim \mathcal{N}\!(\mathbf{\Lambda}\,{\mathbf{η}}^{(s)} + {\mathbf{ν}},\;\mathbf{\Theta}).$$
+$$\mathbf{y}^{*(s)} \sim \mathcal{N}\!\left( \mathbf{\Lambda}\,{\mathbf{η}}^{(s)} + {\mathbf{ν}},\;\mathbf{\Theta} \right).$$
 
 When `prior = FALSE` (default), ${\mathbf{θ}}^{(s)}$ comes from the
 posterior; when `prior = TRUE`, each parameter is drawn independently
@@ -60,11 +60,11 @@ dim(theta_post)
 #> [1] 2000   21
 head(theta_post[, 1:4])
 #>      visual=~x2 visual=~x3 textual=~x5 textual=~x6
-#> [1,]  0.6216553  0.9058101    1.124324   0.9962592
-#> [2,]  0.5512186  0.8048596    1.213441   0.9163449
-#> [3,]  0.5589616  0.7005065    0.980363   0.9248274
-#> [4,]  0.5567215  0.7637923    1.141509   1.0359675
-#> [5,]  0.5948079  1.0228481    1.073171   0.8665535
+#> [1,]  0.6216553  0.9058102    1.124324   0.9962591
+#> [2,]  0.5512186  0.8048597    1.213441   0.9163449
+#> [3,]  0.5589617  0.7005065    0.980363   0.9248275
+#> [4,]  0.5567215  0.7637923    1.141509   1.0359674
+#> [5,]  0.5948079  1.0228482    1.073171   0.8665535
 #> [6,]  0.3633649  0.7067464    1.089029   0.8697055
 ```
 

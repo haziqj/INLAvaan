@@ -289,11 +289,13 @@ Main lavaan-style functions to estimate SEM.
   Compare Bayesian Models Fitted with INLAvaan
 - [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
   : Bayesian Fit Indices
-- [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+- [`diagnostics()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`predict(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`show(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`coef(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`summary(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  [`timing()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`vcov(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   : Class For Representing a (Fitted) Latent Variable Model
 - [`fitMeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
@@ -321,6 +323,8 @@ Main lavaan-style functions to estimate SEM.
   : Helper function to check if two functions are the same
 - [`as_fun_string()`](https://inlavaan.haziqj.ml/reference/as_fun_string.md)
   : Convert function to single string
+- [`get_inlavaan_internal()`](https://inlavaan.haziqj.ml/reference/get_inlavaan_internal.md)
+  : Extract the Internal INLAvaan Object
 
 # Articles
 
