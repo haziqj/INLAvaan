@@ -17,4 +17,4 @@ mod <- "
     y4 ~~ y8
     y6 ~~ y8
 "
-fit <- asem(mod, lavaan::PoliticalDemocracy, test = "none")
+fit <- asem(mod, lavaan::PoliticalDemocracy)

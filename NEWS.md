@@ -5,6 +5,7 @@
 * NEW Bayesian Fit Indices included in `fitmeasures()`; summary statistics available via `bfit_indices()`.
 * NEW parallelism feature for skew normal fit, automatically runs on total available cores when $m>120$.
 * NEW `predict()` now able to generate predictions for observed and missing data imputation, respecting multilevel structure if present.
+* NEW `diagnostics()` function to compute a range of global and per-parameter diagnostics for fitted models.
 * `vcov()` now returns the covariance matrix of the lavaan-side parameters.
 * For defined params, it's possible to fit a skew normal approximation to the posterior marginal based on the samples by calling `sn_fit_sample = TRUE`.
 * Improved `plot()` method.

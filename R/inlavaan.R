@@ -307,9 +307,17 @@ inlavaan <- function(
 
   # Derivatives at optima
   opt$dx <- fast_grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
+  opt$dx_analytic <- -1 * joint_lp_grad(theta_star)             # analytic grad
   if (isTRUE(debug)) {
-    grad_an <- -1 * joint_lp_grad(theta_star)
-    print(cbind(fd = opt$dx, analytic = grad_an, diff = grad_an - opt$dx))
+    tab <- data.frame(
+      analytic = round(opt$dx_analytic, 6),
+      fd       = round(opt$dx, 6),
+      diff     = round(opt$dx_analytic - opt$dx, 6),
+      row.names = parnames
+    )
+    cli::cli_rule(left = "{.strong Gradient check at posterior mode}")
+    print(tab)
+    cli::cli_rule()
   }
 
   timing <- add_timing(timing, "optim")

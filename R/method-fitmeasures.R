@@ -350,13 +350,6 @@ inlav_fit_measures <- function(
     }
   }
 
-  # Diagnostics based on gradients
-  grad <- object@external$inlavaan_internal$opt$dx
-  pars <- object@external$inlavaan_internal$theta_star
-  out["grad_inf"] <- max(abs(grad))
-  out["grad_inf_rel"] <- max(abs(grad) / (abs(pars) + 1e-06))
-  out["grad_l2"] <- sqrt(sum(grad^2))
-
   # Filter if specific measures requested
   if (!identical(fit.measures, "all")) {
     idx <- which(names(out) %in% fit.measures)

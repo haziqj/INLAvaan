@@ -26,6 +26,7 @@
 #' @importFrom cli cli_abort
 #' @importFrom cli cli_alert_info
 #' @importFrom cli cli_inform
+#' @importFrom cli cli_rule
 #' @importFrom cli col_grey
 #' @importFrom cli symbol
 #' @importFrom cli cli_alert_warning
