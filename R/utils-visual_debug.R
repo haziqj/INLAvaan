@@ -1,5 +1,6 @@
 # nocov start
-visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE) {
+visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE,
+                         points = FALSE) {
   if (inherits(object, "INLAvaan")) {
     dat_list <- object@external$inlavaan_internal$visual_debug
   } else if (inherits(object, "inlavaan_internal")) {
@@ -7,7 +8,7 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE) {
   }
 
   all_names <- names(coef(object))
-  if (!missing(params)) {
+  if (!missing(params) && !is.null(params)) {
     if (is.numeric(params)) {
       keep_names <- all_names[params]
     } else {
@@ -18,14 +19,14 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE) {
   }
 
   type_labels <- c(
-    Original = "Original", Corrected = "Corrected",
-    SN_Fit = "Skew normal fit"
+    Original = "Raw", Corrected = "Corrected",
+    SN_Fit = "Skew-normal fit"
   )
   type_cols <- c(
     Original = "gray60", Corrected = "black", SN_Fit = "red2"
   )
-  type_lty <- c(Original = 1, Corrected = 1, SN_Fit = 2)
-  type_lwd <- c(Original = 1.3, Corrected = 1.3, SN_Fit = 0.9)
+  type_lty <- c(Original = 1, Corrected = 1)
+  type_lwd <- c(Original = 1.3, Corrected = 1.3)
 
   use_ggplot <- isTRUE(use_ggplot) &&
     requireNamespace("ggplot2", quietly = TRUE)
@@ -50,7 +51,7 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE) {
     plot_df$type <- factor(
       plot_df$type,
       levels = c("Original", "Corrected", "SN_Fit"),
-      labels = c("Original", "Corrected", "Skew normal fit")
+      labels = c("Raw", "Corrected", "Skew-normal fit")
     )
     if (isTRUE(logscale)) {
       plot_df$value[plot_df$value <= 0] <- NA
@@ -58,35 +59,41 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE) {
       plot_df$value <- log10(plot_df$value)
     }
 
-    x <- type <- NULL # no visible binding NOTE
-    return(
-      ggplot2::ggplot(
-        plot_df,
-        ggplot2::aes(x, value, col = type, linetype = type, linewidth = type)
+    x <- type <- value <- NULL # no visible binding NOTE
+    df_sn <- subset(plot_df, type == "Skew-normal fit")
+
+    p <- ggplot2::ggplot(plot_df, ggplot2::aes(x, value, col = type,
+                                                linetype = type,
+                                                linewidth = type)) +
+      ggplot2::geom_line() +
+      ggplot2::geom_point(data = df_sn, shape = 4, size = 1.5,
+                          show.legend = FALSE) +
+      ggplot2::facet_wrap(. ~ name) +
+      ggplot2::theme_minimal() +
+      ggplot2::theme(
+        legend.position = "top",
+        legend.key.width = grid::unit(1.2, "cm")
       ) +
-        ggplot2::geom_line() +
-        ggplot2::facet_wrap(. ~ name) +
-        ggplot2::theme_minimal() +
-        ggplot2::theme(
-          legend.position = "top",
-          legend.key.width = grid::unit(1.2, "cm")
-        ) +
-        ggplot2::labs(
-          col = NULL, x = NULL, y = NULL, linetype = NULL, linewidth = NULL
-        ) +
-        ggplot2::scale_colour_manual(
-          values = c("Original" = "gray60", "Corrected" = "black",
-                     "Skew normal fit" = "red2")
-        ) +
-        ggplot2::scale_linetype_manual(
-          values = c("Original" = "solid", "Corrected" = "solid",
-                     "Skew normal fit" = "dashed")
-        ) +
-        ggplot2::scale_linewidth_manual(
-          values = c("Original" = 0.65, "Corrected" = 0.65,
-                     "Skew normal fit" = 0.45)
-        )
-    )
+      ggplot2::labs(col = NULL, x = NULL, y = NULL,
+                    linetype = NULL, linewidth = NULL) +
+      ggplot2::scale_colour_manual(
+        values = c("Raw" = "gray60", "Corrected" = "black",
+                   "Skew-normal fit" = "red2")
+      ) +
+      ggplot2::scale_linetype_manual(
+        values = c("Raw" = "solid", "Corrected" = "solid",
+                   "Skew-normal fit" = "dashed")
+      ) +
+      ggplot2::scale_linewidth_manual(
+        values = c("Raw" = 0.65, "Corrected" = 0.65, "Skew-normal fit" = 0.45)
+      )
+
+    if (isTRUE(points)) {
+      df_lines <- subset(plot_df, type %in% c("Raw", "Corrected"))
+      p <- p + ggplot2::geom_point(data = df_lines, show.legend = FALSE)
+    }
+
+    return(p)
   }
 
   # --- base R fallback ---
@@ -124,8 +131,16 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE) {
         yvals[yvals <= 0] <- NA
         yvals <- log10(yvals)
       }
-      lines(xvals, yvals, col = type_cols[tp], lty = type_lty[tp],
-            lwd = type_lwd[tp])
+      if (tp == "SN_Fit") {
+        lines(xvals, yvals, col = type_cols[tp], lty = 2, lwd = 0.9)
+        points(xvals, yvals, col = type_cols[tp], pch = 4, cex = 1)
+      } else {
+        lines(xvals, yvals, col = type_cols[tp], lty = type_lty[tp],
+              lwd = type_lwd[tp])
+        if (isTRUE(points)) {
+          points(xvals, yvals, col = type_cols[tp], pch = 16, cex = 0.4)
+        }
+      }
     }
   }
 
@@ -136,8 +151,15 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE) {
   # Top legend panel
   par(mar = c(0, 0, 0, 0))
   plot.new()
-  legend("center", legend = type_labels, col = type_cols, lty = type_lty,
-         lwd = type_lwd, horiz = TRUE, bty = "n", cex = 0.9, seg.len = 1.5)
+  legend(
+    "center",
+    legend = c("Raw", "Corrected", "Skew-normal fit"),
+    col    = c(type_cols["Original"], type_cols["Corrected"], type_cols["SN_Fit"]),
+    lty    = c(1L, 1L, 2L),
+    pch    = c(NA_integer_, NA_integer_, 4L),
+    lwd    = c(1.3, 1.3, 0.9),
+    horiz  = TRUE, bty = "n", cex = 0.9, seg.len = 1.5
+  )
 
   invisible(NULL)
 }

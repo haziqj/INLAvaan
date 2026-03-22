@@ -1,8 +1,22 @@
 #' @exportS3Method plot inlavaan_internal
 #' @keywords internal
-plot.inlavaan_internal <- function(x, truth, params = "all",
+plot.inlavaan_internal <- function(x, truth,
+                                   type = c("marg_pdf", "sn_fit", "sn_fit_log"),
+                                   params = "all",
                                    nrow = NULL, ncol = NULL,
-                                   use_ggplot = TRUE, ...) {
+                                   use_ggplot = TRUE, points = FALSE, ...) {
+  type <- match.arg(type)
+
+  # Dispatch to visual_debug for sn_fit types
+  if (type %in% c("sn_fit", "sn_fit_log")) {
+    logscale <- type == "sn_fit_log"
+    if (identical(params, "all")) params <- NULL
+    return(visual_debug(
+      x, params = params, logscale = logscale,
+      use_ggplot = use_ggplot, points = points
+    ))
+  }
+
   all_names <- names(x$pdf_data)
   postmode <- setNames(x$summary[, "Mode"], rownames(x$summary))
 
@@ -133,7 +147,12 @@ plot.inlavaan_internal <- function(x, truth, params = "all",
 
 #' @param x An object of class [INLAvaan].
 #' @param y Not used.
-#' @param ... Not used.
+#' @param type Character. One of \code{"marg_pdf"} (default; posterior marginal
+#'   densities), \code{"sn_fit"} (skew-normal fit diagnostic on natural scale),
+#'   or \code{"sn_fit_log"} (same on log scale).
+#' @param points Logical. If \code{TRUE}, overlay data points on the curves
+#'   (applies to \code{sn_fit} and \code{sn_fit_log} types).
+#' @param ... Additional arguments passed to the plot function.
 #'
 #' @rdname INLAvaan-class
 #' @export
