@@ -64,12 +64,37 @@ make_pd <- function(X, tol = 1e-8) {
   e$vectors %*% (vals * t(e$vectors))
 }
 
-# Get internal inlavaan object
-get_inlavaan_internal <- function(object) {
+#' Extract the Internal INLAvaan Object
+#'
+#' Returns the `inlavaan_internal` list stored inside a fitted [INLAvaan]
+#' object, optionally extracting a single named element.
+#'
+#' @param object An object of class [INLAvaan].
+#' @param what Character. Name of the element to extract from the internal
+#'   list. If missing, the entire list is returned. Common elements include
+#'   `"coefficients"`, `"summary"`, `"Sigma_theta"`, `"vcov_x"`,
+#'   `"theta_star"`, `"approx_data"`, `"pdf_data"`, `"partable"`,
+#'   `"marginal_method"`, `"nsamp"`, `"mloglik"`, `"DIC"`, `"ppp"`,
+#'   `"vb"`, `"opt"`, `"timing"`, `"visual_debug"`.
+#'
+#' @returns The full `inlavaan_internal` list, or the named element when
+#'   `what` is supplied.
+#' @export
+get_inlavaan_internal <- function(object, what) {
   if (!inherits(object, "INLAvaan")) {
-    cli_abort("Object must be of class {.var INLAvaan}")
+    cli_abort("Object must be of class {.cls INLAvaan}.")
   }
-  object@external$inlavaan_internal
+  int <- object@external$inlavaan_internal
+  if (missing(what)) {
+    return(int)
+  }
+  if (!what %in% names(int)) {
+    cli_abort(c(
+      "Element {.val {what}} not found in the internal list.",
+      "i" = "Available: {.val {names(int)}}."
+    ))
+  }
+  int[[what]]
 }
 
 # Helper function to add timing information. Adapted by Haziq Jamil. Original
