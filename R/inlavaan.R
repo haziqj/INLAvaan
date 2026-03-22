@@ -320,7 +320,7 @@ inlavaan <- function(
     if (isTRUE(verbose)) {
       cli_progress_step(
         "Performing VB correction.",
-        msg_done = "VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift)),
+        msg_done = "VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift) / sqrt(diag(Sigma_theta))),
                     format = 'f', digits = 3)}\U03C3."
       )
     }

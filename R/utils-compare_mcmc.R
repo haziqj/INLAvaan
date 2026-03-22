@@ -10,8 +10,8 @@ utils::globalVariables(c(
 ))
 
 # nocov start
-compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
-                         use_ggplot = TRUE) {
+compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
+                         truth = NULL, use_ggplot = TRUE) {
   parnames <- unique(names(coef(fit_blavaan)))
 
   if (requireNamespace("blavaan", quietly = TRUE) == FALSE) {
@@ -42,6 +42,22 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
     }
   })
   inlav_names <- names(fit_inlavaan_list)
+
+  # Subset parameters if requested
+  if (!is.null(params)) {
+    bad <- setdiff(params, parnames)
+    if (length(bad) > 0) {
+      cli_abort(c(
+        "Unknown parameter(s): {paste(bad, collapse = ', ')}",
+        i = "Available: {paste(parnames, collapse = ', ')}"
+      ))
+    }
+    parnames <- params
+    plot_df_blav <- plot_df_blav[plot_df_blav$name %in% parnames, , drop = FALSE]
+    plot_df_blav$name <- factor(as.character(plot_df_blav$name), levels = parnames)
+    fit_inlavaan_list <- lapply(fit_inlavaan_list, function(pdfs) pdfs[parnames])
+    if (!is.null(truth)) truth <- truth[parnames]
+  }
 
   mycols <- c("#00A6AA", "#F18F00", "#adbf04", "#9C6FAE")
   mycols <- mycols[1:length(inlav_names)]
@@ -258,12 +274,20 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
             name = chunk$name[1],
             method = chunk$method[1],
             x = quantile(chunk$x, probs = 0.95),
-            y = 0.75 * max(chunk$y),
+            panel_max_y = max(chunk$y),
             stringsAsFactors = FALSE
           )
         }
       ))
       rownames(label_df) <- NULL
+      # Use a common reference height per panel (max across all methods),
+      # then stagger each method's label vertically so they don't overlap.
+      pmax_y <- tapply(label_df$panel_max_y, label_df$name, max)
+      label_df$panel_max_y <- pmax_y[as.character(label_df$name)]
+      label_df$method_rank <- match(label_df$method, inlav_names)
+      label_df$y <- label_df$panel_max_y * (0.90 - 0.10 * (label_df$method_rank - 1))
+      label_df$panel_max_y <- NULL
+      label_df$method_rank <- NULL
       label_df <- merge(label_df, metrics_df, by = c("name", "method"))
       label_df$JS_percent <- {
         vals <- (1 - label_df$JS_percent) * 100
@@ -276,7 +300,7 @@ compare_mcmc <- function(fit_blavaan, ..., show_error = TRUE, truth = NULL,
           data = label_df,
           ggplot2::aes(x, y, label = JS_percent, col = method),
           size = 3,
-          position = "identity",
+          hjust = 1,
           show.legend = FALSE
         )
     }
