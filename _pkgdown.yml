@@ -24,6 +24,7 @@ reference:
     - agrowth
     - priors_for
     - sampling
+    - simulate
     - compare
     - bfit_indices
     - INLAvaan-class
