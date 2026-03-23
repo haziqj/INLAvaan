@@ -104,22 +104,22 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [72ms]
+#> ✔ Finding posterior mode. [80ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [46ms]
+#> ✔ Computing the Hessian. [52ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [105ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [123ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [331ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [375ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [78ms]
+#> ✔ Adjusting copula correlations (NORTA). [83ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [505ms]
+#> ✔ Posterior sampling and summarising. [530ms]
 #> 
 ```
 
@@ -163,7 +163,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.3.9021 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9022 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -192,7 +192,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.3.9021 ended normally after 62 iterations
+#> INLAvaan 0.2.3.9022 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -346,22 +346,23 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [53ms]
+#> ✔ Finding posterior mode. [55ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [28ms]
+#> ✔ Computing the Hessian. [30ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [69ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [74ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [202ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [215ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [50ms]
+#> ✔ Adjusting copula correlations (NORTA). [54ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [452ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [488ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
@@ -378,10 +379,9 @@ factors for model comparison, particularly in the context of SEMs
 2023](#ref-schad2023workflow)). The
 [blavaan](https://ecmerkle.github.io/blavaan/) package is able to
 implement [WAICs and
-LOOs](https://ecmerkle.github.io/blavaan/articles/model_comparison.html)
-as alternative model comparison metrics, and these will hopefully also
-be implemented in future versions of
-[INLAvaan](https://inlavaan.haziqj.ml/).
+LOOs](https://blavaan.org/articles/model_comparison.html) as alternative
+model comparison metrics, and these will hopefully also be implemented
+in future versions of [INLAvaan](https://inlavaan.haziqj.ml/).
 
 ## Setting priors
 
@@ -389,11 +389,11 @@ The [INLAvaan](https://inlavaan.haziqj.ml/) package uses the same prior
 specification syntax as [blavaan](https://ecmerkle.github.io/blavaan/)
 ([Merkle and Rosseel 2018](#ref-merkle2018blavaan); [Merkle et al.
 2021](#ref-merkle2021efficient)), as detailed
-[here](https://ecmerkle.github.io/blavaan/articles/prior.html).
-Essentially, there are two ways to set priors for model parameters: 1)
-Globally for all parameters of a certain type (e.g., all factor
-loadings, all regression coefficients, etc.); and 2) Individually for
-specific parameters in the model syntax.
+[here](https://blavaan.org/articles/prior.html). Essentially, there are
+two ways to set priors for model parameters: 1) Globally for all
+parameters of a certain type (e.g., all factor loadings, all regression
+coefficients, etc.); and 2) Individually for specific parameters in the
+model syntax.
 
 The default global priors are derived from
 [blavaan](https://ecmerkle.github.io/blavaan/):

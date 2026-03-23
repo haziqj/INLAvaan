@@ -55,26 +55,26 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [34ms]
+#> ✔ Finding posterior mode. [36ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [33ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.156σ. [66ms]
+#> ✔ VB correction; mean |δ| = 0.156σ. [92ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [478ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [463ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [108ms]
+#> ✔ Adjusting copula correlations (NORTA). [106ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [264ms]
+#> ✔ Posterior sampling and summarising. [270ms]
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.3.9021 ended normally after 80 iterations
+#> INLAvaan 0.2.3.9022 ended normally after 80 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -89,8 +89,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3156.434 
-#>    Effective parameters (pD)                    28.810 
+#>    Deviance (DIC)                             3156.902 
+#>    Effective parameters (pD)                    29.044 
 #> 
 #> Parameter Estimates:
 #> 
@@ -126,16 +126,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.331    0.389    0.113    1.642    0.005       beta(1,1)
+#>    .y5                0.331    0.400    0.116    1.689    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.217    0.678   -0.169    2.489    0.004       beta(1,1)
-#>    .y6                0.347    0.731    0.822    3.692    0.011       beta(1,1)
+#>    .y4                0.217    0.687   -0.192    2.505    0.004       beta(1,1)
+#>    .y6                0.347    0.735    0.782    3.668    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.225    0.626   -0.136    2.322    0.005       beta(1,1)
+#>    .y7                0.225    0.652   -0.246    2.310    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.070    0.448   -0.553    1.208    0.003       beta(1,1)
+#>    .y4                0.070    0.478   -0.629    1.247    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.307    0.569    0.284    2.513    0.005       beta(1,1)
+#>    .y8                0.307    0.569    0.247    2.481    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -217,7 +217,7 @@ To cite package [INLAvaan](https://inlavaan.haziqj.ml/) in publications
 use:
 
 > Jamil, H (2026). *INLAvaan: Approximate Bayesian Latent Variable
-> Analysis*. R package version 0.2.3.9021. DOI:
+> Analysis*. R package version 0.2.3.9022. DOI:
 > [10.32614/CRAN.package.INLAvaan](https://doi.org/10.32614/CRAN.package.INLAvaan)
 
 A BibTeX entry for LaTeX users is:
@@ -227,7 +227,7 @@ A BibTeX entry for LaTeX users is:
     title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},
     author = {Haziq Jamil},
     year = {2026},
-    note = {R package version 0.2.3.9021},
+    note = {R package version 0.2.3.9022},
     url = {https://inlavaan.haziqj.ml/},
     doi = {10.32614/CRAN.package.INLAvaan}
   }
