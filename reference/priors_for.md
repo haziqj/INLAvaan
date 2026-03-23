@@ -72,6 +72,13 @@ placed on a transformed scale by appending a qualifier:
 The necessary Jacobian adjustment is applied automatically in both
 cases.
 
+## See also
+
+[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),
+[`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),
+[`asem()`](https://inlavaan.haziqj.ml/reference/asem.md),
+[`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md)
+
 ## Examples
 
 ``` r

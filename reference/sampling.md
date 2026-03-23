@@ -121,15 +121,15 @@ single parameter draw) — for example, for simulation-based calibration
 instead.
 
 This is distinct from
-[`predict()`](https://rdrr.io/r/stats/predict.html), which computes
-individual-specific factor scores \\\boldsymbol\eta \mid
+[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md), which
+computes individual-specific factor scores \\\boldsymbol\eta \mid
 \mathbf{y},\boldsymbol\theta\\ conditional on observed data.
 
 ## See also
 
 [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) for
 generating complete replicate datasets (e.g., for SBC);
-[`predict()`](https://rdrr.io/r/stats/predict.html) for
+[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) for
 individual-specific factor scores;
 [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
 for Bayesian fit indices.
@@ -140,10 +140,10 @@ for Bayesian fit indices.
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [21ms]
+#> ✔ Finding posterior mode. [20ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [20ms]
+#> ✔ Computing the Hessian. [19ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.246σ. [53ms]
@@ -152,22 +152,22 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Fitting 6/6 skew-normal marginals. [71ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [21ms]
+#> ✔ Adjusting copula correlations (NORTA). [27ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [401ms]
+#> ✔ Posterior sampling and summarising. [391ms]
 #> 
 
 # Posterior samples of lavaan-side parameters
 samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  0.8334550  1.2666463 0.8195100 1.1134410 0.6100209      0.4509869
-#> [2,]  1.0439902  1.5006380 1.0151096 0.8986248 0.5717064      0.3524820
-#> [3,]  0.9470584  0.9272741 0.6813047 0.9193271 0.8813048      0.5270497
-#> [4,]  0.9071553  1.2856777 1.0736996 1.0429039 0.3675355      0.4232024
-#> [5,]  1.0404116  1.0650332 0.8343720 1.0411738 0.6998279      0.5146663
-#> [6,]  0.8272035  1.2064664 0.8304776 1.2420705 0.5897445      0.4852358
+#> [1,]  0.7537805  0.8935477 0.7449751 1.0608426 0.7990191      0.5787902
+#> [2,]  0.9422014  1.4805455 0.9188254 0.9455022 0.5311365      0.3138488
+#> [3,]  0.8447581  1.0890487 0.8035399 1.0817900 0.6379797      0.5077081
+#> [4,]  0.8089361  1.1685147 0.8635664 1.3605692 0.5690487      0.4243235
+#> [5,]  0.7961315  1.1204401 0.8234872 1.1495866 0.6530604      0.5262784
+#> [6,]  0.6701568  0.8722089 1.0238411 1.1570314 0.7509603      0.6064207
 
 # Compare copula vs Gaussian sampling
 s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)

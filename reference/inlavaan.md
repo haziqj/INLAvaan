@@ -20,6 +20,7 @@ inlavaan(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
@@ -104,6 +105,12 @@ inlavaan(
   copula method with the fitted marginals (e.g. skew-normal or
   asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
   samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- sn_fit_ngrid:
+
+  Number of grid points to lay out per dimension when fitting the
+  skew-normal marginals. A finer grid gives a better fit at the cost of
+  more joint-log-posterior evaluations. Defaults to `21`.
 
 - sn_fit_logthresh:
 
@@ -200,23 +207,22 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [68ms]
+#> ✔ Finding posterior mode. [69ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [44ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.208σ. [91ms]
+#> ✔ VB correction; mean |δ| = 0.208σ. [99ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 19/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [563ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [556ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [159ms]
+#> ✔ Adjusting copula correlations (NORTA). [143ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [575ms]
+#> ✔ Posterior sampling and summarising. [583ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9021 ended normally after 73 iterations
@@ -234,8 +240,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7517.043 
-#>    Effective parameters (pD)                    20.556 
+#>    Deviance (DIC)                             7516.994 
+#>    Effective parameters (pD)                    20.531 
 #> 
 #> Parameter Estimates:
 #> 
@@ -260,10 +266,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.445    0.075    0.243    0.539    0.001       beta(1,1)
-#>     speed             0.470    0.052    0.146    0.351    0.011       beta(1,1)
+#>     textual           0.445    0.079    0.240    0.549    0.001       beta(1,1)
+#>     speed             0.470    0.055    0.143    0.358    0.011       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.279    0.047    0.074    0.259    0.003       beta(1,1)
+#>     speed             0.279    0.046    0.074    0.254    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

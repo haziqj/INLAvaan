@@ -15,6 +15,7 @@ agrowth(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
@@ -92,6 +93,12 @@ agrowth(
   copula method with the fitted marginals (e.g. skew-normal or
   asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
   samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- sn_fit_ngrid:
+
+  Number of grid points to lay out per dimension when fitting the
+  skew-normal marginals. A finer grid gives a better fit at the cost of
+  more joint-log-posterior evaluations. Defaults to `21`.
 
 - sn_fit_logthresh:
 
@@ -233,23 +240,22 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [219ms]
+#> ✔ Finding posterior mode. [159ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [76ms]
+#> ✔ Computing the Hessian. [69ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.045σ. [380ms]
+#> ✔ VB correction; mean |δ| = 0.045σ. [169ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 2/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [860ms]
+#> ✔ Fitting 17/17 skew-normal marginals. [891ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [82ms]
+#> ✔ Adjusting copula correlations (NORTA). [91ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [131ms]
+#> ✔ Posterior sampling and summarising. [124ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9021 ended normally after 83 iterations
@@ -263,12 +269,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.934 
-#>    PPP (Chi-square)                              0.970 
+#>    PPP (Chi-square)                              0.950 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4994.171 
-#>    Effective parameters (pD)                    15.911 
+#>    Deviance (DIC)                             4997.459 
+#>    Effective parameters (pD)                    17.555 
 #> 
 #> Parameter Estimates:
 #> 
@@ -308,7 +314,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.038    0.002    0.151    0.006       beta(1,1)
+#>    .s                 0.153    0.045   -0.019    0.158    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

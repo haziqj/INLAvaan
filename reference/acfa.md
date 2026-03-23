@@ -15,6 +15,7 @@ acfa(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
@@ -92,6 +93,12 @@ acfa(
   copula method with the fitted marginals (e.g. skew-normal or
   asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
   samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- sn_fit_ngrid:
+
+  Number of grid points to lay out per dimension when fitting the
+  skew-normal marginals. A finer grid gives a better fit at the cost of
+  more joint-log-posterior evaluations. Defaults to `21`.
 
 - sn_fit_logthresh:
 
@@ -212,22 +219,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [62ms]
+#> ✔ Finding posterior mode. [51ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [43ms]
+#> ✔ Computing the Hessian. [42ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [96ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [88ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [507ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [571ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [162ms]
+#> ✔ Adjusting copula correlations (NORTA). [148ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [79ms]
+#> ✔ Posterior sampling and summarising. [71ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9021 ended normally after 56 iterations
@@ -245,8 +252,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7515.557 
-#>    Effective parameters (pD)                    19.962 
+#>    Deviance (DIC)                             7517.170 
+#>    Effective parameters (pD)                    20.768 
 #> 
 #> Parameter Estimates:
 #> 

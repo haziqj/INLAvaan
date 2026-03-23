@@ -10,26 +10,26 @@
   function to produce draws from the posterior (or prior) SEM generative
   model.
 - NEW Bayesian Fit Indices included in
-  [`fitmeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html);
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md);
   summary statistics available via
   [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md).
 - NEW parallelism feature for skew normal fit, automatically runs on
   total available cores when $m > 120$.
-- NEW [`predict()`](https://rdrr.io/r/stats/predict.html) now able to
-  generate predictions for observed and missing data imputation,
+- NEW [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) now
+  able to generate predictions for observed and missing data imputation,
   respecting multilevel structure if present.
 - NEW
-  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
   function to compute a range of global and per-parameter diagnostics
   for fitted models.
 - NEW [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md)
   function to sample data from either the posterior or prior.
-- [`vcov()`](https://rdrr.io/r/stats/vcov.html) now returns the
-  covariance matrix of the lavaan-side parameters.
+- [`vcov()`](https://inlavaan.haziqj.ml/reference/vcov.md) now returns
+  the covariance matrix of the lavaan-side parameters.
 - For defined params, it’s possible to fit a skew normal approximation
   to the posterior marginal based on the samples by calling
   `sn_fit_sample = TRUE`.
-- Improved [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+- Improved [`plot()`](https://inlavaan.haziqj.ml/reference/plot.md)
   method.
 - FIX bug in efficient volume correction method (new
   `marginal_correction = "shortcut"` implementation).  

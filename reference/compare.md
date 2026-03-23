@@ -71,6 +71,11 @@ available measure.
 
 <https://lavaan.ugent.be/tutorial/groups.html>
 
+## See also
+
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
+[`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+
 ## Examples
 
 ``` r
@@ -86,24 +91,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [244ms]
+#> ✔ Finding posterior mode. [225ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [221ms]
+#> ✔ Computing the Hessian. [227ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [564ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [578ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 8/60 skew-normal marginals.
-#> ⠸ Fitting 36/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [6.5s]
+#> ⠹ Fitting 25/60 skew-normal marginals.
+#> ⠸ Fitting 51/60 skew-normal marginals.
+#> ✔ Fitting 60/60 skew-normal marginals. [6.8s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [376ms]
+#> ✔ Adjusting copula correlations (NORTA). [355ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [954ms]
+#> ✔ Posterior sampling and summarising. [956ms]
 #> 
 
 # Weak invariance
@@ -114,24 +119,23 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [196ms]
+#> ✔ Finding posterior mode. [193ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [411ms]
+#> ✔ Computing the Hessian. [197ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [268ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [266ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 11/54 skew-normal marginals.
-#> ⠸ Fitting 42/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [5.3s]
+#> ⠹ Fitting 30/54 skew-normal marginals.
+#> ✔ Fitting 54/54 skew-normal marginals. [5.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [523ms]
+#> ✔ Adjusting copula correlations (NORTA). [528ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [938ms]
+#> ✔ Posterior sampling and summarising. [948ms]
 #> 
 
 # Strong invariance
@@ -142,24 +146,24 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [193ms]
+#> ✔ Finding posterior mode. [186ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [179ms]
+#> ✔ Computing the Hessian. [190ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [253ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [252ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 30/48 skew-normal marginals.
+#> ⠹ Fitting 14/48 skew-normal marginals.
+#> ⠸ Fitting 47/48 skew-normal marginals.
 #> ✔ Fitting 48/48 skew-normal marginals. [4.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [604ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [957ms]
+#> ✔ Posterior sampling and summarising. [935ms]
 #> 
 
 # Compare models (fit1 = configural = baseline, always first argument)
@@ -168,9 +172,9 @@ compare(fit1, fit2, fit3)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD
-#>   fit3   48   -3913.968   0.000 7508.879 47.780
-#>   fit2   54   -3934.367 -20.399 7481.388 53.947
-#>   fit1   60   -3958.374 -44.406 7484.721 59.293
+#>   fit3   48   -3913.968   0.000 7509.626 48.153
+#>   fit2   54   -3934.367 -20.399 7481.302 53.904
+#>   fit1   60   -3958.374 -44.406 7483.523 58.693
 
 # With extra fit measures
 compare(fit1, fit2, fit.measures = c("BRMSEA", "BMc"))
@@ -178,8 +182,8 @@ compare(fit1, fit2, fit.measures = c("BRMSEA", "BMc"))
 #> Baseline model: fit1 
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD BRMSEA    BMc
-#>   fit1   60   -3958.374 -24.007 7484.721 59.293 0.0957 0.8939
-#>   fit2   54   -3934.367   0.000 7481.388 53.947 0.0926 0.8901
+#>   fit1   60   -3958.374 -24.007 7483.523 58.693 0.0950 0.8941
+#>   fit2   54   -3934.367   0.000 7481.302 53.904 0.0927 0.8898
 
 # With incremental indices (baseline = fit1, passed to fitMeasures())
 compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
@@ -187,8 +191,8 @@ compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
 #> Baseline model: fit1 
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD    BCFI    BTLI
-#>   fit1   60   -3958.374 -44.406 7484.721 59.293 -0.0291 -0.0291
-#>   fit2   54   -3934.367 -20.399 7481.388 53.947 -0.0670  0.0385
-#>   fit3   48   -3913.968   0.000 7508.879 47.780 -0.5736 -0.2727
+#>   fit1   60   -3958.374 -44.406 7483.523 58.693 -0.0288 -0.0288
+#>   fit2   54   -3934.367 -20.399 7481.302 53.904 -0.0668  0.0276
+#>   fit3   48   -3913.968   0.000 7509.626 48.153 -0.5762 -0.2986
 # }
 ```

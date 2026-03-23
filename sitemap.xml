@@ -26,6 +26,7 @@
 <url><loc>https://inlavaan.haziqj.ml/reference/bfit_indices.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/compare.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/dbeta_box.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/diagnostics.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/dsnorm.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/fitMeasures.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/fit_skew_normal.html</loc></url>
@@ -34,10 +35,14 @@
 <url><loc>https://inlavaan.haziqj.ml/reference/index.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/inlavaan.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/is_same_function.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/plot.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/predict.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/priors_for.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/qsnorm_fast.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/sampling.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/simulate.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/standardisedsolution.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/timing.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/vcov.html</loc></url>
 </urlset>
 

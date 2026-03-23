@@ -13,8 +13,8 @@ $$\left. \underset{\text{parameters}}{\underbrace{\mathbf{θ}}}\;\rightarrow\;\u
 
 producing samples that are **not tied to any individual observation**.
 This is distinct from
-[`predict()`](https://rdrr.io/r/stats/predict.html), which returns
-individual-specific factor scores
+[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md), which
+returns individual-specific factor scores
 ${\mathbf{η}} \mid \mathbf{y},{\mathbf{θ}}$.
 
 Typical use cases include **posterior predictive checks** (PPCs) and

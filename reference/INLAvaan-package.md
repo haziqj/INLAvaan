@@ -29,6 +29,34 @@ Supports advanced 'lavaan' syntax features, including:
 
 - Flexible prior specifications
 
+## Methods for `INLAvaan` objects
+
+After fitting a model an INLAvaan object is returned. The following S4
+methods are available. See
+[INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) for
+the class definition.
+
+- Summaries and parameter estimates:
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
+  [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
+  [`vcov()`](https://inlavaan.haziqj.ml/reference/vcov.md),
+  [`standardisedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
+
+- Fit assessment and model comparison:
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
+  [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md),
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md),
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md),
+  [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)
+
+- Posterior inference and simulation:
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md),
+  [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md),
+  [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md)
+
+- Visualisation:
+  [`plot()`](https://inlavaan.haziqj.ml/reference/plot.md)
+
 ## Online vignettes
 
 The [package website](https://inlavaan.haziqj.ml/) contains

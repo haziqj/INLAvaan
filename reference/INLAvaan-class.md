@@ -4,36 +4,17 @@ This is a class that extends the
 [lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html)
 class. Several S4 methods are available.
 
-Extract convergence and approximation-quality diagnostics from a fitted
-INLAvaan model.
-
 ## Usage
 
 ``` r
-diagnostics(object, ...)
+# S4 method for class 'INLAvaan'
+coef(object, ...)
 
 # S4 method for class 'INLAvaan'
-diagnostics(object, type = c("global", "param"), ...)
-
-# S4 method for class 'INLAvaan,ANY'
-plot(x, y, ...)
-
-# S4 method for class 'INLAvaan'
-predict(
-  object,
-  type = c("lv", "yhat", "ov", "ypred", "ydist", "ymis", "ovmis"),
-  newdata = NULL,
-  level = 1L,
-  nsamp = 1000,
-  ymis_only = FALSE,
-  ...
-)
+nobs(object, ...)
 
 # S4 method for class 'INLAvaan'
 show(object)
-
-# S4 method for class 'INLAvaan'
-coef(object)
 
 # S4 method for class 'INLAvaan'
 summary(
@@ -52,67 +33,17 @@ summary(
   nd = 3L,
   ...
 )
-
-timing(object, ...)
-
-# S4 method for class 'INLAvaan'
-timing(object, what = "total", ...)
-
-# S4 method for class 'INLAvaan'
-vcov(object, type = c("lavaan", "theta"), ...)
 ```
 
 ## Arguments
 
 - object:
 
-  An object of class
-  [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md).
+  An object of class `INLAvaan`.
 
 - ...:
 
-  Additional arguments passed to the plot function (including `points`,
-  `type`, etc.).
-
-- type:
-
-  Character. `"lavaan"` (default) returns the posterior covariance
-  matrix of the model parameters computed from posterior samples
-  (matching lavaan output). `"theta"` returns the Laplace approximation
-  covariance in the internal parameterisation.
-
-- x:
-
-  An object of class
-  [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md).
-
-- y:
-
-  Not used.
-
-- newdata:
-
-  An optional data frame of new observations. If supplied, predictions
-  are computed for `newdata` rather than the original training data. Not
-  supported for `type = "ymis"`.
-
-- level:
-
-  Integer; for `type = "lv"` in multilevel models, specifies whether
-  level 1 or level 2 latent variables are desired (default `1L`).
-
-- nsamp:
-
-  The number of samples to draw for all sampling-based approaches
-  (including posterior sampling for model fit indices).
-
-- ymis_only:
-
-  Logical; only applies when `type = "ymis"`. When `TRUE`, returns only
-  the imputed values as a named numeric vector per sample, with names of
-  the form `"varname[rowindex]"` (matching the blavaan convention). When
-  `FALSE` (default), returns the full data matrix with missing values
-  filled in.
+  Additional arguments passed to methods.
 
 - header:
 
@@ -165,131 +96,6 @@ vcov(object, type = c("lavaan", "theta"), ...)
 
   Integer; number of decimal places to print for numeric values.
 
-- what:
-
-  Character vector of timing segment names to return, or `"all"` to
-  return every segment. Defaults to `"total"`. Available segments
-  (depending on model options): `"init"`, `"optim"`, `"vb"`, `"loglik"`,
-  `"marginals"`, `"norta"`, `"sampling"`, `"covariances"`,
-  `"definedpars"`, `"deltapars"`, `"test"`, `"total"`.
-
-## Value
-
-For `type = "global"`, a named numeric vector (class
-`"diagnostics.INLAvaan"`). For `type = "param"`, a data frame (class
-`c("diagnostics.INLAvaan.param", "data.frame")`).
-
-## Details
-
-**Global diagnostics** (`type = "global"`):
-
-- `npar`:
-
-  Number of free parameters.
-
-- `nsamp`:
-
-  Number of posterior samples drawn.
-
-- `converged`:
-
-  1 if the optimiser converged, 0 otherwise.
-
-- `iterations`:
-
-  Number of optimiser iterations.
-
-- `grad_inf`:
-
-  L-infinity norm of the analytic gradient at the mode (max \|grad\|).
-  Should be ~0 at convergence.
-
-- `grad_inf_rel`:
-
-  Relative L-infinity norm of the analytic gradient (max \|grad\| /
-  (\|par\| + 1e-6)).
-
-- `grad_l2`:
-
-  L2 (Euclidean) norm of the analytic gradient at the mode.
-
-- `hess_cond`:
-
-  Condition number of the Hessian (precision matrix) computed from
-  \\\Sigma\_\theta\\. Large values indicate near-singularity.
-
-- `vb_kld_global`:
-
-  Global KL divergence from the VB mean correction (NA if VB correction
-  was not applied).
-
-- `vb_applied`:
-
-  1 if VB correction was applied, 0 otherwise.
-
-- `kld_max`:
-
-  Maximum per-parameter KL divergence from the VB correction.
-
-- `kld_mean`:
-
-  Mean per-parameter KL divergence.
-
-- `nmad_max`:
-
-  Maximum normalised max-absolute-deviation across marginals
-  (skew-normal method only; NA otherwise).
-
-- `nmad_mean`:
-
-  Mean NMAD across marginals.
-
-**Per-parameter diagnostics** (`type = "param"`): A data frame with
-columns:
-
-- `param`:
-
-  Parameter name.
-
-- `grad`:
-
-  Analytic gradient of the negative log-posterior at the mode. Should be
-  ~0 at convergence.
-
-- `grad_num`:
-
-  Numerical (finite-difference) gradient at the mode. Should agree with
-  `grad`; large discrepancies indicate a bug in the analytic gradient.
-
-- `grad_diff`:
-
-  Difference `grad_num - grad`: should be ~0.
-
-- `grad_abs`:
-
-  Absolute analytic gradient.
-
-- `grad_rel`:
-
-  Relative analytic gradient \|grad\| / (\|par\| + 1e-6).
-
-- `kld`:
-
-  Per-parameter KL divergence from the VB correction.
-
-- `vb_shift`:
-
-  VB correction shift (in original scale).
-
-- `vb_shift_sigma`:
-
-  VB shift in units of posterior SD.
-
-- `nmad`:
-
-  Normalised max-absolute-deviation of the skew-normal fit (NA when not
-  using the skewnorm method).
-
 ## Slots
 
 - `external`:
@@ -298,4 +104,108 @@ columns:
 
 ## See also
 
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html)
+[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html),
+[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),
+[`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),
+[`asem()`](https://inlavaan.haziqj.ml/reference/asem.md),
+[`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md)
+
+## Examples
+
+``` r
+# \donttest{
+HS.model <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+utils::data("HolzingerSwineford1939", package = "lavaan")
+fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+            test = "none", verbose = FALSE)
+
+# Print basic info
+fit
+#> INLAvaan 0.2.3.9021 ended normally after 56 iterations
+#> 
+#>   Estimator                                      BAYES
+#>   Optimization method                           NLMINB
+#>   Number of model parameters                        21
+#> 
+#>   Number of observations                           301
+#> 
+#> Model Test (User Model):
+#> 
+#>    Marginal log-likelihood                   -3830.737 
+
+# Detailed summary
+summary(fit)
+#> INLAvaan 0.2.3.9021 ended normally after 56 iterations
+#> 
+#>   Estimator                                      BAYES
+#>   Optimization method                           NLMINB
+#>   Number of model parameters                        21
+#> 
+#>   Number of observations                           301
+#> 
+#> Model Test (User Model):
+#> 
+#>    Marginal log-likelihood                   -3830.737 
+#> 
+#> Parameter Estimates:
+#> 
+#>    Marginalisation method                     SKEWNORM
+#>    VB correction                                  TRUE
+#> 
+#> Latent Variables:
+#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
+#>   visual =~                                                                    
+#>     x1                0.905    0.082    0.747    1.066    0.009    normal(0,10)
+#>     x2                0.501    0.081    0.344    0.661    0.000    normal(0,10)
+#>     x3                0.662    0.078    0.512    0.816    0.002    normal(0,10)
+#>   textual =~                                                                   
+#>     x4                0.999    0.057    0.890    1.115    0.003    normal(0,10)
+#>     x5                1.112    0.063    0.992    1.240    0.003    normal(0,10)
+#>     x6                0.925    0.054    0.821    1.035    0.003    normal(0,10)
+#>   speed =~                                                                     
+#>     x7                0.615    0.074    0.466    0.757    0.003    normal(0,10)
+#>     x8                0.731    0.073    0.585    0.871    0.014    normal(0,10)
+#>     x9                0.680    0.075    0.536    0.831    0.016    normal(0,10)
+#> 
+#> Covariances:
+#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
+#>   visual ~~                                                                    
+#>     textual           0.449    0.064    0.319    0.567    0.001       beta(1,1)
+#>     speed             0.465    0.083    0.299    0.625    0.011       beta(1,1)
+#>   textual ~~                                                                   
+#>     speed             0.280    0.070    0.139    0.414    0.003       beta(1,1)
+#> 
+#> Variances:
+#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
+#>    .x1                0.563    0.117    0.341    0.794    0.011 gamma(1,.5)[sd]
+#>    .x2                1.147    0.106    0.953    1.369    0.001 gamma(1,.5)[sd]
+#>    .x3                0.853    0.097    0.671    1.050    0.003 gamma(1,.5)[sd]
+#>    .x4                0.377    0.049    0.286    0.478    0.003 gamma(1,.5)[sd]
+#>    .x5                0.453    0.059    0.344    0.575    0.003 gamma(1,.5)[sd]
+#>    .x6                0.362    0.044    0.280    0.454    0.002 gamma(1,.5)[sd]
+#>    .x7                0.821    0.090    0.660    1.011    0.004 gamma(1,.5)[sd]
+#>    .x8                0.504    0.087    0.345    0.686    0.023 gamma(1,.5)[sd]
+#>    .x9                0.567    0.089    0.391    0.739    0.007 gamma(1,.5)[sd]
+#>     visual            1.000                                                    
+#>     textual           1.000                                                    
+#>     speed             1.000                                                    
+#> 
+
+# Extract coefficients
+coef(fit)
+#>      visual=~x1      visual=~x2      visual=~x3     textual=~x4     textual=~x5 
+#>           0.905           0.501           0.662           0.999           1.112 
+#>     textual=~x6       speed=~x7       speed=~x8       speed=~x9          x1~~x1 
+#>           0.925           0.615           0.731           0.680           0.563 
+#>          x2~~x2          x3~~x3          x4~~x4          x5~~x5          x6~~x6 
+#>           1.147           0.853           0.377           0.453           0.362 
+#>          x7~~x7          x8~~x8          x9~~x9 visual~~textual   visual~~speed 
+#>           0.821           0.504           0.567           0.449           0.465 
+#>  textual~~speed 
+#>           0.280 
+# }
+```

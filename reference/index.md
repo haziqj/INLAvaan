@@ -14,31 +14,42 @@ Main lavaan-style functions to estimate SEM.
   an Approximate Bayesian Growth Curve Model
 - [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md) :
   Specify priors for a SEM
-- [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) :
-  Draw Samples from the Generative Model
-- [`simulate(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/simulate.md)
-  : Simulate Datasets from the Generative Model
-- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
-  Compare Bayesian Models Fitted with INLAvaan
-- [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
-  : Bayesian Fit Indices
-- [`diagnostics()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
-  [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
-  [`predict(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+
+## Methods
+
+- [`coef(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  [`nobs(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`show(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
-  [`coef(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   [`summary(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
-  [`timing()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
-  [`vcov(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   : Class For Representing a (Fitted) Latent Variable Model
-- [`fitMeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
-  [`fitmeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
-  : Fit Measures for a Latent Variable Model estimated using INLA
 - [`standardisedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
   [`standardisedSolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
   [`standardizedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
   [`standardizedSolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
   : Standardised solution of a latent variable model
+- [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  : Convergence and Approximation Diagnostics for INLAvaan Models
+- [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md) : Timing
+  Information for INLAvaan Models
+- [`fitMeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+  [`fitmeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+  : Fit Measures for a Latent Variable Model estimated using INLA
+- [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+  [`summary(`*`<bfit_indices>`*`)`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+  [`print(`*`<bfit_indices>`*`)`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+  : Bayesian Fit Indices
+- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
+  Compare Bayesian Models Fitted with INLAvaan
+- [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/plot.md)
+  : Plot an INLAvaan Object
+- [`vcov(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/vcov.md)
+  : Variance-Covariance Matrix for INLAvaan Models
+- [`predict(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/predict.md)
+  : Posterior Predictions for INLAvaan Models
+- [`simulate(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/simulate.md)
+  : Simulate Datasets from the Generative Model
+- [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) :
+  Draw Samples from the Generative Model
 
 ## Utility functions
 

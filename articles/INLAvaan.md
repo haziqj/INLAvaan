@@ -104,22 +104,22 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [73ms]
+#> ✔ Finding posterior mode. [72ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [46ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [104ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [105ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [335ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [331ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [78ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [508ms]
+#> ✔ Posterior sampling and summarising. [505ms]
 #> 
 ```
 
@@ -179,8 +179,8 @@ fit
 
 As a result, most of the methods that work for `lavaan` objects will
 also work for `INLAvaan` objects. The most common ones are probably
-[`coef()`](https://rdrr.io/r/stats/coef.html) and
-[`summary()`](https://rdrr.io/r/base/summary.html).
+[`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) and
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md).
 
 ``` r
 # Inspect coefficients
@@ -245,13 +245,14 @@ summary(fit)
 
 It’s possible to request posterior medians and modes in the summary
 output by specifying `postmedian = TRUE` or `postmode = TRUE` in the
-[`summary()`](https://rdrr.io/r/base/summary.html) function.
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+function.
 
 ### Predictions
 
 Predicted values for the latent variables can be obtained using the
-[`predict()`](https://rdrr.io/r/stats/predict.html) function. This is
-done by sampling from the posterior distributions of the latent
+[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) function.
+This is done by sampling from the posterior distributions of the latent
 variables given the observed data. In the future, this function will
 also allow for out-of-sample predictions and also to retrieve
 predictions for observed variables.
@@ -274,7 +275,7 @@ This is an S3 object with a summary method that provides posterior means
 and credible intervals for the latent variables. Alternatively, the user
 is welcome to perform their own summary statistics on the list of
 posterior samples returned by
-[`predict()`](https://rdrr.io/r/stats/predict.html).
+[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md).
 
 ``` r
 summ_eta <- summary(eta_preds)
@@ -345,22 +346,22 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [54ms]
+#> ✔ Finding posterior mode. [53ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [30ms]
+#> ✔ Computing the Hessian. [28ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [72ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [69ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [211ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [202ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [52ms]
+#> ✔ Adjusting copula correlations (NORTA). [50ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [461ms]
+#> ✔ Posterior sampling and summarising. [452ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)

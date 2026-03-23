@@ -82,3 +82,36 @@ fitmeasures(
 ## Value
 
 A named numeric vector of fit measures.
+
+## See also
+
+[`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md),
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md),
+[`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+
+## Examples
+
+``` r
+# \donttest{
+HS.model <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+utils::data("HolzingerSwineford1939", package = "lavaan")
+fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+            verbose = FALSE)
+
+# All available fit measures
+fitMeasures(fit)
+#>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
+#>           21    -3830.737        0.000     7516.943       20.655        0.091 
+#>    BGammaHat adjBGammaHat          BMc 
+#>        0.957        0.920        0.903 
+
+# Specific measures
+fitMeasures(fit, c("npar", "DIC", "pD", "ppp"))
+#>  npar   ppp 
+#>    21 0.000 
+# }
+```

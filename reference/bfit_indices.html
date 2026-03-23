@@ -65,7 +65,13 @@ model, analogous to <code><a href="https://blavaan.org/reference/blavFitIndices.
 <span>  rescale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"devM"</span>, <span class="st">"MCMC"</span><span class="op">)</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  samp_copula <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'bfit_indices'</span></span>
+<span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'bfit_indices'</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -99,6 +105,14 @@ used when fitting the model.</p></dd>
 drawn using the copula method with the fitted marginals. When <code>FALSE</code>,
 samples are drawn from the Gaussian (Laplace) approximation.</p></dd>
 
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional arguments passed to methods.</p></dd>
+
+
+<dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>An object of class <code>bfit_indices</code> (for <code>print</code>).</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -111,14 +125,47 @@ for each computed fit index.</p></dd>
 <code>rescale</code>, and <code>nsamp</code>.</p></dd>
 
 
-</dl><p>Use <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> to obtain a table of posterior summaries (Mean, SD,
+</dl><p>Use <code><a href="INLAvaan-class.html">summary()</a></code> to obtain a table of posterior summaries (Mean, SD,
 quantiles, Mode) for each index.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">lavaan::fitMeasures()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">lavaan::fitMeasures()</a></code>, <code><a href="https://blavaan.org/reference/blavFitIndices.html" class="external-link">blavaan::blavFitIndices()</a></code>,
+<code><a href="fitMeasures.html">fitmeasures()</a></code>, <code><a href="compare.html">compare()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="va">HS.model</span> <span class="op">&lt;-</span> <span class="st">"</span></span></span>
+<span class="r-in"><span><span class="st">  visual  =~ x1 + x2 + x3</span></span></span>
+<span class="r-in"><span><span class="st">  textual =~ x4 + x5 + x6</span></span></span>
+<span class="r-in"><span><span class="st">  speed   =~ x7 + x8 + x9</span></span></span>
+<span class="r-in"><span><span class="st">"</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span>,</span></span>
+<span class="r-in"><span>            verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Absolute fit indices</span></span></span>
+<span class="r-in"><span><span class="va">bf</span> <span class="op">&lt;-</span> <span class="fu">bfit_indices</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">bf</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Posterior summary of devM-based Bayesian fit indices (nsamp = 100): </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       BRMSEA    BGammaHat adjBGammaHat          BMc </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.091        0.957        0.920        0.903 </span>
+<span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">bf</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Posterior summary of devM-based Bayesian fit indices (nsamp = 100):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.101 0.090</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BGammaHat    0.957 0.004 0.948 0.954 0.957 0.960  0.964 0.958</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> adjBGammaHat 0.920 0.008 0.904 0.915 0.921 0.926  0.933 0.923</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BMc          0.903 0.010 0.883 0.897 0.904 0.909  0.918 0.907</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

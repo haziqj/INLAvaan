@@ -15,6 +15,7 @@ asem(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
@@ -92,6 +93,12 @@ asem(
   copula method with the fitted marginals (e.g. skew-normal or
   asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
   samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- sn_fit_ngrid:
+
+  Number of grid points to lay out per dimension when fitting the
+  skew-normal marginals. A finer grid gives a better fit at the cost of
+  more joint-log-posterior evaluations. Defaults to `21`.
 
 - sn_fit_logthresh:
 
@@ -224,23 +231,23 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [94ms]
+#> ✔ Finding posterior mode. [96ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [72ms]
+#> ✔ Computing the Hessian. [86ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.158σ. [206ms]
+#> ✔ VB correction; mean |δ| = 0.158σ. [182ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 26/28 skew-normal marginals.
-#> ✔ Fitting 28/28 skew-normal marginals. [1.2s]
+#> ⠹ Fitting 24/28 skew-normal marginals.
+#> ✔ Fitting 28/28 skew-normal marginals. [1.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [246ms]
+#> ✔ Adjusting copula correlations (NORTA). [242ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [345ms]
+#> ✔ Posterior sampling and summarising. [362ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9021 ended normally after 74 iterations
@@ -288,16 +295,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.276    0.375   -0.071    1.400    0.003       beta(1,1)
+#>    .y5                0.276    0.376   -0.034    1.444    0.003       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.272    0.691    0.222    2.932    0.007       beta(1,1)
-#>    .y6                0.343    0.719    0.910    3.732    0.012       beta(1,1)
+#>    .y4                0.272    0.692    0.145    2.862    0.007       beta(1,1)
+#>    .y6                0.343    0.727    0.880    3.734    0.012       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.179    0.639   -0.431    2.074    0.006       beta(1,1)
+#>    .y7                0.179    0.628   -0.321    2.145    0.006       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.106    0.466   -0.456    1.374    0.004       beta(1,1)
+#>    .y8                0.106    0.458   -0.465    1.335    0.004       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.313    0.578    0.328    2.596    0.005       beta(1,1)
+#>    .y8                0.313    0.582    0.293    2.580    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

@@ -165,22 +165,22 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [73ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [72ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
 <span><span class="co">#&gt; ✔ Computing the Hessian. [46ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [104ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [105ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 13/13 skew-normal marginals. [335ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 13/13 skew-normal marginals. [331ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
 <span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [78ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [508ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [505ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney et al. 1989</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
@@ -207,18 +207,18 @@
 <span><span class="co">#&gt;    Marginal log-likelihood                   -8068.822 </span></span>
 <span><span class="co">#&gt;    PPP (Chi-square)                              0.316</span></span></code></pre></div>
 </div>
-<p>As a result, most of the methods that work for <code>lavaan</code> objects will also work for <code>INLAvaan</code> objects. The most common ones are probably <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</p>
+<p>As a result, most of the methods that work for <code>lavaan</code> objects will also work for <code>INLAvaan</code> objects. The most common ones are probably <code><a href="../reference/INLAvaan-class.html">coef()</a></code> and <code><a href="../reference/INLAvaan-class.html">summary()</a></code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Inspect coefficients</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   eta1=~y2   eta1=~y3   eta2=~y5   eta2=~y6  eta2~eta1     y1~~y1     y2~~y2 </span></span>
 <span><span class="co">#&gt;      0.873      0.601      0.786      0.582      0.272      0.486      0.499 </span></span>
 <span><span class="co">#&gt;     y3~~y3     y4~~y4     y5~~y5     y6~~y6 eta1~~eta1 eta2~~eta2 </span></span>
 <span><span class="co">#&gt;      0.489      0.476      0.465      0.523      1.051      0.933</span></span>
 <span></span>
 <span><span class="co"># Summary of results</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.3.9021 ended normally after 62 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
@@ -269,13 +269,13 @@
 <span><span class="co">#&gt;     eta1              1.051    0.077    0.905    1.207    0.003 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .eta2              0.933    0.073    0.796    1.081    0.004 gamma(1,.5)[sd]</span></span></code></pre></div>
 </div>
-<p>It’s possible to request posterior medians and modes in the summary output by specifying <code>postmedian = TRUE</code> or <code>postmode = TRUE</code> in the <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> function.</p>
+<p>It’s possible to request posterior medians and modes in the summary output by specifying <code>postmedian = TRUE</code> or <code>postmode = TRUE</code> in the <code><a href="../reference/INLAvaan-class.html">summary()</a></code> function.</p>
 <section class="level3"><h3 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
 </h3>
-<p>Predicted values for the latent variables can be obtained using the <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> function. This is done by sampling from the posterior distributions of the latent variables given the observed data. In the future, this function will also allow for out-of-sample predictions and also to retrieve predictions for observed variables.</p>
+<p>Predicted values for the latent variables can be obtained using the <code><a href="../reference/predict.html">predict()</a></code> function. This is done by sampling from the posterior distributions of the latent variables given the observed data. In the future, this function will also allow for out-of-sample predictions and also to retrieve predictions for observed variables.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">eta_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">eta_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict.html">predict</a></span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 100</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
@@ -287,10 +287,10 @@
 <span><span class="co">#&gt; [5,]  2.4654322 -1.9053127</span></span>
 <span><span class="co">#&gt; [6,] -1.6462564 -0.8515600</span></span></code></pre></div>
 </div>
-<p>This is an S3 object with a summary method that provides posterior means and credible intervals for the latent variables. Alternatively, the user is welcome to perform their own summary statistics on the list of posterior samples returned by <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>.</p>
+<p>This is an S3 object with a summary method that provides posterior means and credible intervals for the latent variables. Alternatively, the user is welcome to perform their own summary statistics on the list of posterior samples returned by <code><a href="../reference/predict.html">predict()</a></code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">summ_eta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">summ_eta</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">summ_eta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 7</span></span>
 <span><span class="co">#&gt;  $ group_id: NULL</span></span>
@@ -333,7 +333,7 @@
 <p>A simple plot method is provided to view the marginal posterior distributions of the parameters. The vertical lines indicate the posterior mode.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot.html">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure><p><img src="INLAvaan_files/figure-html/results-plot-1.png" width="672"></p>
@@ -354,22 +354,22 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [54ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [53ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [30ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [28ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [72ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [69ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 12/12 skew-normal marginals. [211ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 12/12 skew-normal marginals. [202ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [52ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [50ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [461ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [452ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>

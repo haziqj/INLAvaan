@@ -65,20 +65,20 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [166ms]
+#> ✔ Finding posterior mode. [165ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [79ms]
+#> ✔ Computing the Hessian. [78ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.403σ. [430ms]
+#> ✔ VB correction; mean |δ| = 0.403σ. [425ms]
 #> 
 #> ⠙ Fitting 0/10 skew-normal marginals.
-#> ⠹ Fitting 7/10 skew-normal marginals.
-#> ✔ Fitting 10/10 skew-normal marginals. [711ms]
+#> ⠹ Fitting 10/10 skew-normal marginals.
+#> ✔ Fitting 10/10 skew-normal marginals. [706ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [55ms]
+#> ✔ Adjusting copula correlations (NORTA). [53ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [1s]
