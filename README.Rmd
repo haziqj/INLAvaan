@@ -49,7 +49,7 @@ As a first impression of the package, consider the canonical example of SEM appl
 ```{r}
 #| label: inlavaan-poldem
 library(INLAvaan)
-model <- "
+mod_poldem <- "
   # Latent variable definitions
      ind60 =~ x1 + x2 + x3
      dem60 =~ y1 + y2 + y3
@@ -76,7 +76,7 @@ model <- "
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
-fit <- asem(model, PoliticalDemocracy)
+fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
 
 summary(fit)
 ```
@@ -94,14 +94,14 @@ The percentages refer to the one minus the [Jensen-Shannon distance](https://en.
 #| message: false
 #| warning: false
 #| results: "hide"
-#| fig-height: 4.65
+#| fig-height: 4.7
 #| fig-width: 8
 #| out-width: 100%
 #| fig-dpi: 300
 
 # install.packages("blavaan")
 library(blavaan)
-fit_blav <- bsem(model, PoliticalDemocracy)
+fit_blav <- bsem(model = mod_poldem, data = PoliticalDemocracy)
 res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```

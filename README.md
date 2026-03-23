@@ -44,7 +44,7 @@ Bollen (1989)[^1]:
 
 ``` r
 library(INLAvaan)
-model <- "
+mod_poldem <- "
   # Latent variable definitions
      ind60 =~ x1 + x2 + x3
      dem60 =~ y1 + y2 + y3
@@ -71,24 +71,27 @@ model <- "
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
-fit <- asem(model, PoliticalDemocracy)
+fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [36ms]
+#> ✔ Finding posterior mode. [38ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [33ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.156σ. [92ms]
+#> ✔ VB correction; mean |δ| = 0.156σ. [93ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [463ms]
+#> ⠹ Fitting 7/30 skew-normal marginals.
+#> ⠸ Fitting 19/30 skew-normal marginals.
+#> ✔ Fitting 30/30 skew-normal marginals. [500ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [106ms]
+#> ✔ Adjusting copula correlations (NORTA). [115ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [270ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [274ms]
 #> 
 
 summary(fit)
@@ -107,8 +110,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3156.902 
-#>    Effective parameters (pD)                    29.044 
+#>    Deviance (DIC)                             3157.006 
+#>    Effective parameters (pD)                    29.097 
 #> 
 #> Parameter Estimates:
 #> 
@@ -144,16 +147,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.331    0.400    0.116    1.689    0.005       beta(1,1)
+#>    .y5                0.331    0.386    0.079    1.592    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.217    0.687   -0.192    2.505    0.004       beta(1,1)
-#>    .y6                0.347    0.735    0.782    3.668    0.011       beta(1,1)
+#>    .y4                0.217    0.701   -0.138    2.609    0.004       beta(1,1)
+#>    .y6                0.347    0.736    0.831    3.719    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.225    0.652   -0.246    2.310    0.005       beta(1,1)
+#>    .y7                0.225    0.661   -0.183    2.415    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.070    0.478   -0.629    1.247    0.003       beta(1,1)
+#>    .y4                0.070    0.445   -0.634    1.109    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.307    0.569    0.247    2.481    0.005       beta(1,1)
+#>    .y8                0.307    0.599    0.243    2.584    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -190,7 +193,7 @@ distributions.
 ``` r
 # install.packages("blavaan")
 library(blavaan)
-fit_blav <- bsem(model, PoliticalDemocracy)
+fit_blav <- bsem(model = mod_poldem, data = PoliticalDemocracy)
 res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```

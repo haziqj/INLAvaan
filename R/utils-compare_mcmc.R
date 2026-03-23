@@ -11,7 +11,8 @@ utils::globalVariables(c(
 
 # nocov start
 compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
-                         truth = NULL, use_ggplot = TRUE) {
+                         truth = NULL, use_ggplot = TRUE,
+                         nrow = NULL, ncol = NULL) {
   parnames <- unique(names(coef(fit_blavaan)))
 
   if (requireNamespace("blavaan", quietly = TRUE) == FALSE) {
@@ -232,7 +233,7 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
         ggplot2::aes(x, y, group = method, col = method),
         linewidth = 0.75
       ) +
-      ggplot2::facet_wrap(~name, scales = "free") +
+      ggplot2::facet_wrap(~name, scales = "free", nrow = nrow, ncol = ncol) +
       ggplot2::scale_colour_manual(values = mycols) +
       ggplot2::scale_fill_manual(values = c("MCMC" = "#131516")) +
       ggplot2::theme_minimal() +
@@ -285,7 +286,7 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
       pmax_y <- tapply(label_df$panel_max_y, label_df$name, max)
       label_df$panel_max_y <- pmax_y[as.character(label_df$name)]
       label_df$method_rank <- match(label_df$method, inlav_names)
-      label_df$y <- label_df$panel_max_y * (0.90 - 0.10 * (label_df$method_rank - 1))
+      label_df$y <- label_df$panel_max_y * (0.925 - 0.15 * (label_df$method_rank - 1))
       label_df$panel_max_y <- NULL
       label_df$method_rank <- NULL
       label_df <- merge(label_df, metrics_df, by = c("name", "method"))
@@ -300,7 +301,7 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
           data = label_df,
           ggplot2::aes(x, y, label = JS_percent, col = method),
           size = 3,
-          hjust = 1,
+          hjust = 0.7,
           show.legend = FALSE
         )
     }
