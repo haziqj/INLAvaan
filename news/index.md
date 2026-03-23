@@ -31,6 +31,7 @@
   method.
 - FIX bug in efficient volume correction method (new
   `marginal_correction = "shortcut"` implementation).  
+- FIX bug in gradient computation for non-uniform beta priors.
 - Small optimisations to volume correction of skew-normal
   marginalisation, making it faster to run.
 - FIX bug in

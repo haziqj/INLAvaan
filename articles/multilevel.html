@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9019</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.3.9020</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -221,24 +221,24 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [805ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [604ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [287ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [193ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.123σ. [568ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.123σ. [383ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/20 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 3/20 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 17/20 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 20/20 skew-normal marginals. [4.5s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 8/20 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 20/20 skew-normal marginals. [3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [108ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [109ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [1.6s]</span></span>
+<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [1.5s]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
@@ -247,7 +247,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.3.9019 ended normally after 108 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.3.9020 ended normally after 108 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -263,8 +263,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            24192.241 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    19.471 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24191.620 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    19.160 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>

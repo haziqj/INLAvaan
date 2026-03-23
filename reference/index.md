@@ -16,6 +16,8 @@ Main lavaan-style functions to estimate SEM.
   Specify priors for a SEM
 - [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) :
   Draw Samples from the Generative Model
+- [`simulate(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/simulate.md)
+  : Simulate Datasets from the Generative Model
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
   Compare Bayesian Models Fitted with INLAvaan
 - [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)

@@ -18,6 +18,7 @@ sampling(
   nsamp = 1000L,
   samp_copula = TRUE,
   prior = FALSE,
+  silent = FALSE,
   ...
 )
 ```
@@ -88,17 +89,36 @@ sampling(
   and then propagated through the generative model. When `FALSE`
   (default), parameters come from the posterior.
 
+- silent:
+
+  Logical. When `TRUE`, suppresses the informational message about
+  rejected non-PD draws during prior rejection sampling. Default
+  `FALSE`.
+
 ## Value
 
 A matrix or named list, depending on `type`.
 
 ## Details
 
-The generative chain is: \$\$\boldsymbol\theta \sim
-\pi(\boldsymbol\theta \mid \mathbf{y})\$\$ \$\$\boldsymbol\eta \sim
-N((\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\alpha,\\\boldsymbol\Phi)\$\$
-\$\$\mathbf{y}^\* \sim N(\boldsymbol\Lambda\boldsymbol\eta +
+Each row of the output corresponds to a **fresh parameter draw**: a new
+\\\boldsymbol\theta^{(s)}\\ is sampled and then propagated through the
+generative chain to produce one latent vector and one observed vector.
+This makes `sampling()` ideal for **prior and posterior predictive
+checks** (e.g., density overlays, test statistic distributions).
+
+The generative chain is: \$\$\boldsymbol\theta^{(s)} \sim
+\pi(\boldsymbol\theta \mid \mathbf{y})\$\$ \$\$\boldsymbol\eta^{(s)}
+\sim N((\mathbf{I} -
+\mathbf{B})^{-1}\boldsymbol\alpha,\\\boldsymbol\Phi)\$\$
+\$\$\mathbf{y}^{\*(s)} \sim N(\boldsymbol\Lambda\boldsymbol\eta^{(s)} +
 \boldsymbol\nu,\\\boldsymbol\Theta)\$\$
+
+If you need **complete replicate datasets** (many observations from a
+single parameter draw) — for example, for simulation-based calibration
+(SBC) — use
+[`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md)
+instead.
 
 This is distinct from
 [`predict()`](https://rdrr.io/r/stats/predict.html), which computes
@@ -107,8 +127,12 @@ individual-specific factor scores \\\boldsymbol\eta \mid
 
 ## See also
 
-[`predict()`](https://rdrr.io/r/stats/predict.html),
+[`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) for
+generating complete replicate datasets (e.g., for SBC);
+[`predict()`](https://rdrr.io/r/stats/predict.html) for
+individual-specific factor scores;
 [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+for Bayesian fit indices.
 
 ## Examples
 
@@ -116,22 +140,22 @@ individual-specific factor scores \\\boldsymbol\eta \mid
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [20ms]
+#> ✔ Finding posterior mode. [21ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [18ms]
+#> ✔ Computing the Hessian. [19ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.246σ. [47ms]
+#> ✔ VB correction; mean |δ| = 0.246σ. [53ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [73ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [80ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [20ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [344ms]
+#> ✔ Posterior sampling and summarising. [401ms]
 #> 
 
 # Posterior samples of lavaan-side parameters
