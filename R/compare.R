@@ -39,29 +39,34 @@
 #'
 #' @example inst/examples/ex-model_comparison.R
 #' @export
-setGeneric("compare", function(x, y, ..., fit.measures = NULL)
-  standardGeneric("compare"))
+setGeneric("compare", function(x, y, ..., fit.measures = NULL) {
+  standardGeneric("compare")
+})
 
+#' @name compare
 #' @rdname compare
-#' @aliases compare,INLAvaan-class
 #' @export
 setMethod("compare", "INLAvaan", function(x, y, ..., fit.measures = NULL) {
   mc <- match.call()
   dots <- list(...)
 
   # x = baseline, y + unnamed ... = models to compare
-  model_objs  <- c(list(x, y), dots)
-  model_exprs <- c(list(mc$x, mc$y),
-                    as.list(mc)[-1][!names(as.list(mc)[-1]) %in%
-                      c("x", "y", "fit.measures")])
+  model_objs <- c(list(x, y), dots)
+  model_exprs <- c(
+    list(mc$x, mc$y),
+    as.list(mc)[-1][
+      !names(as.list(mc)[-1]) %in%
+        c("x", "y", "fit.measures")
+    ]
+  )
 
   modnames <- vapply(model_exprs, deparse, character(1))
 
   compare_impl(
-    models       = model_objs,
-    modnames     = modnames,
+    models = model_objs,
+    modnames = modnames,
     fit.measures = fit.measures,
-    baseline     = x
+    baseline = x
   )
 })
 
@@ -70,78 +75,101 @@ compare.inlavaan_internal <- function(x, y, ..., fit.measures = NULL) {
   mc <- match.call()
   dots <- list(...)
 
-  model_objs  <- c(list(x, y), dots)
-  model_exprs <- c(list(mc$x, mc$y),
-                    as.list(mc)[-1][!names(as.list(mc)[-1]) %in%
-                      c("x", "y", "fit.measures")])
+  model_objs <- c(list(x, y), dots)
+  model_exprs <- c(
+    list(mc$x, mc$y),
+    as.list(mc)[-1][
+      !names(as.list(mc)[-1]) %in%
+        c("x", "y", "fit.measures")
+    ]
+  )
 
   modnames <- vapply(model_exprs, deparse, character(1))
 
   compare_impl(
-    models       = model_objs,
-    modnames     = modnames,
+    models = model_objs,
+    modnames = modnames,
     fit.measures = fit.measures,
-    baseline     = x
+    baseline = x
   )
 }
 
 # ---- Internal workhorse ------------------------------------------------------
 
-compare_impl <- function(models, modnames, fit.measures = NULL,
-                         baseline = NULL) {
+compare_impl <- function(
+  models,
+  modnames,
+  fit.measures = NULL,
+  baseline = NULL
+) {
   # Normalise to internal objects, keeping originals for fitMeasures()
   originals <- models
   internals <- lapply(models, function(m) {
-    if (inherits(m, "INLAvaan")) m@external$inlavaan_internal
-    else if (inherits(m, "inlavaan_internal")) m
-    else cli_abort("Each model must be an {.cls INLAvaan} or {.cls inlavaan_internal} object.")
+    if (inherits(m, "INLAvaan")) {
+      m@external$inlavaan_internal
+    } else if (inherits(m, "inlavaan_internal")) {
+      m
+    } else {
+      cli_abort(
+        "Each model must be an {.cls INLAvaan} or {.cls inlavaan_internal} object."
+      )
+    }
   })
 
   nmod <- length(internals)
-  npar    <- vapply(internals, function(m) length(m$theta_star), integer(1))
+  npar <- vapply(internals, function(m) length(m$theta_star), integer(1))
   marg_ll <- vapply(internals, function(m) m$mloglik, numeric(1))
   DIC_vec <- vapply(internals, function(m) m$DIC$dic %||% NA_real_, numeric(1))
-  pD_vec  <- vapply(internals, function(m) m$DIC$pD  %||% NA_real_, numeric(1))
+  pD_vec <- vapply(internals, function(m) m$DIC$pD %||% NA_real_, numeric(1))
 
   best_ll <- max(marg_ll)
-  logBF   <- marg_ll - best_ll
+  logBF <- marg_ll - best_ll
 
   out <- data.frame(
-    Model       = modnames,
-    npar        = npar,
+    Model = modnames,
+    npar = npar,
     Marg.Loglik = marg_ll,
-    logBF       = round(logBF, 3),
+    logBF = round(logBF, 3),
     stringsAsFactors = FALSE
   )
 
   # Append DIC/pD if any model has them
   if (!all(is.na(DIC_vec))) {
     out$DIC <- round(DIC_vec, 3)
-    out$pD  <- round(pD_vec, 3)
+    out$pD <- round(pD_vec, 3)
   }
 
   # Append extra fit measures if requested
   if (!is.null(fit.measures)) {
     has_inlavaan <- vapply(originals, function(m) is(m, "INLAvaan"), logical(1))
     if (!all(has_inlavaan)) {
-      cli_warn("Fit measures require {.cls INLAvaan} objects; skipping for {.cls inlavaan_internal} models.")
+      cli_warn(
+        "Fit measures require {.cls INLAvaan} objects; skipping for {.cls inlavaan_internal} models."
+      )
     } else {
       # baseline (x) is used for incremental indices
       baseline_obj <- if (is(baseline, "INLAvaan")) baseline else NULL
 
       fm_list <- lapply(originals, function(m) {
         tryCatch(
-          fitMeasures(m, fit.measures = fit.measures,
-                      baseline.model = baseline_obj),
+          fitMeasures(
+            m,
+            fit.measures = fit.measures,
+            baseline.model = baseline_obj
+          ),
           error = function(e) NULL
         )
       })
       # Union of all measure names
       all_names <- unique(unlist(lapply(fm_list, names)))
       for (nm in all_names) {
-        out[[nm]] <- vapply(fm_list, function(fm) {
-          if (is.null(fm) || is.na(fm[nm])) NA_real_ else round(fm[nm], 4)
-        }, numeric(1))
+        out[[nm]] <- vapply(
+          fm_list,
+          function(fm) {
+            if (is.null(fm) || is.na(fm[nm])) NA_real_ else round(fm[nm], 4)
+          },
+          numeric(1)
+        )
       }
     }
   }

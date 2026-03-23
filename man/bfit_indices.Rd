@@ -2,6 +2,8 @@
 % Please edit documentation in R/method-fitmeasures.R
 \name{bfit_indices}
 \alias{bfit_indices}
+\alias{summary.bfit_indices}
+\alias{print.bfit_indices}
 \title{Bayesian Fit Indices}
 \usage{
 bfit_indices(
@@ -11,6 +13,10 @@ bfit_indices(
   nsamp = NULL,
   samp_copula = TRUE
 )
+
+\method{summary}{bfit_indices}(object, ...)
+
+\method{print}{bfit_indices}(x, ...)
 }
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
@@ -47,5 +53,5 @@ Compute posterior distributions of Bayesian fit indices for an INLAvaan
 model, analogous to \code{\link[blavaan:blavFitIndices]{blavaan::blavFitIndices()}}.
 }
 \seealso{
-\code{\link[lavaan:fitMeasures]{lavaan::fitMeasures()}}
+\code{\link[lavaan:fitMeasures]{lavaan::fitMeasures()}}, \code{\link[blavaan:blavFitIndices]{blavaan::blavFitIndices()}}
 }

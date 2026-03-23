@@ -71,11 +71,20 @@ build_newdata <- function(newdata, lavdata) {
 
 # Helper: compute factor scores for multilevel blocks.
 # Returns an n x nfac matrix of factor scores.
-compute_fs_ml <- function(data_block, VETA_b, LAMBDA_b, Sigma_hat_b,
-                          Sigma_inv_b, EETA_b, EY_b) {
+compute_fs_ml <- function(
+  data_block,
+  VETA_b,
+  LAMBDA_b,
+  Sigma_hat_b,
+  Sigma_inv_b,
+  EETA_b,
+  EY_b
+) {
   n <- nrow(data_block)
   nfac <- ncol(VETA_b)
-  if (nfac == 0L) return(matrix(0, n, nfac))
+  if (nfac == 0L) {
+    return(matrix(0, n, nfac))
+  }
 
   Yc <- t(t(data_block) - EY_b)
   FSC <- VETA_b %*% t(LAMBDA_b) %*% Sigma_inv_b
@@ -85,13 +94,23 @@ compute_fs_ml <- function(data_block, VETA_b, LAMBDA_b, Sigma_hat_b,
 # Impute missing values in multilevel data by sampling from the conditional
 # posterior: y_mis | y_obs, theta ~ N(mu_cond, Sigma_cond).
 # Returns the data matrix with NAs replaced by posterior draws.
-impute_ml_data <- function(yg, lavimplied, g, nlevels,
-                           ov_names_block, lavdata) {
-  if (!any(is.na(yg))) return(yg)
+impute_ml_data <- function(
+  yg,
+  lavimplied,
+  g,
+  nlevels,
+  ov_names_block,
+  lavdata
+) {
+  if (!any(is.na(yg))) {
+    return(yg)
+  }
 
   p <- ncol(yg)
   var_names <- colnames(yg)
-  if (is.null(var_names)) var_names <- lavdata@ov.names[[g]]
+  if (is.null(var_names)) {
+    var_names <- lavdata@ov.names[[g]]
+  }
 
   block_w <- (g - 1) * nlevels + 1
   block_b <- (g - 1) * nlevels + 2
@@ -159,10 +178,18 @@ impute_ml_data <- function(yg, lavimplied, g, nlevels,
     n_cases <- length(case_rows)
 
     y_obs_c <- yg[case_rows, obs_idx, drop = FALSE] -
-      matrix(mu_y[obs_idx], nrow = n_cases,
-             ncol = length(obs_idx), byrow = TRUE)
-    mu_cond <- matrix(mu_y[mis_idx], nrow = n_cases,
-                      ncol = n_mis, byrow = TRUE) +
+      matrix(
+        mu_y[obs_idx],
+        nrow = n_cases,
+        ncol = length(obs_idx),
+        byrow = TRUE
+      )
+    mu_cond <- matrix(
+      mu_y[mis_idx],
+      nrow = n_cases,
+      ncol = n_mis,
+      byrow = TRUE
+    ) +
       y_obs_c %*% t(A)
 
     Z <- matrix(rnorm(n_cases * n_mis), nrow = n_mis, ncol = n_cases)
@@ -232,9 +259,15 @@ predict.inlavaan_internal <- function(
   type <- match.arg(type)
   # Aliases: "ov"/"yhat" -> "yhat"; "ypred"/"ydist" -> "ypred";
   #          "ymis"/"ovmis" -> "ymis"
-  if (type == "ov") type <- "yhat"
-  if (type == "ydist") type <- "ypred"
-  if (type == "ovmis") type <- "ymis"
+  if (type == "ov") {
+    type <- "yhat"
+  }
+  if (type == "ydist") {
+    type <- "ypred"
+  }
+  if (type == "ovmis") {
+    type <- "ymis"
+  }
 
   theta_star <- object$theta_star
   Sigma_theta <- object$Sigma_theta
@@ -287,7 +320,6 @@ predict.inlavaan_internal <- function(
 
   # ---- type = "lv": Posterior draws of latent variable scores ----
   if (type == "lv") {
-
     if (nlevels > 1L) {
       # ---- Multilevel path: use lavaan internals ----
       lavsamplestats <- object$lavsamplestats
@@ -298,8 +330,12 @@ predict.inlavaan_internal <- function(
         g_b <- ceiling(b / nlevels)
         ov_all <- lavdata@ov.names[[g_b]]
         ov_names_block[[b]] <- unique(
-          pt$lhs[pt$block == b & pt$op == "~~" &
-                   pt$lhs == pt$rhs & pt$lhs %in% ov_all]
+          pt$lhs[
+            pt$block == b &
+              pt$op == "~~" &
+              pt$lhs == pt$rhs &
+              pt$lhs %in% ov_all
+          ]
         )
       }
 
@@ -316,14 +352,17 @@ predict.inlavaan_internal <- function(
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
         LAMBDA <- lavaan___lav_model_lambda(
-          lavmodel = lavmodel_x, remove.dummy.lv = FALSE
+          lavmodel = lavmodel_x,
+          remove.dummy.lv = FALSE
         )
         VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
         EETA <- lavaan___lav_model_eeta(
-          lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
+          lavmodel = lavmodel_x,
+          lavsamplestats = lavsamplestats
         )
         EY <- lavaan___lav_model_ey(
-          lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
+          lavmodel = lavmodel_x,
+          lavsamplestats = lavsamplestats
         )
         Sigma.hat <- lavimplied$cov
         Sigma.inv <- lapply(Sigma.hat, ginv_base)
@@ -336,7 +375,12 @@ predict.inlavaan_internal <- function(
 
           # Impute missing data from conditional posterior, then decompose
           y_g <- impute_ml_data(
-            y[[g]], lavimplied, g, nlevels, ov_names_block, lavdata
+            y[[g]],
+            lavimplied,
+            g,
+            nlevels,
+            ov_names_block,
+            lavdata
           )
 
           Lp <- lavdata@Lp[[g]]
@@ -344,7 +388,8 @@ predict.inlavaan_internal <- function(
           implied.group <- lapply(lavimplied, function(x) x[group.idx])
 
           decomp <- lavaan___lav_mvnorm_cluster_implied22l(
-            Lp = Lp, implied = implied.group
+            Lp = Lp,
+            implied = implied.group
           )
           MB.j <- compute_ml_ranef(y_g, Lp, decomp)
 
@@ -360,7 +405,8 @@ predict.inlavaan_internal <- function(
             between.idx <- Lp$between.idx[[2 * g]]
             if (length(between.idx) > 0L) {
               unique_rows <- match(
-                seq_len(Lp$nclusters[[2]]), Lp$cluster.idx[[2]]
+                seq_len(Lp$nclusters[[2]]),
+                Lp$cluster.idx[[2]]
               )
               Data.B[, between.idx] <-
                 y_g[unique_rows, between.idx, drop = FALSE]
@@ -375,8 +421,13 @@ predict.inlavaan_internal <- function(
           Sigma.inv.g <- Sigma.inv[[b]]
 
           FS.g <- compute_fs_ml(
-            data.obs.g, VETA.g, LAMBDA.g, Sigma.hat[[b]],
-            Sigma.inv.g, EETA.g, EY.g
+            data.obs.g,
+            VETA.g,
+            LAMBDA.g,
+            Sigma.hat[[b]],
+            Sigma.inv.g,
+            EETA.g,
+            EY.g
           )
 
           # Replace dummy LV columns with data (level 1 only, per lavaan)
@@ -418,7 +469,6 @@ predict.inlavaan_internal <- function(
         cli_progress_update()
       }
       cli_progress_done()
-
     } else {
       # ---- Single-level path: full posterior draw ----
       sample_lv <- function(xx) {
@@ -433,7 +483,9 @@ predict.inlavaan_internal <- function(
           B <- glist$beta
           alpha <- glist$alpha
 
-          if (is.null(alpha)) alpha <- 0
+          if (is.null(alpha)) {
+            alpha <- 0
+          }
 
           if (is.null(B)) {
             Phi <- Psi
@@ -487,8 +539,8 @@ predict.inlavaan_internal <- function(
       cli_progress_done()
     }
 
-  # ---- type = "yhat": Predicted means E(y | eta, theta) ----
-  # ---- type = "ypred": Predicted values y = E(y|eta,theta) + eps ----
+    # ---- type = "yhat": Predicted means E(y | eta, theta) ----
+    # ---- type = "ypred": Predicted values y = E(y|eta,theta) + eps ----
   } else if (type %in% c("yhat", "ypred")) {
     add_noise <- (type == "ypred")
 
@@ -502,8 +554,12 @@ predict.inlavaan_internal <- function(
         g_b <- ceiling(b / nlevels)
         ov_all <- lavdata@ov.names[[g_b]]
         ov_names_block[[b]] <- unique(
-          pt$lhs[pt$block == b & pt$op == "~~" &
-                   pt$lhs == pt$rhs & pt$lhs %in% ov_all]
+          pt$lhs[
+            pt$block == b &
+              pt$op == "~~" &
+              pt$lhs == pt$rhs &
+              pt$lhs %in% ov_all
+          ]
         )
       }
 
@@ -512,14 +568,17 @@ predict.inlavaan_internal <- function(
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
         LAMBDA <- lavaan___lav_model_lambda(
-          lavmodel = lavmodel_x, remove.dummy.lv = FALSE
+          lavmodel = lavmodel_x,
+          remove.dummy.lv = FALSE
         )
         VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
         EETA <- lavaan___lav_model_eeta(
-          lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
+          lavmodel = lavmodel_x,
+          lavsamplestats = lavsamplestats
         )
         EY <- lavaan___lav_model_ey(
-          lavmodel = lavmodel_x, lavsamplestats = lavsamplestats
+          lavmodel = lavmodel_x,
+          lavsamplestats = lavsamplestats
         )
         Sigma.hat <- lavimplied$cov
         Sigma.inv <- lapply(Sigma.hat, ginv_base)
@@ -530,12 +589,17 @@ predict.inlavaan_internal <- function(
         names(out) <- group_labels
 
         for (g in seq_len(nG)) {
-          b_w <- (g - 1) * nlevels + 1  # within block
-          b_b <- (g - 1) * nlevels + 2  # between block
+          b_w <- (g - 1) * nlevels + 1 # within block
+          b_b <- (g - 1) * nlevels + 2 # between block
 
           # Impute missing data from conditional posterior, then decompose
           y_g <- impute_ml_data(
-            y[[g]], lavimplied, g, nlevels, ov_names_block, lavdata
+            y[[g]],
+            lavimplied,
+            g,
+            nlevels,
+            ov_names_block,
+            lavdata
           )
 
           Lp <- lavdata@Lp[[g]]
@@ -543,7 +607,8 @@ predict.inlavaan_internal <- function(
           implied.group <- lapply(lavimplied, function(x) x[group.idx])
 
           decomp <- lavaan___lav_mvnorm_cluster_implied22l(
-            Lp = Lp, implied = implied.group
+            Lp = Lp,
+            implied = implied.group
           )
           MB.j <- compute_ml_ranef(y_g, Lp, decomp)
 
@@ -555,8 +620,13 @@ predict.inlavaan_internal <- function(
           data.w <- y_g[, ov.idx[[1]], drop = FALSE] -
             MB.j[Lp$cluster.idx[[2]], , drop = FALSE]
           eta.w <- compute_fs_ml(
-            data.w, VETA[[b_w]], LAMBDA[[b_w]], Sigma.hat[[b_w]],
-            Sigma.inv[[b_w]], EETA[[b_w]], EY[[b_w]]
+            data.w,
+            VETA[[b_w]],
+            LAMBDA[[b_w]],
+            Sigma.hat[[b_w]],
+            Sigma.inv[[b_w]],
+            EETA[[b_w]],
+            EY[[b_w]]
           )
           if (length(lavmodel_x@ov.x.dummy.lv.idx[[b_w]]) > 0L) {
             eta.w[, lavmodel_x@ov.x.dummy.lv.idx[[b_w]]] <-
@@ -573,23 +643,29 @@ predict.inlavaan_internal <- function(
           between.idx <- Lp$between.idx[[2 * g]]
           if (length(between.idx) > 0L) {
             unique_rows <- match(
-              seq_len(Lp$nclusters[[2]]), Lp$cluster.idx[[2]]
+              seq_len(Lp$nclusters[[2]]),
+              Lp$cluster.idx[[2]]
             )
             Data.B[, between.idx] <-
               y_g[unique_rows, between.idx, drop = FALSE]
           }
           data.b <- Data.B[, ov.idx[[2]], drop = FALSE]
           eta.b <- compute_fs_ml(
-            data.b, VETA[[b_b]], LAMBDA[[b_b]], Sigma.hat[[b_b]],
-            Sigma.inv[[b_b]], EETA[[b_b]], EY[[b_b]]
+            data.b,
+            VETA[[b_b]],
+            LAMBDA[[b_b]],
+            Sigma.hat[[b_b]],
+            Sigma.inv[[b_b]],
+            EETA[[b_b]],
+            EY[[b_b]]
           )
 
           # --- Predicted values: within + between ---
           eta_w_c <- sweep(eta.w, 2, EETA[[b_w]])
-          yhat_w <- t(EY[[b_w]] + LAMBDA[[b_w]] %*% t(eta_w_c))  # n_obs x p_w
+          yhat_w <- t(EY[[b_w]] + LAMBDA[[b_w]] %*% t(eta_w_c)) # n_obs x p_w
 
           eta_b_c <- sweep(eta.b, 2, EETA[[b_b]])
-          yhat_b <- t(EY[[b_b]] + LAMBDA[[b_b]] %*% t(eta_b_c))  # n_clust x p_b
+          yhat_b <- t(EY[[b_b]] + LAMBDA[[b_b]] %*% t(eta_b_c)) # n_clust x p_b
 
           yhat <- matrix(0, n_obs, p)
           yhat[, ov.idx[[1]]] <- yhat_w
@@ -640,7 +716,9 @@ predict.inlavaan_internal <- function(
           }
 
           cn <- colnames(y[[g]])
-          if (is.null(cn)) cn <- lavdata@ov.names[[g]]
+          if (is.null(cn)) {
+            cn <- lavdata@ov.names[[g]]
+          }
           colnames(yhat) <- cn
           out[[g]] <- yhat
         }
@@ -669,7 +747,6 @@ predict.inlavaan_internal <- function(
         cli_progress_update()
       }
       cli_progress_done()
-
     } else {
       # ---- Single-level yhat/ypred ----
       sample_yhat <- function(xx) {
@@ -686,8 +763,12 @@ predict.inlavaan_internal <- function(
           alpha <- glist$alpha
           nu <- glist$nu
 
-          if (is.null(alpha)) alpha <- rep(0, ncol(Lambda))
-          if (is.null(nu)) nu <- rep(0, nrow(Lambda))
+          if (is.null(alpha)) {
+            alpha <- rep(0, ncol(Lambda))
+          }
+          if (is.null(nu)) {
+            nu <- rep(0, nrow(Lambda))
+          }
 
           if (is.null(B)) {
             Phi <- Psi
@@ -715,8 +796,10 @@ predict.inlavaan_internal <- function(
             yhat <- sweep(tcrossprod(eta_draw, Lambda), 2, as.numeric(nu), "+")
           } else {
             yhat <- sweep(
-              tcrossprod(eta_draw %*% t(IminB_inv), Lambda), 2,
-              as.numeric(nu), "+"
+              tcrossprod(eta_draw %*% t(IminB_inv), Lambda),
+              2,
+              as.numeric(nu),
+              "+"
             )
           }
 
@@ -733,7 +816,9 @@ predict.inlavaan_internal <- function(
 
         if (nG == 1L) {
           cn <- colnames(y[[1L]])
-          if (is.null(cn)) cn <- lavdata@ov.names[[1L]]
+          if (is.null(cn)) {
+            cn <- lavdata@ov.names[[1L]]
+          }
           colnames(out[[1L]]) <- cn
           out <- out[[1L]]
         } else {
@@ -742,14 +827,20 @@ predict.inlavaan_internal <- function(
             Map(function(g, df) data.frame(group = g, df), names(out), out)
           )
           cn <- colnames(y[[1L]])
-          if (is.null(cn)) cn <- lavdata@ov.names[[1L]]
+          if (is.null(cn)) {
+            cn <- lavdata@ov.names[[1L]]
+          }
           colnames(out)[-1] <- cn
         }
         rownames(out) <- NULL
         out
       }
 
-      msg <- if (add_noise) "Sampling predicted values" else "Sampling fitted values"
+      msg <- if (add_noise) {
+        "Sampling predicted values"
+      } else {
+        "Sampling fitted values"
+      }
       out <- vector("list", nsamp)
       cli_progress_bar(msg, total = nsamp, clear = FALSE)
       for (i in seq_len(nsamp)) {
@@ -759,8 +850,9 @@ predict.inlavaan_internal <- function(
       cli_progress_done()
     }
 
-  # ---- type = "ymis": Missing data imputation ----
-  } else if (type == "ymis") { # nocov start
+    # ---- type = "ymis": Missing data imputation ----
+  } else if (type == "ymis") {
+    # nocov start
     # For each posterior draw of model parameters, compute the model-implied
     # covariance Sigma(theta) and mean mu(theta), then draw missing values
     # from their conditional distribution given observed values:
@@ -776,8 +868,12 @@ predict.inlavaan_internal <- function(
         g_b <- ceiling(b / nlevels)
         ov_all <- lavdata@ov.names[[g_b]]
         ov_names_block[[b]] <- unique(
-          pt$lhs[pt$block == b & pt$op == "~~" &
-                   pt$lhs == pt$rhs & pt$lhs %in% ov_all]
+          pt$lhs[
+            pt$block == b &
+              pt$op == "~~" &
+              pt$lhs == pt$rhs &
+              pt$lhs %in% ov_all
+          ]
         )
       }
     }
@@ -823,7 +919,9 @@ predict.inlavaan_internal <- function(
           }
 
           var_names <- colnames(yg)
-          if (is.null(var_names)) var_names <- lavdata@ov.names[[g]]
+          if (is.null(var_names)) {
+            var_names <- lavdata@ov.names[[g]]
+          }
           Sigma_y <- matrix(0, p, p, dimnames = list(var_names, var_names))
 
           vn_w <- rownames(Sigma_w)
@@ -885,14 +983,21 @@ predict.inlavaan_internal <- function(
           n_cases <- length(case_rows)
 
           y_obs_centred <- yg[case_rows, obs_idx, drop = FALSE] -
-            matrix(mu_y[obs_idx], nrow = n_cases,
-                   ncol = length(obs_idx), byrow = TRUE)
-          mu_cond <- matrix(mu_y[mis_idx], nrow = n_cases,
-                            ncol = n_mis, byrow = TRUE) +
+            matrix(
+              mu_y[obs_idx],
+              nrow = n_cases,
+              ncol = length(obs_idx),
+              byrow = TRUE
+            )
+          mu_cond <- matrix(
+            mu_y[mis_idx],
+            nrow = n_cases,
+            ncol = n_mis,
+            byrow = TRUE
+          ) +
             y_obs_centred %*% t(A)
 
-          Z <- matrix(rnorm(n_cases * n_mis),
-                      nrow = n_mis, ncol = n_cases)
+          Z <- matrix(rnorm(n_cases * n_mis), nrow = n_mis, ncol = n_cases)
           draws <- mu_cond + t(chol_cond %*% Z)
           outg[case_rows, mis_idx] <- draws
         }
@@ -907,15 +1012,21 @@ predict.inlavaan_internal <- function(
         for (g in seq_len(nG)) {
           yg_orig <- y[[g]]
           var_nms <- colnames(yg_orig)
-          if (is.null(var_nms)) var_nms <- lavdata@ov.names[[g]]
+          if (is.null(var_nms)) {
+            var_nms <- lavdata@ov.names[[g]]
+          }
           na_pos <- which(is.na(yg_orig), arr.ind = TRUE)
           na_pos <- na_pos[order(na_pos[, 1L], na_pos[, 2L]), , drop = FALSE]
           if (nrow(na_pos) == 0L) {
             imp_list[[g]] <- numeric(0L)
           } else {
             vals <- out[[g]][na_pos]
-            nms  <- paste0(var_nms[na_pos[, 2L]], "[",
-                           na_pos[, 1L] + row_offset, "]")
+            nms <- paste0(
+              var_nms[na_pos[, 2L]],
+              "[",
+              na_pos[, 1L] + row_offset,
+              "]"
+            )
             names(vals) <- nms
             imp_list[[g]] <- vals
           }
@@ -926,7 +1037,9 @@ predict.inlavaan_internal <- function(
 
       if (nG == 1L) {
         cn <- colnames(y[[1L]])
-        if (is.null(cn)) cn <- lavdata@ov.names[[1L]]
+        if (is.null(cn)) {
+          cn <- lavdata@ov.names[[1L]]
+        }
         colnames(out[[1L]]) <- cn
         out <- out[[1L]]
       } else {
@@ -963,7 +1076,9 @@ print.predict.inlavaan_internal <- function(
 ) {
   type <- attr(x, "type")
   cat("Predicted values from inlavaan model")
-  if (!is.null(type)) cat(sprintf(" (type = \"%s\")", type))
+  if (!is.null(type)) {
+    cat(sprintf(" (type = \"%s\")", type))
+  }
   cat("\n")
   cat("Number of samples:", length(x), "\n")
   cat("First sample:\n")
@@ -975,10 +1090,20 @@ print.predict.inlavaan_internal <- function(
     n_total <- length(first)
     if (n_total > n) {
       print(first[seq_len(n)], digits = nd)
-      cat(col_grey(paste0("# ", symbol$info, " ", n_total - n, " more value",
-                          if (n_total - n == 1L) "" else "s", "\n")))
-      cat(col_grey(paste0("# ", symbol$info,
-                          " Use `summary()` to see summary statistics\n")))
+      cat(col_grey(paste0(
+        "# ",
+        symbol$info,
+        " ",
+        n_total - n,
+        " more value",
+        if (n_total - n == 1L) "" else "s",
+        "\n"
+      )))
+      cat(col_grey(paste0(
+        "# ",
+        symbol$info,
+        " Use `summary()` to see summary statistics\n"
+      )))
     } else {
       print(first, digits = nd)
     }
@@ -989,10 +1114,20 @@ print.predict.inlavaan_internal <- function(
   nr <- nrow(first)
   if (!is.null(nr) && nr > n) {
     print(as.data.frame(first[seq_len(n), , drop = FALSE]), digits = nd)
-    cat(col_grey(paste0("# ", symbol$info, " ", nr - n, " more row",
-                        if (nr - n == 1L) "" else "s", "\n")))
-    cat(col_grey(paste0("# ", symbol$info,
-                        " Use `summary()` to see summary statistics\n")))
+    cat(col_grey(paste0(
+      "# ",
+      symbol$info,
+      " ",
+      nr - n,
+      " more row",
+      if (nr - n == 1L) "" else "s",
+      "\n"
+    )))
+    cat(col_grey(paste0(
+      "# ",
+      symbol$info,
+      " Use `summary()` to see summary statistics\n"
+    )))
   } else {
     print(as.data.frame(first), digits = nd)
   }
@@ -1051,8 +1186,15 @@ print.summary.predict.inlavaan_internal <- function(
   nr <- nrow(mat)
   if (!is.null(nr) && nr > n) {
     print(as.data.frame(mat[seq_len(n), , drop = FALSE]), digits = nd)
-    cat(col_grey(paste0("# ", symbol$info, " ", nr - n, " more row",
-                        if (nr - n == 1L) "" else "s", "\n")))
+    cat(col_grey(paste0(
+      "# ",
+      symbol$info,
+      " ",
+      nr - n,
+      " more row",
+      if (nr - n == 1L) "" else "s",
+      "\n"
+    )))
   } else {
     print(as.data.frame(mat), digits = nd)
   }
@@ -1102,50 +1244,88 @@ print.summary.predict.inlavaan_internal <- function(
 #
 # }
 
-#' @inheritParams inlavaan
-#' @rdname INLAvaan-class
+#' Posterior Predictions for INLAvaan Models
+#'
+#' Compute posterior predictions from a fitted \code{INLAvaan} model,
+#' including latent variable scores, predicted observed values, and imputed
+#' missing data.
+#'
 #' @param object An object of class [INLAvaan].
 #' @param type Character string specifying the type of prediction:
 #'   \describe{
-#'     \item{`"lv"`}{(default) Posterior draws of latent variable scores
+#'     \item{\code{"lv"}}{(default) Posterior draws of latent variable scores
 #'       \eqn{\eta | y, \theta}.}
-#'     \item{`"yhat"`, `"ov"`}{Predicted means for observed variables
+#'     \item{\code{"yhat"}, \code{"ov"}}{Predicted means for observed variables
 #'       \eqn{E(y | \eta, \theta) = \nu + \Lambda \eta}; no residual noise.}
-#'     \item{`"ypred"`, `"ydist"`}{Predicted observed values including
+#'     \item{\code{"ypred"}, \code{"ydist"}}{Predicted observed values including
 #'       residual noise \eqn{y = \nu + \Lambda \eta + \varepsilon},
 #'       \eqn{\varepsilon \sim N(0, \Theta)}.}
-#'     \item{`"ymis"`, `"ovmis"`}{Imputed values for missing observations,
-#'       drawn from the conditional distribution
+#'     \item{\code{"ymis"}, \code{"ovmis"}}{Imputed values for missing
+#'       observations, drawn from the conditional distribution
 #'       \eqn{y_{mis} | y_{obs}, \theta}.}
 #'   }
 #' @param newdata An optional data frame of new observations. If supplied,
-#'   predictions are computed for `newdata` rather than the original training
-#'   data. Not supported for `type = "ymis"`.
-#' @param level Integer; for `type = "lv"` in multilevel models, specifies
-#'   whether level 1 or level 2 latent variables are desired (default `1L`).
-#' @param ymis_only Logical; only applies when `type = "ymis"`. When `TRUE`,
-#'   returns only the imputed values as a named numeric vector per sample,
-#'   with names of the form `"varname[rowindex]"` (matching the blavaan
-#'   convention). When `FALSE` (default), returns the full data matrix with
+#'   predictions are computed for \code{newdata} rather than the original
+#'   training data. Not supported for \code{type = "ymis"}.
+#' @param level Integer; for \code{type = "lv"} in multilevel models, specifies
+#'   whether level 1 or level 2 latent variables are desired (default \code{1L}).
+#' @param nsamp Integer; number of posterior samples to use for prediction.
+#'   Defaults to \code{1000}.
+#' @param ymis_only Logical; only applies when \code{type = "ymis"}. When
+#'   \code{TRUE}, returns only the imputed values as a named numeric vector per
+#'   sample (names of the form \code{"varname[rowindex]"}, matching the blavaan
+#'   convention). When \code{FALSE} (default), returns the full data matrix with
 #'   missing values filled in.
+#' @param ... Currently unused.
+#'
+#' @returns A matrix of posterior draws with rows corresponding to samples and
+#'   columns to variables or latent factors, or a list of such matrices when
+#'   \code{ymis_only = FALSE}.
+#'
+#' @examples
+#' \donttest{
+#' HS.model <- "
+#'   visual  =~ x1 + x2 + x3
+#'   textual =~ x4 + x5 + x6
+#'   speed   =~ x7 + x8 + x9
+#' "
+#' utils::data("HolzingerSwineford1939", package = "lavaan")
+#' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+#'             test = "none", verbose = FALSE)
+#'
+#' # Posterior latent variable scores
+#' lv_scores <- predict(fit)
+#' head(lv_scores)
+#'
+#' # Predicted observed variable means
+#' yhat <- predict(fit, type = "yhat")
+#' head(yhat)
+#' }
+#'
+#' @name predict
+#' @rdname predict
 #' @export
-setMethod("predict", "INLAvaan", function(
-  object,
-  type = c("lv", "yhat", "ov", "ypred", "ydist", "ymis", "ovmis"),
-  newdata = NULL,
-  level = 1L,
-  nsamp = 1000,
-  ymis_only = FALSE,
-  ...
-) {
-  type <- match.arg(type)
-  predict.inlavaan_internal(
-    object@external$inlavaan_internal,
-    type = type,
-    newdata = newdata,
-    level = level,
-    nsamp = nsamp,
-    ymis_only = ymis_only,
+setMethod(
+  "predict",
+  "INLAvaan",
+  function(
+    object,
+    type = c("lv", "yhat", "ov", "ypred", "ydist", "ymis", "ovmis"),
+    newdata = NULL,
+    level = 1L,
+    nsamp = 1000,
+    ymis_only = FALSE,
     ...
-  )
-})
+  ) {
+    type <- match.arg(type)
+    predict.inlavaan_internal(
+      object@external$inlavaan_internal,
+      type = type,
+      newdata = newdata,
+      level = level,
+      nsamp = nsamp,
+      ymis_only = ymis_only,
+      ...
+    )
+  }
+)

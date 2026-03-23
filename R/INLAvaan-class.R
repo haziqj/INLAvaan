@@ -5,6 +5,8 @@
 #'
 #' @slot external A list containing an `inlavaan_internal` object.
 #'
+#' @param object An object of class \code{INLAvaan}.
+#'
 #' @seealso [lavaan-class]
 #'
 #' @name INLAvaan-class

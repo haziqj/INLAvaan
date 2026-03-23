@@ -15,6 +15,7 @@ inlavaan(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
@@ -77,6 +78,10 @@ drawn using the copula method with the fitted marginals (e.g.
 skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
 When \code{FALSE}, samples are drawn from the Gaussian (Laplace)
 approximation. Only re}
+
+\item{sn_fit_ngrid}{Number of grid points to lay out per dimension when
+fitting the skew-normal marginals. A finer grid gives a better fit at the
+cost of more joint-log-posterior evaluations. Defaults to \code{21}.}
 
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew-normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will

@@ -29,6 +29,18 @@ Supports advanced 'lavaan' syntax features, including:
 }
 }
 
+\section{Methods for \code{INLAvaan} objects}{
+
+After fitting a model an \link{INLAvaan} object is returned. The following S4
+methods are available. See \linkS4class{INLAvaan} for the class definition.
+\itemize{
+\item Summaries and parameter estimates: \code{\link[=summary]{summary()}}, \code{\link[=coef]{coef()}}, \code{\link[=vcov]{vcov()}}, \code{\link[=standardisedsolution]{standardisedsolution()}}
+\item Fit assessment and model comparison: \code{\link[=fitMeasures]{fitMeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}, \code{\link[=compare]{compare()}}, \code{\link[=diagnostics]{diagnostics()}}, \code{\link[=timing]{timing()}}
+\item Posterior inference and simulation: \code{\link[=predict]{predict()}}, \code{\link[=sampling]{sampling()}}, \code{\link[=simulate]{simulate()}}
+\item Visualisation: \code{\link[=plot]{plot()}}
+}
+}
+
 \section{Online vignettes}{
 
 The \href{https://inlavaan.haziqj.ml/}{package website} contains comprehensive examples covering:

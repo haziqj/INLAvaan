@@ -10,6 +10,15 @@
 #' * Defined parameters (e.g., `:=` operator for indirect effects)
 #' * Flexible prior specifications
 #'
+#' @section Methods for \code{INLAvaan} objects:
+#' After fitting a model an [INLAvaan] object is returned. The following S4
+#' methods are available. See [INLAvaan-class] for the class definition.
+#'
+#' * Summaries and parameter estimates: [summary()], [coef()], [vcov()], [standardisedsolution()]
+#' * Fit assessment and model comparison: [fitmeasures()], [bfit_indices()], [compare()], [diagnostics()], [timing()]
+#' * Posterior inference and simulation: [predict()], [sampling()], [simulate()]
+#' * Visualisation: [plot()]
+
 #' @section Online vignettes:
 #' The [package website](https://inlavaan.haziqj.ml/) contains comprehensive examples covering:
 #' * Confirmatory Factor Analysis (CFA)

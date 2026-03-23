@@ -1,11 +1,3 @@
-#' @rdname INLAvaan-class
-#' @param object An object of class [INLAvaan].
-#' @export
-setMethod("coef", "INLAvaan", function(object) {
-  class(object) <- "lavaan"
-  callNextMethod()
-})
-
 #' @exportS3Method summary inlavaan_internal
 summary.inlavaan_internal <- function(object, ...) {
   structure(
@@ -268,6 +260,7 @@ summary_inlavaan <- function(
 #' @param priors Logical; if TRUE, include prior information in estimates.
 #' @param nd Integer; number of decimal places to print for numeric values.
 #'
+#' @name summary
 #' @rdname INLAvaan-class
 #' @export
 setMethod("summary", "INLAvaan", summary_inlavaan)

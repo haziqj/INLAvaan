@@ -2,7 +2,6 @@
 % Please edit documentation in R/method-sampling.R
 \name{sampling}
 \alias{sampling}
-\alias{sampling,INLAvaan-method}
 \title{Draw Samples from the Generative Model}
 \usage{
 sampling(object, ...)

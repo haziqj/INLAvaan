@@ -9,6 +9,8 @@
 #'
 #' @returns A `data.frame` containing standardised model parameters.
 #' @export
+#' @name standardisedsolution
+#' @rdname standardisedsolution
 #' @example inst/examples/ex-stdsoln.R
 standardisedsolution <- function(
   object,
@@ -110,6 +112,7 @@ standardisedsolution <- function(
   out
 }
 
+#' @name standardisedsolution
 #' @rdname standardisedsolution
 #' @export
 standardisedSolution <- function(
@@ -144,6 +147,7 @@ standardisedSolution <- function(
   )
 }
 
+#' @name standardizedsolution
 #' @rdname standardisedsolution
 #' @export
 standardizedsolution <- function(
@@ -178,6 +182,7 @@ standardizedsolution <- function(
   )
 }
 
+#' @name standardizedsolution
 #' @rdname standardisedsolution
 #' @export
 standardizedSolution <- function(

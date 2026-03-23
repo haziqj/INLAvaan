@@ -1,14 +1,47 @@
-#' @rdname INLAvaan-class
+#' Timing Information for INLAvaan Models
+#'
+#' Extract wall-clock timings for individual computation stages of a fitted
+#' \code{INLAvaan} model.
+#'
+#' @param object An object of class [INLAvaan].
 #' @param what Character vector of timing segment names to return, or
-#'   `"all"` to return every segment. Defaults to `"total"`. Available
-#'   segments (depending on model options): `"init"`, `"optim"`, `"vb"`,
-#'   `"loglik"`, `"marginals"`, `"norta"`, `"sampling"`, `"covariances"`,
-#'   `"definedpars"`, `"deltapars"`, `"test"`, `"total"`.
+#'   \code{"all"} to return every segment. Defaults to \code{"total"}.
+#'   Available segments (depending on model options): \code{"init"},
+#'   \code{"optim"}, \code{"vb"}, \code{"loglik"}, \code{"marginals"},
+#'   \code{"norta"}, \code{"sampling"}, \code{"covariances"},
+#'   \code{"definedpars"}, \code{"deltapars"}, \code{"test"}, \code{"total"}.
+#' @param ... Currently unused.
+#'
+#' @returns A named numeric vector (class \code{c("timing.INLAvaan",
+#'   "numeric")}) of elapsed times in seconds. Printing formats short
+#'   durations as seconds, longer ones as minutes or hours.
+#'
+#' @examples
+#' \donttest{
+#' HS.model <- "
+#'   visual  =~ x1 + x2 + x3
+#'   textual =~ x4 + x5 + x6
+#'   speed   =~ x7 + x8 + x9
+#' "
+#' utils::data("HolzingerSwineford1939", package = "lavaan")
+#' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+#'             test = "none", verbose = FALSE)
+#'
+#' # Total elapsed time
+#' timing(fit)
+#'
+#' # All stages
+#' timing(fit, what = "all")
+#'
+#' # Specific stages
+#' timing(fit, what = c("optim", "marginals"))
+#' }
+#'
 #' @export
 setGeneric("timing", function(object, ...) standardGeneric("timing"))
 
-#' @rdname INLAvaan-class
-#' @aliases timing,INLAvaan-method
+#' @name timing
+#' @rdname timing
 #' @export
 setMethod(
   "timing",
@@ -39,9 +72,15 @@ setMethod(
 #' @exportS3Method print timing.INLAvaan
 print.timing.INLAvaan <- function(x, ...) {
   fmt_time <- function(s) {
-    if (is.na(s)) return("NA")
-    if (s < 60)   return(sprintf("%.2f s", s))
-    if (s < 3600) return(sprintf("%.1f min", s / 60))
+    if (is.na(s)) {
+      return("NA")
+    }
+    if (s < 60) {
+      return(sprintf("%.2f s", s))
+    }
+    if (s < 3600) {
+      return(sprintf("%.1f min", s / 60))
+    }
     sprintf("%.2f hr", s / 3600)
   }
   vals <- vapply(x, fmt_time, character(1))

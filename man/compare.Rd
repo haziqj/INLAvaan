@@ -2,8 +2,6 @@
 % Please edit documentation in R/compare.R
 \name{compare}
 \alias{compare}
-\alias{compare,INLAvaan-method}
-\alias{compare,INLAvaan-class}
 \title{Compare Bayesian Models Fitted with INLAvaan}
 \usage{
 compare(x, y, ..., fit.measures = NULL)

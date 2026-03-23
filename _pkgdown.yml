@@ -23,13 +23,21 @@ reference:
     - asem
     - agrowth
     - priors_for
-    - sampling
+
+- title: Methods
+  contents:
+    - INLAvaan-class   
+    - standardisedsolution    
+    - diagnostics
+    - timing        
+    - fitmeasures
+    - bfit_indices    
+    - compare    
+    - plot
+    - vcov
+    - predict
     - simulate
-    - compare
-    - bfit_indices
-    - INLAvaan-class
-    - fitMeasures,INLAvaan-method
-    - standardisedsolution
+    - sampling    
 
 - title: Utility functions
   contents:

@@ -65,30 +65,36 @@
 #'   [bfit_indices()] for Bayesian fit indices.
 #'
 #' @example inst/examples/ex-sampling.R
-#' @name sampling
-#' @rdname sampling
 #' @export
 setGeneric("sampling", function(object, ...) standardGeneric("sampling"))
 
+#' @name sampling
 #' @rdname sampling
 #' @export
-setMethod("sampling", "INLAvaan", function(
-  object,
-  type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
-  nsamp = 1000L,
-  samp_copula = TRUE,
-  prior = FALSE,
-  silent = FALSE,
-  ...
-) {
-  sampling_impl(
-    object@external$inlavaan_internal,
-    type = type, nsamp = nsamp, samp_copula = samp_copula, prior = prior,
-    meanstructure = isTRUE(object@Options$meanstructure),
-    silent = silent,
+setMethod(
+  "sampling",
+  "INLAvaan",
+  function(
+    object,
+    type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
+    nsamp = 1000L,
+    samp_copula = TRUE,
+    prior = FALSE,
+    silent = FALSE,
     ...
-  )
-})
+  ) {
+    sampling_impl(
+      object@external$inlavaan_internal,
+      type = type,
+      nsamp = nsamp,
+      samp_copula = samp_copula,
+      prior = prior,
+      meanstructure = isTRUE(object@Options$meanstructure),
+      silent = silent,
+      ...
+    )
+  }
+)
 
 #' @exportS3Method sampling inlavaan_internal
 sampling.inlavaan_internal <- function(
@@ -102,7 +108,10 @@ sampling.inlavaan_internal <- function(
 ) {
   sampling_impl(
     object,
-    type = type, nsamp = nsamp, samp_copula = samp_copula, prior = prior,
+    type = type,
+    nsamp = nsamp,
+    samp_copula = samp_copula,
+    prior = prior,
     silent = silent,
     ...
   )
@@ -113,14 +122,14 @@ sampling.inlavaan_internal <- function(
 sample_params_posterior <- function(int, nsamp, samp_copula) {
   method <- if (isTRUE(samp_copula)) int$marginal_method else "sampling"
   sample_params(
-    theta_star  = int$theta_star,
+    theta_star = int$theta_star,
     Sigma_theta = int$Sigma_theta,
-    method      = method,
+    method = method,
     approx_data = int$approx_data,
-    pt          = int$partable,
-    lavmodel    = int$lavmodel,
-    nsamp       = nsamp,
-    R_star      = int$R_star
+    pt = int$partable,
+    lavmodel = int$lavmodel,
+    nsamp = nsamp,
+    R_star = int$R_star
   )
 }
 
@@ -144,26 +153,29 @@ sample_params_prior <- function(int, nsamp) {
       x_natural[, j] <- stats::rnorm(nsamp, 0, 10)
     } else if (grepl("^normal", prior_str)) {
       par <- as.numeric(strsplit(
-        gsub("normal\\(|\\)", "", prior_str), ","
+        gsub("normal\\(|\\)", "", prior_str),
+        ","
       )[[1]])
       x_natural[, j] <- stats::rnorm(nsamp, par[1], par[2])
     } else if (grepl("^gamma", prior_str)) {
-      is_sd   <- grepl("\\[sd\\]", prior_str)
+      is_sd <- grepl("\\[sd\\]", prior_str)
       is_prec <- grepl("\\[prec\\]", prior_str)
       par <- as.numeric(strsplit(
-        gsub("gamma\\(|\\)|\\[sd\\]|\\[prec\\]", "", prior_str), ","
+        gsub("gamma\\(|\\)|\\[sd\\]|\\[prec\\]", "", prior_str),
+        ","
       )[[1]])
       raw <- stats::rgamma(nsamp, shape = par[1], rate = par[2])
       if (is_sd) {
-        x_natural[, j] <- raw^2        # SD → variance
+        x_natural[, j] <- raw^2 # SD → variance
       } else if (is_prec) {
-        x_natural[, j] <- 1 / raw      # precision → variance
+        x_natural[, j] <- 1 / raw # precision → variance
       } else {
         x_natural[, j] <- raw
       }
     } else if (grepl("^beta", prior_str)) {
       par <- as.numeric(strsplit(
-        gsub("beta\\(|\\)", "", prior_str), ","
+        gsub("beta\\(|\\)", "", prior_str),
+        ","
       )[[1]])
       x_natural[, j] <- stats::rbeta(nsamp, par[1], par[2]) * 2 - 1
     } else {
@@ -175,12 +187,15 @@ sample_params_prior <- function(int, nsamp) {
   theta_samp <- x_natural
   for (j in seq_len(m)) {
     theta_samp[, j] <- vapply(
-      x_natural[, j], pt$g[[PTFREEIDX[j]]], numeric(1)
+      x_natural[, j],
+      pt$g[[PTFREEIDX[j]]],
+      numeric(1)
     )
   }
 
   # Apply equality constraints if present
-  if (lavmodel@ceq.simple.only) { # nocov start
+  if (lavmodel@ceq.simple.only) {
+    # nocov start
     K <- lavmodel@ceq.simple.K
     theta_samp <- t(apply(theta_samp, 1, function(p) as.numeric(K %*% p)))
   } # nocov end
@@ -199,19 +214,21 @@ sample_latent_from_model <- function(x_row, lavmodel, strict = FALSE) {
   eta_list <- vector("list", nG)
 
   for (g in seq_len(nG)) {
-    glist  <- GLIST[[g]]
-    Psi    <- glist$psi
-    B      <- glist$beta
-    alpha  <- glist$alpha
+    glist <- GLIST[[g]]
+    Psi <- glist$psi
+    B <- glist$beta
+    alpha <- glist$alpha
 
     IminB <- if (is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
-    if (is.null(alpha)) alpha <- rep(0, nrow(Psi))
+    if (is.null(alpha)) {
+      alpha <- rep(0, nrow(Psi))
+    }
     IminB_inv <- solve(IminB)
 
     mu_eta <- as.numeric(IminB_inv %*% alpha)
-    Phi    <- IminB_inv %*% Psi %*% t(IminB_inv)
+    Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
     chol_Phi <- if (strict) {
-      t(chol(Phi))  # nocov - error propagates if non-PD
+      t(chol(Phi)) # nocov - error propagates if non-PD
     } else {
       tryCatch(t(chol(Phi)), error = function(e) t(chol(make_pd(Phi))))
     }
@@ -232,17 +249,19 @@ sample_observed_from_model <- function(x_row, eta, lavmodel, strict = FALSE) {
   y_list <- vector("list", nG)
 
   for (g in seq_len(nG)) {
-    glist  <- GLIST[[g]]
+    glist <- GLIST[[g]]
     Lambda <- glist$lambda
-    Theta  <- glist$theta
-    nu     <- glist$nu
+    Theta <- glist$theta
+    nu <- glist$nu
 
     eta_g <- if (nG == 1L) eta else eta[[g]]
-    if (is.null(nu)) nu <- rep(0, nrow(Lambda))
+    if (is.null(nu)) {
+      nu <- rep(0, nrow(Lambda))
+    }
 
     mu_y <- as.numeric(Lambda %*% eta_g + nu)
     chol_Theta <- if (strict) {
-      t(chol(Theta))  # nocov - error propagates if non-PD
+      t(chol(Theta)) # nocov - error propagates if non-PD
     } else {
       tryCatch(t(chol(Theta)), error = function(e) t(chol(make_pd(Theta))))
     }
@@ -262,13 +281,13 @@ compute_implied_moments <- function(x_row, lavmodel, meanstructure = FALSE) {
   out_list <- vector("list", nG)
 
   for (g in seq_len(nG)) {
-    glist  <- GLIST[[g]]
+    glist <- GLIST[[g]]
     Lambda <- glist$lambda
-    Psi    <- glist$psi
-    Theta  <- glist$theta
-    B      <- glist$beta
-    alpha  <- glist$alpha
-    nu     <- glist$nu
+    Psi <- glist$psi
+    Theta <- glist$theta
+    B <- glist$beta
+    alpha <- glist$alpha
+    nu <- glist$nu
 
     IminB <- if (is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
     IminB_inv <- solve(IminB)
@@ -280,9 +299,14 @@ compute_implied_moments <- function(x_row, lavmodel, meanstructure = FALSE) {
 
     res <- list(cov = Sigma_y)
 
-    if (meanstructure) { # nocov start
-      if (is.null(alpha)) alpha <- rep(0, nrow(Psi))
-      if (is.null(nu))    nu    <- rep(0, nrow(Lambda))
+    if (meanstructure) {
+      # nocov start
+      if (is.null(alpha)) {
+        alpha <- rep(0, nrow(Psi))
+      }
+      if (is.null(nu)) {
+        nu <- rep(0, nrow(Lambda))
+      }
       mu_y <- as.numeric(Lambda %*% IminB_inv %*% alpha + nu)
       names(mu_y) <- rownames(Lambda)
       res$mean <- mu_y
@@ -301,11 +325,17 @@ compute_implied_moments <- function(x_row, lavmodel, meanstructure = FALSE) {
 # and redrawn.  This preserves the exact prior distribution rather than silently
 # projecting non-PD matrices to PD space via make_pd().
 
-sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE, silent = FALSE) {
-  pt       <- int$partable
-  xnames   <- pt$names[pt$free > 0 & !duplicated(pt$free)]
+sampling_prior_generative <- function(
+  int,
+  type,
+  nsamp,
+  meanstructure = FALSE,
+  silent = FALSE
+) {
+  pt <- int$partable
+  xnames <- pt$names[pt$free > 0 & !duplicated(pt$free)]
   lavmodel <- int$lavmodel
-  nG       <- lavmodel@ngroups
+  nG <- lavmodel@ngroups
 
   # For 'implied' alone, no Cholesky decomposition is needed — just sample
   # parameters and compute the moments directly (no rejection required).
@@ -317,50 +347,54 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE, s
     }))
   }
 
-  need_obs     <- type %in% c("observed", "all")
+  need_obs <- type %in% c("observed", "all")
   need_implied <- type == "all"
 
   # Pre-compute dimensions from a single draw
-  samp0  <- sample_params_prior(int, 1L)
+  samp0 <- sample_params_prior(int, 1L)
   GLIST0 <- get_SEM_param_matrix(samp0$x_samp[1, ], "all", lavmodel)
-  nlv      <- ncol(GLIST0[[1]]$psi)
-  nobs     <- nrow(GLIST0[[1]]$lambda)
+  nlv <- ncol(GLIST0[[1]]$psi)
+  nobs <- nrow(GLIST0[[1]]$lambda)
   lv_names <- colnames(GLIST0[[1]]$psi)
   ov_names <- rownames(GLIST0[[1]]$lambda)
 
   # Column names for output matrices
   if (nG == 1L) {
     eta_cn <- lv_names
-    y_cn   <- ov_names
+    y_cn <- ov_names
   } else {
     eta_cn <- paste0(rep(lv_names, nG), ".g", rep(seq_len(nG), each = nlv))
-    y_cn   <- paste0(rep(ov_names, nG), ".g", rep(seq_len(nG), each = nobs))
+    y_cn <- paste0(rep(ov_names, nG), ".g", rep(seq_len(nG), each = nobs))
   }
 
   # Pre-allocate storage
-  npar      <- length(xnames)
-  x_mat     <- matrix(NA_real_, nsamp, npar)
+  npar <- length(xnames)
+  x_mat <- matrix(NA_real_, nsamp, npar)
   theta_mat <- matrix(NA_real_, nsamp, npar)
-  eta_mat   <- matrix(NA_real_, nsamp, length(eta_cn))
-  y_mat     <- if (need_obs) matrix(NA_real_, nsamp, length(y_cn)) else NULL
-  colnames(x_mat)     <- xnames
+  eta_mat <- matrix(NA_real_, nsamp, length(eta_cn))
+  y_mat <- if (need_obs) matrix(NA_real_, nsamp, length(y_cn)) else NULL
+  colnames(x_mat) <- xnames
   colnames(theta_mat) <- xnames
-  colnames(eta_mat)   <- eta_cn
-  if (need_obs) colnames(y_mat) <- y_cn
+  colnames(eta_mat) <- eta_cn
+  if (need_obs) {
+    colnames(y_mat) <- y_cn
+  }
   implied_list <- if (need_implied) vector("list", nsamp) else NULL
 
-  max_attempts <- nsamp * 20L  # tolerate up to ~95% rejection rate
-  collected    <- 0L
-  attempts     <- 0L
+  max_attempts <- nsamp * 20L # tolerate up to ~95% rejection rate
+  collected <- 0L
+  attempts <- 0L
 
   while (collected < nsamp && attempts < max_attempts) {
     # Draw a batch of parameters (draw what we still need)
-    batch_n    <- nsamp - collected
+    batch_n <- nsamp - collected
     samp_batch <- sample_params_prior(int, batch_n)
 
     for (i in seq_len(batch_n)) {
       attempts <- attempts + 1L
-      if (attempts > max_attempts) break
+      if (attempts > max_attempts) {
+        break
+      }
 
       x1 <- samp_batch$x_samp[i, ]
 
@@ -369,7 +403,9 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE, s
         sample_latent_from_model(x1, lavmodel, strict = TRUE),
         error = function(e) NULL
       )
-      if (is.null(eta1)) next
+      if (is.null(eta1)) {
+        next
+      }
 
       # Try observed draw if needed
       if (need_obs) {
@@ -382,7 +418,7 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE, s
 
       # Valid draw -- store it
       collected <- collected + 1L
-      x_mat[collected, ]     <- x1
+      x_mat[collected, ] <- x1
       theta_mat[collected, ] <- samp_batch$theta_samp[i, ]
 
       if (nG == 1L) {
@@ -395,7 +431,9 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE, s
 
       if (need_implied) {
         implied_list[[collected]] <- compute_implied_moments(
-          x1, lavmodel, meanstructure
+          x1,
+          lavmodel,
+          meanstructure
         )
       }
 
@@ -404,14 +442,16 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE, s
   }
 
   rejected <- attempts - collected
-  if (rejected > 0L && !isTRUE(silent)) { # nocov start
+  if (rejected > 0L && !isTRUE(silent)) {
+    # nocov start
     rej_pct <- round(100 * rejected / attempts, 1)
     cli_inform(
       "Prior sampling: {rejected} of {attempts} draw{?s} ({rej_pct}%) rejected (non-PD model-implied covariance)."
     )
   } # nocov end
 
-  if (collected < nsamp) { # nocov start
+  if (collected < nsamp) {
+    # nocov start
     cli_warn(c(
       "Prior rejection sampling fell short of the requested sample size.",
       "i" = "Only {collected} of {nsamp} samples obtained after {attempts} attempts.",
@@ -421,23 +461,29 @@ sampling_prior_generative <- function(int, type, nsamp, meanstructure = FALSE, s
       cli_abort("No valid prior draws obtained. Priors may be too vague.")
     }
     # Trim to valid rows
-    x_mat     <- x_mat[seq_len(collected), , drop = FALSE]
+    x_mat <- x_mat[seq_len(collected), , drop = FALSE]
     theta_mat <- theta_mat[seq_len(collected), , drop = FALSE]
-    eta_mat   <- eta_mat[seq_len(collected), , drop = FALSE]
-    if (need_obs) y_mat <- y_mat[seq_len(collected), , drop = FALSE]
+    eta_mat <- eta_mat[seq_len(collected), , drop = FALSE]
+    if (need_obs) {
+      y_mat <- y_mat[seq_len(collected), , drop = FALSE]
+    }
     if (need_implied) implied_list <- implied_list[seq_len(collected)]
   } # nocov end
 
-  if (type == "latent")   return(eta_mat)
-  if (type == "observed") return(y_mat)
+  if (type == "latent") {
+    return(eta_mat)
+  }
+  if (type == "observed") {
+    return(y_mat)
+  }
 
   # type == "all"
   list(
-    lavaan   = x_mat,
-    theta    = theta_mat,
-    latent   = eta_mat,
+    lavaan = x_mat,
+    theta = theta_mat,
+    latent = eta_mat,
     observed = y_mat,
-    implied  = implied_list
+    implied = implied_list
   )
 }
 
@@ -458,7 +504,13 @@ sampling_impl <- function(
   # For prior sampling with generative draws, use reject-and-redraw to preserve
   # the exact prior (no silent PD projection).
   if (isTRUE(prior) && type %in% c("latent", "observed", "implied", "all")) {
-    return(sampling_prior_generative(int, type, nsamp, meanstructure, silent = silent))
+    return(sampling_prior_generative(
+      int,
+      type,
+      nsamp,
+      meanstructure,
+      silent = silent
+    ))
   }
 
   # Step 1: draw parameters
@@ -472,12 +524,16 @@ sampling_impl <- function(
   xnames <- pt$names[pt$free > 0 & !duplicated(pt$free)]
   lavmodel <- int$lavmodel
 
-  colnames(samp$x_samp)     <- xnames
+  colnames(samp$x_samp) <- xnames
   colnames(samp$theta_samp) <- xnames
 
   # Early return for parameter-only types
-  if (type == "lavaan")  return(samp$x_samp)
-  if (type == "theta")   return(samp$theta_samp)
+  if (type == "lavaan") {
+    return(samp$x_samp)
+  }
+  if (type == "theta") {
+    return(samp$theta_samp)
+  }
 
   # Compute model-implied moments if requested
   if (type == "implied" || type == "all") {
@@ -488,60 +544,87 @@ sampling_impl <- function(
   }
 
   # Pre-compute dimensions from the first draw
-  nG     <- lavmodel@ngroups
+  nG <- lavmodel@ngroups
   GLIST0 <- get_SEM_param_matrix(samp$x_samp[1, ], "all", lavmodel)
-  nlv    <- ncol(GLIST0[[1]]$psi)
-  nobs   <- nrow(GLIST0[[1]]$lambda)
+  nlv <- ncol(GLIST0[[1]]$psi)
+  nobs <- nrow(GLIST0[[1]]$lambda)
   lv_names <- colnames(GLIST0[[1]]$psi)
   ov_names <- rownames(GLIST0[[1]]$lambda)
 
   # Step 2: draw latent variables from model-implied distribution
   if (nG == 1L) {
-    eta_mat <- t(vapply(seq_len(nsamp), function(i) {
-      sample_latent_from_model(samp$x_samp[i, ], lavmodel)
-    }, numeric(nlv)))
+    eta_mat <- t(vapply(
+      seq_len(nsamp),
+      function(i) {
+        sample_latent_from_model(samp$x_samp[i, ], lavmodel)
+      },
+      numeric(nlv)
+    ))
     colnames(eta_mat) <- lv_names
-  } else { # nocov start
+  } else {
+    # nocov start
     eta_list <- lapply(seq_len(nsamp), function(i) {
       sample_latent_from_model(samp$x_samp[i, ], lavmodel)
     })
-    eta_mat <- do.call(rbind, lapply(eta_list, function(el) {
-      unlist(el)
-    }))
+    eta_mat <- do.call(
+      rbind,
+      lapply(eta_list, function(el) {
+        unlist(el)
+      })
+    )
     colnames(eta_mat) <- paste0(
-      rep(lv_names, nG), ".g", rep(seq_len(nG), each = nlv)
+      rep(lv_names, nG),
+      ".g",
+      rep(seq_len(nG), each = nlv)
     )
   } # nocov end
 
-  if (type == "latent") return(eta_mat)
+  if (type == "latent") {
+    return(eta_mat)
+  }
 
   # Step 3: draw observed variables from model given eta
   if (nG == 1L) {
-    y_mat <- t(vapply(seq_len(nsamp), function(i) {
-      sample_observed_from_model(samp$x_samp[i, ], eta_mat[i, ], lavmodel)
-    }, numeric(nobs)))
+    y_mat <- t(vapply(
+      seq_len(nsamp),
+      function(i) {
+        sample_observed_from_model(samp$x_samp[i, ], eta_mat[i, ], lavmodel)
+      },
+      numeric(nobs)
+    ))
     colnames(y_mat) <- ov_names
-  } else { # nocov start
-    y_mat <- t(vapply(seq_len(nsamp), function(i) {
-      eta_per_group <- split(eta_mat[i, ], rep(seq_len(nG), each = nlv))
-      eta_per_group <- lapply(eta_per_group, unname)
-      unlist(sample_observed_from_model(
-        samp$x_samp[i, ], eta_per_group, lavmodel
-      ))
-    }, numeric(nobs * nG)))
+  } else {
+    # nocov start
+    y_mat <- t(vapply(
+      seq_len(nsamp),
+      function(i) {
+        eta_per_group <- split(eta_mat[i, ], rep(seq_len(nG), each = nlv))
+        eta_per_group <- lapply(eta_per_group, unname)
+        unlist(sample_observed_from_model(
+          samp$x_samp[i, ],
+          eta_per_group,
+          lavmodel
+        ))
+      },
+      numeric(nobs * nG)
+    ))
     colnames(y_mat) <- paste0(
-      rep(ov_names, nG), ".g", rep(seq_len(nG), each = nobs)
+      rep(ov_names, nG),
+      ".g",
+      rep(seq_len(nG), each = nobs)
     )
   } # nocov end
 
-  if (type == "observed") return(y_mat)
+  if (type == "observed") {
+    return(y_mat)
+  }
 
   # type == "all"
   list(
-    lavaan   = samp$x_samp,
-    theta    = samp$theta_samp,
-    latent   = eta_mat,
+    lavaan = samp$x_samp,
+    theta = samp$theta_samp,
+    latent = eta_mat,
     observed = y_mat,
-    implied  = implied_list
+    implied = implied_list
   )
 }
