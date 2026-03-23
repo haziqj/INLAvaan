@@ -33,6 +33,9 @@
 #'   skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
 #'   When `FALSE`, samples are drawn from the Gaussian (Laplace)
 #'   approximation. Only re
+#' @param sn_fit_ngrid Number of grid points to lay out per dimension when
+#'   fitting the skew-normal marginals. A finer grid gives a better fit at the
+#'   cost of more joint-log-posterior evaluations. Defaults to `21`.
 #' @param sn_fit_logthresh The log-threshold for fitting the skew-normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
@@ -82,6 +85,7 @@ inlavaan <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
@@ -500,7 +504,7 @@ inlavaan <- function(
       }
     } else if (marginal_method == "skewnorm") {
       obtain_approx_data <- function(j) {
-        z <- seq(-4, 4, length = 21)
+        z <- seq(-4, 4, length = sn_fit_ngrid)
         yync <- yy <- numeric(length(z))
         gamma1j <- get_gamma1(j)
 
@@ -815,6 +819,7 @@ acfa <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
@@ -866,6 +871,7 @@ asem <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
@@ -915,6 +921,7 @@ agrowth <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
