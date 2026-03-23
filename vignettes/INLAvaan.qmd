@@ -188,12 +188,12 @@ compare(fit, fit2)
 ```
 
 As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs [@tendeiro2019review; @schad2023workflow].
-The `{blavaan}` package is able to implement [WAICs and LOOs](https://ecmerkle.github.io/blavaan/articles/model_comparison.html) as alternative model comparison metrics, and these will hopefully also be implemented in future versions of `{INLAvaan}`.
+The `{blavaan}` package is able to implement [WAICs and LOOs](https://blavaan.org/articles/model_comparison.html) as alternative model comparison metrics, and these will hopefully also be implemented in future versions of `{INLAvaan}`.
 
 
 ## Setting priors
 
-The `{INLAvaan}` package uses the same prior specification syntax as `{blavaan}` [@merkle2018blavaan;@merkle2021efficient], as detailed [here](https://ecmerkle.github.io/blavaan/articles/prior.html).
+The `{INLAvaan}` package uses the same prior specification syntax as `{blavaan}` [@merkle2018blavaan;@merkle2021efficient], as detailed [here](https://blavaan.org/articles/prior.html).
 Essentially, there are two ways to set priors for model parameters:
 1) Globally for all parameters of a certain type (e.g., all factor loadings, all regression coefficients, etc.); and
 2) Individually for specific parameters in the model syntax.
