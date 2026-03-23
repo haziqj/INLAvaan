@@ -34,5 +34,6 @@ show_inlavaan <- function(object) {
 
 #' @name show
 #' @rdname INLAvaan-class
+#' @aliases show,INLAvaan-method
 #' @export
 setMethod("show", "INLAvaan", show_inlavaan)

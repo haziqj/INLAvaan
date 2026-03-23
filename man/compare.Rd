@@ -2,6 +2,7 @@
 % Please edit documentation in R/compare.R
 \name{compare}
 \alias{compare}
+\alias{compare,INLAvaan-method}
 \title{Compare Bayesian Models Fitted with INLAvaan}
 \usage{
 compare(x, y, ..., fit.measures = NULL)
@@ -90,4 +91,7 @@ compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
 }
 \references{
 \url{https://lavaan.ugent.be/tutorial/groups.html}
+}
+\seealso{
+\code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}
 }

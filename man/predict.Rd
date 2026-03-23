@@ -2,6 +2,7 @@
 % Please edit documentation in R/method-predict.R
 \name{predict}
 \alias{predict}
+\alias{predict,INLAvaan-method}
 \title{Posterior Predictions for INLAvaan Models}
 \usage{
 \S4method{predict}{INLAvaan}(
@@ -79,4 +80,7 @@ yhat <- predict(fit, type = "yhat")
 head(yhat)
 }
 
+}
+\seealso{
+\code{\link[=sampling]{sampling()}}, \code{\link[=simulate]{simulate()}}, \code{\link[=summary]{summary()}}
 }

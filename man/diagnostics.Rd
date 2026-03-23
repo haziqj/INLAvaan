@@ -2,6 +2,7 @@
 % Please edit documentation in R/method-diagnostics.R
 \name{diagnostics}
 \alias{diagnostics}
+\alias{diagnostics,INLAvaan-method}
 \title{Convergence and Approximation Diagnostics for INLAvaan Models}
 \usage{
 diagnostics(object, ...)
@@ -87,4 +88,7 @@ diagnostics(fit)
 diagnostics(fit, type = "param")
 }
 
+}
+\seealso{
+\code{\link[=timing]{timing()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=plot]{plot()}}
 }

@@ -8,6 +8,9 @@
 #' @param ... Additional arguments sent to `lavaan::standardizedSolution()`.
 #'
 #' @returns A `data.frame` containing standardised model parameters.
+#'
+#' @seealso [summary()], [coef()], [vcov()]
+#'
 #' @export
 #' @name standardisedsolution
 #' @rdname standardisedsolution

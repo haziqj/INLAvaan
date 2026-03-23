@@ -53,6 +53,7 @@
 #' @importFrom stats simulate rgamma
 #' @name simulate
 #' @rdname simulate
+#' @aliases simulate,INLAvaan-method
 #' @export
 setMethod(
   "simulate",

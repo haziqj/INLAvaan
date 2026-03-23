@@ -65,3 +65,6 @@ priors_for(nu = "normal(0,10)", lambda = "normal(0,1)", rho = "beta(3,3)")
 # Precision-scale prior for residual variances (blavaan-style)
 priors_for(theta = "gamma(1,1)[prec]")
 }
+\seealso{
+\code{\link[=inlavaan]{inlavaan()}}, \code{\link[=acfa]{acfa()}}, \code{\link[=asem]{asem()}}, \code{\link[=agrowth]{agrowth()}}
+}

@@ -5,9 +5,13 @@
 \name{INLAvaan-class}
 \alias{INLAvaan-class}
 \alias{coef}
+\alias{coef,INLAvaan-method}
 \alias{nobs}
+\alias{nobs,INLAvaan-method}
 \alias{show}
+\alias{show,INLAvaan-method}
 \alias{summary}
+\alias{summary,INLAvaan-method}
 \title{Class For Representing a (Fitted) Latent Variable Model}
 \usage{
 \S4method{coef}{INLAvaan}(object, ...)
@@ -35,6 +39,8 @@
 }
 \arguments{
 \item{object}{An object of class \code{INLAvaan}.}
+
+\item{...}{Additional arguments passed to methods.}
 
 \item{header}{Logical; if TRUE, print model fit information header.}
 
@@ -73,6 +79,28 @@ available.
 \item{\code{external}}{A list containing an \code{inlavaan_internal} object.}
 }}
 
+\examples{
+\donttest{
+HS.model <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+utils::data("HolzingerSwineford1939", package = "lavaan")
+fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+            test = "none", verbose = FALSE)
+
+# Print basic info
+fit
+
+# Detailed summary
+summary(fit)
+
+# Extract coefficients
+coef(fit)
+}
+
+}
 \seealso{
-\link[lavaan:lavaan-class]{lavaan::lavaan}
+\link[lavaan:lavaan-class]{lavaan::lavaan}, \code{\link[=inlavaan]{inlavaan()}}, \code{\link[=acfa]{acfa()}}, \code{\link[=asem]{asem()}}, \code{\link[=agrowth]{agrowth()}}
 }

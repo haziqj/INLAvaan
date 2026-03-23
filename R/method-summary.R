@@ -262,5 +262,6 @@ summary_inlavaan <- function(
 #'
 #' @name summary
 #' @rdname INLAvaan-class
+#' @aliases summary,INLAvaan-method
 #' @export
 setMethod("summary", "INLAvaan", summary_inlavaan)

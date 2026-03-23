@@ -70,6 +70,7 @@ setGeneric("sampling", function(object, ...) standardGeneric("sampling"))
 
 #' @name sampling
 #' @rdname sampling
+#' @aliases sampling,INLAvaan-method
 #' @export
 setMethod(
   "sampling",

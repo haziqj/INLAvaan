@@ -1302,8 +1302,11 @@ print.summary.predict.inlavaan_internal <- function(
 #' head(yhat)
 #' }
 #'
+#' @seealso [sampling()], [simulate()], [summary()]
+#'
 #' @name predict
 #' @rdname predict
+#' @aliases predict,INLAvaan-method
 #' @export
 setMethod(
   "predict",

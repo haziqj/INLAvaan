@@ -2,6 +2,7 @@
 % Please edit documentation in R/method-vcov.R
 \name{vcov}
 \alias{vcov}
+\alias{vcov,INLAvaan-method}
 \title{Variance-Covariance Matrix for INLAvaan Models}
 \usage{
 \S4method{vcov}{INLAvaan}(object, type = c("lavaan", "theta"), ...)
@@ -22,4 +23,26 @@ A square numeric matrix.
 \description{
 Extract the posterior variance-covariance matrix of model parameters from a
 fitted \code{INLAvaan} model.
+}
+\examples{
+\donttest{
+HS.model <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+utils::data("HolzingerSwineford1939", package = "lavaan")
+fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+            test = "none", verbose = FALSE)
+
+# Default: posterior covariance of lavaan parameters
+vcov(fit)
+
+# Internal parameterisation (Laplace approximation)
+vcov(fit, type = "theta")
+}
+
+}
+\seealso{
+\code{\link[=summary]{summary()}}, \code{\link[=coef]{coef()}}, \code{\link[=standardisedsolution]{standardisedsolution()}}
 }

@@ -74,11 +74,14 @@
 #' diagnostics(fit, type = "param")
 #' }
 #'
+#' @seealso [timing()], [fitmeasures()], [plot()]
+#'
 #' @export
 setGeneric("diagnostics", function(object, ...) standardGeneric("diagnostics"))
 
 #' @name diagnostics
 #' @rdname diagnostics
+#' @aliases diagnostics,INLAvaan-method
 #' @export
 setMethod(
   "diagnostics",

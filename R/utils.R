@@ -79,6 +79,28 @@ make_pd <- function(X, tol = 1e-8) {
 #'
 #' @returns The full `inlavaan_internal` list, or the named element when
 #'   `what` is supplied.
+#'
+#' @seealso [INLAvaan-class], [diagnostics()], [timing()]
+#'
+#' @examples
+#' \donttest{
+#' HS.model <- "
+#'   visual  =~ x1 + x2 + x3
+#'   textual =~ x4 + x5 + x6
+#'   speed   =~ x7 + x8 + x9
+#' "
+#' utils::data("HolzingerSwineford1939", package = "lavaan")
+#' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+#'             test = "none", verbose = FALSE)
+#'
+#' # Full internal object
+#' int <- get_inlavaan_internal(fit)
+#' names(int)
+#'
+#' # Extract a specific element
+#' get_inlavaan_internal(fit, "coefficients")
+#' }
+#'
 #' @export
 get_inlavaan_internal <- function(object, what) {
   if (!inherits(object, "INLAvaan")) {

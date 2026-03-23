@@ -37,6 +37,8 @@
 #'
 #' @references <https://lavaan.ugent.be/tutorial/groups.html>
 #'
+#' @seealso [fitmeasures()], [bfit_indices()]
+#'
 #' @example inst/examples/ex-model_comparison.R
 #' @export
 setGeneric("compare", function(x, y, ..., fit.measures = NULL) {
@@ -45,6 +47,7 @@ setGeneric("compare", function(x, y, ..., fit.measures = NULL) {
 
 #' @name compare
 #' @rdname compare
+#' @aliases compare,INLAvaan-method
 #' @export
 setMethod("compare", "INLAvaan", function(x, y, ..., fit.measures = NULL) {
   mc <- match.call()

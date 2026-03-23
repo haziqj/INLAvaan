@@ -46,6 +46,9 @@
 #'   etc.) and values are character strings specifying the prior distribution
 #'   (e.g., \code{"normal(0,10)"}, \code{"gamma(1,0.5)[sd]"},
 #'   \code{"gamma(1,1)[prec]"}, etc.).
+#'
+#' @seealso [inlavaan()], [acfa()], [asem()], [agrowth()]
+#'
 #' @export
 #'
 #' @examples

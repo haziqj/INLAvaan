@@ -2,6 +2,7 @@
 % Please edit documentation in R/method-simulate.R
 \name{simulate}
 \alias{simulate}
+\alias{simulate,INLAvaan-method}
 \title{Simulate Datasets from the Generative Model}
 \usage{
 \S4method{simulate}{INLAvaan}(

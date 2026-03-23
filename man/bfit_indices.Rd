@@ -36,6 +36,10 @@ used when fitting the model.}
 \item{samp_copula}{Logical. When \code{TRUE} (default), posterior samples are
 drawn using the copula method with the fitted marginals. When \code{FALSE},
 samples are drawn from the Gaussian (Laplace) approximation.}
+
+\item{...}{Additional arguments passed to methods.}
+
+\item{x}{An object of class \code{bfit_indices} (for \code{print}).}
 }
 \value{
 An S3 object of class \code{"bfit_indices"} containing:
@@ -52,6 +56,25 @@ quantiles, Mode) for each index.
 Compute posterior distributions of Bayesian fit indices for an INLAvaan
 model, analogous to \code{\link[blavaan:blavFitIndices]{blavaan::blavFitIndices()}}.
 }
+\examples{
+\donttest{
+HS.model <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+utils::data("HolzingerSwineford1939", package = "lavaan")
+fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+            verbose = FALSE)
+
+# Absolute fit indices
+bf <- bfit_indices(fit)
+bf
+summary(bf)
+}
+
+}
 \seealso{
-\code{\link[lavaan:fitMeasures]{lavaan::fitMeasures()}}, \code{\link[blavaan:blavFitIndices]{blavaan::blavFitIndices()}}
+\code{\link[lavaan:fitMeasures]{lavaan::fitMeasures()}}, \code{\link[blavaan:blavFitIndices]{blavaan::blavFitIndices()}},
+\code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}
 }

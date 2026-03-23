@@ -35,7 +35,7 @@ After fitting a model an \link{INLAvaan} object is returned. The following S4
 methods are available. See \linkS4class{INLAvaan} for the class definition.
 \itemize{
 \item Summaries and parameter estimates: \code{\link[=summary]{summary()}}, \code{\link[=coef]{coef()}}, \code{\link[=vcov]{vcov()}}, \code{\link[=standardisedsolution]{standardisedsolution()}}
-\item Fit assessment and model comparison: \code{\link[=fitMeasures]{fitMeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}, \code{\link[=compare]{compare()}}, \code{\link[=diagnostics]{diagnostics()}}, \code{\link[=timing]{timing()}}
+\item Fit assessment and model comparison: \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}, \code{\link[=compare]{compare()}}, \code{\link[=diagnostics]{diagnostics()}}, \code{\link[=timing]{timing()}}
 \item Posterior inference and simulation: \code{\link[=predict]{predict()}}, \code{\link[=sampling]{sampling()}}, \code{\link[=simulate]{simulate()}}
 \item Visualisation: \code{\link[=plot]{plot()}}
 }

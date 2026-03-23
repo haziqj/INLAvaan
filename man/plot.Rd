@@ -2,6 +2,7 @@
 % Please edit documentation in R/method-plot.R
 \name{plot}
 \alias{plot}
+\alias{plot,INLAvaan,ANY-method}
 \title{Plot an INLAvaan Object}
 \usage{
 \S4method{plot}{INLAvaan,ANY}(
@@ -62,4 +63,7 @@ plot(fit)
 plot(fit, type = "sn_fit", params = "visual=~x1")
 }
 
+}
+\seealso{
+\code{\link[=diagnostics]{diagnostics()}}, \code{\link[=summary]{summary()}}
 }

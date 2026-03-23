@@ -236,8 +236,11 @@ plot.inlavaan_internal <- function(
 #' plot(fit, type = "sn_fit", params = "visual=~x1")
 #' }
 #'
+#' @seealso [diagnostics()], [summary()]
+#'
 #' @name plot
 #' @rdname plot
+#' @aliases plot,INLAvaan,ANY-method
 #' @export
 setMethod(
   "plot",

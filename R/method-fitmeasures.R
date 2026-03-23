@@ -187,6 +187,8 @@ compute_rescaled_quantities <- function(
 #' @param samp_copula Logical. When `TRUE` (default), posterior samples are
 #'   drawn using the copula method with the fitted marginals. When `FALSE`,
 #'   samples are drawn from the Gaussian (Laplace) approximation.
+#' @param x An object of class `bfit_indices` (for `print`).
+#' @param ... Additional arguments passed to methods.
 #'
 #' @returns An S3 object of class `"bfit_indices"` containing:
 #' \describe{
@@ -198,7 +200,26 @@ compute_rescaled_quantities <- function(
 #' Use [summary()] to obtain a table of posterior summaries (Mean, SD,
 #' quantiles, Mode) for each index.
 #'
-#' @seealso [lavaan::fitMeasures()], [blavaan::blavFitIndices()]
+#' @seealso [lavaan::fitMeasures()], [blavaan::blavFitIndices()],
+#'   [fitmeasures()], [compare()]
+#'
+#' @examples
+#' \donttest{
+#' HS.model <- "
+#'   visual  =~ x1 + x2 + x3
+#'   textual =~ x4 + x5 + x6
+#'   speed   =~ x7 + x8 + x9
+#' "
+#' utils::data("HolzingerSwineford1939", package = "lavaan")
+#' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+#'             verbose = FALSE)
+#'
+#' # Absolute fit indices
+#' bf <- bfit_indices(fit)
+#' bf
+#' summary(bf)
+#' }
+#'
 #' @export
 bfit_indices <- function(
   object,
@@ -490,13 +511,35 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #'
 #' @returns A named numeric vector of fit measures.
 #'
+#' @seealso [bfit_indices()], [compare()], [diagnostics()]
+#'
+#' @examples
+#' \donttest{
+#' HS.model <- "
+#'   visual  =~ x1 + x2 + x3
+#'   textual =~ x4 + x5 + x6
+#'   speed   =~ x7 + x8 + x9
+#' "
+#' utils::data("HolzingerSwineford1939", package = "lavaan")
+#' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+#'             verbose = FALSE)
+#'
+#' # All available fit measures
+#' fitMeasures(fit)
+#'
+#' # Specific measures
+#' fitMeasures(fit, c("npar", "DIC", "pD", "ppp"))
+#' }
+#'
 #' @importMethodsFrom lavaan fitmeasures fitMeasures
 #' @name fitmeasures
 #' @rdname fitmeasures
+#' @aliases fitMeasures,INLAvaan-method
 #' @export
 setMethod("fitMeasures", "INLAvaan", inlav_fit_measures)
 
 #' @name fitmeasures
 #' @rdname fitmeasures
+#' @aliases fitmeasures,INLAvaan-method
 #' @export
 setMethod("fitmeasures", "INLAvaan", inlav_fit_measures)

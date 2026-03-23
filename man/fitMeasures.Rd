@@ -2,6 +2,8 @@
 % Please edit documentation in R/method-fitmeasures.R
 \name{fitmeasures}
 \alias{fitmeasures}
+\alias{fitMeasures,INLAvaan-method}
+\alias{fitmeasures,INLAvaan-method}
 \title{Fit Measures for a Latent Variable Model estimated using INLA}
 \usage{
 \S4method{fitMeasures}{INLAvaan}(
@@ -62,4 +64,26 @@ A named numeric vector of fit measures.
 }
 \description{
 Fit Measures for a Latent Variable Model estimated using INLA
+}
+\examples{
+\donttest{
+HS.model <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+utils::data("HolzingerSwineford1939", package = "lavaan")
+fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
+            verbose = FALSE)
+
+# All available fit measures
+fitMeasures(fit)
+
+# Specific measures
+fitMeasures(fit, c("npar", "DIC", "pD", "ppp"))
+}
+
+}
+\seealso{
+\code{\link[=bfit_indices]{bfit_indices()}}, \code{\link[=compare]{compare()}}, \code{\link[=diagnostics]{diagnostics()}}
 }

@@ -37,11 +37,14 @@
 #' timing(fit, what = c("optim", "marginals"))
 #' }
 #'
+#' @seealso [diagnostics()], [summary()]
+#'
 #' @export
 setGeneric("timing", function(object, ...) standardGeneric("timing"))
 
 #' @name timing
 #' @rdname timing
+#' @aliases timing,INLAvaan-method
 #' @export
 setMethod(
   "timing",

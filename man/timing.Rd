@@ -2,6 +2,7 @@
 % Please edit documentation in R/method-timing.R
 \name{timing}
 \alias{timing}
+\alias{timing,INLAvaan-method}
 \title{Timing Information for INLAvaan Models}
 \usage{
 timing(object, ...)
@@ -50,4 +51,7 @@ timing(fit, what = "all")
 timing(fit, what = c("optim", "marginals"))
 }
 
+}
+\seealso{
+\code{\link[=diagnostics]{diagnostics()}}, \code{\link[=summary]{summary()}}
 }

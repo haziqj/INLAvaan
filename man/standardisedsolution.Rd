@@ -135,3 +135,6 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, data = HolzingerSwineford1939, test = "none")
 standardisedsolution(fit, nsamp = 100)
 }
+\seealso{
+\code{\link[=summary]{summary()}}, \code{\link[=coef]{coef()}}, \code{\link[=vcov]{vcov()}}
+}
