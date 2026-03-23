@@ -113,39 +113,40 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Finding posterior mode. [21ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [21ms]
+#> ✔ Computing the Hessian. [20ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.246σ. [51ms]
+#> ✔ VB correction; mean |δ| = 0.246σ. [54ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [78ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [70ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [20ms]
+#> ✔ Adjusting copula correlations (NORTA). [21ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [332ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [401ms]
 #> 
 
 # Simulate one replicate dataset from the posterior
 sims <- simulate(fit, nsim = 1)
 head(sims[[1]])                    # data frame
 #>           x1          x2         x3
-#> 1  1.3660147 -2.14647090 -1.1081371
-#> 2  1.1812179 -0.27806381  1.5111716
-#> 3 -0.2324111  0.27850532  2.0721828
-#> 4 -0.8396557 -0.04285482 -2.1061558
-#> 5 -0.5524689  0.02050710 -0.5075956
-#> 6  1.5604111 -2.04238244 -0.7870906
+#> 1  0.3455918 -2.65543276  0.7283848
+#> 2  1.9286569  0.09474039  0.1659566
+#> 3  1.4712430  1.12824618 -0.9939952
+#> 4 -2.1451814 -0.69401900  0.2434845
+#> 5 -0.7179405 -0.06202605 -0.2097856
+#> 6  0.6877156 -2.47766152  0.7835567
 attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>      0.8022772      1.2726399      1.1168771      1.3630744      0.4261764 
+#>      0.8022771      1.2726399      1.1168771      1.3630744      0.4261764 
 #> visual~~visual 
 #>      0.4544564 
 attr(sims[[1]], "truth_theta")     # corresponding unconstrained (theta-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>      0.8022772      1.2726399      0.1105365      0.3097428     -0.8529018 
+#>      0.8022771      1.2726399      0.1105365      0.3097428     -0.8529018 
 #> visual~~visual 
 #>     -0.7886533 
 

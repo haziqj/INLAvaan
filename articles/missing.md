@@ -39,29 +39,28 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [218ms]
+#> ✔ Finding posterior mode. [137ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [222ms]
+#> ✔ Computing the Hessian. [166ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [753ms]
+#> ✔ VB correction; mean |δ| = 0.222σ. [480ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 11/42 skew-normal marginals.
-#> ⠸ Fitting 35/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.3s]
+#> ⠹ Fitting 23/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [342ms]
+#> ✔ Adjusting copula correlations (NORTA). [383ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1s]
+#> ✔ Posterior sampling and summarising. [903ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.2.3.9020 ended normally after 71 iterations
+#> INLAvaan 0.2.3.9021 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -96,29 +95,27 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [428ms]
+#> ✔ Finding posterior mode. [263ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [332ms]
+#> ✔ Computing the Hessian. [259ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [839ms]
+#> ✔ VB correction; mean |δ| = 0.160σ. [537ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 8/42 skew-normal marginals.
-#> ⠸ Fitting 22/42 skew-normal marginals.
-#> ⠼ Fitting 36/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [9s]
+#> ⠹ Fitting 15/42 skew-normal marginals.
+#> ⠸ Fitting 38/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [5.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [405ms]
+#> ✔ Adjusting copula correlations (NORTA). [454ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.5s]
+#> ✔ Posterior sampling and summarising. [1.4s]
 #> 
 print(fit2)
-#> INLAvaan 0.2.3.9020 ended normally after 93 iterations
+#> INLAvaan 0.2.3.9021 ended normally after 93 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
