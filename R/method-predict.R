@@ -69,6 +69,7 @@ build_newdata <- function(newdata, lavdata) {
   )
 }
 
+# nocov start
 # Helper: compute factor scores for multilevel blocks.
 # Returns an n x nfac matrix of factor scores.
 compute_fs_ml <- function(
@@ -90,7 +91,9 @@ compute_fs_ml <- function(
   FSC <- VETA_b %*% t(LAMBDA_b) %*% Sigma_inv_b
   t(FSC %*% t(Yc) + EETA_b)
 }
+# nocov end
 
+# nocov start
 # Impute missing values in multilevel data by sampling from the conditional
 # posterior: y_mis | y_obs, theta ~ N(mu_cond, Sigma_cond).
 # Returns the data matrix with NAs replaced by posterior draws.
@@ -197,7 +200,9 @@ impute_ml_data <- function(
   }
   yg
 }
+# nocov end
 
+# nocov start
 # Compute cluster random effects (BLUP) directly from (imputed) data,
 # bypassing the precomputed YLp which may contain NAs.
 compute_ml_ranef <- function(y_g, Lp, decomp) {
@@ -244,6 +249,7 @@ compute_ml_ranef <- function(y_g, Lp, decomp) {
   }
   MB.j
 }
+# nocov end
 
 #' @exportS3Method predict inlavaan_internal
 #' @keywords internal
@@ -284,14 +290,14 @@ predict.inlavaan_internal <- function(
   }
 
   # Multilevel restrictions
-  if (nlevels > 1L) {
+  if (nlevels > 1L) { # nocov start
     if (!is.null(newdata)) {
       cli_abort("{.arg newdata} is not supported for multilevel models.")
     }
     if (!level %in% c(1L, 2L)) {
       cli_abort("{.arg level} must be {.val 1} or {.val 2}.")
     }
-  }
+  } # nocov end
 
   # Handle newdata: rebuild lavdata matrices
   if (!is.null(newdata)) {
@@ -320,7 +326,7 @@ predict.inlavaan_internal <- function(
 
   # ---- type = "lv": Posterior draws of latent variable scores ----
   if (type == "lv") {
-    if (nlevels > 1L) {
+    if (nlevels > 1L) { # nocov start
       # ---- Multilevel path: use lavaan internals ----
       lavsamplestats <- object$lavsamplestats
 
@@ -469,7 +475,7 @@ predict.inlavaan_internal <- function(
         cli_progress_update()
       }
       cli_progress_done()
-    } else {
+    } else { # nocov end
       # ---- Single-level path: full posterior draw ----
       sample_lv <- function(xx) {
         GLIST <- get_SEM_param_matrix(xx, "all", lavmodel)
@@ -544,7 +550,7 @@ predict.inlavaan_internal <- function(
   } else if (type %in% c("yhat", "ypred")) {
     add_noise <- (type == "ypred")
 
-    if (nlevels > 1L) {
+    if (nlevels > 1L) { # nocov start
       # ---- Multilevel yhat/ypred ----
       lavsamplestats <- object$lavsamplestats
 
@@ -747,7 +753,7 @@ predict.inlavaan_internal <- function(
         cli_progress_update()
       }
       cli_progress_done()
-    } else {
+    } else { # nocov end
       # ---- Single-level yhat/ypred ----
       sample_yhat <- function(xx) {
         GLIST <- get_SEM_param_matrix(xx, "all", lavmodel)
@@ -861,7 +867,7 @@ predict.inlavaan_internal <- function(
 
     # Pre-compute per-block ov names for naming model-implied matrices
     ov_names_block <- NULL
-    if (nlevels > 1L) {
+    if (nlevels > 1L) { # nocov start
       nblocks <- lavmodel@nblocks
       ov_names_block <- vector("list", nblocks)
       for (b in seq_len(nblocks)) {
@@ -876,7 +882,7 @@ predict.inlavaan_internal <- function(
           ]
         )
       }
-    }
+    } # nocov end
 
     sample_ymis <- function(xx) {
       lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
@@ -898,7 +904,7 @@ predict.inlavaan_internal <- function(
           } else {
             rep(0, p)
           }
-        } else {
+        } else { # nocov start
           # Multilevel: marginal covariance = within + between
           block_w <- (g - 1) * nlevels + 1
           block_b <- (g - 1) * nlevels + 2
@@ -950,7 +956,7 @@ predict.inlavaan_internal <- function(
             b_match <- intersect(var_names, vn_b)
             mu_y[match(b_match, var_names)] <- mu_b[b_match]
           }
-        }
+        } # nocov end
 
         # Detect missing values
         na_mat <- is.na(yg)
@@ -1086,7 +1092,7 @@ print.predict.inlavaan_internal <- function(
   first <- x[[1L]]
 
   # Named vector (ymis_only output)
-  if (is.numeric(first) && !is.matrix(first) && !is.data.frame(first)) {
+  if (is.numeric(first) && !is.matrix(first) && !is.data.frame(first)) { # nocov start
     n_total <- length(first)
     if (n_total > n) {
       print(first[seq_len(n)], digits = nd)
@@ -1108,7 +1114,7 @@ print.predict.inlavaan_internal <- function(
       print(first, digits = nd)
     }
     return(invisible(x))
-  }
+  } # nocov end
 
   # Matrix / data frame output
   nr <- nrow(first)

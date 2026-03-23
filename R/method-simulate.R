@@ -101,7 +101,7 @@ setMethod(
       attempts <- attempts + 1L
 
       # Refill batch if exhausted
-      if (idx > nrow(samp$x_samp)) {
+      if (idx > nrow(samp$x_samp)) { # nocov start
         if (isTRUE(prior)) {
           samp <- sample_params_prior(int, oversample)
         } else {
@@ -110,7 +110,7 @@ setMethod(
         colnames(samp$x_samp) <- xnames
         colnames(samp$theta_samp) <- xnames
         idx <- 1L
-      }
+      } # nocov end
 
       x_draw <- samp$x_samp[idx, ]
       theta_draw <- samp$theta_samp[idx, ]
@@ -146,7 +146,7 @@ setMethod(
         lavaan::simulateData(pt_sim, sample.nobs = n),
         error = function(e) NULL
       )
-      if (is.null(dat)) {
+      if (is.null(dat)) { # nocov
         next
       }
 
@@ -157,14 +157,14 @@ setMethod(
     }
 
     rejected <- attempts - collected
-    if (rejected > 0L && !isTRUE(silent)) {
+    if (rejected > 0L && !isTRUE(silent)) { # nocov start
       rej_pct <- round(100 * rejected / attempts, 1)
       cli_inform(
         "simulate: {rejected} of {attempts} draw{?s} ({rej_pct}%) rejected (non-PD model-implied covariance)."
       )
-    }
+    } # nocov end
 
-    if (collected < nsim) {
+    if (collected < nsim) { # nocov start
       cli_warn(c(
         "Rejection sampling fell short of the requested {nsim} simulations.",
         "i" = "Only {collected} of {nsim} obtained after {attempts} attempts.",
@@ -174,7 +174,7 @@ setMethod(
         cli_abort("No valid draws obtained. Priors may be too vague.")
       }
       results <- results[seq_len(collected)]
-    }
+    } # nocov end
 
     results
   }

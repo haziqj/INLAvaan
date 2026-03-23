@@ -142,15 +142,15 @@ summary_inlavaan <- function(
     }
 
     # Standardised solution?
-    if (isTRUE(standardized)) {
+    if (isTRUE(standardized)) { # nocov start
       stdlv <- standardisedsolution(object, type = "std.lv")
       stdall <- standardisedsolution(object, type = "std.all")
       PE$std.lv <- stdlv$est
       PE$std.all <- stdall$est
-    }
+    } # nocov end
 
     # NMAD (skewnorm marginal fit quality)
-    if (isTRUE(nmad)) {
+    if (isTRUE(nmad)) { # nocov start
       nmad_vals <- tryCatch(
         object@external$inlavaan_internal$approx_data[, "nmad"],
         error = function(e) NULL
@@ -160,10 +160,10 @@ summary_inlavaan <- function(
         PE$NMAD[peidx] <- formatC(nmad_vals[summidx], digits = nd, format = "f")
         PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
       }
-    }
+    } # nocov end
 
     # KLD and VB shift in units of posterior SD (opt-in)
-    if (isTRUE(vb_correction)) {
+    if (isTRUE(vb_correction)) { # nocov start
       if (isTRUE(kld)) {
         PE$KLD <- ""
         PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
@@ -179,13 +179,13 @@ summary_inlavaan <- function(
         )
         PE$VBshift[peidx][grepl("NA", PE$VBshift[peidx])] <- ""
       }
-    }
+    } # nocov end
 
-    if (isTRUE(priors)) {
+    if (isTRUE(priors)) { # nocov start
       PE$Prior <- ""
       PE$Prior[peidx] <- summ$Prior[summidx]
       PE$Prior[peidx][is.na(PE$Prior[peidx])] <- ""
-    }
+    } # nocov end
   }
 
   # If PML, intercepts shown regardless

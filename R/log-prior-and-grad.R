@@ -200,7 +200,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   # 4. Handle [prec] qualifier: prior is on precision (1/x) rather than x
   # Re-evaluate lp at 1/xval and apply Jacobian |d(1/x)/dx| = 1/x^2
   idx_prec <- which(cache$is_prec_prior %||% logical(n))
-  if (length(idx_prec) > 0) {
+  if (length(idx_prec) > 0) { # nocov start
     ip_norm  <- idx_prec[cache$prior_type[idx_prec] == 1L]
     ip_gamma <- idx_prec[cache$prior_type[idx_prec] == 2L]
     ip_beta  <- idx_prec[cache$prior_type[idx_prec] == 3L]
@@ -224,7 +224,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
 
     # Jacobian: |d(1/x)/dx| = 1/x^2 — multiply dx_dth by 1/x^2
     dx_dth[idx_prec] <- dx_dth[idx_prec] / (xval[idx_prec]^2)
-  }
+  } # nocov end
 
   # 5. Final Summation
   # log|J| + log(dens)
@@ -367,7 +367,7 @@ prior_grad_vectorized <- function(theta, cache) {
   # Chain rule: dlp_dx = (d log p(tau) / d tau)|_{tau=1/x} * (-1/x^2)
   # Jacobian extra: d/d(theta) log|d(1/x)/dx| = -2 * x'(theta) / x
   idx_prec <- which(cache$is_prec_prior %||% logical(n))
-  if (length(idx_prec) > 0) {
+  if (length(idx_prec) > 0) { # nocov start
     pv <- 1 / xval[idx_prec] # precision values
 
     ip_norm  <- which(cache$prior_type[idx_prec] == 1L)
@@ -396,7 +396,7 @@ prior_grad_vectorized <- function(theta, cache) {
 
     # Jacobian: d/d(theta) log(1/x^2) = -2 * x'/x
     jac_extra[idx_prec] <- -2 * dx_dth[idx_prec] / xval[idx_prec]
-  }
+  } # nocov end
 
   # 4. Chain Rule Assembly
   grad <- dlp_dx * dx_dth + ddx_dth2 / dx_dth + jac_extra

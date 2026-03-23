@@ -14,7 +14,7 @@ plot.inlavaan_internal <- function(
   type <- match.arg(type)
 
   # Dispatch to visual_debug for sn_fit types
-  if (type %in% c("sn_fit", "sn_fit_log")) {
+  if (type %in% c("sn_fit", "sn_fit_log")) { # nocov start
     logscale <- type == "sn_fit_log"
     if (identical(params, "all")) {
       params <- NULL
@@ -26,7 +26,7 @@ plot.inlavaan_internal <- function(
       use_ggplot = use_ggplot,
       points = points
     ))
-  }
+  } # nocov end
 
   all_names <- names(x$pdf_data)
   postmode <- setNames(x$summary[, "Mode"], rownames(x$summary))

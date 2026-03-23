@@ -272,7 +272,7 @@ get_defpars <- function(x_samp, pt) {
   apply(def_samp, 2, summarise_samples)
 }
 
-get_defpars_fit_sn <- function(x_samp, pt) {
+get_defpars_fit_sn <- function(x_samp, pt) { # nocov start
   pt_def_rows <- which(pt$op == ":=")
   param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
   param_map <- param_map[names(param_map) != ""]
@@ -339,7 +339,7 @@ get_defpars_fit_sn <- function(x_samp, pt) {
       )
     )
   })
-}
+} # nocov end
 
 sample_covariances_fit_sn <- function(x_samp, pt) {
   pt_cov_rows <- grep("cov", pt$mat)

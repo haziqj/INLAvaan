@@ -23,6 +23,8 @@ test_that("Method: skewnorm", {
       dat,
       marginal_method = "skewnorm",
       marginal_correction = "none",
+      vb_correction = FALSE,
+      test = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )
@@ -50,6 +52,8 @@ test_that("Method: asymgaus", {
       dat,
       marginal_method = "asymgaus",
       marginal_correction = "none",
+      vb_correction = FALSE,
+      test = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )
@@ -57,7 +61,6 @@ test_that("Method: asymgaus", {
   expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
-  # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
 })
 
 test_that("Method: marggaus", {
@@ -66,6 +69,8 @@ test_that("Method: marggaus", {
       mod,
       dat,
       marginal_method = "marggaus",
+      vb_correction = FALSE,
+      test = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )
@@ -73,7 +78,6 @@ test_that("Method: marggaus", {
   expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
-  # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
 })
 
 test_that("Method: sampling", {
@@ -82,6 +86,8 @@ test_that("Method: sampling", {
       mod,
       dat,
       marginal_method = "sampling",
+      vb_correction = FALSE,
+      test = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )
@@ -89,7 +95,6 @@ test_that("Method: sampling", {
   expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
-  # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {

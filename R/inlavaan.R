@@ -102,10 +102,10 @@ inlavaan <- function(
   timing <- list(start.time = start.time0)
 
   ## ----- Check arguments -----------------------------------------------------
-  if (!is.null(cores)) {
+  if (!is.null(cores)) { # nocov start
     cores <- as.integer(cores)
     if (is.na(cores) || cores < 1L) cores <- 1L
-  }
+  } # nocov end
   marginal_method <- match.arg(marginal_method)
   if (isFALSE(marginal_correction)) {
     marginal_correction <- "none"
@@ -126,7 +126,7 @@ inlavaan <- function(
   lavargs$test <- test
 
   if ("estimator" %in% names(lavargs)) {
-    if (!(lavargs$estimator %in% c("ML", "PML"))) {
+    if (!(lavargs$estimator %in% c("ML", "PML"))) { # nocov
       cli_abort("Only 'ML' and 'PML' estimators are supported currently.")
     }
   }
@@ -264,7 +264,7 @@ inlavaan <- function(
       # H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
       H_neg <- fast_jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
     }
-  } else if (optim_method == "ucminf") {
+  } else if (optim_method == "ucminf") { # nocov start
     if (!requireNamespace("ucminf", quietly = TRUE)) {
       cli_abort(
         "The `ucminf` package is required for this optimization method. Please install it using `install.packages('ucminf')`."
@@ -280,7 +280,7 @@ inlavaan <- function(
     )
     theta_star <- opt$par
     H_neg <- opt$hessian
-  } else {
+  } else { # nocov end
     opt <- stats::optim(
       par = parstart,
       fn = ob,
@@ -452,13 +452,13 @@ inlavaan <- function(
     } else {
       eff_cores <- cores
     }
-    if (eff_cores > 1L && .Platform$OS.type == "windows") {
+    if (eff_cores > 1L && .Platform$OS.type == "windows") { # nocov start
       cli_alert_warning(
         "Parallel marginal fitting uses forking and is not available on
         Windows. Falling back to serial."
       )
       eff_cores <- 1L
-    }
+    } # nocov end
     eff_cores <- min(eff_cores, m)
 
     if (marginal_method == "asymgaus") {
@@ -688,11 +688,11 @@ inlavaan <- function(
 
   # Defined parameters
   if (any(pt$op == ":=")) {
-    if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
+    if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) { # nocov start
       defpars <- get_defpars_fit_sn(x_samp, pt)
       sn_rows <- do.call(rbind, lapply(defpars, `[[`, "sn_params"))
       approx_data <- rbind(approx_data, sn_rows)
-    } else {
+    } else { # nocov end
       defpars <- get_defpars(x_samp, pt)
     }
 

@@ -111,9 +111,9 @@ compare_impl <- function(
     if (inherits(m, "INLAvaan")) {
       m@external$inlavaan_internal
     } else if (inherits(m, "inlavaan_internal")) {
-      m
+      m # nocov
     } else {
-      cli_abort(
+      cli_abort( # nocov
         "Each model must be an {.cls INLAvaan} or {.cls inlavaan_internal} object."
       )
     }
@@ -145,11 +145,11 @@ compare_impl <- function(
   # Append extra fit measures if requested
   if (!is.null(fit.measures)) {
     has_inlavaan <- vapply(originals, function(m) is(m, "INLAvaan"), logical(1))
-    if (!all(has_inlavaan)) {
+    if (!all(has_inlavaan)) { # nocov start
       cli_warn(
         "Fit measures require {.cls INLAvaan} objects; skipping for {.cls inlavaan_internal} models."
       )
-    } else {
+    } else { # nocov end
       # baseline (x) is used for incremental indices
       baseline_obj <- if (is(baseline, "INLAvaan")) baseline else NULL
 

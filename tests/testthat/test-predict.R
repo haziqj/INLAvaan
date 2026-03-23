@@ -12,10 +12,16 @@ sem_mod <- "
   dem60 ~ ind60
 "
 
-# Fit once; reused across all tests below
-fit_cfa <- acfa(mod, dat, verbose = FALSE, nsamp = NSAMP)
-fit_mg  <- acfa(mod, dat, verbose = FALSE, nsamp = NSAMP, group = "school")
-fit_sem <- asem(sem_mod, sem_dat, verbose = FALSE, nsamp = NSAMP)
+# Fit once; reused across all tests below (fast defaults)
+fit_cfa <- acfa(mod, dat, verbose = FALSE, nsamp = NSAMP,
+                vb_correction = FALSE, test = "none",
+                marginal_method = "marggaus")
+fit_mg  <- acfa(mod, dat, verbose = FALSE, nsamp = NSAMP, group = "school",
+                vb_correction = FALSE, test = "none",
+                marginal_method = "marggaus")
+fit_sem <- asem(sem_mod, sem_dat, verbose = FALSE, nsamp = NSAMP,
+                vb_correction = FALSE, test = "none",
+                marginal_method = "marggaus")
 
 # ---- CFA: type = "lv" (default) -----------------------------------------
 

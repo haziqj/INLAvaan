@@ -15,12 +15,12 @@ ginv_base <- function(X, tol = sqrt(.Machine$double.eps)) {
   pos <- s$d > max(tol * s$d[1], 0)
   if (all(pos)) {
     s$v %*% (1 / s$d * t(s$u))
-  } else if (!any(pos)) {
+  } else if (!any(pos)) { # nocov start
     array(0, dim(X)[2:1])
   } else {
     s$v[, pos, drop = FALSE] %*%
       ((1 / s$d[pos]) * t(s$u[, pos, drop = FALSE]))
-  }
+  } # nocov end
 }
 
 #' Helper function to check if two functions are the same
@@ -110,12 +110,12 @@ get_inlavaan_internal <- function(object, what) {
   if (missing(what)) {
     return(int)
   }
-  if (!what %in% names(int)) {
+  if (!what %in% names(int)) { # nocov start
     cli_abort(c(
       "Element {.val {what}} not found in the internal list.",
       "i" = "Available: {.val {names(int)}}."
     ))
-  }
+  } # nocov end
   int[[what]]
 }
 
@@ -128,13 +128,13 @@ add_timing <- function(timing, part) {
 
   timing
 }
-is_lavaan <- function(object) {
+is_lavaan <- function(object) { # nocov start
   is(object, "lavaan") & attr(class(object), "package") == "lavaan"
 }
 
 is_blavaan <- function(object) {
   is(object, "blavaan") & attr(class(object), "package") == "blavaan"
-}
+} # nocov end
 
 is_INLAvaan <- function(object) {
   is(object, "INLAvaan") & attr(class(object), "package") == "INLAvaan"

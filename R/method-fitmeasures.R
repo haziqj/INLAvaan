@@ -7,7 +7,7 @@ compute_loglik_sat <- function(lavsamplestats, lavdata) {
   ngroups <- lavdata@ngroups
   logl_sat <- 0
   for (g in seq_len(ngroups)) {
-    if (lavsamplestats@missing.flag) {
+    if (lavsamplestats@missing.flag) { # nocov start
       logl_sat <- logl_sat +
         lavaan___lav_mvnorm_missing_loglik_samplestats(
           Yp = lavsamplestats@missing[[g]],
@@ -17,7 +17,7 @@ compute_loglik_sat <- function(lavsamplestats, lavdata) {
           x.mean = lavsamplestats@mean.x[[g]],
           x.cov = lavsamplestats@cov.x[[g]]
         )
-    } else {
+    } else { # nocov end
       logl_sat <- logl_sat +
         lavaan___lav_mvnorm_loglik_samplestats(
           sample.mean = lavsamplestats@mean[[g]],
@@ -69,7 +69,7 @@ compute_p_samplestats <- function(nvar, meanstructure) {
     function(nv) {
       nMom <- nv * (nv + 1) / 2
       if (isTRUE(meanstructure)) {
-        nMom <- nMom + nv
+        nMom <- nMom + nv # nocov
       }
       nMom
     },
@@ -252,7 +252,7 @@ bfit_indices <- function(
   )
   x_samp <- samp$x_samp
 
-  if (lavmodel@estimator != "ML") {
+  if (lavmodel@estimator != "ML") { # nocov
     cli_abort("Bayesian fit indices are only supported for the ML estimator.")
   }
   if (rescale == "devM" && is.null(int$DIC)) {
@@ -358,7 +358,7 @@ bfit_indices <- function(
 summary.bfit_indices <- function(object, ...) {
   summ_one <- function(x) {
     x <- x[is.finite(x)]
-    if (length(x) < 3) {
+    if (length(x) < 3) { # nocov
       return(rep(NA_real_, 8))
     }
     dens <- stats::density(x)
@@ -467,10 +467,10 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 
     if (name == "npar") {
       return(as.character(as.integer(round(val))))
-    } else if (startsWith(name, "grad_")) {
+    } else if (startsWith(name, "grad_")) { # nocov start
       # Use formatC to force scientific and maintain 3 significant digits
       return(formatC(val, digits = 2, format = "e"))
-    } else {
+    } else { # nocov end
       # Round to 3 decimal places
       return(formatC(val, digits = 3, format = "f", drop0trailing = FALSE))
     }

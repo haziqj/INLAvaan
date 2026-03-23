@@ -11,3 +11,10 @@ test_that("vcov() returns a matrix for INLAvaan objects", {
   expect_equal(nrow(vc), length(coef(fit)))
   expect_equal(ncol(vc), length(coef(fit)))
 })
+
+test_that("vcov(type = 'theta') returns Laplace covariance", {
+  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  vt <- vcov(fit, type = "theta")
+  expect_true(is.matrix(vt))
+  expect_true(isSymmetric(vt))
+})

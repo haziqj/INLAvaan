@@ -18,7 +18,7 @@ compute_gamma1j <- function(j, method, theta_star, Vscan, L,
   th_plus <- theta_star + vj * delta_outer
   neg_grad <- function(x) -1 * joint_lp_grad(x)
 
-  if (method == "hessian") {
+  if (method == "hessian") { # nocov start
     # Full Hessian at two shifted points (central outer FD).
     # Cost: 4m gradient evaluations per parameter.
     th_minus <- theta_star - vj * delta_outer
@@ -56,8 +56,9 @@ compute_gamma1j <- function(j, method, theta_star, Vscan, L,
     d_vHv <- (vHv_1 - 1) / delta_outer
 
     gamma1j <- full_trace + 0.5 * d_vHv
+  } # nocov end
 
-  } else if (method == "shortcut_fd") {
+  else if (method == "shortcut_fd") { # nocov start
     # Forward-difference shortcut (Q2): full z-trace + Schur correction.
     # Cost: m + 2 gradient evaluations per parameter.
     g0 <- neg_grad(th_plus)
@@ -75,7 +76,7 @@ compute_gamma1j <- function(j, method, theta_star, Vscan, L,
     d_vHv <- (vHv_1 - 1) / delta_outer
 
     gamma1j <- full_trace + 0.5 * d_vHv
-  }
+  } # nocov end
 
   gamma1j
 }

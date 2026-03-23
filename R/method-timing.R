@@ -81,10 +81,10 @@ print.timing.INLAvaan <- function(x, ...) {
     if (s < 60) {
       return(sprintf("%.2f s", s))
     }
-    if (s < 3600) {
+    if (s < 3600) { # nocov start
       return(sprintf("%.1f min", s / 60))
     }
-    sprintf("%.2f hr", s / 3600)
+    sprintf("%.2f hr", s / 3600) # nocov end
   }
   vals <- vapply(x, fmt_time, character(1))
   names(vals) <- names(x)

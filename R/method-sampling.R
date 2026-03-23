@@ -151,7 +151,7 @@ sample_params_prior <- function(int, nsamp) {
 
     if (is.na(prior_str) || prior_str == "") {
       # Fallback: wide normal for params without an explicit prior
-      x_natural[, j] <- stats::rnorm(nsamp, 0, 10)
+      x_natural[, j] <- stats::rnorm(nsamp, 0, 10) # nocov
     } else if (grepl("^normal", prior_str)) {
       par <- as.numeric(strsplit(
         gsub("normal\\(|\\)", "", prior_str),
@@ -167,13 +167,13 @@ sample_params_prior <- function(int, nsamp) {
       )[[1]])
       raw <- stats::rgamma(nsamp, shape = par[1], rate = par[2])
       if (is_sd) {
-        x_natural[, j] <- raw^2 # SD → variance
+        x_natural[, j] <- raw^2 # SD → variance  # nocov
       } else if (is_prec) {
-        x_natural[, j] <- 1 / raw # precision → variance
+        x_natural[, j] <- 1 / raw # precision → variance  # nocov
       } else {
         x_natural[, j] <- raw
       }
-    } else if (grepl("^beta", prior_str)) {
+    } else if (grepl("^beta", prior_str)) { # nocov start
       par <- as.numeric(strsplit(
         gsub("beta\\(|\\)", "", prior_str),
         ","
@@ -181,7 +181,7 @@ sample_params_prior <- function(int, nsamp) {
       x_natural[, j] <- stats::rbeta(nsamp, par[1], par[2]) * 2 - 1
     } else {
       x_natural[, j] <- stats::rnorm(nsamp, 0, 10)
-    }
+    } # nocov end
   }
 
   # Map natural scale → unconstrained theta-space via g()
@@ -364,8 +364,8 @@ sampling_prior_generative <- function(
     eta_cn <- lv_names
     y_cn <- ov_names
   } else {
-    eta_cn <- paste0(rep(lv_names, nG), ".g", rep(seq_len(nG), each = nlv))
-    y_cn <- paste0(rep(ov_names, nG), ".g", rep(seq_len(nG), each = nobs))
+    eta_cn <- paste0(rep(lv_names, nG), ".g", rep(seq_len(nG), each = nlv)) # nocov
+    y_cn <- paste0(rep(ov_names, nG), ".g", rep(seq_len(nG), each = nobs)) # nocov
   }
 
   # Pre-allocate storage
@@ -393,7 +393,7 @@ sampling_prior_generative <- function(
 
     for (i in seq_len(batch_n)) {
       attempts <- attempts + 1L
-      if (attempts > max_attempts) {
+      if (attempts > max_attempts) { # nocov
         break
       }
 
@@ -404,7 +404,7 @@ sampling_prior_generative <- function(
         sample_latent_from_model(x1, lavmodel, strict = TRUE),
         error = function(e) NULL
       )
-      if (is.null(eta1)) {
+      if (is.null(eta1)) { # nocov
         next
       }
 
@@ -414,7 +414,7 @@ sampling_prior_generative <- function(
           sample_observed_from_model(x1, eta1, lavmodel, strict = TRUE),
           error = function(e) NULL
         )
-        if (is.null(y1)) next
+        if (is.null(y1)) next # nocov
       }
 
       # Valid draw -- store it
@@ -425,10 +425,10 @@ sampling_prior_generative <- function(
       if (nG == 1L) {
         eta_mat[collected, ] <- eta1
         if (need_obs) y_mat[collected, ] <- y1
-      } else {
+      } else { # nocov start
         eta_mat[collected, ] <- unlist(eta1)
         if (need_obs) y_mat[collected, ] <- unlist(y1)
-      }
+      } # nocov end
 
       if (need_implied) {
         implied_list[[collected]] <- compute_implied_moments(

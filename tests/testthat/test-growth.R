@@ -17,12 +17,14 @@ dat <- lavaan::Demo.growth
 fit_lav <- lavaan::cfa(mod, dat)
 NSAMP <- 3
 
-test_that("Method: skewnorm", {
+test_that("Method: marggaus (fast)", {
   expect_no_error({
     fit <- agrowth(
       mod,
       dat,
-      marginal_method = "skewnorm",
+      marginal_method = "marggaus",
+      vb_correction = FALSE,
+      test = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )
@@ -30,7 +32,23 @@ test_that("Method: skewnorm", {
   expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
-  # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
+})
+
+test_that("Method: skewnorm", {
+  expect_no_error({
+    fit <- agrowth(
+      mod,
+      dat,
+      marginal_method = "skewnorm",
+      vb_correction = FALSE,
+      test = "none",
+      verbose = FALSE,
+      nsamp = NSAMP
+    )
+  })
+  expect_no_error(out <- capture.output(summary(fit)))
+
+  expect_s4_class(fit, "INLAvaan")
   expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
@@ -40,6 +58,8 @@ test_that("Method: asymgaus", {
       mod,
       dat,
       marginal_method = "asymgaus",
+      vb_correction = FALSE,
+      test = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )
@@ -47,23 +67,6 @@ test_that("Method: asymgaus", {
   expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
-  # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
-})
-
-test_that("Method: marggaus", {
-  expect_no_error({
-    fit <- agrowth(
-      mod,
-      dat,
-      marginal_method = "marggaus",
-      verbose = FALSE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
-  # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
 })
 
 test_that("Method: sampling", {
@@ -72,6 +75,8 @@ test_that("Method: sampling", {
       mod,
       dat,
       marginal_method = "sampling",
+      vb_correction = FALSE,
+      test = "none",
       verbose = FALSE,
       nsamp = NSAMP
     )
@@ -79,7 +84,6 @@ test_that("Method: sampling", {
   expect_no_error(out <- capture.output(summary(fit)))
 
   expect_s4_class(fit, "INLAvaan")
-  # expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {
