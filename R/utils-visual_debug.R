@@ -66,8 +66,6 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE,
                                                 linetype = type,
                                                 linewidth = type)) +
       ggplot2::geom_line() +
-      ggplot2::geom_point(data = df_sn, shape = 4, size = 1.5,
-                          show.legend = FALSE) +
       ggplot2::facet_wrap(. ~ name) +
       ggplot2::theme_minimal() +
       ggplot2::theme(
@@ -89,8 +87,12 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE,
       )
 
     if (isTRUE(points)) {
-      df_lines <- subset(plot_df, type %in% c("Raw", "Corrected"))
-      p <- p + ggplot2::geom_point(data = df_lines, show.legend = FALSE)
+      p <- p +
+        ggplot2::geom_point(ggplot2::aes(shape = type)) +
+        ggplot2::scale_shape_manual(
+          values = c("Raw" = 16, "Corrected" = 16, "Skew-normal fit" = 4),
+          name = NULL
+        )
     }
 
     return(p)
@@ -133,12 +135,14 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE,
       }
       if (tp == "SN_Fit") {
         lines(xvals, yvals, col = type_cols[tp], lty = 2, lwd = 0.9)
-        points(xvals, yvals, col = type_cols[tp], pch = 4, cex = 1)
+        if (isTRUE(points)) {
+          points(xvals, yvals, col = type_cols[tp], pch = 4, cex = 0.8)
+        }
       } else {
         lines(xvals, yvals, col = type_cols[tp], lty = type_lty[tp],
               lwd = type_lwd[tp])
         if (isTRUE(points)) {
-          points(xvals, yvals, col = type_cols[tp], pch = 16, cex = 0.4)
+          points(xvals, yvals, col = type_cols[tp], pch = 16, cex = 0.8)
         }
       }
     }
@@ -151,12 +155,17 @@ visual_debug <- function(object, params, logscale = FALSE, use_ggplot = TRUE,
   # Top legend panel
   par(mar = c(0, 0, 0, 0))
   plot.new()
+  if (isTRUE(points)) {
+    legend_pch <- c(16L, 16L, 4L)
+  } else {
+    legend_pch <- c(NA_integer_, NA_integer_, NA_integer_)
+  }
   legend(
     "center",
     legend = c("Raw", "Corrected", "Skew-normal fit"),
     col    = c(type_cols["Original"], type_cols["Corrected"], type_cols["SN_Fit"]),
     lty    = c(1L, 1L, 2L),
-    pch    = c(NA_integer_, NA_integer_, 4L),
+    pch    = legend_pch,
     lwd    = c(1.3, 1.3, 0.9),
     horiz  = TRUE, bty = "n", cex = 0.9, seg.len = 1.5
   )
