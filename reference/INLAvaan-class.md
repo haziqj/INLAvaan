@@ -71,7 +71,8 @@ vcov(object, type = c("lavaan", "theta"), ...)
 
 - ...:
 
-  Additional arguments passed to the plot function.
+  Additional arguments passed to the plot function (including `points`,
+  `type`, etc.).
 
 - type:
 
@@ -171,11 +172,6 @@ vcov(object, type = c("lavaan", "theta"), ...)
   (depending on model options): `"init"`, `"optim"`, `"vb"`, `"loglik"`,
   `"marginals"`, `"norta"`, `"sampling"`, `"covariances"`,
   `"definedpars"`, `"deltapars"`, `"test"`, `"total"`.
-
-- points:
-
-  Logical. If `TRUE`, overlay data points on the curves (applies to
-  `sn_fit` and `sn_fit_log` types).
 
 ## Value
 

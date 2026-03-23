@@ -55,33 +55,33 @@ dat <- lavaan::simulateData(
 head(dat)
 #>   y1 y2 y3 y4 y5
 #> 1  2  2  1  2  2
-#> 2  2  1  1  1  2
-#> 3  2  2  2  1  2
-#> 4  1  1  1  1  2
-#> 5  2  2  1  2  2
-#> 6  2  2  1  1  1
+#> 2  2  2  2  2  2
+#> 3  1  1  2  1  2
+#> 4  2  2  2  2  2
+#> 5  2  1  1  2  2
+#> 6  2  2  2  2  2
 
 # Fit INLAvaan model
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [165ms]
+#> ✔ Finding posterior mode. [158ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [79ms]
+#> ✔ Computing the Hessian. [78ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.403σ. [432ms]
+#> ✔ VB correction; mean |δ| = 0.397σ. [520ms]
 #> 
 #> ⠙ Fitting 0/10 skew-normal marginals.
-#> ⠹ Fitting 9/10 skew-normal marginals.
-#> ✔ Fitting 10/10 skew-normal marginals. [711ms]
+#> ✔ Fitting 10/10 skew-normal marginals. [699ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [54ms]
+#> ✔ Adjusting copula correlations (NORTA). [40ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1s]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [1.1s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9020 ended normally after 37 iterations
@@ -94,13 +94,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1094.328 
+#>    Marginal log-likelihood                   -1125.450 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             2126.012 
-#>    Effective parameters (pD)                     7.420 
+#>    Deviance (DIC)                             2188.439 
+#>    Effective parameters (pD)                     7.022 
 #> 
 #> Parameter Estimates:
 #> 
@@ -111,19 +111,19 @@ summary(fit)
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
 #>   eta =~                                                                     
-#>     y1                0.825    0.329    0.302    1.576    0.049  normal(0,10)
-#>     y2                0.640    0.248    0.244    1.205    0.025  normal(0,10)
-#>     y3                0.627    0.237    0.235    1.157    0.011  normal(0,10)
-#>     y4                1.121    0.442    0.473    2.154    0.013  normal(0,10)
-#>     y5                0.520    0.225    0.149    1.025    0.017  normal(0,10)
+#>     y1                1.109    0.368    0.538    1.954    0.036  normal(0,10)
+#>     y2                1.344    0.504    0.611    2.525    0.024  normal(0,10)
+#>     y3                0.747    0.249    0.340    1.308    0.008  normal(0,10)
+#>     y4                0.272    0.155   -0.011    0.599    0.004  normal(0,10)
+#>     y5                0.963    0.321    0.468    1.702    0.019  normal(0,10)
 #> 
 #> Thresholds:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
-#>     y1|t1            -2.195    0.353   -3.018   -1.670    0.030 normal(0,1.5)
-#>     y2|t1            -0.795    0.127   -1.087   -0.600    0.061 normal(0,1.5)
-#>     y3|t1            -0.300    0.083   -0.482   -0.155    0.013 normal(0,1.5)
-#>     y4|t1            -0.994    0.222   -1.514   -0.673    0.034 normal(0,1.5)
-#>     y5|t1            -1.239    0.153   -1.592   -1.006    0.072 normal(0,1.5)
+#>     y1|t1            -2.121    0.382   -3.008   -1.547    0.025 normal(0,1.5)
+#>     y2|t1            -0.791    0.209   -1.282   -0.491    0.040 normal(0,1.5)
+#>     y3|t1            -0.156    0.077   -0.316   -0.012    0.004 normal(0,1.5)
+#>     y4|t1            -0.879    0.078   -1.040   -0.734    0.003 normal(0,1.5)
+#>     y5|t1            -1.522    0.255   -2.114   -1.141    0.043 normal(0,1.5)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
@@ -136,11 +136,11 @@ summary(fit)
 #> 
 #> Scales y*:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
-#>     y1                1.325    0.217    1.047    1.832                       
-#>     y2                1.203    0.137    1.031    1.532                       
-#>     y3                1.194    0.127    1.030    1.511                       
-#>     y4                1.519    0.337    1.104    2.383                       
-#>     y5                1.141    0.110    1.012    1.429
+#>     y1                1.519    0.278    1.139    2.154                       
+#>     y2                1.694    0.395    1.182    2.626                       
+#>     y3                1.261    0.150    1.061    1.629                       
+#>     y4                1.046    0.045    1.000    1.172                       
+#>     y5                1.400    0.224    1.100    1.952
 plot(fit, truth = truval)
 ```
 

@@ -37,22 +37,23 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [179ms]
+#> ✔ Finding posterior mode. [294ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [90ms]
+#> ✔ Computing the Hessian. [147ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.051σ. [181ms]
+#> ✔ VB correction; mean |δ| = 0.051σ. [298ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [899ms]
+#> ✔ Fitting 17/17 skew-normal marginals. [1.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [93ms]
+#> ✔ Adjusting copula correlations (NORTA). [89ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [139ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [183ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.3.9020 ended normally after 83 iterations
@@ -66,12 +67,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.904 
-#>    PPP (Chi-square)                              0.950 
+#>    PPP (Chi-square)                              0.970 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4997.121 
-#>    Effective parameters (pD)                    17.361 
+#>    Deviance (DIC)                             4995.704 
+#>    Effective parameters (pD)                    16.652 
 #> 
 #> Parameter Estimates:
 #> 
@@ -111,7 +112,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.038   -0.001    0.148    0.006       beta(1,1)
+#>    .s                 0.153    0.043   -0.016    0.153    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

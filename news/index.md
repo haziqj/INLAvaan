@@ -22,6 +22,8 @@
   [`diagnostics()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   function to compute a range of global and per-parameter diagnostics
   for fitted models.
+- NEW [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md)
+  function to sample data from either the posterior or prior.
 - [`vcov()`](https://rdrr.io/r/stats/vcov.html) now returns the
   covariance matrix of the lavaan-side parameters.
 - For defined params, it’s possible to fit a skew normal approximation
@@ -31,7 +33,6 @@
   method.
 - FIX bug in efficient volume correction method (new
   `marginal_correction = "shortcut"` implementation).  
-- FIX bug in gradient computation for non-uniform beta priors.
 - Small optimisations to volume correction of skew-normal
   marginalisation, making it faster to run.
 - FIX bug in

@@ -57,12 +57,12 @@
 <li>NEW parallelism feature for skew normal fit, automatically runs on total available cores when <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>&gt;</mo><mn>120</mn></mrow><annotation encoding="application/x-tex">m&gt;120</annotation></semantics></math>.</li>
 <li>NEW <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> now able to generate predictions for observed and missing data imputation, respecting multilevel structure if present.</li>
 <li>NEW <code><a href="../reference/INLAvaan-class.html">diagnostics()</a></code> function to compute a range of global and per-parameter diagnostics for fitted models.</li>
+<li>NEW <code><a href="../reference/simulate.html">simulate()</a></code> function to sample data from either the posterior or prior.</li>
 <li>
 <code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> now returns the covariance matrix of the lavaan-side parameters.</li>
 <li>For defined params, it’s possible to fit a skew normal approximation to the posterior marginal based on the samples by calling <code>sn_fit_sample = TRUE</code>.</li>
 <li>Improved <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method.</li>
 <li>FIX bug in efficient volume correction method (new <code>marginal_correction = "shortcut"</code> implementation).<br></li>
-<li>FIX bug in gradient computation for non-uniform beta priors.</li>
 <li>Small optimisations to volume correction of skew-normal marginalisation, making it faster to run.</li>
 <li>FIX bug in <code><a href="../reference/qsnorm_fast.html">qsnorm_fast()</a></code> that incorrectly handled sign symmetries.</li>
 <li>Use Cholesky factorisation of the precision matrix for covariance and log-determinant calculations, replacing raw <code><a href="https://rdrr.io/r/base/solve.html" class="external-link">solve()</a></code>.</li>
