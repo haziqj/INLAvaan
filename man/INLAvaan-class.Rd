@@ -63,7 +63,8 @@ timing(object, ...)
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
 
-\item{...}{Additional arguments passed to the plot function.}
+\item{...}{Additional arguments passed to the plot function (including
+\code{points}, \code{type}, etc.).}
 
 \item{type}{Character. \code{"lavaan"} (default) returns the posterior
 covariance matrix of the model parameters computed from posterior
@@ -122,9 +123,6 @@ Set to TRUE to show it.}
 segments (depending on model options): \code{"init"}, \code{"optim"}, \code{"vb"},
 \code{"loglik"}, \code{"marginals"}, \code{"norta"}, \code{"sampling"}, \code{"covariances"},
 \code{"definedpars"}, \code{"deltapars"}, \code{"test"}, \code{"total"}.}
-
-\item{points}{Logical. If \code{TRUE}, overlay data points on the curves
-(applies to \code{sn_fit} and \code{sn_fit_log} types).}
 }
 \value{
 For \code{type = "global"}, a named numeric vector (class

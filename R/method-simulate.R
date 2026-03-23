@@ -51,6 +51,7 @@
 #'
 #' @example inst/examples/ex-simulate.R
 #' @name simulate
+#' @aliases simulate,INLAvaan-method
 #' @rdname simulate
 #' @importFrom stats simulate rgamma
 #' @export

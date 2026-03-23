@@ -150,9 +150,8 @@ plot.inlavaan_internal <- function(x, truth,
 #' @param type Character. One of \code{"marg_pdf"} (default; posterior marginal
 #'   densities), \code{"sn_fit"} (skew-normal fit diagnostic on natural scale),
 #'   or \code{"sn_fit_log"} (same on log scale).
-#' @param points Logical. If \code{TRUE}, overlay data points on the curves
-#'   (applies to \code{sn_fit} and \code{sn_fit_log} types).
-#' @param ... Additional arguments passed to the plot function.
+#' @param ... Additional arguments passed to the plot function (including
+#'   \code{points}, \code{type}, etc.).
 #'
 #' @rdname INLAvaan-class
 #' @export

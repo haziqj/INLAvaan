@@ -73,26 +73,26 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [47ms]
+#> ✔ Finding posterior mode. [34ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [29ms]
+#> ✔ Computing the Hessian. [32ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.035σ. [80ms]
+#> ✔ VB correction; mean |δ| = 0.156σ. [66ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [554ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [481ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [125ms]
+#> ✔ Adjusting copula correlations (NORTA). [113ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [301ms]
+#> ✔ Posterior sampling and summarising. [272ms]
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.3.9016 ended normally after 80 iterations
+#> INLAvaan 0.2.3.9020 ended normally after 80 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -103,12 +103,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1651.234 
-#>    PPP (Chi-square)                              0.486 
+#>    PPP (Chi-square)                              0.504 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3155.962 
-#>    Effective parameters (pD)                    28.575 
+#>    Deviance (DIC)                             3157.484 
+#>    Effective parameters (pD)                    29.336 
 #> 
 #> Parameter Estimates:
 #> 
@@ -144,16 +144,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.331    0.378    0.163    1.646    0.005       beta(1,1)
+#>    .y5                0.331    0.380    0.140    1.633    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.217    0.710   -0.158    2.626    0.004       beta(1,1)
-#>    .y6                0.347    0.717    0.817    3.631    0.011       beta(1,1)
+#>    .y4                0.217    0.712   -0.195    2.593    0.004       beta(1,1)
+#>    .y6                0.347    0.739    0.878    3.776    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.225    0.674   -0.175    2.472    0.005       beta(1,1)
+#>    .y7                0.225    0.646   -0.163    2.376    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.070    0.453   -0.613    1.167    0.003       beta(1,1)
+#>    .y4                0.070    0.448   -0.658    1.100    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.307    0.575    0.235    2.492    0.005       beta(1,1)
+#>    .y8                0.307    0.568    0.315    2.540    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -232,7 +232,7 @@ install.packages(
 To cite package `{INLAvaan}` in publications use:
 
 > Jamil, H (2026). *INLAvaan: Approximate Bayesian Latent Variable
-> Analysis*. R package version 0.2.3.9016. DOI:
+> Analysis*. R package version 0.2.3.9020. DOI:
 > [10.32614/CRAN.package.INLAvaan](https://doi.org/10.32614/CRAN.package.INLAvaan)
 
 A BibTeX entry for LaTeX users is:
@@ -242,7 +242,7 @@ A BibTeX entry for LaTeX users is:
     title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},
     author = {Haziq Jamil},
     year = {2026},
-    note = {R package version 0.2.3.9016},
+    note = {R package version 0.2.3.9020},
     url = {https://inlavaan.haziqj.ml/},
     doi = {10.32614/CRAN.package.INLAvaan}
   }
