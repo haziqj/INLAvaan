@@ -352,9 +352,9 @@ bfit_indices <- function(
   )
 }
 
-#' @name bfit_indices
 #' @rdname bfit_indices
 #' @exportS3Method summary bfit_indices
+#' @usage \method{summary}{bfit_indices}(object, ...)
 summary.bfit_indices <- function(object, ...) {
   summ_one <- function(x) {
     x <- x[is.finite(x)]
@@ -385,7 +385,6 @@ summary.bfit_indices <- function(object, ...) {
   tab
 }
 
-#' @name bfit_indices
 #' @rdname bfit_indices
 #' @exportS3Method print bfit_indices
 print.bfit_indices <- function(x, ...) {
