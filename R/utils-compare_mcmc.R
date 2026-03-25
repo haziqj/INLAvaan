@@ -10,9 +10,16 @@ utils::globalVariables(c(
 ))
 
 # nocov start
-compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
-                         truth = NULL, use_ggplot = TRUE,
-                         nrow = NULL, ncol = NULL) {
+compare_mcmc <- function(
+  fit_blavaan,
+  ...,
+  params = NULL,
+  show_error = TRUE,
+  truth = NULL,
+  use_ggplot = TRUE,
+  nrow = NULL,
+  ncol = NULL
+) {
   parnames <- unique(names(coef(fit_blavaan)))
 
   if (requireNamespace("blavaan", quietly = TRUE) == FALSE) {
@@ -54,9 +61,18 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
       ))
     }
     parnames <- params
-    plot_df_blav <- plot_df_blav[plot_df_blav$name %in% parnames, , drop = FALSE]
-    plot_df_blav$name <- factor(as.character(plot_df_blav$name), levels = parnames)
-    fit_inlavaan_list <- lapply(fit_inlavaan_list, function(pdfs) pdfs[parnames])
+    plot_df_blav <- plot_df_blav[
+      plot_df_blav$name %in% parnames,
+      ,
+      drop = FALSE
+    ]
+    plot_df_blav$name <- factor(
+      as.character(plot_df_blav$name),
+      levels = parnames
+    )
+    fit_inlavaan_list <- lapply(fit_inlavaan_list, function(pdfs) {
+      pdfs[parnames]
+    })
     if (!is.null(truth)) truth <- truth[parnames]
   }
 
@@ -67,10 +83,17 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
   # Create plot
   plot_df_parts <- lapply(names(fit_inlavaan_list), function(meth) {
     pdf_list <- fit_inlavaan_list[[meth]]
-    part <- do.call(rbind, Map(
-      function(nm, df) { df$name <- nm; df },
-      names(pdf_list), pdf_list
-    ))
+    part <- do.call(
+      rbind,
+      Map(
+        function(nm, df) {
+          df$name <- nm
+          df
+        },
+        names(pdf_list),
+        pdf_list
+      )
+    )
     part$method <- meth
     part
   })
@@ -89,77 +112,91 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
   }
 
   # Align MCMC to Approximation Grid
-  plot_df_aligned <- do.call(rbind, lapply(
-    split(plot_df, list(plot_df$name, plot_df$method), drop = TRUE),
-    function(data) {
-      pnm <- as.character(data$name[1])
-      mcmc_vals <- plot_df_blav$value[plot_df_blav$name == pnm]
+  plot_df_aligned <- do.call(
+    rbind,
+    lapply(
+      split(plot_df, list(plot_df$name, plot_df$method), drop = TRUE),
+      function(data) {
+        pnm <- as.character(data$name[1])
+        mcmc_vals <- plot_df_blav$value[plot_df_blav$name == pnm]
 
-      # Create KDE of MCMC (gold standard). We constrain the KDE to the range
-      # of your approximation to prevent extrapolation
-      d <- stats::density(
-        mcmc_vals,
-        from = min(data$x),
-        to = max(data$x),
-        n = length(data$x)
-      )
+        # Create KDE of MCMC (gold standard). We constrain the KDE to the range
+        # of your approximation to prevent extrapolation
+        d <- stats::density(
+          mcmc_vals,
+          from = min(data$x),
+          to = max(data$x),
+          n = length(data$x)
+        )
 
-      # Interpolate KDE onto exact x-points of your approximation. 'rule = 2'
-      # clamps values at the ends if floating point errors occur
-      data$f_mcmc <- stats::approx(x = d$x, y = d$y, xout = data$x, rule = 2)$y
-      data
-    }
-  ))
+        # Interpolate KDE onto exact x-points of your approximation. 'rule = 2'
+        # clamps values at the ends if floating point errors occur
+        data$f_mcmc <- stats::approx(
+          x = d$x,
+          y = d$y,
+          xout = data$x,
+          rule = 2
+        )$y
+        data
+      }
+    )
+  )
   rownames(plot_df_aligned) <- NULL
 
   # Calculate Metrics
-  metrics_df <- do.call(rbind, lapply(
-    split(plot_df_aligned, list(plot_df_aligned$name, plot_df_aligned$method),
-          drop = TRUE),
-    function(chunk) {
-      x_val <- chunk$x
-      pa <- chunk$y      # Approx
-      pm <- chunk$f_mcmc  # MCMC
-      eps <- 1e-12
+  metrics_df <- do.call(
+    rbind,
+    lapply(
+      split(
+        plot_df_aligned,
+        list(plot_df_aligned$name, plot_df_aligned$method),
+        drop = TRUE
+      ),
+      function(chunk) {
+        x_val <- chunk$x
+        pa <- chunk$y # Approx
+        pm <- chunk$f_mcmc # MCMC
+        eps <- 1e-12
 
-      # Normalize
-      Za <- trapz(x_val, pa)
-      pa <- if (Za > 0) pa / Za else pa
-      Zm <- trapz(x_val, pm)
-      pm <- if (Zm > 0) pm / Zm else pm
+        # Normalize
+        Za <- trapz(x_val, pa)
+        pa <- if (Za > 0) pa / Za else pa
+        Zm <- trapz(x_val, pm)
+        pm <- if (Zm > 0) pm / Zm else pm
 
-      # --- KL Divergences ---
-      kl_fwd <- trapz(x_val, pm * (log(pmax(pm, eps)) - log(pmax(pa, eps))))
-      kl_rev <- trapz(x_val, pa * (log(pmax(pa, eps)) - log(pmax(pm, eps))))
+        # --- KL Divergences ---
+        kl_fwd <- trapz(x_val, pm * (log(pmax(pm, eps)) - log(pmax(pa, eps))))
+        kl_rev <- trapz(x_val, pa * (log(pmax(pa, eps)) - log(pmax(pm, eps))))
 
-      # --- Interpretability Hacks ---
-      # 1. Jensen-Shannon % (0 = Identical, 1 = Disjoint)
-      m_mix <- 0.5 * (pm + pa)
-      kl_pm <- trapz(x_val, pm * (log(pmax(pm, eps)) - log(pmax(m_mix, eps))))
-      kl_qm <- trapz(x_val, pa * (log(pmax(pa, eps)) - log(pmax(m_mix, eps))))
-      js_val <- 0.5 * kl_pm + 0.5 * kl_qm
-      js_pct <- js_val / log(2)
+        # --- Interpretability Hacks ---
+        # 1. Jensen-Shannon % (0 = Identical, 1 = Disjoint)
+        m_mix <- 0.5 * (pm + pa)
+        kl_pm <- trapz(x_val, pm * (log(pmax(pm, eps)) - log(pmax(m_mix, eps))))
+        kl_qm <- trapz(x_val, pa * (log(pmax(pa, eps)) - log(pmax(m_mix, eps))))
+        js_val <- 0.5 * kl_pm + 0.5 * kl_qm
+        js_pct <- js_val / log(2)
 
-      # 2. Gaussian Bias Equivalent
-      bias_equiv <- sqrt(2 * abs(kl_fwd))
+        # 2. Gaussian Bias Equivalent
+        bias_equiv <- sqrt(2 * abs(kl_fwd))
 
-      # --- L1 (Total Variation) ---
-      l1 <- trapz(x_val, abs(pm - pa))
+        # --- L1 (Total Variation) ---
+        l1 <- trapz(x_val, abs(pm - pa))
 
-      data.frame(
-        name = as.character(chunk$name[1]),
-        method = as.character(chunk$method[1]),
-        L1 = l1,
-        L1_percent = l1 / 2,
-        js = js_val,
-        JS_percent = js_pct,
-        KL_fwd = kl_fwd,
-        KL_rev = kl_rev,
-        Bias_SDs = bias_equiv,
-        stringsAsFactors = FALSE
-      )
-    }
-  ))
+        data.frame(
+          name = as.character(chunk$name[1]),
+          method = as.character(chunk$method[1]),
+          L1 = l1,
+          L1_percent = l1 / 2,
+          js = js_val,
+          JS_percent = js_pct,
+          KL_fwd = kl_fwd,
+          KL_rev = kl_rev,
+          Bias_SDs = bias_equiv,
+          stringsAsFactors = FALSE
+        )
+      }
+    )
+  )
   rownames(metrics_df) <- NULL
   metrics_df <- metrics_df[order(metrics_df$method, -metrics_df$Bias_SDs), ]
 
@@ -167,7 +204,8 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
   overall <- aggregate(
     cbind(L1, L1_percent, js, JS_percent, KL_fwd, KL_rev, Bias_SDs) ~
       method,
-    data = metrics_df, FUN = mean
+    data = metrics_df,
+    FUN = mean
   )
   overall$name <- "Overall"
   metrics_df <- rbind(metrics_df, overall)
@@ -176,7 +214,8 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
   metrics_df <- aggregate(
     cbind(L1, L1_percent, js, JS_percent, KL_fwd, KL_rev, Bias_SDs) ~
       name + method,
-    data = metrics_df, FUN = mean
+    data = metrics_df,
+    FUN = mean
   )
   metrics_df$name <- factor(metrics_df$name, levels = c("Overall", parnames))
 
@@ -197,7 +236,10 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
       idvar = c("name", "method")
     )
     rownames(err_long) <- NULL
-    err_long$name <- factor(err_long$name, levels = rev(levels(factor(metrics_df$name))))
+    err_long$name <- factor(
+      err_long$name,
+      levels = rev(levels(factor(metrics_df$name)))
+    )
 
     p_errors <-
       ggplot2::ggplot(err_long) +
@@ -208,7 +250,9 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
         position = ggplot2::position_dodge()
       ) +
       ggplot2::coord_flip() +
-      ggplot2::scale_y_continuous(labels = function(x) paste0(round(x * 100), "%")) +
+      ggplot2::scale_y_continuous(labels = function(x) {
+        paste0(round(x * 100), "%")
+      }) +
       ggplot2::scale_fill_manual(values = mycols) +
       ggplot2::facet_grid(. ~ metric, scales = "free_x") +
       ggplot2::theme_minimal() +
@@ -267,26 +311,39 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
     }
 
     if (isTRUE(show_error)) {
+      # Pre-compute per-parameter MCMC 0.95 quantile (independent of method)
+      mcmc_q95 <- sapply(parnames, function(pnm) {
+        quantile(plot_df_blav$value[plot_df_blav$name == pnm], probs = 0.995)
+        # max(plot_df_blav$value[plot_df_blav$name == pnm], na.rm = TRUE)
+      })
+      names(mcmc_q95) <- parnames
+
       # Summarise plot_df by name + method
-      label_df <- do.call(rbind, lapply(
-        split(plot_df, list(plot_df$name, plot_df$method), drop = TRUE),
-        function(chunk) {
-          data.frame(
-            name = chunk$name[1],
-            method = chunk$method[1],
-            x = quantile(chunk$x, probs = 0.95),
-            panel_max_y = max(chunk$y),
-            stringsAsFactors = FALSE
-          )
-        }
-      ))
+      label_df <- do.call(
+        rbind,
+        lapply(
+          split(plot_df, list(plot_df$name, plot_df$method), drop = TRUE),
+          function(chunk) {
+            pnm <- as.character(chunk$name[1])
+            x_approx <- quantile(chunk$x, probs = 0.95)
+            data.frame(
+              name = chunk$name[1],
+              method = chunk$method[1],
+              x = max(x_approx, mcmc_q95[[pnm]]),
+              panel_max_y = max(chunk$y),
+              stringsAsFactors = FALSE
+            )
+          }
+        )
+      )
       rownames(label_df) <- NULL
       # Use a common reference height per panel (max across all methods),
       # then stagger each method's label vertically so they don't overlap.
       pmax_y <- tapply(label_df$panel_max_y, label_df$name, max)
       label_df$panel_max_y <- pmax_y[as.character(label_df$name)]
       label_df$method_rank <- match(label_df$method, inlav_names)
-      label_df$y <- label_df$panel_max_y * (0.925 - 0.15 * (label_df$method_rank - 1))
+      label_df$y <- label_df$panel_max_y *
+        (0.925 - 0.15 * (label_df$method_rank - 1))
       label_df$panel_max_y <- NULL
       label_df$method_rank <- NULL
       label_df <- merge(label_df, metrics_df, by = c("name", "method"))
@@ -329,8 +386,12 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
 
   # -- p_compare: MCMC density + INLAvaan density lines per parameter --
   # Reserve top row for a horizontal legend
-  layout_mat <- matrix(seq_len(n_rows * n_cols), nrow = n_rows, ncol = n_cols,
-                       byrow = TRUE)
+  layout_mat <- matrix(
+    seq_len(n_rows * n_cols),
+    nrow = n_rows,
+    ncol = n_cols,
+    byrow = TRUE
+  )
   layout_mat <- rbind(rep(n_rows * n_cols + 1, n_cols), layout_mat)
   layout(layout_mat, heights = c(0.8, rep(4, n_rows)))
   op <- par(mar = c(2, 2, 2, 1), oma = c(0, 0, 0, 0))
@@ -343,8 +404,18 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
     xlim <- range(c(d_mcmc$x, sub_df$x), na.rm = TRUE)
     ylim <- range(c(d_mcmc$y, sub_df$y), na.rm = TRUE)
 
-    plot(d_mcmc, main = pnm, font.main = 1, xlab = "", ylab = "", bty = "n",
-         col = NA, xlim = xlim, ylim = ylim, zero.line = FALSE)
+    plot(
+      d_mcmc,
+      main = pnm,
+      font.main = 1,
+      xlab = "",
+      ylab = "",
+      bty = "n",
+      col = NA,
+      xlim = xlim,
+      ylim = ylim,
+      zero.line = FALSE
+    )
     # grid(col = "lightgray", lty = "solid")
     polygon(d_mcmc$x, d_mcmc$y, col = adjustcolor("#131516", 0.25), border = NA)
 
@@ -364,15 +435,23 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
       for (i in seq_len(nrow(m_sub))) {
         val <- 100 * (1 - m_sub$JS_percent[i])
         lbl <- if (val >= 99.95) "100%" else sprintf("%.1f%%", val)
-        mtext(lbl, side = 3, line = -1.2 - (i - 1) * 1,
-              col = mycols[as.character(m_sub$method[i])], cex = 0.7, adj = 0.95)
+        mtext(
+          lbl,
+          side = 3,
+          line = -1.2 - (i - 1) * 1,
+          col = mycols[as.character(m_sub$method[i])],
+          cex = 0.7,
+          adj = 0.95
+        )
       }
     }
   }
 
   # Fill any remaining empty panels
   remaining <- n_rows * n_cols - n_params
-  for (i in seq_len(remaining)) plot.new()
+  for (i in seq_len(remaining)) {
+    plot.new()
+  }
 
   # Top legend panel
   par(mar = c(0, 0, 0, 0))
@@ -384,15 +463,20 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
   leg_col <- c("gray40", mycols)
   leg_lwd <- c(NA, rep(1.5, length(mycols)))
   leg_lty <- c(NA, rep(1, length(mycols)))
-  legend("center",
-         legend = leg_labels,
-         pch = leg_pch,
-         pt.bg = leg_pt_bg,
-         pt.cex = 2,
-         col = leg_col,
-         lwd = leg_lwd,
-         lty = leg_lty,
-         horiz = TRUE, bty = "n", cex = 0.9, seg.len = 1.5)
+  legend(
+    "center",
+    legend = leg_labels,
+    pch = leg_pch,
+    pt.bg = leg_pt_bg,
+    pt.cex = 2,
+    col = leg_col,
+    lwd = leg_lwd,
+    lty = leg_lty,
+    horiz = TRUE,
+    bty = "n",
+    cex = 0.9,
+    seg.len = 1.5
+  )
   p_compare <- recordPlot()
 
   # -- p_errors: horizontal bar chart of L1 and JS errors --
@@ -405,21 +489,39 @@ compare_mcmc <- function(fit_blavaan, ..., params = NULL, show_error = TRUE,
 
   for (metric in c("L1_percent", "JS_percent")) {
     label <- if (metric == "L1_percent") "L1 Error" else "Jensen-Shannon Error"
-    mat <- matrix(0, nrow = length(err_names), ncol = n_methods,
-                  dimnames = list(err_names, err_methods))
+    mat <- matrix(
+      0,
+      nrow = length(err_names),
+      ncol = n_methods,
+      dimnames = list(err_names, err_methods)
+    )
     for (i in seq_len(nrow(err_long))) {
       r <- as.character(err_long$name[i])
       m <- as.character(err_long$method[i])
       if (r %in% err_names) mat[r, m] <- err_long[[metric]][i]
     }
 
-    barplot(t(mat) * 100, beside = TRUE, horiz = TRUE, las = 1,
-            col = mycols[err_methods], border = NA,
-            main = label, xlab = "%", names.arg = err_names)
+    barplot(
+      t(mat) * 100,
+      beside = TRUE,
+      horiz = TRUE,
+      las = 1,
+      col = mycols[err_methods],
+      border = NA,
+      main = label,
+      xlab = "%",
+      names.arg = err_names
+    )
   }
   mtext("Error Metrics", outer = TRUE, cex = 1)
-  legend("topright", legend = err_methods, fill = mycols[err_methods],
-         border = NA, bty = "n", cex = 0.8)
+  legend(
+    "topright",
+    legend = err_methods,
+    fill = mycols[err_methods],
+    border = NA,
+    bty = "n",
+    cex = 0.8
+  )
   p_errors <- recordPlot()
 
   par(op)
