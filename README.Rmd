@@ -101,7 +101,7 @@ The percentages refer to the one minus the [Jensen-Shannon distance](https://en.
 
 # install.packages("blavaan")
 library(blavaan)
-fit_blav <- bsem(model = mod_poldem, data = PoliticalDemocracy)
+fit_blav <- bsem(model = mod_poldem, data = PoliticalDemocracy, seed = 2026)
 res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```

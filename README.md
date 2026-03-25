@@ -73,29 +73,26 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [38ms]
+#> ✔ Finding posterior mode. [39ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [33ms]
+#> ✔ Computing the Hessian. [35ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.156σ. [93ms]
+#> ✔ VB correction; mean |δ| = 0.156σ. [99ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 7/30 skew-normal marginals.
-#> ⠸ Fitting 19/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [500ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [502ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [115ms]
+#> ✔ Adjusting copula correlations (NORTA). [117ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [274ms]
+#> ✔ Posterior sampling and summarising. [289ms]
 #> 
 
 summary(fit)
-#> INLAvaan 0.2.3.9022 ended normally after 80 iterations
+#> INLAvaan 0.2.4 ended normally after 80 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -106,12 +103,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1651.234 
-#>    PPP (Chi-square)                              0.496 
+#>    PPP (Chi-square)                              0.491 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3157.006 
-#>    Effective parameters (pD)                    29.097 
+#>    Deviance (DIC)                             3156.473 
+#>    Effective parameters (pD)                    28.830 
 #> 
 #> Parameter Estimates:
 #> 
@@ -147,16 +144,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.331    0.386    0.079    1.592    0.005       beta(1,1)
+#>    .y5                0.331    0.382    0.154    1.651    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.217    0.701   -0.138    2.609    0.004       beta(1,1)
-#>    .y6                0.347    0.736    0.831    3.719    0.011       beta(1,1)
+#>    .y4                0.217    0.703   -0.180    2.575    0.004       beta(1,1)
+#>    .y6                0.347    0.723    0.832    3.673    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.225    0.661   -0.183    2.415    0.005       beta(1,1)
+#>    .y7                0.225    0.641   -0.146    2.372    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.070    0.445   -0.634    1.109    0.003       beta(1,1)
+#>    .y4                0.070    0.450   -0.593    1.174    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.307    0.599    0.243    2.584    0.005       beta(1,1)
+#>    .y8                0.307    0.571    0.269    2.511    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -193,7 +190,7 @@ distributions.
 ``` r
 # install.packages("blavaan")
 library(blavaan)
-fit_blav <- bsem(model = mod_poldem, data = PoliticalDemocracy)
+fit_blav <- bsem(model = mod_poldem, data = PoliticalDemocracy, seed = 2026)
 res <- INLAvaan:::compare_mcmc(fit_blav, INLAvaan = fit)
 print(res$p_compare)
 ```
@@ -235,7 +232,7 @@ install.packages(
 To cite package `{INLAvaan}` in publications use:
 
 > Jamil, H (2026). *INLAvaan: Approximate Bayesian Latent Variable
-> Analysis*. R package version 0.2.3.9022. DOI:
+> Analysis*. R package version 0.2.4. DOI:
 > [10.32614/CRAN.package.INLAvaan](https://doi.org/10.32614/CRAN.package.INLAvaan)
 
 A BibTeX entry for LaTeX users is:
@@ -245,7 +242,7 @@ A BibTeX entry for LaTeX users is:
     title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},
     author = {Haziq Jamil},
     year = {2026},
-    note = {R package version 0.2.3.9022},
+    note = {R package version 0.2.4},
     url = {https://inlavaan.haziqj.ml/},
     doi = {10.32614/CRAN.package.INLAvaan}
   }

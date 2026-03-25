@@ -1,23 +1,37 @@
-# INLAvaan (development version)
+# INLAvaan 0.2.4
 
-* NEW NORTA (NORmal To Anything) correlation adjustment for the SN copula, so that posterior samples have both correct skew-normal marginals and correct Pearson correlations. Copula sampling is now the default (`samp_copula = TRUE`).
-* NEW `sampling()` function to produce draws from the posterior (or prior) SEM generative model.
-* NEW Bayesian Fit Indices included in `fitmeasures()`; summary statistics available via `bfit_indices()`.
-* NEW parallelism feature for skew normal fit, automatically runs on total available cores when $m>120$.
-* NEW `predict()` now able to generate predictions for observed and missing data imputation, respecting multilevel structure if present.
-* NEW `diagnostics()` function to compute a range of global and per-parameter diagnostics for fitted models.
-* NEW `simulate()` function to sample data from either the posterior or prior.
-* `vcov()` now returns the covariance matrix of the lavaan-side parameters.
-* For defined params, it's possible to fit a skew normal approximation to the posterior marginal based on the samples by calling `sn_fit_sample = TRUE`.
-* Improved `plot()` method.
-* FIX bug in efficient volume correction method (new `marginal_correction = "shortcut"` implementation).  
-* Small optimisations to volume correction of skew-normal marginalisation, making it faster to run.
-* FIX bug in `qsnorm_fast()` that incorrectly handled sign symmetries.
-* Use Cholesky factorisation of the precision matrix for covariance and log-determinant calculations, replacing raw `solve()`.
-* Use pre-computed Owen-scrambled Sobol sequence; fall back to `{qrng}` when larger sequences are needed. QMC sample size now scales with model dimension.
-* Add `vb_correction` argument to `acfa()`, `asem()`, and `agrowth()`.
-* Add params and logscale options to visual_debug.
-* `{ggplot2}` is now optional; plots work with base R graphics.
+## New features
+
+* `bfit_indices()` computes per-sample Bayesian fit index vectors (BRMSEA, BCFI, BTLI, BNFI), with `summary()` and `print()` methods. Summary statistics are also available via `fitmeasures()`.
+* `compare()` compares two or more fitted models side by side, reporting marginal log-likelihood, Bayes factors, and DIC, with optional fit measures from `fitmeasures()`.
+* `diagnostics()` computes global and per-parameter convergence and approximation-quality diagnostics for fitted models.
+* `get_inlavaan_internal()` is now exported and documented, providing access to the internal list stored in a fitted `INLAvaan` object.
+* `predict()` generates predictions for observed data and missing data imputation, respecting multilevel structure if present.
+* `sampling()` draws from the posterior (or prior) SEM generative model, returning parameter vectors, latent variables, or observed variables.
+* `simulate()` generates complete replicate datasets from a fitted model, useful for simulation-based calibration and posterior predictive checks.
+* `timing()` extracts wall-clock timings for individual computation stages of a fitted model.
+
+## Minor improvements and fixes
+
+* Cholesky factorisation of the precision matrix replaces raw `solve()` for covariance and log-determinant calculations.
+* Copula sampling with NORTA (NORmal To Anything) correlation adjustment is now the default (`samp_copula = TRUE`), ensuring posterior samples have correct skew-normal marginals and correct Pearson correlations.
+* Pre-computed Owen-scrambled Sobol sequences are used by default, with fallback to `{qrng}` for larger sequences. QMC sample size now scales with model dimension.
+* Skew-normal fitting now runs in parallel automatically when the number of marginals exceeds 120, using all available cores.
+* Small optimisations to the skew-normal volume correction.
+* `acfa()`, `asem()`, and `agrowth()` gain a `vb_correction` argument.
+* `{ggplot2}` is now optional; plots fall back to base R graphics when it is not installed.
+* `inlavaan()` gains an `sn_fit_ngrid` argument to control the number of grid points per dimension when fitting skew-normal marginals (default 21).
+* `inlavaan()` now supports `sn_fit_sample = TRUE` for defined parameters, fitting a skew-normal approximation to their posterior marginals based on drawn samples.
+* `plot()` method gains improved visualisation options.
+* `priors_for()` now supports the `[prec]` scale qualifier for variance parameters (`theta`, `psi`), placing the prior on the precision scale with automatic Jacobian adjustment.
+* `sampling()` and `simulate()` gain a `silent` argument to suppress informational messages.
+* `summary()` now includes 25th and 75th percentile columns.
+* `vcov()` now returns the covariance matrix of the lavaan-side parameters and supports a `type` argument for choosing between sample and Laplace covariance.
+
+## Bug fixes
+
+* `marginal_correction = "shortcut"` no longer produces incorrect volume corrections.
+* `qsnorm_fast()` no longer incorrectly handles sign symmetries.
 
 # INLAvaan 0.2.3
 
