@@ -311,10 +311,13 @@ compare_mcmc <- function(
     }
 
     if (isTRUE(show_error)) {
-      # Pre-compute per-parameter MCMC 0.95 quantile (independent of method)
+      # Pre-compute per-parameter effective right edge from MCMC KDE.
+      # Use the rightmost x where density > 1% of peak to ignore sparse outliers.
       mcmc_q95 <- sapply(parnames, function(pnm) {
-        quantile(plot_df_blav$value[plot_df_blav$name == pnm], probs = 0.995)
-        # max(plot_df_blav$value[plot_df_blav$name == pnm], na.rm = TRUE)
+        vals <- plot_df_blav$value[plot_df_blav$name == pnm]
+        d <- stats::density(vals)
+        threshold <- 0.0025 * max(d$y)
+        max(d$x[d$y >= threshold])
       })
       names(mcmc_q95) <- parnames
 
