@@ -94,7 +94,7 @@
 <p>As a first impression of the package, consider the canonical example of SEM applied to the Industrialisation and Political Democracy data set of Bollen (1989)<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;Bollen, K. A. (1989). &lt;em&gt;Structural equations with latent variables&lt;/em&gt; (pp. xiv, 514). John Wiley &amp;amp; Sons. &lt;a href="https://doi.org/10.1002/9781118619179" class="external-link uri"&gt;https://doi.org/10.1002/9781118619179&lt;/a&gt;&lt;/p&gt;'><sup>1</sup></a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlavaan.haziqj.ml/">INLAvaan</a></span><span class="op">)</span></span>
-<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="va">mod_poldem</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">  # Latent variable definitions</span></span>
 <span><span class="st">     ind60 =~ x1 + x2 + x3</span></span>
 <span><span class="st">     dem60 =~ y1 + y2 + y3</span></span>
@@ -121,24 +121,27 @@
 <span><span class="st">"</span></span>
 <span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"PoliticalDemocracy"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod_poldem</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [36ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [38ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
 <span><span class="co">#&gt; ✔ Computing the Hessian. [33ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.156σ. [92ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.156σ. [93ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/30 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 30/30 skew-normal marginals. [463ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 7/30 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 19/30 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 30/30 skew-normal marginals. [500ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [106ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [115ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [270ms]</span></span>
+<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [274ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
@@ -157,8 +160,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3156.902 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    29.044 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3157.006 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    29.097 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -194,16 +197,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.331    0.400    0.116    1.689    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.331    0.386    0.079    1.592    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.217    0.687   -0.192    2.505    0.004       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.347    0.735    0.782    3.668    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.217    0.701   -0.138    2.609    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.347    0.736    0.831    3.719    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.225    0.652   -0.246    2.310    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.225    0.661   -0.183    2.415    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y8 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.070    0.478   -0.629    1.247    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.070    0.445   -0.634    1.109    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.307    0.569    0.247    2.481    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.307    0.599    0.243    2.584    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -230,7 +233,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("blavaan")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a></span><span class="op">)</span></span>
-<span><span class="va">fit_blav</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://blavaan.org/reference/bsem.html" class="external-link">bsem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
+<span><span class="va">fit_blav</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://blavaan.org/reference/bsem.html" class="external-link">bsem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod_poldem</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">INLAvaan</span><span class="fu">:::</span><span class="fu">compare_mcmc</span><span class="op">(</span><span class="va">fit_blav</span>, INLAvaan <span class="op">=</span> <span class="va">fit</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">p_compare</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-fig-compare-poldem-1.png" alt="" width="100%"></p>
