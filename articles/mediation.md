@@ -101,10 +101,10 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ Finding posterior mode. [34ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [64ms]
+#> ✔ Computing the Hessian. [66ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.084σ. [174ms]
+#> ✔ VB correction; mean |δ| = 0.084σ. [175ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
 #> ✔ Fitting 7/7 skew-normal marginals. [161ms]
@@ -113,7 +113,7 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ Adjusting copula correlations (NORTA). [19ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [602ms]
+#> ✔ Posterior sampling and summarising. [604ms]
 #> 
 ```
 
@@ -129,7 +129,7 @@ The summary output provides the posterior mean, standard deviation, and
 
 ``` r
 summary(fit)
-#> INLAvaan 0.2.3.9022 ended normally after 5 iterations
+#> INLAvaan 0.2.4 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

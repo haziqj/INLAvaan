@@ -177,13 +177,13 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, test = "none")
 #> ✔ VB correction; mean |δ| = 0.208σ. [89ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [557ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [559ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [392ms]
+#> ✔ Adjusting copula correlations (NORTA). [167ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [208ms]
+#> ✔ Posterior sampling and summarising. [209ms]
 #> 
 standardisedsolution(fit, nsamp = 100)
 #>        lhs op     rhs est.std    se ci.lower ci.upper

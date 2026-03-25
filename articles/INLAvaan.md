@@ -104,22 +104,22 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [75ms]
+#> ✔ Finding posterior mode. [73ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [48ms]
+#> ✔ Computing the Hessian. [47ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.055σ. [108ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [334ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [338ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [78ms]
+#> ✔ Adjusting copula correlations (NORTA). [79ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [508ms]
+#> ✔ Posterior sampling and summarising. [514ms]
 #> 
 ```
 
@@ -163,7 +163,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.3.9022 ended normally after 62 iterations
+#> INLAvaan 0.2.4 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -192,7 +192,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.3.9022 ended normally after 62 iterations
+#> INLAvaan 0.2.4 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -346,22 +346,22 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [53ms]
+#> ✔ Finding posterior mode. [54ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [28ms]
+#> ✔ Computing the Hessian. [29ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.036σ. [69ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [201ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [204ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [51ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [453ms]
+#> ✔ Posterior sampling and summarising. [452ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)

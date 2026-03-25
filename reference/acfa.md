@@ -225,11 +225,11 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ✔ Computing the Hessian. [41ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [88ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [87ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 20/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [504ms]
+#> ⠹ Fitting 13/21 skew-normal marginals.
+#> ✔ Fitting 21/21 skew-normal marginals. [500ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [145ms]
@@ -238,7 +238,7 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ✔ Posterior sampling and summarising. [71ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.3.9022 ended normally after 56 iterations
+#> INLAvaan 0.2.4 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
