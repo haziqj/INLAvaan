@@ -148,6 +148,10 @@ To cite the software implementation and workflows, please cite:
 
 BibTeX entries for LaTeX users:
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(comment = "")
+```
+
 ```{r, echo = FALSE}
 toBibtex(citation("INLAvaan"))
 ```
@@ -174,6 +178,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
 
-By using this package, you agree to comply with both licenses: 
-the GPL-3 license for the software and the CC BY 4.0 license for the data.
+<!-- By using this package, you agree to comply with both licenses:  -->
+<!-- the GPL-3 license for the software and the CC BY 4.0 license for the data. -->
 
