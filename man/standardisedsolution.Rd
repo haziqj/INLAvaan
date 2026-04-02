@@ -127,13 +127,19 @@ Standardised solution of a latent variable model
 HS.model <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
-  speed   =~ x7 + x8 + x9
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Fit a CFA model with standardised latent variables
-fit <- acfa(HS.model, data = HolzingerSwineford1939, test = "none")
-standardisedsolution(fit, nsamp = 100)
+fit <- acfa(
+  HS.model,
+  data = HolzingerSwineford1939,
+  test = "none",
+  nsamp = 10,
+  vb_correction = FALSE,
+  verbose = FALSE
+)
+standardisedsolution(fit, nsamp = 10, se = FALSE, ci = FALSE)
 }
 \seealso{
 \code{\link[=summary]{summary()}}, \code{\link[=coef]{coef()}}, \code{\link[=vcov]{vcov()}}
