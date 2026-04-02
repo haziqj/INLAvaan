@@ -115,22 +115,22 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [106ms]
+#> ✔ Finding posterior mode. [99ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [121ms]
+#> ✔ Computing the Hessian. [109ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [98ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [92ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [265ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [252ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [80ms]
+#> ✔ Adjusting copula correlations (NORTA). [76ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [521ms]
+#> ✔ Posterior sampling and summarising. [499ms]
 #> 
 ```
 
@@ -358,7 +358,7 @@ identify bottlenecks when scaling to larger models.
 ``` r
 timing(fit)
 #>  total 
-#> 1.27 s
+#> 1.21 s
 ```
 
 ### Plot
@@ -396,17 +396,16 @@ fit2 <- asem(mod2, dat)
 #> ✔ Computing the Hessian. [29ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [66ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [65ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [211ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [207ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [52ms]
+#> ✔ Adjusting copula correlations (NORTA). [49ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [463ms]
+#> ✔ Posterior sampling and summarising. [449ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
