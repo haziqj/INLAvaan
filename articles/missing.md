@@ -39,23 +39,23 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [135ms]
+#> ✔ Finding posterior mode. [132ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [165ms]
+#> ✔ Computing the Hessian. [155ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [474ms]
+#> ✔ VB correction; mean |δ| = 0.222σ. [464ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 24/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.1s]
+#> ⠹ Fitting 25/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [376ms]
+#> ✔ Adjusting copula correlations (NORTA). [371ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [894ms]
+#> ✔ Posterior sampling and summarising. [880ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -95,21 +95,21 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [260ms]
+#> ✔ Finding posterior mode. [255ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [255ms]
+#> ✔ Computing the Hessian. [246ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [531ms]
+#> ✔ VB correction; mean |δ| = 0.160σ. [517ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 16/42 skew-normal marginals.
-#> ⠸ Fitting 39/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.4s]
+#> ⠹ Fitting 18/42 skew-normal marginals.
+#> ⠸ Fitting 41/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [5.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [454ms]
+#> ✔ Adjusting copula correlations (NORTA). [447ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [1.4s]

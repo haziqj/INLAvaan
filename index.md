@@ -55,22 +55,22 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [39ms]
+#> ✔ Finding posterior mode. [42ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [35ms]
+#> ✔ Computing the Hessian. [26ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.156σ. [99ms]
+#> ✔ VB correction; mean |δ| = 0.156σ. [69ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [502ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [474ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [117ms]
+#> ✔ Adjusting copula correlations (NORTA). [106ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [289ms]
+#> ✔ Posterior sampling and summarising. [264ms]
 #> 
 
 summary(fit)
@@ -85,12 +85,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1651.234 
-#>    PPP (Chi-square)                              0.491 
+#>    PPP (Chi-square)                              0.525 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3156.473 
-#>    Effective parameters (pD)                    28.830 
+#>    Deviance (DIC)                             3156.801 
+#>    Effective parameters (pD)                    28.994 
 #> 
 #> Parameter Estimates:
 #> 
@@ -126,16 +126,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.331    0.382    0.154    1.651    0.005       beta(1,1)
+#>    .y5                0.331    0.406    0.129    1.723    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.217    0.703   -0.180    2.575    0.004       beta(1,1)
-#>    .y6                0.347    0.723    0.832    3.673    0.011       beta(1,1)
+#>    .y4                0.217    0.685   -0.205    2.484    0.004       beta(1,1)
+#>    .y6                0.347    0.719    0.897    3.717    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.225    0.641   -0.146    2.372    0.005       beta(1,1)
+#>    .y7                0.225    0.645   -0.184    2.349    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.070    0.450   -0.593    1.174    0.003       beta(1,1)
+#>    .y4                0.070    0.460   -0.619    1.187    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.307    0.571    0.269    2.511    0.005       beta(1,1)
+#>    .y8                0.307    0.587    0.239    2.543    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -213,24 +213,35 @@ install.packages(
 
 ## Citation
 
-To cite package [INLAvaan](https://inlavaan.haziqj.ml/) in publications
-use:
+There are two papers related to [INLAvaan](https://inlavaan.haziqj.ml/)
+and its underlying methodology. To cite
+[INLAvaan](https://inlavaan.haziqj.ml/) in publications, consider citing
+both.
 
-> Jamil, H (2026). *INLAvaan: Approximate Bayesian Latent Variable
-> Analysis*. R package version 0.2.4. DOI:
-> [10.32614/CRAN.package.INLAvaan](https://doi.org/10.32614/CRAN.package.INLAvaan)
+To cite the methodological contribution exclusively, please cite:
 
-A BibTeX entry for LaTeX users is:
+> Jamil, H., & Rue, H. (2026). *Approximate Bayesian inference for
+> structural equation models using integrated nested Laplace
+> approximations* (2603.25690 \[stat.ME\]). arXiv.
+> <https://doi.org/10.48550/arXiv.2603.25690>
 
-``` bibtex
-@Manual{,
-    title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},
-    author = {Haziq Jamil},
-    year = {2026},
-    note = {R package version 0.2.4},
-    url = {https://inlavaan.haziqj.ml/},
-    doi = {10.32614/CRAN.package.INLAvaan}
-  }
+To cite the software implementation and workflows, please cite:
+
+> Jamil, H., & Rue, H. (2026). *Implementation and workflows for
+> INLA-based approximate Bayesian structural equation modelling*
+> (2604.00671 \[stat.CO\]). arXiv.
+> <https://doi.org/10.48550/arXiv.2604.00671>
+
+BibTeX entries for LaTeX users:
+
+``` R
+#> @Manual{,
+#>   title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},
+#>   author = {Haziq Jamil},
+#>   year = {2026},
+#>   note = {R package version 0.2.4, commit 6a43854c20024f2e35d0a703174fec2d01bfdeeb},
+#>   url = {https://github.com/haziqj/INLAvaan},
+#> }
 ```
 
 ## License
