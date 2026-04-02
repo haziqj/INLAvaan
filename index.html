@@ -123,22 +123,27 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod_poldem</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [42ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [37ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [26ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [32ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.156σ. [69ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.156σ. [89ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/30 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 30/30 skew-normal marginals. [474ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 2/30 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 15/30 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 28/30 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 30/30 skew-normal marginals. [462ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [106ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [101ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [264ms]</span></span>
+<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ⠸ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [284ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
@@ -153,12 +158,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1651.234 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.525 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.514 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3156.801 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    28.994 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3156.401 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    28.794 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -194,16 +199,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.331    0.406    0.129    1.723    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.331    0.382    0.146    1.644    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.217    0.685   -0.205    2.484    0.004       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.347    0.719    0.897    3.717    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.217    0.667   -0.217    2.405    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.347    0.728    0.901    3.758    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.225    0.645   -0.184    2.349    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.225    0.651   -0.136    2.420    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y8 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.070    0.460   -0.619    1.187    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.070    0.454   -0.579    1.206    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.307    0.587    0.239    2.543    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.307    0.583    0.231    2.519    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -267,13 +272,33 @@
 <p>Jamil, H., &amp; Rue, H. (2026). <em>Implementation and workflows for INLA-based approximate Bayesian structural equation modelling</em> (2604.00671 [stat.CO]). arXiv. <a href="https://doi.org/10.48550/arXiv.2604.00671" class="external-link uri">https://doi.org/10.48550/arXiv.2604.00671</a></p>
 </blockquote>
 <p>BibTeX entries for LaTeX users:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#&gt; @Manual{,</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;   title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt;   author = {Haziq Jamil},</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt;   year = {2026},</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   note = {R package version 0.2.4, commit 6a43854c20024f2e35d0a703174fec2d01bfdeeb},</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   url = {https://github.com/haziqj/INLAvaan},</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; }</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="sc">@</span>Misc{jamil2026approximate,</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  title <span class="ot">=</span> {Approximate Bayesian inference <span class="cf">for</span> structural equation models using integrated nested Laplace approximations},</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  author <span class="ot">=</span> {Haziq Jamil and Håvard Rue},</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  year <span class="ot">=</span> {<span class="dv">2026</span>},</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  number <span class="ot">=</span> {<span class="fl">2603.25690</span> [stat.ME]},</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  eprint <span class="ot">=</span> {<span class="fl">2603.25690</span>},</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  primaryclass <span class="ot">=</span> {stat.ME},</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  publisher <span class="ot">=</span> {arXiv},</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  doi <span class="ot">=</span> {<span class="fl">10.48550</span><span class="sc">/</span>arXiv.<span class="fl">2603.25690</span>},</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  abstract <span class="ot">=</span> {Markov chain Monte <span class="fu">Carlo</span> (MCMC) methods remain the mainstay of Bayesian estimation of structural equation <span class="fu">models</span> (SEM); however they often incur a high computational cost. We present a bespoke approximate Bayesian approach to SEM, drawing on ideas from the integrated nested Laplace <span class="fu">approximation</span> (INLA; Rue et al., <span class="dv">2009</span>, J. R. Stat. Soc. Series B Stat. Methodol.) framework. We implement a simplified Laplace approximation that efficiently profiles the posterior density <span class="cf">in</span> each parameter direction <span class="cf">while</span> correcting <span class="cf">for</span> asymmetry, allowing <span class="cf">for</span> parametric skew<span class="sc">-</span>normal estimation of the marginals. Furthermore, we apply a variational Bayes correction to shift the marginal locations, thereby better capturing the posterior mass. Essential quantities, including factor scores and model<span class="sc">-</span>fit indices, are obtained via an adjusted Gaussian copula sampling scheme. For normal<span class="sc">-</span>theory SEM, this approach offers a highly accurate alternative to sampling<span class="sc">-</span>based inference, achieving near<span class="sc">-</span><span class="st">'maximum likelihood'</span> speeds <span class="cf">while</span> retaining the precision of full Bayesian inference.},</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  archiveprefix <span class="ot">=</span> {arXiv},</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  copyright <span class="ot">=</span> {Creative Commons Attribution Non Commercial Share Alike <span class="fl">4.0</span> International},</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>}</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="sc">@</span>Misc{jamil2026implementation,</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  title <span class="ot">=</span> {Implementation and workflows <span class="cf">for</span> INLA<span class="sc">-</span>based approximate Bayesian structural equation modelling},</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  author <span class="ot">=</span> {Haziq Jamil and Håvard Rue},</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>  year <span class="ot">=</span> {<span class="dv">2026</span>},</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>  number <span class="ot">=</span> {<span class="fl">2604.00671</span> [stat.CO]},</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>  eprint <span class="ot">=</span> {<span class="fl">2604.00671</span>},</span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  primaryclass <span class="ot">=</span> {stat.CO},</span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  publisher <span class="ot">=</span> {arXiv},</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>  doi <span class="ot">=</span> {<span class="fl">10.48550</span><span class="sc">/</span>arXiv.<span class="fl">2604.00671</span>},</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>  abstract <span class="ot">=</span> {Bayesian structural equation <span class="fu">modelling</span> (BSEM) offers many advantages such as principled uncertainty quantification, small<span class="sc">-</span>sample regularisation, and flexible model specification. However, the Markov chain Monte <span class="fu">Carlo</span> (MCMC) methods on which it relies are computationally prohibitive <span class="cf">for</span> the iterative cycle of specification, criticism, and refinement that careful psychometric practice demands. We present INLAvaan, an R package <span class="cf">for</span> fast, approximate Bayesian SEM built around the Integrated Nested Laplace <span class="fu">Approximation</span> (INLA) framework <span class="cf">for</span> structural equation models developed by Jamil <span class="sc">&amp;</span> <span class="fu">Rue</span> (<span class="dv">2026</span>, arXiv<span class="sc">:</span><span class="fl">2603.25690</span> [stat.ME]). This paper serves as a companion manuscript that describes the architectural decisions and computational strategies underlying the package. Two substantive applications <span class="sc">--</span> a <span class="dv">256</span><span class="sc">-</span>parameter bifactor circumplex model and a multilevel mediation model with full<span class="sc">-</span>information missing<span class="sc">-</span>data handling <span class="sc">--</span> demonstrate the approach on specifications where MCMC would require hours of run time and careful convergence work. In constrast, INLAvaan delivers calibrated posterior summaries <span class="cf">in</span> seconds.},</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>  archiveprefix <span class="ot">=</span> {arXiv},</span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>  copyright <span class="ot">=</span> {Creative Commons Attribution Non Commercial Share Alike <span class="fl">4.0</span> International},</span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
@@ -294,7 +319,8 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</code></pre>
-<p>By using this package, you agree to comply with both licenses: the GPL-3 license for the software and the CC BY 4.0 license for the data.</p>
+<!-- By using this package, you agree to comply with both licenses:  -->
+<!-- the GPL-3 license for the software and the CC BY 4.0 license for the data. -->
 </div>
 </div>
 
