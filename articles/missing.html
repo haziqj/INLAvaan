@@ -127,23 +127,24 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [132ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [219ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [155ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [219ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.222σ. [464ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.222σ. [757ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 25/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [3s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 11/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 36/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [5.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [371ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [334ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [880ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [982ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">fit1</span><span class="op">@</span><span class="va">Data</span><span class="op">@</span><span class="va">nobs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -183,24 +184,25 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [255ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [417ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [246ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [323ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.160σ. [517ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.160σ. [811ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 18/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 41/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [5.3s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 10/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 24/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 38/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [8.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [447ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [408ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [1.4s]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [1.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.4 ended normally after 93 iterations</span></span>

@@ -110,34 +110,34 @@ single-observation draws from the predictive distribution
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [21ms]
+#> ✔ Finding posterior mode. [20ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [20ms]
+#> ✔ Computing the Hessian. [19ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.246σ. [60ms]
+#> ✔ VB correction; mean |δ| = 0.246σ. [49ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [70ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [73ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [20ms]
+#> ✔ Adjusting copula correlations (NORTA). [19ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [402ms]
+#> ✔ Posterior sampling and summarising. [325ms]
 #> 
 
 # Simulate one replicate dataset from the posterior
 sims <- simulate(fit, nsim = 1)
 head(sims[[1]])                    # data frame
-#>            x1         x2         x3
-#> 1 -0.09916336 -2.3532667 -0.1417267
-#> 2  0.52478956 -0.6783174 -1.3472148
-#> 3 -0.76180870 -0.1612624  0.8219097
-#> 4  0.23045650 -0.6685604  0.6385479
-#> 5  2.51226067 -0.7269663  1.5260502
-#> 6 -1.41566295 -2.8317893 -0.6663346
+#>           x1          x2         x3
+#> 1  1.6536594 -0.59284627  1.5753500
+#> 2  1.5194330  0.32063736 -0.3728555
+#> 3 -0.6818833 -0.08099062  0.9002052
+#> 4  0.1061275 -0.79342830  0.5167544
+#> 5  0.3042268 -2.94457094 -0.6369544
+#> 6  1.8942750  0.49249569  2.5761025
 attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
 #>      0.6842168      0.9006944      0.6429224      1.1979793      0.7832034 
