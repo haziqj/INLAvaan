@@ -135,21 +135,21 @@ install.packages(
 
 ## Citation
 
-To cite package `{INLAvaan}` in publications use:
+There are two papers related to `{INLAvaan}` and its underlying methodology.
+To cite `{INLAvaan}` in publications, consider citing both.
 
-> Jamil, H (`r format(Sys.time(), "%Y")`). _INLAvaan: Approximate Bayesian Latent Variable Analysis_. R package version `r packageVersion("INLAvaan")`. DOI: [10.32614/CRAN.package.INLAvaan](https://doi.org/10.32614/CRAN.package.INLAvaan)
+To cite the methodological contribution exclusively, please cite:
 
-A BibTeX entry for LaTeX users is:
+> Jamil, H., & Rue, H. (2026). _Approximate Bayesian inference for structural equation models using integrated nested Laplace approximations_ (2603.25690 [stat.ME]). arXiv. https://doi.org/10.48550/arXiv.2603.25690
 
-```bibtex
-@Manual{,
-    title = {INLAvaan: Approximate Bayesian Latent Variable Analysis},
-    author = {Haziq Jamil},
-    year = {`r format(Sys.time(), "%Y")`},
-    note = {R package version `r packageVersion("INLAvaan")`},
-    url = {https://inlavaan.haziqj.ml/},
-    doi = {10.32614/CRAN.package.INLAvaan}
-  }
+To cite the software implementation and workflows, please cite:
+
+> Jamil, H., & Rue, H. (2026). _Implementation and workflows for INLA-based approximate Bayesian structural equation modelling_ (2604.00671 [stat.CO]). arXiv. https://doi.org/10.48550/arXiv.2604.00671
+
+BibTeX entries for LaTeX users:
+
+```{r, echo = FALSE}
+toBibtex(citation("INLAvaan"))
 ```
 
 ## License
