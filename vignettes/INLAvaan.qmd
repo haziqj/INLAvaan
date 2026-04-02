@@ -25,8 +25,8 @@ library(lavaan)
 ## Introduction
 
 SEMs are ubiquitous in the social sciences, psychology, ecology, and other fields. 
-The INLAvaan package provides a user-friendly interface for fitting Bayesian SEMs using Integrated Nested Laplace Approximations [INLA, @rue2009approximate]. 
-This vignette will guide you through the basics of using INLAvaan to fit a simple SEM.
+The `{INLAvaan}` package [@jamil2026implementation] provides a user-friendly interface for fitting Bayesian SEMs using Integrated Nested Laplace Approximations [INLA, @rue2009approximate], based on a bespoke approximate Bayesian inference framework for SEMs [@jamil2026approximate].
+This vignette will guide you through the basics of using `{INLAvaan}` to fit a simple SEM.
 Before we begin make sure you have installed the INLAvaan package from GitHub by running the commands below.
 
 ```{r}
@@ -45,7 +45,14 @@ To motivate the use of SEMs, consider the introductory example in @song2012basic
 *Does poorer glycemic control lead to greater severity of kidney disease?*
 We observe three indicators of glycemic control ($y_1$, $y_2$, $y_3$) and three indicators of kidney disease severity ($y_4$, $y_5$, $y_6$).
 
-![](glycemic-table.png){fig-align="center" width="75%"}
+| | **Indicator** | **Description** | **Unit** |
+|---|---|---|---|
+| $y_1$ | HbA1c | 3-month avg. blood glucose | % |
+| $y_2$ | FPG | Fasting plasma glucose | mmol/L |
+| $y_3$ | Insulin | Fasting insulin level | μU/mL |
+| $y_4$ | PCr | Plasma creatinine | μmol/L |
+| $y_5$ | ACR | Albumin–creatinine ratio | mg/g |
+| $y_6$ | BUN | Blood urea nitrogen | mmol/L |
 
 Rather than fitting separate regression models for each indicator, SEM allows us to model the relationship between the latent constructs themselves, providing a clearer and more coherent representation of the underlying processes.
 The hypothesised SEM is illustrated by the figure below:
@@ -104,7 +111,7 @@ mod <- "
 fit <- asem(mod, dat)
 ```
 
-`{INLAvaan}` computes an approximation to the posterior density by way of a Laplace approximation [@tierney1989fully].
+`{INLAvaan}` computes an approximation to the posterior density by way of a Laplace approximation [@tierney1989fully; @jamil2026approximate].
 The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters.
 The default method for optimisation is `stats::nlminb()`, but other optimisers can be used by specifying `optim_method = "ucminf"` for the `{ucminf}` package or `optim_method = "optim"` to call the `stats::optim()` function with method `"BFGS"`.
 
@@ -142,7 +149,7 @@ It's possible to request posterior medians and modes in the summary output by sp
 
 Predicted values for the latent variables can be obtained using the `predict()` function.
 This is done by sampling from the posterior distributions of the latent variables given the observed data.
-In the future, this function will also allow for out-of-sample predictions and also to retrieve predictions for observed variables.
+The function also supports predictions for observed variables (e.g. `type = "ov"`) and missing data imputation, respecting multilevel structure if present.
 
 ```{r}
 #| label: results-pred
@@ -159,6 +166,24 @@ Alternatively, the user is welcome to perform their own summary statistics on th
 summ_eta <- summary(eta_preds)
 str(summ_eta)
 head(summ_eta$Mean)
+```
+
+### Diagnostics
+
+The `diagnostics()` function reports convergence and approximation-quality metrics for the fitted model.
+Global diagnostics (`type = "global"`) check whether the optimiser converged, and quantify how well the skew-normal marginals match the joint posterior (via KL divergence and NMAD).
+Per-parameter diagnostics (`type = "param"`) provide gradient norms and KL contributions for each free parameter, which is useful for identifying any problematic parameters.
+
+```{r}
+#| label: results-diagnostics
+diagnostics(fit)
+```
+
+The `timing()` function reports how long each computation stage took, which can help identify bottlenecks when scaling to larger models.
+
+```{r}
+#| label: results-timing
+timing(fit)
 ```
 
 ### Plot
@@ -229,7 +254,7 @@ mod <- "
 
 ## Dependency on R-INLA
 
-Dependency on R-INLA has been temporarily removed for tThe current version of `{INLAvaan}` (v0.2-0).
+Dependency on R-INLA has been temporarily removed for the current version of `{INLAvaan}` (>= 0.2.0).
 For a wide class LVMs and SEMs where the latent variables are unstructured and independent, the current implementation is sufficient.
 However, future versions of `{INLAvaan}` will re-introduce dependency on R-INLA to allow for more complex latent structures, such as spatial and temporal dependencies.
 
