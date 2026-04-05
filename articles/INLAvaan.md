@@ -118,10 +118,10 @@ fit <- asem(mod, dat)
 #> ✔ Finding posterior mode. [103ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [117ms]
+#> ✔ Computing the Hessian. [121ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [95ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [96ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
 #> ✔ Fitting 13/13 skew-normal marginals. [257ms]
@@ -130,7 +130,7 @@ fit <- asem(mod, dat)
 #> ✔ Adjusting copula correlations (NORTA). [78ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [508ms]
+#> ✔ Posterior sampling and summarising. [501ms]
 #> 
 ```
 
@@ -175,7 +175,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.4 ended normally after 62 iterations
+#> INLAvaan 0.2.4.9000 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -204,7 +204,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.4 ended normally after 62 iterations
+#> INLAvaan 0.2.4.9000 ended normally after 62 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -390,19 +390,19 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [55ms]
+#> ✔ Finding posterior mode. [56ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [29ms]
+#> ✔ Computing the Hessian. [30ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [66ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [67ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [209ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [212ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [52ms]
+#> ✔ Adjusting copula correlations (NORTA). [51ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [458ms]

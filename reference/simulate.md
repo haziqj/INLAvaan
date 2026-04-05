@@ -116,16 +116,16 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Computing the Hessian. [21ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.246σ. [57ms]
+#> ✔ VB correction; mean |δ| = 0.246σ. [55ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [80ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [72ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [22ms]
+#> ✔ Adjusting copula correlations (NORTA). [20ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [401ms]
+#> ✔ Posterior sampling and summarising. [398ms]
 #> 
 
 # Simulate one replicate dataset from the posterior
