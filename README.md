@@ -73,22 +73,25 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [38ms]
+#> ✔ Finding posterior mode. [37ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [36ms]
+#> ✔ Computing the Hessian. [32ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.156σ. [96ms]
+#> ✔ VB correction; mean |δ| = 0.156σ. [88ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [484ms]
+#> ⠹ Fitting 6/30 skew-normal marginals.
+#> ⠸ Fitting 19/30 skew-normal marginals.
+#> ✔ Fitting 30/30 skew-normal marginals. [465ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [107ms]
+#> ✔ Adjusting copula correlations (NORTA). [100ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [275ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [277ms]
 #> 
 
 summary(fit)
@@ -103,12 +106,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1651.234 
-#>    PPP (Chi-square)                              0.491 
+#>    PPP (Chi-square)                              0.526 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3157.091 
-#>    Effective parameters (pD)                    29.139 
+#>    Deviance (DIC)                             3156.868 
+#>    Effective parameters (pD)                    29.028 
 #> 
 #> Parameter Estimates:
 #> 
@@ -144,16 +147,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.331    0.398    0.146    1.707    0.005       beta(1,1)
+#>    .y5                0.331    0.399    0.164    1.728    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                0.217    0.709   -0.212    2.570    0.004       beta(1,1)
-#>    .y6                0.347    0.730    0.896    3.757    0.011       beta(1,1)
+#>    .y4                0.217    0.681   -0.202    2.473    0.004       beta(1,1)
+#>    .y6                0.347    0.729    0.796    3.661    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.225    0.627   -0.102    2.362    0.005       beta(1,1)
+#>    .y7                0.225    0.647   -0.162    2.380    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.070    0.439   -0.575    1.149    0.003       beta(1,1)
+#>    .y4                0.070    0.449   -0.601    1.163    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                0.307    0.592    0.230    2.552    0.005       beta(1,1)
+#>    .y8                0.307    0.571    0.270    2.506    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -232,14 +235,14 @@ install.packages(
 There are two papers related to `{INLAvaan}` and its underlying
 methodology. To cite `{INLAvaan}` in publications, consider citing both.
 
-To cite the methodological contribution exclusively, please cite:
+To cite the methodological contribution exclusively, please use:
 
 > Jamil, H., & Rue, H. (2026). *Approximate Bayesian inference for
 > structural equation models using integrated nested Laplace
 > approximations* (2603.25690 \[stat.ME\]). arXiv.
 > <https://doi.org/10.48550/arXiv.2603.25690>
 
-To cite the software implementation and workflows, please cite:
+To cite the software implementation and workflows, please use:
 
 > Jamil, H., & Rue, H. (2026). *Implementation and workflows for
 > INLA-based approximate Bayesian structural equation modelling*
@@ -257,7 +260,6 @@ BibTeX entries for LaTeX users:
       primaryclass = {stat.ME},
       publisher = {arXiv},
       doi = {10.48550/arXiv.2603.25690},
-      abstract = {Markov chain Monte Carlo (MCMC) methods remain the mainstay of Bayesian estimation of structural equation models (SEM); however they often incur a high computational cost. We present a bespoke approximate Bayesian approach to SEM, drawing on ideas from the integrated nested Laplace approximation (INLA; Rue et al., 2009, J. R. Stat. Soc. Series B Stat. Methodol.) framework. We implement a simplified Laplace approximation that efficiently profiles the posterior density in each parameter direction while correcting for asymmetry, allowing for parametric skew-normal estimation of the marginals. Furthermore, we apply a variational Bayes correction to shift the marginal locations, thereby better capturing the posterior mass. Essential quantities, including factor scores and model-fit indices, are obtained via an adjusted Gaussian copula sampling scheme. For normal-theory SEM, this approach offers a highly accurate alternative to sampling-based inference, achieving near-'maximum likelihood' speeds while retaining the precision of full Bayesian inference.},
       archiveprefix = {arXiv},
       copyright = {Creative Commons Attribution Non Commercial Share Alike 4.0 International},
     }
@@ -271,7 +273,6 @@ BibTeX entries for LaTeX users:
       primaryclass = {stat.CO},
       publisher = {arXiv},
       doi = {10.48550/arXiv.2604.00671},
-      abstract = {Bayesian structural equation modelling (BSEM) offers many advantages such as principled uncertainty quantification, small-sample regularisation, and flexible model specification. However, the Markov chain Monte Carlo (MCMC) methods on which it relies are computationally prohibitive for the iterative cycle of specification, criticism, and refinement that careful psychometric practice demands. We present INLAvaan, an R package for fast, approximate Bayesian SEM built around the Integrated Nested Laplace Approximation (INLA) framework for structural equation models developed by Jamil & Rue (2026, arXiv:2603.25690 [stat.ME]). This paper serves as a companion manuscript that describes the architectural decisions and computational strategies underlying the package. Two substantive applications -- a 256-parameter bifactor circumplex model and a multilevel mediation model with full-information missing-data handling -- demonstrate the approach on specifications where MCMC would require hours of run time and careful convergence work. In constrast, INLAvaan delivers calibrated posterior summaries in seconds.},
       archiveprefix = {arXiv},
       copyright = {Creative Commons Attribution Non Commercial Share Alike 4.0 International},
     }

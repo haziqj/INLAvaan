@@ -138,11 +138,11 @@ install.packages(
 There are two papers related to `{INLAvaan}` and its underlying methodology.
 To cite `{INLAvaan}` in publications, consider citing both.
 
-To cite the methodological contribution exclusively, please cite:
+To cite the methodological contribution exclusively, please use:
 
 > Jamil, H., & Rue, H. (2026). _Approximate Bayesian inference for structural equation models using integrated nested Laplace approximations_ (2603.25690 [stat.ME]). arXiv. https://doi.org/10.48550/arXiv.2603.25690
 
-To cite the software implementation and workflows, please cite:
+To cite the software implementation and workflows, please use:
 
 > Jamil, H., & Rue, H. (2026). _Implementation and workflows for INLA-based approximate Bayesian structural equation modelling_ (2604.00671 [stat.CO]). arXiv. https://doi.org/10.48550/arXiv.2604.00671
 
