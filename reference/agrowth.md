@@ -246,14 +246,13 @@ fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ✔ Computing the Hessian. [67ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.045σ. [167ms]
+#> ✔ VB correction; mean |δ| = 0.045σ. [168ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 2/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [889ms]
+#> ✔ Fitting 17/17 skew-normal marginals. [893ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [91ms]
+#> ✔ Adjusting copula correlations (NORTA). [92ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [123ms]

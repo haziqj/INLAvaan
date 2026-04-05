@@ -114,9 +114,9 @@ diagnostics.
 ``` r
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.429        0.000     7517.265       20.667        0.091 
+#>           21    -3823.429        0.000     7517.848       20.958        0.092 
 #>    BGammaHat adjBGammaHat          BMc 
-#>        0.957        0.920        0.903
+#>        0.957        0.919        0.903
 ```
 
 ### Posterior distributions of fit indices
@@ -131,7 +131,7 @@ bfi
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc 
-#>        0.092        0.957        0.920        0.903
+#>        0.092        0.957        0.919        0.903
 ```
 
 Calling
@@ -145,10 +145,10 @@ summary(bfi)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.092 0.005 0.083 0.088 0.091 0.095  0.102 0.090
-#> BGammaHat    0.957 0.005 0.947 0.954 0.957 0.960  0.964 0.958
-#> adjBGammaHat 0.920 0.008 0.901 0.914 0.921 0.926  0.933 0.923
-#> BMc          0.903 0.010 0.881 0.896 0.904 0.910  0.919 0.907
+#> BRMSEA       0.092 0.005 0.084 0.088 0.092 0.095  0.102 0.091
+#> BGammaHat    0.957 0.004 0.947 0.954 0.957 0.960  0.964 0.957
+#> adjBGammaHat 0.919 0.008 0.901 0.914 0.920 0.925  0.932 0.920
+#> BMc          0.903 0.010 0.882 0.897 0.904 0.910  0.919 0.905
 ```
 
 You can also access the raw per-sample vectors for custom analysis:
@@ -189,9 +189,9 @@ Now pass the baseline model to `fitMeasures()` or
 ``` r
 fitMeasures(fit, baseline.model = fit_null)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.429        0.000     7517.265       20.667        0.092 
+#>           21    -3823.429        0.000     7517.848       20.958        0.092 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.957        0.920        0.903        0.930        0.897        0.907
+#>        0.956        0.918        0.903        0.930        0.895        0.907
 ```
 
 ``` r
@@ -201,13 +201,13 @@ summary(bfi_inc)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.092 0.005 0.084 0.088 0.091 0.095  0.103 0.089
-#> BGammaHat    0.956 0.005 0.946 0.954 0.957 0.959  0.964 0.959
-#> adjBGammaHat 0.919 0.008 0.900 0.914 0.920 0.925  0.933 0.923
-#> BMc          0.902 0.010 0.880 0.896 0.903 0.909  0.919 0.907
-#> BCFI         0.930 0.008 0.913 0.925 0.931 0.935  0.942 0.934
-#> BTLI         0.896 0.011 0.871 0.890 0.898 0.904  0.914 0.902
-#> BNFI         0.906 0.007 0.890 0.902 0.907 0.911  0.918 0.910
+#> BRMSEA       0.092 0.005 0.083 0.088 0.091 0.095  0.103 0.091
+#> BGammaHat    0.957 0.004 0.946 0.954 0.957 0.960  0.964 0.957
+#> adjBGammaHat 0.919 0.008 0.900 0.914 0.920 0.925  0.933 0.920
+#> BMc          0.903 0.010 0.880 0.898 0.904 0.910  0.920 0.905
+#> BCFI         0.931 0.008 0.913 0.926 0.931 0.936  0.943 0.932
+#> BTLI         0.896 0.011 0.870 0.890 0.898 0.904  0.915 0.898
+#> BNFI         0.907 0.007 0.890 0.903 0.908 0.912  0.919 0.908
 ```
 
 ## Rescaling: `"devM"` vs `"MCMC"`
@@ -224,10 +224,10 @@ summary(bfi_mcmc)
 #> Posterior summary of MCMC-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.106 0.004 0.099 0.103 0.106 0.109  0.115 0.105
-#> BGammaHat    0.943 0.004 0.934 0.940 0.943 0.946  0.950 0.944
-#> adjBGammaHat 0.893 0.008 0.876 0.888 0.894 0.899  0.906 0.895
-#> BMc          0.873 0.009 0.853 0.867 0.874 0.880  0.888 0.875
+#> BRMSEA       0.107 0.004 0.100 0.104 0.106 0.110  0.116 0.105
+#> BGammaHat    0.943 0.004 0.933 0.940 0.943 0.946  0.950 0.945
+#> adjBGammaHat 0.892 0.008 0.874 0.887 0.893 0.898  0.906 0.896
+#> BMc          0.872 0.010 0.850 0.866 0.873 0.879  0.888 0.877
 ```
 
 The two methods will generally produce different results, especially

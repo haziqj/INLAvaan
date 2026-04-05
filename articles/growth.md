@@ -37,22 +37,22 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [175ms]
+#> ✔ Finding posterior mode. [180ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [90ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.051σ. [175ms]
+#> ✔ VB correction; mean |δ| = 0.051σ. [181ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [877ms]
+#> ✔ Fitting 17/17 skew-normal marginals. [931ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [91ms]
+#> ✔ Adjusting copula correlations (NORTA). [96ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [138ms]
+#> ✔ Posterior sampling and summarising. [147ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4 ended normally after 83 iterations
@@ -70,8 +70,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4994.127 
-#>    Effective parameters (pD)                    15.863 
+#>    Deviance (DIC)                             4994.671 
+#>    Effective parameters (pD)                    16.136 
 #> 
 #> Parameter Estimates:
 #> 
@@ -111,7 +111,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.153    0.040   -0.004    0.151    0.006       beta(1,1)
+#>    .s                 0.153    0.038    0.001    0.149    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

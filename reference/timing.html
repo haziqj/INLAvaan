@@ -48,7 +48,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Timing Information for INLAvaan Models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/method-timing.R" class="external-link"><code>R/method-timing.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.2.4/R/method-timing.R" class="external-link"><code>R/method-timing.R</code></a></small>
       <div class="d-none name"><code>timing.Rd</code></div>
     </div>
 
@@ -112,25 +112,25 @@ durations as seconds, longer ones as minutes or hours.</p>
 <span class="r-in"><span><span class="co"># Total elapsed time</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.85 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.88 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># All stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        init    ov.names     Options        Data    ParTable SampleStats </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      0.02 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          h1      bounds       start       Model       cache       optim </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.08 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.07 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     implied      loglik        vcov        test         Fit    baseline </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    rotation          vb   marginals       norta    sampling covariances </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.07 s      0.49 s      0.17 s      0.01 s      0.00 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.07 s      0.52 s      0.16 s      0.01 s      0.02 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> definedpars   deltapars       total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.85 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.88 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Specific stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"optim"</span>, <span class="st">"marginals"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     optim marginals </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.08 s    0.49 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.07 s    0.52 s </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
