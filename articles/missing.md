@@ -39,24 +39,23 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [141ms]
+#> ✔ Finding posterior mode. [137ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [171ms]
+#> ✔ Computing the Hessian. [164ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [503ms]
+#> ✔ VB correction; mean |δ| = 0.222σ. [486ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 21/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.3s]
+#> ⠹ Fitting 23/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [375ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [906ms]
+#> ✔ Posterior sampling and summarising. [886ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -96,21 +95,21 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [265ms]
+#> ✔ Finding posterior mode. [256ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [254ms]
+#> ✔ Computing the Hessian. [247ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [546ms]
+#> ✔ VB correction; mean |δ| = 0.160σ. [524ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 13/42 skew-normal marginals.
-#> ⠸ Fitting 35/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.6s]
+#> ⠹ Fitting 15/42 skew-normal marginals.
+#> ⠸ Fitting 39/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [5.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [451ms]
+#> ✔ Adjusting copula correlations (NORTA). [456ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [1.4s]

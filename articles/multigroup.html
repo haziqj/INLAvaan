@@ -105,25 +105,25 @@
 <span><span class="co"># Configural invariance</span></span>
 <span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [254ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [240ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [245ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [238ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.103σ. [431ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.103σ. [407ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/60 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 14/60 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 40/60 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 60/60 skew-normal marginals. [6.8s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 15/60 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 43/60 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 60/60 skew-normal marginals. [6.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
 <span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [371ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [973ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [952ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.4.9000 ended normally after 138 iterations</span></span>
@@ -143,8 +143,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7484.330 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    59.527 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7482.400 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    58.562 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -172,10 +172,10 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;   visual ~~                                                                    </span></span>
-<span><span class="co">#&gt;     textual           0.459    0.105    0.250    0.659    0.002       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.302    0.071    0.030    0.309    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;     textual           0.459    0.105    0.248    0.659    0.002       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.302    0.073    0.028    0.316    0.004       beta(1,1)</span></span>
 <span><span class="co">#&gt;   textual ~~                                                                   </span></span>
-<span><span class="co">#&gt;     speed             0.307    0.066    0.037    0.294    0.002       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.307    0.065    0.033    0.289    0.002       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -228,10 +228,10 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;   visual ~~                                                                    </span></span>
-<span><span class="co">#&gt;     textual           0.517    0.099    0.191    0.578    0.002       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.509    0.074    0.108    0.399    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;     textual           0.517    0.097    0.197    0.577    0.002       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.509    0.075    0.112    0.405    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;   textual ~~                                                                   </span></span>
-<span><span class="co">#&gt;     speed             0.325    0.071    0.069    0.349    0.006       beta(1,1)</span></span>
+<span><span class="co">#&gt;     speed             0.325    0.073    0.070    0.354    0.006       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -271,24 +271,24 @@
 <span>  group.equal <span class="op">=</span> <span class="st">"loadings"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [191ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [187ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [208ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [204ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.101σ. [286ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.101σ. [268ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/54 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 16/54 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 46/54 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 54/54 skew-normal marginals. [5.5s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 20/54 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 50/54 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 54/54 skew-normal marginals. [5.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [522ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [542ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [976ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [966ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="co"># Strong invariance</span></span>
@@ -299,24 +299,24 @@
 <span>  group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"intercepts"</span>, <span class="st">"loadings"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [196ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [189ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [197ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [188ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.088σ. [264ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.088σ. [261ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/48 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 32/48 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 48/48 skew-normal marginals. [4.4s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 4/48 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 38/48 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 48/48 skew-normal marginals. [4.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [658ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [588ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [963ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [937ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="co"># Compare models</span></span>
@@ -325,9 +325,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;   fit3   48   -3914.104   0.000 7508.610 47.640</span></span>
-<span><span class="co">#&gt;   fit2   54   -3934.608 -20.504 7480.275 53.395</span></span>
-<span><span class="co">#&gt;   fit1   60   -3958.319 -44.215 7484.330 59.527</span></span></code></pre></div>
+<span><span class="co">#&gt;   fit3   48   -3914.104   0.000 7509.325 47.997</span></span>
+<span><span class="co">#&gt;   fit2   54   -3934.608 -20.504 7481.031 53.773</span></span>
+<span><span class="co">#&gt;   fit1   60   -3958.319 -44.215 7482.400 58.562</span></span></code></pre></div>
 </div>
 
 
