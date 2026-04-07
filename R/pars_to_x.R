@@ -20,6 +20,35 @@ pars_to_x <- function(theta, pt) {
   thidx <- integer(npt)
   thidx[pt$free > 0] <- seq_len(sum(pt$free > 0))
 
+  # --- ITP block processing ---------------------------------------------------
+  # If ITP blocks exist, compute correlation matrices from block theta vectors
+  # and overwrite the per-parameter correlation values.
+  itp_blocks <- pt$itp_blocks
+  has_itp <- length(itp_blocks) > 0
+  itp_cor_indices <- integer(0)  # track which pt indices are handled by ITP
+
+  if (has_itp) {
+    for (blk in itp_blocks) {
+      # Extract the theta values for this block's correlation parameters
+      blk_theta <- pars[blk$pt_cor_idx]
+
+      # Compute the full correlation matrix via ITP
+      C_blk <- itp_to_corr(blk_theta, blk$p, blk$iLtheta, blk$d0)
+
+      # Overwrite the per-parameter x values with the ITP-derived correlations
+      for (k in seq_along(blk$pt_cor_idx)) {
+        ci <- blk$pt_cor_idx[k]
+        i_name <- pt$lhs[ci]
+        j_name <- pt$rhs[ci]
+        i_pos <- match(i_name, blk$var_names)
+        j_pos <- match(j_name, blk$var_names)
+        x[ci] <- C_blk[i_pos, j_pos]
+        xx[ci] <- C_blk[i_pos, j_pos]  # xcor also gets the ITP value
+      }
+      itp_cor_indices <- c(itp_cor_indices, blk$pt_cor_idx)
+    }
+  }
+
   # Now deal with covariances
   for (g in seq_len(nG)) {
     idxcov <- which(grepl("cov", pt$mat) & pt$group == g)
@@ -52,5 +81,6 @@ pars_to_x <- function(theta, pt) {
   attr(out, "xcor") <- xx[pt$free > 0L & !duplicated(pt$free)]
   attr(out, "sd1sd2") <- sd1sd2[idxfree]
   attr(out, "jcb_mat") <- jcb_mat
+  attr(out, "itp_blocks") <- itp_blocks
   out
 }

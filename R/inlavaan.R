@@ -95,6 +95,7 @@ inlavaan <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  use_itp = FALSE,
   cores = NULL,
   ...
 ) {
@@ -150,8 +151,22 @@ inlavaan <- function(
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
 
+  # ITP requires numerical gradients for the likelihood Jacobian
+  if (isTRUE(use_itp) && !isTRUE(numerical_grad)) {
+    if (isTRUE(verbose)) {
+      cli_inform("ITP parametrisation active: using numerical gradients.")
+    }
+    numerical_grad <- TRUE
+  }
+  # ITP analytical gradient is incorrect for gamma1 and VB correction
+  if (isTRUE(use_itp)) {
+    marginal_correction <- "none"
+    vb_correction <- FALSE
+  }
+
   # Partable and check for equality constraints
-  pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
+  pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions,
+                             use_itp = use_itp)
   PTFREEIDX <- which(pt$free > 0L)
   if (isTRUE(ceq.simple)) {
     # Note: Always work in the reduced space
@@ -658,9 +673,6 @@ inlavaan <- function(
   pdf_data <- lapply(postmargres, function(x) x$pdf_data)
   names(pdf_data) <- parnames
 
-  coefs <- summ[, "Mean"]
-  names(coefs) <- parnames
-
   summ <- as.data.frame(summ)
   summ$Prior <- pt$prior[PTFREEIDX]
 
@@ -685,6 +697,41 @@ inlavaan <- function(
     }
   }
   timing <- add_timing(timing, "covariances")
+
+  # ITP correlation parameters: recompute marginals from posterior samples.
+  # post_marg uses ginv (identity for ITP), which reports raw ITP theta values
+  # instead of actual correlations. For "psi_cov" ITP params, the covariance
+  # section above already corrects this; here we handle "psi_cor" ITP params.
+  if (length(pt$itp_blocks) > 0) {
+    itp_cor_pt_idx <- unlist(lapply(pt$itp_blocks, `[[`, "pt_cor_idx"))
+    is_cor <- grepl("_cor$", pt$mat[itp_cor_pt_idx])
+    itp_cor_pt_idx <- itp_cor_pt_idx[is_cor]
+
+    if (length(itp_cor_pt_idx) > 0) {
+      itp_free_idx <- pt$free[itp_cor_pt_idx]
+      itp_names <- pt$names[itp_cor_pt_idx]
+
+      if (nsamp >= 2) {
+        itp_samp <- x_samp[, itp_free_idx, drop = FALSE]
+        colnames(itp_samp) <- itp_names
+        itp_marg <- apply(itp_samp, 2, summarise_samples)
+
+        for (nm in names(itp_marg)) {
+          summ[nm, names(itp_marg[[nm]]$summary)] <- itp_marg[[nm]]$summary
+          pdf_data[[nm]] <- itp_marg[[nm]]$pdf_data
+        }
+      } else {
+        # With < 2 samples, use pars_to_x(theta_star) for the point estimate
+        x_mode <- pars_to_x(theta_star_vbc, pt)
+        for (k in seq_along(itp_cor_pt_idx)) {
+          nm <- itp_names[k]
+          summ[nm, "Mean"] <- x_mode[itp_free_idx[k]]
+          summ[nm, "Mode"] <- x_mode[itp_free_idx[k]]
+          summ[nm, "50%"]  <- x_mode[itp_free_idx[k]]
+        }
+      }
+    }
+  }
 
   # Defined parameters
   if (any(pt$op == ":=")) {
@@ -716,6 +763,10 @@ inlavaan <- function(
     }
   }
   timing <- add_timing(timing, "deltapars")
+
+  # Finalize coefficients from (possibly updated) summ
+  coefs <- summ[, "Mean"]
+  names(coefs) <- parnames
 
   ## ----- Compute ppp and dic -------------------------------------------------
   if (test != "none") {
@@ -829,6 +880,7 @@ acfa <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  use_itp = FALSE,
   cores = NULL,
   ...
 ) {
@@ -881,6 +933,7 @@ asem <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  use_itp = FALSE,
   cores = NULL,
   ...
 ) {
@@ -931,6 +984,7 @@ agrowth <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  use_itp = FALSE,
   cores = NULL,
   ...
 ) {

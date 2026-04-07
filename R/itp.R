@@ -1,0 +1,212 @@
+# ITP: Inverse Transform Parametrisation for correlation matrices
+#
+# Implements the graphpcor ITP approach (Freni-Sterrantino et al., 2025)
+# standalone within INLAvaan — no external dependencies on graphpcor,
+# INLAtools, or INLA.
+#
+# The ITP guarantees a positive definite correlation matrix for any
+# unconstrained parameter vector theta, by working through the Cholesky
+# factor of a precision matrix.
+
+# --- Core ITP functions -------------------------------------------------------
+
+#' Fill in Cholesky elements determined by the sparsity structure.
+#'
+#' Given a lower-triangular matrix L with free parameters at graph-edge
+#' positions and zeros elsewhere (below diagonal), compute the "fill-in"
+#' entries that arise from the Cholesky recursion.
+#'
+#' @param L Lower-triangular matrix with diagonal d0 and free params placed.
+#' @return L with fill-in elements computed.
+#' @keywords internal
+itp_fill_chol <- function(L) {
+  p <- nrow(L)
+  if (p <= 2L) return(L)
+
+  # Identify fill-in positions: zero in L but non-zero in chol(LL')
+  # Use the Cholesky of the graph Laplacian + I to find the pattern
+  graph_nz <- (L != 0)
+  # Compute actual Cholesky to discover fill-in pattern
+  Q_test <- L %*% t(L)
+  L_full <- t(chol(Q_test))
+  fill_pos <- which(L == 0 & L_full != 0 & lower.tri(L))
+
+  if (length(fill_pos) == 0L) return(L)
+
+  # Sort by column then row (required for forward substitution)
+  rc <- arrayInd(fill_pos, .dim = c(p, p))
+  ord <- order(rc[, 2], rc[, 1])
+  fill_pos <- fill_pos[ord]
+  rc <- rc[ord, , drop = FALSE]
+
+  for (v in seq_len(nrow(rc))) {
+    i <- rc[v, 1]
+    j <- rc[v, 2]
+    if (j == 1L) {
+      L[i, j] <- 0
+    } else {
+      k <- seq_len(j - 1L)
+      L[i, j] <- -sum(L[i, k] * L[j, k]) / L[j, j]
+    }
+  }
+  L
+}
+
+#' Map unconstrained parameters theta to a correlation matrix via ITP.
+#'
+#' @param theta Numeric vector of free parameters (length = number of edges).
+#' @param p Integer, dimension of the correlation matrix.
+#' @param iLtheta Integer vector, positions in the lower triangle of L where
+#'   theta values are placed (vectorised column-major indices).
+#' @param d0 Numeric vector of length p, diagonal of L^(0). Default: p:1.
+#' @return A p x p correlation matrix C.
+#' @keywords internal
+itp_to_corr <- function(theta, p, iLtheta, d0 = p:1) {
+  L <- diag(x = d0, nrow = p, ncol = p)
+  L[iLtheta] <- theta
+  L <- itp_fill_chol(L)
+  Q <- L %*% t(L)
+  V <- solve(Q)
+  s <- sqrt(diag(V))
+  S_inv <- diag(1 / s, nrow = p, ncol = p)
+  C <- S_inv %*% V %*% S_inv
+  # Ensure exact symmetry and unit diagonal
+  C <- (C + t(C)) / 2
+  diag(C) <- 1
+  C
+}
+
+#' Compute Jacobian d vec(C_lower) / d theta via central differences.
+#'
+#' @inheritParams itp_to_corr
+#' @param h Step size for central differences. Default: 1e-5.
+#' @return A matrix with nrow = p*(p-1)/2 (lower triangle of C) and
+#'   ncol = length(theta).
+#' @keywords internal
+itp_jac_corr <- function(theta, p, iLtheta, d0 = p:1, h = 1e-5) {
+  m <- length(theta)
+  lt_idx <- which(lower.tri(diag(p)))
+  n_lt <- length(lt_idx)
+  J <- matrix(0, nrow = n_lt, ncol = m)
+  for (k in seq_len(m)) {
+    th_plus <- th_minus <- theta
+    th_plus[k] <- theta[k] + h
+    th_minus[k] <- theta[k] - h
+    C_plus <- itp_to_corr(th_plus, p, iLtheta, d0)
+    C_minus <- itp_to_corr(th_minus, p, iLtheta, d0)
+    J[, k] <- (C_plus[lt_idx] - C_minus[lt_idx]) / (2 * h)
+  }
+  J
+}
+
+#' Extract ITP sparsity pattern from an INLAvaan parameter table.
+#'
+#' Given a parameter table and a group, identifies the free correlation
+#' parameters and returns the ITP metadata needed for block processing.
+#'
+#' @param pt Parameter table (list).
+#' @param g Integer, group number.
+#' @param block Character, one of "theta" or "psi".
+#' @return A list with components:
+#'   - p: dimension of the block
+#'   - var_names: ordered variable names
+#'   - iLtheta: integer vector of lower-triangle positions for free params
+#'   - d0: diagonal vector (default p:1)
+#'   - pt_idx: indices into the parameter table for the correlation rows
+#'   - pt_var_idx: indices for the corresponding variance rows
+#'   - is_dense: logical, TRUE if all p(p-1)/2 positions are free
+#' Returns NULL if no correlation parameters exist for this block/group.
+#' @keywords internal
+itp_graph_from_pt <- function(pt, g, block = c("theta", "psi")) {
+  block <- match.arg(block)
+
+  # What matrix types are we looking for?
+  cor_pattern <- paste0(block, "_co")  # matches theta_cor, theta_cov, psi_cor, psi_cov
+  var_pattern <- paste0(block, "_var")
+
+  # Find free correlation rows in this group
+  cor_idx <- which(
+    grepl(cor_pattern, pt$mat) &
+    pt$group == g &
+    pt$free > 0
+  )
+  if (length(cor_idx) == 0L) return(NULL)
+
+  # Collect all variable names involved in correlations
+  cor_vars <- unique(c(pt$lhs[cor_idx], pt$rhs[cor_idx]))
+
+  # Also include variables that have variances but no correlations
+  # (they contribute to the block dimension)
+  var_idx <- which(
+    pt$mat == var_pattern &
+    pt$group == g &
+    pt$lhs %in% cor_vars
+  )
+  var_names <- sort(unique(pt$lhs[var_idx]))
+  p_block <- length(var_names)
+
+  if (p_block < 2L) return(NULL)
+
+  # Build the lower-triangle index mapping
+  # For each free correlation (lhs ~~ rhs), find position in L
+  ref_mat <- matrix(0L, p_block, p_block,
+                    dimnames = list(var_names, var_names))
+  lt_all <- which(lower.tri(ref_mat))
+
+  iLtheta <- integer(length(cor_idx))
+  for (k in seq_along(cor_idx)) {
+    ci <- cor_idx[k]
+    i <- match(pt$lhs[ci], var_names)
+    j <- match(pt$rhs[ci], var_names)
+    # Ensure i > j (lower triangle)
+    if (i < j) { tmp <- i; i <- j; j <- tmp }
+    iLtheta[k] <- (j - 1L) * p_block + i  # column-major vectorised index
+  }
+  # Sort to match column-major order
+  sort_ord <- order(iLtheta)
+  iLtheta <- iLtheta[sort_ord]
+  cor_idx <- cor_idx[sort_ord]
+
+  d0 <- p_block:1
+
+  list(
+    p = p_block,
+    var_names = var_names,
+    iLtheta = iLtheta,
+    d0 = d0,
+    pt_cor_idx = cor_idx,
+    pt_var_idx = var_idx,
+    is_dense = length(iLtheta) == p_block * (p_block - 1L) / 2L
+  )
+}
+
+#' Build a list of ITP block metadata from a parameter table.
+#'
+#' Scans the parameter table for all groups and blocks (theta, psi)
+#' and returns ITP metadata for each block that has free correlations.
+#'
+#' @param pt Parameter table (list).
+#' @return A list of ITP block metadata, each element from itp_graph_from_pt().
+#'   Returns an empty list if no ITP blocks are found.
+#' @keywords internal
+itp_blocks_from_pt <- function(pt) {
+  is_multilvl <- "level" %in% names(pt)
+  if (is_multilvl) {
+    nG <- max(pt$level)
+  } else {
+    nG <- max(pt$group)
+  }
+
+  blocks <- list()
+  for (g in seq_len(nG)) {
+    for (block in c("theta", "psi")) {
+      info <- itp_graph_from_pt(pt, g, block)
+      if (!is.null(info)) {
+        info$group <- g
+        info$block <- block
+        blocks[[length(blocks) + 1L]] <- info
+      }
+    }
+  }
+  blocks
+}
