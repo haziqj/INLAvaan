@@ -731,8 +731,8 @@ inlavaan <- function(
   # post_marg uses ginv (identity for ITP), which reports raw ITP theta values
   # instead of actual correlations. For "psi_cov" ITP params, the covariance
   # section above already corrects this; here we handle "psi_cor" ITP params.
-  if (length(pt$itp_blocks) > 0) {
-    itp_cor_pt_idx <- unlist(lapply(pt$itp_blocks, `[[`, "pt_cor_idx"))
+  if (length(attr(pt, "itp_blocks")) > 0) {
+    itp_cor_pt_idx <- unlist(lapply(attr(pt, "itp_blocks"), `[[`, "pt_cor_idx"))
     is_cor <- grepl("_cor$", pt$mat[itp_cor_pt_idx])
     itp_cor_pt_idx <- itp_cor_pt_idx[is_cor]
 

@@ -19,7 +19,7 @@ prepare_priors_for_optim <- function(pt) {
   trans_type[grepl("theta_cor|theta_cov|psi_cor|psi_cov", mat_vals)] <- 2L
 
   # Override to ITP (type 3) for parameters handled by ITP blocks
-  itp_blocks <- pt$itp_blocks
+  itp_blocks <- attr(pt, "itp_blocks")
   if (length(itp_blocks) > 0) {
     itp_all_cor_idx <- unlist(lapply(itp_blocks, `[[`, "pt_cor_idx"))
     is_itp <- idx %in% itp_all_cor_idx

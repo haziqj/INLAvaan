@@ -102,20 +102,11 @@ summary_inlavaan <- function(
     ptidx <- c(ptfreeidx, ptdefidx, ptdeltaidx)
     summ <- object@external$inlavaan_internal$summary
     peidx <- match(
-      paste0(
-        pt$lhs[ptidx],
-        pt$op[ptidx],
-        pt$rhs[ptidx],
-        pt$block[ptidx]
-      ),
+      paste0(pt$lhs[ptidx], pt$op[ptidx], pt$rhs[ptidx], pt$block[ptidx]),
       paste0(PE$lhs, PE$op, PE$rhs, PE$block)
     )
-    summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
-    if (length(ptdefidx) > 0 | length(ptdeltaidx) > 0) {
-      # FIXME: I think this should be ok, since pt$free always in increasing
-      # order
-      summidx <- seq_len(nrow(summ))
-    }
+    # Match free parameters in summ using their names (rownames of summ are parnames)
+    summidx <- match(pt$names[ptfreeidx], rownames(summ))
 
     char.format <- paste("%", max(8, nd + 5), "s", sep = "")
     PE$SD <- ""
@@ -183,8 +174,13 @@ summary_inlavaan <- function(
 
     if (isTRUE(priors)) { # nocov start
       PE$Prior <- ""
-      PE$Prior[peidx] <- summ$Prior[summidx]
-      PE$Prior[peidx][is.na(PE$Prior[peidx])] <- ""
+      # Use match to avoid indexing errors if summ is smaller than expected
+      prior_vals <- summ$Prior[summidx]
+      # Ensure we only assign up to the length of prior_vals
+      n_vals <- length(prior_vals)
+      PE$Prior[peidx[seq_len(min(length(peidx), n_vals))]] <- prior_vals[seq_len(min(length(peidx), n_vals))]
+      PE$Prior[PE$Prior == ""] <- "" # keep empty
+      PE$Prior[is.na(PE$Prior)] <- ""
     } # nocov end
   }
 

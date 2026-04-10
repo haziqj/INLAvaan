@@ -23,7 +23,7 @@ pars_to_x <- function(theta, pt, compute_jac = TRUE) {
   # --- ITP block processing ---------------------------------------------------
   # If ITP blocks exist, compute correlation matrices from block theta vectors
   # and overwrite the per-parameter correlation values.
-  itp_blocks <- pt$itp_blocks
+  itp_blocks <- attr(pt, "itp_blocks")
   has_itp <- length(itp_blocks) > 0
   itp_cor_indices <- integer(0)  # track which pt indices are handled by ITP
   itp_jacs <- list()

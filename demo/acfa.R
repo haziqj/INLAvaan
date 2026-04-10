@@ -4,6 +4,4 @@ mod <- "
   textual =~ x4 + x5 + x6
   speed   =~ x7 + x8 + x9
 "
-
 fit <- acfa(mod, data = lavaan::HolzingerSwineford1939)
-summary(fit)

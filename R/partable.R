@@ -232,11 +232,11 @@ inlavaanify_partable <- function(
   # FIXME: Perhaps add a 'inlavaan_partable' class to this object
   pt <- as.list(pt)
 
-  pt$itp_blocks <- list()
+  attr(pt, "itp_blocks") <- list()
   if (isTRUE(use_itp)) {
-    pt$itp_blocks <- itp_blocks_from_pt(pt)
+    attr(pt, "itp_blocks") <- itp_blocks_from_pt(pt)
     # For each ITP block, override the transform to identity for corr params
-    for (blk in pt$itp_blocks) {
+    for (blk in attr(pt, "itp_blocks")) {
       for (ci in blk$pt_cor_idx) {
         pt$g[[ci]] <- identity
         pt$g_prime[[ci]] <- function(x) 1
