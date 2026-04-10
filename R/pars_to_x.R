@@ -1,4 +1,4 @@
-pars_to_x <- function(theta, pt) {
+pars_to_x <- function(theta, pt, compute_jac = TRUE) {
   # Convert unrestricted theta-side parameters to lavaan-side parameters x.
   # Always receive UNPACKED theta and returns PACKED theta.
   if (is.null(pt) | missing(pt)) { # nocov
@@ -26,16 +26,22 @@ pars_to_x <- function(theta, pt) {
   itp_blocks <- pt$itp_blocks
   has_itp <- length(itp_blocks) > 0
   itp_cor_indices <- integer(0)  # track which pt indices are handled by ITP
+  itp_jacs <- list()
 
   if (has_itp) {
-    for (blk in itp_blocks) {
-      # Extract the theta values for this block's correlation parameters
+    for (blk_idx in seq_along(itp_blocks)) {
+      blk <- itp_blocks[[blk_idx]]
       blk_theta <- pars[blk$pt_cor_idx]
 
-      # Compute the full correlation matrix via ITP
-      C_blk <- itp_to_corr(blk_theta, blk$p, blk$iLtheta, blk$d0)
+      if (compute_jac) {
+        res <- itp_with_jac_dense(blk_theta, blk$p, blk$d0,
+                                  iLtheta = if (!blk$is_dense) blk$iLtheta)
+        C_blk <- res$C
+        itp_jacs[[as.character(blk_idx)]] <- res$J
+      } else {
+        C_blk <- itp_to_corr(blk_theta, blk$p, blk$iLtheta, blk$d0)
+      }
 
-      # Overwrite the per-parameter x values with the ITP-derived correlations
       for (k in seq_along(blk$pt_cor_idx)) {
         ci <- blk$pt_cor_idx[k]
         i_name <- pt$lhs[ci]
@@ -43,7 +49,7 @@ pars_to_x <- function(theta, pt) {
         i_pos <- match(i_name, blk$var_names)
         j_pos <- match(j_name, blk$var_names)
         x[ci] <- C_blk[i_pos, j_pos]
-        xx[ci] <- C_blk[i_pos, j_pos]  # xcor also gets the ITP value
+        xx[ci] <- C_blk[i_pos, j_pos]
       }
       itp_cor_indices <- c(itp_cor_indices, blk$pt_cor_idx)
     }
@@ -82,5 +88,6 @@ pars_to_x <- function(theta, pt) {
   attr(out, "sd1sd2") <- sd1sd2[idxfree]
   attr(out, "jcb_mat") <- jcb_mat
   attr(out, "itp_blocks") <- itp_blocks
+  attr(out, "itp_jacs") <- itp_jacs
   out
 }

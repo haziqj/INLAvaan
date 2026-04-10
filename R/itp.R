@@ -76,27 +76,88 @@ itp_to_corr <- function(theta, p, iLtheta, d0 = p:1) {
   C
 }
 
-#' Compute Jacobian d vec(C_lower) / d theta via central differences.
+#' Compute Jacobian d vec(C_free) / d theta via central differences.
 #'
 #' @inheritParams itp_to_corr
 #' @param h Step size for central differences. Default: 1e-5.
-#' @return A matrix with nrow = p*(p-1)/2 (lower triangle of C) and
+#' @return A matrix with nrow = length(theta) (free correlations) and
 #'   ncol = length(theta).
 #' @keywords internal
 itp_jac_corr <- function(theta, p, iLtheta, d0 = p:1, h = 1e-5) {
   m <- length(theta)
-  lt_idx <- which(lower.tri(diag(p)))
-  n_lt <- length(lt_idx)
-  J <- matrix(0, nrow = n_lt, ncol = m)
+  J <- matrix(0, nrow = m, ncol = m)
   for (k in seq_len(m)) {
     th_plus <- th_minus <- theta
     th_plus[k] <- theta[k] + h
     th_minus[k] <- theta[k] - h
     C_plus <- itp_to_corr(th_plus, p, iLtheta, d0)
     C_minus <- itp_to_corr(th_minus, p, iLtheta, d0)
-    J[, k] <- (C_plus[lt_idx] - C_minus[lt_idx]) / (2 * h)
+    J[, k] <- (C_plus[iLtheta] - C_minus[iLtheta]) / (2 * h)
   }
   J
+}
+
+#' Compute the correlation matrix and its analytical Jacobian for an ITP block.
+#'
+#' Works for both dense blocks (all lower-triangular elements free) and sparse
+#' blocks (only positions in iLtheta are free).
+#'
+#' @param theta Numeric vector of free parameters.
+#' @param p Integer, dimension of the correlation matrix.
+#' @param d0 Numeric vector of length p, diagonal of L^(0). Default: p:1.
+#' @param iLtheta Integer vector of lower-triangular positions (column-major)
+#'   that are free. NULL means all lower-triangular positions (dense).
+#' @return A list with components:
+#'   - C: The p x p correlation matrix.
+#'   - J: The m x m Jacobian matrix d rho / d theta.
+#' @keywords internal
+itp_with_jac_dense <- function(theta, p, d0 = p:1, iLtheta = NULL) {
+  L <- diag(d0)
+  if (is.null(iLtheta)) {
+    lt_idx <- which(lower.tri(diag(p)))
+  } else {
+    lt_idx <- iLtheta
+  }
+  L[lt_idx] <- theta
+
+  Q <- tcrossprod(L)       # L %*% t(L)
+  V <- solve(Q)
+  C <- cov2cor(V)
+  s <- sqrt(diag(V))
+
+  m <- length(theta)
+  lt_rows <- row(diag(p))[lt_idx]
+  lt_cols <- col(diag(p))[lt_idx]
+
+  # Precompute constants used for all columns of J
+  C_vals <- C[lt_idx]
+  V_diag <- diag(V)
+  term_a <- C_vals / (2 * V_diag[lt_rows])
+  term_b <- C_vals / (2 * V_diag[lt_cols])
+  inv_s_prod <- 1 / (s[lt_rows] * s[lt_cols])
+
+  # Precompute V %*% L once (p x p BLAS call)
+  VL <- V %*% L
+
+  J <- matrix(0, nrow = m, ncol = m)
+  for (k in seq_len(m)) {
+    i <- lt_rows[k]   # row of L_{ij}
+    j <- lt_cols[k]   # col of L_{ij}
+
+    # dV/dL_{ij} = -V (e_i L_j^T + L_j e_i^T) V
+    #            = -(V_{:,i})(L_j^T V) - (V L_j)(V_{i,:})
+    vi  <- V[, i]      # V e_i
+    wj  <- VL[, j]     # V L_{:,j}
+
+    # Vectorized over all (a,b) in lower triangle
+    dV_ab <- -(vi[lt_rows] * wj[lt_cols] + wj[lt_rows] * vi[lt_cols])
+    dV_aa <- -2 * vi[lt_rows] * wj[lt_rows]
+    dV_bb <- -2 * vi[lt_cols] * wj[lt_cols]
+
+    J[, k] <- dV_ab * inv_s_prod - term_a * dV_aa - term_b * dV_bb
+  }
+
+  list(C = C, J = J)
 }
 
 #' Extract ITP sparsity pattern from an INLAvaan parameter table.

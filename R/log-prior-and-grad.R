@@ -126,15 +126,20 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
 
   # C. ITP (Type 3) - Correlations via block ITP map
   idx_itp <- which(cache$trans_type == 3L)
+  itp_J_cache <- list()  # cache Jacobians for section 5
   if (length(idx_itp) > 0 && !is.null(cache$itp_blocks)) {
     pt <- cache$pt
-    for (blk in cache$itp_blocks) {
+    for (blk_i in seq_along(cache$itp_blocks)) {
+      blk <- cache$itp_blocks[[blk_i]]
       # Get the free_id (theta index) for this block's correlation params
       blk_free_ids <- pt$free[blk$pt_cor_idx]
       # Extract the current theta values for this block
       blk_theta <- theta[blk_free_ids]
-      # Compute the correlation matrix
-      C_blk <- itp_to_corr(blk_theta, blk$p, blk$iLtheta, blk$d0)
+      # Compute correlation matrix and Jacobian in one pass
+      res <- itp_with_jac_dense(blk_theta, blk$p, blk$d0,
+                                iLtheta = if (!blk$is_dense) blk$iLtheta)
+      C_blk <- res$C
+      itp_J_cache[[blk_i]] <- res$J
 
       # For each param in this block, find its position in the cache and
       # set xval to the ITP-derived correlation
@@ -148,9 +153,6 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
           i_pos <- match(i_name, blk$var_names)
           j_pos <- match(j_name, blk$var_names)
           xval[cache_pos] <- C_blk[i_pos, j_pos]
-          # dx_dth for ITP is handled via numerical gradient in prior_grad;
-          # for log-density we just need the Jacobian |det(dC/dtheta)|
-          # which we incorporate as a block correction below
           dx_dth[cache_pos] <- 1  # placeholder; block Jacobian added below
         }
       }
@@ -277,45 +279,26 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   # dx_dth = 1 (placeholder), so ljcb = 0. We add the block log|det(dC/dtheta)|
   # which accounts for the full ITP transformation Jacobian.
   if (length(idx_itp) > 0 && !is.null(cache$itp_blocks)) {
-    for (blk in cache$itp_blocks) {
-      blk_free_ids <- cache$pt$free[blk$pt_cor_idx]
-      blk_theta <- theta[blk_free_ids]
-      J_blk <- itp_jac_corr(blk_theta, blk$p, blk$iLtheta, blk$d0)
-      # J_blk is (p*(p-1)/2) x m_block, but we only have m_block free params
-      # The relevant submatrix corresponds to the free correlation positions
-      # For the Jacobian of rho_{free} w.r.t. theta_{free}:
-      m_blk <- length(blk_theta)
-      if (m_blk > 0) {
-        # Extract rows of J corresponding to the free correlations only
-        lt_idx_all <- which(lower.tri(diag(blk$p)))
-        # Map each pt_cor_idx to a lower-triangle position
-        free_lt_pos <- integer(m_blk)
-        for (k in seq_len(m_blk)) {
-          ci <- blk$pt_cor_idx[k]
-          i_name <- cache$pt$lhs[ci]
-          j_name <- cache$pt$rhs[ci]
-          i_pos <- match(i_name, blk$var_names)
-          j_pos <- match(j_name, blk$var_names)
-          if (i_pos < j_pos) { tmp <- i_pos; i_pos <- j_pos; j_pos <- tmp }
-          mat_pos <- (j_pos - 1L) * blk$p + i_pos
-          free_lt_pos[k] <- which(lt_idx_all == mat_pos)
-        }
-        J_sub <- J_blk[free_lt_pos, , drop = FALSE]
-        log_abs_det_J <- log(abs(det(J_sub)))
+    for (blk_i in seq_along(cache$itp_blocks)) {
+      blk <- cache$itp_blocks[[blk_i]]
+      # Reuse cached Jacobian from section C
+      J_blk <- itp_J_cache[[blk_i]]
 
-        # Zero out the placeholder ljcb entries and add block correction
-        for (k in seq_along(blk$pt_cor_idx)) {
-          ci <- blk$pt_cor_idx[k]
-          cache_pos <- which(cache$idx_in_pt == ci)
-          if (length(cache_pos) == 1L) ljcb[cache_pos] <- 0
-        }
-        # Add the block log-Jacobian once (distributed is wrong; it's a joint correction)
-        # We add it to the first ITP param in this block
-        first_ci <- blk$pt_cor_idx[1]
-        first_cache_pos <- which(cache$idx_in_pt == first_ci)
-        if (length(first_cache_pos) == 1L) {
-          ljcb[first_cache_pos] <- log_abs_det_J
-        }
+      # The Jacobian J_blk is now always m_blk x m_blk
+      log_abs_det_J <- log(abs(det(J_blk)))
+
+      # Zero out the placeholder ljcb entries and add block correction
+      for (k in seq_along(blk$pt_cor_idx)) {
+        ci <- blk$pt_cor_idx[k]
+        cache_pos <- which(cache$idx_in_pt == ci)
+        if (length(cache_pos) == 1L) ljcb[cache_pos] <- 0
+      }
+      # Add the block log-Jacobian once (distributed is wrong; it's a joint correction)
+      # We add it to the first ITP param in this block
+      first_ci <- blk$pt_cor_idx[1]
+      first_cache_pos <- which(cache$idx_in_pt == first_ci)
+      if (length(first_cache_pos) == 1L) {
+        ljcb[first_cache_pos] <- log_abs_det_J
       }
     }
   }
@@ -491,26 +474,57 @@ prior_grad_vectorized <- function(theta, cache) {
   # 4. Chain Rule Assembly
   grad <- dlp_dx * dx_dth + ddx_dth2 / dx_dth + jac_extra
 
-  # Override ITP parameter gradients with numerical central differences.
-  # The analytical chain rule above doesn't apply to ITP since the
-  # theta → correlation mapping is a block operation, not per-parameter tanh.
+  # Override ITP parameter gradients.
+  # We use a hybrid approach: analytical for the rho-prior part, 
+  # and numerical for the log|det J| part.
   idx_itp <- which(cache$trans_type == 3L)
   if (length(idx_itp) > 0 && !is.null(cache$itp_blocks)) {
     h <- 1e-5
     for (blk in cache$itp_blocks) {
-      blk_free_ids <- cache$pt$free[blk$pt_cor_idx]
-      for (fid in blk_free_ids) {
-        theta_plus <- theta_minus <- theta
-        theta_plus[fid] <- theta[fid] + h
-        theta_minus[fid] <- theta[fid] - h
-        lp_plus <- prior_logdens_vectorized(theta_plus, cache)
-        lp_minus <- prior_logdens_vectorized(theta_minus, cache)
-        # Find this free_id's position in the grad vector
-        grad_pos <- which(cache$free_id == fid)
-        if (length(grad_pos) == 1L) {
-          grad[grad_pos] <- (lp_plus - lp_minus) / (2 * h)
-        }
+      # 1. Identify theta indices for this block
+      blk_theta_idx <- which(cache$idx_in_pt %in% blk$pt_cor_idx)
+      blk_theta <- theta[blk_theta_idx]
+      blk_iLtheta <- if (!blk$is_dense) blk$iLtheta
+      
+      # 2. Compute Jacobian and correlations (analytical for both dense/sparse)
+      res <- itp_with_jac_dense(blk_theta, blk$p, blk$d0,
+                                iLtheta = blk_iLtheta)
+      C_blk <- res$C
+      J_blk <- res$J
+      
+      # 3. Analytical gradient of the rho-prior: J^T %*% rho_grad
+      rho_grad <- numeric(length(blk$pt_cor_idx))
+      for (k in seq_along(blk$pt_cor_idx)) {
+        ci <- blk$pt_cor_idx[k]
+        i_pos <- match(cache$pt$lhs[ci], blk$var_names)
+        j_pos <- match(cache$pt$rhs[ci], blk$var_names)
+        if (i_pos < j_pos) { tmp <- i_pos; i_pos <- j_pos; j_pos <- tmp }
+        rho <- C_blk[i_pos, j_pos]
+        
+        p_idx <- which(cache$idx_in_pt == ci)
+        a <- cache$p1[p_idx]
+        b <- cache$p2[p_idx]
+        rho_grad[k] <- (a - 1) / (rho + 1) - (b - 1) / (1 - rho)
       }
+      grad_rho_part <- as.numeric(t(J_blk) %*% rho_grad)
+      
+      # 4. Numerical gradient of log|det J|
+      get_logdetJ <- function(th) {
+        J <- itp_with_jac_dense(th, blk$p, blk$d0,
+                                iLtheta = blk_iLtheta)$J
+        log(abs(det(J)))
+      }
+      
+      grad_logdetJ <- numeric(length(blk_theta))
+      for (k in seq_along(blk_theta)) {
+        th_p <- th_m <- blk_theta
+        th_p[k] <- blk_theta[k] + h
+        th_m[k] <- blk_theta[k] - h
+        grad_logdetJ[k] <- (get_logdetJ(th_p) - get_logdetJ(th_m)) / (2 * h)
+      }
+      
+      # Update global gradient
+      grad[blk_theta_idx] <- grad_rho_part + grad_logdetJ
     }
   }
 

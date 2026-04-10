@@ -102,7 +102,7 @@ sample_params <- function(
     theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
   }
 
-  x <- t(apply(theta, 1, pars_to_x, pt = pt))
+  x <- t(apply(theta, 1, pars_to_x, pt = pt, compute_jac = FALSE))
 
   list(theta_samp = theta, x_samp = x)
 }
@@ -408,10 +408,11 @@ get_dic <- function(
 ) {
   if (lavmodel@ceq.simple.only) {
     # nocov start
-    xhat <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
+    xhat <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt,
+                       compute_jac = FALSE)
   } else {
     # nocov end
-    xhat <- pars_to_x(theta_star, pt)
+    xhat <- pars_to_x(theta_star, pt, compute_jac = FALSE)
   }
 
   Dhat <- -2 * loglik(xhat)

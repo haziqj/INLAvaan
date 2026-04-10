@@ -151,12 +151,9 @@ inlavaan <- function(
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
 
-  # ITP requires numerical gradients for the likelihood Jacobian
-  if (isTRUE(use_itp) && !isTRUE(numerical_grad)) {
-    if (isTRUE(verbose)) {
-      cli_inform("ITP parametrisation active: using numerical gradients.")
-    }
-    numerical_grad <- TRUE
+  # ITP now supports analytical gradients via block Jacobians
+  if (isTRUE(use_itp) && isTRUE(verbose)) {
+    cli_inform("ITP parametrisation active.")
   }
   # ITP analytical gradient is incorrect for gamma1 and VB correction
   if (isTRUE(use_itp)) {
@@ -182,9 +179,9 @@ inlavaan <- function(
   joint_lp <- function(pars) {
     if (isTRUE(ceq.simple)) {
       pars_unpacked <- as.numeric(ceq.K %*% pars)
-      x <- pars_to_x(pars_unpacked, pt)
+      x <- pars_to_x(pars_unpacked, pt, compute_jac = FALSE)
     } else {
-      x <- pars_to_x(pars, pt)
+      x <- pars_to_x(pars, pt, compute_jac = FALSE)
     }
     ll <- inlav_model_loglik(
       x,
@@ -208,19 +205,30 @@ inlavaan <- function(
     if (isTRUE(ceq.simple)) {
       pars_unpacked <- as.numeric(ceq.K %*% pars)
       x <- pars_to_x(pars_unpacked, pt)
-      jcb <- mapply(
+      jcb_vec <- mapply(
         function(f, x) f(x),
         pt$ginv_prime[pt$free > 0],
         pars_unpacked
       )
     } else {
       x <- pars_to_x(pars, pt)
-      jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
+      jcb_vec <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
     }
     gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
 
+    # ITP Handling:
+    # For ITP parameters, the gradient is a block operation.
+    # We zero out their diagonal entries in jcb_vec and handle them separately.
+    itp_blocks <- attr(x, "itp_blocks")
+    itp_jacs <- attr(x, "itp_jacs")
+    itp_free_ids <- integer(0)
+    if (!is.null(itp_blocks)) {
+      itp_free_ids <- unique(unlist(lapply(itp_blocks, function(b) pt$free[b$pt_cor_idx])))
+      jcb_vec[itp_free_ids] <- 0
+    }
+
     # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
-    jcb <- diag(jcb, length(jcb))
+    jcb <- diag(jcb_vec, length(jcb_vec))
 
     # This is the extra jacobian adjustment for covariances, since dx/dθ affects
     # more than one place if covariance exists
@@ -232,10 +240,30 @@ inlavaan <- function(
       for (k in seq_len(nrow(jcb_mat))) {
         i <- jcb_mat[k, 1]
         j <- jcb_mat[k, 2]
-        jcb[i, j] <- jcb_mat[k, 3]
+        # Only add if the source parameter i is NOT an ITP parameter
+        if (!(i %in% itp_free_ids)) {
+          jcb[i, j] <- jcb_mat[k, 3]
+        }
       }
     }
     gll_th <- as.numeric(jcb %*% gll) # this adjusts the cov parameters, if any
+
+    # Add ITP block contributions: gll_th[theta] += J_ITP^T %*% (sd1sd2 * gll[rho])
+    if (!is.null(itp_blocks)) {
+      for (blk_idx in seq_along(itp_blocks)) {
+        blk <- itp_blocks[[blk_idx]]
+        free_ids <- pt$free[blk$pt_cor_idx]
+        # Gradient w.r.t. lavaan-scale x, scaled by sd1sd2 for cov reconstruction
+        rho_grad <- gll[free_ids] * sd1sd2[free_ids]
+        # The analytical Jacobian for this block
+        J_blk <- itp_jacs[[as.character(blk_idx)]]
+        # Gradient w.r.t. the block's theta parameters
+        theta_grad <- as.numeric(t(J_blk) %*% rho_grad)
+        # Add to the global gradient at the correct theta indices
+        gll_th[free_ids] <- gll_th[free_ids] + theta_grad
+      }
+    }
+
     if (isTRUE(ceq.simple)) {
       gll_th <- as.numeric(gll_th %*% ceq.K)
     } # Repack
@@ -409,9 +437,10 @@ inlavaan <- function(
     theta_star_vbc <- theta_star + vb_shift
   }
   if (ceq.simple) {
-    theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star_vbc), pt)
+    theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star_vbc), pt,
+                                  compute_jac = FALSE)
   } else {
-    theta_star_trans <- pars_to_x(theta_star_vbc, pt)
+    theta_star_trans <- pars_to_x(theta_star_vbc, pt, compute_jac = FALSE)
   }
 
   # Marginal log-likelihood (for BF comparison)
@@ -722,7 +751,7 @@ inlavaan <- function(
         }
       } else {
         # With < 2 samples, use pars_to_x(theta_star) for the point estimate
-        x_mode <- pars_to_x(theta_star_vbc, pt)
+        x_mode <- pars_to_x(theta_star_vbc, pt, compute_jac = FALSE)
         for (k in seq_along(itp_cor_pt_idx)) {
           nm <- itp_names[k]
           summ[nm, "Mean"] <- x_mode[itp_free_idx[k]]
