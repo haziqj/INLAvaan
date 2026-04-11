@@ -151,14 +151,8 @@ inlavaan <- function(
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
 
-  # ITP now supports analytical gradients via block Jacobians
   if (isTRUE(use_itp) && isTRUE(verbose)) {
-    cli_inform("ITP parametrisation active.")
-  }
-  # ITP analytical gradient is incorrect for gamma1 and VB correction
-  if (isTRUE(use_itp)) {
-    marginal_correction <- "none"
-    vb_correction <- FALSE
+    cli_alert_info("ITP parametrisation active.")
   }
 
   # Partable and check for equality constraints

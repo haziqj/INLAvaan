@@ -1,6 +1,6 @@
 # The industrialization and Political Democracy Example from Bollen (1989), page
 # 332
-mod <- "
+pd_mod <- "
   # Latent variable definitions
      ind60 =~ x1 + x2 + x3
      dem60 =~ y1 + y2 + y3 + y4
