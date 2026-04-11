@@ -11,7 +11,8 @@
 # @param m Number of parameters.
 # @return Scalar gamma1_j correction value.
 compute_gamma1j <- function(j, method, theta_star, Vscan, L,
-                            joint_lp_grad, delta_outer, delta_inner, m) {
+                            joint_lp_grad, joint_lp_grad_vec = NULL,
+                            delta_outer, delta_inner, m) {
   if (method == "none") return(0)
 
   vj <- Vscan[, j]
@@ -39,19 +40,33 @@ compute_gamma1j <- function(j, method, theta_star, Vscan, L,
     # Central-difference shortcut (Q2): full z-trace + Schur correction.
     # Inner: central FD with h = 1e-5.  Outer: forward FD with delta_outer.
     # Cost: 2m + 2 gradient evaluations per parameter.
+    # When joint_lp_grad_vec is provided, all 2m+2 calls are batched.
     h <- 1e-5
-    trace_Hz1 <- 0
-    for (kk in seq_len(m)) {
-      Lk <- L[, kk]
-      g_fwd <- neg_grad(th_plus + Lk * h)
-      g_bwd <- neg_grad(th_plus - Lk * h)
-      trace_Hz1 <- trace_Hz1 + sum(Lk * (g_fwd - g_bwd)) / (2 * h)
+    if (!is.null(joint_lp_grad_vec)) {
+      # Build m x (2m+2) matrix: fwd cols, bwd cols, then ±vj cols
+      # th_plus + L * h broadcasts as column kk = th_plus + L[,kk]*h
+      eval_mat <- cbind(th_plus + L * h, th_plus - L * h,
+                        th_plus + vj * h, th_plus - vj * h)
+      neg_g    <- -joint_lp_grad_vec(eval_mat)
+      g_fwd_mat <- neg_g[, seq_len(m),       drop = FALSE]
+      g_bwd_mat <- neg_g[, m + seq_len(m),   drop = FALSE]
+      trace_Hz1 <- sum(L * (g_fwd_mat - g_bwd_mat)) / (2 * h)
+      g_fwd_vj  <- neg_g[, 2L * m + 1L]
+      g_bwd_vj  <- neg_g[, 2L * m + 2L]
+    } else {
+      trace_Hz1 <- 0
+      for (kk in seq_len(m)) {
+        Lk <- L[, kk]
+        g_fwd <- neg_grad(th_plus + Lk * h)
+        g_bwd <- neg_grad(th_plus - Lk * h)
+        trace_Hz1 <- trace_Hz1 + sum(Lk * (g_fwd - g_bwd)) / (2 * h)
+      }
+      g_fwd_vj <- neg_grad(th_plus + vj * h)
+      g_bwd_vj <- neg_grad(th_plus - vj * h)
     }
     full_trace <- -0.5 * (trace_Hz1 - m) / delta_outer
 
     # Schur correction: v_j' H(theta*) v_j = 1 by construction
-    g_fwd_vj <- neg_grad(th_plus + vj * h)
-    g_bwd_vj <- neg_grad(th_plus - vj * h)
     vHv_1 <- as.numeric(crossprod(vj, g_fwd_vj - g_bwd_vj)) / (2 * h)
     d_vHv <- (vHv_1 - 1) / delta_outer
 
@@ -61,17 +76,29 @@ compute_gamma1j <- function(j, method, theta_star, Vscan, L,
   else if (method == "shortcut_fd") { # nocov start
     # Forward-difference shortcut (Q2): full z-trace + Schur correction.
     # Cost: m + 2 gradient evaluations per parameter.
-    g0 <- neg_grad(th_plus)
-    trace_Hz1 <- 0
-    for (kk in seq_len(m)) {
-      Lk <- L[, kk]
-      g_fwd <- neg_grad(th_plus + Lk * delta_inner)
-      trace_Hz1 <- trace_Hz1 + sum(Lk * (g_fwd - g0)) / delta_inner
+    # When joint_lp_grad_vec is provided, all m+2 calls are batched.
+    if (!is.null(joint_lp_grad_vec)) {
+      # Build m x (m+2) matrix: center, m fwd, vj fwd
+      eval_mat <- cbind(th_plus, th_plus + L * delta_inner,
+                        th_plus + vj * delta_inner)
+      neg_g    <- -joint_lp_grad_vec(eval_mat)
+      g0        <- neg_g[, 1L]
+      g_fwd_mat <- neg_g[, 1L + seq_len(m), drop = FALSE]
+      g_vj      <- neg_g[, m + 2L]
+      trace_Hz1 <- sum(L * (g_fwd_mat - g0)) / delta_inner
+    } else {
+      g0 <- neg_grad(th_plus)
+      trace_Hz1 <- 0
+      for (kk in seq_len(m)) {
+        Lk <- L[, kk]
+        g_fwd <- neg_grad(th_plus + Lk * delta_inner)
+        trace_Hz1 <- trace_Hz1 + sum(Lk * (g_fwd - g0)) / delta_inner
+      }
+      g_vj <- neg_grad(th_plus + vj * delta_inner)
     }
     full_trace <- -0.5 * (trace_Hz1 - m) / delta_outer
 
     # Schur correction: v_j' H(theta*) v_j = 1 by construction
-    g_vj <- neg_grad(th_plus + vj * delta_inner)
     vHv_1 <- as.numeric(crossprod(vj, g_vj - g0)) / delta_inner
     d_vHv <- (vHv_1 - 1) / delta_outer
 

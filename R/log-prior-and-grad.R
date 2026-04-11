@@ -89,7 +89,8 @@ prepare_priors_for_optim <- function(pt) {
     is_prec_prior = is_prec_prior,
     prior_names = raw_priors, # Just for names(grad)
     itp_blocks = if (length(itp_blocks) > 0) itp_blocks else NULL,
-    pt = pt  # needed for ITP to look up lhs/rhs/var_names
+    pt = pt,  # needed for ITP to look up lhs/rhs/var_names
+    .logdetJ_cache = new.env(parent = emptyenv())
   )
 }
 
@@ -475,23 +476,67 @@ prior_grad_vectorized <- function(theta, cache) {
   grad <- dlp_dx * dx_dth + ddx_dth2 / dx_dth + jac_extra
 
   # Override ITP parameter gradients.
-  # We use a hybrid approach: analytical for the rho-prior part, 
+  # We use a hybrid approach: analytical for the rho-prior part,
   # and numerical for the log|det J| part.
+  # The log|det J| gradient is expensive (2k calls to itp_with_jac_dense per
+  # block) but varies slowly with theta.  We cache it and reuse when the ITP
+  # parameters haven't changed by more than a tolerance.  This is safe because:
+  #   (a) during optimization, theta changes enough to invalidate the cache;
+  #   (b) during gamma1 FD, the ~64 evaluations per parameter differ by O(1e-5)
+  #       in theta, so the cache hits and the constant shift cancels in the
+  #       central difference.
   idx_itp <- which(cache$trans_type == 3L)
   if (length(idx_itp) > 0 && !is.null(cache$itp_blocks)) {
     h <- 1e-5
-    for (blk in cache$itp_blocks) {
+    cache_env <- cache$.logdetJ_cache
+
+    for (blk_idx in seq_along(cache$itp_blocks)) {
+      blk <- cache$itp_blocks[[blk_idx]]
+
       # 1. Identify theta indices for this block
       blk_theta_idx <- which(cache$idx_in_pt %in% blk$pt_cor_idx)
       blk_theta <- theta[blk_theta_idx]
       blk_iLtheta <- if (!blk$is_dense) blk$iLtheta
-      
-      # 2. Compute Jacobian and correlations (analytical for both dense/sparse)
-      res <- itp_with_jac_dense(blk_theta, blk$p, blk$d0,
-                                iLtheta = blk_iLtheta)
-      C_blk <- res$C
-      J_blk <- res$J
-      
+
+      # 2. Check cache for the expensive log|det J| gradient
+      ck <- paste0("b", blk_idx)
+      cached <- cache_env[[ck]]
+      if (!is.null(cached) &&
+          length(cached$theta) == length(blk_theta) &&
+          max(abs(cached$theta - blk_theta)) < 1e-4) {
+        # Cache hit: reuse J, C, and grad_logdetJ
+        J_blk <- cached$J
+        C_blk <- cached$C
+        grad_logdetJ <- cached$grad_logdetJ
+      } else {
+        # Cache miss: full recompute
+        res <- itp_with_jac_dense(blk_theta, blk$p, blk$d0,
+                                  iLtheta = blk_iLtheta)
+        C_blk <- res$C
+        J_blk <- res$J
+
+        get_logdetJ <- function(th) {
+          J <- itp_with_jac_dense(th, blk$p, blk$d0,
+                                  iLtheta = blk_iLtheta)$J
+          log(abs(det(J)))
+        }
+
+        grad_logdetJ <- numeric(length(blk_theta))
+        for (k in seq_along(blk_theta)) {
+          th_p <- th_m <- blk_theta
+          th_p[k] <- blk_theta[k] + h
+          th_m[k] <- blk_theta[k] - h
+          grad_logdetJ[k] <- (get_logdetJ(th_p) - get_logdetJ(th_m)) / (2 * h)
+        }
+
+        cache_env[[ck]] <- list(
+          theta = blk_theta,
+          J = J_blk,
+          C = C_blk,
+          grad_logdetJ = grad_logdetJ
+        )
+      }
+
       # 3. Analytical gradient of the rho-prior: J^T %*% rho_grad
       rho_grad <- numeric(length(blk$pt_cor_idx))
       for (k in seq_along(blk$pt_cor_idx)) {
@@ -500,29 +545,14 @@ prior_grad_vectorized <- function(theta, cache) {
         j_pos <- match(cache$pt$rhs[ci], blk$var_names)
         if (i_pos < j_pos) { tmp <- i_pos; i_pos <- j_pos; j_pos <- tmp }
         rho <- C_blk[i_pos, j_pos]
-        
+
         p_idx <- which(cache$idx_in_pt == ci)
         a <- cache$p1[p_idx]
         b <- cache$p2[p_idx]
         rho_grad[k] <- (a - 1) / (rho + 1) - (b - 1) / (1 - rho)
       }
       grad_rho_part <- as.numeric(t(J_blk) %*% rho_grad)
-      
-      # 4. Numerical gradient of log|det J|
-      get_logdetJ <- function(th) {
-        J <- itp_with_jac_dense(th, blk$p, blk$d0,
-                                iLtheta = blk_iLtheta)$J
-        log(abs(det(J)))
-      }
-      
-      grad_logdetJ <- numeric(length(blk_theta))
-      for (k in seq_along(blk_theta)) {
-        th_p <- th_m <- blk_theta
-        th_p[k] <- blk_theta[k] + h
-        th_m[k] <- blk_theta[k] - h
-        grad_logdetJ[k] <- (get_logdetJ(th_p) - get_logdetJ(th_m)) / (2 * h)
-      }
-      
+
       # Update global gradient
       grad[blk_theta_idx] <- grad_rho_part + grad_logdetJ
     }

@@ -222,25 +222,20 @@ inlavaan <- function(
     }
 
     # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
-    jcb <- diag(jcb_vec, length(jcb_vec))
-
-    # This is the extra jacobian adjustment for covariances, since dx/dθ affects
-    # more than one place if covariance exists
+    # Sparse chain rule: diagonal jcb_vec*sd1sd2 + off-diagonal covariance
+    # corrections from jcb_mat.  Avoids O(m^2) dense matrix allocation.
     sd1sd2 <- attr(x, "sd1sd2")
-    jcb <- jcb * sd1sd2 # this adjusts the correlation parameters (diagonals)
     jcb_mat <- attr(x, "jcb_mat")
-
-    if (!is.null(jcb_mat)) {
+    gll_th <- jcb_vec * sd1sd2 * gll
+    if (!is.null(jcb_mat) && NROW(jcb_mat) > 0) {
       for (k in seq_len(nrow(jcb_mat))) {
         i <- jcb_mat[k, 1]
         j <- jcb_mat[k, 2]
-        # Only add if the source parameter i is NOT an ITP parameter
         if (!(i %in% itp_free_ids)) {
-          jcb[i, j] <- jcb_mat[k, 3]
+          gll_th[i] <- gll_th[i] + jcb_mat[k, 3] * gll[j]
         }
       }
     }
-    gll_th <- as.numeric(jcb %*% gll) # this adjusts the cov parameters, if any
 
     # Add ITP block contributions: gll_th[theta] += J_ITP^T %*% (sd1sd2 * gll[rho])
     if (!is.null(itp_blocks)) {
@@ -271,6 +266,98 @@ inlavaan <- function(
     }
 
     as.numeric(gll_th + glp_th)
+  }
+
+  joint_lp_grad_vectorised <- function(pars_mat) {
+    # Batch gradient of the joint log-posterior across N parameter vectors.
+    # Amortizes the chain-rule Jacobian by computing it once at the first
+    # column (reference point).  Valid when all columns are small perturbations
+    # of each other, as in the finite-difference loops of compute_gamma1j.
+    #
+    # pars_mat : m x N (packed if ceq.simple, full otherwise)
+    # Returns  : m x N gradient matrix
+    N <- ncol(pars_mat)
+
+    # ---- 1. Chain-rule Jacobian at the reference (first) column -------------
+    ref <- pars_mat[, 1L]
+    if (isTRUE(ceq.simple)) {
+      ref_unpacked <- as.numeric(ceq.K %*% ref)
+      x_ref        <- pars_to_x(ref_unpacked, pt)
+      jcb_vec_ref  <- mapply(function(f, x) f(x),
+                             pt$ginv_prime[pt$free > 0], ref_unpacked)
+    } else {
+      x_ref        <- pars_to_x(ref, pt)
+      jcb_vec_ref  <- mapply(function(f, x) f(x),
+                             pt$ginv_prime[pt$free > 0], ref)
+    }
+    m_full       <- length(jcb_vec_ref)
+    sd1sd2_ref   <- attr(x_ref, "sd1sd2")
+    jcb_mat_ref  <- attr(x_ref, "jcb_mat")
+    itp_blocks   <- attr(x_ref, "itp_blocks")
+    itp_jacs_ref <- attr(x_ref, "itp_jacs")
+
+    itp_free_ids <- integer(0)
+    if (!is.null(itp_blocks) && length(itp_blocks) > 0L) {
+      itp_free_ids <- unique(unlist(
+        lapply(itp_blocks, function(b) pt$free[b$pt_cor_idx])
+      ))
+      jcb_vec_ref[itp_free_ids] <- 0
+    }
+
+    # Build full-space chain-rule matrix J (m_full x m_full):
+    #   J = diag(jcb_vec * sd1sd2) + off-diagonal covariance corrections
+    J <- diag(jcb_vec_ref * sd1sd2_ref, m_full)
+    if (!is.null(jcb_mat_ref) && nrow(jcb_mat_ref) > 0L) {
+      for (k in seq_len(nrow(jcb_mat_ref))) {
+        ii <- jcb_mat_ref[k, 1L]
+        jj <- jcb_mat_ref[k, 2L]
+        if (!(ii %in% itp_free_ids)) J[ii, jj] <- jcb_mat_ref[k, 3L]
+      }
+    }
+
+    # ---- 2. Likelihood gradient at every column (skip Jacobian recompute) ---
+    gll_mat <- matrix(0, nrow = m_full, ncol = N)
+    for (i in seq_len(N)) {
+      pars_i <- pars_mat[, i]
+      if (isTRUE(ceq.simple)) {
+        x_i <- pars_to_x(as.numeric(ceq.K %*% pars_i), pt, compute_jac = FALSE)
+      } else {
+        x_i <- pars_to_x(pars_i, pt, compute_jac = FALSE)
+      }
+      gll_mat[, i] <- inlav_model_grad(x_i, lavmodel, lavsamplestats,
+                                       lavdata, lavcache)
+    }
+
+    # ---- 3. Apply chain rule ------------------------------------------------
+    gll_th_mat <- J %*% gll_mat   # m_full x N
+
+    # ---- 4. ITP block contributions (reuse reference Jacobians) -------------
+    if (!is.null(itp_blocks) && length(itp_blocks) > 0L) {
+      for (blk_idx in seq_along(itp_blocks)) {
+        blk   <- itp_blocks[[blk_idx]]
+        fids  <- pt$free[blk$pt_cor_idx]
+        J_blk <- itp_jacs_ref[[as.character(blk_idx)]]
+        # t(J_blk) %*% diag(sd1sd2[fids]) %*% gll_mat[fids, ]
+        rho_gll <- sd1sd2_ref[fids] * gll_mat[fids, , drop = FALSE]
+        gll_th_mat[fids, ] <- gll_th_mat[fids, ] + t(J_blk) %*% rho_gll
+      }
+    }
+
+    # ---- 5. Repack to packed space when ceq.simple --------------------------
+    # Scalar version: as.numeric(gll_th %*% ceq.K) = t(ceq.K) %*% gll_th
+    if (isTRUE(ceq.simple)) {
+      gll_th_mat <- t(ceq.K) %*% gll_th_mat  # m_packed x N
+    }
+
+    # ---- 6. Prior gradients -------------------------------------------------
+    if (isTRUE(add_priors)) {
+      for (i in seq_len(N)) {
+        gll_th_mat[, i] <- gll_th_mat[, i] +
+          prior_grad_vectorized(pars_mat[, i], prior_cache)
+      }
+    }
+
+    gll_th_mat
   }
 
   timing <- add_timing(timing, "init")
