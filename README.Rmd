@@ -76,7 +76,7 @@ mod_poldem <- "
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
-fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
+fit <- asem(model = mod_poldem, data = PoliticalDemocracy, use_gcp = TRUE)
 
 summary(fit)
 ```
