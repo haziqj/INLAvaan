@@ -25,6 +25,7 @@ inlavaan(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  use_gcp = FALSE,
   cores = NULL,
   ...
 )
