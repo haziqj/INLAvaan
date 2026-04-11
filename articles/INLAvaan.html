@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -207,22 +207,22 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [100ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [112ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [111ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [125ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [97ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [100ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 13/13 skew-normal marginals. [254ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 13/13 skew-normal marginals. [284ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [78ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [79ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [503ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [518ms]</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 </div>
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully jamil2026approximate">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney et al. 1989</a>; <a href="#ref-jamil2026approximate" role="doc-biblioref">Jamil and Rue 2026a</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
@@ -236,7 +236,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots</span></span>
 <span><span class="va">fit</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.4.9000 ended normally after 62 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.4.9001 ended normally after 62 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -261,7 +261,7 @@
 <span></span>
 <span><span class="co"># Summary of results</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.4.9000 ended normally after 62 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.4.9001 ended normally after 62 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -388,7 +388,7 @@
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 1.22 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.32 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -416,23 +416,23 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [55ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [56ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [29ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [35ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [67ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [69ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 12/12 skew-normal marginals. [219ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 12/12 skew-normal marginals. [220ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
 <span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [49ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [458ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [473ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +51,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="inlavaan-development-version">INLAvaan (development version)<a class="anchor" aria-label="anchor" href="#inlavaan-development-version"></a></h2>
-</div>
+<ul><li>
+<strong>Performance &amp; Stability</strong>: Major optimizations to the gradient calculation for GCP models. The Jacobian computation now uses a sparse matrix approach, leading to significant speedups. The <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\gamma_1</annotation></semantics></math> correction calculation was corrected by reverting to the scalar path, ensuring numerical stability and accuracy.</li>
+<li>
+<strong>Internal</strong>: Added <code>joint_lp_grad</code> and <code>joint_lp_grad_vectorised</code> to the output list for external inspection.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.4" id="inlavaan-024">INLAvaan 0.2.4<a class="anchor" aria-label="anchor" href="#inlavaan-024"></a></h2><p class="text-muted">CRAN release: 2026-04-03</p>
 <div class="section level3">

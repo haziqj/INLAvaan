@@ -14,28 +14,27 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [240ms]
+#> ✔ Finding posterior mode. [260ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [238ms]
+#> ✔ Computing the Hessian. [255ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.103σ. [407ms]
+#> ✔ VB correction; mean |δ| = 0.103σ. [448ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 15/60 skew-normal marginals.
-#> ⠸ Fitting 43/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [6.5s]
+#> ⠹ Fitting 13/60 skew-normal marginals.
+#> ⠸ Fitting 38/60 skew-normal marginals.
+#> ✔ Fitting 60/60 skew-normal marginals. [7s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [371ms]
+#> ✔ Adjusting copula correlations (NORTA). [379ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [952ms]
+#> ✔ Posterior sampling and summarising. [995ms]
 #> 
 summary(fit1)
-#> INLAvaan 0.2.4.9000 ended normally after 138 iterations
+#> INLAvaan 0.2.4.9001 ended normally after 138 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -52,8 +51,8 @@ summary(fit1)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7482.400 
-#>    Effective parameters (pD)                    58.562 
+#>    Deviance (DIC)                             7483.409 
+#>    Effective parameters (pD)                    59.066 
 #> 
 #> Parameter Estimates:
 #> 
@@ -81,10 +80,10 @@ summary(fit1)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.459    0.105    0.248    0.659    0.002       beta(1,1)
-#>     speed             0.302    0.073    0.028    0.316    0.004       beta(1,1)
+#>     textual           0.449    0.107    0.240    0.658    0.002       beta(1,1)
+#>     speed             0.170    0.072    0.029    0.310    0.004       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.307    0.065    0.033    0.289    0.002       beta(1,1)
+#>     speed             0.164    0.066    0.035    0.294    0.002       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -137,10 +136,10 @@ summary(fit1)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.517    0.097    0.197    0.577    0.002       beta(1,1)
-#>     speed             0.509    0.075    0.112    0.405    0.005       beta(1,1)
+#>     textual           0.379    0.095    0.194    0.565    0.002       beta(1,1)
+#>     speed             0.249    0.069    0.113    0.384    0.005       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.325    0.073    0.070    0.354    0.006       beta(1,1)
+#>     speed             0.207    0.072    0.067    0.347    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -180,24 +179,25 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [187ms]
+#> ✔ Finding posterior mode. [199ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [204ms]
+#> ✔ Computing the Hessian. [215ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.101σ. [268ms]
+#> ✔ VB correction; mean |δ| = 0.101σ. [284ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 20/54 skew-normal marginals.
-#> ⠸ Fitting 50/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [5.4s]
+#> ⠹ Fitting 12/54 skew-normal marginals.
+#> ⠸ Fitting 40/54 skew-normal marginals.
+#> ✔ Fitting 54/54 skew-normal marginals. [5.8s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [542ms]
+#> ✔ Adjusting copula correlations (NORTA). [553ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [966ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [997ms]
 #> 
 
 # Strong invariance
@@ -208,24 +208,23 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [189ms]
+#> ✔ Finding posterior mode. [208ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [188ms]
+#> ✔ Computing the Hessian. [193ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.088σ. [261ms]
+#> ✔ VB correction; mean |δ| = 0.088σ. [273ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 4/48 skew-normal marginals.
-#> ⠸ Fitting 38/48 skew-normal marginals.
-#> ✔ Fitting 48/48 skew-normal marginals. [4.3s]
+#> ⠹ Fitting 23/48 skew-normal marginals.
+#> ✔ Fitting 48/48 skew-normal marginals. [4.6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [588ms]
+#> ✔ Adjusting copula correlations (NORTA). [602ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [937ms]
+#> ✔ Posterior sampling and summarising. [970ms]
 #> 
 
 # Compare models
@@ -234,7 +233,7 @@ compare(fit1, fit2, fit3)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD
-#>   fit3   48   -3914.104   0.000 7509.325 47.997
-#>   fit2   54   -3934.608 -20.504 7481.031 53.773
-#>   fit1   60   -3958.319 -44.215 7482.400 58.562
+#>   fit3   48   -3914.104   0.000 7510.216 48.443
+#>   fit2   54   -3934.608 -20.504 7480.609 53.562
+#>   fit1   60   -3958.319 -44.215 7483.409 59.066
 ```

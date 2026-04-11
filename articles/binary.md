@@ -65,26 +65,26 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [184ms]
+#> ✔ Finding posterior mode. [171ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [78ms]
+#> ✔ Computing the Hessian. [81ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.403σ. [426ms]
+#> ✔ VB correction; mean |δ| = 0.403σ. [442ms]
 #> 
 #> ⠙ Fitting 0/10 skew-normal marginals.
-#> ⠹ Fitting 10/10 skew-normal marginals.
-#> ✔ Fitting 10/10 skew-normal marginals. [701ms]
+#> ⠹ Fitting 6/10 skew-normal marginals.
+#> ✔ Fitting 10/10 skew-normal marginals. [737ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [49ms]
+#> ✔ Adjusting copula correlations (NORTA). [55ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1s]
+#> ✔ Posterior sampling and summarising. [1.1s]
 #> 
 summary(fit)
-#> INLAvaan 0.2.4.9000 ended normally after 37 iterations
+#> INLAvaan 0.2.4.9001 ended normally after 37 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -136,11 +136,11 @@ summary(fit)
 #> 
 #> Scales y*:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
-#>     y1                1.325    0.217    1.047    1.832                       
-#>     y2                1.203    0.137    1.031    1.532                       
-#>     y3                1.194    0.127    1.030    1.511                       
-#>     y4                1.519    0.337    1.104    2.383                       
-#>     y5                1.141    0.110    1.012    1.429
+#>     y1                1.325                                                  
+#>     y2                1.203                                                  
+#>     y3                1.194                                                  
+#>     y4                1.519                                                  
+#>     y5                1.141
 plot(fit, truth = truval)
 ```
 
