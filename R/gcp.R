@@ -1,14 +1,14 @@
-# ITP: Inverse Transform Parametrisation for correlation matrices
+# GCP: Graphical Correlation Parametrisation for correlation matrices
 #
-# Implements the graphpcor ITP approach (Freni-Sterrantino et al., 2025)
+# Implements the graphpcor GCP approach (Freni-Sterrantino et al., 2025)
 # standalone within INLAvaan — no external dependencies on graphpcor,
 # INLAtools, or INLA.
 #
-# The ITP guarantees a positive definite correlation matrix for any
+# The GCP guarantees a positive definite correlation matrix for any
 # unconstrained parameter vector theta, by working through the Cholesky
 # factor of a precision matrix.
 
-# --- Core ITP functions -------------------------------------------------------
+# --- Core GCP functions -------------------------------------------------------
 
 #' Fill in Cholesky elements determined by the sparsity structure.
 #'
@@ -19,7 +19,7 @@
 #' @param L Lower-triangular matrix with diagonal d0 and free params placed.
 #' @return L with fill-in elements computed.
 #' @keywords internal
-itp_fill_chol <- function(L) {
+gcp_fill_chol <- function(L) {
   p <- nrow(L)
   if (p <= 2L) return(L)
 
@@ -52,7 +52,7 @@ itp_fill_chol <- function(L) {
   L
 }
 
-#' Map unconstrained parameters theta to a correlation matrix via ITP.
+#' Map unconstrained parameters theta to a correlation matrix via GCP.
 #'
 #' @param theta Numeric vector of free parameters (length = number of edges).
 #' @param p Integer, dimension of the correlation matrix.
@@ -61,10 +61,10 @@ itp_fill_chol <- function(L) {
 #' @param d0 Numeric vector of length p, diagonal of L^(0). Default: p:1.
 #' @return A p x p correlation matrix C.
 #' @keywords internal
-itp_to_corr <- function(theta, p, iLtheta, d0 = p:1) {
+gcp_to_corr <- function(theta, p, iLtheta, d0 = p:1) {
   L <- diag(x = d0, nrow = p, ncol = p)
   L[iLtheta] <- theta
-  L <- itp_fill_chol(L)
+  L <- gcp_fill_chol(L)
   Q <- L %*% t(L)
   V <- solve(Q)
   s <- sqrt(diag(V))
@@ -78,26 +78,26 @@ itp_to_corr <- function(theta, p, iLtheta, d0 = p:1) {
 
 #' Compute Jacobian d vec(C_free) / d theta via central differences.
 #'
-#' @inheritParams itp_to_corr
+#' @inheritParams gcp_to_corr
 #' @param h Step size for central differences. Default: 1e-5.
 #' @return A matrix with nrow = length(theta) (free correlations) and
 #'   ncol = length(theta).
 #' @keywords internal
-itp_jac_corr <- function(theta, p, iLtheta, d0 = p:1, h = 1e-5) {
+gcp_jac_corr <- function(theta, p, iLtheta, d0 = p:1, h = 1e-5) {
   m <- length(theta)
   J <- matrix(0, nrow = m, ncol = m)
   for (k in seq_len(m)) {
     th_plus <- th_minus <- theta
     th_plus[k] <- theta[k] + h
     th_minus[k] <- theta[k] - h
-    C_plus <- itp_to_corr(th_plus, p, iLtheta, d0)
-    C_minus <- itp_to_corr(th_minus, p, iLtheta, d0)
+    C_plus <- gcp_to_corr(th_plus, p, iLtheta, d0)
+    C_minus <- gcp_to_corr(th_minus, p, iLtheta, d0)
     J[, k] <- (C_plus[iLtheta] - C_minus[iLtheta]) / (2 * h)
   }
   J
 }
 
-#' Compute the correlation matrix and its analytical Jacobian for an ITP block.
+#' Compute the correlation matrix and its analytical Jacobian for an GCP block.
 #'
 #' Works for both dense blocks (all lower-triangular elements free) and sparse
 #' blocks (only positions in iLtheta are free).
@@ -111,7 +111,7 @@ itp_jac_corr <- function(theta, p, iLtheta, d0 = p:1, h = 1e-5) {
 #'   - C: The p x p correlation matrix.
 #'   - J: The m x m Jacobian matrix d rho / d theta.
 #' @keywords internal
-itp_with_jac_dense <- function(theta, p, d0 = p:1, iLtheta = NULL) {
+gcp_with_jac_dense <- function(theta, p, d0 = p:1, iLtheta = NULL) {
   L <- diag(d0)
   if (is.null(iLtheta)) {
     lt_idx <- which(lower.tri(diag(p)))
@@ -160,10 +160,10 @@ itp_with_jac_dense <- function(theta, p, d0 = p:1, iLtheta = NULL) {
   list(C = C, J = J)
 }
 
-#' Extract ITP sparsity pattern from an INLAvaan parameter table.
+#' Extract GCP sparsity pattern from an INLAvaan parameter table.
 #'
 #' Given a parameter table and a group, identifies the free correlation
-#' parameters and returns the ITP metadata needed for block processing.
+#' parameters and returns the GCP metadata needed for block processing.
 #'
 #' @param pt Parameter table (list).
 #' @param g Integer, group number.
@@ -178,7 +178,7 @@ itp_with_jac_dense <- function(theta, p, d0 = p:1, iLtheta = NULL) {
 #'   - is_dense: logical, TRUE if all p(p-1)/2 positions are free
 #' Returns NULL if no correlation parameters exist for this block/group.
 #' @keywords internal
-itp_graph_from_pt <- function(pt, g, block = c("theta", "psi")) {
+gcp_graph_from_pt <- function(pt, g, block = c("theta", "psi")) {
   block <- match.arg(block)
 
   # What matrix types are we looking for?
@@ -241,16 +241,16 @@ itp_graph_from_pt <- function(pt, g, block = c("theta", "psi")) {
   )
 }
 
-#' Build a list of ITP block metadata from a parameter table.
+#' Build a list of GCP block metadata from a parameter table.
 #'
 #' Scans the parameter table for all groups and blocks (theta, psi)
-#' and returns ITP metadata for each block that has free correlations.
+#' and returns GCP metadata for each block that has free correlations.
 #'
 #' @param pt Parameter table (list).
-#' @return A list of ITP block metadata, each element from itp_graph_from_pt().
-#'   Returns an empty list if no ITP blocks are found.
+#' @return A list of GCP block metadata, each element from gcp_graph_from_pt().
+#'   Returns an empty list if no GCP blocks are found.
 #' @keywords internal
-itp_blocks_from_pt <- function(pt) {
+gcp_blocks_from_pt <- function(pt) {
   is_multilvl <- "level" %in% names(pt)
   if (is_multilvl) {
     nG <- max(pt$level)
@@ -261,7 +261,7 @@ itp_blocks_from_pt <- function(pt) {
   blocks <- list()
   for (g in seq_len(nG)) {
     for (block in c("theta", "psi")) {
-      info <- itp_graph_from_pt(pt, g, block)
+      info <- gcp_graph_from_pt(pt, g, block)
       if (!is.null(info)) {
         info$group <- g
         info$block <- block

@@ -105,23 +105,25 @@ summary_inlavaan <- function(
       paste0(pt$lhs[ptidx], pt$op[ptidx], pt$rhs[ptidx], pt$block[ptidx]),
       paste0(PE$lhs, PE$op, PE$rhs, PE$block)
     )
+    # Subset of peidx corresponding only to free parameters (first block of ptidx)
+    peidx_free <- peidx[seq_along(ptfreeidx)]
     # Match free parameters in summ using their names (rownames of summ are parnames)
     summidx <- match(pt$names[ptfreeidx], rownames(summ))
 
     char.format <- paste("%", max(8, nd + 5), "s", sep = "")
     PE$SD <- ""
-    PE$SD[peidx] <- formatC(summ$SD[summidx], digits = nd, format = "f")
+    PE$SD[peidx_free] <- formatC(summ$SD[summidx], digits = nd, format = "f")
 
     PE$`2.5%` <- ""
-    PE$`2.5%`[peidx] <- formatC(summ$`2.5%`[summidx], digits = nd, format = "f")
+    PE$`2.5%`[peidx_free] <- formatC(summ$`2.5%`[summidx], digits = nd, format = "f")
 
     if (isTRUE(postmedian)) {
       PE$`50%` <- ""
-      PE$`50%`[peidx] <- formatC(summ$`50%`[summidx], digits = nd, format = "f")
+      PE$`50%`[peidx_free] <- formatC(summ$`50%`[summidx], digits = nd, format = "f")
     }
 
     PE$`97.5%` <- ""
-    PE$`97.5%`[peidx] <- formatC(
+    PE$`97.5%`[peidx_free] <- formatC(
       summ$`97.5%`[summidx],
       digits = nd,
       format = "f"
@@ -129,7 +131,7 @@ summary_inlavaan <- function(
 
     if (isTRUE(postmode)) {
       PE$Mode <- ""
-      PE$Mode[peidx] <- formatC(summ$Mode[summidx], digits = nd, format = "f")
+      PE$Mode[peidx_free] <- formatC(summ$Mode[summidx], digits = nd, format = "f")
     }
 
     # Standardised solution?
@@ -148,8 +150,8 @@ summary_inlavaan <- function(
       )
       if (!is.null(nmad_vals) && !all(is.na(nmad_vals))) {
         PE$NMAD <- ""
-        PE$NMAD[peidx] <- formatC(nmad_vals[summidx], digits = nd, format = "f")
-        PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
+        PE$NMAD[peidx_free] <- formatC(nmad_vals[summidx], digits = nd, format = "f")
+        PE$NMAD[peidx_free][grepl("NA", PE$NMAD[peidx_free])] <- ""
       }
     } # nocov end
 
@@ -157,29 +159,25 @@ summary_inlavaan <- function(
     if (isTRUE(vb_correction)) { # nocov start
       if (isTRUE(kld)) {
         PE$KLD <- ""
-        PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
-        PE$KLD[peidx][grepl("NA", PE$KLD[peidx])] <- ""
+        PE$KLD[peidx_free] <- formatC(summ$kld[summidx], digits = nd, format = "f")
+        PE$KLD[peidx_free][grepl("NA", PE$KLD[peidx_free])] <- ""
       }
 
       if (isTRUE(vb_shift)) {
         PE$VBshift <- ""
-        PE$VBshift[peidx] <- formatC(
+        PE$VBshift[peidx_free] <- formatC(
           summ$vb_shift_sigma[summidx],
           digits = nd,
           format = "f"
         )
-        PE$VBshift[peidx][grepl("NA", PE$VBshift[peidx])] <- ""
+        PE$VBshift[peidx_free][grepl("NA", PE$VBshift[peidx_free])] <- ""
       }
     } # nocov end
 
     if (isTRUE(priors)) { # nocov start
       PE$Prior <- ""
-      # Use match to avoid indexing errors if summ is smaller than expected
       prior_vals <- summ$Prior[summidx]
-      # Ensure we only assign up to the length of prior_vals
-      n_vals <- length(prior_vals)
-      PE$Prior[peidx[seq_len(min(length(peidx), n_vals))]] <- prior_vals[seq_len(min(length(peidx), n_vals))]
-      PE$Prior[PE$Prior == ""] <- "" # keep empty
+      PE$Prior[peidx_free] <- prior_vals
       PE$Prior[is.na(PE$Prior)] <- ""
     } # nocov end
   }

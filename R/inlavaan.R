@@ -95,7 +95,7 @@ inlavaan <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
-  use_itp = FALSE,
+  use_gcp = FALSE,
   cores = NULL,
   ...
 ) {
@@ -151,13 +151,13 @@ inlavaan <- function(
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
 
-  if (isTRUE(use_itp) && isTRUE(verbose)) {
-    cli_alert_info("ITP parametrisation active.")
+  if (isTRUE(use_gcp) && isTRUE(verbose)) {
+    cli_alert_info("GCP parametrisation active.")
   }
 
   # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions,
-                             use_itp = use_itp)
+                             use_gcp = use_gcp)
   PTFREEIDX <- which(pt$free > 0L)
   if (isTRUE(ceq.simple)) {
     # Note: Always work in the reduced space
@@ -210,15 +210,15 @@ inlavaan <- function(
     }
     gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
 
-    # ITP Handling:
-    # For ITP parameters, the gradient is a block operation.
+    # GCP Handling:
+    # For GCP parameters, the gradient is a block operation.
     # We zero out their diagonal entries in jcb_vec and handle them separately.
-    itp_blocks <- attr(x, "itp_blocks")
-    itp_jacs <- attr(x, "itp_jacs")
-    itp_free_ids <- integer(0)
-    if (!is.null(itp_blocks)) {
-      itp_free_ids <- unique(unlist(lapply(itp_blocks, function(b) pt$free[b$pt_cor_idx])))
-      jcb_vec[itp_free_ids] <- 0
+    gcp_blocks <- attr(x, "gcp_blocks")
+    gcp_jacs <- attr(x, "gcp_jacs")
+    gcp_free_ids <- integer(0)
+    if (!is.null(gcp_blocks)) {
+      gcp_free_ids <- unique(unlist(lapply(gcp_blocks, function(b) pt$free[b$pt_cor_idx])))
+      jcb_vec[gcp_free_ids] <- 0
     }
 
     # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
@@ -231,21 +231,21 @@ inlavaan <- function(
       for (k in seq_len(nrow(jcb_mat))) {
         i <- jcb_mat[k, 1]
         j <- jcb_mat[k, 2]
-        if (!(i %in% itp_free_ids)) {
+        if (!(i %in% gcp_free_ids)) {
           gll_th[i] <- gll_th[i] + jcb_mat[k, 3] * gll[j]
         }
       }
     }
 
-    # Add ITP block contributions: gll_th[theta] += J_ITP^T %*% (sd1sd2 * gll[rho])
-    if (!is.null(itp_blocks)) {
-      for (blk_idx in seq_along(itp_blocks)) {
-        blk <- itp_blocks[[blk_idx]]
+    # Add GCP block contributions: gll_th[theta] += J_GCP^T %*% (sd1sd2 * gll[rho])
+    if (!is.null(gcp_blocks)) {
+      for (blk_idx in seq_along(gcp_blocks)) {
+        blk <- gcp_blocks[[blk_idx]]
         free_ids <- pt$free[blk$pt_cor_idx]
         # Gradient w.r.t. lavaan-scale x, scaled by sd1sd2 for cov reconstruction
         rho_grad <- gll[free_ids] * sd1sd2[free_ids]
         # The analytical Jacobian for this block
-        J_blk <- itp_jacs[[as.character(blk_idx)]]
+        J_blk <- gcp_jacs[[as.character(blk_idx)]]
         # Gradient w.r.t. the block's theta parameters
         theta_grad <- as.numeric(t(J_blk) %*% rho_grad)
         # Add to the global gradient at the correct theta indices
@@ -293,15 +293,15 @@ inlavaan <- function(
     m_full       <- length(jcb_vec_ref)
     sd1sd2_ref   <- attr(x_ref, "sd1sd2")
     jcb_mat_ref  <- attr(x_ref, "jcb_mat")
-    itp_blocks   <- attr(x_ref, "itp_blocks")
-    itp_jacs_ref <- attr(x_ref, "itp_jacs")
+    gcp_blocks   <- attr(x_ref, "gcp_blocks")
+    gcp_jacs_ref <- attr(x_ref, "gcp_jacs")
 
-    itp_free_ids <- integer(0)
-    if (!is.null(itp_blocks) && length(itp_blocks) > 0L) {
-      itp_free_ids <- unique(unlist(
-        lapply(itp_blocks, function(b) pt$free[b$pt_cor_idx])
+    gcp_free_ids <- integer(0)
+    if (!is.null(gcp_blocks) && length(gcp_blocks) > 0L) {
+      gcp_free_ids <- unique(unlist(
+        lapply(gcp_blocks, function(b) pt$free[b$pt_cor_idx])
       ))
-      jcb_vec_ref[itp_free_ids] <- 0
+      jcb_vec_ref[gcp_free_ids] <- 0
     }
 
     # Build full-space chain-rule matrix J (m_full x m_full):
@@ -311,7 +311,7 @@ inlavaan <- function(
       for (k in seq_len(nrow(jcb_mat_ref))) {
         ii <- jcb_mat_ref[k, 1L]
         jj <- jcb_mat_ref[k, 2L]
-        if (!(ii %in% itp_free_ids)) J[ii, jj] <- jcb_mat_ref[k, 3L]
+        if (!(ii %in% gcp_free_ids)) J[ii, jj] <- jcb_mat_ref[k, 3L]
       }
     }
 
@@ -331,12 +331,12 @@ inlavaan <- function(
     # ---- 3. Apply chain rule ------------------------------------------------
     gll_th_mat <- J %*% gll_mat   # m_full x N
 
-    # ---- 4. ITP block contributions (reuse reference Jacobians) -------------
-    if (!is.null(itp_blocks) && length(itp_blocks) > 0L) {
-      for (blk_idx in seq_along(itp_blocks)) {
-        blk   <- itp_blocks[[blk_idx]]
+    # ---- 4. GCP block contributions (reuse reference Jacobians) -------------
+    if (!is.null(gcp_blocks) && length(gcp_blocks) > 0L) {
+      for (blk_idx in seq_along(gcp_blocks)) {
+        blk   <- gcp_blocks[[blk_idx]]
         fids  <- pt$free[blk$pt_cor_idx]
-        J_blk <- itp_jacs_ref[[as.character(blk_idx)]]
+        J_blk <- gcp_jacs_ref[[as.character(blk_idx)]]
         # t(J_blk) %*% diag(sd1sd2[fids]) %*% gll_mat[fids, ]
         rho_gll <- sd1sd2_ref[fids] * gll_mat[fids, , drop = FALSE]
         gll_th_mat[fids, ] <- gll_th_mat[fids, ] + t(J_blk) %*% rho_gll
@@ -808,36 +808,36 @@ inlavaan <- function(
   }
   timing <- add_timing(timing, "covariances")
 
-  # ITP correlation parameters: recompute marginals from posterior samples.
-  # post_marg uses ginv (identity for ITP), which reports raw ITP theta values
-  # instead of actual correlations. For "psi_cov" ITP params, the covariance
-  # section above already corrects this; here we handle "psi_cor" ITP params.
-  if (length(attr(pt, "itp_blocks")) > 0) {
-    itp_cor_pt_idx <- unlist(lapply(attr(pt, "itp_blocks"), `[[`, "pt_cor_idx"))
-    is_cor <- grepl("_cor$", pt$mat[itp_cor_pt_idx])
-    itp_cor_pt_idx <- itp_cor_pt_idx[is_cor]
+  # GCP correlation parameters: recompute marginals from posterior samples.
+  # post_marg uses ginv (identity for GCP), which reports raw GCP theta values
+  # instead of actual correlations. For "psi_cov" GCP params, the covariance
+  # section above already corrects this; here we handle "psi_cor" GCP params.
+  if (length(attr(pt, "gcp_blocks")) > 0) {
+    gcp_cor_pt_idx <- unlist(lapply(attr(pt, "gcp_blocks"), `[[`, "pt_cor_idx"))
+    is_cor <- grepl("_cor$", pt$mat[gcp_cor_pt_idx])
+    gcp_cor_pt_idx <- gcp_cor_pt_idx[is_cor]
 
-    if (length(itp_cor_pt_idx) > 0) {
-      itp_free_idx <- pt$free[itp_cor_pt_idx]
-      itp_names <- pt$names[itp_cor_pt_idx]
+    if (length(gcp_cor_pt_idx) > 0) {
+      gcp_free_idx <- pt$free[gcp_cor_pt_idx]
+      gcp_names <- pt$names[gcp_cor_pt_idx]
 
       if (nsamp >= 2) {
-        itp_samp <- x_samp[, itp_free_idx, drop = FALSE]
-        colnames(itp_samp) <- itp_names
-        itp_marg <- apply(itp_samp, 2, summarise_samples)
+        gcp_samp <- x_samp[, gcp_free_idx, drop = FALSE]
+        colnames(gcp_samp) <- gcp_names
+        gcp_marg <- apply(gcp_samp, 2, summarise_samples)
 
-        for (nm in names(itp_marg)) {
-          summ[nm, names(itp_marg[[nm]]$summary)] <- itp_marg[[nm]]$summary
-          pdf_data[[nm]] <- itp_marg[[nm]]$pdf_data
+        for (nm in names(gcp_marg)) {
+          summ[nm, names(gcp_marg[[nm]]$summary)] <- gcp_marg[[nm]]$summary
+          pdf_data[[nm]] <- gcp_marg[[nm]]$pdf_data
         }
       } else {
         # With < 2 samples, use pars_to_x(theta_star) for the point estimate
         x_mode <- pars_to_x(theta_star_vbc, pt, compute_jac = FALSE)
-        for (k in seq_along(itp_cor_pt_idx)) {
-          nm <- itp_names[k]
-          summ[nm, "Mean"] <- x_mode[itp_free_idx[k]]
-          summ[nm, "Mode"] <- x_mode[itp_free_idx[k]]
-          summ[nm, "50%"]  <- x_mode[itp_free_idx[k]]
+        for (k in seq_along(gcp_cor_pt_idx)) {
+          nm <- gcp_names[k]
+          summ[nm, "Mean"] <- x_mode[gcp_free_idx[k]]
+          summ[nm, "Mode"] <- x_mode[gcp_free_idx[k]]
+          summ[nm, "50%"]  <- x_mode[gcp_free_idx[k]]
         }
       }
     }
@@ -990,7 +990,7 @@ acfa <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
-  use_itp = FALSE,
+  use_gcp = FALSE,
   cores = NULL,
   ...
 ) {
@@ -1043,7 +1043,7 @@ asem <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
-  use_itp = FALSE,
+  use_gcp = FALSE,
   cores = NULL,
   ...
 ) {
@@ -1094,7 +1094,7 @@ agrowth <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
-  use_itp = FALSE,
+  use_gcp = FALSE,
   cores = NULL,
   ...
 ) {

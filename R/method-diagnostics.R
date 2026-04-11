@@ -118,7 +118,7 @@ setMethod(
 
     # Hessian condition number: kappa(H) = kappa(Sigma_theta)
     eig <- eigen(Sigma_theta, symmetric = TRUE, only.values = TRUE)$values
-    hess_cond <- max(eig) / min(eig)
+    hess_cond <- if (length(eig) > 0) max(eig) / min(eig) else NA_real_
 
     if (type == "global") {
       out <- c(
@@ -132,8 +132,8 @@ setMethod(
         hess_cond = hess_cond,
         vb_applied = as.numeric(vb_applied),
         vb_kld_global = if (vb_applied) vb$kld_global else NA_real_,
-        kld_max = max(vb_kld, na.rm = TRUE),
-        kld_mean = mean(vb_kld, na.rm = TRUE),
+        kld_max = if (all(is.na(vb_kld))) NA_real_ else max(vb_kld, na.rm = TRUE),
+        kld_mean = if (all(is.na(vb_kld))) NA_real_ else mean(vb_kld, na.rm = TRUE),
         nmad_max = if (all(is.na(nmad))) NA_real_ else max(nmad, na.rm = TRUE),
         nmad_mean = if (all(is.na(nmad))) NA_real_ else mean(nmad, na.rm = TRUE)
       )

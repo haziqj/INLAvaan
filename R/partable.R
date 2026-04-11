@@ -143,7 +143,7 @@ inlavaanify_partable <- function(
   dp = priors_for(),
   lavdata,
   lavoptions,
-  use_itp = FALSE
+  use_gcp = FALSE
 ) {
   nlevels <- lavdata@nlevels
   is_multilvl <- nlevels > 1
@@ -225,18 +225,18 @@ inlavaanify_partable <- function(
     pt$group <- NULL
   }
 
-  # --- ITP block setup --------------------------------------------------------
-  # When use_itp = TRUE, identify correlation blocks and switch their
-  # transform from atanh/tanh to identity (ITP handles PD internally).
+  # --- GCP block setup --------------------------------------------------------
+  # When use_gcp = TRUE, identify correlation blocks and switch their
+  # transform from atanh/tanh to identity (GCP handles PD internally).
 
   # FIXME: Perhaps add a 'inlavaan_partable' class to this object
   pt <- as.list(pt)
 
-  attr(pt, "itp_blocks") <- list()
-  if (isTRUE(use_itp)) {
-    attr(pt, "itp_blocks") <- itp_blocks_from_pt(pt)
-    # For each ITP block, override the transform to identity for corr params
-    for (blk in attr(pt, "itp_blocks")) {
+  attr(pt, "gcp_blocks") <- list()
+  if (isTRUE(use_gcp)) {
+    attr(pt, "gcp_blocks") <- gcp_blocks_from_pt(pt)
+    # For each GCP block, override the transform to identity for corr params
+    for (blk in attr(pt, "gcp_blocks")) {
       for (ci in blk$pt_cor_idx) {
         pt$g[[ci]] <- identity
         pt$g_prime[[ci]] <- function(x) 1
@@ -244,9 +244,9 @@ inlavaanify_partable <- function(
         pt$ginv_prime[[ci]] <- function(x) 1
         pt$ginv_prime2[[ci]] <- function(x) 0
         # Recompute starting value: it was atanh(start), now it's just start
-        # (the ITP theta for base=identity is 0, but we keep lavaan start as-is
-        # since they can be non-zero initial correlations mapped to ITP scale)
-        pt$parstart[ci] <- 0  # θ = 0 → C = I under ITP
+        # (the GCP theta for base=identity is 0, but we keep lavaan start as-is
+        # since they can be non-zero initial correlations mapped to GCP scale)
+        pt$parstart[ci] <- 0  # θ = 0 → C = I under GCP
       }
     }
   }

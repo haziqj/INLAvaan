@@ -20,26 +20,26 @@ pars_to_x <- function(theta, pt, compute_jac = TRUE) {
   thidx <- integer(npt)
   thidx[pt$free > 0] <- seq_len(sum(pt$free > 0))
 
-  # --- ITP block processing ---------------------------------------------------
-  # If ITP blocks exist, compute correlation matrices from block theta vectors
+  # --- GCP block processing ---------------------------------------------------
+  # If GCP blocks exist, compute correlation matrices from block theta vectors
   # and overwrite the per-parameter correlation values.
-  itp_blocks <- attr(pt, "itp_blocks")
-  has_itp <- length(itp_blocks) > 0
-  itp_cor_indices <- integer(0)  # track which pt indices are handled by ITP
-  itp_jacs <- list()
+  gcp_blocks <- attr(pt, "gcp_blocks")
+  has_gcp <- length(gcp_blocks) > 0
+  gcp_cor_indices <- integer(0)  # track which pt indices are handled by GCP
+  gcp_jacs <- list()
 
-  if (has_itp) {
-    for (blk_idx in seq_along(itp_blocks)) {
-      blk <- itp_blocks[[blk_idx]]
+  if (has_gcp) {
+    for (blk_idx in seq_along(gcp_blocks)) {
+      blk <- gcp_blocks[[blk_idx]]
       blk_theta <- pars[blk$pt_cor_idx]
 
       if (compute_jac) {
-        res <- itp_with_jac_dense(blk_theta, blk$p, blk$d0,
+        res <- gcp_with_jac_dense(blk_theta, blk$p, blk$d0,
                                   iLtheta = if (!blk$is_dense) blk$iLtheta)
         C_blk <- res$C
-        itp_jacs[[as.character(blk_idx)]] <- res$J
+        gcp_jacs[[as.character(blk_idx)]] <- res$J
       } else {
-        C_blk <- itp_to_corr(blk_theta, blk$p, blk$iLtheta, blk$d0)
+        C_blk <- gcp_to_corr(blk_theta, blk$p, blk$iLtheta, blk$d0)
       }
 
       for (k in seq_along(blk$pt_cor_idx)) {
@@ -51,7 +51,7 @@ pars_to_x <- function(theta, pt, compute_jac = TRUE) {
         x[ci] <- C_blk[i_pos, j_pos]
         xx[ci] <- C_blk[i_pos, j_pos]
       }
-      itp_cor_indices <- c(itp_cor_indices, blk$pt_cor_idx)
+      gcp_cor_indices <- c(gcp_cor_indices, blk$pt_cor_idx)
     }
   }
 
@@ -87,7 +87,7 @@ pars_to_x <- function(theta, pt, compute_jac = TRUE) {
   attr(out, "xcor") <- xx[pt$free > 0L & !duplicated(pt$free)]
   attr(out, "sd1sd2") <- sd1sd2[idxfree]
   attr(out, "jcb_mat") <- jcb_mat
-  attr(out, "itp_blocks") <- itp_blocks
-  attr(out, "itp_jacs") <- itp_jacs
+  attr(out, "gcp_blocks") <- gcp_blocks
+  attr(out, "gcp_jacs") <- gcp_jacs
   out
 }

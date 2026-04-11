@@ -1,13 +1,13 @@
-## Validation: ITP (Inverse Transform Parametrisation) for correlation matrices
-## Tests that the ITP engine and its integration into the INLAvaan pipeline
+## Validation: GCP (Graphical Correlation Parametrisation) for correlation matrices
+## Tests that the GCP engine and its integration into the INLAvaan pipeline
 ## produce valid results, and that CFA estimates match the standard approach.
 ##
 ## Run from the package root:
-##   Rscript -e 'devtools::load_all(); source("inst/validation-tests/validate-itp.R")'
+##   Rscript -e 'devtools::load_all(); source("inst/validation-tests/validate-gcp.R")'
 
 if (!isNamespaceLoaded("INLAvaan")) devtools::load_all(quiet = TRUE)
 
-cat("=== ITP Validation Tests ===\n\n")
+cat("=== GCP Validation Tests ===\n\n")
 pass <- 0L
 fail <- 0L
 
@@ -23,15 +23,15 @@ check <- function(desc, expr) {
 }
 
 # ============================================================================
-# Part 1: Core ITP engine (itp_to_corr)
+# Part 1: Core GCP engine (gcp_to_corr)
 # ============================================================================
-cat("--- Part 1: Core ITP engine ---\n")
+cat("--- Part 1: Core GCP engine ---\n")
 
 # Test 1.1: theta = 0 -> identity matrix
 for (p in 2:6) {
   m <- p * (p - 1L) / 2L
   lt_idx <- which(lower.tri(diag(p)))
-  C <- itp_to_corr(rep(0, m), p, lt_idx, d0 = p:1)
+  C <- gcp_to_corr(rep(0, m), p, lt_idx, d0 = p:1)
   check(
     sprintf("theta=0 -> I_%d", p),
     max(abs(C - diag(p))) < 1e-10
@@ -45,7 +45,7 @@ for (p in c(2, 3, 5)) {
   lt_idx <- which(lower.tri(diag(p)))
   for (trial in 1:20) {
     theta <- rnorm(m, sd = 2)
-    C <- itp_to_corr(theta, p, lt_idx, d0 = p:1)
+    C <- gcp_to_corr(theta, p, lt_idx, d0 = p:1)
 
     check(
       sprintf("p=%d trial=%d: unit diagonal", p, trial),
@@ -81,7 +81,7 @@ p <- 4
 # Lower triangle positions (col-major): (2,1)=2, (3,2)=7, (4,3)=12
 iLtheta_sparse <- c(2L, 7L, 12L)
 theta_sparse <- c(0.5, -0.3, 0.2)
-C_sparse <- itp_to_corr(theta_sparse, p, iLtheta_sparse, d0 = 4:1)
+C_sparse <- gcp_to_corr(theta_sparse, p, iLtheta_sparse, d0 = 4:1)
 
 check("sparse p=4: unit diagonal", max(abs(diag(C_sparse) - 1)) < 1e-10)
 check("sparse p=4: symmetric", max(abs(C_sparse - t(C_sparse))) < 1e-12)
@@ -100,7 +100,7 @@ cat("\n--- Part 2: Jacobian ---\n")
 for (p in c(2, 3, 4)) {
   m <- p * (p - 1L) / 2L
   lt_idx <- which(lower.tri(diag(p)))
-  J <- itp_jac_corr(rep(0, m), p, lt_idx, d0 = p:1)
+  J <- gcp_jac_corr(rep(0, m), p, lt_idx, d0 = p:1)
   check(
     sprintf("p=%d: Jacobian at theta=0 is %d x %d", p, nrow(J), ncol(J)),
     nrow(J) == m && ncol(J) == m
@@ -112,16 +112,16 @@ for (p in c(2, 3, 4)) {
   )
 }
 
-# Test 2.2: Jacobian at random theta matches finite differences of itp_to_corr
+# Test 2.2: Jacobian at random theta matches finite differences of gcp_to_corr
 set.seed(123)
 p <- 3
 m <- 3L
 lt_idx <- which(lower.tri(diag(p)))
 theta0 <- rnorm(m, sd = 0.5)
-J <- itp_jac_corr(theta0, p, lt_idx, d0 = p:1, h = 1e-6)
+J <- gcp_jac_corr(theta0, p, lt_idx, d0 = p:1, h = 1e-6)
 
 # Verify against a second-order finite difference with different h
-J2 <- itp_jac_corr(theta0, p, lt_idx, d0 = p:1, h = 1e-4)
+J2 <- gcp_jac_corr(theta0, p, lt_idx, d0 = p:1, h = 1e-4)
 check(
   sprintf(
     "p=3: Jacobian consistent across step sizes (max diff = %.2e)",
@@ -131,7 +131,7 @@ check(
 )
 
 # ============================================================================
-# Part 3: ITP block extraction from parameter table
+# Part 3: GCP block extraction from parameter table
 # ============================================================================
 cat("\n--- Part 3: Block extraction from parameter table ---\n")
 
@@ -148,19 +148,19 @@ pt_std <- inlavaanify_partable(
   lavaan::parTable(fit_lav),
   lavdata = fit_lav@Data,
   lavoptions = fit_lav@Options,
-  use_itp = TRUE
+  use_gcp = TRUE
 )
 
-check("ITP blocks created (non-empty)", length(pt_std$itp_blocks) > 0)
+check("GCP blocks created (non-empty)", length(pt_std$gcp_blocks) > 0)
 
 # There should be exactly one psi block (factor covariances)
-blk1 <- pt_std$itp_blocks[[1]]
+blk1 <- pt_std$gcp_blocks[[1]]
 check(
   sprintf("Block 1: p = %d, %d free params", blk1$p, length(blk1$iLtheta)),
   blk1$p == 2L && length(blk1$iLtheta) == 1L
 )
 
-# Check that ITP correlation params have identity transform
+# Check that GCP correlation params have identity transform
 for (ci in blk1$pt_cor_idx) {
   check(
     sprintf("pt_cor_idx %d: ginv is identity", ci),
@@ -173,15 +173,15 @@ for (ci in blk1$pt_cor_idx) {
 }
 
 # ============================================================================
-# Part 4: Prior cache setup (trans_type = 3 for ITP params)
+# Part 4: Prior cache setup (trans_type = 3 for GCP params)
 # ============================================================================
 cat("\n--- Part 4: Prior cache ---\n")
 
 cache <- prepare_priors_for_optim(pt_std)
-itp_idx <- which(cache$trans_type == 3L)
-check("ITP params have trans_type = 3", length(itp_idx) > 0)
+gcp_idx <- which(cache$trans_type == 3L)
+check("GCP params have trans_type = 3", length(gcp_idx) > 0)
 
-# Non-ITP variance params should still have trans_type = 1
+# Non-GCP variance params should still have trans_type = 1
 exp_idx <- which(cache$trans_type == 1L)
 check("Variance params still have trans_type = 1", length(exp_idx) > 0)
 
@@ -216,16 +216,16 @@ grad <- prior_grad_vectorized(theta0, cache)
 check(
   sprintf("prior_grad at theta=0: length = %d", length(grad)),
   length(grad) ==
-    length(itp_idx) +
+    length(gcp_idx) +
       length(exp_idx) +
       length(which(cache$trans_type == 0L)) +
       length(which(cache$trans_type == 2L))
 )
 check("prior_grad at theta=0: all finite", all(is.finite(grad)))
 
-# Verify ITP gradient entries against manual central differences
+# Verify GCP gradient entries against manual central differences
 h <- 1e-5
-for (ii in itp_idx) {
+for (ii in gcp_idx) {
   fid <- cache$free_id[ii]
   tp <- tm <- theta0
   tp[fid] <- theta0[fid] + h
@@ -235,7 +235,7 @@ for (ii in itp_idx) {
     (2 * h)
   check(
     sprintf(
-      "ITP grad[%d] pipeline vs manual FD: diff = %.2e",
+      "GCP grad[%d] pipeline vs manual FD: diff = %.2e",
       ii,
       abs(grad[ii] - fd_grad)
     ),
@@ -252,27 +252,27 @@ cat("\n--- Part 7: pars_to_x ---\n")
 x0 <- pars_to_x(theta0, pt_std)
 xcor0 <- attr(x0, "xcor")
 
-# Find which free params correspond to ITP correlation
-itp_free_ids <- pt_std$free[blk1$pt_cor_idx]
-for (fid in itp_free_ids) {
+# Find which free params correspond to GCP correlation
+gcp_free_ids <- pt_std$free[blk1$pt_cor_idx]
+for (fid in gcp_free_ids) {
   check(
-    sprintf("pars_to_x: ITP free_id %d maps to rho near 0 at theta=0", fid),
+    sprintf("pars_to_x: GCP free_id %d maps to rho near 0 at theta=0", fid),
     abs(xcor0[fid]) < 1e-10
   )
 }
 
-# At random theta, ITP correlation should be in [-1, 1]
+# At random theta, GCP correlation should be in [-1, 1]
 x_rnd <- pars_to_x(theta_rnd, pt_std)
 xcor_rnd <- attr(x_rnd, "xcor")
-for (fid in itp_free_ids) {
+for (fid in gcp_free_ids) {
   check(
-    sprintf("pars_to_x: ITP free_id %d -> rho in [-1,1] at random theta", fid),
+    sprintf("pars_to_x: GCP free_id %d -> rho in [-1,1] at random theta", fid),
     xcor_rnd[fid] >= -1 && xcor_rnd[fid] <= 1
   )
 }
 
 # ============================================================================
-# Part 8: Full model fit — CFA with ITP vs standard
+# Part 8: Full model fit — CFA with GCP vs standard
 # ============================================================================
 cat("\n--- Part 8: Full CFA model fit ---\n")
 
@@ -292,31 +292,31 @@ fit_std <- tryCatch(
   }
 )
 
-cat("Fitting ITP CFA (use_itp = TRUE)...\n")
-fit_itp <- tryCatch(
+cat("Fitting GCP CFA (use_gcp = TRUE)...\n")
+fit_gcp <- tryCatch(
   inlavaan(mod_hs, data = lavaan::HolzingerSwineford1939,
            std.lv = TRUE, nsamp = 100, verbose = FALSE,
-           model.type = "cfa", use_itp = TRUE),
+           model.type = "cfa", use_gcp = TRUE),
   error = function(e) {
     cat("  Error:", conditionMessage(e), "\n")
     NULL
   }
 )
 
-if (!is.null(fit_std) && !is.null(fit_itp)) {
+if (!is.null(fit_std) && !is.null(fit_gcp)) {
   # Compare parameter estimates
   est_std <- lavaan::coef(fit_std)
-  est_itp <- lavaan::coef(fit_itp)
+  est_gcp <- lavaan::coef(fit_gcp)
 
   # They should share the same parameter names
-  shared <- intersect(names(est_std), names(est_itp))
+  shared <- intersect(names(est_std), names(est_gcp))
   check(
     sprintf("Same parameter names: %d shared", length(shared)),
     length(shared) == length(est_std)
   )
 
   if (length(shared) > 0) {
-    max_diff <- max(abs(est_std[shared] - est_itp[shared]))
+    max_diff <- max(abs(est_std[shared] - est_gcp[shared]))
     cat(sprintf("  Max absolute difference in estimates: %.6f\n", max_diff))
     check(
       sprintf("Estimates close (max diff = %.4f)", max_diff),
@@ -325,18 +325,18 @@ if (!is.null(fit_std) && !is.null(fit_itp)) {
 
     # Compare log-likelihoods
     ll_std <- tryCatch(as.numeric(lavaan::logLik(fit_std)), error = function(e) NA_real_)
-    ll_itp <- tryCatch(as.numeric(lavaan::logLik(fit_itp)), error = function(e) NA_real_)
-    if (!is.na(ll_std) && !is.na(ll_itp)) {
-      ll_diff <- abs(ll_std - ll_itp)
+    ll_gcp <- tryCatch(as.numeric(lavaan::logLik(fit_gcp)), error = function(e) NA_real_)
+    if (!is.na(ll_std) && !is.na(ll_gcp)) {
+      ll_diff <- abs(ll_std - ll_gcp)
       cat(sprintf("  Log-likelihood diff: %.6f\n", ll_diff))
       check(
         sprintf("Log-likelihoods close (diff = %.4f)", ll_diff),
         ll_diff < 1.0
       )
     } else {
-      cat(sprintf("  Log-likelihoods: std=%.4f, itp=%.4f (comparison skipped)\n",
+      cat(sprintf("  Log-likelihoods: std=%.4f, gcp=%.4f (comparison skipped)\n",
                   ifelse(is.na(ll_std), NA, ll_std),
-                  ifelse(is.na(ll_itp), NA, ll_itp)))
+                  ifelse(is.na(ll_gcp), NA, ll_gcp)))
     }
   }
 } else {
@@ -344,7 +344,7 @@ if (!is.null(fit_std) && !is.null(fit_itp)) {
   if (is.null(fit_std)) {
     fail <- fail + 1L
   }
-  if (is.null(fit_itp)) fail <- fail + 1L
+  if (is.null(fit_gcp)) fail <- fail + 1L
 }
 
 # ============================================================================

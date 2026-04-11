@@ -8,22 +8,22 @@ prepare_priors_for_optim <- function(pt) {
   # Initialize storage vectors (length of RELEVANT priors only)
   n <- length(idx)
 
-  # A. Transformation Codes (0=Identity, 1=Exp/Log, 2=Tanh/Atanh, 3=ITP)
+  # A. Transformation Codes (0=Identity, 1=Exp/Log, 2=Tanh/Atanh, 3=GCP)
   # Derived from your partable_transform_funcs logic
   trans_type <- integer(n) # Default 0 (Identity)
 
   # Check the 'mat' column for transformation types
-  # (theta_var/psi_var -> Exp; theta_cor/psi_cor -> Tanh or ITP)
+  # (theta_var/psi_var -> Exp; theta_cor/psi_cor -> Tanh or GCP)
   mat_vals <- pt$mat[idx]
   trans_type[grepl("theta_var|psi_var", mat_vals)] <- 1L
   trans_type[grepl("theta_cor|theta_cov|psi_cor|psi_cov", mat_vals)] <- 2L
 
-  # Override to ITP (type 3) for parameters handled by ITP blocks
-  itp_blocks <- attr(pt, "itp_blocks")
-  if (length(itp_blocks) > 0) {
-    itp_all_cor_idx <- unlist(lapply(itp_blocks, `[[`, "pt_cor_idx"))
-    is_itp <- idx %in% itp_all_cor_idx
-    trans_type[is_itp] <- 3L
+  # Override to GCP (type 3) for parameters handled by GCP blocks
+  gcp_blocks <- attr(pt, "gcp_blocks")
+  if (length(gcp_blocks) > 0) {
+    gcp_all_cor_idx <- unlist(lapply(gcp_blocks, `[[`, "pt_cor_idx"))
+    is_gcp <- idx %in% gcp_all_cor_idx
+    trans_type[is_gcp] <- 3L
   }
 
   # B. Prior Codes and Hyperparameters
@@ -81,15 +81,15 @@ prepare_priors_for_optim <- function(pt) {
     parname = pt$names[idx], # Just for names(theta)
     idx_in_pt = idx, # Indices in original pt
     free_id = pt$free[idx], # Which theta index this corresponds to
-    trans_type = trans_type, # 0=Id, 1=Exp, 2=Tanh, 3=ITP
+    trans_type = trans_type, # 0=Id, 1=Exp, 2=Tanh, 3=GCP
     prior_type = prior_type, # 1=Norm, 2=Gam, 3=Beta
     p1 = p1,
     p2 = p2,
     is_sd_prior = is_sd_prior,
     is_prec_prior = is_prec_prior,
     prior_names = raw_priors, # Just for names(grad)
-    itp_blocks = if (length(itp_blocks) > 0) itp_blocks else NULL,
-    pt = pt,  # needed for ITP to look up lhs/rhs/var_names
+    gcp_blocks = if (length(gcp_blocks) > 0) gcp_blocks else NULL,
+    pt = pt,  # needed for GCP to look up lhs/rhs/var_names
     .logdetJ_cache = new.env(parent = emptyenv())
   )
 }
@@ -112,7 +112,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
     dx_dth[idx_exp] <- ex
   }
 
-  # B. Tanh (Atanh-link) - e.g., Correlations (non-ITP)
+  # B. Tanh (Atanh-link) - e.g., Correlations (non-GCP)
   idx_tanh <- which(cache$trans_type == 2L)
   if (length(idx_tanh) > 0) {
     # Replicating your safe_tanh logic roughly, or use standard tanh
@@ -125,25 +125,25 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
     dx_dth[idx_tanh] <- safe_scale * (1 - t_val^2)
   }
 
-  # C. ITP (Type 3) - Correlations via block ITP map
-  idx_itp <- which(cache$trans_type == 3L)
-  itp_J_cache <- list()  # cache Jacobians for section 5
-  if (length(idx_itp) > 0 && !is.null(cache$itp_blocks)) {
+  # C. GCP (Type 3) - Correlations via block GCP map
+  idx_gcp <- which(cache$trans_type == 3L)
+  gcp_J_cache <- list()  # cache Jacobians for section 5
+  if (length(idx_gcp) > 0 && !is.null(cache$gcp_blocks)) {
     pt <- cache$pt
-    for (blk_i in seq_along(cache$itp_blocks)) {
-      blk <- cache$itp_blocks[[blk_i]]
+    for (blk_i in seq_along(cache$gcp_blocks)) {
+      blk <- cache$gcp_blocks[[blk_i]]
       # Get the free_id (theta index) for this block's correlation params
       blk_free_ids <- pt$free[blk$pt_cor_idx]
       # Extract the current theta values for this block
       blk_theta <- theta[blk_free_ids]
       # Compute correlation matrix and Jacobian in one pass
-      res <- itp_with_jac_dense(blk_theta, blk$p, blk$d0,
+      res <- gcp_with_jac_dense(blk_theta, blk$p, blk$d0,
                                 iLtheta = if (!blk$is_dense) blk$iLtheta)
       C_blk <- res$C
-      itp_J_cache[[blk_i]] <- res$J
+      gcp_J_cache[[blk_i]] <- res$J
 
       # For each param in this block, find its position in the cache and
-      # set xval to the ITP-derived correlation
+      # set xval to the GCP-derived correlation
       for (k in seq_along(blk$pt_cor_idx)) {
         ci <- blk$pt_cor_idx[k]
         # Find this pt index in cache$idx_in_pt
@@ -276,14 +276,14 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   # log|J| + log(dens)
   ljcb <- log(abs(dx_dth))
 
-  # ITP block Jacobian correction: for ITP params, the per-parameter
+  # GCP block Jacobian correction: for GCP params, the per-parameter
   # dx_dth = 1 (placeholder), so ljcb = 0. We add the block log|det(dC/dtheta)|
-  # which accounts for the full ITP transformation Jacobian.
-  if (length(idx_itp) > 0 && !is.null(cache$itp_blocks)) {
-    for (blk_i in seq_along(cache$itp_blocks)) {
-      blk <- cache$itp_blocks[[blk_i]]
+  # which accounts for the full GCP transformation Jacobian.
+  if (length(idx_gcp) > 0 && !is.null(cache$gcp_blocks)) {
+    for (blk_i in seq_along(cache$gcp_blocks)) {
+      blk <- cache$gcp_blocks[[blk_i]]
       # Reuse cached Jacobian from section C
-      J_blk <- itp_J_cache[[blk_i]]
+      J_blk <- gcp_J_cache[[blk_i]]
 
       # The Jacobian J_blk is now always m_blk x m_blk
       log_abs_det_J <- log(abs(det(J_blk)))
@@ -295,7 +295,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
         if (length(cache_pos) == 1L) ljcb[cache_pos] <- 0
       }
       # Add the block log-Jacobian once (distributed is wrong; it's a joint correction)
-      # We add it to the first ITP param in this block
+      # We add it to the first GCP param in this block
       first_ci <- blk$pt_cor_idx[1]
       first_cache_pos <- which(cache$idx_in_pt == first_ci)
       if (length(first_cache_pos) == 1L) {
@@ -475,23 +475,23 @@ prior_grad_vectorized <- function(theta, cache) {
   # 4. Chain Rule Assembly
   grad <- dlp_dx * dx_dth + ddx_dth2 / dx_dth + jac_extra
 
-  # Override ITP parameter gradients.
+  # Override GCP parameter gradients.
   # We use a hybrid approach: analytical for the rho-prior part,
   # and numerical for the log|det J| part.
-  # The log|det J| gradient is expensive (2k calls to itp_with_jac_dense per
-  # block) but varies slowly with theta.  We cache it and reuse when the ITP
+  # The log|det J| gradient is expensive (2k calls to gcp_with_jac_dense per
+  # block) but varies slowly with theta.  We cache it and reuse when the GCP
   # parameters haven't changed by more than a tolerance.  This is safe because:
   #   (a) during optimization, theta changes enough to invalidate the cache;
   #   (b) during gamma1 FD, the ~64 evaluations per parameter differ by O(1e-5)
   #       in theta, so the cache hits and the constant shift cancels in the
   #       central difference.
-  idx_itp <- which(cache$trans_type == 3L)
-  if (length(idx_itp) > 0 && !is.null(cache$itp_blocks)) {
+  idx_gcp <- which(cache$trans_type == 3L)
+  if (length(idx_gcp) > 0 && !is.null(cache$gcp_blocks)) {
     h <- 1e-5
     cache_env <- cache$.logdetJ_cache
 
-    for (blk_idx in seq_along(cache$itp_blocks)) {
-      blk <- cache$itp_blocks[[blk_idx]]
+    for (blk_idx in seq_along(cache$gcp_blocks)) {
+      blk <- cache$gcp_blocks[[blk_idx]]
 
       # 1. Identify theta indices for this block
       blk_theta_idx <- which(cache$idx_in_pt %in% blk$pt_cor_idx)
@@ -510,13 +510,13 @@ prior_grad_vectorized <- function(theta, cache) {
         grad_logdetJ <- cached$grad_logdetJ
       } else {
         # Cache miss: full recompute
-        res <- itp_with_jac_dense(blk_theta, blk$p, blk$d0,
+        res <- gcp_with_jac_dense(blk_theta, blk$p, blk$d0,
                                   iLtheta = blk_iLtheta)
         C_blk <- res$C
         J_blk <- res$J
 
         get_logdetJ <- function(th) {
-          J <- itp_with_jac_dense(th, blk$p, blk$d0,
+          J <- gcp_with_jac_dense(th, blk$p, blk$d0,
                                   iLtheta = blk_iLtheta)$J
           log(abs(det(J)))
         }
