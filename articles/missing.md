@@ -39,24 +39,23 @@ datmiss[datmiss == 0] <- NA
 ``` r
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [152ms]
+#> ✔ Finding posterior mode. [137ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [171ms]
+#> ✔ Computing the Hessian. [151ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [526ms]
+#> ✔ VB correction; mean |δ| = 0.222σ. [472ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 20/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.4s]
+#> ⠹ Fitting 24/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [381ms]
+#> ✔ Adjusting copula correlations (NORTA). [342ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [918ms]
+#> ✔ Posterior sampling and summarising. [805ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -96,25 +95,23 @@ coef(fit1)
 ``` r
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [270ms]
+#> ✔ Finding posterior mode. [250ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [259ms]
+#> ✔ Computing the Hessian. [234ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [582ms]
+#> ✔ VB correction; mean |δ| = 0.160σ. [501ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 11/42 skew-normal marginals.
-#> ⠸ Fitting 33/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.7s]
+#> ⠹ Fitting 18/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [5.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [459ms]
+#> ✔ Adjusting copula correlations (NORTA). [418ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.5s]
+#> ✔ Posterior sampling and summarising. [1.3s]
 #> 
 print(fit2)
 #> INLAvaan 0.2.4.9001 ended normally after 93 iterations
