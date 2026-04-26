@@ -23,29 +23,13 @@ gcp_fill_chol <- function(L) {
   p <- nrow(L)
   if (p <= 2L) return(L)
 
-  # Identify fill-in positions: zero in L but non-zero in chol(LL')
-  # Use the Cholesky of the graph Laplacian + I to find the pattern
-  graph_nz <- (L != 0)
-  # Compute actual Cholesky to discover fill-in pattern
-  Q_test <- L %*% t(L)
-  L_full <- t(chol(Q_test))
-  fill_pos <- which(L == 0 & L_full != 0 & lower.tri(L))
-
-  if (length(fill_pos) == 0L) return(L)
-
-  # Sort by column then row (required for forward substitution)
-  rc <- arrayInd(fill_pos, .dim = c(p, p))
-  ord <- order(rc[, 2], rc[, 1])
-  fill_pos <- fill_pos[ord]
-  rc <- rc[ord, , drop = FALSE]
-
-  for (v in seq_len(nrow(rc))) {
-    i <- rc[v, 1]
-    j <- rc[v, 2]
-    if (j == 1L) {
-      L[i, j] <- 0
-    } else {
-      k <- seq_len(j - 1L)
+  for (j in seq_len(p - 1L)) {
+    if (j == 1L) next
+    k <- seq_len(j - 1L)
+    for (i in seq.int(j + 1L, p)) {
+      if (L[i, j] != 0) next
+      # Structural fill-in occurs only when previous columns connect rows i and j.
+      if (!any(L[i, k] != 0 & L[j, k] != 0)) next
       L[i, j] <- -sum(L[i, k] * L[j, k]) / L[j, j]
     }
   }
@@ -112,12 +96,14 @@ gcp_jac_corr <- function(theta, p, iLtheta, d0 = p:1, h = 1e-5) {
 #'   - J: The m x m Jacobian matrix d rho / d theta.
 #' @keywords internal
 gcp_with_jac_dense <- function(theta, p, d0 = p:1, iLtheta = NULL) {
-  L <- diag(d0)
-  if (is.null(iLtheta)) {
-    lt_idx <- which(lower.tri(diag(p)))
-  } else {
-    lt_idx <- iLtheta
+  if (!is.null(iLtheta)) {
+    C <- gcp_to_corr(theta, p, iLtheta, d0 = d0)
+    J <- gcp_jac_corr(theta, p, iLtheta, d0 = d0)
+    return(list(C = C, J = J))
   }
+
+  L <- diag(d0)
+  lt_idx <- which(lower.tri(diag(p)))
   L[lt_idx] <- theta
 
   Q <- tcrossprod(L)       # L %*% t(L)
@@ -270,4 +256,23 @@ gcp_blocks_from_pt <- function(pt) {
     }
   }
   blocks
+}
+
+gcp_native_blocks_from_pt <- function(pt) {
+  blocks <- attr(pt, "gcp_blocks")
+  if (length(blocks) == 0L) return(list())
+
+  lapply(blocks, function(blk) {
+    row_idx <- ((blk$iLtheta - 1L) %% blk$p) + 1L
+    col_idx <- ((blk$iLtheta - 1L) %/% blk$p) + 1L
+    list(
+      p = blk$p,
+      theta_idx = pt$free[blk$pt_cor_idx],
+      row_idx = row_idx,
+      col_idx = col_idx,
+      iLtheta = blk$iLtheta,
+      d0 = blk$d0,
+      is_dense = blk$is_dense
+    )
+  })
 }

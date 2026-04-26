@@ -42,19 +42,21 @@ compute_chisq_dev <- function(
   lavsamplestats,
   lavdata,
   lavoptions,
-  lavcache
+  lavcache,
+  native_backend = NULL
 ) {
   loglik_sat <- compute_loglik_sat(lavsamplestats, lavdata)
   vapply(
     seq_len(nrow(x_samp)),
     function(i) {
-      ll_i <- inlav_model_loglik(
+      ll_i <- model_loglik_dispatch(
         x_samp[i, ],
         lavmodel,
         lavsamplestats,
         lavdata,
         lavoptions,
-        lavcache
+        lavcache,
+        native_backend = native_backend
       )
       2 * (loglik_sat - ll_i)
     },
@@ -99,8 +101,8 @@ compute_BNFI <- function(adj_dev, adj_dev_null) {
   (adj_dev_null - adj_dev) / adj_dev_null
 }
 
-# Reconstruct lavoptions suitable for inlav_model_loglik() from the INLAvaan
-# object (whose @Options$estimator was changed to "Bayes").
+# Reconstruct lavoptions suitable for model log-likelihood evaluation from the
+# INLAvaan object (whose @Options$estimator was changed to "Bayes").
 reconstruct_lavoptions <- function(object) {
   opts <- object@Options
   opts$estimator <- object@external$inlavaan_internal$lavmodel@estimator
@@ -120,6 +122,7 @@ compute_rescaled_quantities <- function(
   lavdata,
   lavoptions,
   lavcache,
+  native_backend,
   p,
   rescale
 ) {
@@ -133,12 +136,13 @@ compute_rescaled_quantities <- function(
     lavsamplestats,
     lavdata,
     lavoptions,
-    lavcache
+    lavcache,
+    native_backend = native_backend
   )
 
   if (rescale == "devM") {
     pD <- object@external$inlavaan_internal$DIC$pD
-    if (is.null(pD) || pD <= 0 || pD >= p) {
+    if (is.null(pD) || is.na(pD) || pD <= 0 || pD >= p) {
       pD <- npar
     } # nocov
     adj_dev <- chisq_dev - pD # obs - reps
@@ -248,7 +252,11 @@ bfit_indices <- function(
     pt = int$partable,
     lavmodel = lavmodel,
     nsamp = nsamp,
-    R_star = int$R_star
+    R_star = int$R_star,
+    integration_data = int$inla_integration %||% NULL,
+    native_theta_transforms = int$native_theta_transforms %||% NULL,
+    cov_var_idx1 = int$cov_var_idx1 %||% NULL,
+    cov_var_idx2 = int$cov_var_idx2 %||% NULL
   )
   x_samp <- samp$x_samp
 
@@ -277,6 +285,7 @@ bfit_indices <- function(
     lavdata,
     lavoptions,
     lavcache,
+    int$native_backend,
     p,
     rescale
   )
@@ -307,7 +316,11 @@ bfit_indices <- function(
       pt = bint$partable,
       lavmodel = bint$lavmodel,
       nsamp = nsamp,
-      R_star = bint$R_star
+      R_star = bint$R_star,
+      integration_data = bint$inla_integration %||% NULL,
+      native_theta_transforms = bint$native_theta_transforms %||% NULL,
+      cov_var_idx1 = bint$cov_var_idx1 %||% NULL,
+      cov_var_idx2 = bint$cov_var_idx2 %||% NULL
     )
     x_samp_null <- samp_null$x_samp
     n_use <- min(nrow(x_samp), nrow(x_samp_null))
@@ -320,6 +333,7 @@ bfit_indices <- function(
       bint$lavdata,
       reconstruct_lavoptions(baseline.model),
       baseline.model@Cache,
+      bint$native_backend,
       p,
       rescale
     )

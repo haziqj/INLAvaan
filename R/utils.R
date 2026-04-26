@@ -9,6 +9,47 @@ cli_messages <- c(
   "Navigating the seas of stochasticity"
 )
 
+inlavaan_force_r_path <- function() {
+  backend_opt <- getOption("inlavaan.backend", NULL)
+  backend_opt <- if (length(backend_opt) > 0L) {
+    tolower(trimws(as.character(backend_opt[[1L]])))
+  } else {
+    NULL
+  }
+
+  isTRUE(getOption("inlavaan.force_r_path", FALSE)) ||
+    identical(backend_opt, "r")
+}
+
+inlavaan_can_use_native_backend <- function(lavdata = NULL, lavsamplestats = NULL) {
+  if (inlavaan_force_r_path()) {
+    return(FALSE)
+  }
+
+  if (!is.null(lavdata) && !is.null(lavdata@nlevels) && lavdata@nlevels > 2L) {
+    return(FALSE)
+  }
+
+  if (!is.null(lavdata) && !is.null(lavdata@nlevels) && lavdata@nlevels > 1L &&
+      !is.null(lavsamplestats) && isTRUE(lavsamplestats@missing.flag)) {
+    return(FALSE)
+  }
+
+  TRUE
+}
+
+inlavaan_require_native_backend <- function(native_backend, what = "This model") {
+  if (!is.null(native_backend) || inlavaan_force_r_path()) {
+    return(invisible(TRUE))
+  }
+
+  cli_abort(paste(
+    what,
+    "requires the native C++ backend by default, but no native backend is available for the current configuration.",
+    "Set `options(inlavaan.backend = \"r\")` or `options(inlavaan.force_r_path = TRUE)` to use the R path explicitly."
+  ))
+}
+
 # Moore-Penrose pseudoinverse (replaces MASS::ginv, uses only base svd)
 ginv_base <- function(X, tol = sqrt(.Machine$double.eps)) {
   s <- svd(X)
@@ -60,7 +101,8 @@ is_bad_cov <- function(mat) {
 # Nearest PD via eigenvalue clamping
 make_pd <- function(X, tol = 1e-8) {
   e <- eigen(X, symmetric = TRUE)
-  vals <- pmax(e$values, tol * max(e$values))
+  scale0 <- max(abs(e$values), 1)
+  vals <- pmax(e$values, tol * scale0)
   e$vectors %*% (vals * t(e$vectors))
 }
 
@@ -203,4 +245,38 @@ run_parallel_or_serial <- function(m, FUN, cores = 1L, verbose = FALSE,
     }
   }
   results
+}
+
+.detect_cores_cache <- local({
+  cache <- new.env(parent = emptyenv())
+  cache$val <- NULL
+  function() {
+    if (is.null(cache$val)) {
+      cache$val <- parallel::detectCores()
+    }
+    cache$val
+  }
+})
+
+with_safe_detectCores <- function(expr) {
+  ncpu <- .detect_cores_cache()
+  if (!is.na(ncpu)) {
+    return(force(expr))
+  }
+
+  parallel_ns <- asNamespace("parallel")
+  orig_detectCores <- get("detectCores", envir = parallel_ns)
+  unlockBinding("detectCores", parallel_ns)
+  assign(
+    "detectCores",
+    function(all.tests = FALSE, logical = TRUE) 2L,
+    envir = parallel_ns
+  )
+  lockBinding("detectCores", parallel_ns)
+  on.exit({
+    unlockBinding("detectCores", parallel_ns)
+    assign("detectCores", orig_detectCores, envir = parallel_ns)
+    lockBinding("detectCores", parallel_ns)
+  }, add = TRUE)
+  force(expr)
 }

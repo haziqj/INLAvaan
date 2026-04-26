@@ -89,6 +89,33 @@ test_that("bfit_indices returns correct S3 class", {
   expect_true(is.list(bfi$details))
 })
 
+test_that("Bayesian fit indices stay on the native backend when available", {
+  int <- fit_test@external$inlavaan_internal
+  expect_false(is.null(int$native_backend))
+
+  lavoptions <- reconstruct_lavoptions(fit_test)
+  chisq_native <- compute_chisq_dev(
+    x_samp = sample_params(
+      theta_star = int$theta_star,
+      Sigma_theta = int$Sigma_theta,
+      method = int$marginal_method,
+      approx_data = int$approx_data,
+      pt = int$partable,
+      lavmodel = int$lavmodel,
+      nsamp = 4L,
+      R_star = int$R_star
+    )$x_samp,
+    lavmodel = int$lavmodel,
+    lavsamplestats = int$lavsamplestats,
+    lavdata = int$lavdata,
+    lavoptions = lavoptions,
+    lavcache = fit_test@Cache,
+    native_backend = int$native_backend
+  )
+  expect_true(all(is.finite(chisq_native)))
+  expect_true(all(chisq_native >= 0))
+})
+
 test_that("bfit_indices stores per-sample vectors", {
   bfi <- bfit_indices(fit_test)
   for (nm in names(bfi$indices)) {

@@ -1,0 +1,4 @@
+# Enable OpenMP via Homebrew libomp on macOS (clang)
+LIBOMP_PREFIX = $(shell brew --prefix libomp 2>/dev/null || echo /opt/homebrew/opt/libomp)
+PKG_CXXFLAGS = -Xclang -fopenmp -I$(LIBOMP_PREFIX)/include
+PKG_LIBS     = -L$(LIBOMP_PREFIX)/lib -lomp -L/opt/homebrew/opt/openblas/lib -lopenblas -lpthread
