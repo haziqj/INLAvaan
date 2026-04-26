@@ -1,6 +1,25 @@
 # All functions here compute summaries and also table of (x, f(x)) values for
 # plotting of the jth component parameter's posterior marginal
 
+finite_support_interval <- function(x, fallback = c(-1, 1)) {
+  xf <- x[is.finite(x)]
+  if (length(xf) < 2L) {
+    return(fallback)
+  }
+  rng <- range(xf)
+  if (!all(is.finite(rng)) || rng[1] >= rng[2]) {
+    return(fallback)
+  }
+  rng
+}
+
+safe_sd_from_var <- function(vx) {
+  if (!is.finite(vx)) {
+    return(NA_real_)
+  }
+  sqrt(max(vx, 0))
+}
+
 ## ----- Two-piece asymmetric Gaussian -----------------------------------------
 # Product factor log-pdf
 prodfac_lp <- function(z, sigma_asym) {
@@ -81,10 +100,14 @@ post_marg_asymgaus <- function(
   fx <- fx / C
   Ex <- sum(ymid * fmid * dx) / C
   Vx <- sum(ymid^2 * fmid * dx) / C - Ex^2
-  SDx <- sqrt(Vx)
+  SDx <- safe_sd_from_var(Vx)
 
   # Posterior mode
-  xmax <- stats::optimize(fj_orig, interval = range(x), maximum = TRUE)$maximum
+  xmax <- stats::optimize(
+    fj_orig,
+    interval = finite_support_interval(x, range(tt)),
+    maximum = TRUE
+  )$maximum
 
   # Build CDF
   Fx <- c(0, cumsum(fmid * dx))
@@ -100,6 +123,18 @@ post_marg_asymgaus <- function(
     pdf_data = data.frame(x = x, y = fx)
   )
 }
+
+# Cache GH nodes for reuse across all post_marg_skewnorm calls
+.gh61_cache <- local({
+  cache <- new.env(parent = emptyenv())
+  cache$val <- NULL
+  function() {
+    if (is.null(cache$val)) {
+      cache$val <- .gauss_hermite(61)
+    }
+    cache$val
+  }
+})
 
 # Skew normal approximations
 post_marg_skewnorm <- function(
@@ -132,15 +167,15 @@ post_marg_skewnorm <- function(
   C <- sum(fmid * dx)
   fx <- fx / C
 
-  # Compute mean and variance using GH quadrature
-  quad <- .gauss_hermite(61)
+  # Compute mean and variance using GH quadrature (nodes cached)
+  quad <- .gh61_cache()
   nodes <- quad$nodes * sqrt(2)
   weights <- quad$weights / sqrt(pi)
   ginvz <- ginv(xi + omega * nodes)
   Ex <- 2 * sum(weights * ginvz * pnorm(alpha * nodes))
   Exsq <- 2 * sum(weights * (ginvz^2) * pnorm(alpha * nodes))
   Vx <- Exsq - Ex^2
-  SDx <- sqrt(Vx)
+  SDx <- safe_sd_from_var(Vx)
 
   # Compute quantiles
   qq <- ginv(qsnorm_fast(
@@ -151,7 +186,11 @@ post_marg_skewnorm <- function(
   ))
 
   # Compute mode
-  xmax <- optimize(fj_orig, interval = range(x), maximum = TRUE)$maximum
+  xmax <- optimize(
+    fj_orig,
+    interval = finite_support_interval(x, range(tt)),
+    maximum = TRUE
+  )$maximum
 
   # Combine results
   res <- c(Ex, SDx, qq, xmax)
@@ -199,7 +238,11 @@ post_marg_marggaus <- function(
   fx <- fx / C
 
   # Compute mode
-  xmax <- optimize(fj_orig, interval = range(x), maximum = TRUE)$maximum
+  xmax <- optimize(
+    fj_orig,
+    interval = finite_support_interval(x, range(tt)),
+    maximum = TRUE
+  )$maximum
 
   # Combine results
   res <- c(x_mean, x_sd, qq, xmax)

@@ -6,9 +6,109 @@ utils::globalVariables(c(
   "x",
   "y",
   "JS_percent",
-  "metric"
+  "metric",
+  "lhs",
+  "op",
+  "rhs"
 ))
 
+compare_mcmc_inlavaan_standardized_draws <- function(fit, nsamp) {
+  if (!inherits(fit, "INLAvaan")) {
+    cli_abort(
+      "Standardized non-Gaussian MCMC comparison currently requires {.cls INLAvaan} fits."
+    )
+  }
+
+  int <- fit@external$inlavaan_internal
+  pt <- int$partable
+  samp <- sample_params(
+    theta_star = int$theta_star,
+    Sigma_theta = int$Sigma_theta,
+    method = int$marginal_method,
+    approx_data = int$approx_data,
+    pt = pt,
+    lavmodel = int$lavmodel,
+    nsamp = nsamp,
+    R_star = int$R_star,
+    integration_data = if (!is.null(int$inla_integration)) int$inla_integration else NULL,
+    native_theta_transforms = int$native_theta_transforms %||% NULL,
+    cov_var_idx1 = int$cov_var_idx1 %||% NULL,
+    cov_var_idx2 = int$cov_var_idx2 %||% NULL
+  )
+  x_samp <- samp$x_samp
+
+  out <- vector("list", nrow(x_samp))
+  for (i in seq_len(nrow(x_samp))) {
+    xi <- x_samp[i, ]
+    lavmodel_i <- lavaan::lav_model_set_parameters(fit@Model, xi)
+
+    esti <- pt$est
+    esti[pt$free > 0] <- xi[pt$free[pt$free > 0]]
+    if (any(pt$op == ":=")) {
+      pt_def_rows <- which(pt$op == ":=")
+      def_names <- pt$names[pt_def_rows]
+      esti[pt_def_rows] <- int$summary[def_names, "Mean"]
+    }
+
+    out[[i]] <- lavaan::standardizedSolution(
+      object = fit,
+      est = esti,
+      GLIST = lavmodel_i@GLIST,
+      remove.eq = TRUE,
+      remove.ineq = TRUE,
+      remove.def = FALSE
+    )$est.std
+  }
+
+  draws <- do.call(rbind, out)
+  proto <- lavaan::standardizedSolution(
+    object = fit,
+    remove.eq = TRUE,
+    remove.ineq = TRUE,
+    remove.def = FALSE
+  )
+  colnames(draws) <- with(proto, paste0(lhs, op, rhs))
+  draws
+}
+
+compare_mcmc_density_data_from_draws <- function(draws) {
+  draws_df <- as.data.frame(draws)
+  lapply(draws_df, function(x) {
+    x <- x[is.finite(x)]
+    if (length(x) < 2L) {
+      return(data.frame(x = numeric(0), y = numeric(0)))
+    }
+    if (stats::sd(x) == 0) {
+      eps <- max(abs(x[1L]), 1) * 1e-6
+      x <- c(x, x[1L] - eps, x[1L] + eps)
+    }
+    dens <- stats::density(x)
+    data.frame(x = dens$x, y = dens$y)
+  })
+}
+
+#' Compare INLAvaan Marginals Against an MCMC Reference
+#'
+#' Aligns posterior marginals from one or more `INLAvaan` fits with posterior
+#' draws from a `blavaan` fit and returns comparison plots and discrepancy
+#' metrics.
+#'
+#' @param fit_blavaan A fitted `blavaan` object used as the MCMC reference.
+#' @param ... Named `INLAvaan` or `inlavaan_internal` fits to compare.
+#' @param params Optional character vector of parameter names to compare.
+#' @param show_error Logical; include discrepancy plots.
+#' @param truth Optional named vector of true parameter values.
+#' @param use_ggplot Logical; use `ggplot2` when available.
+#' @param nrow,ncol Optional layout controls for the base-graphics fallback.
+#' @param parameterization Compare either the raw posterior parameters, the
+#'   standardized posterior parameters, or choose automatically. `"auto"`
+#'   switches to standardized comparison when the `blavaan` reference has
+#'   ordered variables, which is the safer comparison for non-Gaussian
+#'   measurement models.
+#'
+#' @return A list with comparison plots, aligned densities, and discrepancy
+#'   summaries.
+#' @export
 # nocov start
 compare_mcmc <- function(
   fit_blavaan,
@@ -17,17 +117,54 @@ compare_mcmc <- function(
   show_error = TRUE,
   truth = NULL,
   use_ggplot = TRUE,
+  parameterization = c("auto", "raw", "standardized"),
   nrow = NULL,
   ncol = NULL
 ) {
-  parnames <- unique(names(coef(fit_blavaan)))
+  parameterization <- match.arg(parameterization)
 
-  if (requireNamespace("blavaan", quietly = TRUE) == FALSE) {
-    cli_abort("blavaan is required for plotting. Please install it.")
+  # Accept blavaan, inlavaan_mcmc, or a plain matrix of draws as the reference.
+  is_blavaan   <- inherits(fit_blavaan, "blavaan")
+  is_inla_mcmc <- inherits(fit_blavaan, "inlavaan_mcmc")
+  is_matrix    <- is.matrix(fit_blavaan) || is.data.frame(fit_blavaan)
+
+  if (!is_blavaan && !is_inla_mcmc && !is_matrix) {
+    cli_abort(
+      paste0(
+        "`fit_blavaan` must be a {.cls blavaan} object, an {.cls inlavaan_mcmc}",
+        " object (from {.fn mcmc_from_inlavaan}), or a plain draws matrix."
+      )
+    )
   }
 
-  # MCMC Histograms
-  draws <- do.call("rbind", blavaan::blavInspect(fit_blavaan, "mcmc"))
+  # For blavaan, auto-detect standardized; for INLA/matrix, always use raw.
+  use_standardized <- if (is_blavaan) {
+    identical(parameterization, "standardized") ||
+      (identical(parameterization, "auto") &&
+         length(if (is.null(fit_blavaan@Data@ordered)) character(0)
+                else fit_blavaan@Data@ordered) > 0L)
+  } else {
+    identical(parameterization, "standardized")
+  }
+
+  # Extract draws matrix -------------------------------------------------------
+  draws <- if (is_blavaan) {
+    if (!requireNamespace("blavaan", quietly = TRUE)) {
+      cli_abort("blavaan is required. Please install it.")
+    }
+    if (use_standardized) {
+      blavaan::standardizedPosterior(fit_blavaan)
+    } else {
+      do.call("rbind", blavaan::blavInspect(fit_blavaan, "mcmc"))
+    }
+  } else if (is_inla_mcmc) {
+    fit_blavaan$draws
+  } else {
+    as.matrix(fit_blavaan)
+  }
+  # ---------------------------------------------------------------------------
+
+  parnames <- unique(colnames(draws))
   draws_df <- as.data.frame(draws)
   plot_df_blav <- data.frame(
     name = rep(colnames(draws_df), each = nrow(draws_df)),
@@ -39,7 +176,11 @@ compare_mcmc <- function(
   # INLAvaan Densities
   fit_inlavaan_list <- list(...)
   fit_inlavaan_list <- lapply(fit_inlavaan_list, function(fit) {
-    if (inherits(fit, "INLAvaan")) {
+    if (use_standardized) {
+      return(compare_mcmc_density_data_from_draws(
+        compare_mcmc_inlavaan_standardized_draws(fit, nsamp = nrow(draws_df))
+      ))
+    } else if (inherits(fit, "INLAvaan")) {
       return(fit@external$inlavaan_internal$pdf_data)
     } else if (inherits(fit, "inlavaan_internal")) {
       return(fit$pdf_data)
@@ -49,15 +190,37 @@ compare_mcmc <- function(
       )
     }
   })
+  fit_inlavaan_list <- lapply(fit_inlavaan_list, function(pdfs) {
+    keep <- vapply(pdfs, nrow, integer(1)) > 1L
+    pdfs[keep]
+  })
   inlav_names <- names(fit_inlavaan_list)
+  if (length(fit_inlavaan_list) == 0L) {
+    cli_abort("Provide at least one INLAvaan fit to compare.")
+  }
+
+  common_names <- Reduce(
+    intersect,
+    c(list(parnames), lapply(fit_inlavaan_list, names))
+  )
+  if (length(common_names) == 0L) {
+    cli_abort("No common parameter names were found between blavaan and the INLAvaan fits.")
+  }
+  dropped_names <- setdiff(parnames, common_names)
+  if (length(dropped_names) > 0L && is.null(params)) {
+    cli::cli_alert_info(
+      "Comparing {length(common_names)} common parameter{?s}; dropped {length(dropped_names)} unmatched parameter{?s}."
+    )
+  }
+  parnames <- common_names
 
   # Subset parameters if requested
   if (!is.null(params)) {
-    bad <- setdiff(params, parnames)
+    bad <- setdiff(params, common_names)
     if (length(bad) > 0) {
       cli_abort(c(
         "Unknown parameter(s): {paste(bad, collapse = ', ')}",
-        i = "Available: {paste(parnames, collapse = ', ')}"
+        i = "Available common parameters: {paste(common_names, collapse = ', ')}"
       ))
     }
     parnames <- params
@@ -533,6 +696,170 @@ compare_mcmc <- function(
     p_compare = p_compare,
     p_errors = p_errors,
     metrics_df = metrics_df
+  )
+}
+
+#' Run MCMC on the Laplace-Marginalised Posterior of an INLAvaan Fit
+#'
+#' Uses random-walk Metropolis–Hastings (with adaptive scaling during burn-in)
+#' to draw exact samples from the same Laplace-marginalised posterior that the
+#' ESLA/simplified-Laplace approximations target.  The resulting draws can be
+#' passed as the first argument to [compare_mcmc()] as an MCMC reference.
+#'
+#' @param fit A fitted `INLAvaan` object.
+#' @param n_samples Number of post-burn-in samples to return.
+#' @param burnin Number of burn-in iterations (discarded).
+#' @param thin Thinning interval (keep every `thin`-th draw).
+#' @param seed Optional integer random seed.
+#' @param verbose Print progress and diagnostics.
+#'
+#' @return An `inlavaan_mcmc` object with elements `$draws` (matrix of
+#'   named parameter samples in the lavaan scale) and `$acceptance_rate`.
+#' @export
+# nocov start
+mcmc_from_inlavaan <- function(
+  fit,
+  n_samples = 2000L,
+  burnin    = 1000L,
+  thin      = 1L,
+  seed      = NULL,
+  verbose   = TRUE
+) {
+  if (!is.null(seed)) set.seed(seed)
+
+  int <- fit@external$inlavaan_internal
+  if (is.null(int$joint_lp)) {
+    cli_abort(c(
+      "The stored fit does not contain a {.field joint_lp} function.",
+      i = "Re-fit the model with the current version of INLAvaan."
+    ))
+  }
+
+  joint_lp    <- int$joint_lp
+  theta_star  <- int$theta_star
+  Sigma_theta <- int$Sigma_theta
+  pt          <- int$partable
+  m           <- length(theta_star)
+
+  # Recover free-parameter names from the partable (theta_star is stored as.numeric)
+  parnames_mcmc <- pt$names[pt$free > 0L & !duplicated(pt$free)]
+
+  # Multivariate normal proposal: 2.38^2/m * Sigma_theta (optimal RWMH scaling)
+  scale <- 2.38 / sqrt(m)
+  L     <- tryCatch(
+    t(chol(Sigma_theta)),
+    error = function(e) diag(sqrt(pmax(diag(Sigma_theta), 1e-12)))
+  )
+
+  theta_cur <- theta_star
+  lp_cur    <- joint_lp(theta_cur)
+  n_total   <- burnin + n_samples * thin
+
+  out_theta <- matrix(NA_real_, n_samples, m)
+  colnames(out_theta) <- parnames_mcmc
+
+  n_accept <- 0L
+  s_idx    <- 0L
+
+  if (isTRUE(verbose)) {
+    cli::cli_progress_bar(
+      "MCMC sampling",
+      total = n_total,
+      format = "{cli::pb_bar} {cli::pb_percent} | iter {cli::pb_current}/{cli::pb_total} | acc {round(n_accept/max(iter,1)*100,1)}%"
+    )
+  }
+
+  for (iter in seq_len(n_total)) {
+    theta_prop <- theta_cur + scale * as.numeric(L %*% stats::rnorm(m))
+    lp_prop    <- joint_lp(theta_prop)
+
+    if (is.finite(lp_prop) && log(stats::runif(1L)) < lp_prop - lp_cur) {
+      theta_cur <- theta_prop
+      lp_cur    <- lp_prop
+      n_accept  <- n_accept + 1L
+    }
+
+    # Adaptive scaling during burn-in (target 23.4% acceptance)
+    if (iter <= burnin && iter %% 100L == 0L) {
+      acc_rate <- n_accept / iter
+      scale    <- scale * exp(0.5 * (acc_rate - 0.234))
+      scale    <- max(1e-8, min(scale, 20.0))
+    }
+
+    if (iter > burnin && (iter - burnin) %% thin == 0L) {
+      s_idx <- s_idx + 1L
+      out_theta[s_idx, ] <- theta_cur
+    }
+
+    if (isTRUE(verbose)) cli::cli_progress_update()
+  }
+  if (isTRUE(verbose)) cli::cli_progress_done()
+
+  acc_rate_final <- n_accept / n_total
+  if (isTRUE(verbose)) {
+    cli::cli_alert_info(
+      "Acceptance rate: {round(acc_rate_final * 100, 1)}%  ({n_samples} samples after {burnin} burn-in)"
+    )
+  }
+
+  # Transform theta → lavaan-scale x, keeping names
+  x_list <- lapply(seq_len(n_samples), function(i) {
+    tryCatch(
+      as.numeric(pars_to_x(out_theta[i, ], pt = pt, compute_jac = FALSE)),
+      error = function(e) rep(NA_real_, m)
+    )
+  })
+  out_x <- do.call(rbind, x_list)
+  colnames(out_x) <- parnames_mcmc
+
+  ok <- apply(out_x, 1L, function(r) all(is.finite(r)))
+  out_x     <- out_x[ok, , drop = FALSE]
+  out_theta <- out_theta[ok, , drop = FALSE]
+
+  structure(
+    list(
+      draws          = out_x,
+      theta          = out_theta,
+      acceptance_rate = acc_rate_final,
+      n_samples      = nrow(out_x),
+      burnin         = burnin,
+      thin           = thin
+    ),
+    class = "inlavaan_mcmc"
+  )
+}
+# nocov end
+
+
+# Internal: extract a matrix of named draws from blavaan, inlavaan_mcmc, or a
+# plain matrix; also returns the parameterization used.
+.extract_mcmc_draws <- function(fit_ref, use_standardized, fit_inlavaan_ref) {
+  if (inherits(fit_ref, "blavaan")) {
+    if (!requireNamespace("blavaan", quietly = TRUE)) {
+      cli_abort("blavaan is required. Please install it.")
+    }
+    draws <- if (use_standardized) {
+      blavaan::standardizedPosterior(fit_ref)
+    } else {
+      do.call("rbind", blavaan::blavInspect(fit_ref, "mcmc"))
+    }
+    return(draws)
+  }
+
+  if (inherits(fit_ref, "inlavaan_mcmc")) {
+    draws <- fit_ref$draws
+    return(draws)
+  }
+
+  if (is.matrix(fit_ref) || is.data.frame(fit_ref)) {
+    return(as.matrix(fit_ref))
+  }
+
+  cli_abort(
+    paste0(
+      "`fit_ref` must be a {.cls blavaan} object, an {.cls inlavaan_mcmc} object",
+      " (from {.fn mcmc_from_inlavaan}), or a plain draws matrix."
+    )
   )
 }
 # nocov end

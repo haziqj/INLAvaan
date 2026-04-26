@@ -130,7 +130,11 @@ sample_params_posterior <- function(int, nsamp, samp_copula) {
     pt = int$partable,
     lavmodel = int$lavmodel,
     nsamp = nsamp,
-    R_star = int$R_star
+    R_star = int$R_star,
+    integration_data = int$inla_integration %||% NULL,
+    native_theta_transforms = int$native_theta_transforms %||% NULL,
+    cov_var_idx1 = int$cov_var_idx1 %||% NULL,
+    cov_var_idx2 = int$cov_var_idx2 %||% NULL
   )
 }
 
@@ -197,8 +201,7 @@ sample_params_prior <- function(int, nsamp) {
   # Apply equality constraints if present
   if (lavmodel@ceq.simple.only) {
     # nocov start
-    K <- lavmodel@ceq.simple.K
-    theta_samp <- t(apply(theta_samp, 1, function(p) as.numeric(K %*% p)))
+    theta_samp <- theta_samp %*% t(lavmodel@ceq.simple.K)
   } # nocov end
 
   # Map theta → lavaan x-space (handles covariance = cor * sqrt(var1 * var2))

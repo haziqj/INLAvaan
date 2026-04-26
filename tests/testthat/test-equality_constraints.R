@@ -67,6 +67,23 @@ test_that("Method: skewnorm", {
   expect_equal(gt_at_opt, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
+test_that("Equality-constraint models use the native optimizer by default", {
+  int <- agrowth(
+    mod,
+    dat,
+    marginal_method = "skewnorm",
+    verbose = FALSE,
+    nsamp = NSAMP,
+    test = "none",
+    vb_correction = FALSE,
+    debug = TRUE
+  )
+
+  expect_false(is.null(int$native_backend))
+  expect_true(isTRUE(int$opt$converged))
+  expect_true(is.null(int$opt$convergence))
+})
+
 test_that("Method: asymgaus", {
   expect_no_error({
     fit <- agrowth(

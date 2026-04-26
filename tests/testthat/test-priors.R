@@ -79,6 +79,70 @@ test_that("Straight from textual model", {
   )
 })
 
+test_that("inline prior syntax is extracted before lavaan parsing", {
+  mod <- "
+    visual =~ x1 + prior('normal(1,2)')*x2 + x3
+    textual =~ label*prior(\"normal(3,1.5)\")*x6
+    x1 ~~ prior('gamma(3,3)')*x1
+    x2 ~ prior('normal(0,.5)')*1
+  "
+
+  parsed <- INLAvaan:::extract_inline_priors(mod)
+  expect_false(grepl("prior\\s*\\(", parsed$model))
+  expect_equal(
+    parsed$priors[, c("lhs", "op", "rhs", "prior")],
+    data.frame(
+      lhs = c("visual", "textual", "x1", "x2"),
+      op = c("=~", "=~", "~~", "~1"),
+      rhs = c("x2", "x6", "x1", ""),
+      prior = c("normal(1,2)", "normal(3,1.5)", "gamma(3,3)", "normal(0,.5)")
+    )
+  )
+})
+
+test_that("political democracy example supports inline priors with GCP", {
+  dat <- lavaan::PoliticalDemocracy
+  mod <- "
+    ind60 =~ x1 + x2 + x3
+    dem60 =~ y1 + y2 + y3
+    dem65 =~ y5 + y6 + y7 + y8
+
+    dem60 ~ ind60
+    dem65 ~ ind60 + dem60
+
+    y1 ~~ y5
+    y2 ~~ y4 + y6
+    y3 ~~ y7
+    y4 ~~ y8
+    y6 ~~ y8
+
+    dem60 =~ 1.5*y4
+
+    ind60 ~~ prior('gamma(1, 1)')*ind60
+    dem60 ~~ prior('gamma(2, 1)')*dem60
+    dem65 ~~ prior('gamma(1,.5)')*dem65
+  "
+
+  fit <- expect_no_error(
+    asem(
+      model = mod,
+      data = dat,
+      use_gcp = TRUE,
+      verbose = FALSE,
+      test = "none",
+      nsamp = 30
+    )
+  )
+
+  int <- get_inlavaan_internal(fit)
+  pt <- int$partable
+  expect_equal(pt$prior[pt$names == "ind60~~ind60"], "gamma(1, 1)")
+  expect_equal(pt$prior[pt$names == "dem60~~dem60"], "gamma(2, 1)")
+  expect_equal(pt$prior[pt$names == "dem65~~dem65"], "gamma(1,.5)")
+  expect_false(anyNA(int$theta_star))
+  expect_true(all(is.finite(int$theta_star)))
+})
+
 ## ---- TESTS FOR NEW VECTORISED LOG PRIOR AND GRADIENT ------------------------
 
 get_test_objects <- function(model, data, group = NULL, group.equal = "") {

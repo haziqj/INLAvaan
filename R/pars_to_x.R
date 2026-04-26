@@ -12,13 +12,28 @@ pars_to_x <- function(theta, pt, compute_jac = TRUE) {
   nG <- max(pt$group)
   idxfree <- pt$free > 0
   pars <- pt$parstart
-  pars[idxfree] <- theta
+  # theta may be:
+  #  (a) length == sum(idxfree)  — one value per free row (optimizer, ceq.simple path)
+  #  (b) length == n_unique      — one value per unique free index (Hessian/VB/marginals)
+  # Case (b) occurs when equality constraints share pt$free indices (n_unique < sum(idxfree)).
+  # Use index-based assignment to fill duplicate-constrained rows correctly in both cases.
+  n_unique <- sum(idxfree & !duplicated(pt$free))
+  if (length(theta) == n_unique && n_unique < sum(idxfree)) {
+    pars[idxfree] <- theta[pt$free[idxfree]]
+  } else {
+    pars[idxfree] <- theta
+  }
   npt <- length(pars)
   xx <- x <- mapply(function(f, z) f(z), pt$ginv, pars)
   sd1sd2 <- rep(1, npt)
   jcb_mat <- NULL
   thidx <- integer(npt)
-  thidx[pt$free > 0] <- seq_len(sum(pt$free > 0))
+  if (length(theta) == n_unique && n_unique < sum(idxfree)) {
+    # ceq.simple path: pt$free values are already 1...m_r unique indices
+    thidx[pt$free > 0] <- pt$free[pt$free > 0]
+  } else {
+    thidx[pt$free > 0] <- seq_len(sum(pt$free > 0))
+  }
 
   # --- GCP block processing ---------------------------------------------------
   # If GCP blocks exist, compute correlation matrices from block theta vectors

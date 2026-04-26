@@ -32,14 +32,44 @@
 #'
 #' @example inst/examples/ex-skewnorm-fit.R
 #' @export
-fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
+fit_skew_normal <- function(
+  x,
+  y,
+  threshold_log_drop = -6,
+  temp = NA,
+  max_iter = 200L,
+  grad_tol = 1e-8,
+  m_bfgs = 10L,
+  max_ls = 40L,
+  h = 1e-5
+) {
   # NOTE: y is the density evaluations at x on the log scale, i.e. log f(x).
   # y should ideally be normalized so max(y) = 0 for numerical stability
-  if (max(y) > 0) { # nocov start
+  keep <- is.finite(x) & is.finite(y)
+  if (!all(keep)) {
+    x <- x[keep]
+    y <- y[keep]
+  }
+  if (length(x) < 3L) {
+    xi <- if (length(x) > 0L) x[[which.max(y)]] else 0
+    omega <- if (length(x) > 1L) max(stats::sd(x), 1e-4) else 1e-4
+    return(list(
+      xi = xi,
+      omega = omega,
+      alpha = 0,
+      logC = if (length(y) > 0L) max(y) else 0,
+      k = if (is.na(temp) || is.null(temp)) 1 else temp,
+      rmse = NA_real_,
+      nmad = NA_real_
+    ))
+  }
+
+  ymax <- max(y)
+  if (ymax > 0) { # nocov start
     cli_warn(
       "In {.fn fit_skew_normal}, log density {.arg y} should be normalized so that max(y) = 0 for numerical stability. Automatically normalizing now."
     )
-    y <- y - max(y)
+    y <- y - ymax
   } # nocov end
   if (threshold_log_drop >= 0) { # nocov start
     cli_abort(
@@ -108,152 +138,23 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   omega_init <- sd_hat / sqrt(1 - 2 * root^2 / pi)
   xi_init <- mean_hat - omega_init * root * sqrt(2 / pi)
 
-  # Optimisation functions
-  ob <- function(param, x, y) {
-    mu <- param[1]
-    lsinv <- param[2]
-    a <- param[3]
-    logC <- param[4]
-    logk <- if (is_est_k) param[5] else log(temp)
-    # print(exp(logk))
-
-    w <- exp(exp(logk) * y)
-    w[y < threshold_log_drop] <- 0
-    w <- w / sum(w)
-
-    # log skew-normal density up to constant
-    xx <- (x - mu) * exp(lsinv)
-    logdens <- log(2) +
-      stats::dnorm(xx, log = TRUE) +
-      stats::pnorm(a * xx, log.p = TRUE) +
-      lsinv +
-      logC
-    resid <- y - logdens
-    sum(w * resid^2) # Weighted Sum of Squares
-  }
-
-  gr <- function(param, x, y) {
-    mu <- param[1]
-    lsinv <- param[2]
-    a <- param[3]
-    logC <- param[4]
-    s <- exp(lsinv)
-    xx <- s * (x - mu)
-    u <- a * xx
-    R <- mills_ratio(u)
-
-    logk <- if (is_est_k) param[5] else log(temp)
-    w <- exp(exp(logk) * y)
-    w[y < threshold_log_drop] <- 0
-    w <- w / sum(w)
-
-    # First derivatives of log-density L wrt parameters
-    L_mu <- s * xx - a * s * R
-    L_lsinv <- -xx^2 + a * xx * R + 1
-    L_a <- xx * R
-    L_logC <- 1
-
-    L <- log(2) +
-      stats::dnorm(xx, log = TRUE) +
-      stats::pnorm(u, log.p = TRUE) +
-      lsinv +
-      logC
-    r <- y - L
-
-    # Weighted Gradients
-    g1 <- -2 * sum(w * r * L_mu)
-    g2 <- -2 * sum(w * r * L_lsinv)
-    g3 <- -2 * sum(w * r * L_a)
-    g4 <- -2 * sum(w * r * L_logC)
-    g5 <- sum(y * w * r^2) * exp(logk)
-
-    if (is_est_k) {
-      return(c(g1, g2, g3, g4, g5))
-    } else {
-      return(c(g1, g2, g3, g4))
-    }
-  }
-
-  hs <- function(param, x, y) {
-    w <- exp(temp * y)
-    w[y < threshold_log_drop] <- 0
-    w <- w / sum(w)
-
-    mu <- param[1]
-    lsinv <- param[2]
-    a <- param[3]
-    logC <- param[4]
-    s <- exp(lsinv)
-    xx <- s * (x - mu)
-    u <- a * xx
-    R <- mills_ratio(u)
-    Rprime <- -R * (u + R) # derivative of Mills ratio
-
-    # First derivatives
-    L_mu <- s * xx - a * s * R
-    L_lsinv <- -xx^2 + a * xx * R + 1
-    L_a <- xx * R
-    L_logC <- 1
-
-    # Second derivatives
-    L_mumu <- -s^2 + a^2 * s^2 * Rprime
-    L_mu_lsinv <- 2 * s * xx - a * s * R - a^2 * s * xx * Rprime
-    L_mu_a <- -s * R - a * s * xx * Rprime
-    L_mu_logC <- 0
-
-    L_lsinv_lsinv <- -2 * xx^2 + a * xx * R + a^2 * xx^2 * Rprime
-    L_lsinv_a <- xx * R + a * xx^2 * Rprime
-    L_lsinv_logC <- 0
-
-    L_aa <- xx^2 * Rprime
-    L_a_logC <- 0
-
-    L <- log(2) +
-      stats::dnorm(xx, log = TRUE) +
-      stats::pnorm(u, log.p = TRUE) +
-      lsinv +
-      logC
-    r <- y - L
-
-    # Weighted Hessian: H = 2 * sum w * (gradL gradL^T - r * HessL)
-    H11 <- 2 * sum(w * (L_mu * L_mu - r * L_mumu))
-    H12 <- 2 * sum(w * (L_mu * L_lsinv - r * L_mu_lsinv))
-    H13 <- 2 * sum(w * (L_mu * L_a - r * L_mu_a))
-    H14 <- 2 * sum(w * (L_mu * L_logC - r * L_mu_logC))
-
-    H22 <- 2 * sum(w * (L_lsinv * L_lsinv - r * L_lsinv_lsinv))
-    H23 <- 2 * sum(w * (L_lsinv * L_a - r * L_lsinv_a))
-    H24 <- 2 * sum(w * (L_lsinv * L_logC - r * L_lsinv_logC))
-
-    H33 <- 2 * sum(w * (L_a * L_a - r * L_aa))
-    H34 <- 2 * sum(w * (L_a * L_logC - r * L_a_logC))
-
-    H44 <- 2 * sum(w * (L_logC * L_logC))
-
-    # fmt: skip
-    matrix(c(H11, H12, H13, H14,
-             H12, H22, H23, H24,
-             H13, H23, H33, H34,
-             H14, H24, H34, H44), nrow = 4, byrow = TRUE)
-  }
-  if (is_est_k) {
-    hs <- NULL
-  }
-
-  # Optimise skew normal parameters
   st <- if (is_est_k) {
     c(xi_init, log(1 / omega_init), alpha_init, 0, log(10))
   } else {
     c(xi_init, log(1 / omega_init), alpha_init, 0)
   }
-  fit <- stats::nlminb(
-    st,
-    ob,
-    gr,
-    hs,
+  fit <- cpp_fit_skew_normal_optimize(
+    par0 = st,
     x = x,
-    y = y
-    # w = w_fit
+    y = y,
+    threshold_log_drop = threshold_log_drop,
+    is_est_k = is_est_k,
+    temp = if (is_est_k) 0 else temp,
+    max_iter = max_iter,
+    grad_tol = grad_tol,
+    m_bfgs = m_bfgs,
+    max_ls = max_ls,
+    h = h
   )
   xi_hat <- fit$par[1]
   omega_hat <- exp(-fit$par[2])
@@ -284,11 +185,7 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
 }
 
 mills_ratio <- function(u) {
-  logphi <- stats::dnorm(u, log = TRUE)
-  logPhi <- stats::pnorm(u, log.p = TRUE)
-  # guard against -Inf in logPhi; cap to avoid exp overflow
-  logPhi <- pmax(logPhi, -745) # ~exp(-745) ~ 5e-324
-  exp(logphi - logPhi)
+  cpp_mills_ratio(u)
 }
 
 
@@ -313,16 +210,7 @@ mills_ratio <- function(u) {
 #' y <- dsnorm(x, xi = 0, omega = 1, alpha = 5)
 #' plot(x, y, type = "l", main = "Skew Normal Density")
 dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {
-  xx <- (x - xi) / omega
-  if (isTRUE(log)) {
-    log(2) +
-      stats::dnorm(xx, log = TRUE) +
-      stats::pnorm(alpha * xx, log.p = TRUE) -
-      log(omega) +
-      logC
-  } else {
-    2 / omega * stats::dnorm(xx) * stats::pnorm(alpha * xx) * exp(logC)
-  }
+  cpp_dsnorm(x, xi, omega, alpha, logC, log)
 }
 
 # snorm_EX_VarX <- function(xi, omega, alpha) {
@@ -345,34 +233,14 @@ dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {
 #' @examples
 #' x <- rnorm(100, mean = 5, sd = 1)
 #' unlist(fit_skew_normal_samp(x))
-fit_skew_normal_samp <- function(x) {
-  # Starting values
-  xi0 <- stats::median(x)
-  omega0 <- log(stats::sd(x)) # log-scale param
-  alpha0 <- 0
-  start <- c(xi0, omega0, alpha0)
-
-  opt <- nlminb(
-    start = c(xi0, omega0, alpha0),
-    objective = function(par) {
-      -1 *
-        sum(dsnorm(
-          x,
-          xi = par[1],
-          omega = exp(par[2]),
-          alpha = par[3],
-          log = TRUE
-        ))
-    }
-  )
-
-  xi_hat <- opt$par[1]
-  omega_hat <- exp(opt$par[2])
-  alpha_hat <- opt$par[3]
-
+fit_skew_normal_samp <- function(x, ...) {
+  xi0    <- stats::median(x)
+  omega0 <- log(stats::sd(x))
+  nll <- function(p) -sum(cpp_dsnorm(x, p[1], exp(p[2]), p[3], log_out = TRUE))
+  opt <- stats::nlminb(c(xi0, omega0, 0), nll)
   list(
-    xi = xi_hat,
-    omega = omega_hat,
-    alpha = alpha_hat
+    xi    = opt$par[1],
+    omega = exp(opt$par[2]),
+    alpha = opt$par[3]
   )
 }
