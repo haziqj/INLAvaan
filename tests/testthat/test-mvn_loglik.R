@@ -37,6 +37,9 @@ fit_inl <- get_inlavaan_internal(asem(
 pt <- fit_inl$partable
 
 
+# FIXME: Add back theta_star_trans (i.e. the transformed parameters to
+# lavaan-space of the (corrected) posterior mode
+
 test_that("INLAvaan produces same results as lavaan", {
   expect_equal(
     as.numeric(coef(fit_lav)),

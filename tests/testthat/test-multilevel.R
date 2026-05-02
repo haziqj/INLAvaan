@@ -18,6 +18,8 @@ fit_ml <- asem(
   nsamp = 3
 )
 
+
+
 test_that("Multilevel: fit and summary", {
   fit_lav <- lavaan::sem(mod_ml, lavaan::Demo.twolevel, cluster = "cluster")
   int_ml <- fit_ml@external$inlavaan_internal

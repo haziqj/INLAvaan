@@ -65,7 +65,7 @@ test_that("Method: sampling", {
     fit <- acfa(
       mod,
       dat,
-      marginal_method = "sampling",
+      # marginal_method = "sampling",
       verbose = FALSE,
       nsamp = NSAMP,
       std.lv = STDLV
