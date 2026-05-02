@@ -4,7 +4,7 @@
 \alias{fit_skew_normal_samp}
 \title{Fit a skew normal distribution to a sample}
 \usage{
-fit_skew_normal_samp(x)
+fit_skew_normal_samp(x, ...)
 }
 \arguments{
 \item{x}{A numeric vector of sample data.}
