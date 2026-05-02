@@ -1,0 +1,15 @@
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S), Darwin)
+  LIBOMP_PREFIX := $(shell brew --prefix libomp 2>/dev/null)
+  ifneq ($(LIBOMP_PREFIX),)
+    PKG_CXXFLAGS = -Xclang -fopenmp -I$(LIBOMP_PREFIX)/include
+    PKG_LIBS     = $(LIBOMP_PREFIX)/lib/libomp.dylib
+  else
+    PKG_CXXFLAGS =
+    PKG_LIBS     =
+  endif
+else
+  PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
+  PKG_LIBS     = $(SHLIB_OPENMP_CXXFLAGS)
+endif

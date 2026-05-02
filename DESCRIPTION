@@ -1,14 +1,16 @@
 Type: Package
 Package: INLAvaan
 Title: Approximate Bayesian Latent Variable Analysis
-Version: 0.2.4.9001
+Version: 0.3.0.9000
 Authors@R: c(
     person("Haziq", "Jamil", , "haziq.jamil@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-3298-1010")),
     person("Håvard", "Rue", role = "ctb",
            comment = c(ORCID = "0000-0002-0222-1881", "Statistical and computational methodology")),
     person("Alvin", "Bong", role = "ctb",
-           comment = "Initial site build")
+           comment = "Initial site build"),
+    person("Alexandre de Bustamante", "Simas", role = "ctb",
+           comment = c(ORCID = "0000-0003-2562-2829", "Rcpp port"))         
   )
 Description: Implements approximate Bayesian inference for Structural
     Equation Models (SEM) using a custom adaptation of the Integrated
@@ -30,8 +32,12 @@ Imports:
     lavaan,
     methods,
     parallel,
+    Rcpp,
     stats,
     utils
+LinkingTo:
+    Rcpp,
+    RcppEigen
 Suggests: 
     blavaan,
     ggplot2,

@@ -56,6 +56,7 @@
 #' @importFrom graphics polygon
 #' @importFrom grDevices adjustcolor
 #' @importFrom grDevices recordPlot
+#' @importFrom Rcpp sourceCpp
 #' @importFrom stats aggregate
 #' @importFrom stats approx
 #' @importFrom stats cov
@@ -81,5 +82,6 @@
 #' @importFrom utils head
 #' @importFrom utils packageVersion
 #' @importFrom utils tail
+#' @useDynLib INLAvaan, .registration = TRUE
 ## usethis namespace: end
 NULL

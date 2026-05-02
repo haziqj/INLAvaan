@@ -83,6 +83,31 @@ test_that("type = 'ymis' with newdata throws an error", {
   )
 })
 
+test_that("single-level native ymis imputes all missing values", {
+  dat_mis <- dat
+  set.seed(42)
+  dat_mis$x1[sample(nrow(dat_mis), 12)] <- NA
+
+  fit_mis <- acfa(
+    mod,
+    dat_mis,
+    missing = "ML",
+    verbose = FALSE,
+    nsamp = NSAMP,
+    vb_correction = FALSE,
+    test = "none",
+    marginal_method = "marggaus"
+  )
+
+  pred <- predict(fit_mis, type = "ymis", nsamp = 1)
+  expect_equal(nrow(pred[[1]]), nrow(dat_mis))
+  expect_false(any(is.na(pred[[1]])))
+
+  pred_only <- predict(fit_mis, type = "ymis", nsamp = 1, ymis_only = TRUE)
+  expect_true(is.numeric(pred_only[[1]]))
+  expect_length(pred_only[[1]], 12L)
+})
+
 # ---- Multigroup: lv, yhat, newdata ---------------------------------------
 
 test_that("multigroup predict works for lv, yhat, and newdata", {

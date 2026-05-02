@@ -1,4 +1,67 @@
 create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
+  resolve_optim_converged <- function(opt, method) {
+    if (!is.null(opt$converged) && length(opt$converged) == 1L &&
+        !is.na(opt$converged)) {
+      return(isTRUE(opt$converged))
+    }
+    if (method == "ucminf") {
+      return(isTRUE(opt$convergence == 1L))
+    }
+    if (!is.null(opt$convergence) && length(opt$convergence) == 1L &&
+        !is.na(opt$convergence)) {
+      return(isTRUE(opt$convergence == 0L))
+    }
+    FALSE
+  }
+  resolve_optim_iterations <- function(opt, method) {
+    if (!is.null(opt$iterations) && length(opt$iterations) == 1L &&
+        is.finite(opt$iterations)) {
+      return(as.integer(opt$iterations))
+    }
+    if (method == "optim") {
+      return(as.integer(opt$counts["function"]))
+    }
+    if (method == "ucminf") {
+      return(as.integer(opt$info["neval"]))
+    }
+    as.integer(opt$iterations %||% NA_integer_)
+  }
+  resolve_optim_objective <- function(opt) {
+    if (!is.null(opt$objective) && length(opt$objective) == 1L &&
+        is.finite(opt$objective)) {
+      return(opt$objective)
+    }
+    if (!is.null(opt$value) && length(opt$value) == 1L &&
+        is.finite(opt$value)) {
+      return(opt$value)
+    }
+    NA_real_
+  }
+
+  if (is.null(fit0)) {
+    fit0 <- new("lavaan")
+    fit0@call <- quote(INLAvaan::inlavaan())
+    fit0@timing <- list()
+    fit0@Options <- fit_inlv$lavoptions
+    fit0@ParTable <- fit_inlv$lavpartable
+    fit0@pta <- list()
+    fit0@Data <- fit_inlv$lavdata
+    fit0@SampleStats <- fit_inlv$lavsamplestats
+    fit0@Model <- fit_inlv$lavmodel
+    fit0@Cache <- fit_inlv$lavcache %||% list()
+    fit0@Fit <- new("Fit")
+    fit0@boot <- list()
+    fit0@optim <- list()
+    fit0@loglik <- list()
+    fit0@implied <- list()
+    fit0@vcov <- list()
+    fit0@test <- list()
+    fit0@h1 <- list()
+    fit0@baseline <- list()
+    fit0@internal <- list()
+    fit0@external <- list()
+  }
+
   ## ----- Update Model and implied slots --------------------------------------
   x <- fit_inlv$coefficients
   fit0@Model <- lavaan::lav_model_set_parameters(fit0@Model, x)
@@ -13,6 +76,14 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   SD <- fit_inlv$summary[, "SD"] # free only
 
   pt <- fit_inlv$partable
+  fixed_idx <- which(pt$free == 0L & !(pt$op %in% c(":=", "~*~")))
+  if (length(fixed_idx) > 0L) {
+    fixed_vals <- pt$ustart[fixed_idx]
+    use_start <- is.na(fixed_vals)
+    fixed_vals[use_start] <- pt$start[fixed_idx][use_start]
+    pt$est[fixed_idx] <- fixed_vals
+    pt$se[fixed_idx] <- 0
+  }
   pt$est[pt$free > 0] <- x[pt$free[pt$free > 0]]
   pt$se[pt$free > 0] <- SD[pt$free[pt$free > 0]]
 
@@ -68,6 +139,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@Options$se <- "standard"
 
   ## ----- Update Fit slot -----------------------------------------------------
+  fit0@Fit@npar <- as.integer(length(x))
   fit0@Fit@x <- x
   # fit0@Fit@TH[[1]] <- tau  # FIXME: Group 1
   fit0@Fit@est <- pt$est
@@ -75,17 +147,17 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@Fit@start <- pt$start
 
   if (fit_inlv$optim_method == "nlminb") {
-    fit0@Fit@iterations <- as.integer(fit_inlv$opt$iterations)
-    fit0@Fit@converged <- fit_inlv$opt$convergence == 0L
-    fit0@Fit@fx <- fit_inlv$opt$objective
+    fit0@Fit@iterations <- resolve_optim_iterations(fit_inlv$opt, "nlminb")
+    fit0@Fit@converged <- resolve_optim_converged(fit_inlv$opt, "nlminb")
+    fit0@Fit@fx <- resolve_optim_objective(fit_inlv$opt)
   } else if (fit_inlv$optim_method == "optim") {
-    fit0@Fit@iterations <- as.integer(fit_inlv$opt$counts["function"])
-    fit0@Fit@converged <- fit_inlv$opt$convergence == 0L
-    fit0@Fit@fx <- fit_inlv$opt$value
+    fit0@Fit@iterations <- resolve_optim_iterations(fit_inlv$opt, "optim")
+    fit0@Fit@converged <- resolve_optim_converged(fit_inlv$opt, "optim")
+    fit0@Fit@fx <- resolve_optim_objective(fit_inlv$opt)
   } else if (fit_inlv$optim_method == "ucminf") {
-    fit0@Fit@iterations <- as.integer(fit_inlv$opt$info["neval"])
-    fit0@Fit@converged <- fit_inlv$opt$convergence == 1L
-    fit0@Fit@fx <- fit_inlv$opt$value
+    fit0@Fit@iterations <- resolve_optim_iterations(fit_inlv$opt, "ucminf")
+    fit0@Fit@converged <- resolve_optim_converged(fit_inlv$opt, "ucminf")
+    fit0@Fit@fx <- resolve_optim_objective(fit_inlv$opt)
   }
   fit0@Fit@Sigma.hat <- fit0@implied
 

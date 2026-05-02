@@ -69,6 +69,7 @@ Other contributors:
 \itemize{
   \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) (Statistical and computational methodology) [contributor]
   \item Alvin Bong (Initial site build) [contributor]
+  \item Alexandre de Bustamante Simas (\href{https://orcid.org/0000-0003-2562-2829}{ORCID}) (Rcpp port) [contributor]
 }
 
 }

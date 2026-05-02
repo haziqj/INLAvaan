@@ -320,7 +320,11 @@ predict.inlavaan_internal <- function(
     approx_data = approx_data,
     pt = pt,
     lavmodel = lavmodel,
-    nsamp = nsamp
+    nsamp = nsamp,
+    integration_data = object$inla_integration %||% NULL,
+    native_theta_transforms = object$native_theta_transforms %||% NULL,
+    cov_var_idx1 = object$cov_var_idx1 %||% NULL,
+    cov_var_idx2 = object$cov_var_idx2 %||% NULL
   )
   x_samp <- samp$x_samp
 
@@ -329,6 +333,9 @@ predict.inlavaan_internal <- function(
     if (nlevels > 1L) { # nocov start
       # ---- Multilevel path: use lavaan internals ----
       lavsamplestats <- object$lavsamplestats
+      backend_type <- object$native_backend$type %||% ""
+      is_lisrel_twolevel_native <- identical(backend_type, "lisrel_ml_twolevel")
+      backend_template <- object$native_backend
 
       # Pre-compute per-block ov names for imputation
       ov_names_block <- vector("list", lavmodel@nblocks)
@@ -355,7 +362,14 @@ predict.inlavaan_internal <- function(
 
       sample_lv_ml <- function(xx) {
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
-        lavimplied <- lavaan::lav_model_implied(lavmodel_x)
+        lavimplied <- if (is_lisrel_twolevel_native) {
+          list(
+            cov = native_model_implied_cov_list(xx, backend_template),
+            mean = native_model_implied_mean_list(xx, backend_template)
+          )
+        } else {
+          lavaan::lav_model_implied(lavmodel_x)
+        }
 
         LAMBDA <- lavaan___lav_model_lambda(
           lavmodel = lavmodel_x,
@@ -477,7 +491,53 @@ predict.inlavaan_internal <- function(
       cli_progress_done()
     } else { # nocov end
       # ---- Single-level path: full posterior draw ----
+      backend_type <- object$native_backend$type %||% ""
+      is_lisrel_native <- identical(backend_type, "lisrel_ml_single_group")
+      backend_template <- object$native_backend
+      if (is_lisrel_native) {
+        for (g in seq_len(nG)) {
+          backend_template$groups[[g]]$Y <- as.matrix(y[[g]])
+        }
+      }
       sample_lv <- function(xx) {
+        if (is_lisrel_native) {
+          lat_post <- cpp_lisrel_latent_posterior(backend_template, as.numeric(xx))
+          out <- vector("list", nG)
+          names(out) <- group_labels
+          lv_names <- colnames(get_SEM_param_matrix(xx, "psi", lavmodel)[[1L]])
+
+          for (g in seq_len(nG)) {
+            eta_mean <- lat_post[[g]]$eta_mean
+            eta_cov <- lat_post[[g]]$eta_cov
+            n_obs <- nrow(eta_mean)
+            nlv <- ncol(eta_mean)
+            outg <- matrix(NA_real_, n_obs, nlv)
+            for (i in seq_len(n_obs)) {
+              cov_i <- eta_cov[[i]]
+              if (nlv == 0L) next
+              chol_i <- tryCatch(
+                t(chol(cov_i)),
+                error = function(e) diag(sqrt(pmax(diag(cov_i), 0)), nlv)
+              )
+              outg[i, ] <- eta_mean[i, ] + as.numeric(chol_i %*% rnorm(nlv))
+            }
+            out[[g]] <- outg
+          }
+
+          if (nG == 1L) {
+            colnames(out[[1L]]) <- lv_names
+            out <- out[[1L]]
+          } else {
+            out <- do.call(
+              rbind,
+              Map(function(g, df) data.frame(group = g, df), names(out), out)
+            )
+            colnames(out)[-1] <- lv_names
+          }
+          rownames(out) <- NULL
+          return(out)
+        }
+
         GLIST <- get_SEM_param_matrix(xx, "all", lavmodel)
         out <- vector("list", nG)
         names(out) <- group_labels
@@ -553,6 +613,9 @@ predict.inlavaan_internal <- function(
     if (nlevels > 1L) { # nocov start
       # ---- Multilevel yhat/ypred ----
       lavsamplestats <- object$lavsamplestats
+      backend_type <- object$native_backend$type %||% ""
+      is_lisrel_twolevel_native <- identical(backend_type, "lisrel_ml_twolevel")
+      backend_template <- object$native_backend
 
       # Pre-compute per-block ov names for imputation
       ov_names_block <- vector("list", lavmodel@nblocks)
@@ -571,7 +634,14 @@ predict.inlavaan_internal <- function(
 
       sample_yhat_ml <- function(xx) {
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
-        lavimplied <- lavaan::lav_model_implied(lavmodel_x)
+        lavimplied <- if (is_lisrel_twolevel_native) {
+          list(
+            cov = native_model_implied_cov_list(xx, backend_template),
+            mean = native_model_implied_mean_list(xx, backend_template)
+          )
+        } else {
+          lavaan::lav_model_implied(lavmodel_x)
+        }
 
         LAMBDA <- lavaan___lav_model_lambda(
           lavmodel = lavmodel_x,
@@ -755,7 +825,43 @@ predict.inlavaan_internal <- function(
       cli_progress_done()
     } else { # nocov end
       # ---- Single-level yhat/ypred ----
+      backend_type <- object$native_backend$type %||% ""
+      is_lisrel_native <- identical(backend_type, "lisrel_ml_single_group")
+      backend_template <- object$native_backend
+      if (is_lisrel_native) {
+        for (g in seq_len(nG)) {
+          backend_template$groups[[g]]$Y <- as.matrix(y[[g]])
+        }
+      }
       sample_yhat <- function(xx) {
+        if (is_lisrel_native) {
+          out <- cpp_lisrel_predict_y(
+            backend_template,
+            as.numeric(xx),
+            add_noise = add_noise
+          )
+          names(out) <- group_labels
+          if (nG == 1L) {
+            cn <- colnames(y[[1L]])
+            if (is.null(cn)) {
+              cn <- lavdata@ov.names[[1L]]
+            }
+            colnames(out[[1L]]) <- cn
+            return(out[[1L]])
+          }
+          out <- do.call(
+            rbind,
+            Map(function(g, df) data.frame(group = g, df), names(out), out)
+          )
+          cn <- colnames(y[[1L]])
+          if (is.null(cn)) {
+            cn <- lavdata@ov.names[[1L]]
+          }
+          colnames(out)[-1] <- cn
+          rownames(out) <- NULL
+          return(out)
+        }
+
         GLIST <- get_SEM_param_matrix(xx, "all", lavmodel)
         out <- vector("list", nG)
         names(out) <- group_labels
@@ -884,9 +990,76 @@ predict.inlavaan_internal <- function(
       }
     } # nocov end
 
+    backend_type <- object$native_backend$type %||% ""
+    is_lisrel_native <- identical(backend_type, "lisrel_ml_single_group")
+    is_lisrel_twolevel_native <- identical(backend_type, "lisrel_ml_twolevel")
+    backend_template <- object$native_backend
+    if (nlevels == 1L && is_lisrel_native) {
+      for (g in seq_len(nG)) {
+        backend_template$groups[[g]]$Y <- as.matrix(y[[g]])
+      }
+    }
+
     sample_ymis <- function(xx) {
-      lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
-      lavimplied <- lavaan::lav_model_implied(lavmodel_x)
+      if (nlevels == 1L && is_lisrel_native) {
+        out <- cpp_lisrel_impute_missing(backend_template, as.numeric(xx))
+        names(out) <- group_labels
+
+        if (ymis_only) {
+          row_offset <- 0L
+          imp_list <- vector("list", nG)
+          for (g in seq_len(nG)) {
+            yg_orig <- y[[g]]
+            var_nms <- colnames(yg_orig)
+            if (is.null(var_nms)) {
+              var_nms <- lavdata@ov.names[[g]]
+            }
+            na_pos <- which(is.na(yg_orig), arr.ind = TRUE)
+            na_pos <- na_pos[order(na_pos[, 1L], na_pos[, 2L]), , drop = FALSE]
+            if (nrow(na_pos) == 0L) {
+              imp_list[[g]] <- numeric(0L)
+            } else {
+              vals <- out[[g]][na_pos]
+              nms <- paste0(
+                var_nms[na_pos[, 2L]],
+                "[",
+                na_pos[, 1L] + row_offset,
+                "]"
+              )
+              names(vals) <- nms
+              imp_list[[g]] <- vals
+            }
+            row_offset <- row_offset + nrow(yg_orig)
+          }
+          return(do.call(c, imp_list))
+        }
+
+        if (nG == 1L) {
+          cn <- colnames(y[[1L]])
+          if (is.null(cn)) {
+            cn <- lavdata@ov.names[[1L]]
+          }
+          colnames(out[[1L]]) <- cn
+          out <- out[[1L]]
+        } else {
+          out <- do.call(
+            rbind,
+            Map(function(g, df) data.frame(group = g, df), names(out), out)
+          )
+        }
+        rownames(out) <- NULL
+        return(out)
+      }
+
+      lavimplied <- if (nlevels > 1L && is_lisrel_twolevel_native) {
+        list(
+          cov = native_model_implied_cov_list(xx, backend_template),
+          mean = native_model_implied_mean_list(xx, backend_template)
+        )
+      } else {
+        lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
+        lavaan::lav_model_implied(lavmodel_x)
+      }
 
       out <- vector("list", nG)
       names(out) <- group_labels

@@ -18,13 +18,89 @@ fit_ml <- asem(
   nsamp = 3
 )
 
+
+
 test_that("Multilevel: fit and summary", {
   fit_lav <- lavaan::sem(mod_ml, lavaan::Demo.twolevel, cluster = "cluster")
+  int_ml <- fit_ml@external$inlavaan_internal
 
   expect_s4_class(fit_ml, "INLAvaan")
+  expect_false(is.null(int_ml$native_backend))
+  expect_equal(int_ml$init_method, "lavaan_full")
   expect_no_error(capture.output(summary(fit_ml)))
   expect_equal(coef(fit_ml), coef(fit_lav), tolerance = 0.1)
   expect_equal(fit_ml@optim$dx, rep(0, length(coef(fit_ml))), tolerance = 1e-2)
+})
+
+test_that("Multilevel native backend loglik matches lavaan", {
+  fit0 <- getFromNamespace("with_safe_detectCores", "INLAvaan")(
+    lavaan::sem(
+      mod_ml,
+      lavaan::Demo.twolevel,
+      cluster = "cluster",
+      do.fit = FALSE,
+      test = "none"
+    )
+  )
+  backend <- getFromNamespace("native_lisrel_backend_extract", "INLAvaan")(fit0)
+  x_free <- lavaan:::lav_model_get_parameters(fit0@Model, type = "free")
+
+  expect_equal(backend$type, "lisrel_ml_twolevel")
+  expect_equal(
+    getFromNamespace("cpp_lisrel_loglik", "INLAvaan")(backend, x_free),
+    getFromNamespace("inlav_model_loglik", "INLAvaan")(
+      x_free,
+      fit0@Model,
+      fit0@SampleStats,
+      fit0@Data,
+      fit0@Options,
+      fit0@Cache
+    ),
+    tolerance = 1e-8
+  )
+})
+
+test_that("options(inlavaan.backend = 'r') disables the native backend", {
+  old_opt <- getOption("inlavaan.backend")
+  options(inlavaan.backend = "r")
+  on.exit(options(inlavaan.backend = old_opt), add = TRUE)
+
+  fit_r_backend <- asem(
+    mod_ml,
+    lavaan::Demo.twolevel,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+
+  expect_s4_class(fit_r_backend, "INLAvaan")
+  expect_equal(fit_r_backend@external$inlavaan_internal$init_method, "lavaan_full")
+  expect_null(fit_r_backend@external$inlavaan_internal$native_backend)
+})
+
+test_that("Default mode errors when no native backend is available", {
+  dat <- lavaan::Demo.twolevel
+  dat <- dat[dat$cluster <= 10, ]
+  set.seed(123)
+  dat$y1[sample(nrow(dat), 10)] <- NA
+
+  expect_error(
+    asem(
+      mod_ml,
+      dat,
+      cluster = "cluster",
+      missing = "ML",
+      test = "none",
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      verbose = FALSE,
+      nsamp = 3
+    ),
+    "native C\\+\\+ backend"
+  )
 })
 
 test_that("Multilevel predict lv", {
@@ -83,6 +159,10 @@ test_that("Multilevel predict ymis works", {
   dat <- dat[dat$cluster <= 10, ]
   set.seed(123)
   dat$y1[sample(nrow(dat), 10)] <- NA
+
+  old_opt <- getOption("inlavaan.backend")
+  options(inlavaan.backend = "r")
+  on.exit(options(inlavaan.backend = old_opt), add = TRUE)
 
   fit_miss <- asem(
     mod_ml,

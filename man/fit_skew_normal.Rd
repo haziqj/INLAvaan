@@ -4,7 +4,17 @@
 \alias{fit_skew_normal}
 \title{Fit a skew normal distribution to log-density evaluations}
 \usage{
-fit_skew_normal(x, y, threshold_log_drop = -6, temp = NA)
+fit_skew_normal(
+  x,
+  y,
+  threshold_log_drop = -6,
+  temp = NA,
+  max_iter = 200L,
+  grad_tol = 1e-08,
+  m_bfgs = 10L,
+  max_ls = 40L,
+  h = 1e-05
+)
 }
 \arguments{
 \item{x}{A numeric vector of points where the density is evaluated.}

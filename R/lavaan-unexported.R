@@ -22,3 +22,15 @@ lavaan___lav_model_ey <-
   utils::getFromNamespace("lav_model_ey", "lavaan")
 lavaan___lav_mvnorm_cluster_implied22l <-
   utils::getFromNamespace("lav_mvnorm_cluster_implied22l", "lavaan")
+lavaan___lav_model_get_parameters <-
+  utils::getFromNamespace("lav_model_get_parameters", "lavaan")
+lavaan___lav_partable_vnames <-
+  utils::getFromNamespace("lav_partable_vnames", "lavaan")
+lavaan___lav_data_full <-
+  utils::getFromNamespace("lav_data_full", "lavaan")
+lavaan___lav_samplestats_from_data <-
+  utils::getFromNamespace("lav_samplestats_from_data", "lavaan")
+lavaan___lav_model <-
+  utils::getFromNamespace("lav_model", "lavaan")
+lavaan___lav_start <-
+  utils::getFromNamespace("lav_start", "lavaan")

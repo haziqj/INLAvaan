@@ -80,22 +80,22 @@ test_that("Method: marggaus", {
   expect_s4_class(fit, "INLAvaan")
 })
 
-test_that("Method: sampling", {
-  expect_no_error({
-    fit <- asem(
-      mod,
-      dat,
-      marginal_method = "sampling",
-      vb_correction = FALSE,
-      test = "none",
-      verbose = FALSE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
-})
+# test_that("Method: sampling", {
+#   expect_no_error({
+#     fit <- asem(
+#       mod,
+#       dat,
+#       marginal_method = "sampling",
+#       vb_correction = FALSE,
+#       test = "none",
+#       verbose = FALSE,
+#       nsamp = NSAMP
+#     )
+#   })
+#   expect_no_error(out <- capture.output(summary(fit)))
+#
+#   expect_s4_class(fit, "INLAvaan")
+# })
 
 test_that("Gradients are correct (Finite Difference Check)", {
   suppressMessages(

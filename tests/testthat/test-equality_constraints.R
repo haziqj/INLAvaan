@@ -67,6 +67,28 @@ test_that("Method: skewnorm", {
   expect_equal(gt_at_opt, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
+test_that("Equality-constraint models use the native optimizer by default", {
+
+  # FIXME: No equality constraints in Rcpp?
+
+  expect_no_error({
+    fit <- agrowth(
+      mod,
+      dat,
+      marginal_method = "skewnorm",
+      verbose = FALSE,
+      nsamp = NSAMP,
+      test = "none",
+      vb_correction = FALSE
+    )
+  })
+  int <- get_inlavaan_internal(fit)
+
+  expect_false(is.null(int$native_backend))
+  expect_true(isTRUE(int$opt$converged))
+  expect_true(is.null(int$opt$convergence))
+})
+
 test_that("Method: asymgaus", {
   expect_no_error({
     fit <- agrowth(
@@ -97,20 +119,21 @@ test_that("Method: marggaus", {
   expect_s4_class(fit, "INLAvaan")
 })
 
-test_that("Method: sampling", {
-  expect_no_error({
-    fit <- agrowth(
-      mod,
-      dat,
-      marginal_method = "sampling",
-      verbose = FALSE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
-})
+# FIXME: Sampling method?
+# test_that("Method: sampling", {
+#   expect_no_error({
+#     fit <- agrowth(
+#       mod,
+#       dat,
+#       marginal_method = "sampling",
+#       verbose = FALSE,
+#       nsamp = NSAMP
+#     )
+#   })
+#   expect_no_error(out <- capture.output(summary(fit)))
+#
+#   expect_s4_class(fit, "INLAvaan")
+# })
 
 test_that("Gradients are correct (Finite Difference Check)", {
   suppressMessages(

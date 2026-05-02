@@ -48,7 +48,11 @@ standardisedsolution <- function(
       approx_data = approx_data,
       pt = partable,
       lavmodel = lavmodel,
-      nsamp = nsamp
+      nsamp = nsamp,
+      integration_data = inla_integration %||% NULL,
+      native_theta_transforms = native_theta_transforms %||% NULL,
+      cov_var_idx1 = cov_var_idx1 %||% NULL,
+      cov_var_idx2 = cov_var_idx2 %||% NULL
     )
   )
   x_samp <- samp$x_samp

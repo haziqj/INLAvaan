@@ -145,6 +145,7 @@ inlavaanify_partable <- function(
   lavoptions,
   use_gcp = FALSE
 ) {
+  inline_priors <- attr(pt, "inlavaan_inline_priors", exact = TRUE)
   nlevels <- lavdata@nlevels
   is_multilvl <- nlevels > 1
   if (is_multilvl) {
@@ -191,6 +192,7 @@ inlavaanify_partable <- function(
     where_user_prior <- user_prior != ""
     pt$prior[where_user_prior] <- user_prior[where_user_prior]
   }
+  pt <- apply_inline_priors_to_partable(pt, inline_priors)
 
   # Add transformations to unrestricted parameter space
   tmp <- lapply(pt$mat, partable_transform_funcs)

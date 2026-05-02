@@ -20,6 +20,9 @@ test_that("Method: skewnorm", {
     total := c + (a*b)
   "
 
+  # TEST FAILING: There's missing variance of X in the asem() fit. So maybe the
+  # model translation did not go correctly in Rcpp.
+
   fit_lav <- lavaan::sem(mod, dat)
   expect_no_error({
     fit <- asem(

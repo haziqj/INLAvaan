@@ -493,9 +493,10 @@ prior_grad_vectorized <- function(theta, cache) {
     for (blk_idx in seq_along(cache$gcp_blocks)) {
       blk <- cache$gcp_blocks[[blk_idx]]
 
-      # 1. Identify theta indices for this block
+      # 1. Identify cache positions for this block, then map back to the full
+      # theta vector using the stored free_id indices.
       blk_theta_idx <- which(cache$idx_in_pt %in% blk$pt_cor_idx)
-      blk_theta <- theta[blk_theta_idx]
+      blk_theta <- theta[cache$free_id[blk_theta_idx]]
       blk_iLtheta <- if (!blk$is_dense) blk$iLtheta
 
       # 2. Check cache for the expensive log|det J| gradient
