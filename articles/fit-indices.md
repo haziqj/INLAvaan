@@ -23,14 +23,18 @@ This vignette covers:
 
 ### Deviance and chi-square
 
-Let ${\mathbf{θ}}^{(s)}$ denote the $s$-th posterior draw of the model
-parameters ($s = 1,\ldots,S$). The per-sample deviance chi-square is
-$$\chi_{s}^{2} = 2\left\lbrack \ell_{\text{sat}} - \ell({\mathbf{θ}}^{(s)}) \right\rbrack,$$
-where $\ell_{\text{sat}}$ is the log-likelihood of the saturated model
-(sample moments equal model moments) and $\ell({\mathbf{θ}}^{(s)})$ is
-the log-likelihood evaluated at the $s$-th draw. This equals
-$N\, F_{\text{ML}}({\mathbf{θ}}^{(s)})$, where $F_{\text{ML}}$ is the ML
-discrepancy function.
+Let $`\boldsymbol\theta^{(s)}`$ denote the $`s`$-th posterior draw of
+the model parameters ($`s = 1, \dots, S`$). The per-sample deviance
+chi-square is
+``` math
+  \chi^2_s = 2 \bigl[\ell_{\text{sat}} - \ell(\boldsymbol\theta^{(s)})\bigr],
+```
+where $`\ell_{\text{sat}}`$ is the log-likelihood of the saturated model
+(sample moments equal model moments) and
+$`\ell(\boldsymbol\theta^{(s)})`$ is the log-likelihood evaluated at the
+$`s`$-th draw. This equals
+$`N \, F_{\text{ML}}(\boldsymbol\theta^{(s)})`$, where $`F_{\text{ML}}`$
+is the ML discrepancy function.
 
 ### Rescaling
 
@@ -38,53 +42,75 @@ INLAvaan supports two rescaling methods, controlled by the `rescale`
 argument:
 
 **`"devM"` (default).** Uses the DIC-based effective number of
-parameters $p_{D}$.
-$$d_{s} = \chi_{s}^{2} - p_{D},\qquad{df} = p - p_{D},\qquad N_{adj} = N.$$
-If $p_{D}$ is unreasonable ($p_{D} \leq 0$ or $p_{D} \geq p$), INLAvaan
-falls back to using $p_{D} = q$ (the number of free parameters).
+parameters $`p_D`$.
+``` math
+  d_s = \chi^2_s - p_D, \qquad
+  \mathrm{df} = p - p_D, \qquad
+  N_{\mathrm{adj}} = N.
+```
+If $`p_D`$ is unreasonable ($`p_D \leq 0`$ or $`p_D \geq p`$), INLAvaan
+falls back to using $`p_D = q`$ (the number of free parameters).
 
-**`"MCMC"`.** Uses the classical chi-square with $N - 1$ scaling.
-$$d_{s} = \frac{N - 1}{N}\chi_{s}^{2},\qquad{df} = p - q,\qquad N_{adj} = N - G,$$
-where $q$ is the number of free parameters and $G$ is the number of
+**`"MCMC"`.** Uses the classical chi-square with $`N - 1`$ scaling.
+``` math
+  d_s = \frac{N - 1}{N} \chi^2_s, \qquad
+  \mathrm{df} = p - q, \qquad
+  N_{\mathrm{adj}} = N - G,
+```
+where $`q`$ is the number of free parameters and $`G`$ is the number of
 groups.
 
 In both cases the per-sample noncentrality parameter is
-${\widehat{\lambda}}_{s} = {\max}(d_{s} - {df},\, 0)$.
+$`\hat\lambda_s = \max(d_s - \mathrm{df},\, 0)`$.
 
 ### Absolute fit indices
 
-The following indices are computed at **each** posterior draw $s$,
+The following indices are computed at **each** posterior draw $`s`$,
 generating a posterior distribution.
 
 **BRMSEA (Bayesian RMSEA).**
-$$\text{BRMSEA}_{s} = \sqrt{\frac{{\widehat{\lambda}}_{s}}{{df} \cdot N_{\text{adj}}}} \cdot \sqrt{G}.$$
+``` math
+  \text{BRMSEA}_s = \sqrt{\frac{\hat\lambda_s}{\mathrm{df} \cdot N_\text{adj}}} \cdot \sqrt{G}.
+```
 
 **BGammaHat.**
-$$\text{BGammaHat}_{s} = \frac{v}{v + 2{\widehat{\lambda}}_{s}/N_{\text{adj}}},$$
-where $v = \sum_{g}p_{g}$ is the total number of observed variables
+``` math
+  \text{BGammaHat}_s = \frac{v}{v + 2\hat\lambda_s / N_\text{adj}},
+```
+where $`v = \sum_g p_g`$ is the total number of observed variables
 across groups.
 
 **Adjusted BGammaHat.**
-$$\text{adjBGammaHat}_{s} = 1 - \frac{p}{df}\left( 1 - \text{BGammaHat}_{s} \right).$$
+``` math
+  \text{adjBGammaHat}_s = 1 - \frac{p}{\mathrm{df}} \bigl(1 - \text{BGammaHat}_s\bigr).
+```
 
 **BMc (McDonald’s centrality index).**
-$$\text{BMc}_{s} = {\exp}\!\left( - \frac{1}{2}{\widehat{\lambda}}_{s}/N_{\text{adj}} \right).$$
+``` math
+  \text{BMc}_s = \exp\!\bigl(-\tfrac{1}{2}\hat\lambda_s / N_\text{adj}\bigr).
+```
 
 ### Incremental fit indices
 
 Incremental indices compare the target model against a **baseline**
-(null) model. Let $d_{s}^{(0)}$, ${df}^{(0)}$, and
-${\widehat{\lambda}}_{s}^{(0)}$ denote the corresponding quantities for
-the baseline model.
+(null) model. Let $`d_s^{(0)}`$, $`\mathrm{df}^{(0)}`$, and
+$`\hat\lambda_s^{(0)}`$ denote the corresponding quantities for the
+baseline model.
 
 **BCFI (Bayesian CFI).**
-$$\text{BCFI}_{s} = 1 - \frac{{\widehat{\lambda}}_{s}}{{\widehat{\lambda}}_{s}^{(0)}}.$$
+``` math
+  \text{BCFI}_s = 1 - \frac{\hat\lambda_s}{\hat\lambda_s^{(0)}}.
+```
 
 **BTLI (Bayesian TLI).**
-$$\text{BTLI}_{s} = \frac{d_{s}^{(0)}/{df}^{(0)} - d_{s}/{df}}{d_{s}^{(0)}/{df}^{(0)} - 1}.$$
+``` math
+  \text{BTLI}_s = \frac{d_s^{(0)} / \mathrm{df}^{(0)} - d_s / \mathrm{df}}{d_s^{(0)} / \mathrm{df}^{(0)} - 1}.
+```
 
 **BNFI (Bayesian NFI).**
-$$\text{BNFI}_{s} = \frac{d_{s}^{(0)} - d_{s}}{d_{s}^{(0)}}.$$
+``` math
+  \text{BNFI}_s = \frac{d_s^{(0)} - d_s}{d_s^{(0)}}.
+```
 
 The posterior expectations (EAP), standard deviations, quantile-based
 credible intervals, and modes of these distributions are reported by the
@@ -96,6 +122,7 @@ method.
 We fit a three-factor CFA on the Holzinger–Swineford (1939) data.
 
 ``` r
+
 HS.model <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
@@ -112,9 +139,10 @@ index alongside the marginal log-likelihood, ppp, DIC, and gradient
 diagnostics.
 
 ``` r
+
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.429        0.000     7517.221       20.645        0.091 
+#>           21    -3823.429        0.000     7517.027       20.548        0.091 
 #>    BGammaHat adjBGammaHat          BMc 
 #>        0.957        0.920        0.903
 ```
@@ -126,6 +154,7 @@ To inspect the full posterior distribution of each index, use
 This returns an S3 object of class `"bfit_indices"`.
 
 ``` r
+
 bfi <- bfit_indices(fit)
 bfi
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000): 
@@ -140,20 +169,22 @@ provides a table of posterior summaries (Mean, SD, 2.5%, 50%, 97.5%,
 Mode) for each index.
 
 ``` r
+
 summary(bfi)
 #> 
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.102 0.090
-#> BGammaHat    0.957 0.004 0.947 0.954 0.957 0.960  0.964 0.958
-#> adjBGammaHat 0.920 0.008 0.902 0.915 0.921 0.926  0.933 0.923
-#> BMc          0.903 0.010 0.881 0.897 0.904 0.910  0.919 0.907
+#> BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.102 0.091
+#> BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.964 0.958
+#> adjBGammaHat 0.920 0.008 0.901 0.915 0.921 0.926  0.934 0.922
+#> BMc          0.903 0.010 0.880 0.897 0.904 0.910  0.920 0.905
 ```
 
 You can also access the raw per-sample vectors for custom analysis:
 
 ``` r
+
 hist(bfi$indices$BRMSEA, breaks = 30, main = "BRMSEA", xlab = "BRMSEA",
      col = "steelblue", border = "white")
 ```
@@ -168,6 +199,7 @@ Incremental indices (BCFI, BTLI, BNFI) require a **baseline model**. A
 common choice is the independence (uncorrelated) model.
 
 ``` r
+
 null.model <- "
   x1 ~~ x1
   x2 ~~ x2
@@ -187,51 +219,55 @@ Now pass the baseline model to `fitMeasures()` or
 [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md):
 
 ``` r
+
 fitMeasures(fit, baseline.model = fit_null)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.429        0.000     7517.221       20.645        0.091 
+#>           21    -3823.429        0.000     7517.027       20.548        0.091 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
 #>        0.957        0.920        0.903        0.930        0.897        0.907
 ```
 
 ``` r
+
 bfi_inc <- bfit_indices(fit, baseline.model = fit_null)
 summary(bfi_inc)
 #> 
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.101 0.091
-#> BGammaHat    0.957 0.004 0.948 0.954 0.957 0.960  0.964 0.960
-#> adjBGammaHat 0.920 0.008 0.903 0.915 0.921 0.926  0.933 0.925
-#> BMc          0.903 0.010 0.883 0.898 0.904 0.911  0.919 0.910
-#> BCFI         0.931 0.007 0.915 0.926 0.931 0.936  0.943 0.932
-#> BTLI         0.897 0.011 0.874 0.891 0.898 0.905  0.915 0.899
-#> BNFI         0.907 0.007 0.891 0.903 0.908 0.912  0.918 0.908
+#> BRMSEA       0.091 0.005 0.083 0.087 0.091 0.094  0.101 0.090
+#> BGammaHat    0.957 0.004 0.947 0.954 0.957 0.960  0.964 0.958
+#> adjBGammaHat 0.921 0.008 0.903 0.916 0.921 0.927  0.934 0.923
+#> BMc          0.903 0.010 0.882 0.898 0.904 0.911  0.920 0.906
+#> BCFI         0.931 0.007 0.915 0.926 0.932 0.936  0.943 0.933
+#> BTLI         0.898 0.011 0.875 0.891 0.899 0.906  0.916 0.901
+#> BNFI         0.907 0.007 0.892 0.903 0.908 0.912  0.919 0.909
 ```
 
 ## Rescaling: `"devM"` vs `"MCMC"`
 
 The `rescale` argument controls how the chi-square and degrees of
 freedom are computed. The default is `"devM"`, which subtracts the
-DIC-based $p_{D}$ from the deviance. To use the classical $N - 1$
+DIC-based $`p_D`$ from the deviance. To use the classical $`N - 1`$
 scaling instead, set `rescale = "MCMC"`:
 
 ``` r
+
 bfi_mcmc <- bfit_indices(fit, rescale = "MCMC")
 summary(bfi_mcmc)
 #> 
 #> Posterior summary of MCMC-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.107 0.004 0.100 0.103 0.106 0.109  0.116 0.105
-#> BGammaHat    0.943 0.004 0.933 0.940 0.943 0.946  0.950 0.945
-#> adjBGammaHat 0.893 0.008 0.874 0.888 0.894 0.899  0.906 0.896
-#> BMc          0.873 0.010 0.850 0.867 0.874 0.880  0.888 0.876
+#> BRMSEA       0.107 0.004 0.100 0.104 0.106 0.109  0.116 0.106
+#> BGammaHat    0.943 0.004 0.933 0.940 0.943 0.946  0.950 0.944
+#> adjBGammaHat 0.892 0.008 0.875 0.887 0.893 0.898  0.906 0.895
+#> BMc          0.872 0.010 0.851 0.866 0.873 0.879  0.888 0.875
 ```
 
 The two methods will generally produce different results, especially
-with informative priors or when $p_{D}$ deviates substantially from $q$.
+with informative priors or when $`p_D`$ deviates substantially from
+$`q`$.
 
 ## Differences from blavaan
 
@@ -239,16 +275,16 @@ INLAvaan’s Bayesian fit indices follow the same mathematical framework
 as [blavaan](https://ecmerkle.github.io/blavaan/) ([Merkle et al.
 2021](#ref-merkle2021blavaan)), with a few implementation differences:
 
-| Feature                        | INLAvaan                         | blavaan                                                                          |
-|:-------------------------------|:---------------------------------|:---------------------------------------------------------------------------------|
-| Posterior samples              | INLA-based (Sobol/NORTA)         | MCMC draws from Stan/JAGS                                                        |
-| Rescaling methods              | `"devM"`, `"MCMC"`               | `"devM"`, `"MCMC"`, `"ppmc"`                                                     |
-| Effective parameters ($p_{D}$) | DIC-based $p_{D}$ only           | DIC-based $p_{D}$, LOOIC-based $p_{\text{loo}}$, or WAIC-based $p_{\text{waic}}$ |
-| HPD intervals                  | Not currently computed           | Computed via `{coda}`                                                            |
-| Summary statistics             | Mean, SD, 2.5%, 50%, 97.5%, Mode | EAP, Median, MAP, SD, HPD                                                        |
-| Return class                   | S3 `"bfit_indices"`              | S4 `"blavFitIndices"`                                                            |
+| Feature | INLAvaan | blavaan |
+|:---|:---|:---|
+| Posterior samples | INLA-based (Sobol/NORTA) | MCMC draws from Stan/JAGS |
+| Rescaling methods | `"devM"`, `"MCMC"` | `"devM"`, `"MCMC"`, `"ppmc"` |
+| Effective parameters ($`p_D`$) | DIC-based $`p_D`$ only | DIC-based $`p_D`$, LOOIC-based $`p_{\text{loo}}`$, or WAIC-based $`p_{\text{waic}}`$ |
+| HPD intervals | Not currently computed | Computed via `{coda}` |
+| Summary statistics | Mean, SD, 2.5%, 50%, 97.5%, Mode | EAP, Median, MAP, SD, HPD |
+| Return class | S3 `"bfit_indices"` | S4 `"blavFitIndices"` |
 
-Currently, INLAvaan only supports $p_{D}$ from the DIC (i.e., `p_dic`).
+Currently, INLAvaan only supports $`p_D`$ from the DIC (i.e., `p_dic`).
 The `"ppmc"` rescaling method (which computes replicated data under the
 posterior predictive) is not yet available.
 

@@ -146,6 +146,11 @@ asem(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- use_gcp:
+
+  EXPIRMENTAL!!! Logical indicating whether to use the GCP
+  parametrisation for covariance.
+
 - cores:
 
   Integer or `NULL`. Number of cores for parallel marginal fitting. When
@@ -232,22 +237,23 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [92ms]
+#> ✔ Finding posterior mode. [107ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [83ms]
+#> ✔ Computing the Hessian. [84ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.158σ. [177ms]
+#> ✔ VB correction; mean |δ| = 0.158σ. [205ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ✔ Fitting 28/28 skew-normal marginals. [1.2s]
+#> ⠹ Fitting 22/28 skew-normal marginals.
+#> ✔ Fitting 28/28 skew-normal marginals. [1.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [233ms]
+#> ✔ Adjusting copula correlations (NORTA). [257ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [369ms]
+#> ✔ Posterior sampling and summarising. [577ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9001 ended normally after 74 iterations

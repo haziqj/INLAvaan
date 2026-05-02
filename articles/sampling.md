@@ -9,37 +9,63 @@ parameter values. The
 function does exactly this: it propagates parameter draws through the
 full generative chain
 
-$$\left. \underset{\text{parameters}}{\underbrace{\mathbf{θ}}}\;\rightarrow\;\underset{\text{latent variables}}{\underbrace{\mathbf{η}}}\;\rightarrow\;\underset{\text{observed variables}}{\underbrace{\mathbf{y}^{*}}} \right.$$
+``` math
+\underbrace{\boldsymbol\theta}_{\text{parameters}}
+\;\longrightarrow\;
+\underbrace{\boldsymbol\eta}_{\text{latent variables}}
+\;\longrightarrow\;
+\underbrace{\mathbf{y}^*}_{\text{observed variables}}
+```
 
 producing samples that are **not tied to any individual observation**.
 This is distinct from
 [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md), which
 returns individual-specific factor scores
-${\mathbf{η}} \mid \mathbf{y},{\mathbf{θ}}$.
+$`\boldsymbol\eta \mid \mathbf{y}, \boldsymbol\theta`$.
 
 Typical use cases include **posterior predictive checks** (PPCs) and
 **prior predictive checks**.
 
 ## The generative model
 
-Let ${\mathbf{θ}}^{(s)}$ ($s = 1,\ldots,S$) denote one parameter draw.
-From this draw the SEM matrices $\mathbf{\Lambda}$, $\mathbf{\Psi}$,
-$\mathbf{B}$, $\mathbf{α}$, $\mathbf{ν}$, and $\mathbf{\Theta}$ are
-constructed. The generative chain is:
+Let $`\boldsymbol\theta^{(s)}`$ ($`s = 1, \dots, S`$) denote one
+parameter draw. From this draw the SEM matrices $`\boldsymbol\Lambda`$,
+$`\boldsymbol\Psi`$, $`\mathbf{B}`$, $`\boldsymbol\alpha`$,
+$`\boldsymbol\nu`$, and $`\boldsymbol\Theta`$ are constructed. The
+generative chain is:
 
 **1. Latent variables.**
-$${\mathbf{η}}^{(s)} \sim \mathcal{N}\!\left( (\mathbf{I} - \mathbf{B})^{-1}{\mathbf{α}},\;\mathbf{\Phi} \right),\qquad\mathbf{\Phi} = (\mathbf{I} - \mathbf{B})^{-1}\mathbf{\Psi}\,\lbrack(\mathbf{I} - \mathbf{B})^{-1}\rbrack^{\prime}.$$
+``` math
+\boldsymbol\eta^{(s)}
+\sim
+\mathcal{N}\!\bigl(
+  (\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\alpha,\;
+  \boldsymbol\Phi
+\bigr),
+\qquad
+\boldsymbol\Phi
+= (\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\Psi\,
+  [(\mathbf{I} - \mathbf{B})^{-1}]'.
+```
 
 **2. Observed variables.**
-$$\mathbf{y}^{*(s)} \sim \mathcal{N}\!\left( \mathbf{\Lambda}\,{\mathbf{η}}^{(s)} + {\mathbf{ν}},\;\mathbf{\Theta} \right).$$
+``` math
+\mathbf{y}^{*(s)}
+\sim
+\mathcal{N}\!\bigl(
+  \boldsymbol\Lambda\,\boldsymbol\eta^{(s)} + \boldsymbol\nu,\;
+  \boldsymbol\Theta
+\bigr).
+```
 
-When `prior = FALSE` (default), ${\mathbf{θ}}^{(s)}$ comes from the
-posterior; when `prior = TRUE`, each parameter is drawn independently
-from its prior.
+When `prior = FALSE` (default), $`\boldsymbol\theta^{(s)}`$ comes from
+the posterior; when `prior = TRUE`, each parameter is drawn
+independently from its prior.
 
 ## Quick start
 
 ``` r
+
 dat <- lavaan::HolzingerSwineford1939
 mod <- "
   visual  =~ x1 + x2 + x3
@@ -51,10 +77,11 @@ fit <- acfa(mod, dat, verbose = FALSE)
 
 ### Parameter samples
 
-The default type `"lavaan"` returns an $S \times p$ matrix of
+The default type `"lavaan"` returns an $`S \times p`$ matrix of
 lavaan-side (constrained) parameter draws:
 
 ``` r
+
 theta_post <- sampling(fit, type = "lavaan", nsamp = 2000)
 dim(theta_post)
 #> [1] 2000   21
@@ -71,6 +98,7 @@ head(theta_post[, 1:4])
 ### Latent and observed samples
 
 ``` r
+
 eta  <- sampling(fit, type = "latent",   nsamp = 1000)
 ystar <- sampling(fit, type = "observed", nsamp = 1000)
 dim(eta)    # 1000 x 3 (one per latent factor)
@@ -82,6 +110,7 @@ dim(ystar)  # 1000 x 9 (one per observed indicator)
 ### Everything at once
 
 ``` r
+
 all_samps <- sampling(fit, type = "all", nsamp = 1000)
 names(all_samps)
 #> [1] "lavaan"   "theta"    "latent"   "observed" "implied"
@@ -96,6 +125,7 @@ histogram (drawn via the copula method) on top of the fitted density
 curve stored in `pdf_data` to verify that they agree.
 
 ``` r
+
 # 1. Draw copula samples
 samp_cop <- sampling(fit, type = "lavaan", nsamp = 1000, samp_copula = TRUE)
 
@@ -143,6 +173,7 @@ approximation instead. The difference is most visible for parameters
 with asymmetric posteriors, such as variance components.
 
 ``` r
+
 samp_gauss <- sampling(fit, type = "lavaan", nsamp = 5000, samp_copula = FALSE)
 
 cop_df <- data.frame(
@@ -188,6 +219,7 @@ generative model. This is useful for checking whether the priors imply
 sensible ranges for the observed data.
 
 ``` r
+
 y_prior <- sampling(fit, type = "observed", nsamp = 10000, prior = TRUE)
 #> Prior sampling: 6253 of 16253 draws (38.5%) rejected (non-PD model-implied
 #> covariance).
@@ -195,6 +227,7 @@ y_post  <- sampling(fit, type = "observed", nsamp = 10000, prior = FALSE)
 ```
 
 ``` r
+
 df_pp <- data.frame(
   x1 = c(y_prior[, "x1"], y_post[, "x1"]),
   source = rep(c("Prior", "Posterior"), each = 2000)

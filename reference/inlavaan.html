@@ -162,10 +162,9 @@ and <code>"none"</code> (or <code>FALSE</code>) applies no correction.</p></dd>
 
 <dt id="arg-samp-copula">samp_copula<a class="anchor" aria-label="anchor" href="#arg-samp-copula"></a></dt>
 <dd><p>Logical. When <code>TRUE</code> (default), posterior samples are
-drawn using the copula method with the fitted marginals (e.g.
-skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
-When <code>FALSE</code>, samples are drawn from the Gaussian (Laplace)
-approximation. Only re</p></dd>
+drawn using the copula method with the fitted marginals (e.g. skew-normal
+or asymmetric Gaussian), with NORTA correlation adjustment. When <code>FALSE</code>,
+samples are drawn from the Gaussian (Laplace) approximation. Only re</p></dd>
 
 
 <dt id="arg-sn-fit-ngrid">sn_fit_ngrid<a class="anchor" aria-label="anchor" href="#arg-sn-fit-ngrid"></a></dt>
@@ -182,15 +181,14 @@ be excluded from the fit. Defaults to <code>-6</code>.</p></dd>
 
 <dt id="arg-sn-fit-temp">sn_fit_temp<a class="anchor" aria-label="anchor" href="#arg-sn-fit-temp"></a></dt>
 <dd><p>Temperature parameter for fitting the skew-normal.
-Defaults to <code>1</code> (weights are the density values themselves). If
-<code>NA</code>, the temperature is included as an additional optimisation parameter.</p></dd>
+Defaults to <code>1</code> (weights are the density values themselves). If <code>NA</code>, the
+temperature is included as an additional optimisation parameter.</p></dd>
 
 
 <dt id="arg-sn-fit-sample">sn_fit_sample<a class="anchor" aria-label="anchor" href="#arg-sn-fit-sample"></a></dt>
-<dd><p>Logical. When <code>TRUE</code> (default), a parametric
-skew-normal is fitted to the posterior samples for covariance and defined
-parameters. When <code>FALSE</code>, these are summarised using kernel density
-estimation instead.</p></dd>
+<dd><p>Logical. When <code>TRUE</code> (default), a parametric skew-normal
+is fitted to the posterior samples for covariance and defined parameters.
+When <code>FALSE</code>, these are summarised using kernel density estimation instead.</p></dd>
 
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
@@ -221,14 +219,18 @@ mode. Options include <code>"nlminb"</code> (default), <code>"ucminf"</code>, an
 for the optimisation. Defaults to <code>FALSE</code> to use analytical gradients.</p></dd>
 
 
+<dt id="arg-use-gcp">use_gcp<a class="anchor" aria-label="anchor" href="#arg-use-gcp"></a></dt>
+<dd><p>EXPIRMENTAL!!! Logical indicating whether to use the GCP
+parametrisation for covariance.</p></dd>
+
+
 <dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
 <dd><p>Integer or <code>NULL</code>. Number of cores for parallel marginal
 fitting. When <code>NULL</code> (default), serial execution is used unless the number
 of free parameters exceeds 120, in which case parallelisation is enabled
 automatically using all available physical cores. Set to <code>1L</code> to force
 serial execution. If <code>cores &gt; 1</code>, marginal fits are distributed across
-cores using <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code> (fork-based; no parallelism on
-Windows).</p></dd>
+cores using <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code> (fork-based; no parallelism on Windows).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -265,22 +267,22 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span>  auto.cov.lv.x <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[68ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[87ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[45ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[47ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.208σ. <span style="color: #B2B2B2;">[88ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.208σ. <span style="color: #B2B2B2;">[97ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/21 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting 21/21 skew-normal marginals. <span style="color: #B2B2B2;">[559ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting 21/21 skew-normal marginals. <span style="color: #B2B2B2;">[600ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Adjusting copula correlations (NORTA).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjusting copula correlations (NORTA). <span style="color: #B2B2B2;">[143ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjusting copula correlations (NORTA). <span style="color: #B2B2B2;">[170ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior sampling and summarising. <span style="color: #B2B2B2;">[538ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior sampling and summarising. <span style="color: #B2B2B2;">[587ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.2.4.9001 ended normally after 73 iterations</span>

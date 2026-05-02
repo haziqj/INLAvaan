@@ -1,10 +1,12 @@
 # Confirmatory Factor Analysis
 
 ``` r
+
 library(INLAvaan)
 ```
 
 ``` r
+
 # The famous Holzinger and Swineford (1939) example
 HS.model <- "
   visual  =~ x1 + x2 + x3
@@ -16,22 +18,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [72ms]
+#> ✔ Finding posterior mode. [75ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [55ms]
+#> ✔ Computing the Hessian. [59ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [92ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [98ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [510ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [549ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [146ms]
+#> ✔ Adjusting copula correlations (NORTA). [151ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [75ms]
+#> ✔ Posterior sampling and summarising. [81ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9001 ended normally after 56 iterations
@@ -49,8 +51,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7517.712 
-#>    Effective parameters (pD)                    21.039 
+#>    Deviance (DIC)                             7518.150 
+#>    Effective parameters (pD)                    21.258 
 #> 
 #> Parameter Estimates:
 #> 

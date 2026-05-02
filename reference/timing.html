@@ -112,7 +112,7 @@ durations as seconds, longer ones as minutes or hours.</p>
 <span class="r-in"><span><span class="co"># Total elapsed time</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.12 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.89 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># All stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></span>
@@ -123,14 +123,14 @@ durations as seconds, longer ones as minutes or hours.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     implied      loglik        vcov        test         Fit    baseline </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    rotation          vb   marginals       norta    sampling covariances </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.06 s      0.46 s      0.48 s      0.01 s      0.00 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.07 s      0.54 s      0.15 s      0.01 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> definedpars   deltapars       total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      1.12 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.89 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Specific stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"optim"</span>, <span class="st">"marginals"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     optim marginals </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.07 s    0.46 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.07 s    0.54 s </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

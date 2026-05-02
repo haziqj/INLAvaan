@@ -4,7 +4,7 @@
 
 - **Performance & Stability**: Major optimizations to the gradient
   calculation for GCP models. The Jacobian computation now uses a sparse
-  matrix approach, leading to significant speedups. The $\gamma_{1}$
+  matrix approach, leading to significant speedups. The $`\gamma_1`$
   correction calculation was corrected by reverting to the scalar path,
   ensuring numerical stability and accuracy.
 - **Internal**: Added `joint_lp_grad` and `joint_lp_grad_vectorised` to

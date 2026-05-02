@@ -22,9 +22,10 @@ using [INLAvaan](https://inlavaan.haziqj.ml/) immediately.
 
 As a first impression of the package, consider the canonical example of
 SEM applied to the Industrialisation and Political Democracy data set of
-Bollen (1989)[¹](#fn1):
+Bollen (1989)[^1]:
 
 ``` r
+
 library(INLAvaan)
 mod_poldem <- "
   # Latent variable definitions
@@ -179,6 +180,7 @@ which gives a measure of similarity between two probability
 distributions.
 
 ``` r
+
 # install.packages("blavaan")
 library(blavaan)
 fit_blav <- bsem(model = mod_poldem, data = PoliticalDemocracy, seed = 2026)
@@ -194,6 +196,7 @@ Install the CRAN version of [INLAvaan](https://inlavaan.haziqj.ml/)
 using:
 
 ``` r
+
 install.packages("INLAvaan")
 ```
 
@@ -201,16 +204,18 @@ Alternatively, install the development version of
 [INLAvaan](https://inlavaan.haziqj.ml/) from GitHub using:
 
 ``` r
+
 # install.packages("pak")
 pak::pak("haziqj/INLAvaan")
 ```
 
-*Optionally*[²](#fn2), you may wish to install
+*Optionally*[^2], you may wish to install
 [INLA](https://www.r-inla.org). Following the official instructions
 given [here](https://www.r-inla.org/download-install), install the
 package by running this command in R:
 
 ``` r
+
 install.packages(
   "INLA",
   repos = c(getOption("repos"), 
@@ -293,10 +298,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
 
-------------------------------------------------------------------------
-
-1.  Bollen, K. A. (1989). *Structural equations with latent variables*
+[^1]: Bollen, K. A. (1989). *Structural equations with latent variables*
     (pp. xiv, 514). John Wiley & Sons.
     <https://doi.org/10.1002/9781118619179>
 
-2.  R-INLA dependency has been removed temporarily from v0.2.0.
+[^2]: R-INLA dependency has been removed temporarily from v0.2.0.

@@ -7,6 +7,7 @@ Full Information Maximum Likelihood (FIML; `missing = "ML"`).
 ## Simulate Data
 
 ``` r
+
 library(INLAvaan)
 mod <- "
     # Latent variable definitions
@@ -37,25 +38,26 @@ datmiss[datmiss == 0] <- NA
 ## Listwise Deletion
 
 ``` r
+
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [137ms]
+#> ✔ Finding posterior mode. [140ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [151ms]
+#> ✔ Computing the Hessian. [161ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [472ms]
+#> ✔ VB correction; mean |δ| = 0.222σ. [486ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 24/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.1s]
+#> ⠹ Fitting 23/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [342ms]
+#> ✔ Adjusting copula correlations (NORTA). [378ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [805ms]
+#> ✔ Posterior sampling and summarising. [899ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -93,25 +95,27 @@ coef(fit1)
 ## Full Information Maximum Likelihood (FIML)
 
 ``` r
+
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [250ms]
+#> ✔ Finding posterior mode. [263ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [234ms]
+#> ✔ Computing the Hessian. [252ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [501ms]
+#> ✔ VB correction; mean |δ| = 0.160σ. [533ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 18/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.1s]
+#> ⠹ Fitting 14/42 skew-normal marginals.
+#> ⠸ Fitting 37/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [5.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [418ms]
+#> ✔ Adjusting copula correlations (NORTA). [466ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.3s]
+#> ✔ Posterior sampling and summarising. [1.4s]
 #> 
 print(fit2)
 #> INLAvaan 0.2.4.9001 ended normally after 93 iterations
@@ -145,6 +149,7 @@ coef(fit2)
 ```
 
 ``` r
+
 plot(
   coef(fit1), 
   coef(fit2), 

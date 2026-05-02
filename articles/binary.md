@@ -13,7 +13,7 @@ testing. Some notes:
   the total pairwise log-likelihood adds up contributions in pairs.
   Following the literature on spatial models using composite
   likelihoods, [INLAvaan](https://inlavaan.haziqj.ml/) adjusts this by a
-  factor of $1/\sqrt{p}$.
+  factor of $`1/\sqrt{p}`$.
 - It is proabably unwise to use the Laplace-approximated marginal
   likelihood for model comparison. The ppp also may not be suitable for
   ordinal data and needs a rethink.
@@ -24,13 +24,14 @@ testing. Some notes:
 - For binary models, normal priors for the thresholds should be fine.
   But looking ahead for ordinal models, the priors for thresholds should
   be specified in such a way that the ordering is preserved
-  $\tau_{0} < \tau_{1} < \tau_{2} < \cdots < \tau_{k}$. This is not yet
+  $`\tau_0 < \tau_1 < \tau_2 < \cdots < \tau_k`$. This is not yet
   implemented in [INLAvaan](https://inlavaan.haziqj.ml/).
 
 Having said that, let’s take a look at how binary CFA can be implemented
 in [INLAvaan](https://inlavaan.haziqj.ml/).
 
 ``` r
+
 library(INLAvaan)
 library(blavaan)
 #> Loading required package: Rcpp
@@ -65,23 +66,23 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [158ms]
+#> ✔ Finding posterior mode. [157ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [74ms]
+#> ✔ Computing the Hessian. [90ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.403σ. [413ms]
+#> ✔ VB correction; mean |δ| = 0.403σ. [439ms]
 #> 
 #> ⠙ Fitting 0/10 skew-normal marginals.
-#> ⠹ Fitting 10/10 skew-normal marginals.
-#> ✔ Fitting 10/10 skew-normal marginals. [698ms]
+#> ⠹ Fitting 9/10 skew-normal marginals.
+#> ✔ Fitting 10/10 skew-normal marginals. [718ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [52ms]
+#> ✔ Adjusting copula correlations (NORTA). [47ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [906ms]
+#> ✔ Posterior sampling and summarising. [1s]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9001 ended normally after 37 iterations

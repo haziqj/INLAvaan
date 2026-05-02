@@ -158,6 +158,11 @@ inlavaan(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- use_gcp:
+
+  EXPIRMENTAL!!! Logical indicating whether to use the GCP
+  parametrisation for covariance.
+
 - cores:
 
   Integer or `NULL`. Number of cores for parallel marginal fitting. When
@@ -208,22 +213,22 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [68ms]
+#> ✔ Finding posterior mode. [87ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [45ms]
+#> ✔ Computing the Hessian. [47ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.208σ. [88ms]
+#> ✔ VB correction; mean |δ| = 0.208σ. [97ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [559ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [600ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [143ms]
+#> ✔ Adjusting copula correlations (NORTA). [170ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [538ms]
+#> ✔ Posterior sampling and summarising. [587ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9001 ended normally after 73 iterations

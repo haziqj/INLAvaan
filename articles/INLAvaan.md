@@ -15,6 +15,7 @@ simple SEM. Before we begin make sure you have installed the INLAvaan
 package from GitHub by running the commands below.
 
 ``` r
+
 # Load all libraries for this example
 library(INLAvaan)
 library(tidyverse)
@@ -26,17 +27,17 @@ library(lavaan)
 To motivate the use of SEMs, consider the introductory example in Song
 and Lee ([2012](#ref-song2012basic)): *Does poorer glycemic control lead
 to greater severity of kidney disease?* We observe three indicators of
-glycemic control ($y_{1}$, $y_{2}$, $y_{3}$) and three indicators of
-kidney disease severity ($y_{4}$, $y_{5}$, $y_{6}$).
+glycemic control ($`y_1`$, $`y_2`$, $`y_3`$) and three indicators of
+kidney disease severity ($`y_4`$, $`y_5`$, $`y_6`$).
 
 |         | **Indicator** | **Description**            | **Unit** |
 |---------|---------------|----------------------------|----------|
-| $y_{1}$ | HbA1c         | 3-month avg. blood glucose | %        |
-| $y_{2}$ | FPG           | Fasting plasma glucose     | mmol/L   |
-| $y_{3}$ | Insulin       | Fasting insulin level      | μU/mL    |
-| $y_{4}$ | PCr           | Plasma creatinine          | μmol/L   |
-| $y_{5}$ | ACR           | Albumin–creatinine ratio   | mg/g     |
-| $y_{6}$ | BUN           | Blood urea nitrogen        | mmol/L   |
+| $`y_1`$ | HbA1c         | 3-month avg. blood glucose | %        |
+| $`y_2`$ | FPG           | Fasting plasma glucose     | mmol/L   |
+| $`y_3`$ | Insulin       | Fasting insulin level      | μU/mL    |
+| $`y_4`$ | PCr           | Plasma creatinine          | μmol/L   |
+| $`y_5`$ | ACR           | Albumin–creatinine ratio   | mg/g     |
+| $`y_6`$ | BUN           | Blood urea nitrogen        | mmol/L   |
 
 Rather than fitting separate regression models for each indicator, SEM
 allows us to model the relationship between the latent constructs
@@ -53,6 +54,7 @@ data using the [lavaan](https://lavaan.ugent.be) package to do so. The
 code is below:
 
 ``` r
+
 pop_mod <- "
   eta1 =~ 1*y1 + 0.8*y2 + 0.6*y3
   eta2 =~ 1*y4 + 0.8*y5 + 0.6*y6
@@ -81,9 +83,9 @@ str(dat)
 ```
 
 From the code above, note the true values of the parameters, including
-the factor loadings $\Lambda$, regression coefficient $\beta$ between
-the two latent variables, as well as the residual and latent variances
-$\Theta$ and $\Psi$ respectively.
+the factor loadings $`\Lambda`$, regression coefficient $`\beta`$
+between the two latent variables, as well as the residual and latent
+variances $`\Theta`$ and $`\Psi`$ respectively.
 
 ## Model fit
 
@@ -108,6 +110,7 @@ the main model fitting functions in [lavaan](https://lavaan.ugent.be):
 The code to fit the SEM model is below:
 
 ``` r
+
 mod <- "
   eta1 =~ y1 + y2 + y3
   eta2 =~ y4 + y5 + y6
@@ -115,22 +118,22 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [104ms]
+#> ✔ Finding posterior mode. [103ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [127ms]
+#> ✔ Computing the Hessian. [112ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [90ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [98ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [226ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [260ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [73ms]
+#> ✔ Adjusting copula correlations (NORTA). [74ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [427ms]
+#> ✔ Posterior sampling and summarising. [507ms]
 #> 
 ```
 
@@ -172,6 +175,7 @@ The resulting object is of class `INLAvaan`, a subclass of `lavaan`
 objects.
 
 ``` r
+
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
@@ -195,6 +199,7 @@ also work for `INLAvaan` objects. The most common ones are probably
 [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md).
 
 ``` r
+
 # Inspect coefficients
 coef(fit)
 #>   eta1=~y2   eta1=~y3   eta2=~y5   eta2=~y6  eta2~eta1     y1~~y1     y2~~y2 
@@ -270,6 +275,7 @@ predictions for observed variables (e.g. `type = "ov"`) and missing data
 imputation, respecting multilevel structure if present.
 
 ``` r
+
 eta_preds <- predict(fit, nsamp = 100)
 length(eta_preds)
 #> [1] 100
@@ -290,6 +296,7 @@ posterior samples returned by
 [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md).
 
 ``` r
+
 summ_eta <- summary(eta_preds)
 str(summ_eta)
 #> List of 7
@@ -342,6 +349,7 @@ contributions for each free parameter, which is useful for identifying
 any problematic parameters.
 
 ``` r
+
 diagnostics(fit)
 #>          npar         nsamp     converged    iterations      grad_inf 
 #>            13          1000             1            62      4.30e-03 
@@ -356,9 +364,10 @@ function reports how long each computation stage took, which can help
 identify bottlenecks when scaling to larger models.
 
 ``` r
+
 timing(fit)
 #>  total 
-#> 1.13 s
+#> 1.24 s
 ```
 
 ### Plot
@@ -368,6 +377,7 @@ distributions of the parameters. The vertical lines indicate the
 posterior mode.
 
 ``` r
+
 plot(fit)
 ```
 
@@ -382,6 +392,7 @@ This function takes two `INLAvaan` objects and computes the Bayes factor
 using the Laplace approximations to the marginal likelihoods.
 
 ``` r
+
 mod2 <- "
   # A model with uncorrelated factors
   eta1 =~ y1 + y2 + y3
@@ -390,22 +401,22 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [49ms]
+#> ✔ Finding posterior mode. [61ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [32ms]
+#> ✔ Computing the Hessian. [30ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [59ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [68ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [187ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [213ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [49ms]
+#> ✔ Adjusting copula correlations (NORTA). [46ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [384ms]
+#> ✔ Posterior sampling and summarising. [455ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
@@ -442,6 +453,7 @@ The default global priors are derived from
 [blavaan](https://ecmerkle.github.io/blavaan/):
 
 ``` r
+
 priors_for()  # similar to blavaan::dpriors()
 #>                nu             alpha            lambda              beta 
 #>    "normal(0,32)"    "normal(0,10)"    "normal(0,10)"    "normal(0,10)" 
@@ -456,6 +468,7 @@ global priors, say a gamma distribution on **variances** instead of
 **standard deviations** (default), then we would do the following:
 
 ``` r
+
 DP <- priors_for(theta = "gamma(1,1)", psi = "gamma(1,1)")
 DP
 #>              nu           alpha          lambda            beta           theta 
@@ -473,6 +486,7 @@ coefficient from `eta1` to `eta2`, we would specify the model as
 follows:
 
 ``` r
+
 mod <- "
   eta1 =~ y1 + y2 + prior('normal(1,3)')*y3
   eta2 =~ y4 + y5 + y6

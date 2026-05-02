@@ -20,7 +20,7 @@ Source:
 
 Jamil H, Rue H (2026). “Approximate Bayesian inference for structural
 equation models using integrated nested Laplace approximations.”
-[doi:10.48550/arXiv.2603.25690](https://doi.org/10.48550/arXiv.2603.25690),
+[doi:10.48550/arXiv.2603.25690](https://doi.org/10.48550/arXiv.2603.25690).
 2603.25690.
 
     @Misc{jamil2026approximate,
@@ -38,7 +38,7 @@ equation models using integrated nested Laplace approximations.”
 
 Jamil H, Rue H (2026). “Implementation and workflows for INLA-based
 approximate Bayesian structural equation modelling.”
-[doi:10.48550/arXiv.2604.00671](https://doi.org/10.48550/arXiv.2604.00671),
+[doi:10.48550/arXiv.2604.00671](https://doi.org/10.48550/arXiv.2604.00671).
 2604.00671.
 
     @Misc{jamil2026implementation,

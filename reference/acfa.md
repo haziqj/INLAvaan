@@ -146,6 +146,11 @@ acfa(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- use_gcp:
+
+  EXPIRMENTAL!!! Logical indicating whether to use the GCP
+  parametrisation for covariance.
+
 - cores:
 
   Integer or `NULL`. Number of cores for parallel marginal fitting. When
@@ -220,22 +225,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [64ms]
+#> ✔ Finding posterior mode. [54ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [44ms]
+#> ✔ Computing the Hessian. [42ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [91ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [98ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [503ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [593ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [160ms]
+#> ✔ Adjusting copula correlations (NORTA). [156ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [68ms]
+#> ✔ Posterior sampling and summarising. [80ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9001 ended normally after 56 iterations
