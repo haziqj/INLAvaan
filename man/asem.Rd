@@ -68,10 +68,9 @@ and \code{"none"} (or \code{FALSE}) applies no correction.}
 (including posterior sampling for model fit indices).}
 
 \item{samp_copula}{Logical. When \code{TRUE} (default), posterior samples are
-drawn using the copula method with the fitted marginals (e.g.
-skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
-When \code{FALSE}, samples are drawn from the Gaussian (Laplace)
-approximation. Only re}
+drawn using the copula method with the fitted marginals (e.g. skew-normal
+or asymmetric Gaussian), with NORTA correlation adjustment. When \code{FALSE},
+samples are drawn from the Gaussian (Laplace) approximation. Only re}
 
 \item{sn_fit_ngrid}{Number of grid points to lay out per dimension when
 fitting the skew-normal marginals. A finer grid gives a better fit at the
@@ -82,13 +81,12 @@ with log-posterior drop below this threshold (relative to the maximum) will
 be excluded from the fit. Defaults to \code{-6}.}
 
 \item{sn_fit_temp}{Temperature parameter for fitting the skew-normal.
-Defaults to \code{1} (weights are the density values themselves). If
-\code{NA}, the temperature is included as an additional optimisation parameter.}
+Defaults to \code{1} (weights are the density values themselves). If \code{NA}, the
+temperature is included as an additional optimisation parameter.}
 
-\item{sn_fit_sample}{Logical. When \code{TRUE} (default), a parametric
-skew-normal is fitted to the posterior samples for covariance and defined
-parameters. When \code{FALSE}, these are summarised using kernel density
-estimation instead.}
+\item{sn_fit_sample}{Logical. When \code{TRUE} (default), a parametric skew-normal
+is fitted to the posterior samples for covariance and defined parameters.
+When \code{FALSE}, these are summarised using kernel density estimation instead.}
 
 \item{control}{A list of control parameters for the optimiser.}
 
@@ -106,13 +104,15 @@ mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"opt
 \item{numerical_grad}{Logical indicating whether to use numerical gradients
 for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
 
+\item{use_gcp}{EXPIRMENTAL!!! Logical indicating whether to use the GCP
+parametrisation for covariance.}
+
 \item{cores}{Integer or \code{NULL}. Number of cores for parallel marginal
 fitting. When \code{NULL} (default), serial execution is used unless the number
 of free parameters exceeds 120, in which case parallelisation is enabled
 automatically using all available physical cores. Set to \code{1L} to force
 serial execution. If \code{cores > 1}, marginal fits are distributed across
-cores using \code{\link[parallel:mclapply]{parallel::mclapply()}} (fork-based; no parallelism on
-Windows).}
+cores using \code{\link[parallel:mclapply]{parallel::mclapply()}} (fork-based; no parallelism on Windows).}
 
 \item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan::lavaan} model fitting
 function.}

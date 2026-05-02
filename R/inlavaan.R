@@ -29,10 +29,9 @@
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param samp_copula Logical. When `TRUE` (default), posterior samples are
-#'   drawn using the copula method with the fitted marginals (e.g.
-#'   skew-normal or asymmetric Gaussian), with NORTA correlation adjustment.
-#'   When `FALSE`, samples are drawn from the Gaussian (Laplace)
-#'   approximation. Only re
+#'   drawn using the copula method with the fitted marginals (e.g. skew-normal
+#'   or asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
+#'   samples are drawn from the Gaussian (Laplace) approximation. Only re
 #' @param sn_fit_ngrid Number of grid points to lay out per dimension when
 #'   fitting the skew-normal marginals. A finer grid gives a better fit at the
 #'   cost of more joint-log-posterior evaluations. Defaults to `21`.
@@ -40,12 +39,11 @@
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Defaults to `-6`.
 #' @param sn_fit_temp Temperature parameter for fitting the skew-normal.
-#'   Defaults to `1` (weights are the density values themselves). If
-#'   `NA`, the temperature is included as an additional optimisation parameter.
-#' @param sn_fit_sample Logical. When `TRUE` (default), a parametric
-#'   skew-normal is fitted to the posterior samples for covariance and defined
-#'   parameters. When `FALSE`, these are summarised using kernel density
-#'   estimation instead.
+#'   Defaults to `1` (weights are the density values themselves). If `NA`, the
+#'   temperature is included as an additional optimisation parameter.
+#' @param sn_fit_sample Logical. When `TRUE` (default), a parametric skew-normal
+#'   is fitted to the posterior samples for covariance and defined parameters.
+#'   When `FALSE`, these are summarised using kernel density estimation instead.
 #' @param control A list of control parameters for the optimiser.
 #' @param verbose Logical indicating whether to print progress messages.
 #' @param debug Logical indicating whether to return debug information.
@@ -56,13 +54,14 @@
 #'   (BFGS).
 #' @param numerical_grad Logical indicating whether to use numerical gradients
 #'   for the optimisation. Defaults to `FALSE` to use analytical gradients.
+#' @param use_gcp EXPIRMENTAL!!! Logical indicating whether to use the GCP
+#'   parametrisation for covariance.
 #' @param cores Integer or `NULL`. Number of cores for parallel marginal
 #'   fitting. When `NULL` (default), serial execution is used unless the number
 #'   of free parameters exceeds 120, in which case parallelisation is enabled
 #'   automatically using all available physical cores. Set to `1L` to force
 #'   serial execution. If `cores > 1`, marginal fits are distributed across
-#'   cores using [parallel::mclapply()] (fork-based; no parallelism on
-#'   Windows).
+#'   cores using [parallel::mclapply()] (fork-based; no parallelism on Windows).
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
 #'   function.
 #'
