@@ -143,19 +143,19 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Finding posterior mode. [19ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [20ms]
+#> ✔ Computing the Hessian. [18ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.246σ. [49ms]
+#> ✔ VB correction; mean |δ| = 0.246σ. [46ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [72ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [63ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjusting copula correlations (NORTA). [19ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [331ms]
+#> ✔ Posterior sampling and summarising. [333ms]
 #> 
 
 # Posterior samples of lavaan-side parameters
