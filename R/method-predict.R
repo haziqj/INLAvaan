@@ -290,7 +290,8 @@ predict.inlavaan_internal <- function(
   }
 
   # Multilevel restrictions
-  if (nlevels > 1L) { # nocov start
+  if (nlevels > 1L) {
+    # nocov start
     if (!is.null(newdata)) {
       cli_abort("{.arg newdata} is not supported for multilevel models.")
     }
@@ -326,7 +327,8 @@ predict.inlavaan_internal <- function(
 
   # ---- type = "lv": Posterior draws of latent variable scores ----
   if (type == "lv") {
-    if (nlevels > 1L) { # nocov start
+    if (nlevels > 1L) {
+      # nocov start
       # ---- Multilevel path: use lavaan internals ----
       lavsamplestats <- object$lavsamplestats
 
@@ -357,10 +359,7 @@ predict.inlavaan_internal <- function(
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
-        LAMBDA <- lavaan___lav_model_lambda(
-          lavmodel = lavmodel_x,
-          remove.dummy.lv = FALSE
-        )
+        LAMBDA <- lavaan___lav_model_lambda(lavmodel = lavmodel_x)
         VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
         EETA <- lavaan___lav_model_eeta(
           lavmodel = lavmodel_x,
@@ -393,10 +392,8 @@ predict.inlavaan_internal <- function(
           group.idx <- (g - 1) * nlevels + seq_len(nlevels)
           implied.group <- lapply(lavimplied, function(x) x[group.idx])
 
-          decomp <- lavaan___lav_mvnorm_cluster_implied22l(
-            Lp = Lp,
-            implied = implied.group
-          )
+          # positional: first argument is Lp in lavaan < 0.7 but lp in >= 0.7
+          decomp <- lavaan___lav_mvnorm_cluster_implied22l(Lp, implied.group)
           MB.j <- compute_ml_ranef(y_g, Lp, decomp)
 
           ov.idx <- Lp$ov.idx
@@ -475,7 +472,8 @@ predict.inlavaan_internal <- function(
         cli_progress_update()
       }
       cli_progress_done()
-    } else { # nocov end
+    } else {
+      # nocov end
       # ---- Single-level path: full posterior draw ----
       sample_lv <- function(xx) {
         GLIST <- get_SEM_param_matrix(xx, "all", lavmodel)
@@ -550,7 +548,8 @@ predict.inlavaan_internal <- function(
   } else if (type %in% c("yhat", "ypred")) {
     add_noise <- (type == "ypred")
 
-    if (nlevels > 1L) { # nocov start
+    if (nlevels > 1L) {
+      # nocov start
       # ---- Multilevel yhat/ypred ----
       lavsamplestats <- object$lavsamplestats
 
@@ -573,10 +572,7 @@ predict.inlavaan_internal <- function(
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
-        LAMBDA <- lavaan___lav_model_lambda(
-          lavmodel = lavmodel_x,
-          remove.dummy.lv = FALSE
-        )
+        LAMBDA <- lavaan___lav_model_lambda(lavmodel = lavmodel_x)
         VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
         EETA <- lavaan___lav_model_eeta(
           lavmodel = lavmodel_x,
@@ -612,10 +608,8 @@ predict.inlavaan_internal <- function(
           group.idx <- (g - 1) * nlevels + seq_len(nlevels)
           implied.group <- lapply(lavimplied, function(x) x[group.idx])
 
-          decomp <- lavaan___lav_mvnorm_cluster_implied22l(
-            Lp = Lp,
-            implied = implied.group
-          )
+          # positional: first argument is Lp in lavaan < 0.7 but lp in >= 0.7
+          decomp <- lavaan___lav_mvnorm_cluster_implied22l(Lp, implied.group)
           MB.j <- compute_ml_ranef(y_g, Lp, decomp)
 
           ov.idx <- Lp$ov.idx
@@ -753,7 +747,8 @@ predict.inlavaan_internal <- function(
         cli_progress_update()
       }
       cli_progress_done()
-    } else { # nocov end
+    } else {
+      # nocov end
       # ---- Single-level yhat/ypred ----
       sample_yhat <- function(xx) {
         GLIST <- get_SEM_param_matrix(xx, "all", lavmodel)
@@ -867,7 +862,8 @@ predict.inlavaan_internal <- function(
 
     # Pre-compute per-block ov names for naming model-implied matrices
     ov_names_block <- NULL
-    if (nlevels > 1L) { # nocov start
+    if (nlevels > 1L) {
+      # nocov start
       nblocks <- lavmodel@nblocks
       ov_names_block <- vector("list", nblocks)
       for (b in seq_len(nblocks)) {
@@ -904,7 +900,8 @@ predict.inlavaan_internal <- function(
           } else {
             rep(0, p)
           }
-        } else { # nocov start
+        } else {
+          # nocov start
           # Multilevel: marginal covariance = within + between
           block_w <- (g - 1) * nlevels + 1
           block_b <- (g - 1) * nlevels + 2
@@ -1092,7 +1089,8 @@ print.predict.inlavaan_internal <- function(
   first <- x[[1L]]
 
   # Named vector (ymis_only output)
-  if (is.numeric(first) && !is.matrix(first) && !is.data.frame(first)) { # nocov start
+  if (is.numeric(first) && !is.matrix(first) && !is.data.frame(first)) {
+    # nocov start
     n_total <- length(first)
     if (n_total > n) {
       print(first[seq_len(n)], digits = nd)

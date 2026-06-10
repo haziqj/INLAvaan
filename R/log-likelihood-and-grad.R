@@ -14,10 +14,11 @@ inlav_model_loglik <- function(
   if (!is_bad_cov(Sigma)) {
     if (lavmodel@estimator == "ML") {
       # Multivariate normal log-likelihood
+      # no lavh1 argument: it does not exist in lavaan < 0.6-20 and
+      # defaults to NULL in later versions
       out <- lavaan___lav_model_loglik(
         lavdata = lavdata,
         lavsamplestats = lavsamplestats,
-        lavh1 = NULL,
         lavimplied = lavimplied,
         lavmodel = lavmodel,
         lavoptions = lavoptions
@@ -29,7 +30,6 @@ inlav_model_loglik <- function(
       kappa <- 1 / sqrt(no_ord) # scaling factor for PML
       fx <- lavaan___lav_model_objective(
         lavmodel = lavmodel_x,
-        GLIST = NULL,
         lavsamplestats = lavsamplestats,
         lavdata = lavdata,
         lavcache = lavcache
@@ -55,7 +55,6 @@ inlav_model_grad <- function(
   # Gradient of fit function F_ML (not loglik yet)
   grad_F <- lavaan___lav_model_gradient(
     lavmodel = lavaan::lav_model_set_parameters(lavmodel, x),
-    GLIST = NULL,
     lavsamplestats = lavsamplestats,
     lavdata = lavdata,
     lavcache = lavcache
@@ -64,7 +63,8 @@ inlav_model_grad <- function(
   out <-
     if (lavmodel@estimator == "ML") {
       -1 * lavsamplestats@ntotal * grad_F
-    } else if (lavmodel@estimator == "PML") { # nocov start
+    } else if (lavmodel@estimator == "PML") {
+      # nocov start
       no_ord <- length(lavdata@ordered)
       kappa <- 1 / sqrt(no_ord) # scaling factor for PML
       -1 * kappa * grad_F
