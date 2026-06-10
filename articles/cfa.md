@@ -21,19 +21,19 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ✔ Finding posterior mode. [71ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [56ms]
+#> ✔ Computing the Hessian. [54ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [98ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [90ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [538ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [499ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [150ms]
+#> ✔ Adjusting copula correlations (NORTA). [147ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [80ms]
+#> ✔ Posterior sampling and summarising. [76ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9000 ended normally after 56 iterations
@@ -51,8 +51,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7518.626 
-#>    Effective parameters (pD)                    21.496 
+#>    Deviance (DIC)                             7516.945 
+#>    Effective parameters (pD)                    20.656 
 #> 
 #> Parameter Estimates:
 #> 

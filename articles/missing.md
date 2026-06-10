@@ -41,23 +41,23 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [135ms]
+#> ✔ Finding posterior mode. [131ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [161ms]
+#> ✔ Computing the Hessian. [151ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [479ms]
+#> ✔ VB correction; mean |δ| = 0.222σ. [462ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 22/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.2s]
+#> ⠹ Fitting 25/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [355ms]
+#> ✔ Adjusting copula correlations (NORTA). [347ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [811ms]
+#> ✔ Posterior sampling and summarising. [803ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -98,21 +98,20 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [248ms]
+#> ✔ Finding posterior mode. [245ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [230ms]
+#> ✔ Computing the Hessian. [228ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [502ms]
+#> ✔ VB correction; mean |δ| = 0.160σ. [495ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 17/42 skew-normal marginals.
-#> ⠸ Fitting 41/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.1s]
+#> ⠹ Fitting 19/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [424ms]
+#> ✔ Adjusting copula correlations (NORTA). [417ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [1.3s]

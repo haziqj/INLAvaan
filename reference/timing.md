@@ -65,17 +65,17 @@ timing(fit, what = "all")
 #>        init    ov.names     Options        Data    ParTable SampleStats 
 #>      0.02 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s 
 #>          h1      bounds       start       Model       cache       optim 
-#>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.08 s 
+#>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.07 s 
 #>     implied      loglik        vcov        test         Fit    baseline 
 #>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s 
 #>    rotation          vb   marginals       norta    sampling covariances 
-#>      0.00 s      0.06 s      0.77 s      0.12 s      0.01 s      0.00 s 
+#>      0.00 s      0.06 s      0.45 s      0.44 s      0.01 s      0.00 s 
 #> definedpars   deltapars       total 
 #>      0.00 s      0.00 s      1.07 s 
 
 # Specific stages
 timing(fit, what = c("optim", "marginals"))
 #>     optim marginals 
-#>    0.08 s    0.77 s 
+#>    0.07 s    0.45 s 
 # }
 ```
