@@ -54,8 +54,6 @@
 #'   (BFGS).
 #' @param numerical_grad Logical indicating whether to use numerical gradients
 #'   for the optimisation. Defaults to `FALSE` to use analytical gradients.
-#' @param use_gcp EXPIRMENTAL!!! Logical indicating whether to use the GCP
-#'   parametrisation for covariance.
 #' @param cores Integer or `NULL`. Number of cores for parallel marginal
 #'   fitting. When `NULL` (default), serial execution is used unless the number
 #'   of free parameters exceeds 120, in which case parallelisation is enabled

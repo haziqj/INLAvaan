@@ -103,9 +103,6 @@ mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"opt
 \item{numerical_grad}{Logical indicating whether to use numerical gradients
 for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
 
-\item{use_gcp}{EXPIRMENTAL!!! Logical indicating whether to use the GCP
-parametrisation for covariance.}
-
 \item{cores}{Integer or \code{NULL}. Number of cores for parallel marginal
 fitting. When \code{NULL} (default), serial execution is used unless the number
 of free parameters exceeds 120, in which case parallelisation is enabled
