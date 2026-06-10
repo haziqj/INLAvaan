@@ -24,10 +24,10 @@ URL: https://inlavaan.haziqj.ml/, https://github.com/haziqj/INLAvaan
 BugReports: https://github.com/haziqj/INLAvaan/issues
 Depends: 
     R (>= 3.5)
-Imports: 
+Imports:
     cli,
     graphics,
-    lavaan,
+    lavaan (>= 0.6-19),
     methods,
     parallel,
     stats,
