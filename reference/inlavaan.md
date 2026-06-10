@@ -207,22 +207,23 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [63ms]
+#> ✔ Finding posterior mode. [64ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [42ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.208σ. [94ms]
+#> ✔ VB correction; mean |δ| = 0.208σ. [128ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [512ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [545ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [133ms]
+#> ✔ Adjusting copula correlations (NORTA). [126ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [495ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [505ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9000 ended normally after 73 iterations

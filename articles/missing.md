@@ -41,23 +41,24 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [131ms]
+#> ✔ Finding posterior mode. [139ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [151ms]
+#> ✔ Computing the Hessian. [168ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [462ms]
+#> ✔ VB correction; mean |δ| = 0.222σ. [509ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 25/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.1s]
+#> ⠹ Fitting 21/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [347ms]
+#> ✔ Adjusting copula correlations (NORTA). [352ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [803ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [830ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -98,20 +99,21 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [245ms]
+#> ✔ Finding posterior mode. [260ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [228ms]
+#> ✔ Computing the Hessian. [243ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [495ms]
+#> ✔ VB correction; mean |δ| = 0.160σ. [529ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 19/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5s]
+#> ⠹ Fitting 14/42 skew-normal marginals.
+#> ⠸ Fitting 37/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [5.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [417ms]
+#> ✔ Adjusting copula correlations (NORTA). [433ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [1.3s]
