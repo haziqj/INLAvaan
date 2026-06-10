@@ -4,17 +4,18 @@ mod <- "
     textual =~ x4 + x5 + x6
     speed   =~ x7 + x8 + x9
   "
-DP <- blavaan::dpriors(theta = "gamma(1,1)", psi = "gamma(1,1)")
 NSAMP <- 3
-fit <- asem(
-  mod,
-  dat,
-  dp = DP,
-  verbose = FALSE,
-  nsamp = NSAMP
-)
 
 test_that("Setting dp argument", {
+  skip_if_not_installed("blavaan")
+  DP <- blavaan::dpriors(theta = "gamma(1,1)", psi = "gamma(1,1)")
+  fit <- asem(
+    mod,
+    dat,
+    dp = DP,
+    verbose = FALSE,
+    nsamp = NSAMP
+  )
   pt <- lavaan::partable(fit)
   where_theta_var <- grep("theta_var", pt$mat)
   expect_true(all(pt$prior[where_theta_var] == "gamma(1,1)"))
