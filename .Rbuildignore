@@ -19,3 +19,5 @@
 ^data-raw$
 ^inst/workflows$
 ^\.positai$
+^CLAUDE\.md$
+^CONTRIBUTING\.md$
