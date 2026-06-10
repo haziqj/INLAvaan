@@ -108,7 +108,7 @@ compare_mcmc <- function(
     if (length(x) < 2) {
       return(0)
     }
-    sum((head(y, -1) + tail(y, 1)) * diff(x) / 2)
+    sum((head(y, -1) + tail(y, -1)) * diff(x) / 2, na.rm = TRUE)
   }
 
   # Align MCMC to Approximation Grid
@@ -160,9 +160,9 @@ compare_mcmc <- function(
 
         # Normalize
         Za <- trapz(x_val, pa)
-        pa <- if (Za > 0) pa / Za else pa
+        pa <- if (!is.na(Za) && Za > 0) pa / Za else pa
         Zm <- trapz(x_val, pm)
-        pm <- if (Zm > 0) pm / Zm else pm
+        pm <- if (!is.na(Zm) && Zm > 0) pm / Zm else pm
 
         # --- KL Divergences ---
         kl_fwd <- trapz(x_val, pm * (log(pmax(pm, eps)) - log(pmax(pa, eps))))
