@@ -24,6 +24,29 @@ jobs:
           - {os: windows-latest, r: 'devel'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
+          # Alternative lavaan versions: oldest supported (must match the
+          # floor in DESCRIPTION) and the development version on GitHub.
+          # blavaan is removed in these jobs (see the install step below),
+          # so suggests are not forced and vignettes (which use blavaan)
+          # are skipped.
+          - {
+              os: ubuntu-latest,
+              r: 'release',
+              label: '(lavaan 0.6-19)',
+              lavaan: '0.6-19',
+              force_suggests: 'false',
+              build_args: 'c("--no-manual", "--no-build-vignettes")',
+              check_args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'
+            }
+          - {
+              os: ubuntu-latest,
+              r: 'release',
+              label: '(lavaan devel)',
+              lavaan: 'devel',
+              force_suggests: 'false',
+              build_args: 'c("--no-manual", "--no-build-vignettes")',
+              check_args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'
+            }
           # - {
           #     os: ubuntu-latest, 
           #     r: 'release', 
@@ -83,6 +106,28 @@ jobs:
           # Otherwise, use "all" (the action default) to resolve all dep types.
           dependencies: ${{ matrix.config.dependencies || '"all"' }}
 
+      # ----- ALTERNATIVE LAVAAN VERSIONS -----
+      # Overwrites the CRAN lavaan installed by setup-r-dependencies with a
+      # pinned archive version or the GitHub development version. blavaan
+      # must go in these jobs: its binary is built against CRAN's current
+      # lavaan and carries stale copies of lavaan S4 methods that break
+      # under any other lavaan version (tests skip blavaan when absent).
+      - name: Install alternative lavaan (${{ matrix.config.lavaan }})
+        if: matrix.config.lavaan
+        run: |
+          try(remove.packages("blavaan"), silent = TRUE)
+          if (identical("${{ matrix.config.lavaan }}", "devel")) {
+            install.packages("remotes")
+            remotes::install_github("yrosseel/lavaan")
+          } else {
+            install.packages(
+              "https://cran.r-project.org/src/contrib/Archive/lavaan/lavaan_${{ matrix.config.lavaan }}.tar.gz",
+              repos = NULL, type = "source"
+            )
+          }
+        shell: Rscript {0}
+      # ---------------------------------------
+
       - name: Install package on Windows
         if: matrix.config.os == 'windows-latest'
         run: Rscript -e "install.packages(c('blavaan', 'ggplot2', 'knitr', 'lavaan', 'lme4', 'qrng', 'quarto', 'testthat', 'ucminf')); install.packages('.', repos = NULL, type = 'source')"
@@ -91,7 +136,8 @@ jobs:
         with:
           upload-snapshots: true
           # DYNAMIC ARGS:
-          # Use special args for No Suggests, otherwise default to standard.
-          build_args: ${{ matrix.config.check_args || 'c("--no-manual","--compact-vignettes=gs+qpdf")' }}
+          # Use special build/check args when the matrix provides them,
+          # otherwise default to standard.
+          build_args: ${{ matrix.config.build_args || 'c("--no-manual","--compact-vignettes=gs+qpdf")' }}
           args: ${{ matrix.config.check_args || 'c("--no-manual", "--as-cran")' }}
           error-on: ${{ matrix.config.error_on || '"warning"' }}          
