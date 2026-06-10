@@ -25,7 +25,6 @@ agrowth(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
-  use_gcp = FALSE,
   cores = NULL,
   ...
 )
@@ -146,11 +145,6 @@ agrowth(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
-- use_gcp:
-
-  EXPIRMENTAL!!! Logical indicating whether to use the GCP
-  parametrisation for covariance.
-
 - cores:
 
   Integer or `NULL`. Number of cores for parallel marginal fitting. When
@@ -246,26 +240,26 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [163ms]
+#> ✔ Finding posterior mode. [172ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [65ms]
+#> ✔ Computing the Hessian. [73ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.045σ. [174ms]
+#> ✔ VB correction; mean |δ| = 0.045σ. [186ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 7/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [1.1s]
+#> ⠹ Fitting 13/17 skew-normal marginals.
+#> ✔ Fitting 17/17 skew-normal marginals. [980ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [71ms]
+#> ✔ Adjusting copula correlations (NORTA). [84ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [118ms]
+#> ✔ Posterior sampling and summarising. [109ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.4.9001 ended normally after 83 iterations
+#> INLAvaan 0.2.4.9000 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -321,7 +315,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.069    0.045   -0.019    0.158    0.006       beta(1,1)
+#>    .s                 0.153    0.045   -0.019    0.158    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

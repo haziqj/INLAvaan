@@ -41,28 +41,28 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [132ms]
+#> ✔ Finding posterior mode. [145ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [147ms]
+#> ✔ Computing the Hessian. [144ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [458ms]
+#> ✔ VB correction; mean |δ| = 0.222σ. [519ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 25/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3s]
+#> ⠹ Fitting 22/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [341ms]
+#> ✔ Adjusting copula correlations (NORTA). [283ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [797ms]
+#> ✔ Posterior sampling and summarising. [741ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.2.4.9001 ended normally after 71 iterations
+#> INLAvaan 0.2.4.9000 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -79,9 +79,9 @@ coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        1.808        1.750        0.943        0.805        1.472        1.061 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        0.721        1.354        0.913        0.567        1.080        0.469 
+#>        0.721        1.354        0.913        0.567        1.080        0.255 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        1.844        3.596        0.607       -0.669        1.283        0.071 
+#>        0.399        0.497        0.208       -0.227        0.222        0.071 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
 #>        0.144        0.424        1.698        7.790        4.086        2.786 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
@@ -98,26 +98,27 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [247ms]
+#> ✔ Finding posterior mode. [279ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [234ms]
+#> ✔ Computing the Hessian. [223ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [490ms]
+#> ✔ VB correction; mean |δ| = 0.160σ. [571ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 19/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.2s]
+#> ⠹ Fitting 13/42 skew-normal marginals.
+#> ⠸ Fitting 34/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [6.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [406ms]
+#> ✔ Adjusting copula correlations (NORTA). [347ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.3s]
+#> ✔ Posterior sampling and summarising. [1.1s]
 #> 
 print(fit2)
-#> INLAvaan 0.2.4.9001 ended normally after 93 iterations
+#> INLAvaan 0.2.4.9000 ended normally after 93 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -134,9 +135,9 @@ coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        2.214        1.835        0.650        0.791        0.954        1.026 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        1.050        1.287        1.299        0.524        0.756        0.482 
+#>        1.050        1.287        1.299        0.524        0.756        0.252 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.898        3.316        0.301        0.365        1.294        0.084 
+#>        0.192        0.490        0.103        0.110        0.277        0.084 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
 #>        0.136        0.511        1.699        7.448        3.408        2.945 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
