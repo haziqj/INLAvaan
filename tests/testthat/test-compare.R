@@ -119,3 +119,28 @@ test_that("compare(loo = TRUE) aborts for models on different data", {
   )
   expect_error(compare(fit1, fit3, loo = TRUE), "same data")
 })
+
+test_that("compare(loo = TRUE) aborts when the variable sets differ", {
+  fit6 <- acfa(
+    mod_null,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  mod9 <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
+  "
+  fit9 <- acfa(
+    mod9,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  expect_error(compare(fit6, fit9, loo = TRUE), "same set of observed")
+})

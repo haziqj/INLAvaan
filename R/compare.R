@@ -224,6 +224,24 @@ compare_impl <- function(
       )
     }
 
+    # The joint ELPD is a density over all modelled variables, so models
+    # over different variable sets are not on a common scale (e.g. a
+    # covariate present in one model but absent from another)
+    ov1 <- sort(unique(unlist(internals[[1L]]$lavdata@ov.names)))
+    same_ov <- vapply(
+      internals,
+      function(m) identical(sort(unique(unlist(m$lavdata@ov.names))), ov1),
+      logical(1)
+    )
+    if (!all(same_ov)) {
+      cli_abort(c(
+        "LOO comparison requires models for the same set of observed
+         variables.",
+        "i" = "To drop a covariate's effect, keep the variable in the model
+         without the path (e.g. {.code fb ~ w1} plus {.code w2 ~~ w1})."
+      ))
+    }
+
     elpd <- vapply(
       loo_list,
       function(l) unname(l$estimates["elpd_loo", "Estimate"]),
