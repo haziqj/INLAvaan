@@ -62,8 +62,14 @@ against the best-ELPD model, the difference \strong{elpd_diff} with its
 \emph{paired} standard error \strong{se_diff} computed from the pointwise
 contributions (the appropriate uncertainty for nested or same-data
 comparisons). The table is then sorted by descending ELPD. All models
-must be fitted to the same data with matching units; stored LOO results
-(\code{test = "loo"} or \code{\link[=add_loo]{add_loo()}}) are reused.
+must be fitted to the same data with matching units, and must share the
+score flavour (see \code{\link[=loo]{loo()}}): mixing fits with modelled covariates
+(\code{fixed.x = FALSE}, joint scores) and fixed covariates
+(\code{fixed.x = TRUE}, conditional scores) is refused. Joint scores
+additionally require identical variable sets across models, while
+conditional scores require only matching outcome variables -- covariate
+sets may differ, which is the covariate-selection setting. Stored LOO
+results (\code{test = "loo"} or \code{\link[=add_loo]{add_loo()}}) are reused.
 }
 \examples{
 \donttest{

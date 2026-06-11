@@ -29,8 +29,14 @@
 #' *paired* standard error **se_diff** computed from the pointwise
 #' contributions (the appropriate uncertainty for nested or same-data
 #' comparisons). The table is then sorted by descending ELPD. All models
-#' must be fitted to the same data with matching units; stored LOO results
-#' (`test = "loo"` or [add_loo()]) are reused.
+#' must be fitted to the same data with matching units, and must share the
+#' score flavour (see [loo()]): mixing fits with modelled covariates
+#' (`fixed.x = FALSE`, joint scores) and fixed covariates
+#' (`fixed.x = TRUE`, conditional scores) is refused. Joint scores
+#' additionally require identical variable sets across models, while
+#' conditional scores require only matching outcome variables -- covariate
+#' sets may differ, which is the covariate-selection setting. Stored LOO
+#' results (`test = "loo"` or [add_loo()]) are reused.
 #'
 #' @param x An [INLAvaan] (or `inlavaan_internal`) object used as the
 #'   **baseline** (null) model. It is included in the comparison table and
@@ -224,21 +230,51 @@ compare_impl <- function(
       )
     }
 
-    # The joint ELPD is a density over all modelled variables, so models
-    # over different variable sets are not on a common scale (e.g. a
-    # covariate present in one model but absent from another)
-    ov1 <- sort(unique(unlist(internals[[1L]]$lavdata@ov.names)))
-    same_ov <- vapply(
-      internals,
-      function(m) identical(sort(unique(unlist(m$lavdata@ov.names))), ov1),
-      logical(1)
+    # Joint and conditional scores live on different scales and must not
+    # meet in one comparison
+    flavs <- vapply(
+      loo_list,
+      function(l) l$flavour %||% "joint",
+      character(1)
     )
-    if (!all(same_ov)) {
+    if (length(unique(flavs)) > 1L) {
       cli_abort(c(
-        "LOO comparison requires models for the same set of observed
+        "LOO comparison cannot mix joint and conditional scores.",
+        "i" = "Fit all models with the same {.code fixed.x} setting."
+      ))
+    }
+
+    # Joint scores are densities over all modelled variables, so the
+    # variable sets must match; conditional scores are densities over the
+    # outcomes only, so covariate sets may differ but the outcomes must match
+    score_vars <- lapply(internals, function(m) {
+      ov <- sort(unique(unlist(m$lavdata@ov.names)))
+      if (flavs[1L] == "conditional") {
+        setdiff(ov, unlist(m$lavdata@ov.names.x))
+      } else {
+        ov
+      }
+    })
+    same_vars <- vapply(
+      score_vars,
+      identical,
+      logical(1),
+      y = score_vars[[1L]]
+    )
+    if (!all(same_vars)) {
+      if (flavs[1L] == "conditional") {
+        cli_abort(
+          "Conditional LOO comparison requires models for the same set of
+           outcome variables (the covariate sets may differ)."
+        )
+      }
+      cli_abort(c(
+        "Joint LOO comparison requires models for the same set of observed
          variables.",
         "i" = "To drop a covariate's effect, keep the variable in the model
-         without the path (e.g. {.code fb ~ w1} plus {.code w2 ~~ w1})."
+         without the path (e.g. {.code fb ~ w1} plus {.code w2 ~~ w1}), or
+         compare {.code fixed.x = TRUE} fits, which are scored
+         conditionally."
       ))
     }
 

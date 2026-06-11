@@ -225,3 +225,49 @@ test_that("waic scores fixed.x fits conditionally", {
   expect_true(all(is.finite(w$per_unit$lpd)))
   expect_output(print(w), "conditionally on the exogenous covariates")
 })
+
+test_that("compare(loo = TRUE) enforces the flavour rules", {
+  # Conditional fits may condition on different covariate sets (covariate
+  # selection); the outcome variables match, so the comparison is valid
+  HS_model_x1 <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
+    visual ~ ageyr
+  "
+  fit_c1 <- asem(
+    HS_model_x1,
+    dat_x,
+    fixed.x = TRUE,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  )
+  cmp <- compare(fit_c, fit_c1, loo = TRUE)
+  expect_true(all(
+    c("ELPD", "SE", "elpd_diff", "se_diff") %in% names(cmp)
+  ))
+  expect_true(all(is.finite(cmp$se_diff)))
+
+  # Mixing joint and conditional scores is refused
+  fit_j <- asem(
+    HS_model_x,
+    dat_x,
+    fixed.x = FALSE,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  )
+  expect_error(
+    compare(fit_c, fit_j, loo = TRUE),
+    "mix joint and conditional"
+  )
+})
