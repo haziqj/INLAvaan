@@ -1,3 +1,5 @@
+# INLAvaan (development version)
+
 # INLAvaan 0.2.5
 
 ## Minor improvements and fixes
