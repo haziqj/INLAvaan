@@ -471,8 +471,9 @@ loo_flavour <- function(int) {
 # likelihood. (The conditional likelihood itself is exactly invariant to the
 # frozen covariate moments, which cancel from the implied conditional
 # moments; only this additive constant distinguishes the two.) For the
-# two-level row-deletion override no adjustment is needed: the constant
-# cancels between the full and downdated cluster terms.
+# two-level row-deletion override the analogous adjustment is the difference
+# of the cluster constant before and after removing the row (zero when all
+# covariates are cluster-level, since z_j appears once in both terms).
 loo_fixedx_const_loso <- function(int, Y_sub, mom) {
   x_idx <- int$lavsamplestats@x.idx[[1L]]
   loso_loglik_all(
@@ -481,20 +482,109 @@ loo_fixedx_const_loso <- function(int, Y_sub, mom) {
   )
 }
 
-loo_fixedx_const_loco <- function(int, css, units, mom) {
+# Positions and frozen blocks needed for the two-level covariate marginal:
+# z = cluster-level (between-only) covariates, v = within-side covariates
+# (with or without a between presence)
+loo_fixedx_info_loco <- function(int, css, mom) {
+  ovn <- int$lavdata@ov.names[[1L]]
+  l1 <- int$lavdata@ov.names.l[[1L]][[1L]]
+  l2 <- int$lavdata@ov.names.l[[1L]][[2L]]
   x_idx <- int$lavsamplestats@x.idx[[1L]]
-  pos_b <- match(
-    int$lavdata@ov.names[[1L]][x_idx],
-    int$lavdata@ov.names.l[[1L]][[2L]]
+  z_cols <- intersect(x_idx, css$Lp$between.idx[[2L]])
+  v_cols <- setdiff(x_idx, z_cols)
+  qz <- length(z_cols)
+  qv <- length(v_cols)
+  v1 <- match(ovn[v_cols], l1)
+  z2 <- match(ovn[z_cols], l2)
+  v2 <- match(ovn[v_cols], l2)
+  Sw_vv <- mom$Sigma_w[v1, v1, drop = FALSE]
+  mu_zv <- c(
+    mom$mu_b[z2],
+    if (qv > 0L && anyNA(v2)) mom$mu_w[v1] else mom$mu_b[v2]
   )
-  pos_d <- match(x_idx, css$zy_idx)
-  Z <- do.call(rbind, lapply(css$mean_d[units], function(m) m[pos_d]))
-  loso_loglik_all(
-    Z,
-    list(
-      mu = mom$mu_b[pos_b],
-      Sigma = mom$Sigma_b[pos_b, pos_b, drop = FALSE]
-    )
+  B0 <- matrix(0, qz + qv, qz + qv)
+  if (qz > 0L) {
+    B0[seq_len(qz), seq_len(qz)] <- mom$Sigma_b[z2, z2]
+  }
+  if (qv > 0L && !anyNA(v2)) {
+    if (qz > 0L) {
+      B0[seq_len(qz), qz + seq_len(qv)] <- mom$Sigma_b[z2, v2]
+      B0[qz + seq_len(qv), seq_len(qz)] <- mom$Sigma_b[v2, z2]
+    }
+    B0[qz + seq_len(qv), qz + seq_len(qv)] <- mom$Sigma_b[v2, v2]
+  }
+  list(
+    z_cols = z_cols,
+    v_cols = v_cols,
+    qz = qz,
+    qv = qv,
+    Sw_vv = Sw_vv,
+    logdet_Sw_vv = if (qv > 0L) {
+      as.numeric(determinant(Sw_vv, logarithm = TRUE)$modulus)
+    } else {
+      0
+    },
+    mu_zv = mu_zv,
+    B0 = B0
+  )
+}
+
+# Frozen marginal log-density of one cluster's covariate data from its raw
+# sufficient statistics: within deviations of v (n_j - 1 degrees of freedom)
+# plus the joint between/mean density of (z_j, vbar_j) with the within
+# mean-uncertainty inflation Sw_vv / n_j
+loo_fixedx_const_cluster <- function(nj, ybar_j, S_j, info) {
+  out <- 0
+  B <- info$B0
+  if (info$qv > 0L) {
+    A_vv <- S_j[info$v_cols, info$v_cols, drop = FALSE]
+    out <- out -
+      0.5 * (nj - 1) * (info$qv * log(2 * pi) + info$logdet_Sw_vv) -
+      0.5 * sum(diag(solve(info$Sw_vv, A_vv))) -
+      0.5 * info$qv * log(nj)
+    idx <- info$qz + seq_len(info$qv)
+    B[idx, idx] <- B[idx, idx] + info$Sw_vv / nj
+  }
+  obs <- c(ybar_j[info$z_cols], ybar_j[info$v_cols])
+  ch <- chol(B)
+  d <- backsolve(ch, obs - info$mu_zv, transpose = TRUE)
+  out -
+    0.5 *
+      (length(obs) * log(2 * pi) + 2 * sum(log(diag(ch))) + sum(d^2))
+}
+
+loo_fixedx_const_loco <- function(int, css, units, mom) {
+  info <- loo_fixedx_info_loco(int, css, mom)
+  vapply(
+    units,
+    function(j) {
+      loo_fixedx_const_cluster(css$n_j[j], css$ybar[j, ], css$S[[j]], info)
+    },
+    numeric(1)
+  )
+}
+
+# Row-deletion analogue for the two-level LOSO override: the covariate part
+# of row i's contribution is c_j(full cluster) - c_j(cluster minus row i),
+# via the same mean/scatter downdates; a singleton cluster's only row
+# removes the whole cluster, so its covariate part is c_j itself
+loo_fixedx_rowdiff_loco <- function(int, css, X, units, mom) {
+  info <- loo_fixedx_info_loco(int, css, mom)
+  vapply(
+    units,
+    function(i) {
+      j <- css$cluster_idx[i]
+      n <- css$n_j[j]
+      c_full <- loo_fixedx_const_cluster(n, css$ybar[j, ], css$S[[j]], info)
+      if (n == 1L) {
+        return(c_full)
+      }
+      y_i <- X[i, ]
+      ybar_m <- (n * css$ybar[j, ] - y_i) / (n - 1)
+      S_m <- css$S[[j]] - (n / (n - 1)) * tcrossprod(y_i - css$ybar[j, ])
+      c_full - loo_fixedx_const_cluster(n - 1L, ybar_m, S_m, info)
+    },
+    numeric(1)
   )
 }
 
@@ -517,21 +607,6 @@ check_loo_model <- function(int, fn = "loo") {
   }
   if (isTRUE(lavmodel@conditional.x)) {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
-  }
-  if (
-    isTRUE(lavmodel@fixed.x) &&
-      length(unlist(lavsamplestats@x.idx)) > 0L &&
-      is_multilevel(lavdata) &&
-      !all(
-        lavsamplestats@x.idx[[1L]] %in% lavdata@Lp[[1L]]$between.idx[[2L]]
-      )
-  ) {
-    cli_abort(c(
-      "{.fn {fn}} supports {.code fixed.x = TRUE} two-level models only when
-       every exogenous covariate is a cluster-level (between) variable.",
-      "i" = "Refit with {.code fixed.x = FALSE} to model within-level
-       covariates jointly."
-    ))
   }
   if (!isTRUE(lavmodel@meanstructure)) {
     cli_warn(
@@ -619,6 +694,9 @@ inlav_loo <- function(
     units <- check_loo_units(units, nrow(X), "rows")
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
     l_star <- loso2l_loglik_all(units, css, X, cache$mom)
+    if (flavour == "conditional") {
+      l_star <- l_star - loo_fixedx_rowdiff_loco(int, css, X, units, cache$mom)
+    }
     s_mat <- loso2l_scores_theta(theta, css, X, lavmodel, pt, units, cache)
     score_fn <- function(th_act) {
       th <- theta

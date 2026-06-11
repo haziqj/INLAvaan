@@ -193,11 +193,95 @@ test_that("conditional LOCO with cluster-level covariates matches reference valu
   expect_true(all(is.finite(res_row$per_unit$log_cpo_1)))
 })
 
-test_that("within-level covariates under fixed.x abort with advice", {
+test_that("conditional LOCO with within-level covariates matches reference values", {
+  twolevel_model_wx <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1 + x2 + x3
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1 + w2
+  "
+  fit_wx <- asem(
+    twolevel_model_wx,
+    lavaan::Demo.twolevel,
+    cluster = "cluster",
+    fixed.x = TRUE,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  )
+  res_wx <- loo(fit_wx)
+  expect_equal(res_wx$flavour, "conditional")
+  expect_equal(res_wx$n_units, 200L)
+  expect_equal(res_wx$elpd_1, -12086.7629617682, tolerance = 1e-4)
+  expect_equal(res_wx$elpd_2, -12097.3274537623, tolerance = 1e-4)
+  expect_equal(res_wx$se_1, 387.9154865799, tolerance = 1e-3)
+  expect_equal(res_wx$se_2, 388.1556448756, tolerance = 1e-3)
+
+  pu <- res_wx$per_unit[c(1L, 100L, 200L), ]
+  expect_equal(
+    pu$l_star,
+    c(-22.9475363793, -92.1020515691, -95.8874752171),
+    tolerance = 1e-4
+  )
+  expect_equal(
+    pu$log_cpo_2,
+    c(-22.9527716428, -92.2700952444, -96.0276662972),
+    tolerance = 1e-4
+  )
+
+  # The general covariate constant is pinned by the loglik identity
+  expect_equal(
+    sum(res_wx$per_unit$l_star),
+    ll_at_mode(fit_wx),
+    tolerance = 1e-6
+  )
+
+  # Row-deletion override: the conditional row contribution equals the
+  # conditional cluster loglik difference reconstructed from raw data
+  expect_warning(
+    res_row <- loo(fit_wx, type = "loso", units = c(2L, 50L)),
+    "per-row deletion"
+  )
+  expect_equal(res_row$flavour, "conditional")
+  int <- get_inlavaan_internal(fit_wx)
+  css <- INLAvaan:::loco_suff_stats(int$lavdata)
+  X <- int$lavdata@X[[1L]]
+  cache <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable,
+    two_level = TRUE
+  )
+  i <- 2L
+  j <- css$cluster_idx[i]
+  lcond <- function(cs) {
+    INLAvaan:::loco_loglik_one(j, cs, cache$mom) -
+      INLAvaan:::loo_fixedx_const_loco(int, cs, j, cache$mom)
+  }
+  rows <- setdiff(which(css$cluster_idx == j), i)
+  Yj <- X[rows, , drop = FALSE]
+  css_m <- css
+  css_m$n_j[j] <- length(rows)
+  css_m$S[[j]] <- crossprod(sweep(Yj, 2L, colMeans(Yj), "-"))
+  css_m$ybar[j, ] <- colMeans(Yj)
+  css_m$mean_d[[j]] <- colMeans(Yj)[css$zy_idx]
+  expect_equal(
+    res_row$per_unit$l_star[1L],
+    lcond(css) - lcond(css_m),
+    tolerance = 1e-8
+  )
+
+  # Within-only covariates (no cluster-level z) also run
   twolevel_model_w <- "
     level: 1
       fw =~ y1 + y2 + y3
-      fw ~ x1
+      fw ~ x1 + x2
     level: 2
       fb =~ y1 + y2 + y3
   "
@@ -214,8 +298,14 @@ test_that("within-level covariates under fixed.x abort with advice", {
     marginal_method = "marggaus",
     marginal_correction = "none"
   )
-  expect_error(loo(fit_w), "cluster-level")
-  expect_error(waic(fit_w), "cluster-level")
+  res_w <- loo(fit_w, units = 1:10)
+  expect_equal(res_w$flavour, "conditional")
+  expect_true(all(is.finite(res_w$per_unit$log_cpo_2)))
+  expect_equal(
+    sum(loo(fit_w)$per_unit$l_star),
+    ll_at_mode(fit_w),
+    tolerance = 1e-6
+  )
 })
 
 test_that("waic scores fixed.x fits conditionally", {

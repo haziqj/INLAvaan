@@ -188,7 +188,7 @@ test_that("two-level LOSO override scores row deletions", {
   expect_equal(s2, g_num, tolerance = 1e-5)
 })
 
-test_that("fixed.x two-level fits abort with refit advice", {
+test_that("fixed.x two-level fits are scored conditionally", {
   fit_fx <- asem(
     twolevel_model,
     lavaan::Demo.twolevel,
@@ -202,5 +202,7 @@ test_that("fixed.x two-level fits abort with refit advice", {
     marginal_method = "marggaus",
     marginal_correction = "none"
   )
-  expect_error(loo(fit_fx), "fixed.x = FALSE")
+  res_fx <- loo(fit_fx, units = 1:5)
+  expect_equal(res_fx$flavour, "conditional")
+  expect_true(all(is.finite(res_fx$per_unit$log_cpo_2)))
 })

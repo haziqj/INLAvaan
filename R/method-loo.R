@@ -73,9 +73,10 @@
 #' conditional elpd must never be compared ([compare()] refuses
 #' mixed-flavour comparisons). Conditional scores of models conditioning on
 #' *different* covariate sets are comparable provided the outcome variables
-#' match -- the natural setting for covariate selection. For two-level
-#' models the conditional flavour currently requires every exogenous
-#' covariate to be a cluster-level (between) variable.
+#' match -- the natural setting for covariate selection. Both flavours
+#' support any covariate placement: single-level covariates, and
+#' cluster-level (between) and/or within-level covariates in two-level
+#' models.
 #'
 #' Supported models: single-group, complete-data, continuous-indicator
 #' models fitted with the `ML` estimator. If the `loo` package is attached
