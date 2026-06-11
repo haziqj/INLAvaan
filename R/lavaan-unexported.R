@@ -46,9 +46,9 @@ lavaan_internal_aliases <- list(
     "lav_mvn_cl_implied22l",
     "lav_mvnorm_cluster_implied22l"
   ),
-  lavaan___lav_model_delta = "lav_model_delta",
+  lavaan___lav_model_delta = c("lav_model_delta", "computeDelta"),
   lavaan___lav_mvnorm_scores_mu_vech_sigma = c(
-    "lav_mvn_scores_mu_vech_sigma",
+    "lav_mvn_sc_mu_sigma",
     "lav_mvnorm_scores_mu_vech_sigma"
   ),
   lavaan___lav_mvnorm_cluster_loglik_samplestats_2l = c(
