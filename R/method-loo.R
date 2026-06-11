@@ -48,7 +48,14 @@
 #'
 #' Parallelism is strictly opt-in: the default `cores = NULL` runs serially,
 #' and `cores > 1` parallelises the Hessian stage via forking (not available
-#' on Windows). Calling `loo()` never modifies the fitted object.
+#' on Windows).
+#'
+#' Calling `loo()` never modifies the fitted object. To compute the LOO once
+#' and keep it with the fit, request it at fit time with `test = "loo"` (or
+#' `test = c("standard", "loo")`) in [inlavaan()], or store it post hoc with
+#' `fit <- add_loo(fit)`. A stored result is returned directly by
+#' `loo(fit)` when called with default arguments, and is reused by
+#' [fitmeasures()] and [compare()] without recomputation.
 #'
 #' Supported models: single-group, complete-data, continuous-indicator
 #' models fitted with the `ML` estimator. Models with exogenous covariates
@@ -165,6 +172,22 @@ loo.inlavaan_internal <- function(
     eff_cores = resolve_loo_cores(cores),
     verbose = verbose
   )
+}
+
+#' @rdname loo
+#' @param object A fitted [INLAvaan] object.
+#' @returns `add_loo()` returns a copy of `object` with the LOO result
+#'   stored alongside the fit (the input object is unchanged); reassign it,
+#'   e.g. `fit <- add_loo(fit)`. Only the default LOO is stored, so the
+#'   stored result always matches `loo(fit)`.
+#' @export
+add_loo <- function(object, cores = NULL, verbose = FALSE) {
+  if (!is_INLAvaan(object)) {
+    cli_abort("{.arg object} must be a fitted {.cls INLAvaan} model.")
+  }
+  res <- loo(object, cores = cores, verbose = verbose)
+  object@external$inlavaan_internal$loo <- res
+  object
 }
 
 #' @exportS3Method print inlavaan_loo

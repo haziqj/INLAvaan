@@ -12,8 +12,12 @@
 #'
 #' @param dp Default prior distributions for the different types of model
 #'   parameters; a named character vector as returned by [priors_for()].
-#' @param test Character indicating whether to compute posterior fit indices.
-#'   Defaults to "standard". Change to "none" to skip these computations.
+#' @param test Character indicating which post-estimation quantities to
+#'   compute. Defaults to "standard" (posterior fit indices: PPP and DIC);
+#'   "none" skips these computations. Include "loo" (e.g.
+#'   `test = c("standard", "loo")`, or `test = "loo"` alone) to also compute
+#'   leave-one-out cross-validation at fit time and store it with the fit;
+#'   see [loo()].
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param marginal_method The method for approximating the marginal posterior
@@ -115,6 +119,13 @@ inlavaan <- function(
   if (isTRUE(debug)) {
     verbose <- TRUE
   }
+  # "loo" is INLAvaan-specific: strip it before `test` reaches lavaan
+  do_loo <- "loo" %in% test
+  test <- setdiff(test, "loo")
+  if (length(test) == 0L) {
+    test <- "none"
+  }
+
   lavargs <- list(...)
   lavargs$model <- model
   lavargs$data <- data
@@ -748,6 +759,36 @@ inlavaan <- function(
   }
   timing <- add_timing(timing, "test")
 
+  ## ----- Optional fit-time LOO ------------------------------------------------
+  loo_res <- NULL
+  if (isTRUE(do_loo)) {
+    if (isTRUE(verbose)) {
+      cli_progress_step("Computing Taylor LOO.")
+    }
+    loo_res <- tryCatch(
+      inlav_loo(
+        int = list(
+          partable = pt,
+          lavmodel = lavmodel,
+          lavdata = lavdata,
+          lavsamplestats = lavsamplestats,
+          theta_star = as.numeric(theta_star_vbc),
+          Sigma_theta = Sigma_theta
+        ),
+        eff_cores = resolve_loo_cores(cores),
+        verbose = FALSE
+      ),
+      error = function(e) {
+        cli_warn(c(
+          "Skipping the fit-time LOO computation.",
+          "x" = conditionMessage(e)
+        ))
+        NULL
+      }
+    )
+    timing <- add_timing(timing, "loo")
+  }
+
   ## ----- Output --------------------------------------------------------------
   out <- list(
     coefficients = coefs,
@@ -755,6 +796,7 @@ inlavaan <- function(
     DIC = dic_list,
     summary = summ,
     ppp = ppp,
+    loo = loo_res,
     optim_method = optim_method,
     marginal_method = marginal_method,
     theta_star_novbc = as.numeric(theta_star),

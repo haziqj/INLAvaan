@@ -4,6 +4,7 @@
 \alias{loo}
 \alias{loo.INLAvaan}
 \alias{loo.inlavaan_internal}
+\alias{add_loo}
 \title{Approximate Leave-One-Out Cross-Validation for INLAvaan Models}
 \usage{
 loo(x, ...)
@@ -31,6 +32,8 @@ loo(x, ...)
   verbose = FALSE,
   ...
 )
+
+add_loo(object, cores = NULL, verbose = FALSE)
 }
 \arguments{
 \item{x}{A fitted \link{INLAvaan} object (or its \code{inlavaan_internal} list).}
@@ -59,6 +62,8 @@ Laplace summary. See Details.}
 runs serially; parallelism must be requested explicitly.}
 
 \item{verbose}{Logical; print progress (default \code{FALSE}).}
+
+\item{object}{A fitted \link{INLAvaan} object.}
 }
 \value{
 An object of class \code{inlavaan_loo}: a list with elements
@@ -76,6 +81,11 @@ First- and second-order aggregates.}
 \item{\code{type}, \code{n_units}, \code{n_ok}, \code{second_order},
 \code{theta_overridden}}{Metadata.}
 }
+
+\code{add_loo()} returns a copy of \code{object} with the LOO result
+stored alongside the fit (the input object is unchanged); reassign it,
+e.g. \code{fit <- add_loo(fit)}. Only the default LOO is stored, so the
+stored result always matches \code{loo(fit)}.
 }
 \description{
 Computes leave-one-out (LOO) cross-validation for a fitted \link{INLAvaan}
@@ -126,7 +136,14 @@ non-degenerate block, which is exact.
 
 Parallelism is strictly opt-in: the default \code{cores = NULL} runs serially,
 and \code{cores > 1} parallelises the Hessian stage via forking (not available
-on Windows). Calling \code{loo()} never modifies the fitted object.
+on Windows).
+
+Calling \code{loo()} never modifies the fitted object. To compute the LOO once
+and keep it with the fit, request it at fit time with \code{test = "loo"} (or
+\code{test = c("standard", "loo")}) in \code{\link[=inlavaan]{inlavaan()}}, or store it post hoc with
+\code{fit <- add_loo(fit)}. A stored result is returned directly by
+\code{loo(fit)} when called with default arguments, and is reused by
+\code{\link[=fitmeasures]{fitmeasures()}} and \code{\link[=compare]{compare()}} without recomputation.
 
 Supported models: single-group, complete-data, continuous-indicator
 models fitted with the \code{ML} estimator. Models with exogenous covariates

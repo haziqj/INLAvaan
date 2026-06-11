@@ -42,8 +42,12 @@ agrowth(
 \item{dp}{Default prior distributions for the different types of model
 parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}.}
 
-\item{test}{Character indicating whether to compute posterior fit indices.
-Defaults to "standard". Change to "none" to skip these computations.}
+\item{test}{Character indicating which post-estimation quantities to
+compute. Defaults to "standard" (posterior fit indices: PPP and DIC);
+"none" skips these computations. Include "loo" (e.g.
+\code{test = c("standard", "loo")}, or \code{test = "loo"} alone) to also compute
+leave-one-out cross-validation at fit time and store it with the fit;
+see \code{\link[=loo]{loo()}}.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}

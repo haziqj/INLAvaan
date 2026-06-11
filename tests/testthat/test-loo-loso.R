@@ -230,6 +230,35 @@ test_that("equality constraints (ceq.simple) are handled", {
   expect_equal(s1, g_num, tolerance = 1e-5)
 })
 
+test_that("fit-time LOO via test = 'loo' and add_loo()", {
+  fit_loo <- acfa(
+    HS_model,
+    lavaan::HolzingerSwineford1939,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "loo",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  )
+  stored <- get_inlavaan_internal(fit_loo, "loo")
+  expect_s3_class(stored, "inlavaan_loo")
+  expect_equal(stored$elpd_2, res$elpd_2, tolerance = 1e-10)
+
+  # loo() returns the stored result for default arguments only
+  expect_identical(loo(fit_loo), stored)
+  res_sub <- loo(fit_loo, units = 1:5)
+  expect_equal(nrow(res_sub$per_unit), 5L)
+
+  # add_loo() returns an updated copy; the original fit is unchanged
+  fit2 <- add_loo(fit)
+  expect_null(fit@external$inlavaan_internal$loo)
+  expect_s3_class(get_inlavaan_internal(fit2, "loo"), "inlavaan_loo")
+  expect_equal(get_inlavaan_internal(fit2, "loo")$elpd_2, res$elpd_2)
+  expect_identical(loo(fit2), get_inlavaan_internal(fit2, "loo"))
+})
+
 test_that("missing data aborts informatively", {
   d_miss <- lavaan::HolzingerSwineford1939
   d_miss[1, "x1"] <- NA
