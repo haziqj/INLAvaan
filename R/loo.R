@@ -140,37 +140,45 @@ loco_suff_stats <- function(lavdata) {
   p <- ncol(X)
   y_idx <- c(Lp$both.idx[[2L]], Lp$within.idx[[2L]])
   z_idx <- Lp$between.idx[[2L]]
-  d <- length(c(z_idx, y_idx))
+  zy_idx <- c(z_idx, y_idx)
+  d <- length(zy_idx)
 
   n_j <- integer(J)
   S <- vector("list", J)
   mean_d <- vector("list", J)
+  ybar <- matrix(0, J, p)
   for (j in seq_len(J)) {
     Yj <- X[cluster_idx == j, , drop = FALSE]
     n_j[j] <- nrow(Yj)
-    Yc <- sweep(Yj, 2L, colMeans(Yj), "-")
+    ybar[j, ] <- colMeans(Yj)
+    Yc <- sweep(Yj, 2L, ybar[j, ], "-")
     S[[j]] <- crossprod(Yc)
-    mu_z <- if (length(z_idx) > 0L) {
-      colMeans(Yj[, z_idx, drop = FALSE])
-    } else {
-      numeric(0)
-    }
-    mean_d[[j]] <- c(mu_z, colMeans(Yj[, y_idx, drop = FALSE]))
+    mean_d[[j]] <- ybar[j, zy_idx]
   }
-  list(J = J, n_j = n_j, S = S, mean_d = mean_d, Lp = Lp, p = p, d = d)
+  list(
+    J = J,
+    n_j = n_j,
+    S = S,
+    mean_d = mean_d,
+    Lp = Lp,
+    p = p,
+    d = d,
+    ybar = ybar,
+    zy_idx = zy_idx,
+    cluster_idx = cluster_idx
+  )
 }
 
 # Single-cluster sample statistics in the (YLp, Lp) shapes that lavaan's
 # two-level loglik/gradient kernels expect
-loco_unit_stats <- function(j, css) {
-  nj <- css$n_j[j]
-  S_w_j <- if (nj > 1L) css$S[[j]] / (nj - 1L) else matrix(0, css$p, css$p)
+loco_stats_build <- function(nj, S_j, mean_d_j, css) {
+  S_w_j <- if (nj > 1L) S_j / (nj - 1L) else matrix(0, css$p, css$p)
   YLp_j <- list(
     NULL,
     list(
       Sigma.W = S_w_j,
       cov.d = list(matrix(0, css$d, css$d)),
-      mean.d = list(css$mean_d[[j]]),
+      mean.d = list(mean_d_j),
       loglik.x = 0
     )
   )
@@ -184,8 +192,11 @@ loco_unit_stats <- function(j, css) {
   list(YLp = YLp_j, Lp = Lp_j)
 }
 
-loco_loglik_one <- function(j, css, mom) {
-  us <- loco_unit_stats(j, css)
+loco_unit_stats <- function(j, css) {
+  loco_stats_build(css$n_j[j], css$S[[j]], css$mean_d[[j]], css)
+}
+
+loco_loglik_us <- function(us, mom) {
   as.numeric(lavaan___lav_mvnorm_cluster_loglik_samplestats_2l(
     us$YLp,
     us$Lp,
@@ -199,8 +210,11 @@ loco_loglik_one <- function(j, css, mom) {
   ))
 }
 
-loco_grad_x_one <- function(j, css, mom, Delta) {
-  us <- loco_unit_stats(j, css)
+loco_loglik_one <- function(j, css, mom) {
+  loco_loglik_us(loco_unit_stats(j, css), mom)
+}
+
+loco_grad_x_us <- function(us, mom, Delta) {
   DX <- lavaan___lav_mvnorm_cluster_dlogl_2l_samplestats(
     us$YLp,
     us$Lp,
@@ -213,6 +227,10 @@ loco_grad_x_one <- function(j, css, mom, Delta) {
   -0.5 * as.numeric(DX %*% Delta[[1L]])
 }
 
+loco_grad_x_one <- function(j, css, mom, Delta) {
+  loco_grad_x_us(loco_unit_stats(j, css), mom, Delta)
+}
+
 # All-cluster theta-scores at one theta; the moment/Delta build is shared,
 # the per-cluster gradient kernel does not vectorise so loops over units
 loco_scores_theta <- function(theta, css, lavmodel, pt, units, cache = NULL) {
@@ -223,6 +241,80 @@ loco_scores_theta <- function(theta, css, lavmodel, pt, units, cache = NULL) {
   G_x <- t(vapply(
     units,
     function(j) loco_grad_x_one(j, css, cache$mom, cache$Delta),
+    numeric(q)
+  ))
+  loo_chain_rule(G_x, cache)
+}
+
+# ---- Row deletion on two-level models (LOSO override) -----------------------
+#
+# Removing row i from cluster j changes the dataset likelihood by
+#   l_i(theta) = ll_j(theta; full cluster) - ll_j(theta; cluster minus row i),
+# i.e. the conditional density of the row given the remaining rows in its
+# cluster. Both terms use the cluster kernels above, with the cluster's
+# sufficient statistics downdated for the removed row. A singleton cluster's
+# only row is the cluster itself: l_i = ll_j(full).
+
+# Sufficient statistics of cluster `j = cluster_idx[i]` with row i removed
+loso2l_minus_stats <- function(i, css, X) {
+  j <- css$cluster_idx[i]
+  n <- css$n_j[j]
+  y_i <- X[i, ]
+  ybar <- css$ybar[j, ]
+  dvec <- y_i - ybar
+  S_minus <- css$S[[j]] - (n / (n - 1)) * tcrossprod(dvec)
+  ybar_minus <- (n * ybar - y_i) / (n - 1)
+  loco_stats_build(n - 1L, S_minus, ybar_minus[css$zy_idx], css)
+}
+
+loso2l_loglik_all <- function(units, css, X, mom) {
+  cl <- css$cluster_idx[units]
+  need <- unique(cl)
+  ll_full <- vapply(
+    need,
+    function(j) loco_loglik_one(j, css, mom),
+    numeric(1)
+  )
+  vapply(
+    seq_along(units),
+    function(u) {
+      i <- units[u]
+      j <- cl[u]
+      ll_j <- ll_full[match(j, need)]
+      if (css$n_j[j] == 1L) {
+        return(ll_j)
+      }
+      ll_j - loco_loglik_us(loso2l_minus_stats(i, css, X), mom)
+    },
+    numeric(1)
+  )
+}
+
+loso2l_scores_theta <- function(theta, css, X, lavmodel, pt, units,
+                                cache = NULL) {
+  if (is.null(cache)) {
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+  }
+  q <- ncol(cache$Delta[[1L]])
+  cl <- css$cluster_idx[units]
+  need <- unique(cl)
+  g_full <- vapply(
+    need,
+    function(j) loco_grad_x_one(j, css, cache$mom, cache$Delta),
+    numeric(q)
+  )
+  G_x <- t(vapply(
+    seq_along(units),
+    function(u) {
+      i <- units[u]
+      j <- cl[u]
+      g_j <- g_full[, match(j, need)]
+      if (css$n_j[j] == 1L) {
+        return(g_j)
+      }
+      g_j -
+        loco_grad_x_us(loso2l_minus_stats(i, css, X), cache$mom, cache$Delta)
+    },
     numeric(q)
   ))
   loo_chain_rule(G_x, cache)
@@ -401,9 +493,13 @@ inlav_loo <- function(
        no clusters."
     )
   } else if (type == "loso" && two_level) {
-    cli_abort(
-      "Leave-one-subject-out is not available for two-level models yet."
-    )
+    cli_warn(c(
+      "Overriding the per-cluster default: scoring per-row deletion on a
+       two-level model.",
+      "i" = "Each contribution is the conditional density of a row given the
+       remaining rows in its cluster. This diagnostic is expensive for large
+       datasets; consider subsetting with {.arg units}."
+    ))
   }
 
   # Posterior summary to score at (defaults to the fit's own Laplace summary)
@@ -438,7 +534,23 @@ inlav_loo <- function(
   if (isTRUE(verbose)) {
     cli_progress_step("Computing unit log-likelihoods and scores.")
   }
-  if (type == "loso") {
+  if (type == "loso" && two_level) {
+    X <- lavdata@X[[1L]]
+    css <- loco_suff_stats(lavdata)
+    units <- check_loo_units(units, nrow(X), "rows")
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+    l_star <- loso2l_loglik_all(units, css, X, cache$mom)
+    s_mat <- loso2l_scores_theta(theta, css, X, lavmodel, pt, units, cache)
+    score_fn <- function(th_act) {
+      th <- theta
+      th[free] <- th_act
+      loso2l_scores_theta(th, css, X, lavmodel, pt, units)[,
+        free,
+        drop = FALSE
+      ]
+    }
+    nobs <- rep(1L, length(units))
+  } else if (type == "loso") {
     Y <- lavdata@X[[1L]]
     units <- check_loo_units(units, nrow(Y), "rows")
     Y_sub <- Y[units, , drop = FALSE]

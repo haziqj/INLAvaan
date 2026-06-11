@@ -40,7 +40,8 @@ loo(x, ...)
 \item{type}{Unit type: \code{"auto"} (default) resolves to \code{"loso"}
 (per-subject) for single-level models and \code{"loco"} (per-cluster) for
 two-level models. \code{"loco"} cannot be forced on a model without
-clusters.}
+clusters; \code{"loso"} on a two-level model scores row deletions (see
+Details) and emits a warning.}
 
 \item{units}{Optional integer vector of unit indices (row numbers for
 LOSO, cluster positions for LOCO) to score; defaults to all units.}
@@ -105,6 +106,13 @@ that unit only (flagged in \code{per_unit$ok}).
 
 The type is resolved automatically: per-cluster (\code{"loco"}) when the model
 was fitted with a \code{cluster} argument, per-subject (\code{"loso"}) otherwise.
+On a two-level model, \code{type = "loso"} may be forced (with a warning) as a
+diagnostic: row \eqn{i} of cluster \eqn{j} then contributes
+\eqn{\ell_i = \ell_j(\mathrm{full}) - \ell_j(\mathrm{minus\ row\ } i)},
+the conditional density of the row given the remaining rows in its
+cluster, computed by downdating the cluster's sufficient statistics. This
+path costs one cluster evaluation per row per Hessian direction and is
+less extensively validated than the per-cluster default.
 
 Supplying \code{theta} and/or \code{Sigma} scores the model at an \emph{arbitrary}
 Gaussian posterior summary instead of the fit's own, without refitting.

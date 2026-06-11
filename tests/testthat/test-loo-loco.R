@@ -109,9 +109,81 @@ test_that("LOCO unit subsetting and theta/Sigma override", {
   )
 })
 
-test_that("type auto-detects loco; loso on two-level is not available", {
-  expect_equal(res$type, "loco")
-  expect_error(loo(fit, type = "loso"), "two-level")
+test_that("two-level LOSO override scores row deletions", {
+  expect_warning(
+    res_row <- loo(fit, type = "loso", units = 1:8),
+    "per-row deletion"
+  )
+  expect_equal(res_row$type, "loso")
+  expect_equal(nrow(res_row$per_unit), 8L)
+  expect_true(all(res_row$per_unit$ok))
+  expect_true(all(res_row$per_unit$nobs == 1L))
+
+  int <- get_inlavaan_internal(fit)
+  css <- INLAvaan:::loco_suff_stats(int$lavdata)
+  X <- int$lavdata@X[[1L]]
+  cache <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable,
+    two_level = TRUE
+  )
+
+  # The downdated sufficient statistics agree with rebuilding the
+  # cluster-minus-row statistics from the raw data
+  i <- 2L
+  j <- css$cluster_idx[i]
+  rows <- setdiff(which(css$cluster_idx == j), i)
+  Yj <- X[rows, , drop = FALSE]
+  us_raw <- INLAvaan:::loco_stats_build(
+    length(rows),
+    crossprod(sweep(Yj, 2L, colMeans(Yj), "-")),
+    colMeans(Yj)[css$zy_idx],
+    css
+  )
+  ll_minus_raw <- INLAvaan:::loco_loglik_us(us_raw, cache$mom)
+  ll_full <- INLAvaan:::loco_loglik_one(j, css, cache$mom)
+  expect_equal(
+    res_row$per_unit$l_star[i],
+    ll_full - ll_minus_raw,
+    tolerance = 1e-8
+  )
+
+  # Analytic row score matches a numerical derivative
+  s2 <- as.numeric(INLAvaan:::loso2l_scores_theta(
+    int$theta_star,
+    css,
+    X,
+    int$lavmodel,
+    int$partable,
+    units = i
+  ))
+  h <- 1e-6
+  g_num <- vapply(
+    seq_along(int$theta_star),
+    function(k) {
+      tp <- tm <- int$theta_star
+      tp[k] <- tp[k] + h
+      tm[k] <- tm[k] - h
+      cp <- INLAvaan:::loo_grad_cache(
+        tp,
+        int$lavmodel,
+        int$partable,
+        two_level = TRUE
+      )
+      cm <- INLAvaan:::loo_grad_cache(
+        tm,
+        int$lavmodel,
+        int$partable,
+        two_level = TRUE
+      )
+      (INLAvaan:::loso2l_loglik_all(i, css, X, cp$mom) -
+        INLAvaan:::loso2l_loglik_all(i, css, X, cm$mom)) /
+        (2 * h)
+    },
+    numeric(1)
+  )
+  expect_equal(s2, g_num, tolerance = 1e-5)
 })
 
 test_that("fixed.x two-level fits abort with refit advice", {

@@ -28,6 +28,13 @@
 #'
 #' The type is resolved automatically: per-cluster (`"loco"`) when the model
 #' was fitted with a `cluster` argument, per-subject (`"loso"`) otherwise.
+#' On a two-level model, `type = "loso"` may be forced (with a warning) as a
+#' diagnostic: row \eqn{i} of cluster \eqn{j} then contributes
+#' \eqn{\ell_i = \ell_j(\mathrm{full}) - \ell_j(\mathrm{minus\ row\ } i)},
+#' the conditional density of the row given the remaining rows in its
+#' cluster, computed by downdating the cluster's sufficient statistics. This
+#' path costs one cluster evaluation per row per Hessian direction and is
+#' less extensively validated than the per-cluster default.
 #'
 #' Supplying `theta` and/or `Sigma` scores the model at an *arbitrary*
 #' Gaussian posterior summary instead of the fit's own, without refitting.
@@ -53,7 +60,8 @@
 #' @param type Unit type: `"auto"` (default) resolves to `"loso"`
 #'   (per-subject) for single-level models and `"loco"` (per-cluster) for
 #'   two-level models. `"loco"` cannot be forced on a model without
-#'   clusters.
+#'   clusters; `"loso"` on a two-level model scores row deletions (see
+#'   Details) and emits a warning.
 #' @param units Optional integer vector of unit indices (row numbers for
 #'   LOSO, cluster positions for LOCO) to score; defaults to all units.
 #' @param second_order Logical; compute the second-order correction
