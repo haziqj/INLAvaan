@@ -6,10 +6,10 @@ model-fit statistics and (optionally) fit indices side by side.
 ## Usage
 
 ``` r
-compare(x, y, ..., fit.measures = NULL)
+compare(x, y, ..., fit.measures = NULL, loo = FALSE)
 
 # S4 method for class 'INLAvaan'
-compare(x, y, ..., fit.measures = NULL)
+compare(x, y, ..., fit.measures = NULL, loo = FALSE)
 ```
 
 ## Arguments
@@ -36,10 +36,16 @@ compare(x, y, ..., fit.measures = NULL)
   by [fitMeasures()](https://rdrr.io/pkg/lavaan/man/fitMeasures.html).
   The default (`NULL`) shows only the core comparison statistics.
 
+- loo:
+
+  Logical; if `TRUE`, compare models by leave-one-out cross-validation
+  with paired standard errors (see Details). Defaults to `FALSE`.
+
 ## Value
 
 A data frame of class `compare.inlavaan_internal` containing model fit
-statistics, sorted by descending marginal log-likelihood.
+statistics, sorted by descending marginal log-likelihood (or by
+descending ELPD when `loo = TRUE`).
 
 ## Details
 
@@ -67,6 +73,17 @@ returned by
 append extra columns. Use `fit.measures = "all"` to include every
 available measure.
 
+Set `loo = TRUE` to compare models by leave-one-out cross-validation
+(see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)). This
+appends **ELPD** / **SE** (the second-order Taylor expected log
+predictive density and its standard error), **p_loo**, and, against the
+best-ELPD model, the difference **elpd_diff** with its *paired* standard
+error **se_diff** computed from the pointwise contributions (the
+appropriate uncertainty for nested or same-data comparisons). The table
+is then sorted by descending ELPD. All models must be fitted to the same
+data with matching units; stored LOO results (`test = "loo"` or
+[`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) are reused.
+
 ## References
 
 <https://lavaan.ugent.be/tutorial/groups.html>
@@ -91,24 +108,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [210ms]
+#> ✔ Finding posterior mode. [177ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [223ms]
+#> ✔ Computing the Hessian. [138ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [566ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [406ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 26/60 skew-normal marginals.
-#> ⠸ Fitting 54/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [6.5s]
+#> ⠹ Fitting 13/60 skew-normal marginals.
+#> ⠸ Fitting 47/60 skew-normal marginals.
+#> ✔ Fitting 60/60 skew-normal marginals. [5.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [374ms]
+#> ✔ Adjusting copula correlations (NORTA). [220ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [952ms]
+#> ✔ Posterior sampling and summarising. [605ms]
 #> 
 
 # Weak invariance
@@ -119,25 +136,24 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [197ms]
+#> ✔ Finding posterior mode. [161ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [207ms]
+#> ✔ Computing the Hessian. [142ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [278ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [468ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
 #> ⠹ Fitting 2/54 skew-normal marginals.
-#> ⠸ Fitting 32/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [5.5s]
+#> ⠸ Fitting 42/54 skew-normal marginals.
+#> ✔ Fitting 54/54 skew-normal marginals. [4.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [543ms]
+#> ✔ Adjusting copula correlations (NORTA). [292ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [972ms]
+#> ✔ Posterior sampling and summarising. [564ms]
 #> 
 
 # Strong invariance
@@ -148,24 +164,23 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [197ms]
+#> ✔ Finding posterior mode. [147ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [175ms]
+#> ✔ Computing the Hessian. [123ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [259ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [190ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 14/48 skew-normal marginals.
-#> ⠸ Fitting 47/48 skew-normal marginals.
-#> ✔ Fitting 48/48 skew-normal marginals. [4.6s]
+#> ⠹ Fitting 10/48 skew-normal marginals.
+#> ✔ Fitting 48/48 skew-normal marginals. [3.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [608ms]
+#> ✔ Adjusting copula correlations (NORTA). [339ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [952ms]
+#> ✔ Posterior sampling and summarising. [582ms]
 #> 
 
 # Compare models (fit1 = configural = baseline, always first argument)

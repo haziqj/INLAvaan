@@ -54,8 +54,12 @@ asem(
 
 - test:
 
-  Character indicating whether to compute posterior fit indices.
-  Defaults to "standard". Change to "none" to skip these computations.
+  Character indicating which post-estimation quantities to compute.
+  Defaults to "standard" (posterior fit indices: PPP and DIC); "none"
+  skips these computations. Include "loo" (e.g.
+  `test = c("standard", "loo")`, or `test = "loo"` alone) to also
+  compute leave-one-out cross-validation at fit time and store it with
+  the fit; see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md).
 
 - vb_correction:
 
@@ -229,26 +233,25 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [94ms]
+#> ✔ Finding posterior mode. [68ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [82ms]
+#> ✔ Computing the Hessian. [51ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.158σ. [181ms]
+#> ✔ VB correction; mean |δ| = 0.158σ. [149ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 22/28 skew-normal marginals.
-#> ✔ Fitting 28/28 skew-normal marginals. [1.3s]
+#> ✔ Fitting 28/28 skew-normal marginals. [938ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [233ms]
+#> ✔ Adjusting copula correlations (NORTA). [150ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [359ms]
+#> ✔ Posterior sampling and summarising. [197ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.5.9000 ended normally after 74 iterations
+#> INLAvaan 0.2.5.9001 ended normally after 74 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

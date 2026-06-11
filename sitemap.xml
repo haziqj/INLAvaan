@@ -9,6 +9,7 @@
 <url><loc>https://inlavaan.haziqj.ml/articles/fit-indices.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/articles/growth.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/articles/index.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/articles/loo.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/articles/mediation.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/articles/missing.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/articles/multigroup.html</loc></url>
@@ -36,6 +37,7 @@
 <url><loc>https://inlavaan.haziqj.ml/reference/index.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/inlavaan.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/is_same_function.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/loo.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/plot.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/predict.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/priors_for.html</loc></url>
@@ -45,5 +47,6 @@
 <url><loc>https://inlavaan.haziqj.ml/reference/standardisedsolution.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/timing.html</loc></url>
 <url><loc>https://inlavaan.haziqj.ml/reference/vcov.html</loc></url>
+<url><loc>https://inlavaan.haziqj.ml/reference/waic.html</loc></url>
 </urlset>
 

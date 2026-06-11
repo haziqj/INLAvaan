@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
+    <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -51,9 +52,19 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="inlavaan-development-version">INLAvaan (development version)<a class="anchor" aria-label="anchor" href="#inlavaan-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li>
+<code><a href="../reference/loo.html">loo()</a></code> computes leave-one-out cross-validation for fitted models without refitting, via a Taylor approximation of the case-deletion posterior: per-subject (LOSO) for single-level models and per-cluster (LOCO) for two-level models, with first- and second-order estimates, pointwise contributions, and optional <code>theta</code>/<code>Sigma</code> overrides for scoring conditioned posterior summaries in user-built model-search workflows. Parallelism is opt-in via <code>cores</code>.</li>
+<li>LOO can be computed at fit time and stored with the fit by including <code>"loo"</code> in the <code>test</code> argument of <code><a href="../reference/inlavaan.html">inlavaan()</a></code> (e.g. <code>test = c("standard", "loo")</code>), or added to an existing fit with <code>fit &lt;- add_loo(fit)</code>.</li>
+<li>
+<code><a href="../reference/fitMeasures.html">fitmeasures()</a></code> gains <code>elpd_loo</code>, <code>se_loo</code>, <code>p_loo</code>, and <code>looic</code>: reported as part of <code>"all"</code> when a LOO result is stored with the fit, and computed on demand when requested by name.</li>
+<li>
+<code><a href="../reference/compare.html">compare()</a></code> gains a <code>loo = TRUE</code> option reporting ELPD, <code>p_loo</code>, and ELPD differences with paired standard errors, with models sorted by descending ELPD.</li>
+</ul></div>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.2.5" id="inlavaan-025">INLAvaan 0.2.5<a class="anchor" aria-label="anchor" href="#inlavaan-025"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.2.5" id="inlavaan-025">INLAvaan 0.2.5<a class="anchor" aria-label="anchor" href="#inlavaan-025"></a></h2><p class="text-muted">CRAN release: 2026-06-11</p>
 <div class="section level3">
 <h3 id="minor-improvements-and-fixes-0-2-5">Minor improvements and fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-fixes-0-2-5"></a></h3>
 <ul><li>INLAvaan now works with both the current lavaan 0.6 series and the upcoming lavaan 0.7, which renames many of its internal functions. The lavaan internals INLAvaan relies on are now resolved when the package loads, under whichever naming scheme is available. lavaan (&gt;= 0.6-19) is now declared explicitly, and the package is checked against the oldest supported, current CRAN, and development versions of lavaan on CI.</li>

@@ -40,6 +40,11 @@ Main lavaan-style functions to estimate SEM.
   : Bayesian Fit Indices
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
   Compare Bayesian Models Fitted with INLAvaan
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)
+  [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md) :
+  Approximate Leave-One-Out Cross-Validation for INLAvaan Models
+- [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) : Widely
+  Applicable Information Criterion for INLAvaan Models
 - [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/plot.md)
   : Plot an INLAvaan Object
 - [`vcov(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/vcov.md)

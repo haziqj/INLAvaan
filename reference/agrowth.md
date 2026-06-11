@@ -54,8 +54,12 @@ agrowth(
 
 - test:
 
-  Character indicating whether to compute posterior fit indices.
-  Defaults to "standard". Change to "none" to skip these computations.
+  Character indicating which post-estimation quantities to compute.
+  Defaults to "standard" (posterior fit indices: PPP and DIC); "none"
+  skips these computations. Include "loo" (e.g.
+  `test = c("standard", "loo")`, or `test = "loo"` alone) to also
+  compute leave-one-out cross-validation at fit time and store it with
+  the fit; see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md).
 
 - vb_correction:
 
@@ -238,25 +242,25 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [161ms]
+#> ✔ Finding posterior mode. [117ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [69ms]
+#> ✔ Computing the Hessian. [51ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.045σ. [419ms]
+#> ✔ VB correction; mean |δ| = 0.045σ. [163ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [846ms]
+#> ✔ Fitting 17/17 skew-normal marginals. [661ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [84ms]
+#> ✔ Adjusting copula correlations (NORTA). [66ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [124ms]
+#> ✔ Posterior sampling and summarising. [87ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.5.9000 ended normally after 83 iterations
+#> INLAvaan 0.2.5.9001 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

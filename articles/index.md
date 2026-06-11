@@ -24,6 +24,13 @@
   A vignette introducing the INLAvaan package for Bayesian latent
   variable modeling using INLA.
 
+- [Leave-One-Out
+  Cross-Validation](https://inlavaan.haziqj.ml/articles/loo.md):
+
+  Refit-free LOO model assessment in INLAvaan: per-subject and
+  per-cluster scores, model comparison with paired standard errors,
+  WAIC, and scoring submodels without refitting.
+
 - [Mediation
   Analysis](https://inlavaan.haziqj.ml/articles/mediation.md):
 

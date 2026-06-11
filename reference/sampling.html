@@ -13,7 +13,7 @@ from the prior instead (useful for prior predictive checks)."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,7 @@ from the prior instead (useful for prior predictive checks)."><meta property="og
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
+    <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -181,34 +182,35 @@ for SBC); <code><a href="predict.html">predict()</a></code> for individual-speci
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="st">"visual =~ x1 + x2 + x3"</span>, <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Finding posterior mode.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[21ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Finding posterior mode. <span style="color: #B2B2B2;">[11ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[20ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Computing the Hessian. <span style="color: #B2B2B2;">[12ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.246σ. <span style="color: #B2B2B2;">[54ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.246σ. <span style="color: #B2B2B2;">[28ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/6 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting 6/6 skew-normal marginals. <span style="color: #B2B2B2;">[77ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 2/6 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitting 6/6 skew-normal marginals. <span style="color: #B2B2B2;">[46ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Adjusting copula correlations (NORTA).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjusting copula correlations (NORTA). <span style="color: #B2B2B2;">[20ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjusting copula correlations (NORTA). <span style="color: #B2B2B2;">[12ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior sampling and summarising. <span style="color: #B2B2B2;">[397ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior sampling and summarising. <span style="color: #B2B2B2;">[185ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Posterior samples of lavaan-side parameters</span></span></span>
 <span class="r-in"><span><span class="va">samps</span> <span class="op">&lt;-</span> <span class="fu">sampling</span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">samps</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.7537805  0.8935477 0.7449751 1.0608426 0.7990191      0.5787902</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.9422014  1.4805455 0.9188254 0.9455022 0.5311365      0.3138488</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.8447581  1.0890487 0.8035399 1.0817900 0.6379797      0.5077081</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.8089361  1.1685147 0.8635664 1.3605692 0.5690487      0.4243235</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.7961315  1.1204401 0.8234872 1.1495866 0.6530604      0.5262784</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]  0.6701568  0.8722089 1.0238411 1.1570314 0.7509603      0.6064207</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  1.0307893   1.635721 1.1200021 1.0919379 0.5682202      0.3035378</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  1.2013223   1.654348 1.0328385 1.1689749 0.4793052      0.2966249</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.7488217   1.232479 1.0075217 1.0677694 0.4816854      0.5035832</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.9765571   1.336860 0.8771550 0.9747683 0.4851002      0.3312131</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.9436880   1.455088 0.9709973 1.0990849 0.5836126      0.3589506</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]  0.6559672   1.240783 0.7515056 1.1436489 0.3764374      0.4751255</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare copula vs Gaussian sampling</span></span></span>
 <span class="r-in"><span><span class="va">s_cop</span> <span class="op">&lt;-</span> <span class="fu">sampling</span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">500</span>, samp_copula <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

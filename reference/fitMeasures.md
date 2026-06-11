@@ -43,7 +43,17 @@ fitmeasures(
 
   If `"all"`, all fit measures available will be returned. If only a
   single or a few fit measures are specified by name, only those are
-  computed and returned.
+  computed and returned. The LOO measures `"elpd_loo"`, `"se_loo"`,
+  `"p_loo"` and `"looic"` (see
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) are included
+  in `"all"` only when a LOO result is stored with the fit
+  (`test = "loo"` in
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) or
+  [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md)); otherwise
+  they are computed on demand when requested by name, and recomputed on
+  every call – store the result with `fit <- add_loo(fit)` (or call
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) directly) for
+  repeated access.
 
 - baseline.model:
 

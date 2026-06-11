@@ -66,8 +66,12 @@ inlavaan(
 
 - test:
 
-  Character indicating whether to compute posterior fit indices.
-  Defaults to "standard". Change to "none" to skip these computations.
+  Character indicating which post-estimation quantities to compute.
+  Defaults to "standard" (posterior fit indices: PPP and DIC); "none"
+  skips these computations. Include "loo" (e.g.
+  `test = c("standard", "loo")`, or `test = "loo"` alone) to also
+  compute leave-one-out cross-validation at fit time and store it with
+  the fit; see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md).
 
 - vb_correction:
 
@@ -205,25 +209,25 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [78ms]
+#> ✔ Finding posterior mode. [47ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [46ms]
+#> ✔ Computing the Hessian. [45ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.208σ. [91ms]
+#> ✔ VB correction; mean |δ| = 0.208σ. [64ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [560ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [403ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [144ms]
+#> ✔ Adjusting copula correlations (NORTA). [108ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [573ms]
+#> ✔ Posterior sampling and summarising. [315ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.5.9000 ended normally after 73 iterations
+#> INLAvaan 0.2.5.9001 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -9,7 +9,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
+    <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -112,25 +113,25 @@ durations as seconds, longer ones as minutes or hours.</p>
 <span class="r-in"><span><span class="co"># Total elapsed time</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.86 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.61 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># All stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        init    ov.names     Options        Data    ParTable SampleStats </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      0.02 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          h1      bounds       start       Model       cache       optim </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.08 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.06 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     implied      loglik        vcov        test         Fit    baseline </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    rotation          vb   marginals       norta    sampling covariances </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.07 s      0.51 s      0.15 s      0.01 s      0.00 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.04 s      0.36 s      0.11 s      0.00 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> definedpars   deltapars       total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.86 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.00 s      0.00 s      0.61 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Specific stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"optim"</span>, <span class="st">"marginals"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     optim marginals </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.08 s    0.51 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.06 s    0.36 s </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

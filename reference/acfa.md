@@ -54,8 +54,12 @@ acfa(
 
 - test:
 
-  Character indicating whether to compute posterior fit indices.
-  Defaults to "standard". Change to "none" to skip these computations.
+  Character indicating which post-estimation quantities to compute.
+  Defaults to "standard" (posterior fit indices: PPP and DIC); "none"
+  skips these computations. Include "loo" (e.g.
+  `test = c("standard", "loo")`, or `test = "loo"` alone) to also
+  compute leave-one-out cross-validation at fit time and store it with
+  the fit; see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md).
 
 - vb_correction:
 
@@ -217,25 +221,25 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [51ms]
+#> ✔ Finding posterior mode. [36ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [43ms]
+#> ✔ Computing the Hessian. [30ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [89ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [61ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [513ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [350ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [147ms]
+#> ✔ Adjusting copula correlations (NORTA). [107ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [72ms]
+#> ✔ Posterior sampling and summarising. [44ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.5.9000 ended normally after 56 iterations
+#> INLAvaan 0.2.5.9001 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

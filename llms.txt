@@ -338,6 +338,11 @@ Main lavaan-style functions to estimate SEM.
   : Bayesian Fit Indices
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
   Compare Bayesian Models Fitted with INLAvaan
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)
+  [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md) :
+  Approximate Leave-One-Out Cross-Validation for INLAvaan Models
+- [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) : Widely
+  Applicable Information Criterion for INLAvaan Models
 - [`plot(`*`<INLAvaan>`*`,`*`<ANY>`*`)`](https://inlavaan.haziqj.ml/reference/plot.md)
   : Plot an INLAvaan Object
 - [`vcov(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/vcov.md)
@@ -393,6 +398,13 @@ Main lavaan-style functions to estimate SEM.
 
   A vignette introducing the INLAvaan package for Bayesian latent
   variable modeling using INLA.
+
+- [Leave-One-Out
+  Cross-Validation](https://inlavaan.haziqj.ml/articles/loo.md):
+
+  Refit-free LOO model assessment in INLAvaan: per-subject and
+  per-cluster scores, model comparison with paired standard errors,
+  WAIC, and scoring submodels without refitting.
 
 - [Mediation
   Analysis](https://inlavaan.haziqj.ml/articles/mediation.md):

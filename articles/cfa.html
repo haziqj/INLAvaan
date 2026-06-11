@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,6 +58,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
+    <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -107,25 +108,25 @@
 <span><span class="co"># Fit a CFA model with standardised latent variables</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [74ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [57ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [59ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [44ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.081σ. [97ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.081σ. [71ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/21 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 21/21 skew-normal marginals. [557ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 21/21 skew-normal marginals. [398ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [156ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [103ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [84ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [58ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.5.9000 ended normally after 56 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.5.9001 ended normally after 56 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -140,8 +141,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7516.673 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    20.520 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             7516.419 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    20.393 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
