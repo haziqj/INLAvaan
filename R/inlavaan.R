@@ -10,6 +10,8 @@
 #' @inheritParams lavaan::simulateData
 #' @inheritParams blavaan::blavaan
 #'
+#' @param dp Default prior distributions for the different types of model
+#'   parameters; a named character vector as returned by [priors_for()].
 #' @param test Character indicating whether to compute posterior fit indices.
 #'   Defaults to "standard". Change to "none" to skip these computations.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes

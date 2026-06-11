@@ -39,9 +39,8 @@ agrowth(
     the model. If some variables are declared as ordered factors, lavaan will
     treat them as ordinal variables.}
 
-\item{dp}{Default prior distributions on different types of
-    parameters, typically the result of a call to \code{dpriors()}.
-    See the \code{dpriors()} help file for more information.}
+\item{dp}{Default prior distributions for the different types of model
+parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}.}
 
 \item{test}{Character indicating whether to compute posterior fit indices.
 Defaults to "standard". Change to "none" to skip these computations.}
