@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,29 +123,26 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod_poldem</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [37ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [35ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [32ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [33ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.156σ. [88ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.156σ. [67ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/30 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 6/30 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 19/30 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 30/30 skew-normal marginals. [465ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitting 30/30 skew-normal marginals. [484ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [100ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [111ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [277ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [269ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="fu"><a href="reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.4.9000 ended normally after 80 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.5 ended normally after 80 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -156,12 +153,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1651.234 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.526 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.486 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3156.868 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    29.028 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3157.281 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    29.234 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -197,16 +194,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.331    0.399    0.164    1.728    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.331    0.378    0.100    1.582    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.217    0.681   -0.202    2.473    0.004       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                0.347    0.729    0.796    3.661    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.217    0.736   -0.231    2.657    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                0.347    0.717    0.891    3.707    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.225    0.647   -0.162    2.380    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.225    0.649   -0.104    2.444    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y8 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.070    0.449   -0.601    1.163    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.070    0.445   -0.575    1.172    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.307    0.571    0.270    2.506    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.307    0.584    0.228    2.523    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -248,7 +245,7 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"haziqj/INLAvaan"</span><span class="op">)</span></span></code></pre></div>
-<p><em>Optionally</em><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;R-INLA dependency has been removed temporarily from v0.2.0.&lt;/p&gt;"><sup>2</sup></a>, you may wish to install <a href="https://www.r-inla.org" class="external-link">INLA</a>. Following the official instructions given <a href="https://www.r-inla.org/download-install" class="external-link">here</a>, install the package by running this command in R:</p>
+<p><em>Optionally</em><a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;R-INLA dependency has been removed temporarily from v0.2.0.&lt;/p&gt;"><sup>2</sup></a>, you may wish to install <a href="https://www.r-inla.org" class="external-link">INLA</a>. Following the official instructions given <a href="https://www.r-inla.org/download/" class="external-link">here</a>, install the package by running this command in R:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span></span>
 <span>  <span class="st">"INLA"</span>,</span>

@@ -59,7 +59,7 @@ statistical applications.
 ## References
 
 Luu, T. (2016). *Fast and accurate parallel computation of quantile
-functions for random number generation* \#' (Doctoral thesis). UCL
+functions for random number generation* (Doctoral thesis). UCL
 (University College London). <https://discovery.ucl.ac.uk/1482128/>
 
 ## Examples

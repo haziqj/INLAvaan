@@ -142,9 +142,9 @@ diagnostics.
 
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.429        0.000     7517.193       20.631        0.091 
+#>           21    -3823.429        0.000     7517.949       21.009        0.092 
 #>    BGammaHat adjBGammaHat          BMc 
-#>        0.957        0.920        0.903
+#>        0.957        0.919        0.904
 ```
 
 ### Posterior distributions of fit indices
@@ -160,7 +160,7 @@ bfi
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc 
-#>        0.091        0.957        0.920        0.904
+#>        0.092        0.957        0.919        0.903
 ```
 
 Calling
@@ -175,10 +175,10 @@ summary(bfi)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.091 0.005 0.083 0.087 0.090 0.094  0.102 0.090
-#> BGammaHat    0.957 0.005 0.947 0.954 0.958 0.960  0.964 0.958
-#> adjBGammaHat 0.920 0.008 0.902 0.915 0.922 0.927  0.934 0.923
-#> BMc          0.904 0.010 0.881 0.897 0.905 0.911  0.920 0.907
+#> BRMSEA       0.092 0.005 0.084 0.088 0.092 0.095  0.103 0.092
+#> BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.964 0.957
+#> adjBGammaHat 0.919 0.008 0.899 0.914 0.919 0.925  0.932 0.919
+#> BMc          0.903 0.010 0.880 0.897 0.904 0.911  0.919 0.903
 ```
 
 You can also access the raw per-sample vectors for custom analysis:
@@ -222,9 +222,9 @@ Now pass the baseline model to `fitMeasures()` or
 
 fitMeasures(fit, baseline.model = fit_null)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3823.429        0.000     7517.193       20.631        0.091 
+#>           21    -3823.429        0.000     7517.949       21.009        0.092 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.957        0.920        0.903        0.930        0.897        0.907
+#>        0.957        0.918        0.903        0.930        0.895        0.907
 ```
 
 ``` r
@@ -235,13 +235,13 @@ summary(bfi_inc)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.102 0.091
-#> BGammaHat    0.957 0.005 0.947 0.954 0.957 0.960  0.964 0.958
-#> adjBGammaHat 0.920 0.008 0.901 0.916 0.921 0.926  0.934 0.922
-#> BMc          0.904 0.010 0.881 0.898 0.905 0.911  0.920 0.905
-#> BCFI         0.931 0.008 0.913 0.927 0.932 0.936  0.943 0.932
-#> BTLI         0.898 0.011 0.872 0.892 0.899 0.906  0.916 0.900
-#> BNFI         0.907 0.007 0.890 0.903 0.908 0.912  0.919 0.908
+#> BRMSEA       0.092 0.005 0.084 0.089 0.092 0.095  0.104 0.091
+#> BGammaHat    0.956 0.005 0.946 0.954 0.957 0.960  0.964 0.958
+#> adjBGammaHat 0.918 0.009 0.898 0.914 0.920 0.925  0.932 0.921
+#> BMc          0.903 0.010 0.879 0.897 0.904 0.910  0.918 0.906
+#> BCFI         0.930 0.008 0.912 0.926 0.931 0.936  0.942 0.933
+#> BTLI         0.895 0.012 0.868 0.889 0.897 0.904  0.913 0.899
+#> BNFI         0.907 0.007 0.889 0.903 0.908 0.912  0.918 0.909
 ```
 
 ## Rescaling: `"devM"` vs `"MCMC"`
@@ -259,10 +259,10 @@ summary(bfi_mcmc)
 #> Posterior summary of MCMC-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.107 0.004 0.100 0.104 0.106 0.109  0.116 0.106
-#> BGammaHat    0.943 0.004 0.933 0.940 0.943 0.946  0.950 0.944
-#> adjBGammaHat 0.893 0.008 0.875 0.888 0.893 0.898  0.906 0.896
-#> BMc          0.872 0.010 0.851 0.867 0.873 0.879  0.888 0.876
+#> BRMSEA       0.107 0.004 0.099 0.104 0.106 0.109  0.117 0.105
+#> BGammaHat    0.943 0.005 0.932 0.940 0.943 0.946  0.950 0.944
+#> adjBGammaHat 0.893 0.009 0.873 0.888 0.894 0.899  0.906 0.896
+#> BMc          0.872 0.010 0.849 0.866 0.873 0.879  0.888 0.876
 ```
 
 The two methods will generally produce different results, especially

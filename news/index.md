@@ -1,6 +1,25 @@
 # Changelog
 
-## INLAvaan (development version)
+## INLAvaan 0.2.5
+
+### Minor improvements and fixes
+
+- INLAvaan now works with both the current lavaan 0.6 series and the
+  upcoming lavaan 0.7, which renames many of its internal functions. The
+  lavaan internals INLAvaan relies on are now resolved when the package
+  loads, under whichever naming scheme is available. lavaan (\>= 0.6-19)
+  is now declared explicitly, and the package is checked against the
+  oldest supported, current CRAN, and development versions of lavaan on
+  CI.
+- Fixed the trapezoid rule used by `compare_mcmc()` for density
+  normalisation, overlap, and KL divergence computations.
+- `compare_mcmc()` and
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  are now robust to `NA` values in density and diagnostic computations.
+- The `dp` argument of
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) and
+  friends is now documented in terms of
+  [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
 
 ## INLAvaan 0.2.4
 
