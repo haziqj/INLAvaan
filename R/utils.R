@@ -144,6 +144,11 @@ is_inlavaan <- function(object) {
   is(object, "INLAvaan") & attr(class(object), "package") == "INLAvaan"
 }
 
+# Two-level (cluster) model check from a lavData object
+is_multilevel <- function(lavdata) {
+  lavdata@nlevels > 1L
+}
+
 dmode <- function(x, na.rm = TRUE) {
   if (na.rm) {
     x <- x[!is.na(x)]

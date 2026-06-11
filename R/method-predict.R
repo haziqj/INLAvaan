@@ -290,7 +290,7 @@ predict.inlavaan_internal <- function(
   }
 
   # Multilevel restrictions
-  if (nlevels > 1L) {
+  if (is_multilevel(lavdata)) {
     # nocov start
     if (!is.null(newdata)) {
       cli_abort("{.arg newdata} is not supported for multilevel models.")
@@ -327,7 +327,7 @@ predict.inlavaan_internal <- function(
 
   # ---- type = "lv": Posterior draws of latent variable scores ----
   if (type == "lv") {
-    if (nlevels > 1L) {
+    if (is_multilevel(lavdata)) {
       # nocov start
       # ---- Multilevel path: use lavaan internals ----
       lavsamplestats <- object$lavsamplestats
