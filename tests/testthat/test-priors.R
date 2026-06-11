@@ -7,8 +7,7 @@ mod <- "
 NSAMP <- 3
 
 test_that("Setting dp argument", {
-  skip_if_not_installed("blavaan")
-  DP <- blavaan::dpriors(theta = "gamma(1,1)", psi = "gamma(1,1)")
+  DP <- priors_for(theta = "gamma(1,1)", psi = "gamma(1,1)")
   fit <- asem(
     mod,
     dat,
