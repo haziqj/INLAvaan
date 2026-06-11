@@ -1,5 +1,25 @@
 # INLAvaan (development version)
 
+## New features
+
+* `loo()` computes leave-one-out cross-validation for fitted models without
+  refitting, via a Taylor approximation of the case-deletion posterior:
+  per-subject (LOSO) for single-level models and per-cluster (LOCO) for
+  two-level models, with first- and second-order estimates, pointwise
+  contributions, and optional `theta`/`Sigma` overrides for scoring
+  conditioned posterior summaries in user-built model-search workflows.
+  Parallelism is opt-in via `cores`.
+* LOO can be computed at fit time and stored with the fit by including
+  `"loo"` in the `test` argument of `inlavaan()` (e.g.
+  `test = c("standard", "loo")`), or added to an existing fit with
+  `fit <- add_loo(fit)`.
+* `fitmeasures()` gains `elpd_loo`, `se_loo`, `p_loo`, and `looic`: reported
+  as part of `"all"` when a LOO result is stored with the fit, and computed
+  on demand when requested by name.
+* `compare()` gains a `loo = TRUE` option reporting ELPD, `p_loo`, and ELPD
+  differences with paired standard errors, with models sorted by descending
+  ELPD.
+
 # INLAvaan 0.2.5
 
 ## Minor improvements and fixes

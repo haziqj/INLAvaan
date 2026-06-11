@@ -31,8 +31,9 @@ reference:
     - diagnostics
     - timing        
     - fitmeasures
-    - bfit_indices    
-    - compare    
+    - bfit_indices
+    - compare
+    - loo
     - plot
     - vcov
     - predict
