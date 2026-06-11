@@ -19,6 +19,16 @@
 * `compare()` gains a `loo = TRUE` option reporting ELPD, `p_loo`, and ELPD
   differences with paired standard errors, with models sorted by descending
   ELPD.
+* `loo()` and `waic()` score `fixed.x = TRUE` fits (the lavaan default) on
+  the fitted conditional likelihood: each unit is scored by the predictive
+  density of its outcomes given its covariates (`flavour = "conditional"`),
+  with no additional approximation, since the conditional likelihood is
+  exactly invariant to the fixed covariate moments. Fits with
+  `fixed.x = FALSE` keep the joint score (`flavour = "joint"`). The two
+  flavours are never comparable and `compare(loo = TRUE)` refuses to mix
+  them; conditional comparisons may differ in their covariate sets, which
+  enables covariate selection. For two-level models the conditional flavour
+  requires all exogenous covariates to be cluster-level variables.
 
 # INLAvaan 0.2.5
 
