@@ -53,3 +53,69 @@ test_that("compare.inlavaan_internal S3 method works", {
   expect_s3_class(cmp, "compare.inlavaan_internal")
   expect_equal(nrow(cmp), 2)
 })
+
+test_that("compare(loo = TRUE) appends ELPD columns with paired SEs", {
+  fit1 <- acfa(
+    mod_null,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  fit2 <- acfa(
+    mod_full,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  cmp <- compare(fit1, fit2, loo = TRUE)
+  expect_true(all(
+    c("ELPD", "SE", "p_loo", "elpd_diff", "se_diff") %in% names(cmp)
+  ))
+  # Sorted by descending ELPD; the best model has zero differences
+  expect_equal(cmp$ELPD, sort(cmp$ELPD, decreasing = TRUE))
+  expect_equal(cmp$elpd_diff[1], 0)
+  expect_equal(cmp$se_diff[1], 0)
+  expect_true(all(cmp$elpd_diff <= 0))
+  expect_true(all(is.finite(cmp$se_diff)) && all(cmp$se_diff >= 0))
+  # ELPD agrees with loo() on each fit
+  expect_equal(
+    sort(cmp$ELPD, decreasing = TRUE),
+    sort(
+      c(
+        unname(loo(fit1)$estimates["elpd_loo", "Estimate"]),
+        unname(loo(fit2)$estimates["elpd_loo", "Estimate"])
+      ),
+      decreasing = TRUE
+    ),
+    tolerance = 1e-3
+  )
+  expect_output(print(cmp), "paired differences")
+
+  # Stored LOO results are reused
+  cmp2 <- compare(add_loo(fit1), add_loo(fit2), loo = TRUE)
+  expect_equal(cmp2$ELPD, cmp$ELPD)
+})
+
+test_that("compare(loo = TRUE) aborts for models on different data", {
+  fit1 <- acfa(
+    mod_null,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  fit3 <- acfa(
+    mod_null,
+    dat[1:150, ],
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  expect_error(compare(fit1, fit3, loo = TRUE), "same data")
+})

@@ -5,9 +5,9 @@
 \alias{compare,INLAvaan-method}
 \title{Compare Bayesian Models Fitted with INLAvaan}
 \usage{
-compare(x, y, ..., fit.measures = NULL)
+compare(x, y, ..., fit.measures = NULL, loo = FALSE)
 
-\S4method{compare}{INLAvaan}(x, y, ..., fit.measures = NULL)
+\S4method{compare}{INLAvaan}(x, y, ..., fit.measures = NULL, loo = FALSE)
 }
 \arguments{
 \item{x}{An \link{INLAvaan} (or \code{inlavaan_internal}) object used as the
@@ -21,10 +21,15 @@ compare against the baseline.}
 include (e.g. \code{"BRMSEA"}, \code{"BCFI"}). Use \code{"all"} to include every
 measure returned by \link[lavaan:fitMeasures]{fitMeasures()}. The default
 (\code{NULL}) shows only the core comparison statistics.}
+
+\item{loo}{Logical; if \code{TRUE}, compare models by leave-one-out
+cross-validation with paired standard errors (see Details). Defaults to
+\code{FALSE}.}
 }
 \value{
 A data frame of class \code{compare.inlavaan_internal} containing model
-fit statistics, sorted by descending marginal log-likelihood.
+fit statistics, sorted by descending marginal log-likelihood (or by
+descending ELPD when \code{loo = TRUE}).
 }
 \description{
 Compare two or more Bayesian SEM fitted with INLAvaan, reporting model-fit
@@ -49,6 +54,16 @@ of parameters (when \code{test != "none"} was used during fitting).
 Set \code{fit.measures} to a character vector of measure names (anything
 returned by \link[lavaan:fitMeasures]{fitMeasures()}) to append extra columns.
 Use \code{fit.measures = "all"} to include every available measure.
+
+Set \code{loo = TRUE} to compare models by leave-one-out cross-validation
+(see \code{\link[=loo]{loo()}}). This appends \strong{ELPD} / \strong{SE} (the second-order Taylor
+expected log predictive density and its standard error), \strong{p_loo}, and,
+against the best-ELPD model, the difference \strong{elpd_diff} with its
+\emph{paired} standard error \strong{se_diff} computed from the pointwise
+contributions (the appropriate uncertainty for nested or same-data
+comparisons). The table is then sorted by descending ELPD. All models
+must be fitted to the same data with matching units; stored LOO results
+(\code{test = "loo"} or \code{\link[=add_loo]{add_loo()}}) are reused.
 }
 \examples{
 \donttest{

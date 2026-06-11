@@ -22,6 +22,16 @@
 #' returned by [fitMeasures()][lavaan::fitMeasures]) to append extra columns.
 #' Use `fit.measures = "all"` to include every available measure.
 #'
+#' Set `loo = TRUE` to compare models by leave-one-out cross-validation
+#' (see [loo()]). This appends **ELPD** / **SE** (the second-order Taylor
+#' expected log predictive density and its standard error), **p_loo**, and,
+#' against the best-ELPD model, the difference **elpd_diff** with its
+#' *paired* standard error **se_diff** computed from the pointwise
+#' contributions (the appropriate uncertainty for nested or same-data
+#' comparisons). The table is then sorted by descending ELPD. All models
+#' must be fitted to the same data with matching units; stored LOO results
+#' (`test = "loo"` or [add_loo()]) are reused.
+#'
 #' @param x An [INLAvaan] (or `inlavaan_internal`) object used as the
 #'   **baseline** (null) model. It is included in the comparison table and
 #'   passed to [fitMeasures()][lavaan::fitMeasures] for incremental indices.
@@ -31,9 +41,13 @@
 #'   include (e.g. `"BRMSEA"`, `"BCFI"`). Use `"all"` to include every
 #'   measure returned by [fitMeasures()][lavaan::fitMeasures]. The default
 #'   (`NULL`) shows only the core comparison statistics.
+#' @param loo Logical; if `TRUE`, compare models by leave-one-out
+#'   cross-validation with paired standard errors (see Details). Defaults to
+#'   `FALSE`.
 #'
 #' @return A data frame of class `compare.inlavaan_internal` containing model
-#'   fit statistics, sorted by descending marginal log-likelihood.
+#'   fit statistics, sorted by descending marginal log-likelihood (or by
+#'   descending ELPD when `loo = TRUE`).
 #'
 #' @references <https://lavaan.ugent.be/tutorial/groups.html>
 #'
@@ -41,7 +55,7 @@
 #'
 #' @example inst/examples/ex-model_comparison.R
 #' @export
-setGeneric("compare", function(x, y, ..., fit.measures = NULL) {
+setGeneric("compare", function(x, y, ..., fit.measures = NULL, loo = FALSE) {
   standardGeneric("compare")
 })
 
@@ -49,32 +63,38 @@ setGeneric("compare", function(x, y, ..., fit.measures = NULL) {
 #' @rdname compare
 #' @aliases compare,INLAvaan-method
 #' @export
-setMethod("compare", "INLAvaan", function(x, y, ..., fit.measures = NULL) {
-  mc <- match.call()
-  dots <- list(...)
+setMethod(
+  "compare",
+  "INLAvaan",
+  function(x, y, ..., fit.measures = NULL, loo = FALSE) {
+    mc <- match.call()
+    dots <- list(...)
 
-  # x = baseline, y + unnamed ... = models to compare
-  model_objs <- c(list(x, y), dots)
-  model_exprs <- c(
-    list(mc$x, mc$y),
-    as.list(mc)[-1][
-      !names(as.list(mc)[-1]) %in%
-        c("x", "y", "fit.measures")
-    ]
-  )
+    # x = baseline, y + unnamed ... = models to compare
+    model_objs <- c(list(x, y), dots)
+    model_exprs <- c(
+      list(mc$x, mc$y),
+      as.list(mc)[-1][
+        !names(as.list(mc)[-1]) %in%
+          c("x", "y", "fit.measures", "loo")
+      ]
+    )
 
-  modnames <- vapply(model_exprs, deparse, character(1))
+    modnames <- vapply(model_exprs, deparse, character(1))
 
-  compare_impl(
-    models = model_objs,
-    modnames = modnames,
-    fit.measures = fit.measures,
-    baseline = x
-  )
-})
+    compare_impl(
+      models = model_objs,
+      modnames = modnames,
+      fit.measures = fit.measures,
+      baseline = x,
+      loo = loo
+    )
+  }
+)
 
 #' @exportS3Method compare inlavaan_internal
-compare.inlavaan_internal <- function(x, y, ..., fit.measures = NULL) {
+compare.inlavaan_internal <- function(x, y, ..., fit.measures = NULL,
+                                      loo = FALSE) {
   mc <- match.call()
   dots <- list(...)
 
@@ -83,7 +103,7 @@ compare.inlavaan_internal <- function(x, y, ..., fit.measures = NULL) {
     list(mc$x, mc$y),
     as.list(mc)[-1][
       !names(as.list(mc)[-1]) %in%
-        c("x", "y", "fit.measures")
+        c("x", "y", "fit.measures", "loo")
     ]
   )
 
@@ -93,7 +113,8 @@ compare.inlavaan_internal <- function(x, y, ..., fit.measures = NULL) {
     models = model_objs,
     modnames = modnames,
     fit.measures = fit.measures,
-    baseline = x
+    baseline = x,
+    loo = loo
   )
 }
 
@@ -103,7 +124,8 @@ compare_impl <- function(
   models,
   modnames,
   fit.measures = NULL,
-  baseline = NULL
+  baseline = NULL,
+  loo = FALSE
 ) {
   # Normalise to internal objects, keeping originals for fitMeasures()
   originals <- models
@@ -177,13 +199,90 @@ compare_impl <- function(
     }
   }
 
-  if (is.null(fit.measures)) {
+  # LOO comparison with paired standard errors
+  if (isTRUE(loo)) {
+    loo_list <- lapply(internals, function(m) {
+      if (!is.null(m$loo)) m$loo else loo.inlavaan_internal(m)
+    })
+
+    # Paired differences are only meaningful for matching units on the
+    # same data
+    pu1 <- loo_list[[1L]]$per_unit
+    matched <- vapply(
+      loo_list,
+      function(l) {
+        identical(l$type, loo_list[[1L]]$type) &&
+          identical(l$per_unit$unit, pu1$unit) &&
+          identical(l$per_unit$nobs, pu1$nobs)
+      },
+      logical(1)
+    )
+    if (!all(matched)) {
+      cli_abort(
+        "LOO comparison requires models fitted to the same data, with
+         matching units."
+      )
+    }
+
+    elpd <- vapply(
+      loo_list,
+      function(l) unname(l$estimates["elpd_loo", "Estimate"]),
+      numeric(1)
+    )
+    best <- which.max(elpd)
+    # Headline pointwise contributions (second order when available)
+    pw <- lapply(loo_list, function(l) {
+      if (l$second_order && l$n_ok > 0L) {
+        l$per_unit$log_cpo_2
+      } else {
+        l$per_unit$log_cpo_1 # nocov
+      }
+    })
+    n_units <- nrow(pu1)
+
+    out$ELPD <- round(elpd, 3)
+    out$SE <- round(
+      vapply(
+        loo_list,
+        function(l) unname(l$estimates["elpd_loo", "SE"]),
+        numeric(1)
+      ),
+      3
+    )
+    out$p_loo <- round(
+      vapply(
+        loo_list,
+        function(l) unname(l$estimates["p_loo", "Estimate"]),
+        numeric(1)
+      ),
+      3
+    )
+    out$elpd_diff <- round(elpd - elpd[best], 3)
+    out$se_diff <- round(
+      vapply(
+        seq_along(loo_list),
+        function(k) {
+          if (k == best) {
+            return(0)
+          }
+          sqrt(n_units * var(pw[[k]] - pw[[best]], na.rm = TRUE))
+        },
+        numeric(1)
+      ),
+      3
+    )
+  }
+
+  if (isTRUE(loo)) {
+    out <- out[order(-out$ELPD), ]
+  } else if (is.null(fit.measures)) {
     out <- out[order(-out$Marg.Loglik), ]
   }
 
   rownames(out) <- NULL
   attr(out, "fit_measures_used") <- !is.null(fit.measures)
   attr(out, "baseline_name") <- modnames[1]
+  attr(out, "loo_used") <- isTRUE(loo)
   class(out) <- c("compare.inlavaan_internal", class(out))
   out
 }
@@ -192,10 +291,16 @@ compare_impl <- function(
 print.compare.inlavaan_internal <- function(x, ...) {
   cat("Bayesian Model Comparison (INLAvaan)\n")
   if (isTRUE(attr(x, "fit_measures_used"))) {
-    cat("Baseline model:", attr(x, "baseline_name"), "\n\n")
+    cat("Baseline model:", attr(x, "baseline_name"), "\n")
+  } else if (isTRUE(attr(x, "loo_used"))) {
+    cat("Models ordered by ELPD (Taylor LOO)\n")
   } else {
-    cat("Models ordered by marginal log-likelihood\n\n")
+    cat("Models ordered by marginal log-likelihood\n")
   }
+  if (isTRUE(attr(x, "loo_used"))) {
+    cat("elpd_diff/se_diff are paired differences vs the best model\n")
+  }
+  cat("\n")
   print.data.frame(x, row.names = FALSE)
   invisible(x)
 }
