@@ -24,18 +24,27 @@ loo_implied_moments <- function(lavmodel_x, two_level = FALSE) {
     pw <- ncol(imp$cov[[1L]])
     pb <- ncol(imp$cov[[2L]])
     list(
-      mu_w = if (is.null(imp$mean[[1L]])) rep(0, pw) else
-        as.numeric(imp$mean[[1L]]),
+      mu_w = if (is.null(imp$mean[[1L]])) {
+        rep(0, pw)
+      } else {
+        as.numeric(imp$mean[[1L]])
+      },
       Sigma_w = imp$cov[[1L]],
-      mu_b = if (is.null(imp$mean[[2L]])) rep(0, pb) else
-        as.numeric(imp$mean[[2L]]),
+      mu_b = if (is.null(imp$mean[[2L]])) {
+        rep(0, pb)
+      } else {
+        as.numeric(imp$mean[[2L]])
+      },
       Sigma_b = imp$cov[[2L]]
     )
   } else {
     p <- ncol(imp$cov[[1L]])
     list(
-      mu = if (is.null(imp$mean[[1L]])) rep(0, p) else
-        as.numeric(imp$mean[[1L]]),
+      mu = if (is.null(imp$mean[[1L]])) {
+        rep(0, p)
+      } else {
+        as.numeric(imp$mean[[1L]])
+      },
       Sigma = imp$cov[[1L]]
     )
   }
@@ -290,8 +299,15 @@ loso2l_loglik_all <- function(units, css, X, mom) {
   )
 }
 
-loso2l_scores_theta <- function(theta, css, X, lavmodel, pt, units,
-                                cache = NULL) {
+loso2l_scores_theta <- function(
+  theta,
+  css,
+  X,
+  lavmodel,
+  pt,
+  units,
+  cache = NULL
+) {
   if (is.null(cache)) {
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
   }
@@ -359,8 +375,8 @@ loo_batched_hessians <- function(
     H_arr[, k, ] <- t(cols[[k]])
   }
   for (u in seq_len(n_units)) {
-    H_u <- H_arr[, , u]
-    H_arr[, , u] <- 0.5 * (H_u + t(H_u))
+    H_u <- H_arr[,, u]
+    H_arr[,, u] <- 0.5 * (H_u + t(H_u))
   }
   H_arr
 }
@@ -423,7 +439,8 @@ resolve_loo_cores <- function(cores) {
   if (is.na(cores) || cores < 1L) {
     cores <- 1L
   }
-  if (cores > 1L && .Platform$OS.type == "windows") { # nocov start
+  if (cores > 1L && .Platform$OS.type == "windows") {
+    # nocov start
     cli_alert_warning(
       "Parallel LOO uses forking, which is not available on Windows.
        Continuing serially."
@@ -455,9 +472,7 @@ check_loo_model <- function(int, fn = "loo") {
   if (isTRUE(lavmodel@conditional.x)) {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
   }
-  if (
-    isTRUE(lavmodel@fixed.x) && length(unlist(lavsamplestats@x.idx)) > 0L
-  ) {
+  if (isTRUE(lavmodel@fixed.x) && length(unlist(lavsamplestats@x.idx)) > 0L) {
     cli_abort(c(
       "{.fn {fn}} requires exogenous covariates to be modelled jointly.",
       "i" = "Refit the model with {.code fixed.x = FALSE}."
@@ -605,7 +620,7 @@ inlav_loo <- function(
     taylor_loo_unit(
       l_star[u],
       s_mat[u, ],
-      if (isTRUE(second_order)) H_arr[, , u] else NULL,
+      if (isTRUE(second_order)) H_arr[,, u] else NULL,
       S_act,
       S_inv,
       second_order = second_order
