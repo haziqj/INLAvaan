@@ -84,3 +84,5 @@ navbar:
         href: articles/sampling.html
       - text: Bayesian fit indices
         href: articles/fit-indices.html
+      - text: Leave-one-out cross-validation
+        href: articles/loo.html

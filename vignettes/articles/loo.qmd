@@ -1,0 +1,215 @@
+---
+title: 'Leave-One-Out Cross-Validation'
+description: >
+  Refit-free LOO model assessment in INLAvaan: per-subject and per-cluster
+  scores, model comparison with paired standard errors, WAIC, and scoring
+  submodels without refitting.
+vignette: >
+  %\VignetteIndexEntry{Leave-One-Out Cross-Validation}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+bibliography: ../refs.bib
+toc: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(INLAvaan)
+library(lavaan)
+```
+
+## Introduction
+
+How well would my model predict *new* data?
+Leave-one-out (LOO) cross-validation answers this by holding out one unit at a time, refitting the model to the remaining data, and scoring the held-out unit under the refitted posterior.
+The total score is the expected log predictive density,
+$$
+  \mathrm{elpd}_{\mathrm{loo}} = \sum_{u=1}^n \log p(y_u \mid y_{-u}),
+$$
+which rewards models that predict well and automatically penalises overfitting -- making it a natural criterion for comparing models.
+
+Computed naively, LOO needs $n$ refits.
+MCMC-based packages such as `{blavaan}` avoid this by importance-sampling over posterior draws [@vehtari2017practical], but this still requires the full set of MCMC draws.
+INLAvaan instead exploits its Laplace machinery: `loo()` approximates each case-deletion posterior by a Taylor expansion around the full-data posterior summary, so **the entire LOO is computed from a single fit** -- no refitting and no sampling.
+On the Holzinger--Swineford example below this takes a fraction of a second.
+
+Two unit types are scored, resolved automatically from the model:
+
+- **LOSO** (leave-one-*subject*-out): single-level models, one unit per row.
+- **LOCO** (leave-one-*cluster*-out): two-level models, one unit per cluster --
+  the relevant predictive question is "how well would the model predict a new
+  cluster?".
+
+
+## How it works
+
+Write $\ell_u(\theta) = \log p(y_u \mid \theta)$ for unit $u$'s log-likelihood contribution, with score $s_u$ and Hessian $H_u$ evaluated at the posterior summary $(\theta^*, \Sigma)$ from the fit.
+`loo()` reports first- and second-order Taylor approximations of the log conditional predictive ordinate:
+$$
+\begin{aligned}
+  \log \mathrm{CPO}_u^{(1)} &= \ell_u - \tfrac12 s_u^\top \Sigma\, s_u, \\
+  \log \mathrm{CPO}_u^{(2)} &= \ell_u
+    - \tfrac12 s_u^\top (\Sigma^{-1} + H_u)^{-1} s_u
+    + \tfrac12 \log \lvert I + \Sigma H_u \rvert .
+\end{aligned}
+$$
+The headline `elpd_loo` is the sum of the second-order terms, with standard error $\sqrt{n \, \widehat{\mathrm{var}}(\log \mathrm{CPO}_u)}$, and `looic` $= -2\,\mathrm{elpd}_{\mathrm{loo}}$ on the familiar information-criterion scale.
+The effective number of parameters $p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)$ uses the analogous expansion of the full-posterior pointwise predictive density $\mathrm{lpd}_u$.
+The rare unit whose second-order curvature matrix is not positive definite falls back to first order (flagged in the output); a warning is raised if this happens for many units, since it suggests the Gaussian posterior summary itself is poor.
+
+
+## A first example
+
+We fit the classic three-factor CFA to the Holzinger--Swineford data.
+Fitting with `meanstructure = TRUE` is recommended for LOO: otherwise unit log-likelihoods are evaluated at zero means and absolute ELPD values are biased (comparisons between models on the same data remain valid either way).
+
+```{r}
+#| label: loso-fit
+HS.model <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+"
+fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE,
+            verbose = FALSE)
+
+(res <- loo(fit))
+```
+
+The pointwise contributions are available for inspection -- useful for spotting influential observations (a large `score_norm` or unusually low `log_cpo_2` flags a unit the model predicts poorly):
+
+```{r}
+#| label: loso-perunit
+head(res$per_unit)
+```
+
+
+## Comparing models
+
+Because ELPD differences between models fitted to the *same* data are paired, their standard errors should be computed from the pointwise differences rather than the marginal SEs.
+`compare(..., loo = TRUE)` does this automatically:
+
+```{r}
+#| label: compare
+one.factor <- "g =~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9"
+fit1f <- acfa(one.factor, HolzingerSwineford1939, meanstructure = TRUE,
+              verbose = FALSE)
+
+compare(fit, fit1f, loo = TRUE)
+```
+
+Models are sorted by descending ELPD; `elpd_diff` and `se_diff` are relative to the best model.
+A common heuristic is that a difference smaller than a couple of `se_diff` units is not practically meaningful [@vehtari2017practical] -- here the three-factor model is preferred by a wide margin.
+
+
+## Two-level models
+
+For models fitted with a `cluster` argument, `loo()` automatically switches to per-cluster scoring (LOCO).
+Note that models with exogenous covariates must be fitted with `fixed.x = FALSE`, so that the covariates are part of the joint model being cross-validated.
+
+```{r}
+#| label: loco
+model2l <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ x1 + x2 + x3
+  level: 2
+    fb =~ y1 + y2 + y3
+    fb ~ w1 + w2
+"
+fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
+              meanstructure = TRUE, fixed.x = FALSE, verbose = FALSE)
+
+loo(fit2l)
+```
+
+
+## Storing the result with the fit
+
+`loo(fit)` never modifies the fitted object.
+To compute the LOO once and keep it with the fit, either request it at fit time,
+
+```{r}
+#| label: fit-time
+#| eval: false
+fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE,
+            test = c("standard", "loo"))
+```
+
+or store it afterwards with an explicit reassignment:
+
+```{r}
+#| label: add-loo
+fit <- add_loo(fit)
+```
+
+A stored result is returned instantly by `loo(fit)` and reused by `fitMeasures()` (where the blavaan-style names appear) and `compare(..., loo = TRUE)`:
+
+```{r}
+#| label: fitmeasures
+fitMeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
+```
+
+
+## WAIC
+
+The widely applicable information criterion [@watanabe2010asymptotic] is asymptotically equivalent to LOO and is also available.
+Unlike `loo()`, `waic()` is sampling-based: it evaluates unit log-likelihoods over posterior draws, so results carry Monte Carlo error, and units with $p_{\mathrm{waic},u} > 0.4$ trigger a reliability warning -- in which case prefer `loo()` [@vehtari2017practical].
+
+```{r}
+#| label: waic
+#| warning: false
+set.seed(1)
+waic(fit)
+```
+
+
+## Scoring submodels without refitting
+
+The `theta` and `Sigma` arguments evaluate the LOO at an *arbitrary* Gaussian posterior summary instead of the fit's own.
+Combined with Gaussian conditioning, this scores a constrained submodel from the encompassing fit alone.
+For example, to score the submodel with the `visual ~~ speed` covariance fixed to zero, condition the summary on that parameter and re-evaluate:
+
+```{r}
+#| label: override
+int <- get_inlavaan_internal(fit)
+theta <- int$theta_star
+Sigma <- int$Sigma_theta
+
+p <- which(names(coef(fit)) == "visual~~speed")
+theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
+Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
+
+loo(fit, theta = theta_c, Sigma = Sigma_c)
+```
+
+No refit took place: the conditioned summary has the covariance locked at zero (its row and column of `Sigma_c` vanish), and the LOO machinery automatically restricts to the remaining parameters.
+This pair of arguments is the building block for custom model-search strategies -- screen many candidate restrictions by conditioning, score each with `loo()`, and only refit the winners.
+INLAvaan deliberately provides just this evaluation API; the search logic is yours to design.
+
+
+## Practical notes
+
+- **Supported models.** Single-group, complete-data, continuous-indicator
+  models fitted with the `ML` estimator. Multigroup, missing-data, and
+  ordinal (PML) models are not supported yet; models with exogenous
+  covariates require `fixed.x = FALSE`.
+- **Parallelism is opt-in.** The default runs serially; pass
+  `loo(fit, cores = 2)` to parallelise the Hessian stage via forking
+  (not available on Windows).
+- **First order vs second order.** The second-order correction matters: in
+  our validation it tracks brute-force refits to within about one ELPD unit,
+  while the first-order score can be off by tens of units. Use
+  `second_order = FALSE` only for quick screening.
+- **Row deletion on two-level models.** `loo(fit2l, type = "loso")` forces
+  per-row scoring on a two-level fit (each contribution is the conditional
+  density of a row given the rest of its cluster). It is provided as a
+  diagnostic, warns when used, and is expensive for large datasets --
+  consider the `units` argument to subset.
+
+## References
