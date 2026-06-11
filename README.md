@@ -215,7 +215,7 @@ pak::pak("haziqj/INLAvaan")
 
 *Optionally*[^2], you may wish to install
 [INLA](https://www.r-inla.org). Following the official instructions
-given [here](https://www.r-inla.org/download), install the package by
+given [here](https://www.r-inla.org/download/), install the package by
 running this command in R:
 
 ``` r
