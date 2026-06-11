@@ -76,6 +76,7 @@
 #' @importFrom stats setNames
 #' @importFrom stats splinefun
 #' @importFrom stats uniroot
+#' @importFrom stats var
 #' @importFrom utils capture.output
 #' @importFrom utils head
 #' @importFrom utils packageVersion
