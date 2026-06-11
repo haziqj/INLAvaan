@@ -35,7 +35,12 @@
 
 \item{fit.measures}{If \code{"all"}, all fit measures available will be returned. If
 only a single or a few fit measures are specified by name, only those are
-computed and returned.}
+computed and returned. The LOO measures \code{"elpd_loo"}, \code{"se_loo"},
+\code{"p_loo"} and \code{"looic"} (see \code{\link[=loo]{loo()}}) are included in \code{"all"} only when
+a LOO result is stored with the fit (\code{test = "loo"} in \code{\link[=inlavaan]{inlavaan()}} or
+\code{\link[=add_loo]{add_loo()}}); otherwise they are computed on demand when requested by
+name, and recomputed on every call -- store the result with
+\code{fit <- add_loo(fit)} (or call \code{\link[=loo]{loo()}} directly) for repeated access.}
 
 \item{baseline.model}{An optional \link{INLAvaan} object representing the
 baseline (null) model. Required for incremental fit indices (BCFI, BTLI,

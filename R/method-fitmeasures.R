@@ -451,6 +451,26 @@ inlav_fit_measures <- function(
     }
   }
 
+  # LOO measures: free when stored with the fit (test = "loo" or add_loo());
+  # otherwise computed on demand, and only when requested by name -- the LOO
+  # computation is fresh work and cannot be cached into `object` (S4 copy
+  # semantics), so it never silently inflates a bare fitMeasures() call
+  loo_measures <- c("elpd_loo", "se_loo", "p_loo", "looic")
+  res_loo <- object@external$inlavaan_internal$loo
+  if (
+    is.null(res_loo) &&
+      !identical(fit.measures, "all") &&
+      any(loo_measures %in% fit.measures)
+  ) {
+    res_loo <- tryCatch(loo(object), error = function(e) NULL)
+  }
+  if (!is.null(res_loo)) {
+    out["elpd_loo"] <- res_loo$estimates["elpd_loo", "Estimate"]
+    out["p_loo"] <- res_loo$estimates["p_loo", "Estimate"]
+    out["looic"] <- res_loo$estimates["looic", "Estimate"]
+    out["se_loo"] <- res_loo$estimates["looic", "SE"]
+  }
+
   # Filter if specific measures requested
   if (!identical(fit.measures, "all")) {
     idx <- which(names(out) %in% fit.measures)
@@ -500,7 +520,12 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' @param object An object of class [INLAvaan].
 #' @param fit.measures If `"all"`, all fit measures available will be returned. If
 #'   only a single or a few fit measures are specified by name, only those are
-#'   computed and returned.
+#'   computed and returned. The LOO measures `"elpd_loo"`, `"se_loo"`,
+#'   `"p_loo"` and `"looic"` (see [loo()]) are included in `"all"` only when
+#'   a LOO result is stored with the fit (`test = "loo"` in [inlavaan()] or
+#'   [add_loo()]); otherwise they are computed on demand when requested by
+#'   name, and recomputed on every call -- store the result with
+#'   `fit <- add_loo(fit)` (or call [loo()] directly) for repeated access.
 #' @param baseline.model An optional [INLAvaan] object representing the
 #'   baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
 #'   BNFI). Must have been fitted with `test != "none"`.

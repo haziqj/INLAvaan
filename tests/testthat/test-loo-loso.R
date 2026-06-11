@@ -259,6 +259,26 @@ test_that("fit-time LOO via test = 'loo' and add_loo()", {
   expect_identical(loo(fit2), get_inlavaan_internal(fit2, "loo"))
 })
 
+test_that("fitMeasures reports LOO measures on request or when stored", {
+  # Not stored: bare fitMeasures() excludes the LOO measures
+  fm_all <- fitMeasures(fit)
+  expect_false(any(c("elpd_loo", "se_loo", "p_loo", "looic") %in%
+    names(fm_all)))
+
+  # On request by name: computed on demand, agreeing with loo()
+  fm <- fitMeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
+  expect_equal(unname(fm["elpd_loo"]), res$elpd_2, tolerance = 1e-10)
+  expect_equal(unname(fm["looic"]), -2 * res$elpd_2, tolerance = 1e-10)
+  expect_equal(unname(fm["se_loo"]), 2 * res$se_2, tolerance = 1e-10)
+  expect_equal(unname(fm["p_loo"]), res$p_loo_2, tolerance = 1e-10)
+
+  # Stored: included in "all" for free
+  fit2 <- add_loo(fit)
+  fm2 <- fitMeasures(fit2)
+  expect_true(all(c("elpd_loo", "se_loo", "p_loo", "looic") %in% names(fm2)))
+  expect_equal(unname(fm2["elpd_loo"]), res$elpd_2, tolerance = 1e-10)
+})
+
 test_that("missing data aborts informatively", {
   d_miss <- lavaan::HolzingerSwineford1939
   d_miss[1, "x1"] <- NA
