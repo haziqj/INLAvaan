@@ -60,11 +60,9 @@ inlavaan(
 
 - dp:
 
-  Default prior distributions on different types of parameters,
-  typically the result of a call to
-  [`dpriors()`](https://blavaan.org/reference/dpriors.html). See the
-  [`dpriors()`](https://blavaan.org/reference/dpriors.html) help file
-  for more information.
+  Default prior distributions for the different types of model
+  parameters; a named character vector as returned by
+  [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
 
 - test:
 
@@ -207,22 +205,23 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [74ms]
+#> ✔ Finding posterior mode. [79ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [41ms]
+#> ✔ Computing the Hessian. [45ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.208σ. [82ms]
+#> ✔ VB correction; mean |δ| = 0.208σ. [92ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [506ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [554ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [141ms]
+#> ✔ Adjusting copula correlations (NORTA). [146ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [492ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [570ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9000 ended normally after 73 iterations

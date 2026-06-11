@@ -48,11 +48,9 @@ agrowth(
 
 - dp:
 
-  Default prior distributions on different types of parameters,
-  typically the result of a call to
-  [`dpriors()`](https://blavaan.org/reference/dpriors.html). See the
-  [`dpriors()`](https://blavaan.org/reference/dpriors.html) help file
-  for more information.
+  Default prior distributions for the different types of model
+  parameters; a named character vector as returned by
+  [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
 
 - test:
 
@@ -240,23 +238,22 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [151ms]
+#> ✔ Finding posterior mode. [159ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [64ms]
+#> ✔ Computing the Hessian. [69ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.045σ. [160ms]
+#> ✔ VB correction; mean |δ| = 0.045σ. [172ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 5/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [848ms]
+#> ✔ Fitting 17/17 skew-normal marginals. [904ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [83ms]
+#> ✔ Adjusting copula correlations (NORTA). [91ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [113ms]
+#> ✔ Posterior sampling and summarising. [125ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9000 ended normally after 83 iterations

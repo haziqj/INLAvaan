@@ -48,11 +48,9 @@ asem(
 
 - dp:
 
-  Default prior distributions on different types of parameters,
-  typically the result of a call to
-  [`dpriors()`](https://blavaan.org/reference/dpriors.html). See the
-  [`dpriors()`](https://blavaan.org/reference/dpriors.html) help file
-  for more information.
+  Default prior distributions for the different types of model
+  parameters; a named character vector as returned by
+  [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
 
 - test:
 
@@ -231,22 +229,23 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [90ms]
+#> ✔ Finding posterior mode. [97ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [78ms]
+#> ✔ Computing the Hessian. [74ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.158σ. [170ms]
+#> ✔ VB correction; mean |δ| = 0.158σ. [201ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ✔ Fitting 28/28 skew-normal marginals. [1.2s]
+#> ⠹ Fitting 15/28 skew-normal marginals.
+#> ✔ Fitting 28/28 skew-normal marginals. [1.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [217ms]
+#> ✔ Adjusting copula correlations (NORTA). [227ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [368ms]
+#> ✔ Posterior sampling and summarising. [363ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.4.9000 ended normally after 74 iterations
