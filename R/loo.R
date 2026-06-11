@@ -435,6 +435,44 @@ resolve_loo_cores <- function(cores) {
 
 # ---- Workhorse ---------------------------------------------------------------
 
+# Shared validation gate for the casewise log-likelihood machinery
+check_loo_model <- function(int, fn = "loo") {
+  lavmodel <- int$lavmodel
+  lavdata <- int$lavdata
+  lavsamplestats <- int$lavsamplestats
+  if (lavdata@ngroups > 1L) {
+    cli_abort("{.fn {fn}} does not support multigroup models yet.")
+  }
+  if (lavmodel@estimator != "ML" || isTRUE(lavmodel@categorical)) {
+    cli_abort(
+      "{.fn {fn}} requires a continuous-data model fitted with the
+       {.val ML} estimator."
+    )
+  }
+  if (isTRUE(lavsamplestats@missing.flag) || anyNA(lavdata@X[[1L]])) {
+    cli_abort("{.fn {fn}} does not support missing data yet.")
+  }
+  if (isTRUE(lavmodel@conditional.x)) {
+    cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
+  }
+  if (
+    isTRUE(lavmodel@fixed.x) && length(unlist(lavsamplestats@x.idx)) > 0L
+  ) {
+    cli_abort(c(
+      "{.fn {fn}} requires exogenous covariates to be modelled jointly.",
+      "i" = "Refit the model with {.code fixed.x = FALSE}."
+    ))
+  }
+  if (!isTRUE(lavmodel@meanstructure)) {
+    cli_warn(
+      "The model has no mean structure: unit log-likelihoods are evaluated
+       at zero means, so absolute ELPD values are biased. Comparisons between
+       models fitted to the same data are unaffected."
+    )
+  }
+  invisible(NULL)
+}
+
 inlav_loo <- function(
   int,
   type = c("auto", "loso", "loco"),
@@ -449,39 +487,8 @@ inlav_loo <- function(
   pt <- int$partable
   lavmodel <- int$lavmodel
   lavdata <- int$lavdata
-  lavsamplestats <- int$lavsamplestats
 
-  # Supported model space
-  if (lavdata@ngroups > 1L) {
-    cli_abort("{.fn loo} does not support multigroup models yet.")
-  }
-  if (lavmodel@estimator != "ML" || isTRUE(lavmodel@categorical)) {
-    cli_abort(
-      "{.fn loo} requires a continuous-data model fitted with the
-       {.val ML} estimator."
-    )
-  }
-  if (isTRUE(lavsamplestats@missing.flag) || anyNA(lavdata@X[[1L]])) {
-    cli_abort("{.fn loo} does not support missing data yet.")
-  }
-  if (isTRUE(lavmodel@conditional.x)) {
-    cli_abort("{.fn loo} does not support {.code conditional.x = TRUE}.")
-  }
-  if (
-    isTRUE(lavmodel@fixed.x) && length(unlist(lavsamplestats@x.idx)) > 0L
-  ) {
-    cli_abort(c(
-      "{.fn loo} requires exogenous covariates to be modelled jointly.",
-      "i" = "Refit the model with {.code fixed.x = FALSE}."
-    ))
-  }
-  if (!isTRUE(lavmodel@meanstructure)) {
-    cli_warn(
-      "The model has no mean structure: unit log-likelihoods are evaluated
-       at zero means, so absolute ELPD values are biased. Comparisons between
-       models fitted to the same data are unaffected."
-    )
-  }
+  check_loo_model(int, fn = "loo")
 
   # Resolve LOSO (per-row) vs LOCO (per-cluster)
   two_level <- is_multilevel(lavdata)
@@ -672,6 +679,125 @@ inlav_loo <- function(
       theta_overridden = theta_overridden
     ),
     class = "inlavaan_loo"
+  )
+}
+
+# ---- Sampling-based WAIC -----------------------------------------------------
+#
+# Unlike the Taylor LOO above, WAIC is computed from an S x n matrix of unit
+# log-likelihoods evaluated over posterior draws (one implied-moment build
+# per draw, reusing the casewise kernels):
+#   lpd_u    = log mean_s p(y_u | theta_s)
+#   p_waic_u = var_s log p(y_u | theta_s)
+#   elpd_waic = sum_u (lpd_u - p_waic_u),  waic = -2 * elpd_waic
+
+log_mean_exp <- function(v) {
+  v <- v[is.finite(v)]
+  if (length(v) == 0L) {
+    return(NA_real_) # nocov
+  }
+  a <- max(v)
+  a + log(mean(exp(v - a)))
+}
+
+inlav_waic <- function(
+  int,
+  units = NULL,
+  nsamp = NULL,
+  eff_cores = 1L,
+  verbose = FALSE
+) {
+  pt <- int$partable
+  lavmodel <- int$lavmodel
+  lavdata <- int$lavdata
+
+  check_loo_model(int, fn = "waic")
+  two_level <- is_multilevel(lavdata)
+
+  nsamp <- nsamp %||% int$nsamp %||% 1000L
+  samp <- sample_params(
+    theta_star = int$theta_star,
+    Sigma_theta = int$Sigma_theta,
+    method = int$marginal_method,
+    approx_data = int$approx_data,
+    pt = pt,
+    lavmodel = lavmodel,
+    nsamp = nsamp,
+    R_star = int$R_star
+  )
+  x_samp <- samp$x_samp
+
+  if (two_level) {
+    css <- loco_suff_stats(lavdata)
+    units <- check_loo_units(units, css$J, "clusters")
+    nobs <- css$n_j[units]
+  } else {
+    Y <- lavdata@X[[1L]]
+    units <- check_loo_units(units, nrow(Y), "rows")
+    Y_sub <- Y[units, , drop = FALSE]
+    nobs <- rep(1L, length(units))
+  }
+
+  one_draw <- function(s) {
+    lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_samp[s, ])
+    mom <- loo_implied_moments(lavmodel_x, two_level)
+    tryCatch(
+      if (two_level) {
+        vapply(units, function(j) loco_loglik_one(j, css, mom), numeric(1))
+      } else {
+        loso_loglik_all(Y_sub, mom)
+      },
+      error = function(e) rep(NA_real_, length(units)) # nocov
+    )
+  }
+  ll_list <- run_parallel_or_serial(
+    m = nsamp,
+    FUN = one_draw,
+    cores = eff_cores,
+    verbose = verbose,
+    msg_serial = "Evaluating unit log-likelihoods at draw {j}/{m}.",
+    msg_parallel = "Evaluating unit log-likelihoods at {m} draws ({cores} cores)."
+  )
+  ll_mat <- do.call(rbind, ll_list) # nsamp x n_units
+
+  lpd <- apply(ll_mat, 2L, log_mean_exp)
+  p_waic <- apply(ll_mat, 2L, var, na.rm = TRUE)
+  elpd_waic_u <- lpd - p_waic
+  n_units <- length(units)
+
+  n_high <- sum(p_waic > 0.4, na.rm = TRUE)
+  if (n_high > 0L) {
+    cli_warn(
+      "{n_high} unit{?s} {?has/have} p_waic > 0.4, so the WAIC may be
+       unreliable. Consider {.fn loo} instead."
+    )
+  }
+
+  estimates <- cbind(
+    Estimate = c(sum(elpd_waic_u), sum(p_waic), -2 * sum(elpd_waic_u)),
+    SE = c(
+      sqrt(n_units * var(elpd_waic_u)),
+      sqrt(n_units * var(p_waic)),
+      2 * sqrt(n_units * var(elpd_waic_u))
+    )
+  )
+  rownames(estimates) <- c("elpd_waic", "p_waic", "waic")
+
+  structure(
+    list(
+      per_unit = data.frame(
+        unit = units,
+        nobs = nobs,
+        lpd = lpd,
+        p_waic = p_waic,
+        elpd_waic = elpd_waic_u
+      ),
+      estimates = estimates,
+      type = if (two_level) "loco" else "loso",
+      n_units = n_units,
+      nsamp = nsamp
+    ),
+    class = "inlavaan_waic"
   )
 }
 

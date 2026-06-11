@@ -471,6 +471,21 @@ inlav_fit_measures <- function(
     out["se_loo"] <- res_loo$estimates["looic", "SE"]
   }
 
+  # WAIC: sampling-based, computed on demand when requested by name
+  waic_measures <- c("elpd_waic", "se_waic", "p_waic", "waic")
+  if (
+    !identical(fit.measures, "all") &&
+      any(waic_measures %in% fit.measures)
+  ) {
+    res_waic <- tryCatch(waic(object), error = function(e) NULL)
+    if (!is.null(res_waic)) {
+      out["elpd_waic"] <- res_waic$estimates["elpd_waic", "Estimate"]
+      out["p_waic"] <- res_waic$estimates["p_waic", "Estimate"]
+      out["waic"] <- res_waic$estimates["waic", "Estimate"]
+      out["se_waic"] <- res_waic$estimates["waic", "SE"]
+    }
+  }
+
   # Filter if specific measures requested
   if (!identical(fit.measures, "all")) {
     idx <- which(names(out) %in% fit.measures)

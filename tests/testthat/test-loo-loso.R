@@ -279,6 +279,37 @@ test_that("fitMeasures reports LOO measures on request or when stored", {
   expect_equal(unname(fm2["elpd_loo"]), res$elpd_2, tolerance = 1e-10)
 })
 
+test_that("waic() sanity and agreement with loo()", {
+  set.seed(123)
+  # A few units genuinely exceed the p_waic reliability threshold here
+  expect_warning(w <- waic(fit, nsamp = 1000), "p_waic")
+  expect_s3_class(w, "inlavaan_waic")
+  expect_equal(w$n_units, 301L)
+  expect_equal(w$type, "loso")
+  expect_true(all(is.finite(w$per_unit$lpd)))
+  expect_true(all(w$per_unit$p_waic > 0))
+  expect_output(print(w), "WAIC")
+
+  # WAIC and LOO estimate the same quantity; loose agreement on this model
+  expect_equal(
+    unname(w$estimates["elpd_waic", "Estimate"]),
+    res$elpd_2,
+    tolerance = 0.005
+  )
+  expect_equal(
+    unname(w$estimates["waic", "Estimate"]),
+    -2 * unname(w$estimates["elpd_waic", "Estimate"])
+  )
+
+  # fitMeasures computes WAIC on request by name only (the test fit has
+  # nsamp = 3, so suppress the small-sample p_waic reliability warning)
+  expect_false("waic" %in% names(fitMeasures(fit)))
+  suppressWarnings(
+    fm <- fitMeasures(fit, c("waic", "p_waic", "se_waic"))
+  )
+  expect_true(all(c("waic", "p_waic", "se_waic") %in% names(fm)))
+})
+
 test_that("missing data aborts informatively", {
   d_miss <- lavaan::HolzingerSwineford1939
   d_miss[1, "x1"] <- NA
