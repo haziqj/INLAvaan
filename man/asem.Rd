@@ -43,11 +43,14 @@ asem(
 parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}.}
 
 \item{test}{Character indicating which post-estimation quantities to
-compute. Defaults to "standard" (posterior fit indices: PPP and DIC);
-"none" skips these computations. Include "loo" (e.g.
-\code{test = c("standard", "loo")}, or \code{test = "loo"} alone) to also compute
-leave-one-out cross-validation at fit time and store it with the fit;
-see \code{\link[=loo]{loo()}}.}
+compute. Defaults to "standard": posterior fit indices (PPP and DIC),
+plus -- for models supported by the casewise machinery and fitted with
+a mean structure -- the WAIC (reusing the fit's posterior draws, when
+\code{nsamp >= 100}) and a full leave-one-out cross-validation whenever its
+predicted serial cost is within a 10-second budget; both are stored
+with the fit (see \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}}). "none" skips all of these.
+Include "loo" (e.g. \code{test = c("standard", "loo")}, or \code{test = "loo"}
+alone) to force the full LOO regardless of the budget.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}

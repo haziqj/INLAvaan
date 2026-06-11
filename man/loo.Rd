@@ -140,12 +140,15 @@ Parallelism is strictly opt-in: the default \code{cores = NULL} runs serially,
 and \code{cores > 1} parallelises the Hessian stage via forking (not available
 on Windows).
 
-Calling \code{loo()} never modifies the fitted object. To compute the LOO once
-and keep it with the fit, request it at fit time with \code{test = "loo"} (or
-\code{test = c("standard", "loo")}) in \code{\link[=inlavaan]{inlavaan()}}, or store it post hoc with
-\code{fit <- add_loo(fit)}. A stored result is returned directly by
-\code{loo(fit)} when called with default arguments, and is reused by
-\code{\link[=fitmeasures]{fitmeasures()}} and \code{\link[=compare]{compare()}} without recomputation.
+Calling \code{loo()} never modifies the fitted object. Under the default
+\code{test = "standard"}, \code{\link[=inlavaan]{inlavaan()}} already computes and stores the full
+LOO at fit time whenever the model is supported, has a mean structure,
+and the predicted serial cost is within a 10-second budget (measured by
+timing one score evaluation); \code{test = "loo"} forces the computation
+regardless of the budget, and \code{fit <- add_loo(fit)} stores it post hoc.
+A stored result is returned directly by \code{loo(fit)} when called with
+default arguments, and is reused by \code{\link[=fitmeasures]{fitmeasures()}} and \code{\link[=compare]{compare()}}
+without recomputation.
 
 \strong{Exogenous covariates.} The flavour of the score follows the fitted
 likelihood. Under \code{fixed.x = FALSE} the covariates are modelled jointly

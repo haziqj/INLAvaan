@@ -551,7 +551,8 @@ inlav_loo <- function(
   theta = NULL,
   Sigma = NULL,
   eff_cores = 1L,
-  verbose = FALSE
+  verbose = FALSE,
+  max_seconds = Inf
 ) {
   type <- match.arg(type)
   pt <- int$partable
@@ -669,6 +670,21 @@ inlav_loo <- function(
 
   H_arr <- NULL
   if (isTRUE(second_order)) {
+    # Budget gate (used by the fit-time default path): the Hessian stage
+    # costs 2 * m_free score-matrix evaluations, so timing a single
+    # evaluation predicts the total before committing to it
+    if (is.finite(max_seconds)) {
+      t_one <- as.numeric(system.time(score_fn(theta[free]))["elapsed"])
+      # floor at clock resolution so a fast evaluation never predicts zero
+      t_hat <- 1.2 * 2 * length(free) * max(t_one, 1e-4)
+      if (t_hat > max_seconds) {
+        cli_abort(
+          "Predicted serial LOO cost ({round(t_hat, 1)} s) exceeds the
+           {max_seconds} s budget.",
+          class = "inlavaan_loo_budget"
+        )
+      }
+    }
     H_arr <- loo_batched_hessians(
       theta[free],
       score_fn,
@@ -785,25 +801,42 @@ inlav_waic <- function(
   eff_cores = 1L,
   verbose = FALSE
 ) {
-  pt <- int$partable
-  lavmodel <- int$lavmodel
-  lavdata <- int$lavdata
-
   check_loo_model(int, fn = "waic")
-  two_level <- is_multilevel(lavdata)
-
   nsamp <- nsamp %||% int$nsamp %||% 1000L
   samp <- sample_params(
     theta_star = int$theta_star,
     Sigma_theta = int$Sigma_theta,
     method = int$marginal_method,
     approx_data = int$approx_data,
-    pt = pt,
-    lavmodel = lavmodel,
+    pt = int$partable,
+    lavmodel = int$lavmodel,
     nsamp = nsamp,
     R_star = int$R_star
   )
-  x_samp <- samp$x_samp
+  waic_from_draws(
+    int,
+    samp$x_samp,
+    units = units,
+    eff_cores = eff_cores,
+    verbose = verbose
+  )
+}
+
+# WAIC from an existing matrix of posterior draws (lavaan-x space). Used by
+# inlav_waic() with fresh draws and by the fit-time path with the draws the
+# fit already produced, so that fit-time WAIC costs only the casewise pass.
+waic_from_draws <- function(
+  int,
+  x_samp,
+  units = NULL,
+  eff_cores = 1L,
+  verbose = FALSE
+) {
+  pt <- int$partable
+  lavmodel <- int$lavmodel
+  lavdata <- int$lavdata
+  two_level <- is_multilevel(lavdata)
+  nsamp <- nrow(x_samp)
 
   if (two_level) {
     css <- loco_suff_stats(lavdata)

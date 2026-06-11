@@ -2,6 +2,15 @@
 
 ## New features
 
+* The default `test = "standard"` now also computes and stores, for
+  supported models with a mean structure: the WAIC (reusing the fit's own
+  posterior draws, when `nsamp >= 100`) and the full leave-one-out
+  cross-validation whenever its predicted serial cost -- calibrated at run
+  time from a single score evaluation -- is within a 10-second budget.
+  `loo(fit)`, `waic(fit)`, `fitMeasures()` and `compare(loo = TRUE)` reuse
+  the stored results; `test = "loo"` forces the LOO regardless of the
+  budget, and `test = "none"` skips everything, as before.
+
 * `loo()` computes leave-one-out cross-validation for fitted models without
   refitting, via a Taylor approximation of the case-deletion posterior:
   per-subject (LOSO) for single-level models and per-cluster (LOCO) for

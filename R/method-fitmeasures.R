@@ -471,19 +471,22 @@ inlav_fit_measures <- function(
     out["se_loo"] <- res_loo$estimates["looic", "SE"]
   }
 
-  # WAIC: sampling-based, computed on demand when requested by name
+  # WAIC: free when stored with the fit; otherwise sampling-based, computed
+  # on demand when requested by name
   waic_measures <- c("elpd_waic", "se_waic", "p_waic", "waic")
+  res_waic <- object@external$inlavaan_internal$waic
   if (
-    !identical(fit.measures, "all") &&
+    is.null(res_waic) &&
+      !identical(fit.measures, "all") &&
       any(waic_measures %in% fit.measures)
   ) {
     res_waic <- tryCatch(waic(object), error = function(e) NULL)
-    if (!is.null(res_waic)) {
-      out["elpd_waic"] <- res_waic$estimates["elpd_waic", "Estimate"]
-      out["p_waic"] <- res_waic$estimates["p_waic", "Estimate"]
-      out["waic"] <- res_waic$estimates["waic", "Estimate"]
-      out["se_waic"] <- res_waic$estimates["waic", "SE"]
-    }
+  }
+  if (!is.null(res_waic)) {
+    out["elpd_waic"] <- res_waic$estimates["elpd_waic", "Estimate"]
+    out["p_waic"] <- res_waic$estimates["p_waic", "Estimate"]
+    out["waic"] <- res_waic$estimates["waic", "Estimate"]
+    out["se_waic"] <- res_waic$estimates["waic", "SE"]
   }
 
   # Filter if specific measures requested

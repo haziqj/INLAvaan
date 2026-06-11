@@ -175,8 +175,12 @@ For two-level models the conditional flavour currently requires every exogenous 
 
 ## Storing the result with the fit
 
-`loo(fit)` never modifies the fitted object.
-To compute the LOO once and keep it with the fit, either request it at fit time,
+`loo(fit)` never modifies the fitted object -- but under the default
+`test = "standard"`, the fit itself already computes and stores both the full LOO and the WAIC whenever the model is supported, has a mean structure, and (for LOO) the predicted serial cost is within a 10-second budget.
+The prediction is calibrated at run time by timing a single score evaluation, so on typical single-level models -- where the full LOO costs a fraction of the fit itself -- you simply get `loo(fit)` and `waic(fit)` for free.
+The WAIC reuses the very draws the fit produced for its posterior summaries, so it costs only one casewise pass.
+
+For expensive cases you can force the LOO regardless of the budget at fit time,
 
 ```{r}
 #| label: fit-time

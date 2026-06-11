@@ -50,12 +50,20 @@ log-likelihood \eqn{\log p(y_u \mid \theta_s)} is evaluated; then
 p_{\mathrm{waic},u})} with \eqn{\mathrm{WAIC} = -2\,
 \mathrm{elpd}_{\mathrm{waic}}}. Unlike \code{\link[=loo]{loo()}}, this is a sampling-based
 estimate: results vary with the random draws, and units with
-\eqn{p_{\mathrm{waic},u} > 0.4} trigger a reliability warning. The same
-model restrictions as \code{\link[=loo]{loo()}} apply, and so does the flavour rule: fits
-with \code{fixed.x = TRUE} are scored conditionally on the exogenous
-covariates, fits with \code{fixed.x = FALSE} jointly (see \code{\link[=loo]{loo()}}). If the
-\code{loo} package is attached it masks this generic, but dispatch on
-INLAvaan objects continues to work.
+\eqn{p_{\mathrm{waic},u} > 0.4} trigger a reliability warning (also
+annotated when printing). The same model restrictions as \code{\link[=loo]{loo()}} apply,
+and so does the flavour rule: fits with \code{fixed.x = TRUE} are scored
+conditionally on the exogenous covariates, fits with \code{fixed.x = FALSE}
+jointly (see \code{\link[=loo]{loo()}}).
+
+Under the default \code{test = "standard"}, \code{\link[=inlavaan]{inlavaan()}} computes the WAIC at
+fit time by reusing the posterior draws the fit already produced (when
+the model is supported, has a mean structure, and \code{nsamp >= 100}), and
+stores it with the fit: \code{waic(fit)} then returns the stored result when
+called with default arguments, and \code{\link[=fitmeasures]{fitmeasures()}} reports \code{waic},
+\code{p_waic}, \code{se_waic} as part of \code{"all"} for free. If the \code{loo} package is
+attached it masks this generic, but dispatch on INLAvaan objects
+continues to work.
 }
 \examples{
 \donttest{

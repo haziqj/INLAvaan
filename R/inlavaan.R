@@ -13,11 +13,14 @@
 #' @param dp Default prior distributions for the different types of model
 #'   parameters; a named character vector as returned by [priors_for()].
 #' @param test Character indicating which post-estimation quantities to
-#'   compute. Defaults to "standard" (posterior fit indices: PPP and DIC);
-#'   "none" skips these computations. Include "loo" (e.g.
-#'   `test = c("standard", "loo")`, or `test = "loo"` alone) to also compute
-#'   leave-one-out cross-validation at fit time and store it with the fit;
-#'   see [loo()].
+#'   compute. Defaults to "standard": posterior fit indices (PPP and DIC),
+#'   plus -- for models supported by the casewise machinery and fitted with
+#'   a mean structure -- the WAIC (reusing the fit's posterior draws, when
+#'   `nsamp >= 100`) and a full leave-one-out cross-validation whenever its
+#'   predicted serial cost is within a 10-second budget; both are stored
+#'   with the fit (see [loo()] and [waic()]). "none" skips all of these.
+#'   Include "loo" (e.g. `test = c("standard", "loo")`, or `test = "loo"`
+#'   alone) to force the full LOO regardless of the budget.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param marginal_method The method for approximating the marginal posterior
@@ -105,7 +108,8 @@ inlavaan <- function(
   timing <- list(start.time = start.time0)
 
   ## ----- Check arguments -----------------------------------------------------
-  if (!is.null(cores)) { # nocov start
+  if (!is.null(cores)) {
+    # nocov start
     cores <- as.integer(cores)
     if (is.na(cores) || cores < 1L) cores <- 1L
   } # nocov end
@@ -136,7 +140,8 @@ inlavaan <- function(
   lavargs$test <- test
 
   if ("estimator" %in% names(lavargs)) {
-    if (!(lavargs$estimator %in% c("ML", "PML"))) { # nocov
+    if (!(lavargs$estimator %in% c("ML", "PML"))) {
+      # nocov
       cli_abort("Only 'ML' and 'PML' estimators are supported currently.")
     }
   }
@@ -274,7 +279,8 @@ inlavaan <- function(
       # H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
       H_neg <- fast_jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
     }
-  } else if (optim_method == "ucminf") { # nocov start
+  } else if (optim_method == "ucminf") {
+    # nocov start
     if (!requireNamespace("ucminf", quietly = TRUE)) {
       cli_abort(
         "The `ucminf` package is required for this optimization method. Please install it using `install.packages('ucminf')`."
@@ -290,7 +296,8 @@ inlavaan <- function(
     )
     theta_star <- opt$par
     H_neg <- opt$hessian
-  } else { # nocov end
+  } else {
+    # nocov end
     opt <- stats::optim(
       par = parstart,
       fn = ob,
@@ -321,12 +328,12 @@ inlavaan <- function(
 
   # Derivatives at optima
   opt$dx <- fast_grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
-  opt$dx_analytic <- -1 * joint_lp_grad(theta_star)             # analytic grad
+  opt$dx_analytic <- -1 * joint_lp_grad(theta_star) # analytic grad
   if (isTRUE(debug)) {
     tab <- data.frame(
       analytic = round(opt$dx_analytic, 6),
-      fd       = round(opt$dx, 6),
-      diff     = round(opt$dx_analytic - opt$dx, 6),
+      fd = round(opt$dx, 6),
+      diff = round(opt$dx_analytic - opt$dx, 6),
       row.names = parnames
     )
     cli::cli_rule(left = "{.strong Gradient check at posterior mode}")
@@ -462,7 +469,8 @@ inlavaan <- function(
     } else {
       eff_cores <- cores
     }
-    if (eff_cores > 1L && .Platform$OS.type == "windows") { # nocov start
+    if (eff_cores > 1L && .Platform$OS.type == "windows") {
+      # nocov start
       cli_alert_warning(
         "Parallel marginal fitting uses forking and is not available on
         Windows. Falling back to serial."
@@ -663,7 +671,11 @@ inlavaan <- function(
       y = parnames
     )
   )
-  summ <- cbind(summ, kld = vb$kld, vb_shift_sigma = vb$correction / sqrt(diag(Sigma_theta)))
+  summ <- cbind(
+    summ,
+    kld = vb$kld,
+    vb_shift_sigma = vb$correction / sqrt(diag(Sigma_theta))
+  )
 
   pdf_data <- lapply(postmargres, function(x) x$pdf_data)
   names(pdf_data) <- parnames
@@ -698,11 +710,13 @@ inlavaan <- function(
 
   # Defined parameters
   if (any(pt$op == ":=")) {
-    if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) { # nocov start
+    if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
+      # nocov start
       defpars <- get_defpars_fit_sn(x_samp, pt)
       sn_rows <- do.call(rbind, lapply(defpars, `[[`, "sn_params"))
       approx_data <- rbind(approx_data, sn_rows)
-    } else { # nocov end
+    } else {
+      # nocov end
       defpars <- get_defpars(x_samp, pt)
     }
 
@@ -759,34 +773,86 @@ inlavaan <- function(
   }
   timing <- add_timing(timing, "test")
 
-  ## ----- Optional fit-time LOO ------------------------------------------------
+  ## ----- Fit-time LOO and WAIC -------------------------------------------------
+  # Minimal internal view of the fit for the casewise machinery
+  int_fit <- list(
+    partable = pt,
+    lavmodel = lavmodel,
+    lavdata = lavdata,
+    lavsamplestats = lavsamplestats,
+    theta_star = as.numeric(theta_star_vbc),
+    Sigma_theta = Sigma_theta,
+    marginal_method = marginal_method,
+    approx_data = approx_data,
+    nsamp = nsamp,
+    R_star = R_star
+  )
+  # The default path (test = "standard") computes LOO/WAIC only for models
+  # the casewise kernels support with an estimated mean structure, quietly,
+  # and (for LOO) only when the predicted serial cost fits a 10 s budget.
+  # An explicit "loo" in `test` always computes the full LOO.
+  casewise_ok <- isTRUE(lavmodel@meanstructure) &&
+    tryCatch(
+      {
+        suppressWarnings(check_loo_model(int_fit))
+        TRUE
+      },
+      error = function(e) FALSE
+    )
+
   loo_res <- NULL
-  if (isTRUE(do_loo)) {
+  if (isTRUE(do_loo) || (test != "none" && casewise_ok)) {
     if (isTRUE(verbose)) {
       cli_progress_step("Computing Taylor LOO.")
     }
     loo_res <- tryCatch(
       inlav_loo(
-        int = list(
-          partable = pt,
-          lavmodel = lavmodel,
-          lavdata = lavdata,
-          lavsamplestats = lavsamplestats,
-          theta_star = as.numeric(theta_star_vbc),
-          Sigma_theta = Sigma_theta
-        ),
+        int = int_fit,
         eff_cores = resolve_loo_cores(cores),
-        verbose = FALSE
+        verbose = FALSE,
+        max_seconds = if (isTRUE(do_loo)) Inf else 10
       ),
+      inlavaan_loo_budget = function(e) {
+        if (isTRUE(verbose)) {
+          cli_alert_info(
+            "Skipping fit-time LOO (predicted cost exceeds 10 s); compute it
+             post hoc with {.fn loo} or {.fn add_loo}."
+          )
+        }
+        NULL
+      },
       error = function(e) {
-        cli_warn(c(
-          "Skipping the fit-time LOO computation.",
-          "x" = conditionMessage(e)
-        ))
+        if (isTRUE(do_loo)) {
+          cli_warn(c(
+            "Skipping the fit-time LOO computation.",
+            "x" = conditionMessage(e)
+          ))
+        }
         NULL
       }
     )
     timing <- add_timing(timing, "loo")
+  }
+
+  # WAIC from the draws already produced above, so only the casewise pass is
+  # paid; skipped for small nsamp, where p_waic estimates are meaningless.
+  # The reliability warning is left to print/explicit waic() calls.
+  waic_res <- NULL
+  if (test != "none" && casewise_ok && nsamp >= 100L) {
+    if (isTRUE(verbose)) {
+      cli_progress_step("Computing WAIC from the posterior draws.")
+    }
+    waic_res <- tryCatch(
+      suppressWarnings(
+        waic_from_draws(
+          int_fit,
+          x_samp,
+          eff_cores = resolve_loo_cores(cores)
+        )
+      ),
+      error = function(e) NULL
+    )
+    timing <- add_timing(timing, "waic")
   }
 
   ## ----- Output --------------------------------------------------------------
@@ -797,6 +863,7 @@ inlavaan <- function(
     summary = summ,
     ppp = ppp,
     loo = loo_res,
+    waic = waic_res,
     optim_method = optim_method,
     marginal_method = marginal_method,
     theta_star_novbc = as.numeric(theta_star),

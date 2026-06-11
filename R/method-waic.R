@@ -15,12 +15,20 @@
 #' p_{\mathrm{waic},u})} with \eqn{\mathrm{WAIC} = -2\,
 #' \mathrm{elpd}_{\mathrm{waic}}}. Unlike [loo()], this is a sampling-based
 #' estimate: results vary with the random draws, and units with
-#' \eqn{p_{\mathrm{waic},u} > 0.4} trigger a reliability warning. The same
-#' model restrictions as [loo()] apply, and so does the flavour rule: fits
-#' with `fixed.x = TRUE` are scored conditionally on the exogenous
-#' covariates, fits with `fixed.x = FALSE` jointly (see [loo()]). If the
-#' `loo` package is attached it masks this generic, but dispatch on
-#' INLAvaan objects continues to work.
+#' \eqn{p_{\mathrm{waic},u} > 0.4} trigger a reliability warning (also
+#' annotated when printing). The same model restrictions as [loo()] apply,
+#' and so does the flavour rule: fits with `fixed.x = TRUE` are scored
+#' conditionally on the exogenous covariates, fits with `fixed.x = FALSE`
+#' jointly (see [loo()]).
+#'
+#' Under the default `test = "standard"`, [inlavaan()] computes the WAIC at
+#' fit time by reusing the posterior draws the fit already produced (when
+#' the model is supported, has a mean structure, and `nsamp >= 100`), and
+#' stores it with the fit: `waic(fit)` then returns the stored result when
+#' called with default arguments, and [fitmeasures()] reports `waic`,
+#' `p_waic`, `se_waic` as part of `"all"` for free. If the `loo` package is
+#' attached it masks this generic, but dispatch on INLAvaan objects
+#' continues to work.
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
 #' @param units Optional integer vector of unit indices to score; defaults
@@ -85,6 +93,14 @@ waic.inlavaan_internal <- function(
   verbose = FALSE,
   ...
 ) {
+  # Reuse the result stored at fit time when no argument deviates from the
+  # defaults
+  if (is.null(units) && is.null(nsamp) && !is.null(x$waic)) {
+    if (isTRUE(verbose)) {
+      cli_alert_info("Returning the WAIC stored with the fit.")
+    }
+    return(x$waic)
+  }
   inlav_waic(
     int = x,
     units = units,
@@ -114,5 +130,16 @@ print.inlavaan_waic <- function(x, ...) {
   }
   cat("\n")
   print(round(x$estimates, 1))
+  n_high <- sum(x$per_unit$p_waic > 0.4, na.rm = TRUE)
+  if (n_high > 0L) {
+    cat(
+      "\n",
+      n_high,
+      " unit",
+      if (n_high != 1L) "s",
+      " with p_waic > 0.4: the WAIC may be unreliable; prefer loo().\n",
+      sep = ""
+    )
+  }
   invisible(x)
 }

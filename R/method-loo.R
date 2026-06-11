@@ -50,12 +50,15 @@
 #' and `cores > 1` parallelises the Hessian stage via forking (not available
 #' on Windows).
 #'
-#' Calling `loo()` never modifies the fitted object. To compute the LOO once
-#' and keep it with the fit, request it at fit time with `test = "loo"` (or
-#' `test = c("standard", "loo")`) in [inlavaan()], or store it post hoc with
-#' `fit <- add_loo(fit)`. A stored result is returned directly by
-#' `loo(fit)` when called with default arguments, and is reused by
-#' [fitmeasures()] and [compare()] without recomputation.
+#' Calling `loo()` never modifies the fitted object. Under the default
+#' `test = "standard"`, [inlavaan()] already computes and stores the full
+#' LOO at fit time whenever the model is supported, has a mean structure,
+#' and the predicted serial cost is within a 10-second budget (measured by
+#' timing one score evaluation); `test = "loo"` forces the computation
+#' regardless of the budget, and `fit <- add_loo(fit)` stores it post hoc.
+#' A stored result is returned directly by `loo(fit)` when called with
+#' default arguments, and is reused by [fitmeasures()] and [compare()]
+#' without recomputation.
 #'
 #' **Exogenous covariates.** The flavour of the score follows the fitted
 #' likelihood. Under `fixed.x = FALSE` the covariates are modelled jointly

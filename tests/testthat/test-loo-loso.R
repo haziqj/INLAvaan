@@ -327,3 +327,63 @@ test_that("missing data aborts informatively", {
   )
   expect_error(loo(fit_miss), "missing data")
 })
+
+test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
+  fit_std <- acfa(
+    HS_model,
+    lavaan::HolzingerSwineford1939,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 150,
+    test = "standard",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  )
+  int <- get_inlavaan_internal(fit_std)
+
+  expect_s3_class(int$loo, "inlavaan_loo")
+  expect_equal(int$loo$n_units, 301L)
+  expect_equal(int$loo$elpd_2, res$elpd_2, tolerance = 1e-10)
+  expect_identical(loo(fit_std), int$loo)
+
+  expect_s3_class(int$waic, "inlavaan_waic")
+  expect_equal(int$waic$nsamp, 150L)
+  expect_identical(waic(fit_std), int$waic)
+  # non-default arguments still trigger a fresh computation
+  set.seed(1)
+  w2 <- suppressWarnings(waic(fit_std, nsamp = 120))
+  expect_equal(w2$nsamp, 120L)
+
+  # stored results appear in fitMeasures' "all" for free
+  fm <- fitMeasures(fit_std)
+  expect_true(all(
+    c("elpd_loo", "looic", "waic", "p_waic", "se_waic") %in% names(fm)
+  ))
+  expect_true(all(c("ppp", "dic", "p_dic") %in% names(fm)))
+})
+
+test_that("the fit-time budget gate aborts with its own condition class", {
+  int <- get_inlavaan_internal(fit)
+  expect_error(
+    INLAvaan:::inlav_loo(int, max_seconds = 1e-9),
+    class = "inlavaan_loo_budget"
+  )
+})
+
+test_that("small nsamp skips fit-time WAIC but not LOO", {
+  fit_s3 <- acfa(
+    HS_model,
+    lavaan::HolzingerSwineford1939,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "standard",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  )
+  int <- get_inlavaan_internal(fit_s3)
+  expect_null(int$waic)
+  expect_s3_class(int$loo, "inlavaan_loo")
+})
