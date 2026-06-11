@@ -78,8 +78,10 @@ success flag).}
 columns \code{Estimate}, \code{SE} (headline second-order values).}
 \item{\code{elpd_1}, \code{elpd_2}, \code{se_1}, \code{se_2}, \code{p_loo_1}, \code{p_loo_2}}{
 First- and second-order aggregates.}
-\item{\code{type}, \code{n_units}, \code{n_ok}, \code{second_order},
-\code{theta_overridden}}{Metadata.}
+\item{\code{type}, \code{flavour}, \code{n_units}, \code{n_ok}, \code{second_order},
+\code{theta_overridden}}{Metadata; \code{flavour} records whether units were
+scored jointly with their covariates (\code{"joint"}) or conditionally
+on them (\code{"conditional"}, for \code{fixed.x} fits).}
 }
 
 \code{add_loo()} returns a copy of \code{object} with the LOO result
@@ -145,9 +147,25 @@ and keep it with the fit, request it at fit time with \code{test = "loo"} (or
 \code{loo(fit)} when called with default arguments, and is reused by
 \code{\link[=fitmeasures]{fitmeasures()}} and \code{\link[=compare]{compare()}} without recomputation.
 
+\strong{Exogenous covariates.} The flavour of the score follows the fitted
+likelihood. Under \code{fixed.x = FALSE} the covariates are modelled jointly
+and each unit is scored by the joint predictive density of its outcomes
+\emph{and} covariates (\code{flavour = "joint"}). Under \code{fixed.x = TRUE} (the
+lavaan default) the fitted likelihood is the conditional one, and each
+unit is scored by the predictive density of its outcomes \emph{given} its
+covariates (\code{flavour = "conditional"}); since the conditional likelihood
+is exactly invariant to the frozen covariate moments, this involves no
+additional approximation. The two flavours estimate different quantities
+whose scales differ by the covariate predictive density, so a joint and a
+conditional elpd must never be compared (\code{\link[=compare]{compare()}} refuses
+mixed-flavour comparisons). Conditional scores of models conditioning on
+\emph{different} covariate sets are comparable provided the outcome variables
+match -- the natural setting for covariate selection. For two-level
+models the conditional flavour currently requires every exogenous
+covariate to be a cluster-level (between) variable.
+
 Supported models: single-group, complete-data, continuous-indicator
-models fitted with the \code{ML} estimator. Models with exogenous covariates
-must be fitted with \code{fixed.x = FALSE}. If the \code{loo} package is attached
+models fitted with the \code{ML} estimator. If the \code{loo} package is attached
 it masks this generic, but \code{loo(fit)} continues to dispatch correctly
 because the method is registered by generic name.
 }

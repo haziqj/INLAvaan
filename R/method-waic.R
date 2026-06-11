@@ -16,8 +16,11 @@
 #' \mathrm{elpd}_{\mathrm{waic}}}. Unlike [loo()], this is a sampling-based
 #' estimate: results vary with the random draws, and units with
 #' \eqn{p_{\mathrm{waic},u} > 0.4} trigger a reliability warning. The same
-#' model restrictions as [loo()] apply. If the `loo` package is attached it
-#' masks this generic, but dispatch on INLAvaan objects continues to work.
+#' model restrictions as [loo()] apply, and so does the flavour rule: fits
+#' with `fixed.x = TRUE` are scored conditionally on the exogenous
+#' covariates, fits with `fixed.x = FALSE` jointly (see [loo()]). If the
+#' `loo` package is attached it masks this generic, but dispatch on
+#' INLAvaan objects continues to work.
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
 #' @param units Optional integer vector of unit indices to score; defaults
@@ -103,9 +106,13 @@ print.inlavaan_waic <- function(x, ...) {
     " ",
     unit_word,
     if (x$n_units != 1L) "s",
-    "\n\n",
+    "\n",
     sep = ""
   )
+  if (identical(x$flavour, "conditional")) {
+    cat("Scored conditionally on the exogenous covariates (fixed.x fit)\n")
+  }
+  cat("\n")
   print(round(x$estimates, 1))
   invisible(x)
 }

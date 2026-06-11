@@ -51,8 +51,11 @@ p_{\mathrm{waic},u})} with \eqn{\mathrm{WAIC} = -2\,
 \mathrm{elpd}_{\mathrm{waic}}}. Unlike \code{\link[=loo]{loo()}}, this is a sampling-based
 estimate: results vary with the random draws, and units with
 \eqn{p_{\mathrm{waic},u} > 0.4} trigger a reliability warning. The same
-model restrictions as \code{\link[=loo]{loo()}} apply. If the \code{loo} package is attached it
-masks this generic, but dispatch on INLAvaan objects continues to work.
+model restrictions as \code{\link[=loo]{loo()}} apply, and so does the flavour rule: fits
+with \code{fixed.x = TRUE} are scored conditionally on the exogenous
+covariates, fits with \code{fixed.x = FALSE} jointly (see \code{\link[=loo]{loo()}}). If the
+\code{loo} package is attached it masks this generic, but dispatch on
+INLAvaan objects continues to work.
 }
 \examples{
 \donttest{

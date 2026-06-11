@@ -57,9 +57,25 @@
 #' `loo(fit)` when called with default arguments, and is reused by
 #' [fitmeasures()] and [compare()] without recomputation.
 #'
+#' **Exogenous covariates.** The flavour of the score follows the fitted
+#' likelihood. Under `fixed.x = FALSE` the covariates are modelled jointly
+#' and each unit is scored by the joint predictive density of its outcomes
+#' *and* covariates (`flavour = "joint"`). Under `fixed.x = TRUE` (the
+#' lavaan default) the fitted likelihood is the conditional one, and each
+#' unit is scored by the predictive density of its outcomes *given* its
+#' covariates (`flavour = "conditional"`); since the conditional likelihood
+#' is exactly invariant to the frozen covariate moments, this involves no
+#' additional approximation. The two flavours estimate different quantities
+#' whose scales differ by the covariate predictive density, so a joint and a
+#' conditional elpd must never be compared ([compare()] refuses
+#' mixed-flavour comparisons). Conditional scores of models conditioning on
+#' *different* covariate sets are comparable provided the outcome variables
+#' match -- the natural setting for covariate selection. For two-level
+#' models the conditional flavour currently requires every exogenous
+#' covariate to be a cluster-level (between) variable.
+#'
 #' Supported models: single-group, complete-data, continuous-indicator
-#' models fitted with the `ML` estimator. Models with exogenous covariates
-#' must be fitted with `fixed.x = FALSE`. If the `loo` package is attached
+#' models fitted with the `ML` estimator. If the `loo` package is attached
 #' it masks this generic, but `loo(fit)` continues to dispatch correctly
 #' because the method is registered by generic name.
 #'
@@ -95,8 +111,10 @@
 #'       columns `Estimate`, `SE` (headline second-order values).}
 #'     \item{`elpd_1`, `elpd_2`, `se_1`, `se_2`, `p_loo_1`, `p_loo_2`}{
 #'       First- and second-order aggregates.}
-#'     \item{`type`, `n_units`, `n_ok`, `second_order`,
-#'       `theta_overridden`}{Metadata.}
+#'     \item{`type`, `flavour`, `n_units`, `n_ok`, `second_order`,
+#'       `theta_overridden`}{Metadata; `flavour` records whether units were
+#'       scored jointly with their covariates (`"joint"`) or conditionally
+#'       on them (`"conditional"`, for `fixed.x` fits).}
 #'   }
 #'
 #' @seealso [fitmeasures()], [compare()], [inlavaan()]
@@ -212,9 +230,13 @@ print.inlavaan_loo <- function(x, ...) {
     if (x$n_units != 1L) "s",
     " (",
     order_lab,
-    " Taylor approximation)\n\n",
+    " Taylor approximation)\n",
     sep = ""
   )
+  if (identical(x$flavour, "conditional")) {
+    cat("Scored conditionally on the exogenous covariates (fixed.x fit)\n")
+  }
+  cat("\n")
   print(round(x$estimates, 1))
   if (x$second_order && x$n_ok < x$n_units) {
     cat(

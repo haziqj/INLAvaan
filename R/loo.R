@@ -452,6 +452,52 @@ resolve_loo_cores <- function(cores) {
 
 # ---- Workhorse ---------------------------------------------------------------
 
+# The flavour of the score follows the fitted likelihood: a fixed.x fit is
+# scored on its own conditional likelihood, a fit with modelled covariates
+# on the joint one
+loo_flavour <- function(int) {
+  if (
+    isTRUE(int$lavmodel@fixed.x) &&
+      length(unlist(int$lavsamplestats@x.idx)) > 0L
+  ) {
+    "conditional"
+  } else {
+    "joint"
+  }
+}
+
+# The frozen-covariate marginal log-density per unit: the theta-free constant
+# separating the joint kernel value of a fixed.x fit from its conditional
+# likelihood. (The conditional likelihood itself is exactly invariant to the
+# frozen covariate moments, which cancel from the implied conditional
+# moments; only this additive constant distinguishes the two.) For the
+# two-level row-deletion override no adjustment is needed: the constant
+# cancels between the full and downdated cluster terms.
+loo_fixedx_const_loso <- function(int, Y_sub, mom) {
+  x_idx <- int$lavsamplestats@x.idx[[1L]]
+  loso_loglik_all(
+    Y_sub[, x_idx, drop = FALSE],
+    list(mu = mom$mu[x_idx], Sigma = mom$Sigma[x_idx, x_idx, drop = FALSE])
+  )
+}
+
+loo_fixedx_const_loco <- function(int, css, units, mom) {
+  x_idx <- int$lavsamplestats@x.idx[[1L]]
+  pos_b <- match(
+    int$lavdata@ov.names[[1L]][x_idx],
+    int$lavdata@ov.names.l[[1L]][[2L]]
+  )
+  pos_d <- match(x_idx, css$zy_idx)
+  Z <- do.call(rbind, lapply(css$mean_d[units], function(m) m[pos_d]))
+  loso_loglik_all(
+    Z,
+    list(
+      mu = mom$mu_b[pos_b],
+      Sigma = mom$Sigma_b[pos_b, pos_b, drop = FALSE]
+    )
+  )
+}
+
 # Shared validation gate for the casewise log-likelihood machinery
 check_loo_model <- function(int, fn = "loo") {
   lavmodel <- int$lavmodel
@@ -472,10 +518,19 @@ check_loo_model <- function(int, fn = "loo") {
   if (isTRUE(lavmodel@conditional.x)) {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
   }
-  if (isTRUE(lavmodel@fixed.x) && length(unlist(lavsamplestats@x.idx)) > 0L) {
+  if (
+    isTRUE(lavmodel@fixed.x) &&
+      length(unlist(lavsamplestats@x.idx)) > 0L &&
+      is_multilevel(lavdata) &&
+      !all(
+        lavsamplestats@x.idx[[1L]] %in% lavdata@Lp[[1L]]$between.idx[[2L]]
+      )
+  ) {
     cli_abort(c(
-      "{.fn {fn}} requires exogenous covariates to be modelled jointly.",
-      "i" = "Refit the model with {.code fixed.x = FALSE}."
+      "{.fn {fn}} supports {.code fixed.x = TRUE} two-level models only when
+       every exogenous covariate is a cluster-level (between) variable.",
+      "i" = "Refit with {.code fixed.x = FALSE} to model within-level
+       covariates jointly."
     ))
   }
   if (!isTRUE(lavmodel@meanstructure)) {
@@ -504,6 +559,7 @@ inlav_loo <- function(
   lavdata <- int$lavdata
 
   check_loo_model(int, fn = "loo")
+  flavour <- loo_flavour(int)
 
   # Resolve LOSO (per-row) vs LOCO (per-cluster)
   two_level <- is_multilevel(lavdata)
@@ -578,6 +634,9 @@ inlav_loo <- function(
     Y_sub <- Y[units, , drop = FALSE]
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = FALSE)
     l_star <- loso_loglik_all(Y_sub, cache$mom)
+    if (flavour == "conditional") {
+      l_star <- l_star - loo_fixedx_const_loso(int, Y_sub, cache$mom)
+    }
     s_mat <- loso_scores_theta(theta, Y_sub, lavmodel, pt, cache = cache)
     score_fn <- function(th_act) {
       th <- theta
@@ -594,6 +653,9 @@ inlav_loo <- function(
       function(j) loco_loglik_one(j, css, cache$mom),
       numeric(1)
     )
+    if (flavour == "conditional") {
+      l_star <- l_star - loo_fixedx_const_loco(int, css, units, cache$mom)
+    }
     s_mat <- loco_scores_theta(theta, css, lavmodel, pt, units, cache)
     score_fn <- function(th_act) {
       th <- theta
@@ -688,6 +750,7 @@ inlav_loo <- function(
       p_loo_1 = p_loo_1,
       p_loo_2 = p_loo_2,
       type = type,
+      flavour = flavour,
       n_units = n_units,
       n_ok = n_ok,
       second_order = isTRUE(second_order),
@@ -775,6 +838,24 @@ inlav_waic <- function(
   )
   ll_mat <- do.call(rbind, ll_list) # nsamp x n_units
 
+  # Score a fixed.x fit on its conditional likelihood: subtract the
+  # frozen-covariate marginal, a per-unit constant across draws
+  flavour <- loo_flavour(int)
+  if (flavour == "conditional") {
+    mom0 <- loo_grad_cache(
+      int$theta_star,
+      lavmodel,
+      pt,
+      two_level = two_level
+    )$mom
+    cvec <- if (two_level) {
+      loo_fixedx_const_loco(int, css, units, mom0)
+    } else {
+      loo_fixedx_const_loso(int, Y_sub, mom0)
+    }
+    ll_mat <- sweep(ll_mat, 2L, cvec, "-")
+  }
+
   lpd <- apply(ll_mat, 2L, log_mean_exp)
   p_waic <- apply(ll_mat, 2L, var, na.rm = TRUE)
   elpd_waic_u <- lpd - p_waic
@@ -809,6 +890,7 @@ inlav_waic <- function(
       ),
       estimates = estimates,
       type = if (two_level) "loco" else "loso",
+      flavour = flavour,
       n_units = n_units,
       nsamp = nsamp
     ),
