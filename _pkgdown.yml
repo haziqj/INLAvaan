@@ -26,10 +26,10 @@ reference:
 
 - title: Methods
   contents:
-    - INLAvaan-class   
-    - standardisedsolution    
+    - INLAvaan-class
+    - standardisedsolution
     - diagnostics
-    - timing        
+    - timing
     - fitmeasures
     - bfit_indices
     - compare
@@ -39,7 +39,7 @@ reference:
     - vcov
     - predict
     - simulate
-    - sampling    
+    - sampling
 
 - title: Utility functions
   contents:
@@ -81,6 +81,8 @@ navbar:
     extras:
       text: Articles
       menu:
+      - text: Mean structures
+        href: articles/meanstructure.html
       - text: Sampling from the generative model
         href: articles/sampling.html
       - text: Bayesian fit indices
