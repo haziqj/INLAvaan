@@ -99,8 +99,13 @@ setMethod(
 )
 
 #' @exportS3Method compare inlavaan_internal
-compare.inlavaan_internal <- function(x, y, ..., fit.measures = NULL,
-                                      loo = FALSE) {
+compare.inlavaan_internal <- function(
+  x,
+  y,
+  ...,
+  fit.measures = NULL,
+  loo = FALSE
+) {
   mc <- match.call()
   dots <- list(...)
 
@@ -141,7 +146,8 @@ compare_impl <- function(
     } else if (inherits(m, "inlavaan_internal")) {
       m # nocov
     } else {
-      cli_abort( # nocov
+      cli_abort(
+        # nocov
         "Each model must be an {.cls INLAvaan} or {.cls inlavaan_internal} object."
       )
     }
@@ -205,11 +211,13 @@ compare_impl <- function(
   # Append extra fit measures if requested
   if (!is.null(fit.measures)) {
     has_inlavaan <- vapply(originals, function(m) is(m, "INLAvaan"), logical(1))
-    if (!all(has_inlavaan)) { # nocov start
+    if (!all(has_inlavaan)) {
+      # nocov start
       cli_warn(
         "Fit measures require {.cls INLAvaan} objects; skipping for {.cls inlavaan_internal} models."
       )
-    } else { # nocov end
+    } else {
+      # nocov end
       # baseline (x) is used for incremental indices
       baseline_obj <- if (is(baseline, "INLAvaan")) baseline else NULL
 
@@ -244,18 +252,25 @@ compare_impl <- function(
     })
 
     # Paired differences are only meaningful for matching units on the
-    # same data
+    # same data. Units are matched by id (case number for LOSO, cluster
+    # position for LOCO), not by row order, so fits that stack groups
+    # differently -- e.g. a pooled fit against a multigroup fit -- still
+    # pair up unit by unit.
     pu1 <- loo_list[[1L]]$per_unit
-    matched <- vapply(
-      loo_list,
-      function(l) {
-        identical(l$type, loo_list[[1L]]$type) &&
-          identical(l$per_unit$unit, pu1$unit) &&
-          identical(l$per_unit$nobs, pu1$nobs)
-      },
-      logical(1)
-    )
-    if (!all(matched)) {
+    align <- lapply(loo_list, function(l) {
+      if (
+        !identical(l$type, loo_list[[1L]]$type) ||
+          nrow(l$per_unit) != nrow(pu1)
+      ) {
+        return(NULL)
+      }
+      idx <- match(pu1$unit, l$per_unit$unit)
+      if (anyNA(idx) || !identical(l$per_unit$nobs[idx], pu1$nobs)) {
+        return(NULL)
+      }
+      idx
+    })
+    if (any(vapply(align, is.null, logical(1)))) {
       cli_abort(
         "LOO comparison requires models fitted to the same data, with
          matching units."
@@ -316,13 +331,16 @@ compare_impl <- function(
       numeric(1)
     )
     best <- which.max(elpd)
-    # Headline pointwise contributions (second order when available)
-    pw <- lapply(loo_list, function(l) {
-      if (l$second_order && l$n_ok > 0L) {
+    # Headline pointwise contributions (second order when available),
+    # aligned to the first model's unit order for pairing
+    pw <- lapply(seq_along(loo_list), function(k) {
+      l <- loo_list[[k]]
+      v <- if (l$second_order && l$n_ok > 0L) {
         l$per_unit$log_cpo_2
       } else {
         l$per_unit$log_cpo_1 # nocov
       }
+      v[align[[k]]]
     })
     n_units <- nrow(pu1)
 

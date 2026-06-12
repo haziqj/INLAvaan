@@ -240,6 +240,27 @@ test_that("cross-group equality constraints flow through the packed space", {
   expect_true(all(is.finite(cmp$se_diff)))
 })
 
+test_that("pooled and multigroup fits pair by unit id in compare()", {
+  # The pooled fit scores units in data order, the multigroup fit in
+  # group-stacked order; pairing must align them by case id
+  fit_pool <- do.call(acfa, c(list(HS_model, dat_mg), fit_args))
+  res_pool <- loo(fit_pool)
+  expect_false(identical(res_pool$per_unit$unit, res_conf$per_unit$unit))
+  expect_setequal(res_pool$per_unit$unit, res_conf$per_unit$unit)
+
+  cmp <- compare(fit_pool, fit_conf, loo = TRUE)
+  expect_true(all(is.finite(cmp$se_diff)))
+
+  # Paired SE agrees with a manual alignment by case id
+  d <- res_pool$per_unit$log_cpo_2[
+    match(res_conf$per_unit$unit, res_pool$per_unit$unit)
+  ] -
+    res_conf$per_unit$log_cpo_2
+  se_manual <- sqrt(length(d) * var(d))
+  k <- which(cmp$se_diff > 0)
+  expect_equal(cmp$se_diff[k], se_manual, tolerance = 1e-3)
+})
+
 test_that("conditional flavour scores fixed.x multigroup fits", {
   mod_x <- "
     visual  =~ x1 + x2 + x3
