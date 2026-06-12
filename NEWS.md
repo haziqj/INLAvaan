@@ -33,6 +33,14 @@
   stores it post hoc. Stored results are reused by `loo()`, `waic()`,
   `fitmeasures()`, and `compare()`.
 
+## Bug fixes
+
+* `coef()` (and the merged parameter table, fitted values, and implied
+  moments) now reports covariance parameters on the covariance scale.
+  Previously these slots carried the posterior-mean *correlation*, while
+  `summary()` showed the correct sample-based covariance; the discrepancy
+  is visible whenever the relevant standard deviations are far from 1.
+
 # INLAvaan 0.2.5
 
 ## Minor improvements and fixes

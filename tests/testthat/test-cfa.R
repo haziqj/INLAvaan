@@ -95,3 +95,28 @@ test_that("Gradients are correct (Finite Difference Check)", {
     tolerance = 1e-3
   )
 })
+
+test_that("Covariance coefficients are on the covariance scale", {
+  # Regression test: coef() used to return the posterior-mean correlation
+  # (tanh of theta) for covariance parameters, while summary() showed the
+  # sample-based covariance. Invisible when factor sds are near 1, so use a
+  # subsample where the two scales differ clearly.
+  set.seed(20260612)
+  dat_sub <- dat[sample(nrow(dat), 120L), ]
+  fit <- acfa(mod, dat_sub, verbose = FALSE, nsamp = NSAMP, test = "none")
+  co <- coef(fit)
+  summ <- get_inlavaan_internal(fit)$summary
+
+  cov_names <- c("visual~~textual", "visual~~speed", "textual~~speed")
+  expect_equal(
+    unname(co[cov_names]),
+    summ[cov_names, "Mean"],
+    tolerance = 1e-10
+  )
+  # posterior-mean covariances must respect the positive-definiteness bound
+  for (nm in cov_names) {
+    lv <- strsplit(nm, "~~", fixed = TRUE)[[1]]
+    bound <- sqrt(co[paste0(lv[1], "~~", lv[1])] * co[paste0(lv[2], "~~", lv[2])])
+    expect_lt(abs(co[nm]), bound)
+  }
+})

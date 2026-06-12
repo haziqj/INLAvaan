@@ -702,6 +702,9 @@ inlavaan <- function(
       for (cov_name in names(samp_cov)) {
         tmp_new_summ <- samp_cov[[cov_name]]$summary
         summ[cov_name, names(tmp_new_summ)] <- tmp_new_summ
+        # keep the coefficient vector on the covariance scale too; the
+        # per-parameter marginal mean is on the correlation (tanh) scale
+        coefs[cov_name] <- tmp_new_summ[["Mean"]]
         pdf_data[[cov_name]] <- samp_cov[[cov_name]]$pdf_data
       }
     }
