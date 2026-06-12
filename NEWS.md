@@ -35,6 +35,15 @@
 
 ## Minor improvements and fixes
 
+* Saturated-means fast path: when the mean structure is saturated (all
+  intercepts free and unconstrained with normal priors, no nonzero latent
+  means), the posterior is exactly block-diagonal between the intercepts
+  and the covariance parameters at the mode. The Hessian intercept block is
+  now computed analytically with an exact zero cross block (finite
+  differences run over the covariance columns only), and the skew-normal
+  marginal scans skip the intercept axes, emitting their exact Gaussian
+  marginals directly. About 25% faster on typical CFA/SEM fits, with
+  results identical to within finite-difference noise.
 
 ## Bug fixes
 
