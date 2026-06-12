@@ -153,6 +153,28 @@ compare_impl <- function(
   DIC_vec <- vapply(internals, function(m) m$DIC$dic %||% NA_real_, numeric(1))
   pD_vec <- vapply(internals, function(m) m$DIC$pD %||% NA_real_, numeric(1))
 
+  # Marginal likelihoods, Bayes factors, and DIC are only comparable
+  # between fits with the same mean treatment: without a mean structure
+  # the saturated means carry an improper flat prior whose arbitrary
+  # normalisation cancels within that flavour but is orphaned against a
+  # fit with modelled (proper-prior) means. LOO comparisons are unaffected
+  # (leave-one-out conditionals are proper under both treatments).
+  ms_vec <- vapply(
+    internals,
+    function(m) isTRUE(m$lavmodel@meanstructure),
+    logical(1)
+  )
+  if (length(unique(ms_vec)) > 1L) {
+    cli_warn(c(
+      "Comparing fits with and without a mean structure: marginal
+       log-likelihoods, Bayes factors, and DIC are not comparable across
+       the two mean treatments (the flat-prior normalisation of the
+       saturated means does not cancel).",
+      "i" = "Use {.code compare(..., loo = TRUE)} for a comparison that is
+       valid across mean treatments."
+    ))
+  }
+
   best_ll <- max(marg_ll)
   logBF <- marg_ll - best_ll
 
