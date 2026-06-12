@@ -165,13 +165,23 @@ compare_impl <- function(
     logical(1)
   )
   if (length(unique(ms_vec)) > 1L) {
+    hint <- if (isTRUE(loo)) {
+      c(
+        "i" = "Interpret only the ELPD columns; leave-one-out conditionals
+         are proper under both treatments."
+      )
+    } else {
+      c(
+        "i" = "Use {.code compare(..., loo = TRUE)} for a comparison that
+         is valid across mean treatments."
+      )
+    }
     cli_warn(c(
       "Comparing fits with and without a mean structure: marginal
        log-likelihoods, Bayes factors, and DIC are not comparable across
        the two mean treatments (the flat-prior normalisation of the
        saturated means does not cancel).",
-      "i" = "Use {.code compare(..., loo = TRUE)} for a comparison that is
-       valid across mean treatments."
+      hint
     ))
   }
 

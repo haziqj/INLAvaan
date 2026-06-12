@@ -58,7 +58,7 @@ jointly (see \code{\link[=loo]{loo()}}).
 
 Under the default \code{test = "standard"}, \code{\link[=inlavaan]{inlavaan()}} computes the WAIC at
 fit time by reusing the posterior draws the fit already produced (when
-the model is supported, has a mean structure, and \code{nsamp >= 100}), and
+the model is supported and \code{nsamp >= 100}), and
 stores it with the fit: \code{waic(fit)} then returns the stored result when
 called with default arguments, and \code{\link[=fitmeasures]{fitmeasures()}} reports \code{waic},
 \code{p_waic}, \code{se_waic} as part of \code{"all"} for free. If the \code{loo} package is
