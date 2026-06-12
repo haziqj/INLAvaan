@@ -194,6 +194,14 @@ inlavaan <- function(
   # Cache partable for prior logdens and grad
   prior_cache <- prepare_priors_for_optim(pt)
 
+  # Saturated-means fast path (see saturated_mean_idx): along the free
+  # intercept axes the posterior is exactly Gaussian and block-diagonal at
+  # the mode, so the Hessian block is analytic and the marginal scans are
+  # redundant for those coordinates.
+  fastpath <- saturated_mean_idx(pt, lavmodel, lavsamplestats, lavdata,
+                                 ceq.simple)
+  fp_idx <- if (is.null(fastpath)) integer(0) else fastpath$idx
+
   ## ----- Prep work for approximation -----------------------------------------
   joint_lp <- function(pars) {
     if (isTRUE(ceq.simple)) {
@@ -291,6 +299,25 @@ inlavaan <- function(
     }
     if (isTRUE(numerical_grad)) {
       H_neg <- fast_hessian(ob, theta_star)
+    } else if (length(fp_idx)) {
+      # assemble in blocks: finite differences over the covariance columns
+      # only; the intercept block is analytic (n Sigma^{-1} restricted to
+      # the free-intercept variables, plus the prior precision) and the
+      # cross block is exactly zero at the mode
+      cc <- setdiff(seq_len(m), fp_idx)
+      H_neg <- fast_jacobian(
+        function(x) -1 * joint_lp_grad(x),
+        theta_star,
+        cols = cc
+      )
+      H_neg[fp_idx, ] <- 0
+      Sg_hat <- lavaan::lav_model_implied(
+        lavaan::lav_model_set_parameters(lavmodel, pars_to_x(theta_star, pt))
+      )$cov[[1L]]
+      sp <- fastpath$sigma_pos
+      H_neg[fp_idx, fp_idx] <- n *
+        chol2inv(chol(Sg_hat))[sp, sp, drop = FALSE] +
+        diag(fastpath$prec, length(fp_idx))
     } else {
       # H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
       H_neg <- fast_jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
@@ -538,6 +565,18 @@ inlavaan <- function(
       }
     } else if (marginal_method == "skewnorm") {
       obtain_approx_data <- function(j) {
+        if (j %in% fp_idx) {
+          # saturated-means fast path: this axis is exactly Gaussian, and
+          # the scan would reproduce the Laplace marginal to numerical
+          # precision -- emit it directly
+          return(list(
+            fit = c(
+              xi = theta_star[j], omega = sqrt(Sigma_theta[j, j]),
+              alpha = 0, logC = 0, k = 0, rmse = 0, nmad = 0, gamma1 = 0
+            ),
+            visual_debug = NULL
+          ))
+        }
         z <- seq(-4, 4, length = sn_fit_ngrid)
         yync <- yy <- numeric(length(z))
         gamma1j <- get_gamma1(j)
