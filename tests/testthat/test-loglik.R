@@ -1,3 +1,16 @@
+# The closed-form correction inlav_model_loglik() adds to lavaan's profiled
+# loglik when the model has no mean structure (saturated means with flat
+# priors, marginalised analytically), summed over groups
+marg_corr <- function(fit) {
+  imp <- lavaan::lav_model_implied(fit@Model)
+  nobs <- unlist(fit@SampleStats@nobs)
+  sum(vapply(seq_along(nobs), function(g) {
+    S <- imp$cov[[g]]
+    0.5 * as.numeric(determinant(S, logarithm = TRUE)$modulus) +
+      0.5 * ncol(S) * log(2 * pi / nobs[g])
+  }, numeric(1)))
+}
+
 test_that("Standard MVN loglik", {
   mod <- "
     # Latent variable definitions
@@ -19,7 +32,10 @@ test_that("Standard MVN loglik", {
   dat <- lavaan::PoliticalDemocracy
   fit <- lavaan::sem(mod, dat)
 
-  target <- as.numeric(lavaan::logLik(fit))
+  # no mean structure: lavaan profiles the saturated means, INLAvaan
+  # marginalises them under flat priors -- the closed-form correction
+  # separates the two
+  target <- as.numeric(lavaan::logLik(fit)) + marg_corr(fit)
   output <- inlav_model_loglik(
     coef(fit),
     fit@Model,
@@ -102,7 +118,7 @@ test_that("Missing data", {
 
   # Complete cases
   suppressWarnings(fit <- lavaan::sem(mod, dat))
-  target <- as.numeric(lavaan::logLik(fit))
+  target <- as.numeric(lavaan::logLik(fit)) + marg_corr(fit)
   output <- inlav_model_loglik(
     coef(fit),
     fit@Model,

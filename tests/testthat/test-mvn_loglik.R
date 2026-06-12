@@ -25,10 +25,14 @@ mod <- "
     fy ~ fx
   "
 
-fit_lav <- lavaan::sem(mod, dat)
+# meanstructure = TRUE so both sides maximise the same likelihood (without
+# one, INLAvaan marginalises the saturated means and its mode shifts from
+# the ML estimates by the n/(n-1) recalibration)
+fit_lav <- lavaan::sem(mod, dat, meanstructure = TRUE)
 fit_inl <- get_inlavaan_internal(asem(
   mod,
   dat,
+  meanstructure = TRUE,
   add_priors = FALSE,
   vb_correction = FALSE,
   test = "none",

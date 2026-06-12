@@ -67,7 +67,9 @@ test_that("Method: sampling", {
       dat,
       marginal_method = "sampling",
       verbose = FALSE,
-      nsamp = NSAMP,
+      # pure-sampling summaries are means of the draws, so a handful of
+      # draws is too seed-sensitive for the coef comparison below
+      nsamp = 100,
       std.lv = STDLV
     )
   })
