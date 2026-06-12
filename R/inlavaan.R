@@ -146,6 +146,21 @@ inlavaan <- function(
     }
   }
 
+  # Two-level models cannot drop the mean structure: the between-level
+  # statistics are the cluster means, and the marginalised treatment of
+  # covariance-only analyses is single-level (and multigroup) only. lavaan
+  # force-enables meanstructure for multilevel data anyway; if the user
+  # *explicitly* asked for FALSE, say so rather than silently complying.
+  if (isFALSE(lavargs$meanstructure) && !is.null(lavargs$cluster)) {
+    cli_warn(c(
+      "Two-level models require a mean structure; fitting with
+       {.code meanstructure = TRUE}.",
+      "i" = "See {.code vignette(\"meanstructure\", package = \"INLAvaan\")}
+       for how INLAvaan treats mean structures."
+    ))
+    lavargs$meanstructure <- TRUE
+  }
+
   ## ----- Initialise lavaan object --------------------------------------------
   fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
   if (length(fit0@Data@ordered) > 0) {
@@ -164,6 +179,7 @@ inlavaan <- function(
   n <- fit0@SampleStats@ntotal
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
+
 
   # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
@@ -791,17 +807,16 @@ inlavaan <- function(
     R_star = R_star
   )
   # The default path (test = "standard") computes LOO/WAIC only for models
-  # the casewise kernels support with an estimated mean structure, quietly,
-  # and (for LOO) only when the predicted serial cost fits a 10 s budget.
-  # An explicit "loo" in `test` always computes the full LOO.
-  casewise_ok <- isTRUE(lavmodel@meanstructure) &&
-    tryCatch(
-      {
-        suppressWarnings(check_loo_model(int_fit))
-        TRUE
-      },
-      error = function(e) FALSE
-    )
+  # the casewise kernels support, quietly, and (for LOO) only when the
+  # predicted serial cost fits a 10 s budget. An explicit "loo" in `test`
+  # always computes the full LOO.
+  casewise_ok <- tryCatch(
+    {
+      suppressWarnings(check_loo_model(int_fit))
+      TRUE
+    },
+    error = function(e) FALSE
+  )
 
   loo_res <- NULL
   if (isTRUE(do_loo) || (test != "none" && casewise_ok)) {
