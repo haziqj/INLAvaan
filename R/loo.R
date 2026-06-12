@@ -17,7 +17,10 @@
 #
 # Everything is evaluated from a single fit: no refitting and no sampling.
 
-# Model-implied moments from a lavaan model whose parameters are already set
+# Model-implied moments from a lavaan model whose parameters are already set.
+# Single-level: a list over groups, each holding that group's (mu, Sigma) --
+# lavaan's implied blocks are group-indexed there. Two-level: the flat
+# within/between view of the (single) group, whose blocks are the levels.
 loo_implied_moments <- function(lavmodel_x, two_level = FALSE) {
   imp <- lavaan::lav_model_implied(lavmodel_x)
   if (two_level) {
@@ -38,15 +41,17 @@ loo_implied_moments <- function(lavmodel_x, two_level = FALSE) {
       Sigma_b = imp$cov[[2L]]
     )
   } else {
-    p <- ncol(imp$cov[[1L]])
-    list(
-      mu = if (is.null(imp$mean[[1L]])) {
-        rep(0, p)
-      } else {
-        as.numeric(imp$mean[[1L]])
-      },
-      Sigma = imp$cov[[1L]]
-    )
+    lapply(seq_along(imp$cov), function(g) {
+      p <- ncol(imp$cov[[g]])
+      list(
+        mu = if (is.null(imp$mean[[g]])) {
+          rep(0, p)
+        } else {
+          as.numeric(imp$mean[[g]])
+        },
+        Sigma = imp$cov[[g]]
+      )
+    })
   }
 }
 
@@ -101,36 +106,77 @@ loo_chain_rule <- function(gll_x, cache) {
 
 # ---- LOSO (single level): per-row log-likelihoods and theta-scores ---------
 
-# Data view for the unit kernels. With an estimated mean structure the
-# units are iid and Y is used as-is. Without one the fit uses the
-# marginalised likelihood (saturated means, flat priors, integrated out),
-# under which units are exchangeable and the coherent unit contribution is
-# the case-deletion conditional
-#   l_i = log phi(y_i; ybar_{-i}, c * Sigma),  c = n / (n - 1),
-# which equals log phi(ytilde_i; 0, Sigma) - (p/2) log c with
-# ytilde_i = sqrt(c) (y_i - ybar). Transforming the data once lets every
-# iid kernel (casewise logliks, mvn scores, chain rule, second-order)
-# apply verbatim -- the zero implied mean is then exact, and the
-# theta-free constant shifts l_i without touching the scores. The
-# transformation always uses the full-data ybar and n, regardless of any
-# `units` subset. For the conditional (fixed.x) flavour the same
-# marginalisation applies blockwise -- flat priors on (mu_y, mu_x)
-# reparameterise with unit Jacobian to the regression intercept and mu_x,
-# so the conditional contribution is the difference of two exchangeable
-# conditionals. The subtracted x-block term evaluated on the transformed
-# data carries its own theta-free constant, returned as `lx_const`
-# (n_x = number of frozen exogenous columns).
-loso_data_view <- function(lavmodel, lavdata, n_x = 0L) {
-  Y <- lavdata@X[[1L]]
+# Data view for the unit kernels, one entry per group (groups are
+# independent, so every transformation is blockwise). With an estimated
+# mean structure the units are iid within group and Y is used as-is.
+# Without one the fit uses the marginalised likelihood (saturated means,
+# flat priors, integrated out), under which units are exchangeable within
+# their group and the coherent unit contribution is the case-deletion
+# conditional
+#   l_i = log phi(y_i; ybar_{g,-i}, c_g * Sigma_g),  c_g = n_g / (n_g - 1),
+# which equals log phi(ytilde_i; 0, Sigma_g) - (p_g/2) log c_g with
+# ytilde_i = sqrt(c_g) (y_i - ybar_g). Transforming the data once lets
+# every iid kernel (casewise logliks, mvn scores, chain rule,
+# second-order) apply verbatim -- the zero implied mean is then exact, and
+# the theta-free constant shifts l_i without touching the scores. The
+# transformation always uses the group's full-data ybar_g and n_g,
+# regardless of any `units` subset. For the conditional (fixed.x) flavour
+# the same marginalisation applies blockwise -- flat priors on
+# (mu_y, mu_x) reparameterise with unit Jacobian to the regression
+# intercept and mu_x, so the conditional contribution is the difference of
+# two exchangeable conditionals. The subtracted x-block term evaluated on
+# the transformed data carries its own theta-free constant, returned as
+# `lx_const` (per group; x_idx gives each group's frozen exogenous
+# columns).
+loso_data_view <- function(lavmodel, lavdata, x_idx = NULL) {
+  G <- lavdata@ngroups
+  Y <- lavdata@X[seq_len(G)]
   if (isTRUE(lavmodel@meanstructure)) {
-    return(list(Y = Y, l_const = 0, lx_const = 0))
+    return(list(Y = Y, l_const = numeric(G), lx_const = numeric(G)))
   }
-  n <- nrow(Y)
-  cc <- n / (n - 1)
+  l_const <- lx_const <- numeric(G)
+  for (g in seq_len(G)) {
+    n <- nrow(Y[[g]])
+    cc <- n / (n - 1)
+    l_const[g] <- -0.5 * ncol(Y[[g]]) * log(cc)
+    lx_const[g] <- 0.5 * length(x_idx[[g]]) * log(cc)
+    Y[[g]] <- sqrt(cc) * sweep(Y[[g]], 2L, colMeans(Y[[g]]), "-")
+  }
+  list(Y = Y, l_const = l_const, lx_const = lx_const)
+}
+
+# Resolve the requested units of a single-level fit against its
+# group-stacked rows. Units are identified by case index (the row number
+# of the analysed dataset, as recorded in lavdata@case.idx), so a unit
+# keeps its identity across fits that assign or order groups differently.
+# Returns, in the requested order, each unit's id and group, plus the
+# per-group gather/scatter maps: pos[[g]] indexes rows within group g's
+# data block, rows[[g]] their positions in the output vectors.
+loso_resolve_units <- function(lavdata, units) {
+  G <- lavdata@ngroups
+  ids_g <- lavdata@case.idx[seq_len(G)]
+  ids <- unlist(ids_g)
+  grp <- rep.int(seq_len(G), lengths(ids_g))
+  if (is.null(units)) {
+    sel <- seq_along(ids)
+  } else {
+    units <- as.integer(units)
+    sel <- match(units, ids)
+    if (length(units) == 0L || anyNA(sel) || anyDuplicated(units) > 0L) {
+      cli_abort(
+        "{.arg units} must be distinct case numbers of the analysed data
+         (the row numbers recorded in the fit)."
+      )
+    }
+  }
+  pos_in_group <- sequence(lengths(ids_g))
+  grp_sel <- grp[sel]
   list(
-    Y = sqrt(cc) * sweep(Y, 2L, colMeans(Y), "-"),
-    l_const = -0.5 * ncol(Y) * log(cc),
-    lx_const = 0.5 * n_x * log(cc)
+    ids = ids[sel],
+    grp = grp_sel,
+    rows = lapply(seq_len(G), function(g) which(grp_sel == g)),
+    pos = lapply(seq_len(G), function(g) pos_in_group[sel][grp_sel == g]),
+    n = length(sel)
   )
 }
 
@@ -144,31 +190,76 @@ loso_loglik_all <- function(Y, mom) {
   as.numeric(-0.5 * (p * log(2 * pi) + log_det + quad))
 }
 
-# All-rows theta-scores at one theta from a single shared build; row i is the
-# gradient of row i's log-likelihood w.r.t. packed theta
-loso_scores_theta <- function(theta, Y, lavmodel, pt, cache = NULL) {
+# All-rows theta-scores at one theta from a single shared build; row i is
+# the gradient of row i's log-likelihood w.r.t. packed theta. Y holds rows
+# of one group; its Delta block has columns for all free parameters, so
+# the result needs no cross-group assembly
+loso_scores_theta <- function(
+  theta,
+  Y,
+  lavmodel,
+  pt,
+  cache = NULL,
+  group = 1L
+) {
   if (is.null(cache)) {
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = FALSE)
   }
+  mom <- cache$mom[[group]]
+  Delta_g <- cache$Delta[[group]]
   n <- nrow(Y)
   Yc <- if (n == 1L) rbind(Y, Y) else Y # a single row is dropped internally
   scores <- lavaan___lav_mvnorm_scores_mu_vech_sigma(
     Yc,
     NULL,
-    cache$mom$mu,
-    cache$mom$Sigma
+    mom$mu,
+    mom$Sigma
   )
   if (n == 1L) {
     scores <- scores[1L, , drop = FALSE]
   }
   # Without an estimated mean structure Delta has only the vech(Sigma) rows,
   # so drop the leading Mu columns of the scores
-  n_sig <- nrow(cache$Delta[[1L]])
+  n_sig <- nrow(Delta_g)
   n_tot <- ncol(scores)
   if (n_tot > n_sig) {
     scores <- scores[, (n_tot - n_sig + 1L):n_tot, drop = FALSE]
   }
-  loo_chain_rule(scores %*% cache$Delta[[1L]], cache)
+  loo_chain_rule(scores %*% Delta_g, cache)
+}
+
+# Stacked per-unit log-likelihoods over the resolved units (uv), scattered
+# back into the requested order; includes the exchangeability constant of
+# each unit's group (zero with a mean structure)
+loso_loglik_units <- function(uv, dv, mom) {
+  out <- numeric(uv$n)
+  for (g in seq_along(dv$Y)) {
+    rows <- uv$rows[[g]]
+    if (length(rows) == 0L) {
+      next
+    }
+    Yg <- dv$Y[[g]][uv$pos[[g]], , drop = FALSE]
+    out[rows] <- loso_loglik_all(Yg, mom[[g]]) + dv$l_const[g]
+  }
+  out
+}
+
+# Stacked per-unit theta-scores over the resolved units at one theta; the
+# per-theta build (cache) is shared across groups
+loso_scores_units <- function(theta, uv, dv, lavmodel, pt, cache = NULL) {
+  if (is.null(cache)) {
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = FALSE)
+  }
+  out <- matrix(0, uv$n, length(theta))
+  for (g in seq_along(dv$Y)) {
+    rows <- uv$rows[[g]]
+    if (length(rows) == 0L) {
+      next
+    }
+    Yg <- dv$Y[[g]][uv$pos[[g]], , drop = FALSE]
+    out[rows, ] <- loso_scores_theta(theta, Yg, lavmodel, pt, cache, group = g)
+  }
+  out
 }
 
 # ---- LOCO (two level): per-cluster sufficient stats, loglik, theta-scores --
@@ -462,6 +553,21 @@ taylor_loo_unit <- function(
   out
 }
 
+# Insert a group column (labels when available) after `unit` for multigroup
+# fits; single-group tables keep their original shape
+add_loo_group_column <- function(per_unit, unit_group, lavdata) {
+  if (is.null(unit_group) || lavdata@ngroups == 1L) {
+    return(per_unit)
+  }
+  labs <- lavdata@group.label
+  grp <- if (length(labs) == lavdata@ngroups) {
+    labs[unit_group]
+  } else {
+    unit_group # nocov
+  }
+  cbind(per_unit[1L], group = grp, per_unit[-1L])
+}
+
 # Parallelism for loo() is strictly opt-in: NULL means serial (the m > 120
 # auto rule used for marginal fitting does not apply here)
 resolve_loo_cores <- function(cores) {
@@ -503,16 +609,34 @@ loo_flavour <- function(int) {
 # separating the joint kernel value of a fixed.x fit from its conditional
 # likelihood. (The conditional likelihood itself is exactly invariant to the
 # frozen covariate moments, which cancel from the implied conditional
-# moments; only this additive constant distinguishes the two.) For the
+# moments; only this additive constant distinguishes the two.) Evaluated
+# blockwise on each unit's own group: the x-block term on the transformed
+# data carries its group's theta-free constant (dv$lx_const), folded in
+# here so that subtracting the result converts a joint kernel value into
+# the conditional likelihood under either mean treatment. For the
 # two-level row-deletion override the analogous adjustment is the difference
 # of the cluster constant before and after removing the row (zero when all
 # covariates are cluster-level, since z_j appears once in both terms).
-loo_fixedx_const_loso <- function(int, Y_sub, mom) {
-  x_idx <- int$lavsamplestats@x.idx[[1L]]
-  loso_loglik_all(
-    Y_sub[, x_idx, drop = FALSE],
-    list(mu = mom$mu[x_idx], Sigma = mom$Sigma[x_idx, x_idx, drop = FALSE])
-  )
+loso_fixedx_const_units <- function(int, uv, dv, mom) {
+  x_idx <- int$lavsamplestats@x.idx
+  out <- numeric(uv$n)
+  for (g in seq_along(dv$Y)) {
+    rows <- uv$rows[[g]]
+    xg <- x_idx[[g]]
+    if (length(rows) == 0L || length(xg) == 0L) {
+      next
+    }
+    Yg <- dv$Y[[g]][uv$pos[[g]], xg, drop = FALSE]
+    out[rows] <- loso_loglik_all(
+      Yg,
+      list(
+        mu = mom[[g]]$mu[xg],
+        Sigma = mom[[g]]$Sigma[xg, xg, drop = FALSE]
+      )
+    ) -
+      dv$lx_const[g]
+  }
+  out
 }
 
 # Positions and frozen blocks needed for the two-level covariate marginal:
@@ -626,8 +750,10 @@ check_loo_model <- function(int, fn = "loo") {
   lavmodel <- int$lavmodel
   lavdata <- int$lavdata
   lavsamplestats <- int$lavsamplestats
-  if (lavdata@ngroups > 1L) {
-    cli_abort("{.fn {fn}} does not support multigroup models yet.")
+  if (lavdata@ngroups > 1L && is_multilevel(lavdata)) {
+    cli_abort(
+      "{.fn {fn}} does not support multigroup two-level models yet."
+    )
   }
   if (lavmodel@estimator != "ML" || isTRUE(lavmodel@categorical)) {
     cli_abort(
@@ -635,7 +761,10 @@ check_loo_model <- function(int, fn = "loo") {
        {.val ML} estimator."
     )
   }
-  if (isTRUE(lavsamplestats@missing.flag) || anyNA(lavdata@X[[1L]])) {
+  if (
+    isTRUE(lavsamplestats@missing.flag) ||
+      any(vapply(lavdata@X, anyNA, logical(1)))
+  ) {
     cli_abort("{.fn {fn}} does not support missing data yet.")
   }
   if (isTRUE(lavmodel@conditional.x)) {
@@ -714,6 +843,7 @@ inlav_loo <- function(
   if (isTRUE(verbose)) {
     cli_progress_step("Computing unit log-likelihoods and scores.")
   }
+  unit_group <- NULL # group of each scored unit; multigroup LOSO only
   if (type == "loso" && two_level) {
     X <- lavdata@X[[1L]]
     css <- loco_suff_stats(lavdata)
@@ -734,28 +864,22 @@ inlav_loo <- function(
     }
     nobs <- rep(1L, length(units))
   } else if (type == "loso") {
-    dv <- loso_data_view(
-      lavmodel,
-      lavdata,
-      n_x = length(int$lavsamplestats@x.idx[[1L]])
-    )
-    Y <- dv$Y
-    units <- check_loo_units(units, nrow(Y), "rows")
-    Y_sub <- Y[units, , drop = FALSE]
+    dv <- loso_data_view(lavmodel, lavdata, x_idx = int$lavsamplestats@x.idx)
+    uv <- loso_resolve_units(lavdata, units)
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = FALSE)
-    l_star <- loso_loglik_all(Y_sub, cache$mom) + dv$l_const
+    l_star <- loso_loglik_units(uv, dv, cache$mom)
     if (flavour == "conditional") {
-      l_star <- l_star -
-        loo_fixedx_const_loso(int, Y_sub, cache$mom) +
-        dv$lx_const
+      l_star <- l_star - loso_fixedx_const_units(int, uv, dv, cache$mom)
     }
-    s_mat <- loso_scores_theta(theta, Y_sub, lavmodel, pt, cache = cache)
+    s_mat <- loso_scores_units(theta, uv, dv, lavmodel, pt, cache = cache)
     score_fn <- function(th_act) {
       th <- theta
       th[free] <- th_act
-      loso_scores_theta(th, Y_sub, lavmodel, pt)[, free, drop = FALSE]
+      loso_scores_units(th, uv, dv, lavmodel, pt)[, free, drop = FALSE]
     }
-    nobs <- rep(1L, length(units))
+    units <- uv$ids
+    unit_group <- uv$grp
+    nobs <- rep(1L, uv$n)
   } else {
     css <- loco_suff_stats(lavdata)
     units <- check_loo_units(units, css$J, "clusters")
@@ -828,6 +952,7 @@ inlav_loo <- function(
     det_term = vapply(raw, `[[`, numeric(1), "det_term"),
     ok = vapply(raw, `[[`, logical(1), "ok")
   )
+  per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
 
   # loo-style SE of the total ELPD: sqrt(n * var(pointwise)). n is the number
   # of units scored, known a priori: a failed second-order term voids only
@@ -879,6 +1004,7 @@ inlav_loo <- function(
       type = type,
       flavour = flavour,
       n_units = n_units,
+      n_groups = lavdata@ngroups,
       n_ok = n_ok,
       second_order = isTRUE(second_order),
       theta_overridden = theta_overridden
@@ -949,20 +1075,17 @@ waic_from_draws <- function(
   two_level <- is_multilevel(lavdata)
   nsamp <- nrow(x_samp)
 
+  unit_group <- NULL
   if (two_level) {
     css <- loco_suff_stats(lavdata)
     units <- check_loo_units(units, css$J, "clusters")
     nobs <- css$n_j[units]
   } else {
-    dv <- loso_data_view(
-      lavmodel,
-      lavdata,
-      n_x = length(int$lavsamplestats@x.idx[[1L]])
-    )
-    Y <- dv$Y
-    units <- check_loo_units(units, nrow(Y), "rows")
-    Y_sub <- Y[units, , drop = FALSE]
-    nobs <- rep(1L, length(units))
+    dv <- loso_data_view(lavmodel, lavdata, x_idx = int$lavsamplestats@x.idx)
+    uv <- loso_resolve_units(lavdata, units)
+    units <- uv$ids
+    unit_group <- uv$grp
+    nobs <- rep(1L, uv$n)
   }
 
   one_draw <- function(s) {
@@ -972,7 +1095,8 @@ waic_from_draws <- function(
       if (two_level) {
         vapply(units, function(j) loco_loglik_one(j, css, mom), numeric(1))
       } else {
-        loso_loglik_all(Y_sub, mom)
+        # includes the exchangeability constant; 0 with a mean structure
+        loso_loglik_units(uv, dv, mom)
       },
       error = function(e) rep(NA_real_, length(units)) # nocov
     )
@@ -986,9 +1110,6 @@ waic_from_draws <- function(
     msg_parallel = "Evaluating unit log-likelihoods at {m} draws ({cores} cores)."
   )
   ll_mat <- do.call(rbind, ll_list) # nsamp x n_units
-  if (!two_level) {
-    ll_mat <- ll_mat + dv$l_const # exchangeable constant; 0 with meanstructure
-  }
 
   # Score a fixed.x fit on its conditional likelihood: subtract the
   # frozen-covariate marginal, a per-unit constant across draws
@@ -1003,7 +1124,7 @@ waic_from_draws <- function(
     cvec <- if (two_level) {
       loo_fixedx_const_loco(int, css, units, mom0)
     } else {
-      loo_fixedx_const_loso(int, Y_sub, mom0) - dv$lx_const
+      loso_fixedx_const_units(int, uv, dv, mom0)
     }
     ll_mat <- sweep(ll_mat, 2L, cvec, "-")
   }
@@ -1031,19 +1152,23 @@ waic_from_draws <- function(
   )
   rownames(estimates) <- c("elpd_waic", "p_waic", "waic")
 
+  per_unit <- data.frame(
+    unit = units,
+    nobs = nobs,
+    lpd = lpd,
+    p_waic = p_waic,
+    elpd_waic = elpd_waic_u
+  )
+  per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
+
   structure(
     list(
-      per_unit = data.frame(
-        unit = units,
-        nobs = nobs,
-        lpd = lpd,
-        p_waic = p_waic,
-        elpd_waic = elpd_waic_u
-      ),
+      per_unit = per_unit,
       estimates = estimates,
       type = if (two_level) "loco" else "loso",
       flavour = flavour,
       n_units = n_units,
+      n_groups = lavdata@ngroups,
       nsamp = nsamp
     ),
     class = "inlavaan_waic"

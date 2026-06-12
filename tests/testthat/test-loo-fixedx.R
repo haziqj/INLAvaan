@@ -381,17 +381,25 @@ test_that("Conditional flavour works without a mean structure", {
   cc <- n / (n - 1)
   ybar <- colMeans(Y)
   x_idx <- int$lavsamplestats@x.idx[[1L]]
-  Sg <- loo_grad_cache(int$theta_star, int$lavmodel, int$partable)$mom$Sigma
+  Sg <- loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable
+  )$mom[[1L]]$Sigma
   ldmvn <- function(y, mu, S) {
     ch <- chol(S)
     d <- backsolve(ch, y - mu, transpose = TRUE)
     -0.5 * (length(y) * log(2 * pi) + 2 * sum(log(diag(ch))) + sum(d^2))
   }
   ii <- c(1L, 150L, n)
-  l_closed <- vapply(ii, function(i) {
-    ybar_m <- (n * ybar - Y[i, ]) / (n - 1)
-    ldmvn(Y[i, ], ybar_m, cc * Sg) -
-      ldmvn(Y[i, x_idx], ybar_m[x_idx], cc * Sg[x_idx, x_idx, drop = FALSE])
-  }, numeric(1))
+  l_closed <- vapply(
+    ii,
+    function(i) {
+      ybar_m <- (n * ybar - Y[i, ]) / (n - 1)
+      ldmvn(Y[i, ], ybar_m, cc * Sg) -
+        ldmvn(Y[i, x_idx], ybar_m[x_idx], cc * Sg[x_idx, x_idx, drop = FALSE])
+    },
+    numeric(1)
+  )
   expect_equal(res$per_unit$l_star[ii], l_closed, tolerance = 1e-10)
 })

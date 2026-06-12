@@ -232,6 +232,9 @@ print.inlavaan_loo <- function(x, ...) {
     " ",
     unit_word,
     if (x$n_units != 1L) "s",
+    if (!is.null(x$n_groups) && x$n_groups > 1L) {
+      paste0(" in ", x$n_groups, " groups")
+    },
     " (",
     order_lab,
     " Taylor approximation)\n",

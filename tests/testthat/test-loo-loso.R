@@ -221,8 +221,8 @@ test_that("equality constraints (ceq.simple) are handled", {
       tm[k] <- tm[k] - h
       cp <- INLAvaan:::loo_grad_cache(tp, int$lavmodel, int$partable)
       cm <- INLAvaan:::loo_grad_cache(tm, int$lavmodel, int$partable)
-      (INLAvaan:::loso_loglik_all(Y1, cp$mom) -
-        INLAvaan:::loso_loglik_all(Y1, cm$mom)) /
+      (INLAvaan:::loso_loglik_all(Y1, cp$mom[[1L]]) -
+        INLAvaan:::loso_loglik_all(Y1, cm$mom[[1L]])) /
         (2 * h)
     },
     numeric(1)
@@ -262,8 +262,10 @@ test_that("fit-time LOO via test = 'loo' and add_loo()", {
 test_that("fitMeasures reports LOO measures on request or when stored", {
   # Not stored: bare fitMeasures() excludes the LOO measures
   fm_all <- fitMeasures(fit)
-  expect_false(any(c("elpd_loo", "se_loo", "p_loo", "looic") %in%
-    names(fm_all)))
+  expect_false(any(
+    c("elpd_loo", "se_loo", "p_loo", "looic") %in%
+      names(fm_all)
+  ))
 
   # On request by name: computed on demand, agreeing with loo()
   fm <- fitMeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
