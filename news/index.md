@@ -42,6 +42,16 @@
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
   and [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md).
 
+### Bug fixes
+
+- [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  (and the merged parameter table, fitted values, and implied moments)
+  now reports covariance parameters on the covariance scale. Previously
+  these slots carried the posterior-mean *correlation*, while
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  showed the correct sample-based covariance; the discrepancy is visible
+  whenever the relevant standard deviations are far from 1.
+
 ## INLAvaan 0.2.5
 
 CRAN release: 2026-06-11

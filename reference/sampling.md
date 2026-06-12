@@ -140,22 +140,23 @@ for Bayesian fit indices.
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [11ms]
+#> ✔ Finding posterior mode. [21ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [11ms]
+#> ✔ Computing the Hessian. [20ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.246σ. [26ms]
+#> ✔ VB correction; mean |δ| = 0.246σ. [53ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [39ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [71ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [12ms]
+#> ✔ Adjusting copula correlations (NORTA). [20ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [185ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [403ms]
 #> 
 
 # Posterior samples of lavaan-side parameters
@@ -163,7 +164,7 @@ samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
 #> [1,]  1.0307893   1.635721 1.1200021 1.0919379 0.5682202      0.3035378
-#> [2,]  1.2013223   1.654348 1.0328385 1.1689749 0.4793052      0.2966249
+#> [2,]  1.2013222   1.654348 1.0328385 1.1689749 0.4793052      0.2966249
 #> [3,]  0.7488217   1.232479 1.0075217 1.0677694 0.4816854      0.5035832
 #> [4,]  0.9765571   1.336860 0.8771550 0.9747683 0.4851002      0.3312131
 #> [5,]  0.9436880   1.455088 0.9709973 1.0990849 0.5836126      0.3589506

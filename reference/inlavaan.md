@@ -215,22 +215,22 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [60ms]
+#> ✔ Finding posterior mode. [73ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [34ms]
+#> ✔ Computing the Hessian. [59ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.208σ. [64ms]
+#> ✔ VB correction; mean |δ| = 0.208σ. [97ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [409ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [584ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [109ms]
+#> ✔ Adjusting copula correlations (NORTA). [148ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [315ms]
+#> ✔ Posterior sampling and summarising. [590ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.5.9002 ended normally after 73 iterations
@@ -274,10 +274,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.445    0.079    0.240    0.549    0.001       beta(1,1)
-#>     speed             0.470    0.055    0.143    0.358    0.011       beta(1,1)
+#>     textual           0.395    0.079    0.240    0.549    0.001       beta(1,1)
+#>     speed             0.251    0.055    0.143    0.358    0.011       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.279    0.046    0.074    0.254    0.003       beta(1,1)
+#>     speed             0.164    0.046    0.074    0.254    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

@@ -133,29 +133,30 @@ the `cluster` argument to identify the grouping variable.
 
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [460ms]
+#> ✔ Finding posterior mode. [621ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [145ms]
+#> ✔ Computing the Hessian. [201ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.123σ. [283ms]
+#> ✔ VB correction; mean |δ| = 0.123σ. [400ms]
 #> 
 #> ⠙ Fitting 0/20 skew-normal marginals.
-#> ⠹ Fitting 16/20 skew-normal marginals.
-#> ✔ Fitting 20/20 skew-normal marginals. [2.1s]
+#> ⠹ Fitting 7/20 skew-normal marginals.
+#> ✔ Fitting 20/20 skew-normal marginals. [3.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [75ms]
+#> ✔ Adjusting copula correlations (NORTA). [109ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [814ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [1.5s]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [2.4s]
+#> ✔ Computing Taylor LOO. [4.7s]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [21s]
+#> ✔ Computing WAIC from the posterior draws. [48.9s]
 #> 
 ```
 
@@ -179,12 +180,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.537 
-#>    PPP (Chi-square)                              0.028 
+#>    PPP (Chi-square)                              0.030 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24192.568 
-#>    Effective parameters (pD)                    19.635 
+#>    Deviance (DIC)                            24192.591 
+#>    Effective parameters (pD)                    19.646 
 #> 
 #> Parameter Estimates:
 #> 
