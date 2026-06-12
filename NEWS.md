@@ -18,12 +18,22 @@
   cluster-level and within-level covariates in two-level models. The two
   flavours are never comparable, as conditional comparisons may differ in
   their covariate sets, which enables covariate selection.
+* `loo()` and `waic()` support multigroup models. Groups are independent,
+  so each unit is scored against its own group's implied moments, under
+  either mean treatment and either covariate flavour, with cross-group
+  equality constraints (`group.equal`) flowing through automatically.
+  Units are identified by case number and carry a `group` column, so
+  results keep their identity across fits that stack groups differently.
+  Multigroup two-level models are not supported yet.
 * `fitmeasures()` gains `elpd_loo`, `se_loo`, `p_loo`, `looic` and
   `elpd_waic`, `se_waic`, `p_waic`, `waic`: included in `"all"` when stored
   with the fit, computed on demand when requested by name.
 * `compare()` gains `loo = TRUE`. Models sorted by descending ELPD, with
   `p_loo` and ELPD differences with paired standard errors (mixed-flavour
-  comparisons are refused).
+  comparisons are refused). Pairing matches units by id rather than row
+  order, so a pooled fit can be compared against a multigroup fit of the
+  same data, and the measurement-invariance ladder (configural, metric,
+  scalar) is compared on a proper predictive scale.
 * Both criteria can be computed at fit time and stored with the fit. The
   default `test = "standard"` does so automatically for supported models
   with a mean structure. The WAIC reuses the fit's own posterior draws

@@ -36,6 +36,20 @@
 #' path costs one cluster evaluation per row per Hessian direction and is
 #' less extensively validated than the per-cluster default.
 #'
+#' **Multigroup models.** Groups are independent, so each unit is scored
+#' against its own group's implied moments; without a mean structure the
+#' exchangeability transformation applies per group, and cross-group
+#' equality constraints (`group.equal`) flow through the packed parameter
+#' space automatically. The per-unit results are stacked by group (a
+#' `group` column records the membership), and units are identified by
+#' *case number* -- the row number of the analysed dataset -- so a unit
+#' keeps its identity across fits that assign or order groups differently
+#' (e.g. a pooled fit versus a grouped fit of the same data, which
+#' [compare()] pairs unit by unit). This makes
+#' `compare(..., loo = TRUE)` the instrument of choice for the
+#' measurement-invariance ladder: configural, metric, and scalar fits are
+#' compared on a proper predictive scale with paired standard errors.
+#'
 #' Supplying `theta` and/or `Sigma` scores the model at an *arbitrary*
 #' Gaussian posterior summary instead of the fit's own, without refitting.
 #' This is the building block for refit-free model exploration: for example,
@@ -78,10 +92,11 @@
 #' cluster-level (between) and/or within-level covariates in two-level
 #' models.
 #'
-#' Supported models: single-group, complete-data, continuous-indicator
-#' models fitted with the `ML` estimator. If the `loo` package is attached
-#' it masks this generic, but `loo(fit)` continues to dispatch correctly
-#' because the method is registered by generic name.
+#' Supported models: complete-data, continuous-indicator models fitted
+#' with the `ML` estimator, single-group or multigroup (multigroup
+#' two-level models are not supported yet). If the `loo` package is
+#' attached it masks this generic, but `loo(fit)` continues to dispatch
+#' correctly because the method is registered by generic name.
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
 #' @param type Unit type: `"auto"` (default) resolves to `"loso"`
@@ -89,8 +104,11 @@
 #'   two-level models. `"loco"` cannot be forced on a model without
 #'   clusters; `"loso"` on a two-level model scores row deletions (see
 #'   Details) and emits a warning.
-#' @param units Optional integer vector of unit indices (row numbers for
-#'   LOSO, cluster positions for LOCO) to score; defaults to all units.
+#' @param units Optional integer vector of unit indices to score; defaults
+#'   to all units. For LOSO these are case numbers (row numbers of the
+#'   analysed dataset, as recorded in the fit -- for multigroup fits the
+#'   full results are stacked by group, but a unit is always addressed by
+#'   its case number); for LOCO, cluster positions.
 #' @param second_order Logical; compute the second-order correction
 #'   (default `TRUE`). `FALSE` skips the Hessian stage entirely and reports
 #'   first-order estimates.
@@ -105,20 +123,22 @@
 #'
 #' @returns An object of class `inlavaan_loo`: a list with elements
 #'   \describe{
-#'     \item{`per_unit`}{Data frame of pointwise results: `unit`, `nobs`
-#'       (1 for LOSO, the cluster size for LOCO), `l_star` (unit
-#'       log-likelihood at the summary), `score_norm`, `lpd_1`/`lpd_2`
-#'       (pointwise log predictive density), `log_cpo_1`/`log_cpo_2`
-#'       (pointwise LOO contributions), `det_term`, and `ok` (second-order
-#'       success flag).}
+#'     \item{`per_unit`}{Data frame of pointwise results: `unit` (case
+#'       number for LOSO, cluster position for LOCO), `group` (multigroup
+#'       fits only), `nobs` (1 for LOSO, the cluster size for LOCO),
+#'       `l_star` (unit log-likelihood at the summary), `score_norm`,
+#'       `lpd_1`/`lpd_2` (pointwise log predictive density),
+#'       `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions), `det_term`,
+#'       and `ok` (second-order success flag).}
 #'     \item{`estimates`}{Matrix with rows `elpd_loo`, `p_loo`, `looic` and
 #'       columns `Estimate`, `SE` (headline second-order values).}
 #'     \item{`elpd_1`, `elpd_2`, `se_1`, `se_2`, `p_loo_1`, `p_loo_2`}{
 #'       First- and second-order aggregates.}
-#'     \item{`type`, `flavour`, `n_units`, `n_ok`, `second_order`,
-#'       `theta_overridden`}{Metadata; `flavour` records whether units were
-#'       scored jointly with their covariates (`"joint"`) or conditionally
-#'       on them (`"conditional"`, for `fixed.x` fits).}
+#'     \item{`type`, `flavour`, `n_units`, `n_groups`, `n_ok`,
+#'       `second_order`, `theta_overridden`}{Metadata; `flavour` records
+#'       whether units were scored jointly with their covariates
+#'       (`"joint"`) or conditionally on them (`"conditional"`, for
+#'       `fixed.x` fits).}
 #'   }
 #'
 #' @seealso [fitmeasures()], [compare()], [inlavaan()]

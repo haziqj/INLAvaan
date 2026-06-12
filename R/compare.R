@@ -29,7 +29,11 @@
 #' *paired* standard error **se_diff** computed from the pointwise
 #' contributions (the appropriate uncertainty for nested or same-data
 #' comparisons). The table is then sorted by descending ELPD. All models
-#' must be fitted to the same data with matching units, and must share the
+#' must be fitted to the same data with matching units; units are paired
+#' by id rather than by row order, so fits that stack groups differently
+#' -- a pooled fit against a multigroup fit, or multigroup fits with
+#' different group orderings -- still pair up unit by unit. All models
+#' must also share the
 #' score flavour (see [loo()]): mixing fits with modelled covariates
 #' (`fixed.x = FALSE`, joint scores) and fixed covariates
 #' (`fixed.x = TRUE`, conditional scores) is refused. Joint scores

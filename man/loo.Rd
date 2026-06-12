@@ -46,8 +46,11 @@ two-level models. \code{"loco"} cannot be forced on a model without
 clusters; \code{"loso"} on a two-level model scores row deletions (see
 Details) and emits a warning.}
 
-\item{units}{Optional integer vector of unit indices (row numbers for
-LOSO, cluster positions for LOCO) to score; defaults to all units.}
+\item{units}{Optional integer vector of unit indices to score; defaults
+to all units. For LOSO these are case numbers (row numbers of the
+analysed dataset, as recorded in the fit -- for multigroup fits the
+full results are stacked by group, but a unit is always addressed by
+its case number); for LOCO, cluster positions.}
 
 \item{second_order}{Logical; compute the second-order correction
 (default \code{TRUE}). \code{FALSE} skips the Hessian stage entirely and reports
@@ -68,20 +71,22 @@ runs serially; parallelism must be requested explicitly.}
 \value{
 An object of class \code{inlavaan_loo}: a list with elements
 \describe{
-\item{\code{per_unit}}{Data frame of pointwise results: \code{unit}, \code{nobs}
-(1 for LOSO, the cluster size for LOCO), \code{l_star} (unit
-log-likelihood at the summary), \code{score_norm}, \code{lpd_1}/\code{lpd_2}
-(pointwise log predictive density), \code{log_cpo_1}/\code{log_cpo_2}
-(pointwise LOO contributions), \code{det_term}, and \code{ok} (second-order
-success flag).}
+\item{\code{per_unit}}{Data frame of pointwise results: \code{unit} (case
+number for LOSO, cluster position for LOCO), \code{group} (multigroup
+fits only), \code{nobs} (1 for LOSO, the cluster size for LOCO),
+\code{l_star} (unit log-likelihood at the summary), \code{score_norm},
+\code{lpd_1}/\code{lpd_2} (pointwise log predictive density),
+\code{log_cpo_1}/\code{log_cpo_2} (pointwise LOO contributions), \code{det_term},
+and \code{ok} (second-order success flag).}
 \item{\code{estimates}}{Matrix with rows \code{elpd_loo}, \code{p_loo}, \code{looic} and
 columns \code{Estimate}, \code{SE} (headline second-order values).}
 \item{\code{elpd_1}, \code{elpd_2}, \code{se_1}, \code{se_2}, \code{p_loo_1}, \code{p_loo_2}}{
 First- and second-order aggregates.}
-\item{\code{type}, \code{flavour}, \code{n_units}, \code{n_ok}, \code{second_order},
-\code{theta_overridden}}{Metadata; \code{flavour} records whether units were
-scored jointly with their covariates (\code{"joint"}) or conditionally
-on them (\code{"conditional"}, for \code{fixed.x} fits).}
+\item{\code{type}, \code{flavour}, \code{n_units}, \code{n_groups}, \code{n_ok},
+\code{second_order}, \code{theta_overridden}}{Metadata; \code{flavour} records
+whether units were scored jointly with their covariates
+(\code{"joint"}) or conditionally on them (\code{"conditional"}, for
+\code{fixed.x} fits).}
 }
 
 \code{add_loo()} returns a copy of \code{object} with the LOO result
@@ -126,6 +131,20 @@ cluster, computed by downdating the cluster's sufficient statistics. This
 path costs one cluster evaluation per row per Hessian direction and is
 less extensively validated than the per-cluster default.
 
+\strong{Multigroup models.} Groups are independent, so each unit is scored
+against its own group's implied moments; without a mean structure the
+exchangeability transformation applies per group, and cross-group
+equality constraints (\code{group.equal}) flow through the packed parameter
+space automatically. The per-unit results are stacked by group (a
+\code{group} column records the membership), and units are identified by
+\emph{case number} -- the row number of the analysed dataset -- so a unit
+keeps its identity across fits that assign or order groups differently
+(e.g. a pooled fit versus a grouped fit of the same data, which
+\code{\link[=compare]{compare()}} pairs unit by unit). This makes
+\code{compare(..., loo = TRUE)} the instrument of choice for the
+measurement-invariance ladder: configural, metric, and scalar fits are
+compared on a proper predictive scale with paired standard errors.
+
 Supplying \code{theta} and/or \code{Sigma} scores the model at an \emph{arbitrary}
 Gaussian posterior summary instead of the fit's own, without refitting.
 This is the building block for refit-free model exploration: for example,
@@ -168,10 +187,11 @@ support any covariate placement: single-level covariates, and
 cluster-level (between) and/or within-level covariates in two-level
 models.
 
-Supported models: single-group, complete-data, continuous-indicator
-models fitted with the \code{ML} estimator. If the \code{loo} package is attached
-it masks this generic, but \code{loo(fit)} continues to dispatch correctly
-because the method is registered by generic name.
+Supported models: complete-data, continuous-indicator models fitted
+with the \code{ML} estimator, single-group or multigroup (multigroup
+two-level models are not supported yet). If the \code{loo} package is
+attached it masks this generic, but \code{loo(fit)} continues to dispatch
+correctly because the method is registered by generic name.
 }
 \examples{
 \donttest{

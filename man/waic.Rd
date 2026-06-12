@@ -30,9 +30,10 @@ runs serially; parallelism must be requested explicitly.}
 }
 \value{
 An object of class \code{inlavaan_waic}: a list with \code{per_unit}
-(pointwise \code{lpd}, \code{p_waic}, \code{elpd_waic}), \code{estimates} (matrix with rows
+(pointwise \code{lpd}, \code{p_waic}, \code{elpd_waic}, with the same \code{unit}/\code{group}
+identification as \code{\link[=loo]{loo()}}), \code{estimates} (matrix with rows
 \code{elpd_waic}, \code{p_waic}, \code{waic} and columns \code{Estimate}, \code{SE}), \code{type},
-\code{n_units}, and \code{nsamp}.
+\code{n_units}, \code{n_groups}, and \code{nsamp}.
 }
 \description{
 Computes the WAIC of a fitted \link{INLAvaan} model from unit log-likelihoods

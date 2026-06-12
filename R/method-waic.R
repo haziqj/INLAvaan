@@ -41,9 +41,10 @@
 #' @param ... Not used.
 #'
 #' @returns An object of class `inlavaan_waic`: a list with `per_unit`
-#'   (pointwise `lpd`, `p_waic`, `elpd_waic`), `estimates` (matrix with rows
+#'   (pointwise `lpd`, `p_waic`, `elpd_waic`, with the same `unit`/`group`
+#'   identification as [loo()]), `estimates` (matrix with rows
 #'   `elpd_waic`, `p_waic`, `waic` and columns `Estimate`, `SE`), `type`,
-#'   `n_units`, and `nsamp`.
+#'   `n_units`, `n_groups`, and `nsamp`.
 #'
 #' @seealso [loo()], [fitmeasures()]
 #'
