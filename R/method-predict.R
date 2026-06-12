@@ -314,6 +314,12 @@ predict.inlavaan_internal <- function(
     nobs_out <- lavdata@nobs
   }
 
+  # Saturated means for models without a mean structure: the implied mean
+  # does not exist, but the conditioning kernels below still need one. The
+  # sample means of the *fitted* data are the correct plug-in (they are
+  # the saturated means the fit conditions on), also for newdata.
+  ybar_fit <- lapply(lavdata@X, colMeans)
+
   samp <- sample_params(
     theta_star = theta_star,
     Sigma_theta = Sigma_theta,
@@ -503,7 +509,16 @@ predict.inlavaan_internal <- function(
           Sigmay_inv <- solve(front %*% Psi %*% t(front) + Theta)
           PhiLtSinv <- Phi %*% t(Lambda) %*% Sigmay_inv
 
-          mu_eta <- t(as.numeric(alpha) + PhiLtSinv %*% t(y[[g]]))
+          # E(eta | y) = alpha + Phi Lambda' Sigma^{-1} (y - mu_y): centre
+          # by the implied mean, or the saturated means without one
+          alpha_vec <- rep_len(as.numeric(alpha), ncol(front))
+          mu_y <- if (!is.null(glist$nu)) {
+            as.numeric(glist$nu + front %*% alpha_vec)
+          } else {
+            ybar_fit[[g]]
+          }
+          yc <- sweep(y[[g]], 2L, mu_y)
+          mu_eta <- t(as.numeric(alpha) + PhiLtSinv %*% t(yc))
 
           V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
           chol_V <- t(chol(V_eta))
@@ -783,8 +798,16 @@ predict.inlavaan_internal <- function(
           Sigmay_inv <- solve(front %*% Psi %*% t(front) + Theta)
           PhiLtSinv <- Phi %*% t(Lambda) %*% Sigmay_inv
 
-          # Posterior draw of eta | y, theta
-          mu_eta <- t(as.numeric(alpha) + PhiLtSinv %*% t(y[[g]]))
+          # Posterior draw of eta | y, theta, centring by the implied mean
+          # (or the saturated means when no mean structure exists)
+          alpha_vec <- rep_len(as.numeric(alpha), ncol(front))
+          mu_y <- if (!is.null(glist$nu)) {
+            as.numeric(glist$nu + front %*% alpha_vec)
+          } else {
+            ybar_fit[[g]]
+          }
+          yc <- sweep(y[[g]], 2L, mu_y)
+          mu_eta <- t(as.numeric(alpha) + PhiLtSinv %*% t(yc))
           V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
           chol_V <- t(chol(V_eta))
           n_obs <- nrow(mu_eta)
@@ -792,14 +815,15 @@ predict.inlavaan_internal <- function(
           Z <- matrix(rnorm(n_obs * nlv), nrow = nlv, ncol = n_obs)
           eta_draw <- mu_eta + t(chol_V %*% Z)
 
-          # yhat = nu + Lambda %*% (I-B)^{-1} %*% eta
+          # yhat = mu_y + front (eta - alpha)
+          nu_eff <- mu_y - as.numeric(front %*% alpha_vec)
           if (is.null(B)) {
-            yhat <- sweep(tcrossprod(eta_draw, Lambda), 2, as.numeric(nu), "+")
+            yhat <- sweep(tcrossprod(eta_draw, Lambda), 2, nu_eff, "+")
           } else {
             yhat <- sweep(
               tcrossprod(eta_draw %*% t(IminB_inv), Lambda),
               2,
-              as.numeric(nu),
+              nu_eff,
               "+"
             )
           }
@@ -898,7 +922,10 @@ predict.inlavaan_internal <- function(
           mu_y <- if (!is.null(lavimplied$mean)) {
             as.numeric(lavimplied$mean[[g]])
           } else {
-            rep(0, p)
+            # no mean structure: condition on the saturated (sample) means
+            # (defensive: missing = "ML" forces a mean structure in lavaan,
+            # so this branch is unreachable from a real fit)
+            ybar_fit[[g]] # nocov
           }
         } else {
           # nocov start

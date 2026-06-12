@@ -33,8 +33,16 @@
   stores it post hoc. Stored results are reused by `loo()`, `waic()`,
   `fitmeasures()`, and `compare()`.
 
+## Minor improvements and fixes
+
+
 ## Bug fixes
 
+* `predict()` now centres the conditioning data on the model-implied means
+  (or the saturated sample means when the model has no mean structure) when
+  drawing factor scores and predicted observed variables. Previously the
+  kernels conditioned on raw data, offsetting every factor score by a
+  constant that grows with the variable means.
 * `coef()` (and the merged parameter table, fitted values, and implied
   moments) now reports covariance parameters on the covariance scale.
   Previously these slots carried the posterior-mean *correlation*, while
