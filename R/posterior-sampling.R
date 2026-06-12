@@ -172,7 +172,10 @@ get_ppp <- function(
       # nocov end
     } else {
       n <- lavsamplestats@nobs[[g]]
-      S <- lavsamplestats@cov[[g]]
+      # rescale the divisor-n sample covariance to its unbiased (n - 1)
+      # form: the replicates below are Wishart(n - 1, Sigma) / (n - 1)
+      # objects, so the observed discrepancy must be on the same scale
+      S <- lavsamplestats@cov[[g]] * n / (n - 1)
     }
 
     logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)

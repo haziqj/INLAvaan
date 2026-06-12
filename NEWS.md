@@ -67,6 +67,10 @@
   without a mean structure now include the saturated (sample) means, so
   posterior predictive replicates live on the data scale instead of being
   centred at zero.
+* The PPP's observed discrepancy now uses the unbiased (divisor n-1)
+  sample covariance, matching the scale of the Wishart-replicated
+  covariances it is compared against; previously the divisor-n form made
+  the PPP very slightly optimistic (an O(1/n) effect, all models).
 * `coef()` (and the merged parameter table, fitted values, and implied
   moments) now reports covariance parameters on the covariance scale.
   Previously these slots carried the posterior-mean *correlation*, while
