@@ -67,11 +67,17 @@ inlavaan(
 - test:
 
   Character indicating which post-estimation quantities to compute.
-  Defaults to "standard" (posterior fit indices: PPP and DIC); "none"
-  skips these computations. Include "loo" (e.g.
-  `test = c("standard", "loo")`, or `test = "loo"` alone) to also
-  compute leave-one-out cross-validation at fit time and store it with
-  the fit; see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md).
+  Defaults to "standard": posterior fit indices (PPP and DIC), plus –
+  for models supported by the casewise machinery and fitted with a mean
+  structure – the WAIC (reusing the fit's posterior draws, when
+  `nsamp >= 100`) and a full leave-one-out cross-validation whenever its
+  predicted serial cost is within a 10-second budget; both are stored
+  with the fit (see
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). "none"
+  skips all of these. Include "loo" (e.g. `test = c("standard", "loo")`,
+  or `test = "loo"` alone) to force the full LOO regardless of the
+  budget.
 
 - vb_correction:
 
@@ -209,25 +215,25 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [47ms]
+#> ✔ Finding posterior mode. [60ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [45ms]
+#> ✔ Computing the Hessian. [34ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.208σ. [64ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [403ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [409ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [108ms]
+#> ✔ Adjusting copula correlations (NORTA). [109ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [315ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.5.9001 ended normally after 73 iterations
+#> INLAvaan 0.2.5.9002 ended normally after 73 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -81,7 +81,14 @@ best-ELPD model, the difference **elpd_diff** with its *paired* standard
 error **se_diff** computed from the pointwise contributions (the
 appropriate uncertainty for nested or same-data comparisons). The table
 is then sorted by descending ELPD. All models must be fitted to the same
-data with matching units; stored LOO results (`test = "loo"` or
+data with matching units, and must share the score flavour (see
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)): mixing fits
+with modelled covariates (`fixed.x = FALSE`, joint scores) and fixed
+covariates (`fixed.x = TRUE`, conditional scores) is refused. Joint
+scores additionally require identical variable sets across models, while
+conditional scores require only matching outcome variables – covariate
+sets may differ, which is the covariate-selection setting. Stored LOO
+results (`test = "loo"` or
 [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) are reused.
 
 ## References
@@ -108,24 +115,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [177ms]
+#> ✔ Finding posterior mode. [161ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [138ms]
+#> ✔ Computing the Hessian. [139ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [406ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [378ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 13/60 skew-normal marginals.
+#> ⠹ Fitting 11/60 skew-normal marginals.
 #> ⠸ Fitting 47/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [5.3s]
+#> ✔ Fitting 60/60 skew-normal marginals. [5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [220ms]
+#> ✔ Adjusting copula correlations (NORTA). [213ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [605ms]
+#> ✔ Posterior sampling and summarising. [574ms]
 #> 
 
 # Weak invariance
@@ -136,24 +143,24 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [161ms]
+#> ✔ Finding posterior mode. [144ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [142ms]
+#> ✔ Computing the Hessian. [130ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [468ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [204ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 2/54 skew-normal marginals.
-#> ⠸ Fitting 42/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [4.1s]
+#> ⠹ Fitting 7/54 skew-normal marginals.
+#> ⠸ Fitting 44/54 skew-normal marginals.
+#> ✔ Fitting 54/54 skew-normal marginals. [4.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [292ms]
+#> ✔ Adjusting copula correlations (NORTA). [287ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [564ms]
+#> ✔ Posterior sampling and summarising. [582ms]
 #> 
 
 # Strong invariance
@@ -164,23 +171,23 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [147ms]
+#> ✔ Finding posterior mode. [148ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [123ms]
+#> ✔ Computing the Hessian. [103ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [190ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [187ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 10/48 skew-normal marginals.
+#> ⠹ Fitting 13/48 skew-normal marginals.
 #> ✔ Fitting 48/48 skew-normal marginals. [3.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [339ms]
+#> ✔ Adjusting copula correlations (NORTA). [584ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [582ms]
+#> ✔ Posterior sampling and summarising. [564ms]
 #> 
 
 # Compare models (fit1 = configural = baseline, always first argument)

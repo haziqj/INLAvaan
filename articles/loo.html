@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9002</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -169,8 +169,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7534.554 29.269 -3769.109 42.945 32.433</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7756.605 26.700 -3878.134 46.800 27.516</span></span>
+<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7534.755 29.370 -3769.109 42.945 32.433</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7757.068 26.932 -3878.134 46.800 27.516</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;   -109.025  17.072</span></span></code></pre></div>
@@ -178,7 +178,7 @@
 <p>Models are sorted by descending ELPD; <code>elpd_diff</code> and <code>se_diff</code> are relative to the best model. A common heuristic is that a difference smaller than a couple of <code>se_diff</code> units is not practically meaningful <span class="citation" data-cites="vehtari2017practical">(<a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span> – here the three-factor model is preferred by a wide margin.</p>
 </section><section class="level2"><h2 id="two-level-models">Two-level models<a class="anchor" aria-label="anchor" href="#two-level-models"></a>
 </h2>
-<p>For models fitted with a <code>cluster</code> argument, <code><a href="../reference/loo.html">loo()</a></code> automatically switches to per-cluster scoring (LOCO). Note that models with exogenous covariates must be fitted with <code>fixed.x = FALSE</code>, so that the covariates are part of the joint model being cross-validated.</p>
+<p>For models fitted with a <code>cluster</code> argument, <code><a href="../reference/loo.html">loo()</a></code> automatically switches to per-cluster scoring (LOCO). Here the covariates are modelled jointly (<code>fixed.x = FALSE</code>); the next section explains what happens under lavaan’s default covariate treatment.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model2l</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
@@ -201,22 +201,75 @@
 <span><span class="co">#&gt; p_loo        34.3    2.0</span></span>
 <span><span class="co">#&gt; looic     46688.3 1462.9</span></span></code></pre></div>
 </div>
-</section><section class="level2"><h2 id="storing-the-result-with-the-fit">Storing the result with the fit<a class="anchor" aria-label="anchor" href="#storing-the-result-with-the-fit"></a>
+</section><section class="level2"><h2 id="exogenous-covariates-joint-and-conditional-scores">Exogenous covariates: joint and conditional scores<a class="anchor" aria-label="anchor" href="#exogenous-covariates-joint-and-conditional-scores"></a>
 </h2>
-<p><code>loo(fit)</code> never modifies the fitted object. To compute the LOO once and keep it with the fit, either request it at fit time,</p>
+<p>When a model contains exogenous covariates, the <em>flavour</em> of the LOO score follows the likelihood the model was fitted with. Under <code>fixed.x = FALSE</code> the covariates receive a saturated Gaussian block and each unit is scored by the joint predictive density of its outcomes <em>and</em> covariates (“how surprised is the model by a brand-new unit, characteristics included?”). Under <code>fixed.x = TRUE</code> – lavaan’s default – the fitted likelihood is the conditional one, and each unit is scored by the predictive density of its outcomes <em>given</em> its covariates (“given a new unit with known characteristics, how well do we predict its outcomes?”), the familiar regression cross-validation convention. No refitting trickery is involved: the conditional likelihood is exactly invariant to the fixed covariate moments, so the conditional score carries no additional approximation.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_x</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  visual  =~ x1 + x2 + x3</span></span>
+<span><span class="st">  textual =~ x4 + x5 + x6</span></span>
+<span><span class="st">  speed   =~ x7 + x8 + x9</span></span>
+<span><span class="st">  visual ~ ageyr + grade</span></span>
+<span><span class="st">  textual ~ ageyr + grade</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">dat_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html" class="external-link">na.omit</a></span><span class="op">(</span></span>
+<span>  <span class="va">HolzingerSwineford1939</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">9</span><span class="op">)</span>, <span class="st">"ageyr"</span>, <span class="st">"grade"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># lavaan's default fixed.x = TRUE: scored conditionally on the covariates</span></span>
+<span><span class="va">fit_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model_x</span>, <span class="va">dat_x</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit_cond</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Taylor leave-one-subject-out cross-validation (INLAvaan)</span></span>
+<span><span class="co">#&gt; Computed from 300 subjects (second-order Taylor approximation)</span></span>
+<span><span class="co">#&gt; Scored conditionally on the exogenous covariates (fixed.x fit)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          Estimate   SE</span></span>
+<span><span class="co">#&gt; elpd_loo  -3748.1 44.7</span></span>
+<span><span class="co">#&gt; p_loo        45.1  2.7</span></span>
+<span><span class="co">#&gt; looic      7496.2 89.5</span></span></code></pre></div>
+</div>
+<p>The two flavours estimate different quantities whose scales differ by the covariate predictive density, so <strong>a joint and a conditional elpd must never appear in the same comparison</strong> – <code>compare(..., loo = TRUE)</code> refuses mixed-flavour comparisons outright. Within the conditional flavour, however, models conditioning on <em>different</em> covariate sets are directly comparable as long as the outcome variables match, which makes covariate selection straightforward:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_x1</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  visual  =~ x1 + x2 + x3</span></span>
+<span><span class="st">  textual =~ x4 + x5 + x6</span></span>
+<span><span class="st">  speed   =~ x7 + x8 + x9</span></span>
+<span><span class="st">  visual ~ ageyr</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">fit_cond1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model_x1</span>, <span class="va">dat_x</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit_cond</span>, <span class="va">fit_cond1</span>, loo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
+<span><span class="co">#&gt; Models ordered by ELPD (Taylor LOO)</span></span>
+<span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
+<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7540.241 60.471 -3748.090 44.737 45.076</span></span>
+<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7568.680 30.294 -3787.678 43.881 38.272</span></span>
+<span><span class="co">#&gt;  elpd_diff se_diff</span></span>
+<span><span class="co">#&gt;      0.000   0.000</span></span>
+<span><span class="co">#&gt;    -39.588  10.261</span></span></code></pre></div>
+</div>
+<p>(Under the joint flavour the same comparison would require retaining <code>grade</code> in both models, since joint scores of models spanning different variable sets live on different sample spaces.) Both flavours support any covariate placement, including cluster-level and within-level covariates in two-level models.</p>
+</section><section class="level2"><h2 id="storing-the-result-with-the-fit">Storing the result with the fit<a class="anchor" aria-label="anchor" href="#storing-the-result-with-the-fit"></a>
+</h2>
+<p><code>loo(fit)</code> never modifies the fitted object – but under the default <code>test = "standard"</code>, the fit itself already computes and stores both the full LOO and the WAIC whenever the model is supported, has a mean structure, and (for LOO) the predicted serial cost is within a 10-second budget. The prediction is calibrated at run time by timing a single score evaluation, so on typical single-level models – where the full LOO costs a fraction of the fit itself – you simply get <code>loo(fit)</code> and <code>waic(fit)</code> for free. The WAIC reuses the very draws the fit produced for its posterior summaries, so it costs only one casewise pass.</p>
+<p>For expensive cases you can force the LOO regardless of the budget at fit time,</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"standard"</span>, <span class="st">"loo"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>or store it afterwards with an explicit reassignment:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loo.html">add_loo</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>A stored result is returned instantly by <code>loo(fit)</code> and reused by <code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">fitMeasures()</a></code> (where the blavaan-style names appear) and <code>compare(..., loo = TRUE)</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">fitMeasures</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elpd_loo"</span>, <span class="st">"se_loo"</span>, <span class="st">"p_loo"</span>, <span class="st">"looic"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  elpd_loo     p_loo     looic    se_loo </span></span>
 <span><span class="co">#&gt; -3769.109    32.433  7538.217    85.890</span></span></code></pre></div>
@@ -225,22 +278,24 @@
 </h2>
 <p>The widely applicable information criterion <span class="citation" data-cites="watanabe2010asymptotic">(<a href="#ref-watanabe2010asymptotic" role="doc-biblioref">Watanabe 2010</a>)</span> is asymptotically equivalent to LOO and is also available. Unlike <code><a href="../reference/loo.html">loo()</a></code>, <code><a href="../reference/waic.html">waic()</a></code> is sampling-based: it evaluates unit log-likelihoods over posterior draws, so results carry Monte Carlo error, and units with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mrow><mrow><mi mathvariant="normal">w</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi></mrow><mo>,</mo><mi>u</mi></mrow></msub><mo>&gt;</mo><mn>0.4</mn></mrow><annotation encoding="application/x-tex">p_{\mathrm{waic},u} &gt; 0.4</annotation></semantics></math> trigger a reliability warning – in which case prefer <code><a href="../reference/loo.html">loo()</a></code> <span class="citation" data-cites="vehtari2017practical">(<a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/waic.html">waic</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; WAIC (INLAvaan)</span></span>
 <span><span class="co">#&gt; Computed from 1000 posterior draws and 301 subjects</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_waic  -3769.4 42.9</span></span>
-<span><span class="co">#&gt; p_waic        32.2  2.1</span></span>
-<span><span class="co">#&gt; waic        7538.8 85.8</span></span></code></pre></div>
+<span><span class="co">#&gt; elpd_waic  -3769.1 42.9</span></span>
+<span><span class="co">#&gt; p_waic        32.0  2.1</span></span>
+<span><span class="co">#&gt; waic        7538.2 85.9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 10 units with p_waic &gt; 0.4: the WAIC may be unreliable; prefer loo().</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="scoring-submodels-without-refitting">Scoring submodels without refitting<a class="anchor" aria-label="anchor" href="#scoring-submodels-without-refitting"></a>
 </h2>
 <p>The <code>theta</code> and <code>Sigma</code> arguments evaluate the LOO at an <em>arbitrary</em> Gaussian posterior summary instead of the fit’s own. Combined with Gaussian conditioning, this scores a constrained submodel from the encompassing fit alone. For example, to score the submodel with the <code>visual ~~ speed</code> covariance fixed to zero, condition the summary on that parameter and re-evaluate:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">int</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_inlavaan_internal.html">get_inlavaan_internal</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">int</span><span class="op">$</span><span class="va">theta_star</span></span>
 <span><span class="va">Sigma</span> <span class="op">&lt;-</span> <span class="va">int</span><span class="op">$</span><span class="va">Sigma_theta</span></span>
@@ -265,7 +320,7 @@
 </h2>
 <ul>
 <li>
-<strong>Supported models.</strong> Single-group, complete-data, continuous-indicator models fitted with the <code>ML</code> estimator. Multigroup, missing-data, and ordinal (PML) models are not supported yet; models with exogenous covariates require <code>fixed.x = FALSE</code>.</li>
+<strong>Supported models.</strong> Single-group, complete-data, continuous-indicator models fitted with the <code>ML</code> estimator. Multigroup, missing-data, and ordinal (PML) models are not supported yet. Models with exogenous covariates are scored jointly (<code>fixed.x = FALSE</code>) or conditionally (<code>fixed.x = TRUE</code>), following the fitted likelihood, for any covariate placement.</li>
 <li>
 <strong>Parallelism is opt-in.</strong> The default runs serially; pass <code>loo(fit, cores = 2)</code> to parallelise the Hessian stage via forking (not available on Windows).</li>
 <li>

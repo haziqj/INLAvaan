@@ -130,8 +130,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7534.554 29.269 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7756.605 26.700 -3878.134 46.800 27.516
+#>    fit   30   -3885.211    0.000 7534.755 29.370 -3769.109 42.945 32.433
+#>  fit1f   27   -3990.563 -105.352 7757.068 26.932 -3878.134 46.800 27.516
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -109.025  17.072
@@ -147,9 +147,9 @@ three-factor model is preferred by a wide margin.
 
 For models fitted with a `cluster` argument,
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) automatically
-switches to per-cluster scoring (LOCO). Note that models with exogenous
-covariates must be fitted with `fixed.x = FALSE`, so that the covariates
-are part of the joint model being cross-validated.
+switches to per-cluster scoring (LOCO). Here the covariates are modelled
+jointly (`fixed.x = FALSE`); the next section explains what happens
+under lavaan’s default covariate treatment.
 
 ``` r
 
@@ -174,10 +174,99 @@ loo(fit2l)
 #> looic     46688.3 1462.9
 ```
 
+## Exogenous covariates: joint and conditional scores
+
+When a model contains exogenous covariates, the *flavour* of the LOO
+score follows the likelihood the model was fitted with. Under
+`fixed.x = FALSE` the covariates receive a saturated Gaussian block and
+each unit is scored by the joint predictive density of its outcomes
+*and* covariates (“how surprised is the model by a brand-new unit,
+characteristics included?”). Under `fixed.x = TRUE` – lavaan’s default –
+the fitted likelihood is the conditional one, and each unit is scored by
+the predictive density of its outcomes *given* its covariates (“given a
+new unit with known characteristics, how well do we predict its
+outcomes?”), the familiar regression cross-validation convention. No
+refitting trickery is involved: the conditional likelihood is exactly
+invariant to the fixed covariate moments, so the conditional score
+carries no additional approximation.
+
+``` r
+
+model_x <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+  visual ~ ageyr + grade
+  textual ~ ageyr + grade
+"
+dat_x <- na.omit(
+  HolzingerSwineford1939[, c(paste0("x", 1:9), "ageyr", "grade")]
+)
+
+# lavaan's default fixed.x = TRUE: scored conditionally on the covariates
+fit_cond <- asem(model_x, dat_x, meanstructure = TRUE, verbose = FALSE)
+loo(fit_cond)
+#> Taylor leave-one-subject-out cross-validation (INLAvaan)
+#> Computed from 300 subjects (second-order Taylor approximation)
+#> Scored conditionally on the exogenous covariates (fixed.x fit)
+#> 
+#>          Estimate   SE
+#> elpd_loo  -3748.1 44.7
+#> p_loo        45.1  2.7
+#> looic      7496.2 89.5
+```
+
+The two flavours estimate different quantities whose scales differ by
+the covariate predictive density, so **a joint and a conditional elpd
+must never appear in the same comparison** – `compare(..., loo = TRUE)`
+refuses mixed-flavour comparisons outright. Within the conditional
+flavour, however, models conditioning on *different* covariate sets are
+directly comparable as long as the outcome variables match, which makes
+covariate selection straightforward:
+
+``` r
+
+model_x1 <- "
+  visual  =~ x1 + x2 + x3
+  textual =~ x4 + x5 + x6
+  speed   =~ x7 + x8 + x9
+  visual ~ ageyr
+"
+fit_cond1 <- asem(model_x1, dat_x, meanstructure = TRUE, verbose = FALSE)
+
+compare(fit_cond, fit_cond1, loo = TRUE)
+#> Bayesian Model Comparison (INLAvaan)
+#> Models ordered by ELPD (Taylor LOO)
+#> elpd_diff/se_diff are paired differences vs the best model
+#> 
+#>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
+#>   fit_cond   32   -3875.892   0.000 7540.241 60.471 -3748.090 44.737 45.076
+#>  fit_cond1   29   -3903.093 -27.201 7568.680 30.294 -3787.678 43.881 38.272
+#>  elpd_diff se_diff
+#>      0.000   0.000
+#>    -39.588  10.261
+```
+
+(Under the joint flavour the same comparison would require retaining
+`grade` in both models, since joint scores of models spanning different
+variable sets live on different sample spaces.) Both flavours support
+any covariate placement, including cluster-level and within-level
+covariates in two-level models.
+
 ## Storing the result with the fit
 
-`loo(fit)` never modifies the fitted object. To compute the LOO once and
-keep it with the fit, either request it at fit time,
+`loo(fit)` never modifies the fitted object – but under the default
+`test = "standard"`, the fit itself already computes and stores both the
+full LOO and the WAIC whenever the model is supported, has a mean
+structure, and (for LOO) the predicted serial cost is within a 10-second
+budget. The prediction is calibrated at run time by timing a single
+score evaluation, so on typical single-level models – where the full LOO
+costs a fraction of the fit itself – you simply get `loo(fit)` and
+`waic(fit)` for free. The WAIC reuses the very draws the fit produced
+for its posterior summaries, so it costs only one casewise pass.
+
+For expensive cases you can force the LOO regardless of the budget at
+fit time,
 
 ``` r
 
@@ -224,9 +313,11 @@ waic(fit)
 #> Computed from 1000 posterior draws and 301 subjects
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3769.4 42.9
-#> p_waic        32.2  2.1
-#> waic        7538.8 85.8
+#> elpd_waic  -3769.1 42.9
+#> p_waic        32.0  2.1
+#> waic        7538.2 85.9
+#> 
+#> 10 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
 ```
 
 ## Scoring submodels without refitting
@@ -274,7 +365,9 @@ the search logic is yours to design.
 - **Supported models.** Single-group, complete-data,
   continuous-indicator models fitted with the `ML` estimator.
   Multigroup, missing-data, and ordinal (PML) models are not supported
-  yet; models with exogenous covariates require `fixed.x = FALSE`.
+  yet. Models with exogenous covariates are scored jointly
+  (`fixed.x = FALSE`) or conditionally (`fixed.x = TRUE`), following the
+  fitted likelihood, for any covariate placement.
 - **Parallelism is opt-in.** The default runs serially; pass
   `loo(fit, cores = 2)` to parallelise the Hessian stage via forking
   (not available on Windows).

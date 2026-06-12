@@ -133,23 +133,29 @@ the `cluster` argument to identify the grouping variable.
 
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [463ms]
+#> ✔ Finding posterior mode. [460ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [141ms]
+#> ✔ Computing the Hessian. [145ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.123σ. [286ms]
+#> ✔ VB correction; mean |δ| = 0.123σ. [283ms]
 #> 
 #> ⠙ Fitting 0/20 skew-normal marginals.
-#> ⠹ Fitting 15/20 skew-normal marginals.
-#> ✔ Fitting 20/20 skew-normal marginals. [2.2s]
+#> ⠹ Fitting 16/20 skew-normal marginals.
+#> ✔ Fitting 20/20 skew-normal marginals. [2.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [74ms]
+#> ✔ Adjusting copula correlations (NORTA). [75ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [822ms]
+#> ✔ Posterior sampling and summarising. [814ms]
+#> 
+#> ℹ Computing Taylor LOO.
+#> ✔ Computing Taylor LOO. [2.4s]
+#> 
+#> ℹ Computing WAIC from the posterior draws.
+#> ✔ Computing WAIC from the posterior draws. [21s]
 #> 
 ```
 
@@ -161,7 +167,7 @@ standard deviations, and credible intervals) for *both levels*.
 ``` r
 
 summary(fit)
-#> INLAvaan 0.2.5.9001 ended normally after 108 iterations
+#> INLAvaan 0.2.5.9002 ended normally after 108 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -173,12 +179,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.537 
-#>    PPP (Chi-square)                              0.024 
+#>    PPP (Chi-square)                              0.028 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24193.207 
-#>    Effective parameters (pD)                    19.954 
+#>    Deviance (DIC)                            24192.568 
+#>    Effective parameters (pD)                    19.635 
 #> 
 #> Parameter Estimates:
 #> 

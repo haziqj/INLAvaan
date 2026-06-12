@@ -69,9 +69,21 @@ p\_{\mathrm{waic},u})\\ with \\\mathrm{WAIC} = -2\\
 \mathrm{elpd}\_{\mathrm{waic}}\\. Unlike
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md), this is a
 sampling-based estimate: results vary with the random draws, and units
-with \\p\_{\mathrm{waic},u} \> 0.4\\ trigger a reliability warning. The
-same model restrictions as
-[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) apply. If the
+with \\p\_{\mathrm{waic},u} \> 0.4\\ trigger a reliability warning (also
+annotated when printing). The same model restrictions as
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) apply, and so
+does the flavour rule: fits with `fixed.x = TRUE` are scored
+conditionally on the exogenous covariates, fits with `fixed.x = FALSE`
+jointly (see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)).
+
+Under the default `test = "standard"`,
+[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)
+computes the WAIC at fit time by reusing the posterior draws the fit
+already produced (when the model is supported, has a mean structure, and
+`nsamp >= 100`), and stores it with the fit: `waic(fit)` then returns
+the stored result when called with default arguments, and
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+reports `waic`, `p_waic`, `se_waic` as part of `"all"` for free. If the
 `loo` package is attached it masks this generic, but dispatch on
 INLAvaan objects continues to work.
 
@@ -92,32 +104,38 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [75ms]
+#> ✔ Finding posterior mode. [88ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [47ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [100ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [99ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [952ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [935ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [118ms]
+#> ✔ Adjusting copula correlations (NORTA). [117ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [355ms]
+#> ✔ Posterior sampling and summarising. [348ms]
+#> 
+#> ℹ Computing Taylor LOO.
+#> ✔ Computing Taylor LOO. [371ms]
+#> 
+#> ℹ Computing WAIC from the posterior draws.
+#> ✔ Computing WAIC from the posterior draws. [159ms]
 #> 
 waic(fit)
-#> Warning: 9 units have p_waic > 0.4, so the WAIC may be unreliable. Consider `loo()`
-#> instead.
 #> WAIC (INLAvaan)
 #> Computed from 1000 posterior draws and 301 subjects
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3769.0 42.8
-#> p_waic        31.7  2.1
-#> waic        7538.1 85.6
+#> elpd_waic  -3769.3 42.9
+#> p_waic        32.1  2.1
+#> waic        7538.5 85.7
+#> 
+#> 8 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
 # }
 ```

@@ -54,12 +54,12 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 int <- get_inlavaan_internal(fit)
 names(int)
 #>  [1] "coefficients"     "mloglik"          "DIC"              "summary"         
-#>  [5] "ppp"              "loo"              "optim_method"     "marginal_method" 
-#>  [9] "theta_star_novbc" "theta_star"       "Sigma_theta"      "R_star"          
-#> [13] "vcov_x"           "theta_star_trans" "approx_data"      "nsamp"           
-#> [17] "pdf_data"         "partable"         "lavmodel"         "lavsamplestats"  
-#> [21] "lavdata"          "opt"              "timing"           "visual_debug"    
-#> [25] "vb"              
+#>  [5] "ppp"              "loo"              "waic"             "optim_method"    
+#>  [9] "marginal_method"  "theta_star_novbc" "theta_star"       "Sigma_theta"     
+#> [13] "R_star"           "vcov_x"           "theta_star_trans" "approx_data"     
+#> [17] "nsamp"            "pdf_data"         "partable"         "lavmodel"        
+#> [21] "lavsamplestats"   "lavdata"          "opt"              "timing"          
+#> [25] "visual_debug"     "vb"              
 
 # Extract a specific element
 get_inlavaan_internal(fit, "coefficients")

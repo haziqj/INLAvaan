@@ -118,22 +118,22 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [182ms]
+#> ✔ Finding posterior mode. [189ms]
 #> 
 #> ℹ Computing the Hessian.
 #> ✔ Computing the Hessian. [38ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.057σ. [71ms]
+#> ✔ VB correction; mean |δ| = 0.057σ. [70ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [176ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [181ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [63ms]
+#> ✔ Adjusting copula correlations (NORTA). [64ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [311ms]
+#> ✔ Posterior sampling and summarising. [312ms]
 #> 
 ```
 
@@ -179,7 +179,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.5.9001 ended normally after 76 iterations
+#> INLAvaan 0.2.5.9002 ended normally after 76 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -209,7 +209,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.5.9001 ended normally after 76 iterations
+#> INLAvaan 0.2.5.9002 ended normally after 76 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -367,7 +367,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 0.90 s
+#> 0.91 s
 ```
 
 ### Plot
@@ -401,22 +401,22 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [35ms]
+#> ✔ Finding posterior mode. [39ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [20ms]
+#> ✔ Computing the Hessian. [23ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.037σ. [51ms]
+#> ✔ VB correction; mean |δ| = 0.037σ. [57ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [141ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [154ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [39ms]
+#> ✔ Adjusting copula correlations (NORTA). [43ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [288ms]
+#> ✔ Posterior sampling and summarising. [300ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)

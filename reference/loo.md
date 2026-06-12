@@ -115,9 +115,12 @@ An object of class `inlavaan_loo`: a list with elements
 
   First- and second-order aggregates.
 
-- `type`, `n_units`, `n_ok`, `second_order`, `theta_overridden`:
+- `type`, `flavour`, `n_units`, `n_ok`, `second_order`,
+  `theta_overridden`:
 
-  Metadata.
+  Metadata; `flavour` records whether units were scored jointly with
+  their covariates (`"joint"`) or conditionally on them
+  (`"conditional"`, for `fixed.x` fits).
 
 `add_loo()` returns a copy of `object` with the LOO result stored
 alongside the fit (the input object is unchanged); reassign it, e.g.
@@ -167,20 +170,41 @@ Parallelism is strictly opt-in: the default `cores = NULL` runs
 serially, and `cores > 1` parallelises the Hessian stage via forking
 (not available on Windows).
 
-Calling `loo()` never modifies the fitted object. To compute the LOO
-once and keep it with the fit, request it at fit time with
-`test = "loo"` (or `test = c("standard", "loo")`) in
-[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md), or
-store it post hoc with `fit <- add_loo(fit)`. A stored result is
-returned directly by `loo(fit)` when called with default arguments, and
-is reused by
+Calling `loo()` never modifies the fitted object. Under the default
+`test = "standard"`,
+[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) already
+computes and stores the full LOO at fit time whenever the model is
+supported, has a mean structure, and the predicted serial cost is within
+a 10-second budget (measured by timing one score evaluation);
+`test = "loo"` forces the computation regardless of the budget, and
+`fit <- add_loo(fit)` stores it post hoc. A stored result is returned
+directly by `loo(fit)` when called with default arguments, and is reused
+by
 [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
 and [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
 without recomputation.
 
+**Exogenous covariates.** The flavour of the score follows the fitted
+likelihood. Under `fixed.x = FALSE` the covariates are modelled jointly
+and each unit is scored by the joint predictive density of its outcomes
+*and* covariates (`flavour = "joint"`). Under `fixed.x = TRUE` (the
+lavaan default) the fitted likelihood is the conditional one, and each
+unit is scored by the predictive density of its outcomes *given* its
+covariates (`flavour = "conditional"`); since the conditional likelihood
+is exactly invariant to the frozen covariate moments, this involves no
+additional approximation. The two flavours estimate different quantities
+whose scales differ by the covariate predictive density, so a joint and
+a conditional elpd must never be compared
+([`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) refuses
+mixed-flavour comparisons). Conditional scores of models conditioning on
+*different* covariate sets are comparable provided the outcome variables
+match – the natural setting for covariate selection. Both flavours
+support any covariate placement: single-level covariates, and
+cluster-level (between) and/or within-level covariates in two-level
+models.
+
 Supported models: single-group, complete-data, continuous-indicator
-models fitted with the `ML` estimator. Models with exogenous covariates
-must be fitted with `fixed.x = FALSE`. If the `loo` package is attached
+models fitted with the `ML` estimator. If the `loo` package is attached
 it masks this generic, but `loo(fit)` continues to dispatch correctly
 because the method is registered by generic name.
 
@@ -202,23 +226,29 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [89ms]
+#> ✔ Finding posterior mode. [73ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [48ms]
+#> ✔ Computing the Hessian. [47ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [85ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [106ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 7/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [961ms]
+#> ⠹ Fitting 4/30 skew-normal marginals.
+#> ✔ Fitting 30/30 skew-normal marginals. [933ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [125ms]
+#> ✔ Adjusting copula correlations (NORTA). [127ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [364ms]
+#> ✔ Posterior sampling and summarising. [350ms]
+#> 
+#> ℹ Computing Taylor LOO.
+#> ✔ Computing Taylor LOO. [363ms]
+#> 
+#> ℹ Computing WAIC from the posterior draws.
+#> ✔ Computing WAIC from the posterior draws. [162ms]
 #> 
 
 # Leave-one-subject-out (LOSO) from the single fit -- no refitting
@@ -279,25 +309,29 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [473ms]
+#> ✔ Finding posterior mode. [463ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [212ms]
+#> ✔ Computing the Hessian. [221ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.087σ. [384ms]
+#> ✔ VB correction; mean |δ| = 0.087σ. [358ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 2/34 skew-normal marginals.
-#> ⠸ Fitting 19/34 skew-normal marginals.
-#> ✔ Fitting 34/34 skew-normal marginals. [6.1s]
+#> ⠹ Fitting 17/34 skew-normal marginals.
+#> ✔ Fitting 34/34 skew-normal marginals. [5.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [116ms]
+#> ✔ Adjusting copula correlations (NORTA). [103ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [892ms]
+#> ✔ Posterior sampling and summarising. [845ms]
+#> 
+#> ℹ Computing Taylor LOO.
+#> ✔ Computing Taylor LOO. [4.3s]
+#> 
+#> ℹ Computing WAIC from the posterior draws.
+#> ✔ Computing WAIC from the posterior draws. [21.4s]
 #> 
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)

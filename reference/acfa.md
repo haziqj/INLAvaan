@@ -55,11 +55,17 @@ acfa(
 - test:
 
   Character indicating which post-estimation quantities to compute.
-  Defaults to "standard" (posterior fit indices: PPP and DIC); "none"
-  skips these computations. Include "loo" (e.g.
-  `test = c("standard", "loo")`, or `test = "loo"` alone) to also
-  compute leave-one-out cross-validation at fit time and store it with
-  the fit; see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md).
+  Defaults to "standard": posterior fit indices (PPP and DIC), plus –
+  for models supported by the casewise machinery and fitted with a mean
+  structure – the WAIC (reusing the fit's posterior draws, when
+  `nsamp >= 100`) and a full leave-one-out cross-validation whenever its
+  predicted serial cost is within a 10-second budget; both are stored
+  with the fit (see
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). "none"
+  skips all of these. Include "loo" (e.g. `test = c("standard", "loo")`,
+  or `test = "loo"` alone) to force the full LOO regardless of the
+  budget.
 
 - vb_correction:
 
@@ -227,19 +233,19 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ✔ Computing the Hessian. [30ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [61ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [62ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [350ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [355ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [107ms]
+#> ✔ Adjusting copula correlations (NORTA). [106ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Posterior sampling and summarising. [44ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.5.9001 ended normally after 56 iterations
+#> INLAvaan 0.2.5.9002 ended normally after 56 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
