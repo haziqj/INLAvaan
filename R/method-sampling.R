@@ -621,6 +621,20 @@ sampling_impl <- function(
   # the fitted data so replicates live on the data scale
   if (!isTRUE(lavmodel@meanstructure) && !isTRUE(prior) && nG == 1L) {
     y_mat <- sweep(y_mat, 2L, colMeans(int$lavdata@X[[1L]]), "+")
+    # under the marginalised likelihood the saturated means have posterior
+    # N(ybar, Sigma/n); propagate that uncertainty into each replicate, as
+    # estimated-nu draws do automatically when a mean structure exists
+    if (marginalised_means_active(lavmodel)) {
+      n_fit <- nrow(int$lavdata@X[[1L]])
+      for (i in seq_len(nrow(y_mat))) {
+        Sg <- compute_implied_moments(samp$x_samp[i, ], lavmodel)$cov
+        ch <- tryCatch(chol(Sg), error = function(e) NULL) # nocov
+        if (!is.null(ch)) {
+          y_mat[i, ] <- y_mat[i, ] +
+            as.numeric(crossprod(ch, rnorm(ncol(y_mat)))) / sqrt(n_fit)
+        }
+      }
+    }
   }
 
   if (type == "observed") {
