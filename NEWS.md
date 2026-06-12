@@ -2,42 +2,36 @@
 
 ## New features
 
-* The default `test = "standard"` now also computes and stores, for
-  supported models with a mean structure: the WAIC (reusing the fit's own
-  posterior draws, when `nsamp >= 100`) and the full leave-one-out
-  cross-validation whenever its predicted serial cost -- calibrated at run
-  time from a single score evaluation -- is within a 10-second budget.
-  `loo(fit)`, `waic(fit)`, `fitMeasures()` and `compare(loo = TRUE)` reuse
-  the stored results; `test = "loo"` forces the LOO regardless of the
-  budget, and `test = "none"` skips everything, as before.
-
-* `loo()` computes leave-one-out cross-validation for fitted models without
-  refitting, via a Taylor approximation of the case-deletion posterior:
-  per-subject (LOSO) for single-level models and per-cluster (LOCO) for
-  two-level models, with first- and second-order estimates, pointwise
-  contributions, and optional `theta`/`Sigma` overrides for scoring
-  conditioned posterior summaries in user-built model-search workflows.
-  Parallelism is opt-in via `cores`.
-* LOO can be computed at fit time and stored with the fit by including
-  `"loo"` in the `test` argument of `inlavaan()` (e.g.
-  `test = c("standard", "loo")`), or added to an existing fit with
-  `fit <- add_loo(fit)`.
-* `fitmeasures()` gains `elpd_loo`, `se_loo`, `p_loo`, and `looic`: reported
-  as part of `"all"` when a LOO result is stored with the fit, and computed
-  on demand when requested by name.
-* `compare()` gains a `loo = TRUE` option reporting ELPD, `p_loo`, and ELPD
-  differences with paired standard errors, with models sorted by descending
-  ELPD.
-* `loo()` and `waic()` score `fixed.x = TRUE` fits (the lavaan default) on
-  the fitted conditional likelihood: each unit is scored by the predictive
-  density of its outcomes given its covariates (`flavour = "conditional"`),
-  with no additional approximation, since the conditional likelihood is
-  exactly invariant to the fixed covariate moments. Fits with
-  `fixed.x = FALSE` keep the joint score (`flavour = "joint"`). The two
-  flavours are never comparable and `compare(loo = TRUE)` refuses to mix
-  them; conditional comparisons may differ in their covariate sets, which
-  enables covariate selection. For two-level models the conditional flavour
-  requires all exogenous covariates to be cluster-level variables.
+* `loo()` computes leave-one-out cross-validation from a single fit without 
+  refitting nor sampling, via a Taylor approximation of the case-deletion
+  posterior: per-subject (LOSO) for single-level models, per-cluster (LOCO)
+  for two-level models. Reports first- and second-order estimates and
+  pointwise contributions, with opt-in parallelism (`cores`) and
+  `theta`/`Sigma` overrides for scoring conditioned posterior summaries in
+  user-built model-search workflows.
+* `waic()` computes the widely applicable information criterion from
+  posterior draws, with pointwise contributions and reliability warnings.
+* Both criteria score fits with exogenous covariates on the likelihood they
+  were fitted with: jointly with the covariates (`fixed.x = FALSE`) or
+  conditionally on them (`fixed.x = TRUE`, the lavaan default; exact, no
+  additional approximation), for any covariate placement, including
+  cluster-level and within-level covariates in two-level models. The two
+  flavours are never comparable, as conditional comparisons may differ in
+  their covariate sets, which enables covariate selection.
+* `fitmeasures()` gains `elpd_loo`, `se_loo`, `p_loo`, `looic` and
+  `elpd_waic`, `se_waic`, `p_waic`, `waic`: included in `"all"` when stored
+  with the fit, computed on demand when requested by name.
+* `compare()` gains `loo = TRUE`. Models sorted by descending ELPD, with
+  `p_loo` and ELPD differences with paired standard errors (mixed-flavour
+  comparisons are refused).
+* Both criteria can be computed at fit time and stored with the fit. The
+  default `test = "standard"` does so automatically for supported models
+  with a mean structure. The WAIC reuses the fit's own posterior draws
+  (when `nsamp >= 100`), and the LOO runs when its predicted serial cost is
+  within a 10-second budget. `test = "loo"` forces the LOO regardless of
+  the budget, `test = "none"` skips everything, and `fit <- add_loo(fit)`
+  stores it post hoc. Stored results are reused by `loo()`, `waic()`,
+  `fitmeasures()`, and `compare()`.
 
 # INLAvaan 0.2.5
 

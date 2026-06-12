@@ -171,7 +171,7 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 ```
 
 (Under the joint flavour the same comparison would require retaining `grade` in both models, since joint scores of models spanning different variable sets live on different sample spaces.)
-For two-level models the conditional flavour currently requires every exogenous covariate to be a cluster-level (between) variable; within-level covariates under `fixed.x = TRUE` are refused with advice to refit with `fixed.x = FALSE`.
+Both flavours support any covariate placement, including cluster-level and within-level covariates in two-level models.
 
 ## Storing the result with the fit
 
@@ -247,8 +247,8 @@ INLAvaan deliberately provides just this evaluation API; the search logic is you
   models fitted with the `ML` estimator. Multigroup, missing-data, and
   ordinal (PML) models are not supported yet. Models with exogenous
   covariates are scored jointly (`fixed.x = FALSE`) or conditionally
-  (`fixed.x = TRUE`), following the fitted likelihood; two-level
-  conditional scoring requires cluster-level covariates.
+  (`fixed.x = TRUE`), following the fitted likelihood, for any covariate
+  placement.
 - **Parallelism is opt-in.** The default runs serially; pass
   `loo(fit, cores = 2)` to parallelise the Hessian stage via forking
   (not available on Windows).
