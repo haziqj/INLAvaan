@@ -113,17 +113,24 @@ loo_chain_rule <- function(gll_x, cache) {
 # apply verbatim -- the zero implied mean is then exact, and the
 # theta-free constant shifts l_i without touching the scores. The
 # transformation always uses the full-data ybar and n, regardless of any
-# `units` subset.
-loso_data_view <- function(lavmodel, lavdata) {
+# `units` subset. For the conditional (fixed.x) flavour the same
+# marginalisation applies blockwise -- flat priors on (mu_y, mu_x)
+# reparameterise with unit Jacobian to the regression intercept and mu_x,
+# so the conditional contribution is the difference of two exchangeable
+# conditionals. The subtracted x-block term evaluated on the transformed
+# data carries its own theta-free constant, returned as `lx_const`
+# (n_x = number of frozen exogenous columns).
+loso_data_view <- function(lavmodel, lavdata, n_x = 0L) {
   Y <- lavdata@X[[1L]]
   if (isTRUE(lavmodel@meanstructure)) {
-    return(list(Y = Y, l_const = 0))
+    return(list(Y = Y, l_const = 0, lx_const = 0))
   }
   n <- nrow(Y)
   cc <- n / (n - 1)
   list(
     Y = sqrt(cc) * sweep(Y, 2L, colMeans(Y), "-"),
-    l_const = -0.5 * ncol(Y) * log(cc)
+    l_const = -0.5 * ncol(Y) * log(cc),
+    lx_const = 0.5 * n_x * log(cc)
   )
 }
 
@@ -634,22 +641,6 @@ check_loo_model <- function(int, fn = "loo") {
   if (isTRUE(lavmodel@conditional.x)) {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
   }
-  if (!isTRUE(lavmodel@meanstructure)) {
-    # The fit marginalises the saturated means (flat priors), so the unit
-    # contributions are the exact exchangeable case-deletion conditionals
-    # -- no fallback, no bias. The conditional (fixed.x) flavour interacts
-    # with the marginalisation through the frozen covariate moments and is
-    # not derived yet.
-    if (
-      isTRUE(lavmodel@fixed.x) &&
-        length(unlist(int$lavsamplestats@x.idx)) > 0L
-    ) {
-      cli_abort(
-        "{.fn {fn}} does not yet support fixed.x models without a mean
-         structure; refit with {.code meanstructure = TRUE}."
-      )
-    }
-  }
   invisible(NULL)
 }
 
@@ -743,14 +734,20 @@ inlav_loo <- function(
     }
     nobs <- rep(1L, length(units))
   } else if (type == "loso") {
-    dv <- loso_data_view(lavmodel, lavdata)
+    dv <- loso_data_view(
+      lavmodel,
+      lavdata,
+      n_x = length(int$lavsamplestats@x.idx[[1L]])
+    )
     Y <- dv$Y
     units <- check_loo_units(units, nrow(Y), "rows")
     Y_sub <- Y[units, , drop = FALSE]
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = FALSE)
     l_star <- loso_loglik_all(Y_sub, cache$mom) + dv$l_const
     if (flavour == "conditional") {
-      l_star <- l_star - loo_fixedx_const_loso(int, Y_sub, cache$mom)
+      l_star <- l_star -
+        loo_fixedx_const_loso(int, Y_sub, cache$mom) +
+        dv$lx_const
     }
     s_mat <- loso_scores_theta(theta, Y_sub, lavmodel, pt, cache = cache)
     score_fn <- function(th_act) {
@@ -957,7 +954,11 @@ waic_from_draws <- function(
     units <- check_loo_units(units, css$J, "clusters")
     nobs <- css$n_j[units]
   } else {
-    dv <- loso_data_view(lavmodel, lavdata)
+    dv <- loso_data_view(
+      lavmodel,
+      lavdata,
+      n_x = length(int$lavsamplestats@x.idx[[1L]])
+    )
     Y <- dv$Y
     units <- check_loo_units(units, nrow(Y), "rows")
     Y_sub <- Y[units, , drop = FALSE]
@@ -1002,7 +1003,7 @@ waic_from_draws <- function(
     cvec <- if (two_level) {
       loo_fixedx_const_loco(int, css, units, mom0)
     } else {
-      loo_fixedx_const_loso(int, Y_sub, mom0)
+      loo_fixedx_const_loso(int, Y_sub, mom0) - dv$lx_const
     }
     ll_mat <- sweep(ll_mat, 2L, cvec, "-")
   }

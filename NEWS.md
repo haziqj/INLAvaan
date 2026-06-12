@@ -51,6 +51,11 @@
       mean-uncertainty.
     - Requesting `meanstructure = FALSE` for a two-level model now warns and 
       fits with `meanstructure = TRUE` (the mean structure is required there).
+    - The conditional (`fixed.x = TRUE`) flavour — the default for SEM with
+      exogenous covariates — is fully supported: the mean marginalisation
+      factorises blockwise, so each unit is scored by the difference of two
+      exchangeable conditionals, with the frozen-covariate term entering as
+      an exact constant.
 
   See "Mean structures" vignette for details, including when model comparisons across the two mean treatments are meaningful.
 * `predict()` now centres the conditioning data on the model-implied means

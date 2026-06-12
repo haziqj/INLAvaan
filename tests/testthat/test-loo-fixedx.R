@@ -361,3 +361,37 @@ test_that("compare(loo = TRUE) enforces the flavour rules", {
     "mix joint and conditional"
   )
 })
+
+test_that("Conditional flavour works without a mean structure", {
+  # Regression test: this combination (the default for SEM with exogenous
+  # covariates) used to abort. The per-unit contribution is the difference
+  # of two exchangeable case-deletion conditionals; the x-block term is a
+  # theta-free constant evaluated at the frozen covariate moments.
+  mod_x <- "
+    visual  =~ x1 + x2 + x3
+    visual  ~ grade
+  "
+  dat_x <- lavaan::HolzingerSwineford1939[, c("x1", "x2", "x3", "grade")]
+  fit <- asem(mod_x, dat_x, verbose = FALSE, test = "none", nsamp = 3)
+  expect_false(fit@Model@meanstructure)
+  res <- loo(fit)
+  int <- get_inlavaan_internal(fit)
+  Y <- int$lavdata@X[[1L]]
+  n <- nrow(Y)
+  cc <- n / (n - 1)
+  ybar <- colMeans(Y)
+  x_idx <- int$lavsamplestats@x.idx[[1L]]
+  Sg <- loo_grad_cache(int$theta_star, int$lavmodel, int$partable)$mom$Sigma
+  ldmvn <- function(y, mu, S) {
+    ch <- chol(S)
+    d <- backsolve(ch, y - mu, transpose = TRUE)
+    -0.5 * (length(y) * log(2 * pi) + 2 * sum(log(diag(ch))) + sum(d^2))
+  }
+  ii <- c(1L, 150L, n)
+  l_closed <- vapply(ii, function(i) {
+    ybar_m <- (n * ybar - Y[i, ]) / (n - 1)
+    ldmvn(Y[i, ], ybar_m, cc * Sg) -
+      ldmvn(Y[i, x_idx], ybar_m[x_idx], cc * Sg[x_idx, x_idx, drop = FALSE])
+  }, numeric(1))
+  expect_equal(res$per_unit$l_star[ii], l_closed, tolerance = 1e-10)
+})
