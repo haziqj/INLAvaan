@@ -129,29 +129,29 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [130ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [132ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [152ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [146ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.222σ. [478ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.223σ. [487ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 23/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [3.1s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 24/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [2.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [344ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [387ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [799ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [897ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing Taylor LOO.</span></span>
-<span><span class="co">#&gt; ✔ Computing Taylor LOO. [253ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing Taylor LOO. [249ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing WAIC from the posterior draws.</span></span>
-<span><span class="co">#&gt; ✔ Computing WAIC from the posterior draws. [231ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing WAIC from the posterior draws. [268ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="va">fit1</span><span class="op">@</span><span class="va">Data</span><span class="op">@</span><span class="va">nobs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
@@ -167,8 +167,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Marginal log-likelihood                    -818.478 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.499</span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                    -818.479 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.506</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 </span></span>
 <span><span class="co">#&gt;        1.808        1.750        0.943        0.805        1.472        1.061 </span></span>
@@ -181,9 +181,9 @@
 <span><span class="co">#&gt;       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 </span></span>
 <span><span class="co">#&gt;        1.537        6.752        2.038        3.983        0.506        1.439 </span></span>
 <span><span class="co">#&gt; dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 </span></span>
-<span><span class="co">#&gt;        0.139        5.424        5.533        4.107        7.250        6.634 </span></span>
+<span><span class="co">#&gt;        0.139        5.424        5.534        4.107        7.250        6.635 </span></span>
 <span><span class="co">#&gt;         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 </span></span>
-<span><span class="co">#&gt;        8.306        6.833        6.639        5.223        8.266        6.156</span></span></code></pre></div>
+<span><span class="co">#&gt;        8.307        6.834        6.639        5.224        8.267        6.157</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="full-information-maximum-likelihood-fiml">Full Information Maximum Likelihood (FIML)<a class="anchor" aria-label="anchor" href="#full-information-maximum-likelihood-fiml"></a>
 </h2>
@@ -191,24 +191,51 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [245ms]</span></span>
+<span><span class="co">#&gt; ✔ Finding posterior mode. [266ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [233ms]</span></span>
+<span><span class="co">#&gt; ✔ Computing the Hessian. [216ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.160σ. [491ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.194σ. [512ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 14/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 38/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [5.1s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 19/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [4s]</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
+<span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [414ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [310ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [1.4s]</span></span>
+<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [735ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.5.9002 ended normally after 93 iterations</span></span>
@@ -222,23 +249,23 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Marginal log-likelihood                   -1414.868 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.005</span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                   -1415.513 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              1.000</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 </span></span>
-<span><span class="co">#&gt;        2.214        1.835        0.650        0.791        0.954        1.026 </span></span>
+<span><span class="co">#&gt;        2.703        2.413        1.375        1.236        1.438        1.839 </span></span>
 <span><span class="co">#&gt;    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 </span></span>
-<span><span class="co">#&gt;        1.050        1.287        1.299        0.524        0.756        0.482 </span></span>
+<span><span class="co">#&gt;        1.567        1.963        3.014        1.500        1.094        3.908 </span></span>
 <span><span class="co">#&gt;       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 </span></span>
-<span><span class="co">#&gt;        0.898        3.316        0.301        0.365        1.294        0.084 </span></span>
+<span><span class="co">#&gt;        6.535       11.466        3.516        4.883        7.183        0.207 </span></span>
 <span><span class="co">#&gt;       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 </span></span>
-<span><span class="co">#&gt;        0.136        0.511        1.699        7.448        3.408        2.945 </span></span>
+<span><span class="co">#&gt;        1.016        1.008        5.546       14.907        6.945        6.979 </span></span>
 <span><span class="co">#&gt;       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 </span></span>
-<span><span class="co">#&gt;        1.794        5.910        2.073        3.682        0.462        4.558 </span></span>
+<span><span class="co">#&gt;        4.439       12.553        4.898        8.195        0.980       11.150 </span></span>
 <span><span class="co">#&gt; dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 </span></span>
-<span><span class="co">#&gt;        0.206        5.060        4.791        3.557        5.462        5.787 </span></span>
+<span><span class="co">#&gt;       11.336        5.060        4.791        3.557        5.462        5.780 </span></span>
 <span><span class="co">#&gt;         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 </span></span>
-<span><span class="co">#&gt;        7.158        5.253        5.356        4.092        6.855        4.422</span></span></code></pre></div>
+<span><span class="co">#&gt;        7.155        5.250        5.354        4.104        6.853        4.423</span></span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">

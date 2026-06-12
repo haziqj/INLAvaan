@@ -44,6 +44,16 @@
 
 ### Minor improvements and fixes
 
+- Saturated-means fast path: when the mean structure is saturated (all
+  intercepts free and unconstrained with normal priors, no nonzero
+  latent means), the posterior is exactly block-diagonal between the
+  intercepts and the covariance parameters at the mode. The Hessian
+  intercept block is now computed analytically with an exact zero cross
+  block (finite differences run over the covariance columns only), and
+  the skew-normal marginal scans skip the intercept axes, emitting their
+  exact Gaussian marginals directly. About 25% faster on typical CFA/SEM
+  fits, with results identical to within finite-difference noise.
+
 ### Bug fixes
 
 - Models fitted with `meanstructure = FALSE` now use a proper Bayesian
@@ -65,6 +75,11 @@
   - Requesting `meanstructure = FALSE` for a two-level model now warns
     and fits with `meanstructure = TRUE` (the mean structure is required
     there).
+  - The conditional (`fixed.x = TRUE`) flavour — the default for SEM
+    with exogenous covariates — is fully supported: the mean
+    marginalisation factorises blockwise, so each unit is scored by the
+    difference of two exchangeable conditionals, with the
+    frozen-covariate term entering as an exact constant.
 
   See “Mean structures” vignette for details, including when model
   comparisons across the two mean treatments are meaningful.
@@ -81,6 +96,11 @@
   of observed variables from models without a mean structure now include
   the saturated (sample) means, so posterior predictive replicates live
   on the data scale instead of being centred at zero.
+
+- The PPP’s observed discrepancy now uses the unbiased (divisor n-1)
+  sample covariance, matching the scale of the Wishart-replicated
+  covariances it is compared against; previously the divisor-n form made
+  the PPP very slightly optimistic (an O(1/n) effect, all models).
 
 - [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   (and the merged parameter table, fitted values, and implied moments)

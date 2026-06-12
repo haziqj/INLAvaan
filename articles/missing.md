@@ -41,29 +41,29 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [130ms]
+#> ✔ Finding posterior mode. [132ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [152ms]
+#> ✔ Computing the Hessian. [146ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.222σ. [478ms]
+#> ✔ VB correction; mean |δ| = 0.223σ. [487ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 23/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.1s]
+#> ⠹ Fitting 24/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [2.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [344ms]
+#> ✔ Adjusting copula correlations (NORTA). [387ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [799ms]
+#> ✔ Posterior sampling and summarising. [897ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [253ms]
+#> ✔ Computing Taylor LOO. [249ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [231ms]
+#> ✔ Computing WAIC from the posterior draws. [268ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -79,8 +79,8 @@ print(fit1)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -818.478 
-#>    PPP (Chi-square)                              0.499
+#>    Marginal log-likelihood                    -818.479 
+#>    PPP (Chi-square)                              0.506
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        1.808        1.750        0.943        0.805        1.472        1.061 
@@ -93,9 +93,9 @@ coef(fit1)
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
 #>        1.537        6.752        2.038        3.983        0.506        1.439 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>        0.139        5.424        5.533        4.107        7.250        6.634 
+#>        0.139        5.424        5.534        4.107        7.250        6.635 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        8.306        6.833        6.639        5.223        8.266        6.156
+#>        8.307        6.834        6.639        5.224        8.267        6.157
 ```
 
 ## Full Information Maximum Likelihood (FIML)
@@ -104,24 +104,51 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [245ms]
+#> ✔ Finding posterior mode. [266ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [233ms]
+#> ✔ Computing the Hessian. [216ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.160σ. [491ms]
+#> ✔ VB correction; mean |δ| = 0.194σ. [512ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 14/42 skew-normal marginals.
-#> ⠸ Fitting 38/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [5.1s]
+#> ⠹ Fitting 19/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [4s]
 #> 
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
+#> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [414ms]
+#> ✔ Adjusting copula correlations (NORTA). [310ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.4s]
+#> ✔ Posterior sampling and summarising. [735ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.5.9002 ended normally after 93 iterations
@@ -135,23 +162,23 @@ print(fit2)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1414.868 
-#>    PPP (Chi-square)                              0.005
+#>    Marginal log-likelihood                   -1415.513 
+#>    PPP (Chi-square)                              1.000
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        2.214        1.835        0.650        0.791        0.954        1.026 
+#>        2.703        2.413        1.375        1.236        1.438        1.839 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        1.050        1.287        1.299        0.524        0.756        0.482 
+#>        1.567        1.963        3.014        1.500        1.094        3.908 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.898        3.316        0.301        0.365        1.294        0.084 
+#>        6.535       11.466        3.516        4.883        7.183        0.207 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.136        0.511        1.699        7.448        3.408        2.945 
+#>        1.016        1.008        5.546       14.907        6.945        6.979 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.794        5.910        2.073        3.682        0.462        4.558 
+#>        4.439       12.553        4.898        8.195        0.980       11.150 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>        0.206        5.060        4.791        3.557        5.462        5.787 
+#>       11.336        5.060        4.791        3.557        5.462        5.780 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        7.158        5.253        5.356        4.092        6.855        4.422
+#>        7.155        5.250        5.354        4.104        6.853        4.423
 ```
 
 ``` r

@@ -71,7 +71,13 @@ $`\bar{\mathbf{y}}`$; and posterior predictive replicates from
 [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) draw
 the means from their posterior, inflating the predictive covariance to
 $`(1 + \tfrac1n)\boldsymbol\Sigma`$ exactly as estimated intercepts
-would.
+would. Models with exogenous covariates (`fixed.x = TRUE`, the lavaan
+default — including binary covariates, whose moments stay frozen at
+their sample values and are never given a Gaussian model) are fully
+supported: the mean marginalisation factorises blockwise, and
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)/[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)
+score each unit by the difference of two exchangeable conditionals, with
+the frozen-covariate term entering as an exact constant.
 
 ## Worked example: a measurement invariance ladder
 
@@ -154,7 +160,7 @@ compare(fit_f, fit_t, loo = TRUE)
 #>  fit_t   30   -3885.211 -44.072 7535.527 29.756 -3769.109 42.945 32.433
 #>  elpd_diff se_diff
 #>      0.000   0.000
-#>     -0.021   0.301
+#>     -0.022   0.301
 ```
 
 The two ELPDs agree closely: both estimate

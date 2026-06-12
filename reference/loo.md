@@ -226,28 +226,28 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [121ms]
+#> ✔ Finding posterior mode. [114ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [60ms]
+#> ✔ Computing the Hessian. [57ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [117ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [118ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [1.2s]
+#> ✔ Fitting 30/30 skew-normal marginals. [827ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [177ms]
+#> ✔ Adjusting copula correlations (NORTA). [146ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [548ms]
+#> ✔ Posterior sampling and summarising. [617ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [501ms]
+#> ✔ Computing Taylor LOO. [453ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [221ms]
+#> ✔ Computing WAIC from the posterior draws. [248ms]
 #> 
 
 # Leave-one-subject-out (LOSO) from the single fit -- no refitting
@@ -262,19 +262,19 @@ res
 #> looic      7538.2 86.0
 head(res$per_unit)
 #>   unit nobs    l_star score_norm     lpd_1     lpd_2 log_cpo_1 log_cpo_2
-#> 1    1    1 -17.30842   6.635871 -17.19447 -17.24144 -17.42238 -17.47302
-#> 2    2    1 -13.76823   5.418308 -13.68503 -13.75553 -13.85144 -13.92648
-#> 3    3    1 -11.10669   3.789631 -11.07093 -11.16168 -11.14245 -11.23559
-#> 4    4    1 -10.25020   2.575336 -10.23619 -10.28284 -10.26422 -10.31190
-#> 5    5    1 -10.70254   2.975326 -10.68907 -10.73622 -10.71601 -10.76423
-#> 6    6    1 -13.36953   4.983695 -13.30783 -13.39522 -13.43123 -13.52280
+#> 1    1    1 -17.30842   6.635871 -17.19447 -17.24144 -17.42237 -17.47301
+#> 2    2    1 -13.76823   5.418304 -13.68502 -13.75552 -13.85143 -13.92648
+#> 3    3    1 -11.10669   3.789637 -11.07093 -11.16168 -11.14245 -11.23559
+#> 4    4    1 -10.25020   2.575335 -10.23618 -10.28284 -10.26422 -10.31190
+#> 5    5    1 -10.70254   2.975327 -10.68907 -10.73622 -10.71601 -10.76423
+#> 6    6    1 -13.36953   4.983693 -13.30783 -13.39522 -13.43123 -13.52280
 #>      det_term   ok
-#> 1 -0.04901350 TRUE
-#> 2 -0.07241569 TRUE
-#> 3 -0.09242444 TRUE
-#> 4 -0.04760163 TRUE
-#> 5 -0.04816588 TRUE
-#> 6 -0.08964244 TRUE
+#> 1 -0.04901313 TRUE
+#> 2 -0.07241546 TRUE
+#> 3 -0.09242052 TRUE
+#> 4 -0.04760200 TRUE
+#> 5 -0.04816499 TRUE
+#> 6 -0.08964209 TRUE
 
 # Score a submodel without refitting: condition the Laplace summary on the
 # visual ~~ speed covariance being zero, then evaluate at that summary
@@ -308,31 +308,31 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [596ms]
+#> ✔ Finding posterior mode. [899ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [306ms]
+#> ✔ Computing the Hessian. [320ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [470ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [525ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 13/34 skew-normal marginals.
-#> ⠸ Fitting 25/34 skew-normal marginals.
-#> ✔ Fitting 34/34 skew-normal marginals. [7.8s]
+#> ⠹ Fitting 6/34 skew-normal marginals.
+#> ⠸ Fitting 18/34 skew-normal marginals.
+#> ⠼ Fitting 31/34 skew-normal marginals.
+#> ✔ Fitting 34/34 skew-normal marginals. [8.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [126ms]
+#> ✔ Adjusting copula correlations (NORTA). [144ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.3s]
+#> ✔ Posterior sampling and summarising. [1.5s]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [6.8s]
+#> ✔ Computing Taylor LOO. [7.7s]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [39s]
+#> ✔ Computing WAIC from the posterior draws. [47.9s]
 #> 
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)

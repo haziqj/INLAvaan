@@ -118,28 +118,28 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [229ms]
+#> ✔ Finding posterior mode. [203ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [69ms]
+#> ✔ Computing the Hessian. [74ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [119ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [132ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [406ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [470ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [72ms]
+#> ✔ Adjusting copula correlations (NORTA). [75ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [442ms]
+#> ✔ Posterior sampling and summarising. [513ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [284ms]
+#> ✔ Computing Taylor LOO. [279ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [299ms]
+#> ✔ Computing WAIC from the posterior draws. [313ms]
 #> 
 ```
 
@@ -196,7 +196,7 @@ fit
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -8084.532 
-#>    PPP (Chi-square)                              0.315
+#>    PPP (Chi-square)                              0.316
 ```
 
 As a result, most of the methods that work for `lavaan` objects will
@@ -226,7 +226,7 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -8084.532 
-#>    PPP (Chi-square)                              0.315 
+#>    PPP (Chi-square)                              0.316 
 #> 
 #> Information Criteria:
 #> 
@@ -373,7 +373,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.99 s
+#> 2.12 s
 ```
 
 ### Plot
@@ -407,28 +407,28 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [75ms]
+#> ✔ Finding posterior mode. [114ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [47ms]
+#> ✔ Computing the Hessian. [39ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [92ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [96ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [323ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [326ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [47ms]
+#> ✔ Adjusting copula correlations (NORTA). [42ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [422ms]
+#> ✔ Posterior sampling and summarising. [478ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [289ms]
+#> ✔ Computing Taylor LOO. [253ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [431ms]
+#> ✔ Computing WAIC from the posterior draws. [395ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
