@@ -101,6 +101,32 @@ loo_chain_rule <- function(gll_x, cache) {
 
 # ---- LOSO (single level): per-row log-likelihoods and theta-scores ---------
 
+# Data view for the unit kernels. With an estimated mean structure the
+# units are iid and Y is used as-is. Without one the fit uses the
+# marginalised likelihood (saturated means, flat priors, integrated out),
+# under which units are exchangeable and the coherent unit contribution is
+# the case-deletion conditional
+#   l_i = log phi(y_i; ybar_{-i}, c * Sigma),  c = n / (n - 1),
+# which equals log phi(ytilde_i; 0, Sigma) - (p/2) log c with
+# ytilde_i = sqrt(c) (y_i - ybar). Transforming the data once lets every
+# iid kernel (casewise logliks, mvn scores, chain rule, second-order)
+# apply verbatim -- the zero implied mean is then exact, and the
+# theta-free constant shifts l_i without touching the scores. The
+# transformation always uses the full-data ybar and n, regardless of any
+# `units` subset.
+loso_data_view <- function(lavmodel, lavdata) {
+  Y <- lavdata@X[[1L]]
+  if (isTRUE(lavmodel@meanstructure)) {
+    return(list(Y = Y, l_const = 0))
+  }
+  n <- nrow(Y)
+  cc <- n / (n - 1)
+  list(
+    Y = sqrt(cc) * sweep(Y, 2L, colMeans(Y), "-"),
+    l_const = -0.5 * ncol(Y) * log(cc)
+  )
+}
+
 # Vectorised per-row multivariate normal log-likelihood at fixed moments
 loso_loglik_all <- function(Y, mom) {
   p <- length(mom$mu)
@@ -609,11 +635,20 @@ check_loo_model <- function(int, fn = "loo") {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
   }
   if (!isTRUE(lavmodel@meanstructure)) {
-    cli_warn(
-      "The model has no mean structure: unit log-likelihoods are evaluated
-       at zero means, so absolute ELPD values are biased. Comparisons between
-       models fitted to the same data are unaffected."
-    )
+    # The fit marginalises the saturated means (flat priors), so the unit
+    # contributions are the exact exchangeable case-deletion conditionals
+    # -- no fallback, no bias. The conditional (fixed.x) flavour interacts
+    # with the marginalisation through the frozen covariate moments and is
+    # not derived yet.
+    if (
+      isTRUE(lavmodel@fixed.x) &&
+        length(unlist(int$lavsamplestats@x.idx)) > 0L
+    ) {
+      cli_abort(
+        "{.fn {fn}} does not yet support fixed.x models without a mean
+         structure; refit with {.code meanstructure = TRUE}."
+      )
+    }
   }
   invisible(NULL)
 }
@@ -708,11 +743,12 @@ inlav_loo <- function(
     }
     nobs <- rep(1L, length(units))
   } else if (type == "loso") {
-    Y <- lavdata@X[[1L]]
+    dv <- loso_data_view(lavmodel, lavdata)
+    Y <- dv$Y
     units <- check_loo_units(units, nrow(Y), "rows")
     Y_sub <- Y[units, , drop = FALSE]
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = FALSE)
-    l_star <- loso_loglik_all(Y_sub, cache$mom)
+    l_star <- loso_loglik_all(Y_sub, cache$mom) + dv$l_const
     if (flavour == "conditional") {
       l_star <- l_star - loo_fixedx_const_loso(int, Y_sub, cache$mom)
     }
@@ -921,7 +957,8 @@ waic_from_draws <- function(
     units <- check_loo_units(units, css$J, "clusters")
     nobs <- css$n_j[units]
   } else {
-    Y <- lavdata@X[[1L]]
+    dv <- loso_data_view(lavmodel, lavdata)
+    Y <- dv$Y
     units <- check_loo_units(units, nrow(Y), "rows")
     Y_sub <- Y[units, , drop = FALSE]
     nobs <- rep(1L, length(units))
@@ -948,6 +985,9 @@ waic_from_draws <- function(
     msg_parallel = "Evaluating unit log-likelihoods at {m} draws ({cores} cores)."
   )
   ll_mat <- do.call(rbind, ll_list) # nsamp x n_units
+  if (!two_level) {
+    ll_mat <- ll_mat + dv$l_const # exchangeable constant; 0 with meanstructure
+  }
 
   # Score a fixed.x fit on its conditional likelihood: subtract the
   # frozen-covariate marginal, a per-unit constant across draws

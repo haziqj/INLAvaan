@@ -23,7 +23,7 @@
 #'
 #' Under the default `test = "standard"`, [inlavaan()] computes the WAIC at
 #' fit time by reusing the posterior draws the fit already produced (when
-#' the model is supported, has a mean structure, and `nsamp >= 100`), and
+#' the model is supported and `nsamp >= 100`), and
 #' stores it with the fit: `waic(fit)` then returns the stored result when
 #' called with default arguments, and [fitmeasures()] reports `waic`,
 #' `p_waic`, `se_waic` as part of `"all"` for free. If the `loo` package is
