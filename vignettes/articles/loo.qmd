@@ -243,9 +243,13 @@ INLAvaan deliberately provides just this evaluation API; the search logic is you
 
 ## Practical notes
 
-- **Supported models.** Single-group, complete-data, continuous-indicator
-  models fitted with the `ML` estimator. Multigroup, missing-data, and
-  ordinal (PML) models are not supported yet. Models with exogenous
+- **Supported models.** Complete-data, continuous-indicator models fitted
+  with the `ML` estimator, single-group or multigroup -- groups are
+  independent, so each unit is scored against its own group's moments,
+  with a `group` column in the pointwise table (see the
+  [multigroup article](multigroup.html) for the measurement-invariance
+  workflow). Missing-data, ordinal (PML), and multigroup two-level models
+  are not supported yet. Models with exogenous
   covariates are scored jointly (`fixed.x = FALSE`) or conditionally
   (`fixed.x = TRUE`), following the fitted likelihood, for any covariate
   placement.

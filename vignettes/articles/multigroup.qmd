@@ -1,49 +1,168 @@
 ---
 title: 'Multigroup Analysis'
-# descriotion:
+description: >
+  Measurement invariance testing with multigroup SEM: the configural,
+  metric, and scalar ladder, compared honestly with leave-one-out
+  cross-validation.
 vignette: >
   %\VignetteIndexEntry{Multigroup Analysis}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 knitr:
-  opts_chunk: 
+  opts_chunk:
     collapse: true
     comment: '#>'
+bibliography: ../refs.bib
+toc: true
 ---
 
 ```{r}
 #| label: setup
-#| include: true
+#| include: false
 library(INLAvaan)
+library(lavaan)
+```
 
-# Model comparison on multigroup analysis (measurement invariance)
+## The measurement invariance ladder
+
+Multigroup SEM fits the same model structure to several groups at once,
+with each group keeping its own parameters unless told otherwise.
+The classic application is **measurement invariance** [@meredith1993measurement]:
+does an instrument measure the same construct, on the same scale, across
+groups?
+The question is asked as a ladder of increasingly constrained models:
+
+- **Configural**: same factor structure in every group, all parameters free.
+- **Metric** (weak): loadings constrained equal across groups -- the latent
+  variables are on a common scale, so latent *covariances* can be compared.
+- **Scalar** (strong): loadings and intercepts equal -- observed scores map
+  to latent scores the same way, so latent *means* can be compared.
+
+Each rung is fitted by adding to `group.equal`.
+We use the Holzinger--Swineford data, where 301 children from two schools
+(Pasteur and Grant-White) took nine cognitive tests:
+
+```{r}
+#| label: fit-ladder
+#| message: false
 HS.model <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
   speed   =~ x7 + x8 + x9
 "
-utils::data("HolzingerSwineford1939", package = "lavaan")
+data("HolzingerSwineford1939", package = "lavaan")
 
-# Configural invariance
-fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
-summary(fit1)
-
-# Weak invariance
-fit2 <- acfa(
-  HS.model,
-  data = HolzingerSwineford1939,
-  group = "school",
-  group.equal = "loadings"
-)
-
-# Strong invariance
-fit3 <- acfa(
-  HS.model,
-  data = HolzingerSwineford1939,
-  group = "school",
-  group.equal = c("intercepts", "loadings")
-)
-
-# Compare models
-compare(fit1, fit2, fit3)
+fit_configural <- acfa(HS.model, HolzingerSwineford1939, group = "school",
+                       meanstructure = TRUE, verbose = FALSE)
+fit_metric <- acfa(HS.model, HolzingerSwineford1939, group = "school",
+                   group.equal = "loadings",
+                   meanstructure = TRUE, verbose = FALSE)
+fit_scalar <- acfa(HS.model, HolzingerSwineford1939, group = "school",
+                   group.equal = c("loadings", "intercepts"),
+                   meanstructure = TRUE, verbose = FALSE)
 ```
+
+Cross-group equality constraints are handled exactly (not by penalty):
+the constrained loadings become single free parameters shared by both
+groups.
+A `summary()` of any fit reports the parameters per group.
+
+## Comparing the rungs
+
+`compare()` reports marginal log-likelihoods, Bayes factors, and DIC:
+
+```{r}
+#| label: compare-bf
+compare(fit_configural, fit_metric, fit_scalar)
+```
+
+These are within-flavour comparisons (all three fits model the means with
+proper priors), so the Bayes factors are meaningful here.
+But marginal likelihoods answer a prior-sensitive question -- "which model
+gave these data the highest prior predictive density?" -- and for
+invariance testing we usually want the predictive one: *which rung of the
+ladder predicts new children best?*
+
+`compare(..., loo = TRUE)` answers that with leave-one-out
+cross-validation computed from each single fit -- no refitting, no
+sampling (see the [LOO article](loo.html) for the machinery).
+Groups are independent, so every child is scored against their own
+school's implied moments, and the expected log predictive density (ELPD)
+sums over both schools.
+Differences come with *paired* standard errors, since the same children
+are scored under every model:
+
+```{r}
+#| label: compare-loo
+compare(fit_configural, fit_metric, fit_scalar, loo = TRUE)
+```
+
+The textbook Holzinger--Swineford story appears: metric invariance is
+indistinguishable from configural (the paired difference is well within
+one standard error, so the equal-loadings model -- simpler, with the same
+predictive reach -- is preferred), while scalar invariance costs over
+two standard errors of ELPD: the intercepts genuinely differ between
+schools.
+Note the instructive disagreement with the Bayes factors, which reward
+prior-predictive parsimony and pick the scalar model; on predictive
+grounds the ladder stops at metric.
+
+## Step zero: is there any group difference at all?
+
+The ladder presumes grouping matters.
+That too is a model comparison: the pooled (single-group) model against
+the configural one.
+Units are identified by their case number -- the row of the dataset --
+not by their position in a group, so `compare()` pairs the pooled and
+grouped fits child by child even though the two fits order the data
+differently:
+
+```{r}
+#| label: compare-pooled
+#| message: false
+fit_pooled <- acfa(HS.model, HolzingerSwineford1939,
+                   meanstructure = TRUE, verbose = FALSE)
+compare(fit_pooled, fit_configural, loo = TRUE)
+```
+
+Allowing the two schools their own parameters clearly improves
+prediction, so the multigroup analysis is warranted.
+
+## Pointwise diagnostics by group
+
+`loo()` on a multigroup fit returns the usual per-unit table with a
+`group` column, which makes group-level diagnostics one `tapply` away --
+for instance, how each school contributes to the scalar rung's loss:
+
+```{r}
+#| label: loo-by-group
+loo_metric <- loo(fit_metric)
+loo_scalar <- loo(fit_scalar)
+loo_metric
+
+head(loo_metric$per_unit[, 1:6], 3)
+
+# Where does scalar invariance lose predictive density?
+d <- loo_scalar$per_unit$log_cpo_2 - loo_metric$per_unit$log_cpo_2
+tapply(d, loo_scalar$per_unit$group, sum)
+```
+
+Both schools pay for the intercept constraints, confirming the misfit is
+not driven by a handful of cases in one school.
+
+`waic()` works the same way for multigroup fits, with the same `group`
+column in its pointwise table.
+
+## Means or no means
+
+Measurement invariance needs modelled means from the scalar rung up, but
+the lower rungs can also be fitted without a mean structure
+(`meanstructure = FALSE`, the marginalised-means treatment).
+Marginal likelihoods and Bayes factors are not comparable across the two
+mean treatments, while LOO remains valid across that boundary -- each
+child's leave-one-out conditional is a proper density under either
+treatment, with the exchangeability transformation applied within each
+group.
+See the [mean structures article](meanstructure.html) for the full story.
+
+## References
