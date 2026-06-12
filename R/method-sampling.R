@@ -616,6 +616,13 @@ sampling_impl <- function(
     )
   } # nocov end
 
+  # Without a mean structure, sample_observed_from_model() centres the
+  # draws at zero (nu does not exist); add the saturated (sample) means of
+  # the fitted data so replicates live on the data scale
+  if (!isTRUE(lavmodel@meanstructure) && !isTRUE(prior) && nG == 1L) {
+    y_mat <- sweep(y_mat, 2L, colMeans(int$lavdata@X[[1L]]), "+")
+  }
+
   if (type == "observed") {
     return(y_mat)
   }

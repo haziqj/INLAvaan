@@ -116,3 +116,18 @@ test_that("sampling.inlavaan_internal S3 dispatch works", {
   expect_true(is.matrix(s))
   expect_equal(nrow(s), 5)
 })
+
+test_that("Observed posterior draws are centred without a mean structure", {
+  # Regression test: with meanstructure = FALSE the generative draws were
+  # centred at zero; they must live on the data scale (saturated means).
+  mod_hs <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+  "
+  hs <- lavaan::HolzingerSwineford1939
+  fit <- acfa(mod_hs, hs, meanstructure = FALSE, verbose = FALSE,
+              nsamp = 200, vb_correction = FALSE, test = "none")
+  yrep <- sampling(fit, type = "observed", nsamp = 200, silent = TRUE)
+  ybar <- colMeans(hs[, colnames(yrep)])
+  expect_lt(max(abs(colMeans(yrep) - ybar)), 0.5)
+})

@@ -43,6 +43,10 @@
   drawing factor scores and predicted observed variables. Previously the
   kernels conditioned on raw data, offsetting every factor score by a
   constant that grows with the variable means.
+* `sampling()` and `simulate()` draws of observed variables from models
+  without a mean structure now include the saturated (sample) means, so
+  posterior predictive replicates live on the data scale instead of being
+  centred at zero.
 * `coef()` (and the merged parameter table, fitted values, and implied
   moments) now reports covariance parameters on the covariance scale.
   Previously these slots carried the posterior-mean *correlation*, while
