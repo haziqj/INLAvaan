@@ -38,6 +38,19 @@
 
 ## Bug fixes
 
+* Models fitted with `meanstructure = FALSE` now use a proper Bayesian
+  likelihood: the saturated means are given flat priors and marginalised
+  analytically (closed form), replacing lavaan's profiled likelihood, which
+  is not a valid Bayesian object. Posterior modes recalibrate by the factor
+  n/(n-1) on the covariance side. `loo()` and `waic()` score such fits on
+  the exact exchangeable case-deletion conditionals — the previous
+  zero-mean fallback and its warning are gone, and absolute ELPD values are
+  meaningful and comparable with `meanstructure = TRUE` fits. Posterior
+  predictive draws include the saturated means and their mean-uncertainty.
+  Requesting `meanstructure = FALSE` for a two-level model now warns and
+  fits with `meanstructure = TRUE` (the mean structure is required there).
+  See `vignette("meanstructure")` for details, including when model
+  comparisons across the two mean treatments are meaningful.
 * `predict()` now centres the conditioning data on the model-implied means
   (or the saturated sample means when the model has no mean structure) when
   drawing factor scores and predicted observed variables. Previously the
