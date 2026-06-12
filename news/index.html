@@ -30,7 +30,8 @@
   </ul></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/meanstructure.html">Mean structures</a></li>
+    <li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
     <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul></li>
@@ -66,9 +67,23 @@
 <li>Both criteria can be computed at fit time and stored with the fit. The default <code>test = "standard"</code> does so automatically for supported models with a mean structure. The WAIC reuses the fit’s own posterior draws (when <code>nsamp &gt;= 100</code>), and the LOO runs when its predicted serial cost is within a 10-second budget. <code>test = "loo"</code> forces the LOO regardless of the budget, <code>test = "none"</code> skips everything, and <code>fit &lt;- add_loo(fit)</code> stores it post hoc. Stored results are reused by <code><a href="../reference/loo.html">loo()</a></code>, <code><a href="../reference/waic.html">waic()</a></code>, <code><a href="../reference/fitMeasures.html">fitmeasures()</a></code>, and <code><a href="../reference/compare.html">compare()</a></code>.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="minor-improvements-and-fixes-development-version">Minor improvements and fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-fixes-development-version"></a></h3>
+</div>
+<div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
 <ul><li>
-<code><a href="../reference/INLAvaan-class.html">coef()</a></code> (and the merged parameter table, fitted values, and implied moments) now reports covariance parameters on the covariance scale. Previously these slots carried the posterior-mean <em>correlation</em>, while <code><a href="../reference/INLAvaan-class.html">summary()</a></code> showed the correct sample-based covariance; the discrepancy is visible whenever the relevant standard deviations are far from 1.</li>
+<p>Models fitted with <code>meanstructure = FALSE</code> now use a proper Bayesian likelihood.</p>
+<ul><li>The saturated means are given flat priors and marginalised analytically (closed form), replacing lavaan’s profiled likelihood, which is not a valid Bayesian object.</li>
+<li>Posterior modes recalibrate by the factor n/(n-1) on the covariance side.</li>
+<li>
+<code><a href="../reference/loo.html">loo()</a></code> and <code><a href="../reference/waic.html">waic()</a></code> score such fits on the exact exchangeable case-deletion conditionals. The previous zero-mean fallback and its warning are gone, and absolute ELPD values are meaningful and comparable with <code>meanstructure = TRUE</code> fits.</li>
+<li>Posterior predictive draws include the saturated means and their mean-uncertainty.</li>
+<li>Requesting <code>meanstructure = FALSE</code> for a two-level model now warns and fits with <code>meanstructure = TRUE</code> (the mean structure is required there).</li>
+</ul><p>See “Mean structures” vignette for details, including when model comparisons across the two mean treatments are meaningful.</p>
+</li>
+<li><p><code><a href="../reference/predict.html">predict()</a></code> now centres the conditioning data on the model-implied means (or the saturated sample means when the model has no mean structure) when drawing factor scores and predicted observed variables. Previously the kernels conditioned on raw data, offsetting every factor score by a constant that grows with the variable means.</p></li>
+<li><p><code><a href="../reference/sampling.html">sampling()</a></code> and <code><a href="../reference/simulate.html">simulate()</a></code> draws of observed variables from models without a mean structure now include the saturated (sample) means, so posterior predictive replicates live on the data scale instead of being centred at zero.</p></li>
+<li><p><code><a href="../reference/INLAvaan-class.html">coef()</a></code> (and the merged parameter table, fitted values, and implied moments) now reports covariance parameters on the covariance scale. Previously these slots carried the posterior-mean <em>correlation</em>, while <code><a href="../reference/INLAvaan-class.html">summary()</a></code> showed the correct sample-based covariance; the discrepancy is visible whenever the relevant standard deviations are far from 1.</p></li>
 </ul></div>
 </div>
     <div class="section level2">

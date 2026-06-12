@@ -79,9 +79,9 @@ jointly (see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)).
 Under the default `test = "standard"`,
 [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)
 computes the WAIC at fit time by reusing the posterior draws the fit
-already produced (when the model is supported, has a mean structure, and
-`nsamp >= 100`), and stores it with the fit: `waic(fit)` then returns
-the stored result when called with default arguments, and
+already produced (when the model is supported and `nsamp >= 100`), and
+stores it with the fit: `waic(fit)` then returns the stored result when
+called with default arguments, and
 [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
 reports `waic`, `p_waic`, `se_waic` as part of `"all"` for free. If the
 `loo` package is attached it masks this generic, but dispatch on
@@ -104,28 +104,29 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [118ms]
+#> ✔ Finding posterior mode. [99ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [65ms]
+#> ✔ Computing the Hessian. [60ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [132ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [124ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
+#> ⠹ Fitting 20/30 skew-normal marginals.
 #> ✔ Fitting 30/30 skew-normal marginals. [1.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [184ms]
+#> ✔ Adjusting copula correlations (NORTA). [167ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [636ms]
+#> ✔ Posterior sampling and summarising. [551ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [476ms]
+#> ✔ Computing Taylor LOO. [508ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [247ms]
+#> ✔ Computing WAIC from the posterior draws. [219ms]
 #> 
 waic(fit)
 #> WAIC (INLAvaan)

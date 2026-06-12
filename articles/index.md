@@ -31,6 +31,12 @@
   per-cluster scores, model comparison with paired standard errors,
   WAIC, and scoring submodels without refitting.
 
+- [Mean
+  structures](https://inlavaan.haziqj.ml/articles/meanstructure.md):
+
+  How INLAvaan treats the mean structure: modelled, marginalised, or
+  fixed, and when model comparisons across these choices are meaningful.
+
 - [Mediation
   Analysis](https://inlavaan.haziqj.ml/articles/mediation.md):
 

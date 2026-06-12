@@ -118,22 +118,28 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [108ms]
+#> ✔ Finding posterior mode. [229ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [120ms]
+#> ✔ Computing the Hessian. [69ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [101ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [119ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [262ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [406ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [80ms]
+#> ✔ Adjusting copula correlations (NORTA). [72ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [520ms]
+#> ✔ Posterior sampling and summarising. [442ms]
+#> 
+#> ℹ Computing Taylor LOO.
+#> ✔ Computing Taylor LOO. [284ms]
+#> 
+#> ℹ Computing WAIC from the posterior draws.
+#> ✔ Computing WAIC from the posterior draws. [299ms]
 #> 
 ```
 
@@ -179,7 +185,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.5.9002 ended normally after 62 iterations
+#> INLAvaan 0.2.5.9002 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -189,8 +195,8 @@ fit
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -8068.822 
-#>    PPP (Chi-square)                              0.316
+#>    Marginal log-likelihood                   -8084.532 
+#>    PPP (Chi-square)                              0.315
 ```
 
 As a result, most of the methods that work for `lavaan` objects will
@@ -203,13 +209,13 @@ also work for `INLAvaan` objects. The most common ones are probably
 # Inspect coefficients
 coef(fit)
 #>   eta1=~y2   eta1=~y3   eta2=~y5   eta2=~y6  eta2~eta1     y1~~y1     y2~~y2 
-#>      0.873      0.601      0.786      0.582      0.272      0.486      0.499 
+#>      0.873      0.601      0.786      0.582      0.272      0.487      0.499 
 #>     y3~~y3     y4~~y4     y5~~y5     y6~~y6 eta1~~eta1 eta2~~eta2 
-#>      0.489      0.476      0.465      0.523      1.051      0.933
+#>      0.489      0.476      0.465      0.523      1.052      0.934
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.5.9002 ended normally after 62 iterations
+#> INLAvaan 0.2.5.9002 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -219,12 +225,12 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -8068.822 
-#>    PPP (Chi-square)                              0.316 
+#>    Marginal log-likelihood                   -8084.532 
+#>    PPP (Chi-square)                              0.315 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            16031.997 
+#>    Deviance (DIC)                            16063.435 
 #>    Effective parameters (pD)                    13.080 
 #> 
 #> Parameter Estimates:
@@ -240,7 +246,7 @@ summary(fit)
 #>     y3                0.601    0.032    0.540    0.665    0.003    normal(0,10)
 #>   eta2 =~                                                                      
 #>     y4                1.000                                                    
-#>     y5                0.786    0.041    0.707    0.870    0.006    normal(0,10)
+#>     y5                0.786    0.042    0.707    0.870    0.006    normal(0,10)
 #>     y6                0.582    0.034    0.517    0.650    0.003    normal(0,10)
 #> 
 #> Regressions:
@@ -250,14 +256,14 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .y1                0.486    0.047    0.395    0.580    0.004 gamma(1,.5)[sd]
-#>    .y2                0.499    0.039    0.425    0.576    0.002 gamma(1,.5)[sd]
-#>    .y3                0.489    0.027    0.438    0.543    0.000 gamma(1,.5)[sd]
-#>    .y4                0.476    0.050    0.378    0.573    0.006 gamma(1,.5)[sd]
-#>    .y5                0.465    0.035    0.398    0.534    0.002 gamma(1,.5)[sd]
-#>    .y6                0.523    0.028    0.469    0.580    0.000 gamma(1,.5)[sd]
-#>     eta1              1.051    0.077    0.905    1.207    0.003 gamma(1,.5)[sd]
-#>    .eta2              0.933    0.073    0.796    1.081    0.004 gamma(1,.5)[sd]
+#>    .y1                0.487    0.047    0.395    0.580    0.004 gamma(1,.5)[sd]
+#>    .y2                0.499    0.039    0.425    0.577    0.002 gamma(1,.5)[sd]
+#>    .y3                0.489    0.027    0.439    0.544    0.000 gamma(1,.5)[sd]
+#>    .y4                0.476    0.050    0.379    0.574    0.006 gamma(1,.5)[sd]
+#>    .y5                0.465    0.035    0.399    0.535    0.002 gamma(1,.5)[sd]
+#>    .y6                0.523    0.028    0.470    0.581    0.000 gamma(1,.5)[sd]
+#>     eta1              1.052    0.077    0.906    1.209    0.003 gamma(1,.5)[sd]
+#>    .eta2              0.934    0.073    0.797    1.082    0.004 gamma(1,.5)[sd]
 ```
 
 It’s possible to request posterior medians and modes in the summary
@@ -281,12 +287,12 @@ length(eta_preds)
 #> [1] 100
 head(eta_preds[[1]])
 #>            eta1       eta2
-#> [1,]  1.1999675 -0.6292347
-#> [2,]  0.7647076  0.1813439
-#> [3,] -0.9167582 -1.3952338
-#> [4,]  0.4804678 -0.3024567
-#> [5,]  2.4654322 -1.9053127
-#> [6,] -1.6462564 -0.8515600
+#> [1,]  1.2348408 -0.6375817
+#> [2,]  0.7994668  0.1735500
+#> [3,] -0.8819277 -1.4033588
+#> [4,]  0.5154381 -0.3105861
+#> [5,]  2.5007227 -1.9136126
+#> [6,] -1.6114331 -0.8595996
 ```
 
 This is an S3 object with a summary method that provides posterior means
@@ -301,7 +307,7 @@ summ_eta <- summary(eta_preds)
 str(summ_eta)
 #> List of 7
 #>  $ group_id: NULL
-#>  $ Mean    : num [1:1000, 1:2] 0.914264 0.717987 -1.136532 -0.000477 1.346538 ...
+#>  $ Mean    : num [1:1000, 1:2] 0.9486 0.7523 -1.1022 0.0339 1.3809 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
@@ -309,31 +315,31 @@ str(summ_eta)
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 2.5%    : num [1:1000, 1:2] 0.1689 -0.0632 -2.1355 -0.8158 0.545 ...
+#>  $ 2.5%    : num [1:1000, 1:2] 0.2009 -0.0306 -2.0993 -0.7831 0.5795 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 50%     : num [1:1000, 1:2] 0.8351 0.7028 -1.0999 -0.0181 1.3655 ...
+#>  $ 50%     : num [1:1000, 1:2] 0.8701 0.7347 -1.0661 0.0155 1.4003 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ 97.5%   : num [1:1000, 1:2] 1.914 1.616 -0.445 0.779 2.236 ...
+#>  $ 97.5%   : num [1:1000, 1:2] 1.949 1.65 -0.411 0.811 2.273 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
-#>  $ Mode    : num [1:1000, 1:2] 0.7846 0.6962 -1.0089 -0.0916 1.3801 ...
+#>  $ Mode    : num [1:1000, 1:2] 0.8178 0.7294 -0.9755 -0.0624 1.4156 ...
 #>   ..- attr(*, "dimnames")=List of 2
 #>   .. ..$ : NULL
 #>   .. ..$ : chr [1:2] "eta1" "eta2"
 #>  - attr(*, "class")= chr "summary.predict.inlavaan_internal"
 head(summ_eta$Mean)
-#>               eta1         eta2
-#> [1,]  0.9142635768  0.005885198
-#> [2,]  0.7179869835 -0.301938416
-#> [3,] -1.1365324555 -1.236308811
-#> [4,] -0.0004772403 -0.081212183
-#> [5,]  1.3465382485 -1.545478546
-#> [6,] -1.7889700851 -0.914705390
+#>             eta1        eta2
+#> [1,]  0.94862299 -0.00171860
+#> [2,]  0.75234902 -0.30954587
+#> [3,] -1.10218436 -1.24392813
+#> [4,]  0.03388246 -0.08880279
+#> [5,]  1.38090771 -1.55316748
+#> [6,] -1.75458945 -0.92234954
 ```
 
 ### Diagnostics
@@ -352,9 +358,9 @@ any problematic parameters.
 
 diagnostics(fit)
 #>          npar         nsamp     converged    iterations      grad_inf 
-#>            13          1000             1            62      4.30e-03 
+#>            13          1000             1            64      3.46e-03 
 #>  grad_inf_rel       grad_l2     hess_cond    vb_applied vb_kld_global 
-#>      4.56e-02      6.47e-03      2.99e+01             1        6.3014 
+#>      7.60e-02      6.60e-03      2.99e+01             1        6.3014 
 #>       kld_max      kld_mean      nmad_max     nmad_mean 
 #>        0.0087        0.0023        0.0064        0.0031
 ```
@@ -367,7 +373,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.26 s
+#> 1.99 s
 ```
 
 ### Plot
@@ -401,31 +407,36 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [56ms]
+#> ✔ Finding posterior mode. [75ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [30ms]
+#> ✔ Computing the Hessian. [47ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [75ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [92ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [214ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [323ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [50ms]
+#> ✔ Adjusting copula correlations (NORTA). [47ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [475ms]
+#> ✔ Posterior sampling and summarising. [422ms]
+#> 
+#> ℹ Computing Taylor LOO.
+#> ✔ Computing Taylor LOO. [289ms]
+#> 
+#> ℹ Computing WAIC from the posterior draws.
+#> ✔ Computing WAIC from the posterior draws. [431ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
-#>  Model npar Marg.Loglik   logBF     DIC     pD
-#>    fit   13   -8068.822   0.000 16032.0 13.080
-#>   fit2   12   -8088.685 -19.862 16081.4 11.719
+#>  Model npar Marg.Loglik   logBF      DIC     pD
+#>    fit   13   -8084.532   0.000 16063.43 13.080
+#>   fit2   12   -8104.369 -19.837 16112.78 11.719
 ```
 
 As a note, there have been several criticisms of the use of Bayes

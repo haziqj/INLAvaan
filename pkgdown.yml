@@ -9,13 +9,14 @@ articles:
   articles/growth: growth.html
   INLAvaan: INLAvaan.html
   articles/loo: loo.html
+  articles/meanstructure: meanstructure.html
   mediation: mediation.html
   articles/missing: missing.html
   articles/multigroup: multigroup.html
   articles/multilevel: multilevel.html
   articles/sampling: sampling.html
   articles/sem: sem.html
-last_built: 2026-06-12T10:24Z
+last_built: 2026-06-12T12:54Z
 urls:
   reference: https://inlavaan.haziqj.ml/reference
   article: https://inlavaan.haziqj.ml/articles

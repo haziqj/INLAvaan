@@ -87,12 +87,12 @@ dim(theta_post)
 #> [1] 2000   21
 head(theta_post[, 1:4])
 #>      visual=~x2 visual=~x3 textual=~x5 textual=~x6
-#> [1,]  0.6216553  0.9058101    1.124324   0.9962592
-#> [2,]  0.5512186  0.8048596    1.213441   0.9163449
-#> [3,]  0.5589616  0.7005065    0.980363   0.9248274
-#> [4,]  0.5567215  0.7637923    1.141509   1.0359675
-#> [5,]  0.5948079  1.0228481    1.073171   0.8665535
-#> [6,]  0.3633649  0.7067464    1.089029   0.8697055
+#> [1,]  0.6217858  0.9061140   1.1243541   0.9963907
+#> [2,]  0.5512358  0.8050023   1.2136311   0.9163359
+#> [3,]  0.5589911  0.7004874   0.9801615   0.9248339
+#> [4,]  0.5567474  0.7638705   1.1415682   1.0361746
+#> [5,]  0.5948947  1.0233424   1.0731154   0.8664639
+#> [6,]  0.3630961  0.7067411   1.0889999   0.8696213
 ```
 
 ### Latent and observed samples
@@ -221,7 +221,7 @@ sensible ranges for the observed data.
 ``` r
 
 y_prior <- sampling(fit, type = "observed", nsamp = 10000, prior = TRUE)
-#> Prior sampling: 6253 of 16253 draws (38.5%) rejected (non-PD model-implied
+#> Prior sampling: 6106 of 16106 draws (37.9%) rejected (non-PD model-implied
 #> covariance).
 y_post  <- sampling(fit, type = "observed", nsamp = 10000, prior = FALSE)
 ```

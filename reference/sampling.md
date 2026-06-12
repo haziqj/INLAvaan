@@ -140,35 +140,40 @@ for Bayesian fit indices.
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [21ms]
+#> ✔ Finding posterior mode. [28ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [20ms]
+#> ✔ Computing the Hessian. [23ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.246σ. [53ms]
+#> ✔ VB correction; mean |δ| = 0.247σ. [67ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fitting 6/6 skew-normal marginals. [71ms]
+#> ✔ Fitting 6/6 skew-normal marginals. [95ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [20ms]
+#> ✔ Adjusting copula correlations (NORTA). [19ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [403ms]
+#> ✔ Posterior sampling and summarising. [343ms]
+#> 
+#> ℹ Computing Taylor LOO.
+#> ✔ Computing Taylor LOO. [363ms]
+#> 
+#> ℹ Computing WAIC from the posterior draws.
+#> ✔ Computing WAIC from the posterior draws. [138ms]
 #> 
 
 # Posterior samples of lavaan-side parameters
 samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  1.0307893   1.635721 1.1200021 1.0919379 0.5682202      0.3035378
-#> [2,]  1.2013222   1.654348 1.0328385 1.1689749 0.4793052      0.2966249
-#> [3,]  0.7488217   1.232479 1.0075217 1.0677694 0.4816854      0.5035832
-#> [4,]  0.9765571   1.336860 0.8771550 0.9747683 0.4851002      0.3312131
-#> [5,]  0.9436880   1.455088 0.9709973 1.0990849 0.5836126      0.3589506
-#> [6,]  0.6559672   1.240783 0.7515056 1.1436489 0.3764374      0.4751255
+#> [1,]  1.0312735   1.636625 1.1242859 1.0956246 0.5700118      0.3042866
+#> [2,]  1.2021314   1.655286 1.0366787 1.1730586 0.4806630      0.2973419
+#> [3,]  0.7488028   1.232729 1.0112199 1.0713456 0.4830374      0.5051963
+#> [4,]  0.9769379   1.337280 0.8802030 0.9778821 0.4864733      0.3320573
+#> [5,]  0.9440132   1.455698 0.9745138 1.1028150 0.5854760      0.3599197
+#> [6,]  0.6558039   1.241044 0.7539142 1.1476144 0.3773284      0.4765986
 
 # Compare copula vs Gaussian sampling
 s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)

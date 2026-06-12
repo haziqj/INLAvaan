@@ -42,7 +42,45 @@
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
   and [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md).
 
+### Minor improvements and fixes
+
 ### Bug fixes
+
+- Models fitted with `meanstructure = FALSE` now use a proper Bayesian
+  likelihood.
+
+  - The saturated means are given flat priors and marginalised
+    analytically (closed form), replacing lavaan’s profiled likelihood,
+    which is not a valid Bayesian object.
+  - Posterior modes recalibrate by the factor n/(n-1) on the covariance
+    side.
+  - [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+    [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) score such
+    fits on the exact exchangeable case-deletion conditionals. The
+    previous zero-mean fallback and its warning are gone, and absolute
+    ELPD values are meaningful and comparable with
+    `meanstructure = TRUE` fits.
+  - Posterior predictive draws include the saturated means and their
+    mean-uncertainty.
+  - Requesting `meanstructure = FALSE` for a two-level model now warns
+    and fits with `meanstructure = TRUE` (the mean structure is required
+    there).
+
+  See “Mean structures” vignette for details, including when model
+  comparisons across the two mean treatments are meaningful.
+
+- [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) now
+  centres the conditioning data on the model-implied means (or the
+  saturated sample means when the model has no mean structure) when
+  drawing factor scores and predicted observed variables. Previously the
+  kernels conditioned on raw data, offsetting every factor score by a
+  constant that grows with the variable means.
+
+- [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) and
+  [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) draws
+  of observed variables from models without a mean structure now include
+  the saturated (sample) means, so posterior predictive replicates live
+  on the data scale instead of being centred at zero.
 
 - [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   (and the merged parameter table, fitted values, and implied moments)

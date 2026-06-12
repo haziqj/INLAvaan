@@ -107,15 +107,15 @@ bf
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 100): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc 
-#>        0.091        0.957        0.920        0.903 
+#>        0.115        0.933        0.877        0.851 
 summary(bf)
 #> 
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 100):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.101 0.090
-#> BGammaHat    0.957 0.004 0.948 0.954 0.957 0.960  0.964 0.958
-#> adjBGammaHat 0.920 0.008 0.904 0.915 0.921 0.926  0.933 0.923
-#> BMc          0.903 0.010 0.883 0.897 0.904 0.909  0.918 0.907
+#> BRMSEA       0.115 0.004 0.109 0.112 0.114 0.117  0.122 0.113
+#> BGammaHat    0.933 0.004 0.925 0.931 0.934 0.936  0.940 0.935
+#> adjBGammaHat 0.877 0.007 0.861 0.872 0.878 0.882  0.889 0.880
+#> BMc          0.851 0.009 0.832 0.845 0.853 0.857  0.866 0.855
 # }
 ```

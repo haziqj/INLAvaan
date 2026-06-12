@@ -115,24 +115,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [227ms]
+#> ✔ Finding posterior mode. [206ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [224ms]
+#> ✔ Computing the Hessian. [205ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [563ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [507ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 7/60 skew-normal marginals.
-#> ⠸ Fitting 34/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [6.5s]
+#> ⠹ Fitting 15/60 skew-normal marginals.
+#> ⠸ Fitting 45/60 skew-normal marginals.
+#> ✔ Fitting 60/60 skew-normal marginals. [6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [365ms]
+#> ✔ Adjusting copula correlations (NORTA). [337ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1s]
+#> ✔ Posterior sampling and summarising. [876ms]
 #> 
 
 # Weak invariance
@@ -143,25 +143,23 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [187ms]
+#> ✔ Finding posterior mode. [186ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [211ms]
+#> ✔ Computing the Hessian. [192ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [279ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [255ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 9/54 skew-normal marginals.
-#> ⠸ Fitting 38/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [5.7s]
+#> ⠹ Fitting 27/54 skew-normal marginals.
+#> ✔ Fitting 54/54 skew-normal marginals. [5.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [540ms]
+#> ✔ Adjusting copula correlations (NORTA). [478ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [988ms]
+#> ✔ Posterior sampling and summarising. [857ms]
 #> 
 
 # Strong invariance
@@ -172,23 +170,23 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [201ms]
+#> ✔ Finding posterior mode. [185ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [177ms]
+#> ✔ Computing the Hessian. [172ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [260ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [241ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 20/48 skew-normal marginals.
-#> ✔ Fitting 48/48 skew-normal marginals. [4.8s]
+#> ⠹ Fitting 14/48 skew-normal marginals.
+#> ✔ Fitting 48/48 skew-normal marginals. [4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [618ms]
+#> ✔ Adjusting copula correlations (NORTA). [570ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [965ms]
+#> ✔ Posterior sampling and summarising. [863ms]
 #> 
 
 # Compare models (fit1 = configural = baseline, always first argument)
