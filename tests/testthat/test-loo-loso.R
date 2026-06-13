@@ -312,7 +312,7 @@ test_that("waic() sanity and agreement with loo()", {
   expect_true(all(c("waic", "p_waic", "se_waic") %in% names(fm)))
 })
 
-test_that("missing data aborts informatively", {
+test_that("single-level FIML is supported (see test-loo-missing.R)", {
   d_miss <- lavaan::HolzingerSwineford1939
   d_miss[1, "x1"] <- NA
   fit_miss <- acfa(
@@ -327,7 +327,9 @@ test_that("missing data aborts informatively", {
     marginal_method = "marggaus",
     marginal_correction = "none"
   )
-  expect_error(loo(fit_miss), "missing data")
+  res_miss <- loo(fit_miss)
+  expect_s3_class(res_miss, "inlavaan_loo")
+  expect_equal(res_miss$flavour, "joint")
 })
 
 test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {

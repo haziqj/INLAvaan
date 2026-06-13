@@ -180,20 +180,102 @@ loso_resolve_units <- function(lavdata, units) {
   )
 }
 
+# ---- FIML (missing data): observed-data casewise kernels --------------------
+#
+# Under FIML the fitted likelihood is the observed-data likelihood, so each
+# unit's contribution is Gaussian on the entries it actually has,
+#   l_i = log N(y_i,obs ; mu[o_i], Sigma[o_i, o_i]),
+# scoring the held-out unit on its observed entries with its full row removed
+# from the conditioning set. Rows sharing a missing pattern share the observed
+# set o_i, so the complete-data kernels evaluate verbatim on the subsetted
+# moments; scores scatter back into full (mu, vech Sigma) coordinates (zero
+# where unobserved, since l_i does not depend on the unobserved blocks). FIML
+# forces a mean structure, so the saturated-means transformation never
+# coincides with missingness and the iid kernels apply as-is; and lavaan
+# rejects fixed.x with incomplete data, so only the joint flavour arises here.
+
+# Rows grouped by missing pattern: each entry lists the row positions (within
+# Y) sharing a pattern and that pattern's observed column indices.
+fiml_patterns <- function(Y) {
+  obs <- !is.na(Y)
+  key <- apply(obs, 1L, paste0, collapse = "")
+  lapply(
+    split(seq_len(nrow(Y)), key),
+    function(rows) list(rows = rows, o = which(obs[rows[1L], ]))
+  )
+}
+
+# Column-major lower-triangle (lavaan vech) index of full-matrix entry (a, b)
+vech_idx <- function(a, b, p) {
+  lo <- pmin(a, b)
+  hi <- pmax(a, b)
+  (lo - 1L) * p - (lo - 1L) * lo / 2L + hi
+}
+
 # Vectorised per-row multivariate normal log-likelihood at fixed moments
-loso_loglik_all <- function(Y, mom) {
-  p <- length(mom$mu)
-  Sigma_inv <- chol2inv(chol(mom$Sigma))
-  log_det <- as.numeric(determinant(mom$Sigma, logarithm = TRUE)$modulus)
-  D <- sweep(Y, 2L, mom$mu, "-")
+mvn_loglik_rows <- function(Y, mu, Sigma) {
+  p <- length(mu)
+  Sigma_inv <- chol2inv(chol(Sigma))
+  log_det <- as.numeric(determinant(Sigma, logarithm = TRUE)$modulus)
+  D <- sweep(Y, 2L, mu, "-")
   quad <- rowSums((D %*% Sigma_inv) * D)
   as.numeric(-0.5 * (p * log(2 * pi) + log_det + quad))
+}
+
+# Per-row log-likelihood at fixed moments. Complete rows use the full moments;
+# rows with missing entries are scored on their observed subset (the FIML
+# observed-data contribution), grouping rows by pattern so each subset is
+# factorised once.
+loso_loglik_all <- function(Y, mom) {
+  if (!anyNA(Y)) {
+    return(mvn_loglik_rows(Y, mom$mu, mom$Sigma))
+  }
+  out <- numeric(nrow(Y))
+  for (pat in fiml_patterns(Y)) {
+    o <- pat$o
+    out[pat$rows] <- mvn_loglik_rows(
+      Y[pat$rows, o, drop = FALSE],
+      mom$mu[o],
+      mom$Sigma[o, o, drop = FALSE]
+    )
+  }
+  out
 }
 
 # All-rows theta-scores at one theta from a single shared build; row i is
 # the gradient of row i's log-likelihood w.r.t. packed theta. Y holds rows
 # of one group; its Delta block has columns for all free parameters, so
 # the result needs no cross-group assembly
+# Complete-data (mu, vech Sigma)-coordinate scores, one row per observation;
+# a lone row is duplicated because lavaan drops a single-row matrix internally
+mvn_scores_rows <- function(Y, mu, Sigma) {
+  n <- nrow(Y)
+  Yc <- if (n == 1L) rbind(Y, Y) else Y
+  sc <- lavaan___lav_mvnorm_scores_mu_vech_sigma(Yc, NULL, mu, Sigma)
+  if (n == 1L) sc[1L, , drop = FALSE] else sc
+}
+
+# (mu, vech Sigma)-coordinate scores with missing entries: per pattern, the
+# complete-data scores on the observed subset scattered into full coordinates
+# (zero where unobserved)
+fiml_scores_mu_vech <- function(Y, mom) {
+  p <- length(mom$mu)
+  SC <- matrix(0, nrow(Y), p + p * (p + 1L) / 2L)
+  for (pat in fiml_patterns(Y)) {
+    o <- pat$o
+    po <- length(o)
+    sck <- mvn_scores_rows(
+      Y[pat$rows, o, drop = FALSE],
+      mom$mu[o],
+      mom$Sigma[o, o, drop = FALSE]
+    )
+    pr <- which(lower.tri(diag(po), diag = TRUE), arr.ind = TRUE)
+    cols <- c(o, p + vech_idx(o[pr[, 1L]], o[pr[, 2L]], p))
+    SC[pat$rows, cols] <- sck
+  }
+  SC
+}
+
 loso_scores_theta <- function(
   theta,
   Y,
@@ -207,16 +289,10 @@ loso_scores_theta <- function(
   }
   mom <- cache$mom[[group]]
   Delta_g <- cache$Delta[[group]]
-  n <- nrow(Y)
-  Yc <- if (n == 1L) rbind(Y, Y) else Y # a single row is dropped internally
-  scores <- lavaan___lav_mvnorm_scores_mu_vech_sigma(
-    Yc,
-    NULL,
-    mom$mu,
-    mom$Sigma
-  )
-  if (n == 1L) {
-    scores <- scores[1L, , drop = FALSE]
+  scores <- if (anyNA(Y)) {
+    fiml_scores_mu_vech(Y, mom)
+  } else {
+    mvn_scores_rows(Y, mom$mu, mom$Sigma)
   }
   # Without an estimated mean structure Delta has only the vech(Sigma) rows,
   # so drop the leading Mu columns of the scores
@@ -761,11 +837,14 @@ check_loo_model <- function(int, fn = "loo") {
        {.val ML} estimator."
     )
   }
-  if (
-    isTRUE(lavsamplestats@missing.flag) ||
-      any(vapply(lavdata@X, anyNA, logical(1)))
-  ) {
-    cli_abort("{.fn {fn}} does not support missing data yet.")
+  # Single-level FIML is supported (observed-data casewise kernels); two-level
+  # with missing data is not yet (per-cluster sufficient statistics break)
+  has_missing <- isTRUE(lavsamplestats@missing.flag) ||
+    any(vapply(lavdata@X, anyNA, logical(1)))
+  if (has_missing && is_multilevel(lavdata)) {
+    cli_abort(
+      "{.fn {fn}} does not support missing data in two-level models yet."
+    )
   }
   if (isTRUE(lavmodel@conditional.x)) {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
