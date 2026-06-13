@@ -41,29 +41,29 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [138ms]
+#> ✔ Finding posterior mode. [124ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [152ms]
+#> ✔ Computing the Hessian. [136ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.223σ. [506ms]
+#> ✔ VB correction; mean |δ| = 0.223σ. [451ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 20/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [2.3s]
+#> ⠹ Fitting 25/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [2.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [276ms]
+#> ✔ Adjusting copula correlations (NORTA). [264ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [810ms]
+#> ✔ Posterior sampling and summarising. [783ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [262ms]
+#> ✔ Computing Taylor LOO. [242ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [237ms]
+#> ✔ Computing WAIC from the posterior draws. [233ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -104,17 +104,17 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [245ms]
+#> ✔ Finding posterior mode. [235ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [223ms]
+#> ✔ Computing the Hessian. [210ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.194σ. [497ms]
+#> ✔ VB correction; mean |δ| = 0.194σ. [474ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 20/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.8s]
+#> ⠹ Fitting 25/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [3.7s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -145,16 +145,16 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [290ms]
+#> ✔ Adjusting copula correlations (NORTA). [279ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [581ms]
+#> ✔ Posterior sampling and summarising. [554ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [559ms]
+#> ✔ Computing Taylor LOO. [526ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [612ms]
+#> ✔ Computing WAIC from the posterior draws. [602ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.5.9002 ended normally after 93 iterations

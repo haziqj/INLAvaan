@@ -145,28 +145,29 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [114ms]
+#> ✔ Finding posterior mode. [108ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [54ms]
+#> ✔ Computing the Hessian. [52ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [130ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [107ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [792ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [768ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [125ms]
+#> ✔ Adjusting copula correlations (NORTA). [121ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [549ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [542ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [534ms]
+#> ✔ Computing Taylor LOO. [485ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [252ms]
+#> ✔ Computing WAIC from the posterior draws. [238ms]
 #> 
 waic(fit)
 #> WAIC (INLAvaan)

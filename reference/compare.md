@@ -121,30 +121,30 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [198ms]
+#> ✔ Finding posterior mode. [193ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [207ms]
+#> ✔ Computing the Hessian. [201ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [511ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [500ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 29/60 skew-normal marginals.
-#> ⠸ Fitting 59/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [6.1s]
+#> ⠹ Fitting 18/60 skew-normal marginals.
+#> ⠸ Fitting 48/60 skew-normal marginals.
+#> ✔ Fitting 60/60 skew-normal marginals. [5.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [344ms]
+#> ✔ Adjusting copula correlations (NORTA). [334ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [854ms]
+#> ✔ Posterior sampling and summarising. [832ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [940ms]
+#> ✔ Computing Taylor LOO. [932ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [643ms]
+#> ✔ Computing WAIC from the posterior draws. [604ms]
 #> 
 
 # Weak invariance
@@ -155,29 +155,30 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [175ms]
+#> ✔ Finding posterior mode. [173ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [190ms]
+#> ✔ Computing the Hessian. [188ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [260ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [258ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 25/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [5.1s]
+#> ⠹ Fitting 16/54 skew-normal marginals.
+#> ⠸ Fitting 48/54 skew-normal marginals.
+#> ✔ Fitting 54/54 skew-normal marginals. [4.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [489ms]
+#> ✔ Adjusting copula correlations (NORTA). [476ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [857ms]
+#> ✔ Posterior sampling and summarising. [833ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [864ms]
+#> ✔ Computing Taylor LOO. [805ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [324ms]
+#> ✔ Computing WAIC from the posterior draws. [322ms]
 #> 
 
 # Strong invariance
@@ -188,30 +189,30 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [185ms]
+#> ✔ Finding posterior mode. [187ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [162ms]
+#> ✔ Computing the Hessian. [155ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [244ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [237ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 1/48 skew-normal marginals.
-#> ⠸ Fitting 37/48 skew-normal marginals.
+#> ⠹ Fitting 28/48 skew-normal marginals.
 #> ✔ Fitting 48/48 skew-normal marginals. [4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [536ms]
+#> ✔ Adjusting copula correlations (NORTA). [515ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [840ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [830ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [792ms]
+#> ✔ Computing Taylor LOO. [734ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [328ms]
+#> ✔ Computing WAIC from the posterior draws. [314ms]
 #> 
 
 # Compare models (fit1 = configural = baseline, always first argument)
