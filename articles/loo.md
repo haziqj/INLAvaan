@@ -130,8 +130,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7534.347 29.166 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7756.806 26.801 -3878.134 46.800 27.516
+#>    fit   30   -3885.211    0.000 7536.008 29.996 -3769.109 42.945 32.433
+#>  fit1f   27   -3990.563 -105.352 7756.763 26.779 -3878.134 46.800 27.516
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -109.025  17.072
@@ -240,8 +240,8 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.892   0.000 7536.659 58.680 -3748.090 44.737 45.076
-#>  fit_cond1   29   -3903.093 -27.201 7569.483 30.696 -3787.678 43.881 38.271
+#>   fit_cond   32   -3875.892   0.000 7537.535 59.118 -3748.090 44.737 45.076
+#>  fit_cond1   29   -3903.093 -27.201 7567.718 29.813 -3787.678 43.881 38.271
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>    -39.587  10.261
@@ -313,9 +313,9 @@ waic(fit)
 #> Computed from 1000 posterior draws and 301 subjects
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3768.7 42.8
-#> p_waic        31.3  2.0
-#> waic        7537.4 85.7
+#> elpd_waic  -3769.6 42.9
+#> p_waic        32.4  2.1
+#> waic        7539.2 85.8
 #> 
 #> 8 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
 ```
@@ -362,17 +362,31 @@ the search logic is yours to design.
 
 ## Practical notes
 
-- **Supported models.** Complete-data, continuous-indicator models
-  fitted with the `ML` estimator, single-group or multigroup – groups
-  are independent, so each unit is scored against its own group’s
-  moments, with a `group` column in the pointwise table (see the
-  [multigroup
+- **Supported models.** Continuous-indicator models fitted with the `ML`
+  estimator, single-group or multigroup – groups are independent, so
+  each unit is scored against its own group’s moments, with a `group`
+  column in the pointwise table (see the [multigroup
   article](https://inlavaan.haziqj.ml/articles/multigroup.md) for the
-  measurement-invariance workflow). Missing-data, ordinal (PML), and
-  multigroup two-level models are not supported yet. Models with
-  exogenous covariates are scored jointly (`fixed.x = FALSE`) or
+  measurement-invariance workflow). Fits with missing data are scored
+  under full-information maximum likelihood (`missing = "ml"`), single-
+  or two-level; see the [missing-data
+  article](https://inlavaan.haziqj.ml/articles/missing.md). Ordinal
+  (PML) and multigroup two-level models are not supported yet. Models
+  with exogenous covariates are scored jointly (`fixed.x = FALSE`) or
   conditionally (`fixed.x = TRUE`), following the fitted likelihood, for
   any covariate placement.
+- **Missing data.** Under FIML each unit is scored on the entries it
+  actually has – the observed-data predictive, with the full row
+  (single-level) or whole cluster (two-level LOCO) deleted from the
+  conditioning set – carrying the same missing-at-random assumption as
+  the fit. A single-level unit with fewer observed entries self-weights,
+  contributing a smaller score; a two-level cluster contributes its
+  observed-data marginal likelihood. Two missing-data fits are
+  comparable with
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) only
+  when they share the same observed entries (the same data *and* the
+  same holes). The two-level conditional predictive (`type = "loso"`) is
+  available under missing data too.
 - **Parallelism is opt-in.** The default runs serially; pass
   `loo(fit, cores = 2)` to parallelise the Hessian stage via forking
   (not available on Windows).
@@ -380,13 +394,24 @@ the search logic is yours to design.
   in our validation it tracks brute-force refits to within about one
   ELPD unit, while the first-order score can be off by tens of units.
   Use `second_order = FALSE` only for quick screening.
-- **Row deletion on two-level models.** `loo(fit2l, type = "loso")`
-  forces per-row scoring on a two-level fit (each contribution is the
-  conditional density of a row given the rest of its cluster). It is
-  provided as a diagnostic, warns when used, and is expensive for large
-  datasets – consider the `units` argument to subset.
+- **Marginal vs conditional predictive on two-level models.** The
+  default `type = "loco"` is the *marginal* predictive
+  (leave-one-cluster-out: prediction for a *new* cluster).
+  `loo(fit2l, type = "loso")` – and `waic(fit2l, type = "loso")` –
+  instead score the *conditional* predictive (leave-one-unit-out: a new
+  observation within an *observed* cluster, each contribution the
+  conditional density of a row given the rest of its cluster). These
+  answer different questions and are easily conflated ([Merkle et al.
+  2019](#ref-merkle2019bayesian)), so the marginal is the default and
+  the conditional warns. It is available with and without missing data
+  and is expensive for large datasets – subset with `units`.
 
 ## References
+
+Merkle, Edgar C., Daniel Furr, and Sophia Rabe-Hesketh. 2019. “Bayesian
+Comparison of Latent Variable Models: Conditional Versus Marginal
+Likelihoods.” *Psychometrika* 84 (3): 802–29.
+<https://doi.org/10.1007/s11336-019-09679-0>.
 
 Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. “Practical Bayesian
 Model Evaluation Using Leave-One-Out Cross-Validation and WAIC.”

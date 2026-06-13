@@ -31,6 +31,34 @@
   case number and carry a `group` column, so results keep their identity
   across fits that stack groups differently. Multigroup two-level models
   are not supported yet.
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) support fits
+  estimated by full-information maximum likelihood (`missing = "ml"`).
+  Single-level units are scored on the entries they actually have – the
+  observed-data predictive `log p(y_i,obs | D_-i)` – with casewise
+  kernels evaluated per missing pattern, so a unit with fewer observed
+  entries self-weights in the elpd. Two-level fits are scored per
+  cluster (LOCO), each cluster on its observed-data marginal likelihood
+  via lavaan’s raw-data cluster kernels (no per-cluster sufficient
+  statistics, since LOCO deletes whole clusters). This shares the
+  missing-at-random assumption of the FIML fit itself. Multigroup
+  two-level models remain unsupported under missingness.
+- On two-level models
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) gain
+  `type = "loso"`, scoring the *conditional* predictive
+  (leave-one-unit-out: a new observation within an observed cluster)
+  instead of the default *marginal* predictive (`type = "loco"`,
+  leave-one-cluster-out: a new cluster). These are the two estimands of
+  Merkle, Furr & Rabe-Hesketh (2019); they answer different questions
+  and are easily conflated, so the marginal is the default and the
+  conditional warns.
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) uses the Taylor
+  expansion and [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)
+  the posterior draws, computing the same estimand two ways; both work
+  with and without missing data.
+  ([`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) previously
+  had no `type`.)
 - [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
   gains `elpd_loo`, `se_loo`, `p_loo`, `looic` and `elpd_waic`,
   `se_waic`, `p_waic`, `waic`: included in `"all"` when stored with the
@@ -67,6 +95,17 @@
   fits, with results identical to within finite-difference noise.
 
 ### Bug fixes
+
+- Two-level FIML
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)/[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)
+  scores are now correct for clusters containing a case fully missing on
+  the within-level variables. lavaan retains such cases but its analytic
+  gradient kernel mishandles the zero-observed pattern; INLAvaan drops
+  these rows before the cluster kernels (exact for the marginal
+  likelihood). Two-level FIML fitting also inherits the upstream
+  gradient issue, so
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) now
+  warns when such cases are present until lavaan is patched.
 
 - Models fitted with `meanstructure = FALSE` now use a proper Bayesian
   likelihood.

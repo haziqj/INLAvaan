@@ -57,10 +57,10 @@ add_loo(object, cores = NULL, verbose = FALSE)
 - type:
 
   Unit type: `"auto"` (default) resolves to `"loso"` (per-subject) for
-  single-level models and `"loco"` (per-cluster) for two-level models.
-  `"loco"` cannot be forced on a model without clusters; `"loso"` on a
-  two-level model scores row deletions (see Details) and emits a
-  warning.
+  single-level models and `"loco"` (per-cluster, marginal predictive)
+  for two-level models. `"loco"` cannot be forced on a model without
+  clusters; `"loso"` on a two-level model scores the conditional
+  (leave-one-unit-out) predictive instead (with a warning; see Details).
 
 - units:
 
@@ -152,13 +152,18 @@ first order for that unit only (flagged in `per_unit$ok`).
 
 The type is resolved automatically: per-cluster (`"loco"`) when the
 model was fitted with a `cluster` argument, per-subject (`"loso"`)
-otherwise. On a two-level model, `type = "loso"` may be forced (with a
-warning) as a diagnostic: row \\i\\ of cluster \\j\\ then contributes
+otherwise. For a two-level model these are the two estimands of Merkle,
+Furr & Rabe-Hesketh (2019): the default per-cluster `"loco"` is the
+*marginal* predictive (leave-one-cluster-out – prediction for a *new*
+cluster), while `type = "loso"` forces the *conditional* predictive
+(leave-one-unit-out – prediction for a new observation within an
+*observed* cluster), where row \\i\\ of cluster \\j\\ contributes
 \\\ell_i = \ell_j(\mathrm{full}) - \ell_j(\mathrm{minus\\ row\\ } i)\\,
-the conditional density of the row given the remaining rows in its
-cluster, computed by downdating the cluster's sufficient statistics.
-This path costs one cluster evaluation per row per Hessian direction and
-is less extensively validated than the per-cluster default.
+the conditional density of the row given the rest of its cluster. The
+two answer different questions and are easily conflated, so the
+per-cluster marginal is the default and `type = "loso"` warns. It works
+with and without missing data, costs one cluster evaluation per row per
+Hessian direction, and is best subset with `units`.
 
 **Multigroup models.** Groups are independent, so each unit is scored
 against its own group's implied moments; without a mean structure the
@@ -222,11 +227,32 @@ support any covariate placement: single-level covariates, and
 cluster-level (between) and/or within-level covariates in two-level
 models.
 
-Supported models: complete-data, continuous-indicator models fitted with
-the `ML` estimator, single-group or multigroup (multigroup two-level
-models are not supported yet). If the `loo` package is attached it masks
-this generic, but `loo(fit)` continues to dispatch correctly because the
-method is registered by generic name.
+**Missing data.** Fits estimated by full-information maximum likelihood
+(`missing = "ml"`) are scored on the *observed-data* predictive: each
+unit contributes the density of the entries it actually has, with its
+full row (single-level) or whole cluster (two-level) removed from the
+conditioning set. For single-level fits the casewise kernels operate on
+each unit's observed subset, grouping rows by missing pattern, so a unit
+with fewer observed entries contributes a smaller log-likelihood term
+*and* a smaller score and thus self-weights in the elpd. Two-level fits
+are scored per cluster (`"loco"`): each cluster contributes its
+observed-data marginal likelihood, evaluated by lavaan's raw-data
+cluster kernels (no per-cluster sufficient statistics are needed, since
+leave-one-cluster-out deletes the whole cluster). All carry the same
+missing-at-random assumption as the FIML fit itself. Because the score
+is the observed-entry predictive, a
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) of two
+missing-data fits is meaningful only when they share the same observed
+entries (the same data *and* the same holes). The two-level conditional
+predictive (`type = "loso"`) is available under missing data too, on the
+same kernels.
+
+Supported models: continuous-indicator models fitted with the `ML`
+estimator (including FIML, `missing = "ml"`, single- and two-level),
+single-group or multigroup (multigroup two-level models are not
+supported yet). If the `loo` package is attached it masks this generic,
+but `loo(fit)` continues to dispatch correctly because the method is
+registered by generic name.
 
 ## See also
 
@@ -246,28 +272,29 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [105ms]
+#> ✔ Finding posterior mode. [109ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [51ms]
+#> ✔ Computing the Hessian. [61ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [105ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [144ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [738ms]
+#> ⠹ Fitting 13/30 skew-normal marginals.
+#> ✔ Fitting 30/30 skew-normal marginals. [1.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [121ms]
+#> ✔ Adjusting copula correlations (NORTA). [138ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [525ms]
+#> ✔ Posterior sampling and summarising. [632ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [470ms]
+#> ✔ Computing Taylor LOO. [485ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [230ms]
+#> ✔ Computing WAIC from the posterior draws. [284ms]
 #> 
 
 # Leave-one-subject-out (LOSO) from the single fit -- no refitting
@@ -328,31 +355,31 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [583ms]
+#> ✔ Finding posterior mode. [706ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [293ms]
+#> ✔ Computing the Hessian. [365ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [466ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [562ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 11/34 skew-normal marginals.
-#> ⠸ Fitting 24/34 skew-normal marginals.
-#> ✔ Fitting 34/34 skew-normal marginals. [7.6s]
+#> ⠹ Fitting 8/34 skew-normal marginals.
+#> ⠸ Fitting 20/34 skew-normal marginals.
+#> ⠼ Fitting 32/34 skew-normal marginals.
+#> ✔ Fitting 34/34 skew-normal marginals. [8.8s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [128ms]
+#> ✔ Adjusting copula correlations (NORTA). [153ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.3s]
+#> ✔ Posterior sampling and summarising. [1.5s]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [6.6s]
+#> ✔ Computing Taylor LOO. [7.8s]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [38.2s]
+#> ✔ Computing WAIC from the posterior draws. [49s]
 #> 
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)

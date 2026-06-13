@@ -41,29 +41,29 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [128ms]
+#> ✔ Finding posterior mode. [142ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [140ms]
+#> ✔ Computing the Hessian. [161ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.223σ. [472ms]
+#> ✔ VB correction; mean |δ| = 0.223σ. [526ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 24/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [2.2s]
+#> ⠹ Fitting 18/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [2.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [359ms]
+#> ✔ Adjusting copula correlations (NORTA). [310ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [795ms]
+#> ✔ Posterior sampling and summarising. [919ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [240ms]
+#> ✔ Computing Taylor LOO. [267ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [230ms]
+#> ✔ Computing WAIC from the posterior draws. [291ms]
 #> 
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
@@ -104,17 +104,17 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [235ms]
+#> ✔ Finding posterior mode. [268ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [193ms]
+#> ✔ Computing the Hessian. [242ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.194σ. [459ms]
+#> ✔ VB correction; mean |δ| = 0.194σ. [537ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 24/42 skew-normal marginals.
-#> ✔ Fitting 42/42 skew-normal marginals. [3.7s]
+#> ⠹ Fitting 14/42 skew-normal marginals.
+#> ✔ Fitting 42/42 skew-normal marginals. [4.2s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -145,10 +145,17 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [272ms]
+#> ✔ Adjusting copula correlations (NORTA). [327ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [639ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [682ms]
+#> 
+#> ℹ Computing Taylor LOO.
+#> ✔ Computing Taylor LOO. [618ms]
+#> 
+#> ℹ Computing WAIC from the posterior draws.
+#> ✔ Computing WAIC from the posterior draws. [672ms]
 #> 
 print(fit2)
 #> INLAvaan 0.2.5.9002 ended normally after 93 iterations
@@ -184,12 +191,48 @@ coef(fit2)
 ``` r
 
 plot(
-  coef(fit1), 
-  coef(fit2), 
-  xlab = "Listwise Deletion Estimates", 
+  coef(fit1),
+  coef(fit2),
+  xlab = "Listwise Deletion Estimates",
   ylab = "FIML Estimates"
 )
 abline(0, 1)
 ```
 
 ![](missing_files/figure-html/unnamed-chunk-4-1.png)
+
+## Model criteria under FIML
+
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) work directly
+on a FIML fit. Each unit is scored on the entries it actually has – the
+observed-data predictive $`\log p(y_{i,\text{obs}} \mid D_{-i})`$, with
+the full row deleted from the conditioning set – so a case with more
+missing entries contributes a smaller log-likelihood term *and* a
+smaller score, self-weighting in the expected log predictive density.
+The missing-at-random assumption that justifies FIML estimation also
+justifies this predictive score.
+
+``` r
+
+loo(fit2)
+#> Taylor leave-one-subject-out cross-validation (INLAvaan)
+#> Computed from 75 subjects (second-order Taylor approximation)
+#> 
+#>          Estimate   SE
+#> elpd_loo  -1285.5 36.5
+#> p_loo        37.1  3.1
+#> looic      2571.0 73.0
+```
+
+Comparing two FIML fits with `compare(..., loo = TRUE)` is valid only
+when they share the same observed entries – the same data *and* the same
+missingness pattern – since each unit is scored on the entries it has.
+See the [cross-validation
+article](https://inlavaan.haziqj.ml/articles/loo.md) for the Taylor
+case-deletion method itself.
+
+Two-level FIML fits are also supported: they are scored per cluster
+(leave-one-cluster-out), each cluster contributing its observed-data
+marginal likelihood. The per-row deletion diagnostic (`type = "loso"`)
+is not available under missing data.

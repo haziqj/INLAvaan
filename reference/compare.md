@@ -84,14 +84,17 @@ is then sorted by descending ELPD. All models must be fitted to the same
 data with matching units; units are paired by id rather than by row
 order, so fits that stack groups differently – a pooled fit against a
 multigroup fit, or multigroup fits with different group orderings –
-still pair up unit by unit. All models must also share the score flavour
-(see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)): mixing
-fits with modelled covariates (`fixed.x = FALSE`, joint scores) and
-fixed covariates (`fixed.x = TRUE`, conditional scores) is refused.
-Joint scores additionally require identical variable sets across models,
-while conditional scores require only matching outcome variables –
-covariate sets may differ, which is the covariate-selection setting.
-Stored LOO results (`test = "loo"` or
+still pair up unit by unit. For missing-data (FIML) fits, "the same
+data" also means the same observed entries: each unit is scored on the
+entries it has, so comparisons require identical missingness patterns
+across models. All models must also share the score flavour (see
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)): mixing fits
+with modelled covariates (`fixed.x = FALSE`, joint scores) and fixed
+covariates (`fixed.x = TRUE`, conditional scores) is refused. Joint
+scores additionally require identical variable sets across models, while
+conditional scores require only matching outcome variables – covariate
+sets may differ, which is the covariate-selection setting. Stored LOO
+results (`test = "loo"` or
 [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) are reused.
 
 ## References
@@ -118,30 +121,30 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [194ms]
+#> ✔ Finding posterior mode. [218ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [202ms]
+#> ✔ Computing the Hessian. [232ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [506ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [572ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 23/60 skew-normal marginals.
-#> ⠸ Fitting 54/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [5.9s]
+#> ⠹ Fitting 26/60 skew-normal marginals.
+#> ⠸ Fitting 53/60 skew-normal marginals.
+#> ✔ Fitting 60/60 skew-normal marginals. [6.7s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [330ms]
+#> ✔ Adjusting copula correlations (NORTA). [623ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [837ms]
+#> ✔ Posterior sampling and summarising. [973ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [866ms]
+#> ✔ Computing Taylor LOO. [899ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [599ms]
+#> ✔ Computing WAIC from the posterior draws. [402ms]
 #> 
 
 # Weak invariance
@@ -152,29 +155,31 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [170ms]
+#> ✔ Finding posterior mode. [206ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [186ms]
+#> ✔ Computing the Hessian. [200ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [251ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [284ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 22/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [4.9s]
+#> ⠹ Fitting 14/54 skew-normal marginals.
+#> ⠸ Fitting 43/54 skew-normal marginals.
+#> ✔ Fitting 54/54 skew-normal marginals. [5.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [468ms]
+#> ✔ Adjusting copula correlations (NORTA). [546ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [835ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [977ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [829ms]
+#> ✔ Computing Taylor LOO. [846ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [312ms]
+#> ✔ Computing WAIC from the posterior draws. [379ms]
 #> 
 
 # Strong invariance
@@ -185,29 +190,30 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [182ms]
+#> ✔ Finding posterior mode. [202ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [155ms]
+#> ✔ Computing the Hessian. [195ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [240ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [263ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 36/48 skew-normal marginals.
-#> ✔ Fitting 48/48 skew-normal marginals. [3.9s]
+#> ⠹ Fitting 11/48 skew-normal marginals.
+#> ⠸ Fitting 44/48 skew-normal marginals.
+#> ✔ Fitting 48/48 skew-normal marginals. [4.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [533ms]
+#> ✔ Adjusting copula correlations (NORTA). [625ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [817ms]
+#> ✔ Posterior sampling and summarising. [971ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [763ms]
+#> ✔ Computing Taylor LOO. [759ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [309ms]
+#> ✔ Computing WAIC from the posterior draws. [382ms]
 #> 
 
 # Compare models (fit1 = configural = baseline, always first argument)

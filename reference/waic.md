@@ -4,8 +4,10 @@ Computes the WAIC of a fitted
 [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md)
 model from unit log-likelihoods evaluated over posterior draws.
 Single-level models are scored per subject; two-level models are scored
-per cluster, matching the units used by
-[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md).
+per cluster by default, matching the units used by
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md). For a two-level
+model `type = "loso"` instead scores the *conditional*
+(leave-one-unit-out) WAIC; see Details.
 
 ## Usage
 
@@ -13,10 +15,26 @@ per cluster, matching the units used by
 waic(x, ...)
 
 # S3 method for class 'INLAvaan'
-waic(x, units = NULL, nsamp = NULL, cores = NULL, verbose = FALSE, ...)
+waic(
+  x,
+  type = c("auto", "loso", "loco"),
+  units = NULL,
+  nsamp = NULL,
+  cores = NULL,
+  verbose = FALSE,
+  ...
+)
 
 # S3 method for class 'inlavaan_internal'
-waic(x, units = NULL, nsamp = NULL, cores = NULL, verbose = FALSE, ...)
+waic(
+  x,
+  type = c("auto", "loso", "loco"),
+  units = NULL,
+  nsamp = NULL,
+  cores = NULL,
+  verbose = FALSE,
+  ...
+)
 ```
 
 ## Arguments
@@ -30,6 +48,14 @@ waic(x, units = NULL, nsamp = NULL, cores = NULL, verbose = FALSE, ...)
 - ...:
 
   Not used.
+
+- type:
+
+  Unit type: `"auto"` (default) resolves to per-subject for single-level
+  models and per-cluster (marginal WAIC) for two-level models. `"loso"`
+  on a two-level model scores the conditional (leave-one-unit-out) WAIC
+  instead (with a warning; see Details); `"loco"` cannot be forced on a
+  model without clusters.
 
 - units:
 
@@ -78,6 +104,19 @@ does the flavour rule: fits with `fixed.x = TRUE` are scored
 conditionally on the exogenous covariates, fits with `fixed.x = FALSE`
 jointly (see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)).
 
+**Marginal vs conditional WAIC (two-level models).** The default
+per-cluster scoring is the *marginal* WAIC, which corresponds to
+leave-one-cluster-out cross-validation – prediction for a *new* cluster.
+Setting `type = "loso"` scores the *conditional* WAIC, corresponding to
+leave-one-unit-out – prediction for a new observation within an
+*observed* cluster (each row contributes the conditional density of its
+observed entries given the rest of its cluster). The two answer
+different questions and are easily conflated (Merkle, Furr &
+Rabe-Hesketh, 2019); the per-cluster marginal is the usual
+model-comparison target, so it is the default, and `type = "loso"`
+warns. This matches `loo(type = "loso")` – the two compute the same
+estimand by sampling and by Taylor expansion.
+
 Under the default `test = "standard"`,
 [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)
 computes the WAIC at fit time by reusing the posterior draws the fit
@@ -106,28 +145,29 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [108ms]
+#> ✔ Finding posterior mode. [107ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [52ms]
+#> ✔ Computing the Hessian. [58ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [107ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [138ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [762ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [871ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [123ms]
+#> ✔ Adjusting copula correlations (NORTA). [143ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [537ms]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [626ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [481ms]
+#> ✔ Computing Taylor LOO. [462ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [237ms]
+#> ✔ Computing WAIC from the posterior draws. [272ms]
 #> 
 waic(fit)
 #> WAIC (INLAvaan)
