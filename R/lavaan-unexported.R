@@ -23,6 +23,9 @@ lavaan___lav_model_delta <- NULL
 lavaan___lav_mvnorm_scores_mu_vech_sigma <- NULL
 lavaan___lav_mvnorm_cluster_loglik_samplestats_2l <- NULL
 lavaan___lav_mvnorm_cluster_dlogl_2l_samplestats <- NULL
+lavaan___lav_mvnorm_cluster_missing_loglik_samplestats_2l <- NULL
+lavaan___lav_mvnorm_cluster_missing_dlogl_2l_samplestats <- NULL
+lavaan___lav_data_missing_patterns <- NULL
 
 # Aliases ordered new (lavaan >= 0.7) first, old (lavaan < 0.7) last, so on
 # new lavaan we bind the real function rather than its deprecated shim.
@@ -58,7 +61,16 @@ lavaan_internal_aliases <- list(
   lavaan___lav_mvnorm_cluster_dlogl_2l_samplestats = c(
     "lav_mvn_cl_dlogl_2l_samp",
     "lav_mvnorm_cluster_dlogl_2l_samplestats"
-  )
+  ),
+  lavaan___lav_mvnorm_cluster_missing_loglik_samplestats_2l = c(
+    "lav_mvn_cl_mi_loglik_samp_2l",
+    "lav_mvnorm_cluster_missing_loglik_samplestats_2l"
+  ),
+  lavaan___lav_mvnorm_cluster_missing_dlogl_2l_samplestats = c(
+    "lav_mvn_cl_mi_dlogl_2l_samp",
+    "lav_mvnorm_cluster_missing_dlogl_2l_samplestats"
+  ),
+  lavaan___lav_data_missing_patterns = "lav_data_missing_patterns"
 )
 
 resolve_lavaan_internals <- function(ns) {

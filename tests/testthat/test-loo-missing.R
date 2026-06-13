@@ -195,36 +195,6 @@ test_that("waic() runs on a FIML fit and agrees loosely with loo()", {
   )
 })
 
-test_that("two-level models with missing data are still gated", {
-  twolevel_model <- "
-    level: 1
-      fw =~ y1 + y2 + y3
-    level: 2
-      fb =~ y1 + y2 + y3
-  "
-  fit2l <- asem(
-    twolevel_model,
-    lavaan::Demo.twolevel,
-    cluster = "cluster",
-    meanstructure = TRUE,
-    fixed.x = FALSE,
-    verbose = FALSE,
-    nsamp = 3,
-    test = "none",
-    vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
-  )
-  # inject a hole to exercise the two-level missing-data gate directly (the
-  # single-level FIML path is supported; the two-level path is deferred)
-  int <- get_inlavaan_internal(fit2l)
-  int$lavdata@X[[1L]][1L, 1L] <- NA
-  expect_error(
-    INLAvaan:::inlav_loo(int),
-    "two-level"
-  )
-  expect_error(
-    INLAvaan:::inlav_waic(int),
-    "two-level"
-  )
-})
+# Two-level FIML (per-cluster LOCO) is supported; see test-loo-missing-2l.R
+# for the reference-pinned coverage. Only the per-row deletion override
+# remains gated under missing data.

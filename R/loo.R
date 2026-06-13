@@ -455,6 +455,109 @@ loco_scores_theta <- function(theta, css, lavmodel, pt, units, cache = NULL) {
   loo_chain_rule(G_x, cache)
 }
 
+# ---- LOCO under missing data (two-level FIML) ------------------------------
+#
+# With incomplete data a cluster's sufficient statistics (n_j, ybar_j, S_j) no
+# longer determine its observed-data likelihood -- rows in a cluster have
+# different observed patterns -- so the samplestats kernels above do not
+# apply. lavaan exposes raw-data kernels for exactly this case (the same ones
+# it fits two-level FIML with), which we reuse per cluster: the same kernel
+# swap as the complete-data path, fed each cluster's raw rows and missing
+# pattern object instead of its sufficient statistics. Because LOCO deletes a
+# whole cluster, no downdating is needed. FIML forces joint scoring (lavaan
+# rejects two-level + conditional.x), so only the joint flavour arises.
+
+# Theta-independent per-cluster inputs for the missing-data kernels, built
+# once and reused at every theta: each cluster's raw level-1 rows (Y1), its
+# level-2 row (Y2), a one-cluster level structure (Lp) and missing-pattern
+# object (Mp). The implied moments are passed in lavaan's flat (mu_w,
+# Sigma_w, mu_b, Sigma_b) view, which is exactly cache$mom for two_level.
+loco_missing_info <- function(int) {
+  Lp <- int$lavdata@Lp[[1L]]
+  X <- int$lavdata@X[[1L]]
+  Y2 <- int$lavsamplestats@YLp[[1L]][[2L]]$Y2
+  cl <- Lp$cluster.idx[[2L]]
+  J <- Lp$nclusters[[2L]]
+  between_idx <- Lp$between.idx[[2L]]
+  clusters <- lapply(seq_len(J), function(j) {
+    rows <- which(cl == j)
+    nj <- length(rows)
+    Y1j <- X[rows, , drop = FALSE]
+    Lpj <- Lp
+    Lpj$nclusters[[1L]] <- nj
+    Lpj$nclusters[[2L]] <- 1L
+    Lpj$cluster.size[[2L]] <- nj
+    Lpj$cluster.sizes[[2L]] <- nj
+    Lpj$ncluster.sizes[[2L]] <- 1L
+    Lpj$cluster.size.ns[[2L]] <- 1L
+    Lpj$cluster.idx[[2L]] <- rep.int(1L, nj)
+    Ywj <- if (length(between_idx) > 0L) {
+      Y1j[, -between_idx, drop = FALSE]
+    } else {
+      Y1j
+    }
+    Mpj <- lavaan___lav_data_missing_patterns(Ywj, FALSE, FALSE, Lpj)
+    list(Y1 = Y1j, Y2 = Y2[j, , drop = FALSE], Lp = Lpj, Mp = Mpj)
+  })
+  list(clusters = clusters, J = J, n_j = tabulate(cl, J))
+}
+
+loco_missing_loglik_one <- function(j, minfo, mom) {
+  cj <- minfo$clusters[[j]]
+  as.numeric(lavaan___lav_mvnorm_cluster_missing_loglik_samplestats_2l(
+    cj$Y1,
+    cj$Y2,
+    cj$Lp,
+    cj$Mp,
+    mom$mu_w,
+    mom$Sigma_w,
+    mom$mu_b,
+    mom$Sigma_b,
+    "eigen", # Sinv.method
+    TRUE, # log2pi
+    0, # loglik.x
+    FALSE # minus.two
+  ))
+}
+
+loco_missing_grad_x_one <- function(j, minfo, mom, Delta) {
+  cj <- minfo$clusters[[j]]
+  DX <- lavaan___lav_mvnorm_cluster_missing_dlogl_2l_samplestats(
+    cj$Y1,
+    cj$Y2,
+    cj$Lp,
+    cj$Mp,
+    mom$mu_w,
+    mom$Sigma_w,
+    mom$mu_b,
+    mom$Sigma_b
+  )
+  # dlogl is the derivative of -2 * loglik w.r.t. the stacked moments
+  -0.5 * as.numeric(DX %*% Delta[[1L]])
+}
+
+# All-cluster theta-scores at one theta (missing-data analogue of
+# loco_scores_theta); the moment/Delta build is shared across clusters
+loco_missing_scores_theta <- function(
+  theta,
+  minfo,
+  lavmodel,
+  pt,
+  units,
+  cache = NULL
+) {
+  if (is.null(cache)) {
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+  }
+  q <- ncol(cache$Delta[[1L]])
+  G_x <- t(vapply(
+    units,
+    function(j) loco_missing_grad_x_one(j, minfo, cache$mom, cache$Delta),
+    numeric(q)
+  ))
+  loo_chain_rule(G_x, cache)
+}
+
 # ---- Row deletion on two-level models (LOSO override) -----------------------
 #
 # Removing row i from cluster j changes the dataset likelihood by
@@ -837,15 +940,11 @@ check_loo_model <- function(int, fn = "loo") {
        {.val ML} estimator."
     )
   }
-  # Single-level FIML is supported (observed-data casewise kernels); two-level
-  # with missing data is not yet (per-cluster sufficient statistics break)
-  has_missing <- isTRUE(lavsamplestats@missing.flag) ||
-    any(vapply(lavdata@X, anyNA, logical(1)))
-  if (has_missing && is_multilevel(lavdata)) {
-    cli_abort(
-      "{.fn {fn}} does not support missing data in two-level models yet."
-    )
-  }
+  # Missing data is supported for single-level (FIML observed-data casewise
+  # kernels) and for two-level per-cluster scoring (LOCO, via lavaan's
+  # raw-data missing kernels); the two-level per-row override is gated
+  # separately in inlav_loo() because its sufficient-statistic downdating
+  # breaks under missingness.
   if (isTRUE(lavmodel@conditional.x)) {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
   }
@@ -924,6 +1023,13 @@ inlav_loo <- function(
   }
   unit_group <- NULL # group of each scored unit; multigroup LOSO only
   if (type == "loso" && two_level) {
+    if (isTRUE(int$lavsamplestats@missing.flag)) {
+      cli_abort(c(
+        "The two-level per-row deletion diagnostic ({.code type = \"loso\"})
+         does not support missing data.",
+        "i" = "Use the default per-cluster {.code type = \"loco\"}, which does."
+      ))
+    }
     X <- lavdata@X[[1L]]
     css <- loco_suff_stats(lavdata)
     units <- check_loo_units(units, nrow(X), "rows")
@@ -959,6 +1065,26 @@ inlav_loo <- function(
     units <- uv$ids
     unit_group <- uv$grp
     nobs <- rep(1L, uv$n)
+  } else if (isTRUE(int$lavsamplestats@missing.flag)) {
+    # Two-level FIML: per-cluster observed-data kernels (joint flavour only)
+    minfo <- loco_missing_info(int)
+    units <- check_loo_units(units, minfo$J, "clusters")
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+    l_star <- vapply(
+      units,
+      function(j) loco_missing_loglik_one(j, minfo, cache$mom),
+      numeric(1)
+    )
+    s_mat <- loco_missing_scores_theta(theta, minfo, lavmodel, pt, units, cache)
+    score_fn <- function(th_act) {
+      th <- theta
+      th[free] <- th_act
+      loco_missing_scores_theta(th, minfo, lavmodel, pt, units)[,
+        free,
+        drop = FALSE
+      ]
+    }
+    nobs <- minfo$n_j[units]
   } else {
     css <- loco_suff_stats(lavdata)
     units <- check_loo_units(units, css$J, "clusters")
@@ -1152,10 +1278,15 @@ waic_from_draws <- function(
   lavmodel <- int$lavmodel
   lavdata <- int$lavdata
   two_level <- is_multilevel(lavdata)
+  two_level_missing <- two_level && isTRUE(int$lavsamplestats@missing.flag)
   nsamp <- nrow(x_samp)
 
   unit_group <- NULL
-  if (two_level) {
+  if (two_level_missing) {
+    minfo <- loco_missing_info(int)
+    units <- check_loo_units(units, minfo$J, "clusters")
+    nobs <- minfo$n_j[units]
+  } else if (two_level) {
     css <- loco_suff_stats(lavdata)
     units <- check_loo_units(units, css$J, "clusters")
     nobs <- css$n_j[units]
@@ -1171,7 +1302,13 @@ waic_from_draws <- function(
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_samp[s, ])
     mom <- loo_implied_moments(lavmodel_x, two_level)
     tryCatch(
-      if (two_level) {
+      if (two_level_missing) {
+        vapply(
+          units,
+          function(j) loco_missing_loglik_one(j, minfo, mom),
+          numeric(1)
+        )
+      } else if (two_level) {
         vapply(units, function(j) loco_loglik_one(j, css, mom), numeric(1))
       } else {
         # includes the exchangeability constant; 0 with a mean structure
