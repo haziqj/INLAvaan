@@ -102,13 +102,44 @@ test_that("Multilevel predict ymis works", {
   pred <- predict(fit_miss, type = "ymis", nsamp = nsamp)
   expect_length(pred, nsamp)
   expect_false(any(is.na(pred[[1]])))
-  expect_equal(ncol(pred[[1]]), 8L)  # 8 model variables (y1-y3, x1-x3, w1-w2)
+  expect_equal(ncol(pred[[1]]), 8L) # 8 model variables (y1-y3, x1-x3, w1-w2)
 
   # ymis_only: named vector of just the imputed cells
   pred_only <- predict(fit_miss, type = "ymis", nsamp = nsamp, ymis_only = TRUE)
   expect_length(pred_only, nsamp)
   v <- pred_only[[1]]
   expect_true(is.numeric(v))
-  expect_length(v, 10L)  # exactly the 10 NAs we injected
-  expect_true(all(grepl("^y1\\[", names(v))))  # all from y1
+  expect_length(v, 10L) # exactly the 10 NAs we injected
+  expect_true(all(grepl("^y1\\[", names(v)))) # all from y1
+})
+
+test_that("two-level FIML warns about fully-missing-within cases", {
+  # interim warning: lavaan's analytic gradient is inexact for cases fully
+  # missing on the within-level variables (upstream bug); flag so the user
+  # can drop them. Remove once lavaan patches the gradient kernel.
+  d <- lavaan::Demo.twolevel[, c("y1", "y2", "y3", "cluster")]
+  d[1, c("y1", "y2", "y3")] <- NA
+  m <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+  "
+  # capture all warnings (lavaan also emits its own "empty cases" note) and
+  # assert ours is among them
+  w <- testthat::capture_warnings(
+    asem(
+      m,
+      d,
+      cluster = "cluster",
+      missing = "ml",
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3,
+      vb_correction = FALSE,
+      marginal_method = "marggaus",
+      marginal_correction = "none"
+    )
+  )
+  expect_true(any(grepl("fully missing on the within", w)))
 })

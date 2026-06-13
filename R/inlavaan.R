@@ -180,6 +180,32 @@ inlavaan <- function(
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
 
+  # lavaan's analytic gradient for two-level FIML is inexact for cases fully
+  # missing on the within-level variables: it keeps such cases but its
+  # gradient kernel mishandles the zero-observed pattern, so the optimiser
+  # uses a slightly wrong gradient. Warn so the user can drop them. (loo() and
+  # waic() handle these correctly by dropping them in the cluster kernels.)
+  # Remove this once lavaan patches the upstream gradient kernel.
+  if (is_multilevel(lavdata) && isTRUE(lavsamplestats@missing.flag)) {
+    Xw <- lavdata@X[[1L]]
+    bidx <- lavdata@Lp[[1L]]$between.idx[[2L]]
+    wcols <- if (length(bidx) > 0L) {
+      seq_len(ncol(Xw))[-bidx]
+    } else {
+      seq_len(ncol(Xw))
+    }
+    n_fm <- sum(rowSums(!is.na(Xw[, wcols, drop = FALSE])) == 0L)
+    if (n_fm > 0L) {
+      cli_warn(c(
+        "{n_fm} case{?s} {?is/are} fully missing on the within-level
+         variables.",
+        "i" = "lavaan's analytic gradient for two-level FIML is currently
+         inexact for such cases, so the estimates may be mildly affected;
+         consider removing them. {.fn loo} and {.fn waic} handle them
+         correctly."
+      ))
+    }
+  }
 
   # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
@@ -198,8 +224,13 @@ inlavaan <- function(
   # intercept axes the posterior is exactly Gaussian and block-diagonal at
   # the mode, so the Hessian block is analytic and the marginal scans are
   # redundant for those coordinates.
-  fastpath <- saturated_mean_idx(pt, lavmodel, lavsamplestats, lavdata,
-                                 ceq.simple)
+  fastpath <- saturated_mean_idx(
+    pt,
+    lavmodel,
+    lavsamplestats,
+    lavdata,
+    ceq.simple
+  )
   fp_idx <- if (is.null(fastpath)) integer(0) else fastpath$idx
 
   ## ----- Prep work for approximation -----------------------------------------
@@ -571,8 +602,14 @@ inlavaan <- function(
           # precision -- emit it directly
           return(list(
             fit = c(
-              xi = theta_star[j], omega = sqrt(Sigma_theta[j, j]),
-              alpha = 0, logC = 0, k = 0, rmse = 0, nmad = 0, gamma1 = 0
+              xi = theta_star[j],
+              omega = sqrt(Sigma_theta[j, j]),
+              alpha = 0,
+              logC = 0,
+              k = 0,
+              rmse = 0,
+              nmad = 0,
+              gamma1 = 0
             ),
             visual_debug = NULL
           ))
