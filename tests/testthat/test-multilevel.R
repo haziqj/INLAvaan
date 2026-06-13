@@ -114,9 +114,13 @@ test_that("Multilevel predict ymis works", {
 })
 
 test_that("two-level FIML warns about fully-missing-within cases", {
-  # interim warning: lavaan's analytic gradient is inexact for cases fully
-  # missing on the within-level variables (upstream bug); flag so the user
-  # can drop them. Remove once lavaan patches the gradient kernel.
+  # interim warning, only on lavaan versions with the gradient bug (fixed
+  # upstream in lavaan PR #581); skip when the installed lavaan carries the
+  # fix, where the warning correctly does not fire
+  skip_if(
+    utils::packageVersion("lavaan") >= "0.7.1.2707",
+    "lavaan two-level FIML gradient bug is patched"
+  )
   d <- lavaan::Demo.twolevel[, c("y1", "y2", "y3", "cluster")]
   d[1, c("y1", "y2", "y3")] <- NA
   m <- "

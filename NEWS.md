@@ -81,8 +81,9 @@
   retains such cases but its analytic gradient kernel mishandles the
   zero-observed pattern; INLAvaan drops these rows before the cluster
   kernels (exact for the marginal likelihood). Two-level FIML fitting also
-  inherits the upstream gradient issue, so `inlavaan()` now warns when such
-  cases are present until lavaan is patched.
+  inherits the upstream gradient issue (fixed in lavaan PR #581), so
+  `inlavaan()` warns when such cases are present on lavaan versions before
+  the fix.
 * Models fitted with `meanstructure = FALSE` now use a proper Bayesian
   likelihood.
   
