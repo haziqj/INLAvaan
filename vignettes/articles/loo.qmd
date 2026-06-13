@@ -263,8 +263,8 @@ INLAvaan deliberately provides just this evaluation API; the search logic is you
   contributing a smaller score; a two-level cluster contributes its
   observed-data marginal likelihood. Two missing-data fits are comparable
   with `compare()` only when they share the same observed entries (the same
-  data *and* the same holes). The per-row deletion diagnostic
-  (`type = "loso"`) is not available under missing data.
+  data *and* the same holes). The two-level conditional predictive
+  (`type = "loso"`) is available under missing data too.
 - **Parallelism is opt-in.** The default runs serially; pass
   `loo(fit, cores = 2)` to parallelise the Hessian stage via forking
   (not available on Windows).
@@ -272,10 +272,15 @@ INLAvaan deliberately provides just this evaluation API; the search logic is you
   our validation it tracks brute-force refits to within about one ELPD unit,
   while the first-order score can be off by tens of units. Use
   `second_order = FALSE` only for quick screening.
-- **Row deletion on two-level models.** `loo(fit2l, type = "loso")` forces
-  per-row scoring on a two-level fit (each contribution is the conditional
-  density of a row given the rest of its cluster). It is provided as a
-  diagnostic, warns when used, and is expensive for large datasets --
-  consider the `units` argument to subset.
+- **Marginal vs conditional predictive on two-level models.** The default
+  `type = "loco"` is the *marginal* predictive (leave-one-cluster-out:
+  prediction for a *new* cluster). `loo(fit2l, type = "loso")` -- and
+  `waic(fit2l, type = "loso")` -- instead score the *conditional*
+  predictive (leave-one-unit-out: a new observation within an *observed*
+  cluster, each contribution the conditional density of a row given the
+  rest of its cluster). These answer different questions and are easily
+  conflated [@merkle2019bayesian], so the marginal is the default and the
+  conditional warns. It is available with and without missing data and is
+  expensive for large datasets -- subset with `units`.
 
 ## References

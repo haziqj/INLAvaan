@@ -8,14 +8,36 @@
 \usage{
 waic(x, ...)
 
-\method{waic}{INLAvaan}(x, units = NULL, nsamp = NULL, cores = NULL, verbose = FALSE, ...)
+\method{waic}{INLAvaan}(
+  x,
+  type = c("auto", "loso", "loco"),
+  units = NULL,
+  nsamp = NULL,
+  cores = NULL,
+  verbose = FALSE,
+  ...
+)
 
-\method{waic}{inlavaan_internal}(x, units = NULL, nsamp = NULL, cores = NULL, verbose = FALSE, ...)
+\method{waic}{inlavaan_internal}(
+  x,
+  type = c("auto", "loso", "loco"),
+  units = NULL,
+  nsamp = NULL,
+  cores = NULL,
+  verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{A fitted \link{INLAvaan} object (or its \code{inlavaan_internal} list).}
 
 \item{...}{Not used.}
+
+\item{type}{Unit type: \code{"auto"} (default) resolves to per-subject for
+single-level models and per-cluster (marginal WAIC) for two-level
+models. \code{"loso"} on a two-level model scores the conditional
+(leave-one-unit-out) WAIC instead (with a warning; see Details);
+\code{"loco"} cannot be forced on a model without clusters.}
 
 \item{units}{Optional integer vector of unit indices to score; defaults
 to all units.}
@@ -38,8 +60,9 @@ identification as \code{\link[=loo]{loo()}}), \code{estimates} (matrix with rows
 \description{
 Computes the WAIC of a fitted \link{INLAvaan} model from unit log-likelihoods
 evaluated over posterior draws. Single-level models are scored per
-subject; two-level models are scored per cluster, matching the units used
-by \code{\link[=loo]{loo()}}.
+subject; two-level models are scored per cluster by default, matching the
+units used by \code{\link[=loo]{loo()}}. For a two-level model \code{type = "loso"} instead
+scores the \emph{conditional} (leave-one-unit-out) WAIC; see Details.
 }
 \details{
 For each posterior draw \eqn{\theta_s} (drawn with the same copula
@@ -56,6 +79,18 @@ annotated when printing). The same model restrictions as \code{\link[=loo]{loo()
 and so does the flavour rule: fits with \code{fixed.x = TRUE} are scored
 conditionally on the exogenous covariates, fits with \code{fixed.x = FALSE}
 jointly (see \code{\link[=loo]{loo()}}).
+
+\strong{Marginal vs conditional WAIC (two-level models).} The default
+per-cluster scoring is the \emph{marginal} WAIC, which corresponds to
+leave-one-cluster-out cross-validation -- prediction for a \emph{new} cluster.
+Setting \code{type = "loso"} scores the \emph{conditional} WAIC, corresponding to
+leave-one-unit-out -- prediction for a new observation within an
+\emph{observed} cluster (each row contributes the conditional density of its
+observed entries given the rest of its cluster). The two answer different
+questions and are easily conflated (Merkle, Furr & Rabe-Hesketh, 2019);
+the per-cluster marginal is the usual model-comparison target, so it is
+the default, and \code{type = "loso"} warns. This matches \code{loo(type = "loso")}
+-- the two compute the same estimand by sampling and by Taylor expansion.
 
 Under the default \code{test = "standard"}, \code{\link[=inlavaan]{inlavaan()}} computes the WAIC at
 fit time by reusing the posterior draws the fit already produced (when

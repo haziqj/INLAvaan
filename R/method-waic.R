@@ -2,8 +2,9 @@
 #'
 #' Computes the WAIC of a fitted [INLAvaan] model from unit log-likelihoods
 #' evaluated over posterior draws. Single-level models are scored per
-#' subject; two-level models are scored per cluster, matching the units used
-#' by [loo()].
+#' subject; two-level models are scored per cluster by default, matching the
+#' units used by [loo()]. For a two-level model `type = "loso"` instead
+#' scores the *conditional* (leave-one-unit-out) WAIC; see Details.
 #'
 #' @details
 #' For each posterior draw \eqn{\theta_s} (drawn with the same copula
@@ -21,6 +22,18 @@
 #' conditionally on the exogenous covariates, fits with `fixed.x = FALSE`
 #' jointly (see [loo()]).
 #'
+#' **Marginal vs conditional WAIC (two-level models).** The default
+#' per-cluster scoring is the *marginal* WAIC, which corresponds to
+#' leave-one-cluster-out cross-validation -- prediction for a *new* cluster.
+#' Setting `type = "loso"` scores the *conditional* WAIC, corresponding to
+#' leave-one-unit-out -- prediction for a new observation within an
+#' *observed* cluster (each row contributes the conditional density of its
+#' observed entries given the rest of its cluster). The two answer different
+#' questions and are easily conflated (Merkle, Furr & Rabe-Hesketh, 2019);
+#' the per-cluster marginal is the usual model-comparison target, so it is
+#' the default, and `type = "loso"` warns. This matches `loo(type = "loso")`
+#' -- the two compute the same estimand by sampling and by Taylor expansion.
+#'
 #' Under the default `test = "standard"`, [inlavaan()] computes the WAIC at
 #' fit time by reusing the posterior draws the fit already produced (when
 #' the model is supported and `nsamp >= 100`), and
@@ -31,6 +44,11 @@
 #' continues to work.
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
+#' @param type Unit type: `"auto"` (default) resolves to per-subject for
+#'   single-level models and per-cluster (marginal WAIC) for two-level
+#'   models. `"loso"` on a two-level model scores the conditional
+#'   (leave-one-unit-out) WAIC instead (with a warning; see Details);
+#'   `"loco"` cannot be forced on a model without clusters.
 #' @param units Optional integer vector of unit indices to score; defaults
 #'   to all units.
 #' @param nsamp Number of posterior draws. Defaults to the `nsamp` used when

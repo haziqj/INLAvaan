@@ -34,8 +34,16 @@
   observed-data marginal likelihood via lavaan's raw-data cluster kernels
   (no per-cluster sufficient statistics, since LOCO deletes whole
   clusters). This shares the missing-at-random assumption of the FIML fit
-  itself. The two-level per-row deletion diagnostic (`type = "loso"`) and
-  multigroup two-level models remain unsupported under missingness.
+  itself. Multigroup two-level models remain unsupported under missingness.
+* On two-level models `loo()` and `waic()` gain `type = "loso"`, scoring
+  the *conditional* predictive (leave-one-unit-out: a new observation
+  within an observed cluster) instead of the default *marginal* predictive
+  (`type = "loco"`, leave-one-cluster-out: a new cluster). These are the
+  two estimands of Merkle, Furr & Rabe-Hesketh (2019); they answer
+  different questions and are easily conflated, so the marginal is the
+  default and the conditional warns. `loo()` uses the Taylor expansion and
+  `waic()` the posterior draws, computing the same estimand two ways; both
+  work with and without missing data. (`waic()` previously had no `type`.)
 * `fitmeasures()` gains `elpd_loo`, `se_loo`, `p_loo`, `looic` and
   `elpd_waic`, `se_waic`, `p_waic`, `waic`: included in `"all"` when stored
   with the fit, computed on demand when requested by name.
@@ -68,6 +76,13 @@
 
 ## Bug fixes
 
+* Two-level FIML `loo()`/`waic()` scores are now correct for clusters
+  containing a case fully missing on the within-level variables. lavaan
+  retains such cases but its analytic gradient kernel mishandles the
+  zero-observed pattern; INLAvaan drops these rows before the cluster
+  kernels (exact for the marginal likelihood). Two-level FIML fitting also
+  inherits the upstream gradient issue, so `inlavaan()` now warns when such
+  cases are present until lavaan is patched.
 * Models fitted with `meanstructure = FALSE` now use a proper Bayesian
   likelihood.
   

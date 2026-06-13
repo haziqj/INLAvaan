@@ -28,13 +28,18 @@
 #'
 #' The type is resolved automatically: per-cluster (`"loco"`) when the model
 #' was fitted with a `cluster` argument, per-subject (`"loso"`) otherwise.
-#' On a two-level model, `type = "loso"` may be forced (with a warning) as a
-#' diagnostic: row \eqn{i} of cluster \eqn{j} then contributes
+#' For a two-level model these are the two estimands of Merkle, Furr &
+#' Rabe-Hesketh (2019): the default per-cluster `"loco"` is the *marginal*
+#' predictive (leave-one-cluster-out -- prediction for a *new* cluster),
+#' while `type = "loso"` forces the *conditional* predictive
+#' (leave-one-unit-out -- prediction for a new observation within an
+#' *observed* cluster), where row \eqn{i} of cluster \eqn{j} contributes
 #' \eqn{\ell_i = \ell_j(\mathrm{full}) - \ell_j(\mathrm{minus\ row\ } i)},
-#' the conditional density of the row given the remaining rows in its
-#' cluster, computed by downdating the cluster's sufficient statistics. This
-#' path costs one cluster evaluation per row per Hessian direction and is
-#' less extensively validated than the per-cluster default.
+#' the conditional density of the row given the rest of its cluster. The two
+#' answer different questions and are easily conflated, so the per-cluster
+#' marginal is the default and `type = "loso"` warns. It works with and
+#' without missing data, costs one cluster evaluation per row per Hessian
+#' direction, and is best subset with `units`.
 #'
 #' **Multigroup models.** Groups are independent, so each unit is scored
 #' against its own group's implied moments; without a mean structure the
@@ -107,8 +112,9 @@
 #' missing-at-random assumption as the FIML fit itself. Because the score
 #' is the observed-entry predictive, a [compare()] of two missing-data fits
 #' is meaningful only when they share the same observed entries (the same
-#' data *and* the same holes). The two-level per-row deletion diagnostic
-#' (`type = "loso"`) is not available under missing data.
+#' data *and* the same holes). The two-level conditional predictive
+#' (`type = "loso"`) is available under missing data too, on the same
+#' kernels.
 #'
 #' Supported models: continuous-indicator models fitted with the `ML`
 #' estimator (including FIML, `missing = "ml"`, single- and two-level),
@@ -119,10 +125,11 @@
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
 #' @param type Unit type: `"auto"` (default) resolves to `"loso"`
-#'   (per-subject) for single-level models and `"loco"` (per-cluster) for
-#'   two-level models. `"loco"` cannot be forced on a model without
-#'   clusters; `"loso"` on a two-level model scores row deletions (see
-#'   Details) and emits a warning.
+#'   (per-subject) for single-level models and `"loco"` (per-cluster,
+#'   marginal predictive) for two-level models. `"loco"` cannot be forced
+#'   on a model without clusters; `"loso"` on a two-level model scores the
+#'   conditional (leave-one-unit-out) predictive instead (with a warning;
+#'   see Details).
 #' @param units Optional integer vector of unit indices to score; defaults
 #'   to all units. For LOSO these are case numbers (row numbers of the
 #'   analysed dataset, as recorded in the fit -- for multigroup fits the
