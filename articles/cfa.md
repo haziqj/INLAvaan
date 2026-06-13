@@ -18,28 +18,28 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [114ms]
+#> ✔ Finding posterior mode. [111ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [83ms]
+#> ✔ Computing the Hessian. [78ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [139ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [130ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [993ms]
+#> ✔ Fitting 21/21 skew-normal marginals. [913ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [164ms]
+#> ✔ Adjusting copula correlations (NORTA). [156ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [74ms]
+#> ✔ Posterior sampling and summarising. [67ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [223ms]
+#> ✔ Computing Taylor LOO. [234ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [97ms]
+#> ✔ Computing WAIC from the posterior draws. [92ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.5.9002 ended normally after 66 iterations
@@ -57,8 +57,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7551.212 
-#>    Effective parameters (pD)                    20.033 
+#>    Deviance (DIC)                             7554.700 
+#>    Effective parameters (pD)                    21.777 
 #> 
 #> Parameter Estimates:
 #> 

@@ -118,28 +118,28 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [223ms]
+#> ✔ Finding posterior mode. [254ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [78ms]
+#> ✔ Computing the Hessian. [74ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [139ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [125ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [481ms]
+#> ✔ Fitting 13/13 skew-normal marginals. [426ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [77ms]
+#> ✔ Adjusting copula correlations (NORTA). [76ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [521ms]
+#> ✔ Posterior sampling and summarising. [455ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [291ms]
+#> ✔ Computing Taylor LOO. [308ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [346ms]
+#> ✔ Computing WAIC from the posterior draws. [329ms]
 #> 
 ```
 
@@ -373,7 +373,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 2.23 s
+#> 2.12 s
 ```
 
 ### Plot
@@ -407,28 +407,28 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [90ms]
+#> ✔ Finding posterior mode. [83ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [40ms]
+#> ✔ Computing the Hessian. [38ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [101ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [92ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [329ms]
+#> ✔ Fitting 12/12 skew-normal marginals. [310ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [47ms]
+#> ✔ Adjusting copula correlations (NORTA). [50ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [474ms]
+#> ✔ Posterior sampling and summarising. [411ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [272ms]
+#> ✔ Computing Taylor LOO. [330ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [450ms]
+#> ✔ Computing WAIC from the posterior draws. [498ms]
 #> 
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)

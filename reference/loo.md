@@ -272,29 +272,28 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [109ms]
+#> ✔ Finding posterior mode. [110ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [61ms]
+#> ✔ Computing the Hessian. [53ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [144ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [108ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 13/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [1.2s]
+#> ✔ Fitting 30/30 skew-normal marginals. [760ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [138ms]
+#> ✔ Adjusting copula correlations (NORTA). [130ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [632ms]
+#> ✔ Posterior sampling and summarising. [546ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [485ms]
+#> ✔ Computing Taylor LOO. [501ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [284ms]
+#> ✔ Computing WAIC from the posterior draws. [247ms]
 #> 
 
 # Leave-one-subject-out (LOSO) from the single fit -- no refitting
@@ -355,31 +354,31 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [706ms]
+#> ✔ Finding posterior mode. [602ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [365ms]
+#> ✔ Computing the Hessian. [301ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [562ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [466ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 8/34 skew-normal marginals.
-#> ⠸ Fitting 20/34 skew-normal marginals.
-#> ⠼ Fitting 32/34 skew-normal marginals.
-#> ✔ Fitting 34/34 skew-normal marginals. [8.8s]
+#> ⠹ Fitting 7/34 skew-normal marginals.
+#> ⠸ Fitting 21/34 skew-normal marginals.
+#> ⠼ Fitting 34/34 skew-normal marginals.
+#> ✔ Fitting 34/34 skew-normal marginals. [7.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [153ms]
+#> ✔ Adjusting copula correlations (NORTA). [129ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.5s]
+#> ✔ Posterior sampling and summarising. [1.3s]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [7.8s]
+#> ✔ Computing Taylor LOO. [6.9s]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [49s]
+#> ✔ Computing WAIC from the posterior draws. [39.6s]
 #> 
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)
