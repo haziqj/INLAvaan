@@ -50,12 +50,12 @@ test_that("two-level FIML LOCO matches reference values", {
   expect_equal(res$type, "loco")
   expect_equal(res$flavour, "joint")
   expect_equal(res$n_units, 200L)
-  expect_equal(res$elpd_1, -11107.6359609653, tolerance = 1e-4)
-  expect_equal(res$elpd_2, -11115.6539796376, tolerance = 1e-4)
-  expect_equal(res$se_1, 355.1108432814, tolerance = 1e-4)
-  expect_equal(res$se_2, 355.2908300641, tolerance = 1e-4)
-  expect_equal(res$p_loo_1, 15.3759689400, tolerance = 1e-2)
-  expect_equal(res$p_loo_2, 16.4502958612, tolerance = 1e-2)
+  expect_equal(res$elpd_1, -11107.6378454856, tolerance = 1e-4)
+  expect_equal(res$elpd_2, -11115.6523623652, tolerance = 1e-4)
+  expect_equal(res$se_1, 355.1108972673, tolerance = 1e-4)
+  expect_equal(res$se_2, 355.2910431850, tolerance = 1e-4)
+  expect_equal(res$p_loo_1, 15.3797379805, tolerance = 1e-2)
+  expect_equal(res$p_loo_2, 16.4540289214, tolerance = 1e-2)
 
   pu <- res$per_unit[c(1L, 50L, 200L), ]
   expect_equal(pu$nobs, c(5L, 10L, 20L))
@@ -159,11 +159,95 @@ test_that("waic() runs on a two-level FIML fit and agrees loosely with loo()", {
   )
 })
 
-test_that("the per-row deletion override is gated under missing data", {
-  # type = "loso" first warns that it overrides the per-cluster default, then
-  # aborts because row deletion is unsupported under missingness
-  expect_error(
-    suppressWarnings(loo(fit, type = "loso")),
-    "does not support missing data"
+test_that("the per-row (leave-one-unit-out) override works under missing data", {
+  # type = "loso" on a clustered fit warns (conditional vs marginal) then
+  # scores the leave-one-unit-out conditional predictive per row
+  expect_warning(
+    res_row <- loo(fit, type = "loso", units = 1:20),
+    "leave-one-unit-out"
   )
+  expect_equal(res_row$type, "loso")
+  expect_equal(nrow(res_row$per_unit), 20L)
+  expect_true(all(res_row$per_unit$nobs == 1L))
+
+  # analytic per-row scores agree with finite differences, including rows in
+  # clusters that contain a fully-missing row (lavaan's gradient kernel
+  # mishandles zero-observed patterns; INLAvaan drops them before the kernel)
+  int <- get_inlavaan_internal(fit)
+  minfo <- INLAvaan:::loco_missing_info(int)
+  rows <- c(1L, 5L, 200L, minfo$rows_by_cluster[[26L]])
+  s_an <- INLAvaan:::loso2l_missing_scores_theta(
+    int$theta_star,
+    minfo,
+    int$lavmodel,
+    int$partable,
+    rows
+  )
+  h <- 1e-6
+  s_fd <- vapply(
+    seq_along(int$theta_star),
+    function(k) {
+      tp <- tm <- int$theta_star
+      tp[k] <- tp[k] + h
+      tm[k] <- tm[k] - h
+      cp <- INLAvaan:::loo_grad_cache(
+        tp,
+        int$lavmodel,
+        int$partable,
+        two_level = TRUE
+      )
+      cm <- INLAvaan:::loo_grad_cache(
+        tm,
+        int$lavmodel,
+        int$partable,
+        two_level = TRUE
+      )
+      (INLAvaan:::loso2l_missing_loglik_all(rows, minfo, cp$mom) -
+        INLAvaan:::loso2l_missing_loglik_all(rows, minfo, cm$mom)) /
+        (2 * h)
+    },
+    numeric(length(rows))
+  )
+  expect_equal(max(abs(s_an - s_fd)), 0, tolerance = 1e-5)
+})
+
+test_that("LOCO scores are correct for clusters with a fully-missing row", {
+  # regression guard for the fix: cluster 26 has a row with all within
+  # variables missing; its score must match finite differences
+  int <- get_inlavaan_internal(fit)
+  minfo <- INLAvaan:::loco_missing_info(int)
+  expect_true(any(minfo$n_obs < minfo$n_j)) # some cluster has a fully-missing row
+  s_an <- INLAvaan:::loco_missing_scores_theta(
+    int$theta_star,
+    minfo,
+    int$lavmodel,
+    int$partable,
+    26L
+  )
+  h <- 1e-6
+  s_fd <- vapply(
+    seq_along(int$theta_star),
+    function(k) {
+      tp <- tm <- int$theta_star
+      tp[k] <- tp[k] + h
+      tm[k] <- tm[k] - h
+      cp <- INLAvaan:::loo_grad_cache(
+        tp,
+        int$lavmodel,
+        int$partable,
+        two_level = TRUE
+      )
+      cm <- INLAvaan:::loo_grad_cache(
+        tm,
+        int$lavmodel,
+        int$partable,
+        two_level = TRUE
+      )
+      (INLAvaan:::loco_missing_loglik_one(26L, minfo, cp$mom) -
+        INLAvaan:::loco_missing_loglik_one(26L, minfo, cm$mom)) /
+        (2 * h)
+    },
+    numeric(1)
+  )
+  expect_equal(max(abs(as.numeric(s_an) - s_fd)), 0, tolerance = 1e-5)
 })

@@ -187,7 +187,7 @@ test_that("conditional LOCO with cluster-level covariates matches reference valu
   # constant cancels between the full and downdated cluster terms)
   expect_warning(
     res_row <- loo(fit_2c, type = "loso", units = 1:4),
-    "per-row deletion"
+    "leave-one-unit-out"
   )
   expect_equal(res_row$flavour, "conditional")
   expect_true(all(is.finite(res_row$per_unit$log_cpo_1)))
@@ -246,7 +246,7 @@ test_that("conditional LOCO with within-level covariates matches reference value
   # conditional cluster loglik difference reconstructed from raw data
   expect_warning(
     res_row <- loo(fit_wx, type = "loso", units = c(2L, 50L)),
-    "per-row deletion"
+    "leave-one-unit-out"
   )
   expect_equal(res_row$flavour, "conditional")
   int <- get_inlavaan_internal(fit_wx)

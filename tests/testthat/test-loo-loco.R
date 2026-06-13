@@ -114,7 +114,7 @@ test_that("LOCO unit subsetting and theta/Sigma override", {
 test_that("two-level LOSO override scores row deletions", {
   expect_warning(
     res_row <- loo(fit, type = "loso", units = 1:8),
-    "per-row deletion"
+    "leave-one-unit-out"
   )
   expect_equal(res_row$type, "loso")
   expect_equal(nrow(res_row$per_unit), 8L)
