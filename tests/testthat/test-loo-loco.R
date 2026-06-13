@@ -206,3 +206,27 @@ test_that("fixed.x two-level fits are scored conditionally", {
   expect_equal(res_fx$flavour, "conditional")
   expect_true(all(is.finite(res_fx$per_unit$log_cpo_2)))
 })
+
+test_that("waic gains type: conditional (leave-one-unit-out) WAIC", {
+  # default is marginal (per-cluster) WAIC
+  set.seed(1)
+  w_marg <- suppressWarnings(waic(fit, nsamp = 200))
+  expect_equal(w_marg$type, "loco")
+
+  # type = "loso" warns and scores the conditional (leave-one-unit-out) WAIC,
+  # the same estimand as loo(type = "loso"); the two routes agree loosely
+  w_cond <- testthat::capture_warnings(
+    w <- waic(fit, type = "loso", units = 1:60, nsamp = 200)
+  )
+  expect_true(any(grepl("leave-one-unit-out", w_cond)))
+  expect_equal(w$type, "loso")
+  expect_equal(w$n_units, 60L)
+  expect_true(all(w$per_unit$nobs == 1L))
+
+  l <- suppressWarnings(loo(fit, type = "loso", units = 1:60))
+  expect_equal(
+    unname(w$estimates["elpd_waic", "Estimate"]),
+    l$elpd_2,
+    tolerance = 0.05
+  )
+})

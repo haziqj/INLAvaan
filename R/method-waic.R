@@ -69,6 +69,7 @@ waic <- function(x, ...) {
 #' @exportS3Method waic INLAvaan
 waic.INLAvaan <- function(
   x,
+  type = c("auto", "loso", "loco"),
   units = NULL,
   nsamp = NULL,
   cores = NULL,
@@ -77,6 +78,7 @@ waic.INLAvaan <- function(
 ) {
   waic.inlavaan_internal(
     x@external$inlavaan_internal,
+    type = type,
     units = units,
     nsamp = nsamp,
     cores = cores,
@@ -88,15 +90,17 @@ waic.INLAvaan <- function(
 #' @exportS3Method waic inlavaan_internal
 waic.inlavaan_internal <- function(
   x,
+  type = c("auto", "loso", "loco"),
   units = NULL,
   nsamp = NULL,
   cores = NULL,
   verbose = FALSE,
   ...
 ) {
+  type <- match.arg(type)
   # Reuse the result stored at fit time when no argument deviates from the
   # defaults
-  if (is.null(units) && is.null(nsamp) && !is.null(x$waic)) {
+  if (type == "auto" && is.null(units) && is.null(nsamp) && !is.null(x$waic)) {
     if (isTRUE(verbose)) {
       cli_alert_info("Returning the WAIC stored with the fit.")
     }
@@ -104,6 +108,7 @@ waic.inlavaan_internal <- function(
   }
   inlav_waic(
     int = x,
+    type = type,
     units = units,
     nsamp = nsamp,
     eff_cores = resolve_loo_cores(cores),

@@ -1398,11 +1398,13 @@ log_mean_exp <- function(v) {
 
 inlav_waic <- function(
   int,
+  type = c("auto", "loso", "loco"),
   units = NULL,
   nsamp = NULL,
   eff_cores = 1L,
   verbose = FALSE
 ) {
+  type <- match.arg(type)
   check_loo_model(int, fn = "waic")
   nsamp <- nsamp %||% int$nsamp %||% 1000L
   samp <- sample_params(
@@ -1418,6 +1420,7 @@ inlav_waic <- function(
   waic_from_draws(
     int,
     samp$x_samp,
+    type = type,
     units = units,
     eff_cores = eff_cores,
     verbose = verbose
@@ -1430,10 +1433,12 @@ inlav_waic <- function(
 waic_from_draws <- function(
   int,
   x_samp,
+  type = c("auto", "loso", "loco"),
   units = NULL,
   eff_cores = 1L,
   verbose = FALSE
 ) {
+  type <- match.arg(type)
   pt <- int$partable
   lavmodel <- int$lavmodel
   lavdata <- int$lavdata
@@ -1441,8 +1446,38 @@ waic_from_draws <- function(
   two_level_missing <- two_level && isTRUE(int$lavsamplestats@missing.flag)
   nsamp <- nrow(x_samp)
 
+  # Resolve unit type (matches loo): conditional WAIC = leave-one-unit-out,
+  # marginal WAIC = leave-one-cluster-out (Merkle, Furr & Rabe-Hesketh 2019)
+  if (type == "auto") {
+    type <- if (two_level) "loco" else "loso"
+  } else if (type == "loco" && !two_level) {
+    cli_abort(
+      "Leave-one-cluster-out requires a two-level model, but this model has
+       no clusters."
+    )
+  } else if (type == "loso" && two_level) {
+    cli_warn(c(
+      "Scoring leave-one-unit-out (the {.emph conditional} WAIC) on a
+       two-level model, not the default leave-one-cluster-out (the
+       {.emph marginal} WAIC).",
+      "i" = "These target different predictions -- a new observation within an
+       observed cluster vs a new cluster -- and are easily conflated
+       (Merkle, Furr & Rabe-Hesketh, 2019)."
+    ))
+  }
+  per_row_2l <- type == "loso" && two_level
+
   unit_group <- NULL
-  if (two_level_missing) {
+  if (per_row_2l) {
+    X <- lavdata@X[[1L]]
+    if (two_level_missing) {
+      minfo <- loco_missing_info(int)
+    } else {
+      css <- loco_suff_stats(lavdata)
+    }
+    units <- check_loo_units(units, nrow(X), "rows")
+    nobs <- rep(1L, length(units))
+  } else if (two_level_missing) {
     minfo <- loco_missing_info(int)
     units <- check_loo_units(units, minfo$J, "clusters")
     nobs <- minfo$n_j[units]
@@ -1462,7 +1497,11 @@ waic_from_draws <- function(
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_samp[s, ])
     mom <- loo_implied_moments(lavmodel_x, two_level)
     tryCatch(
-      if (two_level_missing) {
+      if (per_row_2l && two_level_missing) {
+        loso2l_missing_loglik_all(units, minfo, mom)
+      } else if (per_row_2l) {
+        loso2l_loglik_all(units, css, X, mom)
+      } else if (two_level_missing) {
         vapply(
           units,
           function(j) loco_missing_loglik_one(j, minfo, mom),
@@ -1497,7 +1536,9 @@ waic_from_draws <- function(
       pt,
       two_level = two_level
     )$mom
-    cvec <- if (two_level) {
+    cvec <- if (per_row_2l) {
+      loo_fixedx_rowdiff_loco(int, css, X, units, mom0)
+    } else if (two_level) {
       loo_fixedx_const_loco(int, css, units, mom0)
     } else {
       loso_fixedx_const_units(int, uv, dv, mom0)
@@ -1541,7 +1582,7 @@ waic_from_draws <- function(
     list(
       per_unit = per_unit,
       estimates = estimates,
-      type = if (two_level) "loco" else "loso",
+      type = type,
       flavour = flavour,
       n_units = n_units,
       n_groups = lavdata@ngroups,
