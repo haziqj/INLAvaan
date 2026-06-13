@@ -80,4 +80,6 @@ loo(fit2)
 
 Comparing two FIML fits with `compare(..., loo = TRUE)` is valid only when they share the same observed entries -- the same data *and* the same missingness pattern -- since each unit is scored on the entries it has. See the [cross-validation article](loo.html) for the Taylor case-deletion method itself.
 
+Two-level FIML fits are also supported: they are scored per cluster (leave-one-cluster-out), each cluster contributing its observed-data marginal likelihood. The per-row deletion diagnostic (`type = "loso"`) is not available under missing data.
+
 

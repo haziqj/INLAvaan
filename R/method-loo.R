@@ -92,25 +92,30 @@
 #' cluster-level (between) and/or within-level covariates in two-level
 #' models.
 #'
-#' **Missing data.** Single-level fits estimated by full-information
-#' maximum likelihood (`missing = "ml"`) are scored on the *observed-data*
-#' predictive: each unit contributes the density of the entries it actually
-#' has, \eqn{\log p(y_{i,\mathrm{obs}} \mid D_{-i})}, with its full row
-#' removed from the conditioning set. The casewise kernels operate on each
-#' unit's observed subset, grouping rows by missing pattern, so a unit with
-#' fewer observed entries contributes a smaller log-likelihood term *and* a
-#' smaller score and thus self-weights in the elpd. This carries the same
+#' **Missing data.** Fits estimated by full-information maximum likelihood
+#' (`missing = "ml"`) are scored on the *observed-data* predictive: each
+#' unit contributes the density of the entries it actually has, with its
+#' full row (single-level) or whole cluster (two-level) removed from the
+#' conditioning set. For single-level fits the casewise kernels operate on
+#' each unit's observed subset, grouping rows by missing pattern, so a unit
+#' with fewer observed entries contributes a smaller log-likelihood term
+#' *and* a smaller score and thus self-weights in the elpd. Two-level fits
+#' are scored per cluster (`"loco"`): each cluster contributes its
+#' observed-data marginal likelihood, evaluated by lavaan's raw-data
+#' cluster kernels (no per-cluster sufficient statistics are needed, since
+#' leave-one-cluster-out deletes the whole cluster). All carry the same
 #' missing-at-random assumption as the FIML fit itself. Because the score
 #' is the observed-entry predictive, a [compare()] of two missing-data fits
 #' is meaningful only when they share the same observed entries (the same
-#' data *and* the same holes). Two-level models with missing data are not
-#' supported yet.
+#' data *and* the same holes). The two-level per-row deletion diagnostic
+#' (`type = "loso"`) is not available under missing data.
 #'
 #' Supported models: continuous-indicator models fitted with the `ML`
-#' estimator (including FIML, `missing = "ml"`), single-group or multigroup
-#' (multigroup two-level models are not supported yet). If the `loo`
-#' package is attached it masks this generic, but `loo(fit)` continues to
-#' dispatch correctly because the method is registered by generic name.
+#' estimator (including FIML, `missing = "ml"`, single- and two-level),
+#' single-group or multigroup (multigroup two-level models are not
+#' supported yet). If the `loo` package is attached it masks this generic,
+#' but `loo(fit)` continues to dispatch correctly because the method is
+#' registered by generic name.
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
 #' @param type Unit type: `"auto"` (default) resolves to `"loso"`

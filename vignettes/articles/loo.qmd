@@ -248,21 +248,23 @@ INLAvaan deliberately provides just this evaluation API; the search logic is you
   independent, so each unit is scored against its own group's moments,
   with a `group` column in the pointwise table (see the
   [multigroup article](multigroup.html) for the measurement-invariance
-  workflow). Single-level fits with missing data are scored under
-  full-information maximum likelihood (`missing = "ml"`); see the
+  workflow). Fits with missing data are scored under full-information
+  maximum likelihood (`missing = "ml"`), single- or two-level; see the
   [missing-data article](missing.html). Ordinal (PML) and multigroup
-  two-level models, and two-level models with missing data, are not
-  supported yet. Models with exogenous
+  two-level models are not supported yet. Models with exogenous
   covariates are scored jointly (`fixed.x = FALSE`) or conditionally
   (`fixed.x = TRUE`), following the fitted likelihood, for any covariate
   placement.
 - **Missing data.** Under FIML each unit is scored on the entries it
-  actually has -- the observed-data predictive $\log p(y_{i,\text{obs}}
-  \mid D_{-i})$, with the full row deleted from the conditioning set --
-  carrying the same missing-at-random assumption as the fit. A unit with
-  fewer observed entries self-weights, contributing a smaller score. Two
-  missing-data fits are comparable with `compare()` only when they share
-  the same observed entries (the same data *and* the same holes).
+  actually has -- the observed-data predictive, with the full row
+  (single-level) or whole cluster (two-level LOCO) deleted from the
+  conditioning set -- carrying the same missing-at-random assumption as the
+  fit. A single-level unit with fewer observed entries self-weights,
+  contributing a smaller score; a two-level cluster contributes its
+  observed-data marginal likelihood. Two missing-data fits are comparable
+  with `compare()` only when they share the same observed entries (the same
+  data *and* the same holes). The per-row deletion diagnostic
+  (`type = "loso"`) is not available under missing data.
 - **Parallelism is opt-in.** The default runs serially; pass
   `loo(fit, cores = 2)` to parallelise the Hessian stage via forking
   (not available on Windows).
