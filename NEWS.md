@@ -25,6 +25,13 @@
   Units are identified by case number and carry a `group` column, so
   results keep their identity across fits that stack groups differently.
   Multigroup two-level models are not supported yet.
+* `loo()` and `waic()` support single-level fits estimated by
+  full-information maximum likelihood (`missing = "ml"`). Each unit is
+  scored on the entries it actually has -- the observed-data predictive
+  `log p(y_i,obs | D_-i)` -- with casewise kernels evaluated per missing
+  pattern, so a unit with fewer observed entries self-weights in the elpd.
+  This shares the missing-at-random assumption of the FIML fit itself;
+  two-level models with missing data are not supported yet.
 * `fitmeasures()` gains `elpd_loo`, `se_loo`, `p_loo`, `looic` and
   `elpd_waic`, `se_waic`, `p_waic`, `waic`: included in `"all"` when stored
   with the fit, computed on demand when requested by name.

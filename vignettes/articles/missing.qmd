@@ -62,12 +62,22 @@ coef(fit2)
 
 ```{r}
 plot(
-  coef(fit1), 
-  coef(fit2), 
-  xlab = "Listwise Deletion Estimates", 
+  coef(fit1),
+  coef(fit2),
+  xlab = "Listwise Deletion Estimates",
   ylab = "FIML Estimates"
 )
 abline(0, 1)
 ```
+
+## Model criteria under FIML
+
+`loo()` and `waic()` work directly on a FIML fit. Each unit is scored on the entries it actually has -- the observed-data predictive $\log p(y_{i,\text{obs}} \mid D_{-i})$, with the full row deleted from the conditioning set -- so a case with more missing entries contributes a smaller log-likelihood term *and* a smaller score, self-weighting in the expected log predictive density. The missing-at-random assumption that justifies FIML estimation also justifies this predictive score.
+
+```{r}
+loo(fit2)
+```
+
+Comparing two FIML fits with `compare(..., loo = TRUE)` is valid only when they share the same observed entries -- the same data *and* the same missingness pattern -- since each unit is scored on the entries it has. See the [cross-validation article](loo.html) for the Taylor case-deletion method itself.
 
 

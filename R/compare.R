@@ -32,7 +32,10 @@
 #' must be fitted to the same data with matching units; units are paired
 #' by id rather than by row order, so fits that stack groups differently
 #' -- a pooled fit against a multigroup fit, or multigroup fits with
-#' different group orderings -- still pair up unit by unit. All models
+#' different group orderings -- still pair up unit by unit. For
+#' missing-data (FIML) fits, "the same data" also means the same observed
+#' entries: each unit is scored on the entries it has, so comparisons
+#' require identical missingness patterns across models. All models
 #' must also share the
 #' score flavour (see [loo()]): mixing fits with modelled covariates
 #' (`fixed.x = FALSE`, joint scores) and fixed covariates

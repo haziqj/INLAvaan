@@ -187,11 +187,25 @@ support any covariate placement: single-level covariates, and
 cluster-level (between) and/or within-level covariates in two-level
 models.
 
-Supported models: complete-data, continuous-indicator models fitted
-with the \code{ML} estimator, single-group or multigroup (multigroup
-two-level models are not supported yet). If the \code{loo} package is
-attached it masks this generic, but \code{loo(fit)} continues to dispatch
-correctly because the method is registered by generic name.
+\strong{Missing data.} Single-level fits estimated by full-information
+maximum likelihood (\code{missing = "ml"}) are scored on the \emph{observed-data}
+predictive: each unit contributes the density of the entries it actually
+has, \eqn{\log p(y_{i,\mathrm{obs}} \mid D_{-i})}, with its full row
+removed from the conditioning set. The casewise kernels operate on each
+unit's observed subset, grouping rows by missing pattern, so a unit with
+fewer observed entries contributes a smaller log-likelihood term \emph{and} a
+smaller score and thus self-weights in the elpd. This carries the same
+missing-at-random assumption as the FIML fit itself. Because the score
+is the observed-entry predictive, a \code{\link[=compare]{compare()}} of two missing-data fits
+is meaningful only when they share the same observed entries (the same
+data \emph{and} the same holes). Two-level models with missing data are not
+supported yet.
+
+Supported models: continuous-indicator models fitted with the \code{ML}
+estimator (including FIML, \code{missing = "ml"}), single-group or multigroup
+(multigroup two-level models are not supported yet). If the \code{loo}
+package is attached it masks this generic, but \code{loo(fit)} continues to
+dispatch correctly because the method is registered by generic name.
 }
 \examples{
 \donttest{
