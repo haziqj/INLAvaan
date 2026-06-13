@@ -70,7 +70,10 @@ lavaan_internal_aliases <- list(
     "lav_mvn_cl_mi_dlogl_2l_samp",
     "lav_mvnorm_cluster_missing_dlogl_2l_samplestats"
   ),
-  lavaan___lav_data_missing_patterns = "lav_data_missing_patterns"
+  lavaan___lav_data_missing_patterns = c(
+    "lav_data_mi_patterns",
+    "lav_data_missing_patterns"
+  )
 )
 
 resolve_lavaan_internals <- function(ns) {
