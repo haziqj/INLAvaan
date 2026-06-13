@@ -227,28 +227,29 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [83ms]
+#> ✔ Finding posterior mode. [78ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [60ms]
+#> ✔ Computing the Hessian. [59ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [141ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [118ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fitting 21/21 skew-normal marginals. [863ms]
+#> ⠹ Fitting 11/21 skew-normal marginals.
+#> ✔ Fitting 21/21 skew-normal marginals. [837ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [137ms]
+#> ✔ Adjusting copula correlations (NORTA). [132ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [65ms]
+#> ✔ Posterior sampling and summarising. [58ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [376ms]
+#> ✔ Computing Taylor LOO. [408ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [73ms]
+#> ✔ Computing WAIC from the posterior draws. [68ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.5.9002 ended normally after 66 iterations

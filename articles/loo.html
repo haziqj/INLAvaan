@@ -170,8 +170,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7534.056 29.020 -3769.109 42.945 32.433</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7757.362 27.079 -3878.134 46.800 27.516</span></span>
+<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7534.347 29.166 -3769.109 42.945 32.433</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7756.806 26.801 -3878.134 46.800 27.516</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;   -109.025  17.072</span></span></code></pre></div>
@@ -247,8 +247,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7539.595 60.148 -3748.090 44.737 45.076</span></span>
-<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7568.256 30.082 -3787.678 43.881 38.271</span></span>
+<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7536.659 58.680 -3748.090 44.737 45.076</span></span>
+<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7569.483 30.696 -3787.678 43.881 38.271</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;    -39.587  10.261</span></span></code></pre></div>
@@ -286,9 +286,9 @@
 <span><span class="co">#&gt; Computed from 1000 posterior draws and 301 subjects</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_waic  -3768.7 43.0</span></span>
-<span><span class="co">#&gt; p_waic        31.5  2.1</span></span>
-<span><span class="co">#&gt; waic        7537.3 85.9</span></span>
+<span><span class="co">#&gt; elpd_waic  -3768.7 42.8</span></span>
+<span><span class="co">#&gt; p_waic        31.3  2.0</span></span>
+<span><span class="co">#&gt; waic        7537.4 85.7</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; 8 units with p_waic &gt; 0.4: the WAIC may be unreliable; prefer loo().</span></span></code></pre></div>
 </div>
@@ -321,7 +321,7 @@
 </h2>
 <ul>
 <li>
-<strong>Supported models.</strong> Single-group, complete-data, continuous-indicator models fitted with the <code>ML</code> estimator. Multigroup, missing-data, and ordinal (PML) models are not supported yet. Models with exogenous covariates are scored jointly (<code>fixed.x = FALSE</code>) or conditionally (<code>fixed.x = TRUE</code>), following the fitted likelihood, for any covariate placement.</li>
+<strong>Supported models.</strong> Complete-data, continuous-indicator models fitted with the <code>ML</code> estimator, single-group or multigroup – groups are independent, so each unit is scored against its own group’s moments, with a <code>group</code> column in the pointwise table (see the <a href="multigroup.html">multigroup article</a> for the measurement-invariance workflow). Missing-data, ordinal (PML), and multigroup two-level models are not supported yet. Models with exogenous covariates are scored jointly (<code>fixed.x = FALSE</code>) or conditionally (<code>fixed.x = TRUE</code>), following the fitted likelihood, for any covariate placement.</li>
 <li>
 <strong>Parallelism is opt-in.</strong> The default runs serially; pass <code>loo(fit, cores = 2)</code> to parallelise the Hessian stage via forking (not available on Windows).</li>
 <li>

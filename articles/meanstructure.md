@@ -135,11 +135,15 @@ when fits mix the two mean treatments.
 The leave-one-out conditionals, by contrast, are proper under both
 treatments — $`p(\mathbf{y}_i \mid \mathbf{Y}_{-i}) =
 p(\mathbf{Y})/p(\mathbf{Y}_{-i})`$ cancels the flat-prior constant — so
-ELPD comparisons are valid across the boundary. For single-group models,
+ELPD comparisons are valid across the boundary, and
 `compare(..., loo = TRUE)` is the honest cross-treatment instrument (it
 still warns you to read only the ELPD columns, since the marginal
-log-likelihood columns remain in the table); multigroup LOO support is
-planned.
+log-likelihood columns remain in the table). This works for multigroup
+fits too — without a mean structure the exchangeability transformation
+applies within each group — which makes LOO the instrument that spans
+the *whole* measurement-invariance ladder; see the [multigroup
+article](https://inlavaan.haziqj.ml/articles/multigroup.md) for that
+workflow.
 
 ``` r
 

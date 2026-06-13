@@ -130,8 +130,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7534.056 29.020 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7757.362 27.079 -3878.134 46.800 27.516
+#>    fit   30   -3885.211    0.000 7534.347 29.166 -3769.109 42.945 32.433
+#>  fit1f   27   -3990.563 -105.352 7756.806 26.801 -3878.134 46.800 27.516
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -109.025  17.072
@@ -240,8 +240,8 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.892   0.000 7539.595 60.148 -3748.090 44.737 45.076
-#>  fit_cond1   29   -3903.093 -27.201 7568.256 30.082 -3787.678 43.881 38.271
+#>   fit_cond   32   -3875.892   0.000 7536.659 58.680 -3748.090 44.737 45.076
+#>  fit_cond1   29   -3903.093 -27.201 7569.483 30.696 -3787.678 43.881 38.271
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>    -39.587  10.261
@@ -313,9 +313,9 @@ waic(fit)
 #> Computed from 1000 posterior draws and 301 subjects
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3768.7 43.0
-#> p_waic        31.5  2.1
-#> waic        7537.3 85.9
+#> elpd_waic  -3768.7 42.8
+#> p_waic        31.3  2.0
+#> waic        7537.4 85.7
 #> 
 #> 8 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
 ```
@@ -362,12 +362,17 @@ the search logic is yours to design.
 
 ## Practical notes
 
-- **Supported models.** Single-group, complete-data,
-  continuous-indicator models fitted with the `ML` estimator.
-  Multigroup, missing-data, and ordinal (PML) models are not supported
-  yet. Models with exogenous covariates are scored jointly
-  (`fixed.x = FALSE`) or conditionally (`fixed.x = TRUE`), following the
-  fitted likelihood, for any covariate placement.
+- **Supported models.** Complete-data, continuous-indicator models
+  fitted with the `ML` estimator, single-group or multigroup – groups
+  are independent, so each unit is scored against its own group’s
+  moments, with a `group` column in the pointwise table (see the
+  [multigroup
+  article](https://inlavaan.haziqj.ml/articles/multigroup.md) for the
+  measurement-invariance workflow). Missing-data, ordinal (PML), and
+  multigroup two-level models are not supported yet. Models with
+  exogenous covariates are scored jointly (`fixed.x = FALSE`) or
+  conditionally (`fixed.x = TRUE`), following the fitted likelihood, for
+  any covariate placement.
 - **Parallelism is opt-in.** The default runs serially; pass
   `loo(fit, cores = 2)` to parallelise the Hessian stage via forking
   (not available on Windows).

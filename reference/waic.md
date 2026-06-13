@@ -53,9 +53,11 @@ waic(x, units = NULL, nsamp = NULL, cores = NULL, verbose = FALSE, ...)
 ## Value
 
 An object of class `inlavaan_waic`: a list with `per_unit` (pointwise
-`lpd`, `p_waic`, `elpd_waic`), `estimates` (matrix with rows
-`elpd_waic`, `p_waic`, `waic` and columns `Estimate`, `SE`), `type`,
-`n_units`, and `nsamp`.
+`lpd`, `p_waic`, `elpd_waic`, with the same `unit`/`group`
+identification as
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)), `estimates`
+(matrix with rows `elpd_waic`, `p_waic`, `waic` and columns `Estimate`,
+`SE`), `type`, `n_units`, `n_groups`, and `nsamp`.
 
 ## Details
 
@@ -104,28 +106,28 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [106ms]
+#> ✔ Finding posterior mode. [108ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [56ms]
+#> ✔ Computing the Hessian. [52ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [128ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [107ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [820ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [762ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [138ms]
+#> ✔ Adjusting copula correlations (NORTA). [123ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [606ms]
+#> ✔ Posterior sampling and summarising. [537ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [446ms]
+#> ✔ Computing Taylor LOO. [481ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [242ms]
+#> ✔ Computing WAIC from the posterior draws. [237ms]
 #> 
 waic(fit)
 #> WAIC (INLAvaan)

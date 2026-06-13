@@ -1,241 +1,195 @@
 # Multigroup Analysis
 
+## The measurement invariance ladder
+
+Multigroup SEM fits the same model structure to several groups at once,
+with each group keeping its own parameters unless told otherwise. The
+classic application is **measurement invariance** ([Meredith
+1993](#ref-meredith1993measurement)): does an instrument measure the
+same construct, on the same scale, across groups? The question is asked
+as a ladder of increasingly constrained models:
+
+- **Configural**: same factor structure in every group, all parameters
+  free.
+- **Metric** (weak): loadings constrained equal across groups – the
+  latent variables are on a common scale, so latent *covariances* can be
+  compared.
+- **Scalar** (strong): loadings and intercepts equal – observed scores
+  map to latent scores the same way, so latent *means* can be compared.
+
+Each rung is fitted by adding to `group.equal`. We use the
+Holzinger–Swineford data, where 301 children from two schools (Pasteur
+and Grant-White) took nine cognitive tests:
+
 ``` r
 
-library(INLAvaan)
-
-# Model comparison on multigroup analysis (measurement invariance)
 HS.model <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
   speed   =~ x7 + x8 + x9
 "
-utils::data("HolzingerSwineford1939", package = "lavaan")
+data("HolzingerSwineford1939", package = "lavaan")
 
-# Configural invariance
-fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [246ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [256ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.103σ. [397ms]
-#> 
-#> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 15/60 skew-normal marginals.
-#> ⠸ Fitting 41/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [6.8s]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [381ms]
-#> 
-#> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.1s]
-#> 
-summary(fit1)
-#> INLAvaan 0.2.5.9002 ended normally after 138 iterations
-#> 
-#>   Estimator                                      BAYES
-#>   Optimization method                           NLMINB
-#>   Number of model parameters                        60
-#> 
-#>   Number of observations per group:                   
-#>     Pasteur                                        156
-#>     Grant-White                                    145
-#> 
-#> Model Test (User Model):
-#> 
-#>    Marginal log-likelihood                   -3958.319 
-#>    PPP (Chi-square)                              0.000 
-#> 
-#> Information Criteria:
-#> 
-#>    Deviance (DIC)                             7481.513 
-#>    Effective parameters (pD)                    58.118 
-#> 
-#> Parameter Estimates:
-#> 
-#>    Marginalisation method                     SKEWNORM
-#>    VB correction                                  TRUE
-#> 
-#> 
-#> Group 1 [Pasteur]:
-#> 
-#> Latent Variables:
-#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>   visual =~                                                                    
-#>     x1                1.000                                                    
-#>     x2                0.409    0.111    0.192    0.629    0.075    normal(0,10)
-#>     x3                0.587    0.108    0.377    0.799    0.093    normal(0,10)
-#>   textual =~                                                                   
-#>     x4                1.000                                                    
-#>     x5                1.204    0.104    1.014    1.424    0.005    normal(0,10)
-#>     x6                0.889    0.082    0.740    1.063    0.006    normal(0,10)
-#>   speed =~                                                                     
-#>     x7                1.000                                                    
-#>     x8                1.245    0.292    0.766    1.903    0.017    normal(0,10)
-#>     x9                1.075    0.315    0.586    1.798    0.031    normal(0,10)
-#> 
-#> Covariances:
-#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>   visual ~~                                                                    
-#>     textual           0.458    0.103    0.256    0.661    0.002       beta(1,1)
-#>     speed             0.173    0.072    0.031    0.315    0.004       beta(1,1)
-#>   textual ~~                                                                   
-#>     speed             0.164    0.066    0.036    0.293    0.002       beta(1,1)
-#> 
-#> Intercepts:
-#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                4.941    0.095    4.756    5.127    0.000    normal(0,32)
-#>    .x2                5.984    0.098    5.791    6.177    0.000    normal(0,32)
-#>    .x3                2.487    0.093    2.305    2.669    0.000    normal(0,32)
-#>    .x4                2.823    0.092    2.642    3.003    0.000    normal(0,32)
-#>    .x5                3.995    0.105    3.790    4.200    0.000    normal(0,32)
-#>    .x6                1.922    0.079    1.767    2.077    0.000    normal(0,32)
-#>    .x7                4.432    0.087    4.262    4.603    0.000    normal(0,32)
-#>    .x8                5.563    0.078    5.410    5.716    0.000    normal(0,32)
-#>    .x9                5.418    0.079    5.262    5.573    0.000    normal(0,32)
-#>     visual            0.000                                                    
-#>     textual           0.000                                                    
-#>     speed             0.000                                                    
-#> 
-#> Variances:
-#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                0.413    0.156    0.149    0.746    0.026 gamma(1,.5)[sd]
-#>    .x2                1.351    0.165    1.059    1.704    0.005 gamma(1,.5)[sd]
-#>    .x3                0.994    0.131    0.757    1.272    0.034 gamma(1,.5)[sd]
-#>    .x4                0.448    0.074    0.315    0.606    0.005 gamma(1,.5)[sd]
-#>    .x5                0.468    0.089    0.308    0.655    0.010 gamma(1,.5)[sd]
-#>    .x6                0.300    0.053    0.203    0.412    0.010 gamma(1,.5)[sd]
-#>    .x7                0.881    0.135    0.634    1.162    0.011 gamma(1,.5)[sd]
-#>    .x8                0.532    0.119    0.308    0.768    0.038 gamma(1,.5)[sd]
-#>    .x9                0.686    0.116    0.465    0.917    0.023 gamma(1,.5)[sd]
-#>     visual            1.085    0.196    0.751    1.518    0.097 gamma(1,.5)[sd]
-#>     textual           0.900    0.151    0.635    1.224    0.005 gamma(1,.5)[sd]
-#>     speed             0.320    0.114    0.142    0.583    0.035 gamma(1,.5)[sd]
-#> 
-#> 
-#> Group 2 [Grant-White]:
-#> 
-#> Latent Variables:
-#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>   visual =~                                                                    
-#>     x1                1.000                                                    
-#>     x2                0.775    0.170    0.474    1.142    0.009    normal(0,10)
-#>     x3                0.981    0.191    0.655    1.403    0.012    normal(0,10)
-#>   textual =~                                                                   
-#>     x4                1.000                                                    
-#>     x5                1.001    0.089    0.836    1.185    0.004    normal(0,10)
-#>     x6                0.974    0.087    0.813    1.154    0.003    normal(0,10)
-#>   speed =~                                                                     
-#>     x7                1.000                                                    
-#>     x8                1.288    0.191    0.963    1.709    0.015    normal(0,10)
-#>     x9                1.157    0.241    0.779    1.709    0.038    normal(0,10)
-#> 
-#> Covariances:
-#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>   visual ~~                                                                    
-#>     textual           0.381    0.095    0.194    0.567    0.002       beta(1,1)
-#>     speed             0.256    0.071    0.117    0.396    0.005       beta(1,1)
-#>   textual ~~                                                                   
-#>     speed             0.207    0.070    0.070    0.343    0.006       beta(1,1)
-#> 
-#> Intercepts:
-#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                4.930    0.096    4.742    5.117    0.000    normal(0,32)
-#>    .x2                6.200    0.092    6.019    6.380    0.000    normal(0,32)
-#>    .x3                1.996    0.086    1.827    2.164    0.000    normal(0,32)
-#>    .x4                3.317    0.093    3.134    3.500    0.000    normal(0,32)
-#>    .x5                4.712    0.096    4.523    4.900    0.000    normal(0,32)
-#>    .x6                2.469    0.094    2.285    2.653    0.000    normal(0,32)
-#>    .x7                3.921    0.086    3.752    4.089    0.000    normal(0,32)
-#>    .x8                5.488    0.087    5.318    5.659    0.000    normal(0,32)
-#>    .x9                5.327    0.085    5.160    5.494    0.000    normal(0,32)
-#>     visual            0.000                                                    
-#>     textual           0.000                                                    
-#>     speed             0.000                                                    
-#> 
-#> Variances:
-#>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .x1                0.760    0.138    0.508    1.050    0.010 gamma(1,.5)[sd]
-#>    .x2                0.927    0.130    0.700    1.207    0.003 gamma(1,.5)[sd]
-#>    .x3                0.568    0.112    0.359    0.798    0.018 gamma(1,.5)[sd]
-#>    .x4                0.332    0.068    0.208    0.474    0.017 gamma(1,.5)[sd]
-#>    .x5                0.435    0.076    0.299    0.595    0.006 gamma(1,.5)[sd]
-#>    .x6                0.422    0.072    0.293    0.576    0.005 gamma(1,.5)[sd]
-#>    .x7                0.644    0.103    0.467    0.869    0.001 gamma(1,.5)[sd]
-#>    .x8                0.432    0.108    0.242    0.664    0.012 gamma(1,.5)[sd]
-#>    .x9                0.541    0.109    0.333    0.758    0.018 gamma(1,.5)[sd]
-#>     visual            0.585    0.156    0.320    0.929    0.021 gamma(1,.5)[sd]
-#>     textual           0.955    0.154    0.684    1.286    0.003 gamma(1,.5)[sd]
-#>     speed             0.441    0.115    0.243    0.691    0.017 gamma(1,.5)[sd]
+fit_configural <- acfa(HS.model, HolzingerSwineford1939, group = "school",
+                       meanstructure = TRUE, verbose = FALSE)
+fit_metric <- acfa(HS.model, HolzingerSwineford1939, group = "school",
+                   group.equal = "loadings",
+                   meanstructure = TRUE, verbose = FALSE)
+fit_scalar <- acfa(HS.model, HolzingerSwineford1939, group = "school",
+                   group.equal = c("loadings", "intercepts"),
+                   meanstructure = TRUE, verbose = FALSE)
+```
 
-# Weak invariance
-fit2 <- acfa(
-  HS.model,
-  data = HolzingerSwineford1939,
-  group = "school",
-  group.equal = "loadings"
-)
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [203ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [207ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.101σ. [292ms]
-#> 
-#> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 15/54 skew-normal marginals.
-#> ⠸ Fitting 44/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [5.7s]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [558ms]
-#> 
-#> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1s]
-#> 
+Cross-group equality constraints are handled exactly (not by penalty):
+the constrained loadings become single free parameters shared by both
+groups. A
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) of
+any fit reports the parameters per group.
 
-# Strong invariance
-fit3 <- acfa(
-  HS.model,
-  data = HolzingerSwineford1939,
-  group = "school",
-  group.equal = c("intercepts", "loadings")
-)
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [205ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [188ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.088σ. [276ms]
-#> 
-#> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 27/48 skew-normal marginals.
-#> ✔ Fitting 48/48 skew-normal marginals. [4.5s]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [604ms]
-#> 
-#> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [979ms]
-#> 
+## Comparing the rungs
 
-# Compare models
-compare(fit1, fit2, fit3)
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) reports
+marginal log-likelihoods, Bayes factors, and DIC:
+
+``` r
+
+compare(fit_configural, fit_metric, fit_scalar)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
-#>  Model npar Marg.Loglik   logBF      DIC     pD
-#>   fit3   48   -3914.104   0.000 7509.793 48.232
-#>   fit2   54   -3934.608 -20.504 7480.122 53.318
-#>   fit1   60   -3958.319 -44.215 7481.513 58.118
+#>           Model npar Marg.Loglik   logBF      DIC     pD
+#>      fit_scalar   48   -3914.104   0.000 7510.560 48.615
+#>      fit_metric   54   -3934.608 -20.504 7481.018 53.767
+#>  fit_configural   60   -3958.319 -44.215 7485.562 60.143
 ```
+
+These are within-flavour comparisons (all three fits model the means
+with proper priors), so the Bayes factors are meaningful here. But
+marginal likelihoods answer a prior-sensitive question – “which model
+gave these data the highest prior predictive density?” – and for
+invariance testing we usually want the predictive one: *which rung of
+the ladder predicts new children best?*
+
+`compare(..., loo = TRUE)` answers that with leave-one-out
+cross-validation computed from each single fit – no refitting, no
+sampling (see the [LOO
+article](https://inlavaan.haziqj.ml/articles/loo.md) for the machinery).
+Groups are independent, so every child is scored against their own
+school’s implied moments, and the expected log predictive density (ELPD)
+sums over both schools. Differences come with *paired* standard errors,
+since the same children are scored under every model:
+
+``` r
+
+compare(fit_configural, fit_metric, fit_scalar, loo = TRUE)
+#> Bayesian Model Comparison (INLAvaan)
+#> Models ordered by ELPD (Taylor LOO)
+#> elpd_diff/se_diff are paired differences vs the best model
+#> 
+#>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
+#>      fit_metric   54   -3934.608 -20.504 7481.018 53.767 -3743.245 44.422
+#>  fit_configural   60   -3958.319 -44.215 7485.562 60.143 -3746.600 44.744
+#>      fit_scalar   48   -3914.104   0.000 7510.560 48.615 -3757.569 43.901
+#>   p_loo elpd_diff se_diff
+#>  57.588     0.000   0.000
+#>  68.560    -3.356   3.647
+#>  52.341   -14.324   5.954
+```
+
+The textbook Holzinger–Swineford story appears: metric invariance is
+indistinguishable from configural (the paired difference is well within
+one standard error, so the equal-loadings model – simpler, with the same
+predictive reach – is preferred), while scalar invariance costs over two
+standard errors of ELPD: the intercepts genuinely differ between
+schools. Note the instructive disagreement with the Bayes factors, which
+reward prior-predictive parsimony and pick the scalar model; on
+predictive grounds the ladder stops at metric.
+
+## Step zero: is there any group difference at all?
+
+The ladder presumes grouping matters. That too is a model comparison:
+the pooled (single-group) model against the configural one. Units are
+identified by their case number – the row of the dataset – not by their
+position in a group, so
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) pairs the
+pooled and grouped fits child by child even though the two fits order
+the data differently:
+
+``` r
+
+fit_pooled <- acfa(HS.model, HolzingerSwineford1939,
+                   meanstructure = TRUE, verbose = FALSE)
+compare(fit_pooled, fit_configural, loo = TRUE)
+#> Bayesian Model Comparison (INLAvaan)
+#> Models ordered by ELPD (Taylor LOO)
+#> elpd_diff/se_diff are paired differences vs the best model
+#> 
+#>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
+#>  fit_configural   60   -3958.319 -73.108 7485.562 60.143 -3746.600 44.744
+#>      fit_pooled   30   -3885.211   0.000 7534.565 29.275 -3769.109 42.945
+#>   p_loo elpd_diff se_diff
+#>  68.560     0.000   0.000
+#>  32.433   -22.508  11.743
+```
+
+Allowing the two schools their own parameters clearly improves
+prediction, so the multigroup analysis is warranted.
+
+## Pointwise diagnostics by group
+
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) on a multigroup
+fit returns the usual per-unit table with a `group` column, which makes
+group-level diagnostics one `tapply` away – for instance, how each
+school contributes to the scalar rung’s loss:
+
+``` r
+
+loo_metric <- loo(fit_metric)
+loo_scalar <- loo(fit_scalar)
+loo_metric
+#> Taylor leave-one-subject-out cross-validation (INLAvaan)
+#> Computed from 301 subjects in 2 groups (second-order Taylor approximation)
+#> 
+#>          Estimate   SE
+#> elpd_loo  -3743.2 44.4
+#> p_loo        57.6  4.1
+#> looic      7486.5 88.8
+
+head(loo_metric$per_unit[, 1:6], 3)
+#>   unit   group nobs    l_star score_norm     lpd_1
+#> 1    1 Pasteur    1 -17.73269   6.687311 -17.52278
+#> 2    2 Pasteur    1 -13.45079   4.855904 -13.33124
+#> 3    3 Pasteur    1 -10.90879   3.170204 -10.84994
+
+# Where does scalar invariance lose predictive density?
+d <- loo_scalar$per_unit$log_cpo_2 - loo_metric$per_unit$log_cpo_2
+tapply(d, loo_scalar$per_unit$group, sum)
+#> Grant-White     Pasteur 
+#>   -6.622903   -7.701313
+```
+
+Both schools pay for the intercept constraints, confirming the misfit is
+not driven by a handful of cases in one school.
+
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) works the same
+way for multigroup fits, with the same `group` column in its pointwise
+table.
+
+## Means or no means
+
+Measurement invariance needs modelled means from the scalar rung up, but
+the lower rungs can also be fitted without a mean structure
+(`meanstructure = FALSE`, the marginalised-means treatment). Marginal
+likelihoods and Bayes factors are not comparable across the two mean
+treatments, while LOO remains valid across that boundary – each child’s
+leave-one-out conditional is a proper density under either treatment,
+with the exchangeability transformation applied within each group. See
+the [mean structures
+article](https://inlavaan.haziqj.ml/articles/meanstructure.md) for the
+full story.
+
+## References
+
+Meredith, William. 1993. “Measurement Invariance, Factor Analysis and
+Factorial Invariance.” *Psychometrika* 58 (4): 525–43.
+<https://doi.org/10.1007/BF02294825>.

@@ -45,6 +45,10 @@
 - [Multigroup
   Analysis](https://inlavaan.haziqj.ml/articles/multigroup.md):
 
+  Measurement invariance testing with multigroup SEM: the configural,
+  metric, and scalar ladder, compared honestly with leave-one-out
+  cross-validation.
+
 - [Multilevel SEM](https://inlavaan.haziqj.ml/articles/multilevel.md):
 
 - [Sampling from the Generative

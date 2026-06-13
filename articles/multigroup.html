@@ -92,249 +92,131 @@
 
 
 
-    <div class="cell">
+    <section class="level2"><h2 id="the-measurement-invariance-ladder">The measurement invariance ladder<a class="anchor" aria-label="anchor" href="#the-measurement-invariance-ladder"></a>
+</h2>
+<p>Multigroup SEM fits the same model structure to several groups at once, with each group keeping its own parameters unless told otherwise. The classic application is <strong>measurement invariance</strong> <span class="citation" data-cites="meredith1993measurement">(<a href="#ref-meredith1993measurement" role="doc-biblioref">Meredith 1993</a>)</span>: does an instrument measure the same construct, on the same scale, across groups? The question is asked as a ladder of increasingly constrained models:</p>
+<ul>
+<li>
+<strong>Configural</strong>: same factor structure in every group, all parameters free.</li>
+<li>
+<strong>Metric</strong> (weak): loadings constrained equal across groups – the latent variables are on a common scale, so latent <em>covariances</em> can be compared.</li>
+<li>
+<strong>Scalar</strong> (strong): loadings and intercepts equal – observed scores map to latent scores the same way, so latent <em>means</em> can be compared.</li>
+</ul>
+<p>Each rung is fitted by adding to <code>group.equal</code>. We use the Holzinger–Swineford data, where 301 children from two schools (Pasteur and Grant-White) took nine cognitive tests:</p>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlavaan.haziqj.ml/">INLAvaan</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Model comparison on multigroup analysis (measurement invariance)</span></span>
-<span><span class="va">HS.model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<code class="sourceCode R"><span><span class="va">HS.model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">  visual  =~ x1 + x2 + x3</span></span>
 <span><span class="st">  textual =~ x4 + x5 + x6</span></span>
 <span><span class="st">  speed   =~ x7 + x8 + x9</span></span>
 <span><span class="st">"</span></span>
-<span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Configural invariance</span></span>
-<span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [246ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [256ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.103σ. [397ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Fitting 0/60 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 15/60 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 41/60 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 60/60 skew-normal marginals. [6.8s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [381ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [1.1s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.5.9002 ended normally after 138 iterations</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
-<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
-<span><span class="co">#&gt;   Number of model parameters                        60</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Number of observations per group:                   </span></span>
-<span><span class="co">#&gt;     Pasteur                                        156</span></span>
-<span><span class="co">#&gt;     Grant-White                                    145</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model Test (User Model):</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Marginal log-likelihood                   -3958.319 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.000 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Information Criteria:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             7481.513 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    58.118 </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Parameter Estimates:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Marginalisation method                     SKEWNORM</span></span>
-<span><span class="co">#&gt;    VB correction                                  TRUE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Group 1 [Pasteur]:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Latent Variables:</span></span>
-<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;   visual =~                                                                    </span></span>
-<span><span class="co">#&gt;     x1                1.000                                                    </span></span>
-<span><span class="co">#&gt;     x2                0.409    0.111    0.192    0.629    0.075    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x3                0.587    0.108    0.377    0.799    0.093    normal(0,10)</span></span>
-<span><span class="co">#&gt;   textual =~                                                                   </span></span>
-<span><span class="co">#&gt;     x4                1.000                                                    </span></span>
-<span><span class="co">#&gt;     x5                1.204    0.104    1.014    1.424    0.005    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x6                0.889    0.082    0.740    1.063    0.006    normal(0,10)</span></span>
-<span><span class="co">#&gt;   speed =~                                                                     </span></span>
-<span><span class="co">#&gt;     x7                1.000                                                    </span></span>
-<span><span class="co">#&gt;     x8                1.245    0.292    0.766    1.903    0.017    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x9                1.075    0.315    0.586    1.798    0.031    normal(0,10)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Covariances:</span></span>
-<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;   visual ~~                                                                    </span></span>
-<span><span class="co">#&gt;     textual           0.458    0.103    0.256    0.661    0.002       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.173    0.072    0.031    0.315    0.004       beta(1,1)</span></span>
-<span><span class="co">#&gt;   textual ~~                                                                   </span></span>
-<span><span class="co">#&gt;     speed             0.164    0.066    0.036    0.293    0.002       beta(1,1)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Intercepts:</span></span>
-<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .x1                4.941    0.095    4.756    5.127    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x2                5.984    0.098    5.791    6.177    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x3                2.487    0.093    2.305    2.669    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x4                2.823    0.092    2.642    3.003    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x5                3.995    0.105    3.790    4.200    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x6                1.922    0.079    1.767    2.077    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x7                4.432    0.087    4.262    4.603    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x8                5.563    0.078    5.410    5.716    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x9                5.418    0.079    5.262    5.573    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;     visual            0.000                                                    </span></span>
-<span><span class="co">#&gt;     textual           0.000                                                    </span></span>
-<span><span class="co">#&gt;     speed             0.000                                                    </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Variances:</span></span>
-<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .x1                0.413    0.156    0.149    0.746    0.026 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x2                1.351    0.165    1.059    1.704    0.005 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x3                0.994    0.131    0.757    1.272    0.034 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x4                0.448    0.074    0.315    0.606    0.005 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x5                0.468    0.089    0.308    0.655    0.010 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x6                0.300    0.053    0.203    0.412    0.010 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x7                0.881    0.135    0.634    1.162    0.011 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x8                0.532    0.119    0.308    0.768    0.038 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x9                0.686    0.116    0.465    0.917    0.023 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     visual            1.085    0.196    0.751    1.518    0.097 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     textual           0.900    0.151    0.635    1.224    0.005 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     speed             0.320    0.114    0.142    0.583    0.035 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Group 2 [Grant-White]:</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Latent Variables:</span></span>
-<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;   visual =~                                                                    </span></span>
-<span><span class="co">#&gt;     x1                1.000                                                    </span></span>
-<span><span class="co">#&gt;     x2                0.775    0.170    0.474    1.142    0.009    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x3                0.981    0.191    0.655    1.403    0.012    normal(0,10)</span></span>
-<span><span class="co">#&gt;   textual =~                                                                   </span></span>
-<span><span class="co">#&gt;     x4                1.000                                                    </span></span>
-<span><span class="co">#&gt;     x5                1.001    0.089    0.836    1.185    0.004    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x6                0.974    0.087    0.813    1.154    0.003    normal(0,10)</span></span>
-<span><span class="co">#&gt;   speed =~                                                                     </span></span>
-<span><span class="co">#&gt;     x7                1.000                                                    </span></span>
-<span><span class="co">#&gt;     x8                1.288    0.191    0.963    1.709    0.015    normal(0,10)</span></span>
-<span><span class="co">#&gt;     x9                1.157    0.241    0.779    1.709    0.038    normal(0,10)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Covariances:</span></span>
-<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;   visual ~~                                                                    </span></span>
-<span><span class="co">#&gt;     textual           0.381    0.095    0.194    0.567    0.002       beta(1,1)</span></span>
-<span><span class="co">#&gt;     speed             0.256    0.071    0.117    0.396    0.005       beta(1,1)</span></span>
-<span><span class="co">#&gt;   textual ~~                                                                   </span></span>
-<span><span class="co">#&gt;     speed             0.207    0.070    0.070    0.343    0.006       beta(1,1)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Intercepts:</span></span>
-<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .x1                4.930    0.096    4.742    5.117    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x2                6.200    0.092    6.019    6.380    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x3                1.996    0.086    1.827    2.164    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x4                3.317    0.093    3.134    3.500    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x5                4.712    0.096    4.523    4.900    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x6                2.469    0.094    2.285    2.653    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x7                3.921    0.086    3.752    4.089    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x8                5.488    0.087    5.318    5.659    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;    .x9                5.327    0.085    5.160    5.494    0.000    normal(0,32)</span></span>
-<span><span class="co">#&gt;     visual            0.000                                                    </span></span>
-<span><span class="co">#&gt;     textual           0.000                                                    </span></span>
-<span><span class="co">#&gt;     speed             0.000                                                    </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Variances:</span></span>
-<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;    .x1                0.760    0.138    0.508    1.050    0.010 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x2                0.927    0.130    0.700    1.207    0.003 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x3                0.568    0.112    0.359    0.798    0.018 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x4                0.332    0.068    0.208    0.474    0.017 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x5                0.435    0.076    0.299    0.595    0.006 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x6                0.422    0.072    0.293    0.576    0.005 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x7                0.644    0.103    0.467    0.869    0.001 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x8                0.432    0.108    0.242    0.664    0.012 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;    .x9                0.541    0.109    0.333    0.758    0.018 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     visual            0.585    0.156    0.320    0.929    0.021 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     textual           0.955    0.154    0.684    1.286    0.003 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     speed             0.441    0.115    0.243    0.691    0.017 gamma(1,.5)[sd]</span></span>
-<span></span>
-<span><span class="co"># Weak invariance</span></span>
-<span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span></span>
-<span>  <span class="va">HS.model</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
-<span>  group <span class="op">=</span> <span class="st">"school"</span>,</span>
-<span>  group.equal <span class="op">=</span> <span class="st">"loadings"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [203ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [207ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.101σ. [292ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Fitting 0/54 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 15/54 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 44/54 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 54/54 skew-normal marginals. [5.7s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [558ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [1s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span></span>
-<span><span class="co"># Strong invariance</span></span>
-<span><span class="va">fit3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span></span>
-<span>  <span class="va">HS.model</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>,</span>
-<span>  group <span class="op">=</span> <span class="st">"school"</span>,</span>
-<span>  group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"intercepts"</span>, <span class="st">"loadings"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [205ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [188ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.088σ. [276ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Fitting 0/48 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 27/48 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 48/48 skew-normal marginals. [4.5s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [604ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [979ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span></span>
-<span><span class="co"># Compare models</span></span>
-<span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit1</span>, <span class="va">fit2</span>, <span class="va">fit3</span><span class="op">)</span></span>
+<span><span class="va">fit_configural</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span>,</span>
+<span>                       meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">fit_metric</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span>,</span>
+<span>                   group.equal <span class="op">=</span> <span class="st">"loadings"</span>,</span>
+<span>                   meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">fit_scalar</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span>,</span>
+<span>                   group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span>,</span>
+<span>                   meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>Cross-group equality constraints are handled exactly (not by penalty): the constrained loadings become single free parameters shared by both groups. A <code><a href="../reference/INLAvaan-class.html">summary()</a></code> of any fit reports the parameters per group.</p>
+</section><section class="level2"><h2 id="comparing-the-rungs">Comparing the rungs<a class="anchor" aria-label="anchor" href="#comparing-the-rungs"></a>
+</h2>
+<p><code><a href="../reference/compare.html">compare()</a></code> reports marginal log-likelihoods, Bayes factors, and DIC:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit_configural</span>, <span class="va">fit_metric</span>, <span class="va">fit_scalar</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;   fit3   48   -3914.104   0.000 7509.793 48.232</span></span>
-<span><span class="co">#&gt;   fit2   54   -3934.608 -20.504 7480.122 53.318</span></span>
-<span><span class="co">#&gt;   fit1   60   -3958.319 -44.215 7481.513 58.118</span></span></code></pre></div>
+<span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD</span></span>
+<span><span class="co">#&gt;      fit_scalar   48   -3914.104   0.000 7510.560 48.615</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3934.608 -20.504 7481.018 53.767</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3958.319 -44.215 7485.562 60.143</span></span></code></pre></div>
 </div>
-
-
-
-<script id="quarto-html-after-body" type="application/javascript">
+<p>These are within-flavour comparisons (all three fits model the means with proper priors), so the Bayes factors are meaningful here. But marginal likelihoods answer a prior-sensitive question – “which model gave these data the highest prior predictive density?” – and for invariance testing we usually want the predictive one: <em>which rung of the ladder predicts new children best?</em></p>
+<p><code>compare(..., loo = TRUE)</code> answers that with leave-one-out cross-validation computed from each single fit – no refitting, no sampling (see the <a href="loo.html">LOO article</a> for the machinery). Groups are independent, so every child is scored against their own school’s implied moments, and the expected log predictive density (ELPD) sums over both schools. Differences come with <em>paired</em> standard errors, since the same children are scored under every model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit_configural</span>, <span class="va">fit_metric</span>, <span class="va">fit_scalar</span>, loo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
+<span><span class="co">#&gt; Models ordered by ELPD (Taylor LOO)</span></span>
+<span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3934.608 -20.504 7481.018 53.767 -3743.245 44.422</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3958.319 -44.215 7485.562 60.143 -3746.600 44.744</span></span>
+<span><span class="co">#&gt;      fit_scalar   48   -3914.104   0.000 7510.560 48.615 -3757.569 43.901</span></span>
+<span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
+<span><span class="co">#&gt;  57.588     0.000   0.000</span></span>
+<span><span class="co">#&gt;  68.560    -3.356   3.647</span></span>
+<span><span class="co">#&gt;  52.341   -14.324   5.954</span></span></code></pre></div>
+</div>
+<p>The textbook Holzinger–Swineford story appears: metric invariance is indistinguishable from configural (the paired difference is well within one standard error, so the equal-loadings model – simpler, with the same predictive reach – is preferred), while scalar invariance costs over two standard errors of ELPD: the intercepts genuinely differ between schools. Note the instructive disagreement with the Bayes factors, which reward prior-predictive parsimony and pick the scalar model; on predictive grounds the ladder stops at metric.</p>
+</section><section class="level2"><h2 id="step-zero-is-there-any-group-difference-at-all">Step zero: is there any group difference at all?<a class="anchor" aria-label="anchor" href="#step-zero-is-there-any-group-difference-at-all"></a>
+</h2>
+<p>The ladder presumes grouping matters. That too is a model comparison: the pooled (single-group) model against the configural one. Units are identified by their case number – the row of the dataset – not by their position in a group, so <code><a href="../reference/compare.html">compare()</a></code> pairs the pooled and grouped fits child by child even though the two fits order the data differently:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_pooled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>,</span>
+<span>                   meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit_pooled</span>, <span class="va">fit_configural</span>, loo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
+<span><span class="co">#&gt; Models ordered by ELPD (Taylor LOO)</span></span>
+<span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3958.319 -73.108 7485.562 60.143 -3746.600 44.744</span></span>
+<span><span class="co">#&gt;      fit_pooled   30   -3885.211   0.000 7534.565 29.275 -3769.109 42.945</span></span>
+<span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
+<span><span class="co">#&gt;  68.560     0.000   0.000</span></span>
+<span><span class="co">#&gt;  32.433   -22.508  11.743</span></span></code></pre></div>
+</div>
+<p>Allowing the two schools their own parameters clearly improves prediction, so the multigroup analysis is warranted.</p>
+</section><section class="level2"><h2 id="pointwise-diagnostics-by-group">Pointwise diagnostics by group<a class="anchor" aria-label="anchor" href="#pointwise-diagnostics-by-group"></a>
+</h2>
+<p><code><a href="../reference/loo.html">loo()</a></code> on a multigroup fit returns the usual per-unit table with a <code>group</code> column, which makes group-level diagnostics one <code>tapply</code> away – for instance, how each school contributes to the scalar rung’s loss:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">loo_metric</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit_metric</span><span class="op">)</span></span>
+<span><span class="va">loo_scalar</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit_scalar</span><span class="op">)</span></span>
+<span><span class="va">loo_metric</span></span>
+<span><span class="co">#&gt; Taylor leave-one-subject-out cross-validation (INLAvaan)</span></span>
+<span><span class="co">#&gt; Computed from 301 subjects in 2 groups (second-order Taylor approximation)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          Estimate   SE</span></span>
+<span><span class="co">#&gt; elpd_loo  -3743.2 44.4</span></span>
+<span><span class="co">#&gt; p_loo        57.6  4.1</span></span>
+<span><span class="co">#&gt; looic      7486.5 88.8</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loo_metric</span><span class="op">$</span><span class="va">per_unit</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   unit   group nobs    l_star score_norm     lpd_1</span></span>
+<span><span class="co">#&gt; 1    1 Pasteur    1 -17.73269   6.687311 -17.52278</span></span>
+<span><span class="co">#&gt; 2    2 Pasteur    1 -13.45079   4.855904 -13.33124</span></span>
+<span><span class="co">#&gt; 3    3 Pasteur    1 -10.90879   3.170204 -10.84994</span></span>
+<span></span>
+<span><span class="co"># Where does scalar invariance lose predictive density?</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="va">loo_scalar</span><span class="op">$</span><span class="va">per_unit</span><span class="op">$</span><span class="va">log_cpo_2</span> <span class="op">-</span> <span class="va">loo_metric</span><span class="op">$</span><span class="va">per_unit</span><span class="op">$</span><span class="va">log_cpo_2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">d</span>, <span class="va">loo_scalar</span><span class="op">$</span><span class="va">per_unit</span><span class="op">$</span><span class="va">group</span>, <span class="va">sum</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Grant-White     Pasteur </span></span>
+<span><span class="co">#&gt;   -6.622903   -7.701313</span></span></code></pre></div>
+</div>
+<p>Both schools pay for the intercept constraints, confirming the misfit is not driven by a handful of cases in one school.</p>
+<p><code><a href="../reference/waic.html">waic()</a></code> works the same way for multigroup fits, with the same <code>group</code> column in its pointwise table.</p>
+</section><section class="level2"><h2 id="means-or-no-means">Means or no means<a class="anchor" aria-label="anchor" href="#means-or-no-means"></a>
+</h2>
+<p>Measurement invariance needs modelled means from the scalar rung up, but the lower rungs can also be fitted without a mean structure (<code>meanstructure = FALSE</code>, the marginalised-means treatment). Marginal likelihoods and Bayes factors are not comparable across the two mean treatments, while LOO remains valid across that boundary – each child’s leave-one-out conditional is a proper density under either treatment, with the exchangeability transformation applied within each group. See the <a href="meanstructure.html">mean structures article</a> for the full story.</p>
+</section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-meredith1993measurement" class="csl-entry" role="listitem">
+Meredith, William. 1993. <span>“Measurement Invariance, Factor Analysis and Factorial Invariance.”</span> <em>Psychometrika</em> 58 (4): 525–43. <a href="https://doi.org/10.1007/BF02294825" class="external-link">https://doi.org/10.1007/BF02294825</a>.
+</div>
+</div>
+</section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -417,7 +299,8 @@
       }
     }
   });
-  </script></main>
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

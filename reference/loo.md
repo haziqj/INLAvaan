@@ -64,8 +64,11 @@ add_loo(object, cores = NULL, verbose = FALSE)
 
 - units:
 
-  Optional integer vector of unit indices (row numbers for LOSO, cluster
-  positions for LOCO) to score; defaults to all units.
+  Optional integer vector of unit indices to score; defaults to all
+  units. For LOSO these are case numbers (row numbers of the analysed
+  dataset, as recorded in the fit – for multigroup fits the full results
+  are stacked by group, but a unit is always addressed by its case
+  number); for LOCO, cluster positions.
 
 - second_order:
 
@@ -100,11 +103,12 @@ An object of class `inlavaan_loo`: a list with elements
 
 - `per_unit`:
 
-  Data frame of pointwise results: `unit`, `nobs` (1 for LOSO, the
-  cluster size for LOCO), `l_star` (unit log-likelihood at the summary),
-  `score_norm`, `lpd_1`/`lpd_2` (pointwise log predictive density),
-  `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions), `det_term`, and
-  `ok` (second-order success flag).
+  Data frame of pointwise results: `unit` (case number for LOSO, cluster
+  position for LOCO), `group` (multigroup fits only), `nobs` (1 for
+  LOSO, the cluster size for LOCO), `l_star` (unit log-likelihood at the
+  summary), `score_norm`, `lpd_1`/`lpd_2` (pointwise log predictive
+  density), `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions),
+  `det_term`, and `ok` (second-order success flag).
 
 - `estimates`:
 
@@ -115,7 +119,7 @@ An object of class `inlavaan_loo`: a list with elements
 
   First- and second-order aggregates.
 
-- `type`, `flavour`, `n_units`, `n_ok`, `second_order`,
+- `type`, `flavour`, `n_units`, `n_groups`, `n_ok`, `second_order`,
   `theta_overridden`:
 
   Metadata; `flavour` records whether units were scored jointly with
@@ -155,6 +159,21 @@ the conditional density of the row given the remaining rows in its
 cluster, computed by downdating the cluster's sufficient statistics.
 This path costs one cluster evaluation per row per Hessian direction and
 is less extensively validated than the per-cluster default.
+
+**Multigroup models.** Groups are independent, so each unit is scored
+against its own group's implied moments; without a mean structure the
+exchangeability transformation applies per group, and cross-group
+equality constraints (`group.equal`) flow through the packed parameter
+space automatically. The per-unit results are stacked by group (a
+`group` column records the membership), and units are identified by
+*case number* – the row number of the analysed dataset – so a unit keeps
+its identity across fits that assign or order groups differently (e.g. a
+pooled fit versus a grouped fit of the same data, which
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) pairs
+unit by unit). This makes `compare(..., loo = TRUE)` the instrument of
+choice for the measurement-invariance ladder: configural, metric, and
+scalar fits are compared on a proper predictive scale with paired
+standard errors.
 
 Supplying `theta` and/or `Sigma` scores the model at an *arbitrary*
 Gaussian posterior summary instead of the fit's own, without refitting.
@@ -203,10 +222,11 @@ support any covariate placement: single-level covariates, and
 cluster-level (between) and/or within-level covariates in two-level
 models.
 
-Supported models: single-group, complete-data, continuous-indicator
-models fitted with the `ML` estimator. If the `loo` package is attached
-it masks this generic, but `loo(fit)` continues to dispatch correctly
-because the method is registered by generic name.
+Supported models: complete-data, continuous-indicator models fitted with
+the `ML` estimator, single-group or multigroup (multigroup two-level
+models are not supported yet). If the `loo` package is attached it masks
+this generic, but `loo(fit)` continues to dispatch correctly because the
+method is registered by generic name.
 
 ## See also
 
@@ -226,28 +246,28 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [114ms]
+#> ✔ Finding posterior mode. [105ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [57ms]
+#> ✔ Computing the Hessian. [51ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [118ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [105ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fitting 30/30 skew-normal marginals. [827ms]
+#> ✔ Fitting 30/30 skew-normal marginals. [738ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [146ms]
+#> ✔ Adjusting copula correlations (NORTA). [121ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [617ms]
+#> ✔ Posterior sampling and summarising. [525ms]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [453ms]
+#> ✔ Computing Taylor LOO. [470ms]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [248ms]
+#> ✔ Computing WAIC from the posterior draws. [230ms]
 #> 
 
 # Leave-one-subject-out (LOSO) from the single fit -- no refitting
@@ -308,31 +328,31 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [899ms]
+#> ✔ Finding posterior mode. [583ms]
 #> 
 #> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [320ms]
+#> ✔ Computing the Hessian. [293ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [525ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [466ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 6/34 skew-normal marginals.
-#> ⠸ Fitting 18/34 skew-normal marginals.
-#> ⠼ Fitting 31/34 skew-normal marginals.
-#> ✔ Fitting 34/34 skew-normal marginals. [8.2s]
+#> ⠹ Fitting 11/34 skew-normal marginals.
+#> ⠸ Fitting 24/34 skew-normal marginals.
+#> ✔ Fitting 34/34 skew-normal marginals. [7.6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [144ms]
+#> ✔ Adjusting copula correlations (NORTA). [128ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [1.5s]
+#> ⠹ Posterior sampling and summarising.
+#> ✔ Posterior sampling and summarising. [1.3s]
 #> 
 #> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [7.7s]
+#> ✔ Computing Taylor LOO. [6.6s]
 #> 
 #> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [47.9s]
+#> ✔ Computing WAIC from the posterior draws. [38.2s]
 #> 
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)
