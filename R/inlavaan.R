@@ -34,7 +34,11 @@
 #'   (full z-trace plus Schur complement correction), `"shortcut_fd"` is the
 #'   same formula using forward differences (roughly half the cost, less
 #'   accurate), `"hessian"` computes the full Hessian-based correction (slow),
-#'   and `"none"` (or `FALSE`) applies no correction.
+#'   and `"none"` (or `FALSE`) applies no correction. `"vbloc"` (experimental)
+#'   skips the per-axis volume correction entirely and instead locates each
+#'   skew-normal marginal at the variational-Bayes shift, which supplies the
+#'   same first-order mode-to-mean correction with no third-derivative work
+#'   (forces `vb_correction = TRUE`).
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param samp_copula Logical. When `TRUE` (default), posterior samples are
@@ -88,7 +92,13 @@ inlavaan <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  marginal_correction = c(
+    "shortcut",
+    "shortcut_fd",
+    "hessian",
+    "none",
+    "vbloc"
+  ),
   nsamp = 1000,
   samp_copula = TRUE,
   sn_fit_ngrid = 21,
@@ -118,6 +128,13 @@ inlavaan <- function(
     marginal_correction <- "none"
   } else {
     marginal_correction <- match.arg(marginal_correction)
+  }
+  # "vbloc" (experimental): skip the per-axis volume correction entirely and
+  # locate each skew-normal marginal by the VB shift instead -- it supplies the
+  # same O(n^-1) mode-to-mean correction (volume + skewness), so no third-
+  # derivative / Hessian work is needed in the marginal step. Requires VB.
+  if (identical(marginal_correction, "vbloc") && !isTRUE(vb_correction)) {
+    vb_correction <- TRUE
   }
   optim_method <- match.arg(optim_method)
   if (isTRUE(debug)) {
@@ -603,6 +620,9 @@ inlavaan <- function(
         )
       }
     } else if (marginal_method == "skewnorm") {
+      # vbloc: locate marginals by the VB shift instead of a per-axis volume
+      # correction (no compute_gamma1j, hence no third-derivative work)
+      vbloc <- identical(marginal_correction, "vbloc")
       obtain_approx_data <- function(j) {
         if (j %in% fp_idx) {
           # saturated-means fast path: this axis is exactly Gaussian, and
@@ -610,7 +630,7 @@ inlavaan <- function(
           # precision -- emit it directly
           return(list(
             fit = c(
-              xi = theta_star[j],
+              xi = if (vbloc) theta_star_vbc[j] else theta_star[j],
               omega = sqrt(Sigma_theta[j, j]),
               alpha = 0,
               logC = 0,
@@ -624,7 +644,7 @@ inlavaan <- function(
         }
         z <- seq(-4, 4, length = sn_fit_ngrid)
         yync <- yy <- numeric(length(z))
-        gamma1j <- get_gamma1(j)
+        gamma1j <- if (vbloc) 0 else get_gamma1(j)
 
         for (k in seq_along(z)) {
           yync[k] <- joint_lp(theta_star + Vscan[, j] * z[k])
@@ -654,6 +674,17 @@ inlavaan <- function(
         # Adjust back to theta space
         fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
         fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
+
+        if (vbloc) {
+          # The raw scan gives the shape (incl. skewness); translate the fitted
+          # skew-normal so its mean lands on the VB target theta_star_vbc[j].
+          # The required shift equals the volume correction gamma1 -- recovered
+          # here as (VB shift) - (skew-normal's own mean offset), with no
+          # Hessian/third-derivative computation.
+          delta_sn <- fit_sn$alpha / sqrt(1 + fit_sn$alpha^2)
+          mu_sn <- fit_sn$xi + fit_sn$omega * delta_sn * sqrt(2 / pi)
+          fit_sn$xi <- fit_sn$xi + (theta_star_vbc[j] - mu_sn)
+        }
 
         list(fit = c(unlist(fit_sn), gamma1 = gamma1j), visual_debug = vd)
       }
@@ -1064,7 +1095,13 @@ acfa <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  marginal_correction = c(
+    "shortcut",
+    "shortcut_fd",
+    "hessian",
+    "none",
+    "vbloc"
+  ),
   nsamp = 1000,
   samp_copula = TRUE,
   sn_fit_ngrid = 21,
@@ -1116,7 +1153,13 @@ asem <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  marginal_correction = c(
+    "shortcut",
+    "shortcut_fd",
+    "hessian",
+    "none",
+    "vbloc"
+  ),
   nsamp = 1000,
   samp_copula = TRUE,
   sn_fit_ngrid = 21,
@@ -1166,7 +1209,13 @@ agrowth <- function(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  marginal_correction = c(
+    "shortcut",
+    "shortcut_fd",
+    "hessian",
+    "none",
+    "vbloc"
+  ),
   nsamp = 1000,
   samp_copula = TRUE,
   sn_fit_ngrid = 21,

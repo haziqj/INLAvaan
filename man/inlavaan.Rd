@@ -12,7 +12,7 @@ inlavaan(
   test = "standard",
   vb_correction = TRUE,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none", "vbloc"),
   nsamp = 1000,
   samp_copula = TRUE,
   sn_fit_ngrid = 21,
@@ -74,7 +74,11 @@ skew-normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
 (full z-trace plus Schur complement correction), \code{"shortcut_fd"} is the
 same formula using forward differences (roughly half the cost, less
 accurate), \code{"hessian"} computes the full Hessian-based correction (slow),
-and \code{"none"} (or \code{FALSE}) applies no correction.}
+and \code{"none"} (or \code{FALSE}) applies no correction. \code{"vbloc"} (experimental)
+skips the per-axis volume correction entirely and instead locates each
+skew-normal marginal at the variational-Bayes shift, which supplies the
+same first-order mode-to-mean correction with no third-derivative work
+(forces \code{vb_correction = TRUE}).}
 
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
