@@ -316,10 +316,10 @@ inlavaan <- function(
 
   ## ----- Start optimisation --------------------------------------------------
   if (isTRUE(verbose)) {
-    optim_stage <- "Finding posterior mode"
+    optim_stage <- "Mode finding and Hessian computation"
     cli_progress_step(
       "{optim_stage}.",
-      msg_done = "Computed posterior mode and Hessian."
+      msg_done = "Posterior mode and Hessian."
     )
   }
 
@@ -434,7 +434,7 @@ inlavaan <- function(
     if (isTRUE(verbose)) {
       cli_progress_step(
         "Performing VB correction.",
-        msg_done = "Applied VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift) / sqrt(diag(Sigma_theta))),
+        msg_done = "VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift) / sqrt(diag(Sigma_theta))),
                     format = 'f', digits = 3)}\U03C3."
       )
     }
@@ -669,7 +669,7 @@ inlavaan <- function(
         verbose = verbose,
         msg_serial = "Fitting {j}/{m} skew-normal marginal{?s}.",
         msg_parallel = "Fitting {done}/{m} skew-normal marginals ({cores}\U00D7).",
-        msg_done = "Fitted {m}/{m} skew-normal marginal{?s}."
+        msg_done = "Fit {m}/{m} skew-normal marginal{?s}."
       )
 
       approx_data <- do.call(what = "rbind", lapply(all_results, `[[`, "fit"))
@@ -723,7 +723,7 @@ inlavaan <- function(
     if (isTRUE(verbose)) {
       cli_progress_step(
         "Adjusting copula correlations (NORTA).",
-        msg_done = "Adjusted copula correlations (NORTA)."
+        msg_done = "Adjust copula correlations (NORTA)."
       )
     }
     R_star <- norta_adjust_R(cov2cor(Sigma_theta), approx_data)
@@ -990,9 +990,9 @@ inlavaan <- function(
       if (!is.null(waic_res)) "WAIC"
     )
     samp_done <- if (needs_draw_summaries || length(fit_measures)) {
-      paste0("Summarised ", nsamp, " posterior draws.")
+      paste0("Summarise ", nsamp, " posterior draws.")
     } else {
-      paste0("Drew ", nsamp, " posterior samples.")
+      paste0("Draw ", nsamp, " posterior samples.")
     }
     cli_progress_done(.envir = samp_env)
     if (length(fit_measures)) {
