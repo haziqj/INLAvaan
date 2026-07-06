@@ -813,7 +813,7 @@ loo_batched_hessians <- function(
     verbose = verbose,
     msg_serial = "Differentiating unit scores {j}/{m} direction{?s}.",
     msg_parallel = "Differentiating unit scores in {m} directions ({cores} cores).",
-    msg_done = "Differentiated unit scores in {m} direction{?s}."
+    msg_done = "Differentiate unit scores in {m} direction{?s}."
   )
   H_arr <- array(0, dim = c(m, m, n_units))
   for (k in seq_len(m)) {
@@ -1165,7 +1165,7 @@ inlav_loo <- function(
   if (isTRUE(verbose)) {
     cli_progress_step(
       "Computing unit log-likelihoods and scores.",
-      msg_done = "Computed unit log-likelihoods and scores."
+      msg_done = "Compute unit log-likelihoods and scores."
     )
   }
   unit_group <- NULL # group of each scored unit; multigroup LOSO only
@@ -1527,7 +1527,7 @@ waic_from_draws <- function(
     verbose = verbose,
     msg_serial = "Evaluating unit log-likelihoods at draw {j}/{m}.",
     msg_parallel = "Evaluating unit log-likelihoods at {m} draws ({cores} cores).",
-    msg_done = "Evaluated unit log-likelihoods at {m} draw{?s}."
+    msg_done = "Evaluate unit log-likelihoods at {m} draw{?s}."
   )
   ll_mat <- do.call(rbind, ll_list) # nsamp x n_units
 

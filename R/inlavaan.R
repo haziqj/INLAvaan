@@ -590,7 +590,7 @@ inlavaan <- function(
         verbose = verbose,
         msg_serial = "Calibrating {j}/{m} asymmetric Gaussian{?s}.",
         msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores}\U00D7).",
-        msg_done = "Calibrated {m}/{m} asymmetric Gaussian{?s}."
+        msg_done = "Calibrate {m}/{m} asymmetric Gaussian{?s}."
       )
       approx_data <- do.call(what = "rbind", approx_data)
 
