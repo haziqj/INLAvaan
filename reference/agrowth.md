@@ -247,31 +247,23 @@ str(Demo.growth)
 #>  $ c4: num  -1.0064 1.2293 -0.3273 -1.0324 -0.0275 ...
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [134ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [62ms]
+#> ℹ Mode finding and Hessian computation.
+#> ✔ Posterior mode and Hessian. [186ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.045σ. [160ms]
+#> ✔ VB correction; mean |δ| = 0.045σ. [164ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fitting 17/17 skew-normal marginals. [793ms]
+#> ⠹ Fitting 5/17 skew-normal marginals.
+#> ✔ Fit 17/17 skew-normal marginals. [786ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [78ms]
+#> ✔ Adjust copula correlations (NORTA). [77ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [113ms]
+#> ✔ Summarise 100 posterior draws. [670ms]
 #> 
-#> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [457ms]
-#> 
-#> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [75ms]
-#> 
+#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
 #> INLAvaan 0.2.5.9002 ended normally after 83 iterations
 #> 

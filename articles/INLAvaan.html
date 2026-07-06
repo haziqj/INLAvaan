@@ -208,30 +208,22 @@
 <span><span class="st">  eta2 ~ eta1</span></span>
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [215ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [70ms]</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [280ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [117ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [134ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 13/13 skew-normal marginals. [399ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [410ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [72ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [75ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [432ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1s]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing Taylor LOO.</span></span>
-<span><span class="co">#&gt; ✔ Computing Taylor LOO. [276ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing WAIC from the posterior draws.</span></span>
-<span><span class="co">#&gt; ✔ Computing WAIC from the posterior draws. [314ms]</span></span>
-<span><span class="co">#&gt; </span></span></code></pre></div>
+<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span></code></pre></div>
 </div>
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully jamil2026approximate">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney et al. 1989</a>; <a href="#ref-jamil2026approximate" role="doc-biblioref">Jamil and Rue 2026a</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
 <p>From this, marginal posterior distributions for each parameter can be obtained by one of several ways, including 1) Skew normal fitting <span class="citation" data-cites="chiuchiolo2023joint">(<code>marginal_method = "skewnorm"</code>, the default method, see <a href="#ref-chiuchiolo2023joint" role="doc-biblioref">Chiuchiolo et al. 2023</a>)</span>; 2) Two-piece asymmetric Gaussian fitting <span class="citation" data-cites="martins2013bayesian">(<code>marginal_method = "asymgaus"</code>, see <a href="#ref-martins2013bayesian" role="doc-biblioref">Martins et al. 2013</a>)</span>; 3) Direct marginalisation of the joint Gaussian posterior (<code>marginal_method = "marggaus"</code>); and 4) Sampling from the joint Gaussian posterior (<code>marginal_method = "sampling"</code>).</p>
@@ -396,7 +388,7 @@
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 1.96 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 2.00 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -423,30 +415,23 @@
 <span><span class="st">  eta1 ~~ 0*eta2</span></span>
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [80ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [36ms]</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [137ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [88ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [85ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 12/12 skew-normal marginals. [282ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 3/12 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [293ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [46ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [62ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [390ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing Taylor LOO.</span></span>
-<span><span class="co">#&gt; ✔ Computing Taylor LOO. [284ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing WAIC from the posterior draws.</span></span>
-<span><span class="co">#&gt; ✔ Computing WAIC from the posterior draws. [443ms]</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>

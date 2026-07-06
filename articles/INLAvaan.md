@@ -117,30 +117,22 @@ mod <- "
   eta2 ~ eta1
 "
 fit <- asem(mod, dat)
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [215ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [70ms]
+#> ℹ Mode finding and Hessian computation.
+#> ✔ Posterior mode and Hessian. [280ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [117ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [134ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fitting 13/13 skew-normal marginals. [399ms]
+#> ✔ Fit 13/13 skew-normal marginals. [410ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [72ms]
+#> ✔ Adjust copula correlations (NORTA). [75ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [432ms]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
-#> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [276ms]
-#> 
-#> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [314ms]
-#> 
+#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 ```
 
 [INLAvaan](https://inlavaan.haziqj.ml/) computes an approximation to the
@@ -373,7 +365,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.96 s
+#> 2.00 s
 ```
 
 ### Plot
@@ -406,30 +398,23 @@ mod2 <- "
   eta1 ~~ 0*eta2
 "
 fit2 <- asem(mod2, dat)
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [80ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [36ms]
+#> ℹ Mode finding and Hessian computation.
+#> ✔ Posterior mode and Hessian. [137ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [88ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [85ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fitting 12/12 skew-normal marginals. [282ms]
+#> ⠹ Fitting 3/12 skew-normal marginals.
+#> ✔ Fit 12/12 skew-normal marginals. [293ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [46ms]
+#> ✔ Adjust copula correlations (NORTA). [62ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [390ms]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
-#> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [284ms]
-#> 
-#> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [443ms]
-#> 
+#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood

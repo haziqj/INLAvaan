@@ -120,32 +120,25 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [193ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [201ms]
+#> ℹ Mode finding and Hessian computation.
+#> ✔ Posterior mode and Hessian. [393ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [500ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [511ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 18/60 skew-normal marginals.
-#> ⠸ Fitting 48/60 skew-normal marginals.
-#> ✔ Fitting 60/60 skew-normal marginals. [5.9s]
+#> ⠹ Fitting 10/60 skew-normal marginals.
+#> ⠸ Fitting 39/60 skew-normal marginals.
+#> ✔ Fit 60/60 skew-normal marginals. [6.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [334ms]
+#> ✔ Adjust copula correlations (NORTA). [342ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [832ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [2.4s]
 #> 
-#> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [932ms]
-#> 
-#> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [604ms]
-#> 
+#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
 # Weak invariance
 fit2 <- acfa(
@@ -154,32 +147,25 @@ fit2 <- acfa(
   group = "school",
   group.equal = "loadings"
 )
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [173ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [188ms]
+#> ℹ Mode finding and Hessian computation.
+#> ✔ Posterior mode and Hessian. [361ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [258ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [257ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 16/54 skew-normal marginals.
-#> ⠸ Fitting 48/54 skew-normal marginals.
-#> ✔ Fitting 54/54 skew-normal marginals. [4.9s]
+#> ⠹ Fitting 4/54 skew-normal marginals.
+#> ⠸ Fitting 36/54 skew-normal marginals.
+#> ✔ Fit 54/54 skew-normal marginals. [5.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [476ms]
+#> ✔ Adjust copula correlations (NORTA). [488ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [833ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [2.1s]
 #> 
-#> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [805ms]
-#> 
-#> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [322ms]
-#> 
+#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
 # Strong invariance
 fit3 <- acfa(
@@ -188,32 +174,24 @@ fit3 <- acfa(
   group = "school",
   group.equal = c("intercepts", "loadings")
 )
-#> ℹ Finding posterior mode.
-#> ✔ Finding posterior mode. [187ms]
-#> 
-#> ℹ Computing the Hessian.
-#> ✔ Computing the Hessian. [155ms]
+#> ℹ Mode finding and Hessian computation.
+#> ✔ Posterior mode and Hessian. [347ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [237ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [234ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 28/48 skew-normal marginals.
-#> ✔ Fitting 48/48 skew-normal marginals. [4s]
+#> ⠹ Fitting 13/48 skew-normal marginals.
+#> ⠸ Fitting 47/48 skew-normal marginals.
+#> ✔ Fit 48/48 skew-normal marginals. [4.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjusting copula correlations (NORTA). [515ms]
+#> ✔ Adjust copula correlations (NORTA). [555ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Posterior sampling and summarising.
-#> ✔ Posterior sampling and summarising. [830ms]
+#> ✔ Summarise 1000 posterior draws. [2s]
 #> 
-#> ℹ Computing Taylor LOO.
-#> ✔ Computing Taylor LOO. [734ms]
-#> 
-#> ℹ Computing WAIC from the posterior draws.
-#> ✔ Computing WAIC from the posterior draws. [314ms]
-#> 
+#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
 # Compare models (fit1 = configural = baseline, always first argument)
 compare(fit1, fit2, fit3)

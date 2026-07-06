@@ -128,31 +128,23 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [124ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [136ms]</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [244ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.223σ. [451ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.223σ. [497ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 25/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [2.1s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 22/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [264ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [264ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [783ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing Taylor LOO.</span></span>
-<span><span class="co">#&gt; ✔ Computing Taylor LOO. [242ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing WAIC from the posterior draws.</span></span>
-<span><span class="co">#&gt; ✔ Computing WAIC from the posterior draws. [233ms]</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="va">fit1</span><span class="op">@</span><span class="va">Data</span><span class="op">@</span><span class="va">nobs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
@@ -190,18 +182,15 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [235ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [210ms]</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [435ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.194σ. [474ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.194σ. [477ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 25/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 42/42 skew-normal marginals. [3.7s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 23/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [3.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
@@ -232,17 +221,12 @@
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [279ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [273ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [554ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing Taylor LOO.</span></span>
-<span><span class="co">#&gt; ✔ Computing Taylor LOO. [526ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing WAIC from the posterior draws.</span></span>
-<span><span class="co">#&gt; ✔ Computing WAIC from the posterior draws. [602ms]</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.5.9002 ended normally after 93 iterations</span></span>
 <span><span class="co">#&gt; </span></span>

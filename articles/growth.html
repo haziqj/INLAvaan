@@ -129,30 +129,22 @@
 <span><span class="co">#&gt;  $ c4: num  -1.0064 1.2293 -0.3273 -1.0324 -0.0275 ...</span></span>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/agrowth.html">agrowth</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.growth</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Finding posterior mode.</span></span>
-<span><span class="co">#&gt; ✔ Finding posterior mode. [164ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Computing the Hessian. [81ms]</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [237ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.051σ. [199ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.051σ. [213ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fitting 17/17 skew-normal marginals. [821ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 17/17 skew-normal marginals. [854ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjusting copula correlations (NORTA). [84ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [85ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Posterior sampling and summarising. [114ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 100 posterior draws. [426ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing Taylor LOO.</span></span>
-<span><span class="co">#&gt; ✔ Computing Taylor LOO. [276ms]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Computing WAIC from the posterior draws.</span></span>
-<span><span class="co">#&gt; ✔ Computing WAIC from the posterior draws. [87ms]</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; INLAvaan 0.2.5.9002 ended normally after 83 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -169,8 +161,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             4997.525 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    17.562 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             4994.961 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    16.281 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -210,7 +202,7 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .i ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .s                 0.071    0.044   -0.015    0.157    0.006       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .s                 0.076    0.043   -0.008    0.160    0.006       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Intercepts:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
