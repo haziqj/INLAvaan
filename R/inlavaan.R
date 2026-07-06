@@ -974,25 +974,28 @@ inlavaan <- function(
   }
 
   if (isTRUE(verbose)) {
-    # Close the sampling step with an inventory of what the draws produced
-    parts <- c(
-      if (needs_draw_summaries) "Summaries",
-      if (!is.null(ppp)) "PPP/DIC",
+    # Close the sampling step with an overview; the specific fit measures
+    # computed are listed on a separate info line below
+    fit_measures <- c(
+      if (!is.null(ppp)) c("PPP", "DIC"),
       if (!is.null(loo_res)) "LOO",
       if (!is.null(waic_res)) "WAIC"
     )
-    np <- length(parts)
-    samp_done <- if (np == 0L) {
-      paste0("Drew ", nsamp, " posterior samples.")
+    samp_done <- if (needs_draw_summaries && length(fit_measures)) {
+      paste0("Summaries and fit measures from ", nsamp, " posterior draws.")
+    } else if (needs_draw_summaries) {
+      paste0("Summaries from ", nsamp, " posterior draws.")
+    } else if (length(fit_measures)) {
+      paste0("Fit measures from ", nsamp, " posterior draws.")
     } else {
-      listed <- if (np == 1L) {
-        parts
-      } else {
-        paste(paste(parts[-np], collapse = ", "), parts[np], sep = " & ")
-      }
-      paste0(listed, " from ", nsamp, " posterior draws.")
+      paste0("Drew ", nsamp, " posterior samples.")
     }
     cli_progress_done(.envir = samp_env)
+    if (length(fit_measures)) {
+      cli_alert_info(
+        paste0("Fit measures: ", paste(fit_measures, collapse = ", "), ".")
+      )
+    }
   }
 
   ## ----- Output --------------------------------------------------------------
