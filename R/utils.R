@@ -170,7 +170,8 @@ dmode <- function(x, na.rm = TRUE) {
 # Parallel or serial lapply with cli progress (chunked for parallel)
 # ---------------------------------------------------------------------------
 run_parallel_or_serial <- function(m, FUN, cores = 1L, verbose = FALSE,
-                                   msg_serial = NULL, msg_parallel = NULL) {
+                                   msg_serial = NULL, msg_parallel = NULL,
+                                   msg_done = NULL) {
   if (cores > 1L) { # nocov start
     # Parallel: process in chunks of `cores` for progress feedback
     if (verbose) {
@@ -179,6 +180,7 @@ run_parallel_or_serial <- function(m, FUN, cores = 1L, verbose = FALSE,
       done <- 0L
       cli_progress_step(
         msg,
+        msg_done = if (is.null(msg_done)) msg else msg_done,
         spinner = TRUE
       )
     }
@@ -195,9 +197,11 @@ run_parallel_or_serial <- function(m, FUN, cores = 1L, verbose = FALSE,
     # Serial with per-item progress
     if (verbose) {
       j <- 0L
+      msg <- if (!is.null(msg_serial)) msg_serial
+             else "Processing {j}/{m} item{?s}."
       cli_progress_step(
-        if (!is.null(msg_serial)) msg_serial
-        else "Processing {j}/{m} item{?s}.",
+        msg,
+        msg_done = if (is.null(msg_done)) msg else msg_done,
         spinner = TRUE
       )
     }

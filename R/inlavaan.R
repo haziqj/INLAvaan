@@ -317,7 +317,10 @@ inlavaan <- function(
   ## ----- Start optimisation --------------------------------------------------
   if (isTRUE(verbose)) {
     optim_stage <- "Finding posterior mode"
-    cli_progress_step("{optim_stage}.", msg_done = "Posterior mode and Hessian.")
+    cli_progress_step(
+      "{optim_stage}.",
+      msg_done = "Computed posterior mode and Hessian."
+    )
   }
 
   ob <- function(x) -1 * joint_lp(x)
@@ -431,7 +434,7 @@ inlavaan <- function(
     if (isTRUE(verbose)) {
       cli_progress_step(
         "Performing VB correction.",
-        msg_done = "VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift) / sqrt(diag(Sigma_theta))),
+        msg_done = "Applied VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift) / sqrt(diag(Sigma_theta))),
                     format = 'f', digits = 3)}\U03C3."
       )
     }
@@ -586,7 +589,8 @@ inlavaan <- function(
         cores = eff_cores,
         verbose = verbose,
         msg_serial = "Calibrating {j}/{m} asymmetric Gaussian{?s}.",
-        msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores}\U00D7)."
+        msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores}\U00D7).",
+        msg_done = "Calibrated {m}/{m} asymmetric Gaussian{?s}."
       )
       approx_data <- do.call(what = "rbind", approx_data)
 
@@ -664,7 +668,8 @@ inlavaan <- function(
         cores = eff_cores,
         verbose = verbose,
         msg_serial = "Fitting {j}/{m} skew-normal marginal{?s}.",
-        msg_parallel = "Fitting {done}/{m} skew-normal marginals ({cores}\U00D7)."
+        msg_parallel = "Fitting {done}/{m} skew-normal marginals ({cores}\U00D7).",
+        msg_done = "Fitted {m}/{m} skew-normal marginal{?s}."
       )
 
       approx_data <- do.call(what = "rbind", lapply(all_results, `[[`, "fit"))
@@ -716,7 +721,10 @@ inlavaan <- function(
   R_star <- NULL
   if (marginal_method == "skewnorm" && isTRUE(samp_copula)) {
     if (isTRUE(verbose)) {
-      cli_progress_step("Adjusting copula correlations (NORTA).")
+      cli_progress_step(
+        "Adjusting copula correlations (NORTA).",
+        msg_done = "Adjusted copula correlations (NORTA)."
+      )
     }
     R_star <- norta_adjust_R(cov2cor(Sigma_theta), approx_data)
   }
