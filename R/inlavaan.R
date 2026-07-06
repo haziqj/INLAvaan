@@ -981,12 +981,8 @@ inlavaan <- function(
       if (!is.null(loo_res)) "LOO",
       if (!is.null(waic_res)) "WAIC"
     )
-    samp_done <- if (needs_draw_summaries && length(fit_measures)) {
-      paste0("Summaries and fit measures from ", nsamp, " posterior draws.")
-    } else if (needs_draw_summaries) {
-      paste0("Summaries from ", nsamp, " posterior draws.")
-    } else if (length(fit_measures)) {
-      paste0("Fit measures from ", nsamp, " posterior draws.")
+    samp_done <- if (needs_draw_summaries || length(fit_measures)) {
+      paste0("Summarised ", nsamp, " posterior draws.")
     } else {
       paste0("Drew ", nsamp, " posterior samples.")
     }
