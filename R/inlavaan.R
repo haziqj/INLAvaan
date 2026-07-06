@@ -316,7 +316,8 @@ inlavaan <- function(
 
   ## ----- Start optimisation --------------------------------------------------
   if (isTRUE(verbose)) {
-    cli_progress_step("Finding posterior mode.")
+    optim_stage <- "Finding posterior mode"
+    cli_progress_step("{optim_stage}.", msg_done = "Posterior mode and Hessian.")
   }
 
   ob <- function(x) -1 * joint_lp(x)
@@ -332,7 +333,8 @@ inlavaan <- function(
     )
     theta_star <- opt$par
     if (isTRUE(verbose)) {
-      cli_progress_step("Computing the Hessian.")
+      optim_stage <- "Computing the Hessian"
+      cli_progress_update()
     }
     if (isTRUE(numerical_grad)) {
       H_neg <- fast_hessian(ob, theta_star)
@@ -721,21 +723,31 @@ inlavaan <- function(
   timing <- add_timing(timing, "norta")
 
   ## ----- Draw posterior samples (once) ---------------------------------------
-  has_extra_samp_work <-
-    (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 &&
-      marginal_method != "sampling") ||
+  # Draw-based summaries: covariances, defined (:=) and delta (~*~) parameters,
+  # or (for the pure sampling method) every marginal
+  needs_draw_summaries <-
+    marginal_method == "sampling" ||
+    sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 ||
     any(pt$op == ":=") ||
-    any(pt$op == "~*~") ||
-    test != "none"
+    any(pt$op == "~*~")
+  has_extra_samp_work <- needs_draw_summaries || test != "none"
   samp_env <- NULL
   if (isTRUE(verbose)) {
-    samp_msg <- if (has_extra_samp_work) {
-      "Posterior sampling and summarising."
+    samp_stage <- if (has_extra_samp_work) {
+      "Posterior sampling and summarising"
     } else {
-      "Drawing posterior samples."
+      "Drawing posterior samples"
     }
+    # Rewritten at the end of the block with an inventory of what the draws
+    # were used for
+    samp_done <- paste0(samp_stage, ".")
     samp_env <- environment()
-    cli_progress_step(samp_msg, spinner = TRUE, .envir = samp_env)
+    cli_progress_step(
+      "{samp_stage}.",
+      msg_done = "{samp_done}",
+      spinner = TRUE,
+      .envir = samp_env
+    )
   }
   samp <- sample_params(
     theta_star = theta_star_vbc,
@@ -844,6 +856,10 @@ inlavaan <- function(
 
   ## ----- Compute ppp and dic -------------------------------------------------
   if (test != "none") {
+    if (isTRUE(verbose)) {
+      samp_stage <- "Computing fit indices (PPP/DIC)"
+      cli_progress_update(.envir = samp_env)
+    }
     ppp <- get_ppp(
       x_samp = x_samp,
       lavmodel = lavmodel,
@@ -903,7 +919,8 @@ inlavaan <- function(
   loo_res <- NULL
   if (isTRUE(do_loo) || (test != "none" && casewise_ok)) {
     if (isTRUE(verbose)) {
-      cli_progress_step("Computing Taylor LOO.")
+      samp_stage <- "Computing Taylor LOO"
+      cli_progress_update(.envir = samp_env)
     }
     loo_res <- tryCatch(
       inlav_loo(
@@ -940,7 +957,8 @@ inlavaan <- function(
   waic_res <- NULL
   if (test != "none" && casewise_ok && nsamp >= 100L) {
     if (isTRUE(verbose)) {
-      cli_progress_step("Computing WAIC from the posterior draws.")
+      samp_stage <- "Computing WAIC"
+      cli_progress_update(.envir = samp_env)
     }
     waic_res <- tryCatch(
       suppressWarnings(
@@ -953,6 +971,28 @@ inlavaan <- function(
       error = function(e) NULL
     )
     timing <- add_timing(timing, "waic")
+  }
+
+  if (isTRUE(verbose)) {
+    # Close the sampling step with an inventory of what the draws produced
+    parts <- c(
+      if (needs_draw_summaries) "Summaries",
+      if (!is.null(ppp)) "PPP/DIC",
+      if (!is.null(loo_res)) "LOO",
+      if (!is.null(waic_res)) "WAIC"
+    )
+    np <- length(parts)
+    samp_done <- if (np == 0L) {
+      paste0("Drew ", nsamp, " posterior samples.")
+    } else {
+      listed <- if (np == 1L) {
+        parts
+      } else {
+        paste(paste(parts[-np], collapse = ", "), parts[np], sep = " & ")
+      }
+      paste0(listed, " from ", nsamp, " posterior draws.")
+    }
+    cli_progress_done(.envir = samp_env)
   }
 
   ## ----- Output --------------------------------------------------------------
