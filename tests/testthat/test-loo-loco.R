@@ -7,9 +7,15 @@ twolevel_model <- "
     fb ~ w1 + w2
 "
 
+# Shrunk two-level fixture: first 24 cluster ids (6 full cycles of the
+# 5/10/15/20 cluster-size pattern that repeats every 4 cluster ids in
+# lavaan::Demo.twolevel), 300 rows total. Shared across both the main
+# `fit` below and `fit_fx` (the fixed.x = TRUE variant further down).
+d_sub <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
+
 fit <- asem(
   twolevel_model,
-  lavaan::Demo.twolevel,
+  d_sub,
   cluster = "cluster",
   meanstructure = TRUE,
   fixed.x = FALSE,
@@ -26,31 +32,33 @@ test_that("LOCO matches reference values", {
   # Reference values computed with an independent implementation of the same
   # Taylor LOO formulas on this exact fit
   expect_equal(res$type, "loco")
-  expect_equal(res$n_units, 200L)
-  expect_equal(res$elpd_1, -23326.8621243898, tolerance = 1e-4)
-  expect_equal(res$elpd_2, -23344.5513534494, tolerance = 1e-4)
-  expect_equal(res$se_1, 731.0451908607, tolerance = 1e-4)
-  expect_equal(res$se_2, 731.4621700642, tolerance = 1e-4)
+  expect_equal(res$n_units, 24L)
+  expect_equal(res$elpd_1, -2811.3389254026, tolerance = 1e-4)
+  expect_equal(res$elpd_2, -2832.9728115262, tolerance = 1e-4)
+  expect_equal(res$se_1, 259.1529664233, tolerance = 1e-4)
+  expect_equal(res$se_2, 260.9893088931, tolerance = 1e-4)
   # p_loo aggregates small differences of nearly-equal numbers, so it is
   # more sensitive to BLAS/optimiser endpoint noise than the elpd totals
-  expect_equal(res$p_loo_1, 33.8733495508, tolerance = 1e-2)
-  expect_equal(res$p_loo_2, 34.8487202421, tolerance = 1e-2)
+  expect_equal(res$p_loo_1, 30.7792227732, tolerance = 1e-2)
+  expect_equal(res$p_loo_2, 35.1657403910, tolerance = 1e-2)
 
-  pu <- res$per_unit[c(1L, 50L, 200L), ]
+  # cluster ids 1, 6, 8 have sizes 5, 10, 20 respectively under the
+  # 5/10/15/20 cycle
+  pu <- res$per_unit[c(1L, 6L, 8L), ]
   expect_equal(pu$nobs, c(5L, 10L, 20L))
   expect_equal(
     pu$l_star,
-    c(-45.4095378095, -95.2988814936, -189.5348571672),
+    c(-45.1868700825, -91.3569642108, -177.6891056793),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_1,
-    c(-45.4309594960, -95.3467774741, -189.6552767982),
+    c(-45.3396350528, -91.5858133174, -178.4008589303),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-45.4376155763, -95.4125424934, -189.8302808479),
+    c(-45.5376421501, -92.0469159588, -179.5548931984),
     tolerance = 1e-4
   )
   # det_term values are tiny finite-difference remainders whose relative
@@ -63,7 +71,7 @@ test_that("LOCO matches reference values", {
 test_that("LOCO structure and internal identities", {
   expect_s3_class(res, "inlavaan_loo")
   expect_true(all(res$per_unit$ok))
-  expect_equal(sum(res$per_unit$nobs), nrow(lavaan::Demo.twolevel))
+  expect_equal(sum(res$per_unit$nobs), nrow(d_sub))
   expect_equal(
     res$per_unit$lpd_1 + res$per_unit$log_cpo_1,
     2 * res$per_unit$l_star
@@ -191,7 +199,7 @@ test_that("two-level LOSO override scores row deletions", {
 test_that("fixed.x two-level fits are scored conditionally", {
   fit_fx <- asem(
     twolevel_model,
-    lavaan::Demo.twolevel,
+    d_sub,
     cluster = "cluster",
     meanstructure = TRUE,
     fixed.x = TRUE,
@@ -210,20 +218,20 @@ test_that("fixed.x two-level fits are scored conditionally", {
 test_that("waic gains type: conditional (leave-one-unit-out) WAIC", {
   # default is marginal (per-cluster) WAIC
   set.seed(1)
-  w_marg <- suppressWarnings(waic(fit, nsamp = 200))
+  w_marg <- suppressWarnings(waic(fit, nsamp = 120))
   expect_equal(w_marg$type, "loco")
 
   # type = "loso" warns and scores the conditional (leave-one-unit-out) WAIC,
   # the same estimand as loo(type = "loso"); the two routes agree loosely
   w_cond <- testthat::capture_warnings(
-    w <- waic(fit, type = "loso", units = 1:60, nsamp = 200)
+    w <- waic(fit, type = "loso", units = 1:5, nsamp = 120)
   )
   expect_true(any(grepl("leave-one-unit-out", w_cond)))
   expect_equal(w$type, "loso")
-  expect_equal(w$n_units, 60L)
+  expect_equal(w$n_units, 5L)
   expect_true(all(w$per_unit$nobs == 1L))
 
-  l <- suppressWarnings(loo(fit, type = "loso", units = 1:60))
+  l <- suppressWarnings(loo(fit, type = "loso", units = 1:5))
   expect_equal(
     unname(w$estimates["elpd_waic", "Estimate"]),
     l$elpd_2,

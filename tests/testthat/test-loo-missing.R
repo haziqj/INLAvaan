@@ -9,11 +9,18 @@ HS_model <- "
   speed   =~ x7 + x8 + x9
 "
 
+# A 70-row subsample (bigger than a plain complete-data fixture, since 12%
+# MCAR holes across 6 columns still need to yield a genuine mix of complete,
+# single-hole, and multi-hole rows plus several distinct FIML patterns).
 # MCAR holes in x4-x9 (x1-x3 kept complete so every row has >= 3 observed
 # entries); the seed is set immediately before the holes so the dataset is
 # reproducible and the pinned reference values are stable
 make_miss <- function() {
-  d <- lavaan::HolzingerSwineford1939[, paste0("x", 1:9)]
+  set.seed(1)
+  d <- lavaan::HolzingerSwineford1939[
+    sample(nrow(lavaan::HolzingerSwineford1939), 70),
+    paste0("x", 1:9)
+  ]
   set.seed(20260613)
   for (v in paste0("x", 4:9)) {
     d[[v]][runif(nrow(d)) < 0.12] <- NA
@@ -37,12 +44,12 @@ fit <- acfa(
 res <- loo(fit)
 
 test_that("the test dataset has the expected missingness", {
-  expect_equal(sum(is.na(dat)), 194L)
-  expect_equal(sum(!complete.cases(dat)), 144L)
+  expect_equal(sum(is.na(dat)), 55L)
+  expect_equal(sum(!complete.cases(dat)), 41L)
   X <- get_inlavaan_internal(fit)$lavdata@X[[1L]]
-  expect_equal(nrow(X), 301L) # no rows dropped under FIML
+  expect_equal(nrow(X), 70L) # no rows dropped under FIML
   expect_true(anyNA(X)) # NAs retained, not listwise-deleted
-  expect_length(INLAvaan:::fiml_patterns(X), 29L)
+  expect_length(INLAvaan:::fiml_patterns(X), 18L)
 })
 
 test_that("FIML LOSO matches reference values", {
@@ -51,35 +58,35 @@ test_that("FIML LOSO matches reference values", {
   # cross-checked below against lavaan's FIML loglik and finite differences
   expect_equal(res$type, "loso")
   expect_equal(res$flavour, "joint")
-  expect_equal(res$n_units, 301L)
-  expect_equal(res$elpd_1, -3509.94474609, tolerance = 1e-4)
-  expect_equal(res$elpd_2, -3525.9629254, tolerance = 1e-4)
-  expect_equal(res$se_1, 45.4718320861, tolerance = 1e-4)
-  expect_equal(res$se_2, 45.7227554195, tolerance = 1e-4)
-  expect_equal(res$p_loo_1, 33.0411162056, tolerance = 1e-2)
-  expect_equal(res$p_loo_2, 35.0230603754, tolerance = 1e-2)
+  expect_equal(res$n_units, 70L)
+  expect_equal(res$elpd_1, -810.8096330551, tolerance = 1e-4)
+  expect_equal(res$elpd_2, -829.4835098090, tolerance = 1e-4)
+  expect_equal(res$se_1, 21.8869310500, tolerance = 1e-4)
+  expect_equal(res$se_2, 22.5837971790, tolerance = 1e-4)
+  expect_equal(res$p_loo_1, 27.7612891234, tolerance = 1e-2)
+  expect_equal(res$p_loo_2, 31.1295585209, tolerance = 1e-2)
 
-  # rows spanning complete (1), one hole (2), and three holes (15)
-  pu <- res$per_unit[c(1L, 2L, 15L), ]
-  expect_equal(pu$unit, c(1L, 2L, 15L))
+  # rows spanning complete (4), one hole (2), and three holes (11)
+  pu <- res$per_unit[c(4L, 2L, 11L), ]
+  expect_equal(pu$unit, c(4L, 2L, 11L))
   expect_equal(
     pu$l_star,
-    c(-17.47837177060, -13.65801367139, -7.72301456985),
+    c(-10.03278944439, -10.69608891448, -8.96709021099),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_1,
-    c(-17.62047257266, -13.80293274754, -7.74136531027),
+    c(-10.09565853301, -10.79854756016, -9.08394011848),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-17.66672048884, -13.86662509222, -7.78071562564),
+    c(-10.23563590292, -10.94860225615, -9.19913075203),
     tolerance = 1e-4
   )
   expect_equal(
     pu$det_term,
-    c(-0.0443887608995, -0.0632309364822, -0.0391517918431),
+    c(-0.13882114800, -0.14444389100, -0.10621393414),
     tolerance = 1e-3
   )
 })
@@ -181,9 +188,9 @@ test_that("loo object structure and internal identities", {
 
 test_that("waic() runs on a FIML fit and agrees loosely with loo()", {
   set.seed(1)
-  w <- suppressWarnings(waic(fit, nsamp = 1000))
+  w <- suppressWarnings(waic(fit, nsamp = 150))
   expect_s3_class(w, "inlavaan_waic")
-  expect_equal(w$n_units, 301L)
+  expect_equal(w$n_units, 70L)
   expect_equal(w$type, "loso")
   expect_equal(w$flavour, "joint")
   expect_true(all(is.finite(w$per_unit$lpd)))

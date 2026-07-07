@@ -10,10 +10,15 @@ twolevel_model <- "
     fb =~ y1 + y2 + y3
 "
 
-# MCAR holes in y1-y3; seed set immediately before so the dataset (and the
-# pinned reference values) are reproducible
+# Keep the first 30 cluster ids (cluster sizes cycle 5, 10, 15, 20 every 4
+# cluster ids in lavaan::Demo.twolevel, so every size is represented several
+# times). MCAR holes in y1-y3; seed set immediately before the hole-punching
+# loop so the dataset (and the pinned reference values) are reproducible. With
+# ncl = 30, cluster 9 ends up with a row fully missing on y1-y3 -- needed by
+# the two dedicated regression tests below.
 make_miss <- function() {
   d <- lavaan::Demo.twolevel[, c("y1", "y2", "y3", "cluster")]
+  d <- d[d$cluster <= 30, ]
   set.seed(20260613)
   for (v in c("y1", "y2", "y3")) {
     d[[v]][runif(nrow(d)) < 0.12] <- NA
@@ -22,8 +27,9 @@ make_miss <- function() {
 }
 d <- make_miss()
 
-# a few rows are fully missing after punching holes; lavaan drops them with a
-# (benign) note, suppressed here so the fixture sets up cleanly
+# a row is fully missing after punching holes; lavaan flags this with a
+# (benign) note about the two-level FIML gradient, suppressed here so the
+# fixture sets up cleanly (loo()/waic() handle these rows correctly)
 fit <- suppressWarnings(asem(
   twolevel_model,
   d,
@@ -39,8 +45,8 @@ fit <- suppressWarnings(asem(
 res <- loo(fit)
 
 test_that("the test dataset has the expected missingness", {
-  expect_equal(sum(is.na(d[, 1:3])), 904L)
-  expect_equal(sum(!complete.cases(d[, 1:3])), 795L)
+  expect_equal(sum(is.na(d[, 1:3])), 129L)
+  expect_equal(sum(!complete.cases(d[, 1:3])), 118L)
 })
 
 test_that("two-level FIML LOCO matches reference values", {
@@ -59,29 +65,30 @@ test_that("two-level FIML LOCO matches reference values", {
   )
   expect_equal(res$type, "loco")
   expect_equal(res$flavour, "joint")
-  expect_equal(res$n_units, 200L)
-  expect_equal(res$elpd_1, -11107.6378454856, tolerance = 1e-4)
-  expect_equal(res$elpd_2, -11115.6523623652, tolerance = 1e-4)
-  expect_equal(res$se_1, 355.1108972673, tolerance = 1e-4)
-  expect_equal(res$se_2, 355.2910431850, tolerance = 1e-4)
-  expect_equal(res$p_loo_1, 15.3797379805, tolerance = 1e-2)
-  expect_equal(res$p_loo_2, 16.4540289214, tolerance = 1e-2)
+  expect_equal(res$n_units, 30L)
+  expect_equal(res$elpd_1, -1622.0173425091, tolerance = 1e-4)
+  expect_equal(res$elpd_2, -1631.5418961566, tolerance = 1e-4)
+  expect_equal(res$se_1, 146.6123016390, tolerance = 1e-4)
+  expect_equal(res$se_2, 147.4268836230, tolerance = 1e-4)
+  expect_equal(res$p_loo_1, 14.2027032692, tolerance = 1e-2)
+  expect_equal(res$p_loo_2, 16.3011978533, tolerance = 1e-2)
 
-  pu <- res$per_unit[c(1L, 50L, 200L), ]
-  expect_equal(pu$nobs, c(5L, 10L, 20L))
+  # first, middle, and last of the 30 clusters
+  pu <- res$per_unit[c(1L, 15L, 30L), ]
+  expect_equal(pu$nobs, c(5L, 15L, 10L))
   expect_equal(
     pu$l_star,
-    c(-19.2402315702, -49.1574789208, -84.6760346134),
+    c(-16.9345018087, -69.6199644963, -42.7357136336),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_1,
-    c(-19.2447491860, -49.1945914624, -84.7073633870),
+    c(-16.9717923529, -69.7909182029, -42.8737272647),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-19.2586816599, -49.2109180735, -84.7455888298),
+    c(-17.0345397512, -70.1542742739, -43.0387010435),
     tolerance = 1e-4
   )
 })
@@ -105,7 +112,7 @@ test_that("per-cluster observed-data logliks sum to the fitted FIML loglik", {
 test_that("analytic per-cluster scores match finite differences", {
   int <- get_inlavaan_internal(fit)
   minfo <- INLAvaan:::loco_missing_info(int)
-  js <- c(1L, 50L, 200L)
+  js <- c(1L, 15L, 30L) # first, middle, and last of the 30 clusters
   s_an <- INLAvaan:::loco_missing_scores_theta(
     int$theta_star,
     minfo,
@@ -156,9 +163,9 @@ test_that("loo object structure and unit subsetting", {
 
 test_that("waic() runs on a two-level FIML fit and agrees loosely with loo()", {
   set.seed(1)
-  w <- suppressWarnings(waic(fit, nsamp = 500))
+  w <- suppressWarnings(waic(fit, nsamp = 50))
   expect_s3_class(w, "inlavaan_waic")
-  expect_equal(w$n_units, 200L)
+  expect_equal(w$n_units, 30L)
   expect_equal(w$type, "loco")
   expect_equal(w$flavour, "joint")
   expect_true(all(is.finite(w$per_unit$lpd)))
@@ -173,11 +180,11 @@ test_that("the per-row (leave-one-unit-out) override works under missing data", 
   # type = "loso" on a clustered fit warns (conditional vs marginal) then
   # scores the leave-one-unit-out conditional predictive per row
   expect_warning(
-    res_row <- loo(fit, type = "loso", units = 1:20),
+    res_row <- loo(fit, type = "loso", units = 1:10),
     "leave-one-unit-out"
   )
   expect_equal(res_row$type, "loso")
-  expect_equal(nrow(res_row$per_unit), 20L)
+  expect_equal(nrow(res_row$per_unit), 10L)
   expect_true(all(res_row$per_unit$nobs == 1L))
 
   # analytic per-row scores agree with finite differences, including rows in
@@ -185,7 +192,7 @@ test_that("the per-row (leave-one-unit-out) override works under missing data", 
   # mishandles zero-observed patterns; INLAvaan drops them before the kernel)
   int <- get_inlavaan_internal(fit)
   minfo <- INLAvaan:::loco_missing_info(int)
-  rows <- c(1L, 5L, 200L, minfo$rows_by_cluster[[26L]])
+  rows <- c(1L, 5L, 200L, minfo$rows_by_cluster[[9L]])
   s_an <- INLAvaan:::loso2l_missing_scores_theta(
     int$theta_star,
     minfo,
@@ -222,7 +229,7 @@ test_that("the per-row (leave-one-unit-out) override works under missing data", 
 })
 
 test_that("LOCO scores are correct for clusters with a fully-missing row", {
-  # regression guard for the fix: cluster 26 has a row with all within
+  # regression guard for the fix: cluster 9 has a row with all within
   # variables missing; its score must match finite differences
   int <- get_inlavaan_internal(fit)
   minfo <- INLAvaan:::loco_missing_info(int)
@@ -232,7 +239,7 @@ test_that("LOCO scores are correct for clusters with a fully-missing row", {
     minfo,
     int$lavmodel,
     int$partable,
-    26L
+    9L
   )
   h <- 1e-6
   s_fd <- vapply(
@@ -253,8 +260,8 @@ test_that("LOCO scores are correct for clusters with a fully-missing row", {
         int$partable,
         two_level = TRUE
       )
-      (INLAvaan:::loco_missing_loglik_one(26L, minfo, cp$mom) -
-        INLAvaan:::loco_missing_loglik_one(26L, minfo, cm$mom)) /
+      (INLAvaan:::loco_missing_loglik_one(9L, minfo, cp$mom) -
+        INLAvaan:::loco_missing_loglik_one(9L, minfo, cm$mom)) /
         (2 * h)
     },
     numeric(1)

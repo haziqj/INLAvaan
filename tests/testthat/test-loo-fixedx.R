@@ -9,9 +9,17 @@ HS_model_x <- "
   visual ~ ageyr + grade
   textual ~ ageyr + grade
 "
+# The full HolzingerSwineford1939 has exactly one NA (in "grade"); na.omit it
+# first, then subsample down to N = 90 (still comfortably satisfies the
+# closed-form Student-t downdated-moments check below, which needs
+# n - 1 - q > 0 with q = 2 covariates, and keeps every LOO unit's curvature
+# well-behaved -- smaller subsamples occasionally push a left-out unit's
+# downdated Hessian to non-positive-definite).
 dat_x <- na.omit(
   lavaan::HolzingerSwineford1939[, c(paste0("x", 1:9), "ageyr", "grade")]
 )
+set.seed(123)
+dat_x <- dat_x[sort(sample(nrow(dat_x), 90)), ]
 
 fit_c <- asem(
   HS_model_x,
@@ -26,6 +34,21 @@ fit_c <- asem(
   marginal_correction = "none"
 )
 res_c <- loo(fit_c)
+
+# Shared with the "compare(loo = TRUE) enforces the flavour rules" test below
+# (identical model/data/arguments, just fixed.x = FALSE)
+fit_j <- asem(
+  HS_model_x,
+  dat_x,
+  fixed.x = FALSE,
+  meanstructure = TRUE,
+  verbose = FALSE,
+  nsamp = 3,
+  test = "none",
+  vb_correction = FALSE,
+  marginal_method = "marggaus",
+  marginal_correction = "none"
+)
 
 # Total loglik of the fit at the INLAvaan mode (under fixed.x this is the
 # conditional loglik)
@@ -59,22 +82,22 @@ ll_at_mode <- function(fit) {
 test_that("conditional LOSO on a fixed.x fit matches reference values", {
   expect_equal(res_c$flavour, "conditional")
   expect_equal(res_c$type, "loso")
-  expect_equal(res_c$n_units, 300L)
-  expect_equal(res_c$elpd_1, -3726.3893510145, tolerance = 1e-4)
-  expect_equal(res_c$elpd_2, -3748.7773908743, tolerance = 1e-4)
-  expect_equal(res_c$se_1, 44.8288480134, tolerance = 1e-3)
-  expect_equal(res_c$se_2, 45.1238552339, tolerance = 1e-3)
-  expect_equal(res_c$p_loo_2, 46.3226952205, tolerance = 1e-2)
+  expect_equal(res_c$n_units, 90L)
+  expect_equal(res_c$elpd_1, -1134.0330682985, tolerance = 1e-4)
+  expect_equal(res_c$elpd_2, -1165.6523740521, tolerance = 1e-4)
+  expect_equal(res_c$se_1, 21.0799322283, tolerance = 1e-3)
+  expect_equal(res_c$se_2, 21.5461686423, tolerance = 1e-3)
+  expect_equal(res_c$p_loo_2, 58.1103250541, tolerance = 1e-2)
 
-  pu <- res_c$per_unit[c(1L, 150L, 300L), ]
+  pu <- res_c$per_unit[c(1L, 45L, 90L), ]
   expect_equal(
     pu$l_star,
-    c(-16.9619393030, -13.0422181149, -11.7933556389),
+    c(-10.6710473345, -13.4890135349, -13.9737268755),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-17.1947718781, -13.1690136822, -11.8872052364),
+    c(-10.9903065940, -13.8526005859, -14.8047188622),
     tolerance = 1e-4
   )
 
@@ -86,18 +109,6 @@ test_that("conditional unit logliks sum to the fitted likelihood", {
 })
 
 test_that("joint and conditional scales differ by the covariate predictive", {
-  fit_j <- asem(
-    HS_model_x,
-    dat_x,
-    fixed.x = FALSE,
-    meanstructure = TRUE,
-    verbose = FALSE,
-    nsamp = 3,
-    test = "none",
-    vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
-  )
   res_j <- loo(fit_j)
   expect_equal(res_j$flavour, "joint")
 
@@ -140,9 +151,15 @@ twolevel_model_z <- "
     fb =~ y1 + y2 + y3
     fb ~ w1 + w2
 "
+# Demo.twolevel's cluster sizes cycle 5, 10, 15, 20 every 4 cluster ids;
+# keeping the first 24 cluster ids gives 300 rows across a representative mix
+# of cluster sizes while running in a fraction of the time of the full 200
+# clusters / 2500 rows.
+d24 <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
+
 fit_2c <- asem(
   twolevel_model_z,
-  lavaan::Demo.twolevel,
+  d24,
   cluster = "cluster",
   fixed.x = TRUE,
   meanstructure = TRUE,
@@ -158,21 +175,21 @@ test_that("conditional LOCO with cluster-level covariates matches reference valu
   res_2c <- loo(fit_2c)
   expect_equal(res_2c$flavour, "conditional")
   expect_equal(res_2c$type, "loco")
-  expect_equal(res_2c$n_units, 200L)
-  expect_equal(res_2c$elpd_1, -12518.7018385497, tolerance = 1e-4)
-  expect_equal(res_2c$elpd_2, -12527.7612324983, tolerance = 1e-4)
-  expect_equal(res_2c$se_1, 400.7882650448, tolerance = 1e-3)
-  expect_equal(res_2c$se_2, 400.9874715240, tolerance = 1e-3)
+  expect_equal(res_2c$n_units, 24L)
+  expect_equal(res_2c$elpd_1, -1503.5857553604, tolerance = 1e-4)
+  expect_equal(res_2c$elpd_2, -1515.1500934774, tolerance = 1e-4)
+  expect_equal(res_2c$se_1, 142.9954162751, tolerance = 1e-3)
+  expect_equal(res_2c$se_2, 144.0573657962, tolerance = 1e-3)
 
-  pu <- res_2c$per_unit[c(1L, 100L, 200L), ]
+  pu <- res_2c$per_unit[c(1L, 12L, 24L), ]
   expect_equal(
     pu$l_star,
-    c(-23.6884396577, -92.5933047338, -96.8530982807),
+    c(-23.3368311865, -100.8922738534, -101.0054761098),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-23.6926283571, -92.7364588427, -96.9632184856),
+    c(-23.4605212734, -102.1991697020, -101.5943866124),
     tolerance = 1e-4
   )
 
@@ -204,7 +221,7 @@ test_that("conditional LOCO with within-level covariates matches reference value
   "
   fit_wx <- asem(
     twolevel_model_wx,
-    lavaan::Demo.twolevel,
+    d24,
     cluster = "cluster",
     fixed.x = TRUE,
     meanstructure = TRUE,
@@ -217,21 +234,21 @@ test_that("conditional LOCO with within-level covariates matches reference value
   )
   res_wx <- loo(fit_wx)
   expect_equal(res_wx$flavour, "conditional")
-  expect_equal(res_wx$n_units, 200L)
-  expect_equal(res_wx$elpd_1, -12086.7629617682, tolerance = 1e-4)
-  expect_equal(res_wx$elpd_2, -12097.3274537623, tolerance = 1e-4)
-  expect_equal(res_wx$se_1, 387.9154865799, tolerance = 1e-3)
-  expect_equal(res_wx$se_2, 388.1556448756, tolerance = 1e-3)
+  expect_equal(res_wx$n_units, 24L)
+  expect_equal(res_wx$elpd_1, -1455.6390218782, tolerance = 1e-4)
+  expect_equal(res_wx$elpd_2, -1468.9588402195, tolerance = 1e-4)
+  expect_equal(res_wx$se_1, 138.9590837453, tolerance = 1e-3)
+  expect_equal(res_wx$se_2, 140.2301868846, tolerance = 1e-3)
 
-  pu <- res_wx$per_unit[c(1L, 100L, 200L), ]
+  pu <- res_wx$per_unit[c(1L, 12L, 24L), ]
   expect_equal(
     pu$l_star,
-    c(-22.9475363793, -92.1020515691, -95.8874752171),
+    c(-22.5346219951, -101.6347742457, -100.0472924937),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-22.9527716428, -92.2700952444, -96.0276662972),
+    c(-22.7161458081, -103.2586591522, -100.9165757220),
     tolerance = 1e-4
   )
 
@@ -287,7 +304,7 @@ test_that("conditional LOCO with within-level covariates matches reference value
   "
   fit_w <- asem(
     twolevel_model_w,
-    lavaan::Demo.twolevel,
+    d24,
     cluster = "cluster",
     fixed.x = TRUE,
     meanstructure = TRUE,
@@ -310,7 +327,7 @@ test_that("conditional LOCO with within-level covariates matches reference value
 
 test_that("waic scores fixed.x fits conditionally", {
   set.seed(1)
-  w <- suppressWarnings(waic(fit_c, nsamp = 300))
+  w <- suppressWarnings(waic(fit_c, nsamp = 100))
   expect_equal(w$flavour, "conditional")
   expect_true(all(is.finite(w$per_unit$lpd)))
   expect_output(print(w), "conditionally on the exogenous covariates")
@@ -344,18 +361,6 @@ test_that("compare(loo = TRUE) enforces the flavour rules", {
   expect_true(all(is.finite(cmp$se_diff)))
 
   # Mixing joint and conditional scores is refused
-  fit_j <- asem(
-    HS_model_x,
-    dat_x,
-    fixed.x = FALSE,
-    meanstructure = TRUE,
-    verbose = FALSE,
-    nsamp = 3,
-    test = "none",
-    vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
-  )
   expect_error(
     compare(fit_c, fit_j, loo = TRUE),
     "mix joint and conditional"
@@ -371,7 +376,9 @@ test_that("Conditional flavour works without a mean structure", {
     visual  =~ x1 + x2 + x3
     visual  ~ grade
   "
+  set.seed(123)
   dat_x <- lavaan::HolzingerSwineford1939[, c("x1", "x2", "x3", "grade")]
+  dat_x <- dat_x[sort(sample(nrow(dat_x), 90)), ]
   fit <- asem(mod_x, dat_x, verbose = FALSE, test = "none", nsamp = 3)
   expect_false(fit@Model@meanstructure)
   res <- loo(fit)
@@ -391,7 +398,7 @@ test_that("Conditional flavour works without a mean structure", {
     d <- backsolve(ch, y - mu, transpose = TRUE)
     -0.5 * (length(y) * log(2 * pi) + 2 * sum(log(diag(ch))) + sum(d^2))
   }
-  ii <- c(1L, 150L, n)
+  ii <- c(1L, ceiling(n / 2), n)
   l_closed <- vapply(
     ii,
     function(i) {

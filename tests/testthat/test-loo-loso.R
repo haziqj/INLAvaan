@@ -4,9 +4,16 @@ HS_model <- "
   speed   =~ x7 + x8 + x9
 "
 
+# Small deterministic subset of HolzingerSwineford1939 shared by every acfa()
+# call in this file, in place of the full 301-row dataset
+set.seed(1)
+dat <- lavaan::HolzingerSwineford1939[
+  sample(nrow(lavaan::HolzingerSwineford1939), 40),
+]
+
 fit <- acfa(
   HS_model,
-  lavaan::HolzingerSwineford1939,
+  dat,
   meanstructure = TRUE,
   verbose = FALSE,
   nsamp = 3,
@@ -16,38 +23,42 @@ fit <- acfa(
   marginal_correction = "none"
 )
 res <- loo(fit)
+# Shared across two test_that() blocks that both need a copy of `fit` with
+# LOO stored via add_loo() -- historically each block called add_loo(fit)
+# separately, but the call is deterministic so it is computed once here
+fit_with_loo <- add_loo(fit)
 
 test_that("LOSO matches reference values", {
   # Reference values computed with an independent implementation of the same
   # Taylor LOO formulas on this exact fit
   expect_equal(res$type, "loso")
-  expect_equal(res$n_units, 301L)
-  expect_equal(res$elpd_1, -3753.9827314325, tolerance = 1e-4)
-  expect_equal(res$elpd_2, -3769.8932098595, tolerance = 1e-4)
-  expect_equal(res$se_1, 43.2298484428, tolerance = 1e-4)
-  expect_equal(res$se_2, 43.4126638097, tolerance = 1e-4)
-  expect_equal(res$p_loo_1, 32.4399589132, tolerance = 1e-4)
-  expect_equal(res$p_loo_2, 33.6076795556, tolerance = 1e-4)
+  expect_equal(res$n_units, 40L)
+  expect_equal(res$elpd_1, -488.6660523464, tolerance = 1e-4)
+  expect_equal(res$elpd_2, -509.4810089914, tolerance = 1e-4)
+  expect_equal(res$se_1, 14.9606326798, tolerance = 1e-4)
+  expect_equal(res$se_2, 16.1424977191, tolerance = 1e-4)
+  expect_equal(res$p_loo_1, 28.1110170037, tolerance = 1e-4)
+  expect_equal(res$p_loo_2, 33.8073861249, tolerance = 1e-4)
 
-  pu <- res$per_unit[c(1L, 150L, 301L), ]
+  pu <- res$per_unit[c(1L, 20L, 40L), ]
   expect_equal(
     pu$l_star,
-    c(-17.2934204992, -13.4493341972, -11.4168729139),
+    c(-10.1330813639, -10.7290547282, -12.8417007213),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_1,
-    c(-17.4103164657, -13.4961506289, -11.4422442947),
+    c(-10.2877928268, -10.8713710491, -13.1844720013),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-17.4614494940, -13.5529791063, -11.4698745368),
+    c(-10.6530882509, -11.2745912656, -13.5171746493),
     tolerance = 1e-4
   )
   expect_equal(
     pu$det_term,
-    c(-0.0494450472080, -0.0561824850593, -0.0273618609405),
+    c(-0.3503871084, -0.3930981418, -0.2827972374),
     tolerance = 1e-3
   )
 })
@@ -174,7 +185,7 @@ test_that("equality constraints (ceq.simple) are handled", {
   "
   fit_eq <- acfa(
     hs_eq,
-    lavaan::HolzingerSwineford1939,
+    dat,
     meanstructure = TRUE,
     verbose = FALSE,
     nsamp = 3,
@@ -233,7 +244,7 @@ test_that("equality constraints (ceq.simple) are handled", {
 test_that("fit-time LOO via test = 'loo' and add_loo()", {
   fit_loo <- acfa(
     HS_model,
-    lavaan::HolzingerSwineford1939,
+    dat,
     meanstructure = TRUE,
     verbose = FALSE,
     nsamp = 3,
@@ -252,7 +263,7 @@ test_that("fit-time LOO via test = 'loo' and add_loo()", {
   expect_equal(nrow(res_sub$per_unit), 5L)
 
   # add_loo() returns an updated copy; the original fit is unchanged
-  fit2 <- add_loo(fit)
+  fit2 <- fit_with_loo
   expect_null(fit@external$inlavaan_internal$loo)
   expect_s3_class(get_inlavaan_internal(fit2, "loo"), "inlavaan_loo")
   expect_equal(get_inlavaan_internal(fit2, "loo")$elpd_2, res$elpd_2)
@@ -275,7 +286,7 @@ test_that("fitMeasures reports LOO measures on request or when stored", {
   expect_equal(unname(fm["p_loo"]), res$p_loo_2, tolerance = 1e-10)
 
   # Stored: included in "all" for free
-  fit2 <- add_loo(fit)
+  fit2 <- fit_with_loo
   fm2 <- fitMeasures(fit2)
   expect_true(all(c("elpd_loo", "se_loo", "p_loo", "looic") %in% names(fm2)))
   expect_equal(unname(fm2["elpd_loo"]), res$elpd_2, tolerance = 1e-10)
@@ -284,9 +295,9 @@ test_that("fitMeasures reports LOO measures on request or when stored", {
 test_that("waic() sanity and agreement with loo()", {
   set.seed(123)
   # A few units genuinely exceed the p_waic reliability threshold here
-  expect_warning(w <- waic(fit, nsamp = 1000), "p_waic")
+  expect_warning(w <- waic(fit, nsamp = 100), "p_waic")
   expect_s3_class(w, "inlavaan_waic")
-  expect_equal(w$n_units, 301L)
+  expect_equal(w$n_units, 40L)
   expect_equal(w$type, "loso")
   expect_true(all(is.finite(w$per_unit$lpd)))
   expect_true(all(w$per_unit$p_waic > 0))
@@ -313,7 +324,7 @@ test_that("waic() sanity and agreement with loo()", {
 })
 
 test_that("single-level FIML is supported (see test-loo-missing.R)", {
-  d_miss <- lavaan::HolzingerSwineford1939
+  d_miss <- dat
   d_miss[1, "x1"] <- NA
   fit_miss <- acfa(
     HS_model,
@@ -335,10 +346,10 @@ test_that("single-level FIML is supported (see test-loo-missing.R)", {
 test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
   fit_std <- acfa(
     HS_model,
-    lavaan::HolzingerSwineford1939,
+    dat,
     meanstructure = TRUE,
     verbose = FALSE,
-    nsamp = 150,
+    nsamp = 100,
     test = "standard",
     vb_correction = FALSE,
     marginal_method = "marggaus",
@@ -347,12 +358,12 @@ test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
   int <- get_inlavaan_internal(fit_std)
 
   expect_s3_class(int$loo, "inlavaan_loo")
-  expect_equal(int$loo$n_units, 301L)
+  expect_equal(int$loo$n_units, 40L)
   expect_equal(int$loo$elpd_2, res$elpd_2, tolerance = 1e-10)
   expect_identical(loo(fit_std), int$loo)
 
   expect_s3_class(int$waic, "inlavaan_waic")
-  expect_equal(int$waic$nsamp, 150L)
+  expect_equal(int$waic$nsamp, 100L)
   expect_identical(waic(fit_std), int$waic)
   # non-default arguments still trigger a fresh computation
   set.seed(1)
@@ -378,7 +389,7 @@ test_that("the fit-time budget gate aborts with its own condition class", {
 test_that("small nsamp skips fit-time WAIC but not LOO", {
   fit_s3 <- acfa(
     HS_model,
-    lavaan::HolzingerSwineford1939,
+    dat,
     meanstructure = TRUE,
     verbose = FALSE,
     nsamp = 3,

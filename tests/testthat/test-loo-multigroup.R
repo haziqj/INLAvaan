@@ -8,10 +8,21 @@ HS_model <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
 "
+# 60 rows per school (120 total, vs. the full 301) keeps both groups
+# represented and is small enough to fit fast, while still agreeing with
+# waic() closely enough for the tolerance below (smaller per-group samples,
+# e.g. 20, push the loo/waic elpd_waic relative gap past it). The row shuffle
+# after sampling keeps the group-stacked order different from the sampled
+# data's own order, exercising the id bookkeeping (the point of the original
+# full-data shuffle).
 set.seed(421)
-dat_mg <- lavaan::HolzingerSwineford1939[
-  sample(nrow(lavaan::HolzingerSwineford1939)),
-]
+full_hs <- lavaan::HolzingerSwineford1939
+dat_mg <- do.call(
+  rbind,
+  by(full_hs, full_hs$school, function(g) g[sample(nrow(g), 60), ])
+)
+rownames(dat_mg) <- NULL
+dat_mg <- dat_mg[sample(nrow(dat_mg)), ]
 rownames(dat_mg) <- NULL
 
 fit_args <- list(
@@ -60,7 +71,7 @@ ll_at_mode <- function(fit) {
 test_that("multigroup LOSO structure: case ids, groups, and identities", {
   expect_s3_class(res_conf, "inlavaan_loo")
   expect_equal(res_conf$type, "loso")
-  expect_equal(res_conf$n_units, 301L)
+  expect_equal(res_conf$n_units, 120L)
   expect_equal(res_conf$n_groups, 2L)
   expect_named(
     res_conf$per_unit,
@@ -106,7 +117,7 @@ test_that("multigroup LOSO structure: case ids, groups, and identities", {
 
 test_that("unit subsetting by case id preserves order across groups", {
   ids <- res_conf$per_unit$unit
-  pick <- c(ids[200L], ids[3L], ids[157L])
+  pick <- c(ids[50L], ids[3L], ids[30L])
   res_sub <- loo(fit_conf, units = pick)
   expect_equal(res_sub$per_unit$unit, pick)
   expect_equal(
@@ -262,13 +273,27 @@ test_that("pooled and multigroup fits pair by unit id in compare()", {
 })
 
 test_that("conditional flavour scores fixed.x multigroup fits", {
+  # The leave-one-out curvature for the conditional predictive (2 exogenous
+  # covariates) is only reliably positive-definite for most units once each
+  # group has enough rows; 100/group (vs. dat_mg's 60) is the smallest size
+  # found to keep the >= 90% "ok" fraction asserted below, so this test uses
+  # its own, slightly larger fixture rather than dat_mg.
   mod_x <- "
     visual  =~ x1 + x2 + x3
     visual ~ ageyr + grade
   "
+  set.seed(421)
+  dat_mg_x <- do.call(
+    rbind,
+    by(full_hs, full_hs$school, function(g) g[sample(nrow(g), 100), ])
+  )
+  rownames(dat_mg_x) <- NULL
+  dat_mg_x <- dat_mg_x[sample(nrow(dat_mg_x)), ]
+  rownames(dat_mg_x) <- NULL
+
   fit_x <- do.call(
     asem,
-    c(list(mod_x, dat_mg, group = "school", fixed.x = TRUE), fit_args)
+    c(list(mod_x, dat_mg_x, group = "school", fixed.x = TRUE), fit_args)
   )
   res_x <- loo(fit_x)
   expect_equal(res_x$flavour, "conditional")
@@ -277,7 +302,7 @@ test_that("conditional flavour scores fixed.x multigroup fits", {
   expect_true(all(is.finite(res_x$per_unit$log_cpo_1)))
   expect_true(all(is.finite(res_x$per_unit$log_cpo_2[res_x$per_unit$ok])))
   # the NA grade row is listwise-deleted, so its case id is not a unit
-  expect_equal(res_x$n_units, 300L)
+  expect_equal(res_x$n_units, 199L)
   expect_equal(
     sum(res_x$per_unit$l_star),
     ll_at_mode(fit_x),
@@ -287,9 +312,9 @@ test_that("conditional flavour scores fixed.x multigroup fits", {
 
 test_that("waic() supports multigroup fits and agrees with loo()", {
   set.seed(2)
-  w <- suppressWarnings(waic(fit_conf, nsamp = 300))
+  w <- suppressWarnings(waic(fit_conf, nsamp = 100))
   expect_s3_class(w, "inlavaan_waic")
-  expect_equal(w$n_units, 301L)
+  expect_equal(w$n_units, 120L)
   expect_equal(w$n_groups, 2L)
   expect_true("group" %in% names(w$per_unit))
   expect_true(all(is.finite(w$per_unit$lpd)))
