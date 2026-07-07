@@ -2,36 +2,6 @@
 
 Fit Measures for a Latent Variable Model estimated using INLA
 
-## Usage
-
-``` r
-# S4 method for class 'INLAvaan'
-fitMeasures(
-  object,
-  fit.measures = "all",
-  baseline.model = NULL,
-  h1.model = NULL,
-  fm.args = list(standard.test = "default", scaled.test = "default", rmsea.ci.level =
-    0.9, rmsea.close.h0 = 0.05, rmsea.notclose.h0 = 0.08, robust = TRUE, cat.check.pd =
-    TRUE),
-  output = "vector",
-  ...
-)
-
-# S4 method for class 'INLAvaan'
-fitmeasures(
-  object,
-  fit.measures = "all",
-  baseline.model = NULL,
-  h1.model = NULL,
-  fm.args = list(standard.test = "default", scaled.test = "default", rmsea.ci.level =
-    0.9, rmsea.close.h0 = 0.05, rmsea.notclose.h0 = 0.08, robust = TRUE, cat.check.pd =
-    TRUE),
-  output = "vector",
-  ...
-)
-```
-
 ## Arguments
 
 - object:

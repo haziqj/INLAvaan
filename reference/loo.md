@@ -272,20 +272,19 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [156ms]
+#> ✔ Posterior mode and Hessian. [149ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [144ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [132ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [859ms]
+#> ✔ Fit 30/30 skew-normal marginals. [824ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [365ms]
+#> ✔ Adjust copula correlations (NORTA). [140ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -347,23 +346,23 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [930ms]
+#> ✔ Posterior mode and Hessian. [970ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.087σ. [525ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [543ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 3/34 skew-normal marginals.
-#> ⠸ Fitting 16/34 skew-normal marginals.
-#> ⠼ Fitting 28/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [8.3s]
+#> ⠹ Fitting 5/34 skew-normal marginals.
+#> ⠸ Fitting 18/34 skew-normal marginals.
+#> ⠼ Fitting 30/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [8.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [109ms]
+#> ✔ Adjust copula correlations (NORTA). [147ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [37.3s]
+#> ✔ Summarise 1000 posterior draws. [57.6s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 loo(fit2l)
@@ -372,7 +371,7 @@ loo(fit2l)
 #> 
 #>          Estimate     SE
 #> elpd_loo -23344.2  731.4
-#> p_loo        34.2    2.0
+#> p_loo        34.3    2.0
 #> looic     46688.3 1462.9
 # }
 ```
