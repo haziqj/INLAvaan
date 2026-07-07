@@ -272,20 +272,19 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [152ms]
+#> ✔ Posterior mode and Hessian. [160ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [133ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [120ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [805ms]
+#> ✔ Fit 30/30 skew-normal marginals. [832ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [135ms]
+#> ✔ Adjust copula correlations (NORTA). [139ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -347,24 +346,23 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [965ms]
+#> ✔ Posterior mode and Hessian. [979ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [529ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [516ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 7/34 skew-normal marginals.
-#> ⠸ Fitting 19/34 skew-normal marginals.
-#> ⠼ Fitting 32/34 skew-normal marginals.
+#> ⠹ Fitting 5/34 skew-normal marginals.
+#> ⠸ Fitting 17/34 skew-normal marginals.
+#> ⠼ Fitting 29/34 skew-normal marginals.
 #> ✔ Fit 34/34 skew-normal marginals. [8.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [138ms]
+#> ✔ Adjust copula correlations (NORTA). [139ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [55.6s]
+#> ✔ Summarise 1000 posterior draws. [56.8s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 loo(fit2l)
