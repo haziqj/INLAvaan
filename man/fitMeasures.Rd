@@ -5,31 +5,6 @@
 \alias{fitMeasures,INLAvaan-method}
 \alias{fitmeasures,INLAvaan-method}
 \title{Fit Measures for a Latent Variable Model estimated using INLA}
-\usage{
-\S4method{fitMeasures}{INLAvaan}(
-  object,
-  fit.measures = "all",
-  baseline.model = NULL,
-  h1.model = NULL,
-  fm.args = list(standard.test = "default", scaled.test = "default", rmsea.ci.level =
-    0.9, rmsea.close.h0 = 0.05, rmsea.notclose.h0 = 0.08, robust = TRUE, cat.check.pd =
-    TRUE),
-  output = "vector",
-  ...
-)
-
-\S4method{fitmeasures}{INLAvaan}(
-  object,
-  fit.measures = "all",
-  baseline.model = NULL,
-  h1.model = NULL,
-  fm.args = list(standard.test = "default", scaled.test = "default", rmsea.ci.level =
-    0.9, rmsea.close.h0 = 0.05, rmsea.notclose.h0 = 0.08, robust = TRUE, cat.check.pd =
-    TRUE),
-  output = "vector",
-  ...
-)
-}
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
 

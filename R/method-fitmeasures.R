@@ -588,11 +588,52 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' @name fitmeasures
 #' @rdname fitmeasures
 #' @aliases fitMeasures,INLAvaan-method
-#' @export
-setMethod("fitMeasures", "INLAvaan", inlav_fit_measures)
+#' @rawNamespace exportMethods(fitMeasures)
+NULL
 
 #' @name fitmeasures
 #' @rdname fitmeasures
 #' @aliases fitmeasures,INLAvaan-method
-#' @export
-setMethod("fitmeasures", "INLAvaan", inlav_fit_measures)
+#' @rawNamespace exportMethods(fitmeasures)
+NULL
+
+# lavaan >= 0.7 renamed the fitMeasures()/fitmeasures() generics' arguments
+# (fit.measures/baseline.model -> fit_measures/baseline_model). Unlike a
+# plain rename, registering setMethod() against the WRONG argument names
+# doesn't just fail loudly: S4 dispatch silently drops any value bound to a
+# generic-level formal the method doesn't also declare (verified empirically
+# -- positional and named calls both default silently), and if the method
+# was compiled against a lavaan present at a *different* time than the one
+# later loaded, dispatch can also error outright ("could not find symbol").
+# So -- like the lavaan___-prefixed internals in lavaan-unexported.R -- these
+# methods must be (re)built from whichever lavaan generic is actually active
+# in the current session, in .onLoad(), not baked in at build/install time.
+register_fitmeasures_methods <- function(ns) {
+  for (generic_name in c("fitMeasures", "fitmeasures")) {
+    gf <- formals(methods::getGeneric(generic_name))
+    nm <- names(gf)
+    fit_measures_arg <- if ("fit_measures" %in% nm) {
+      "fit_measures"
+    } else {
+      "fit.measures"
+    }
+    baseline_model_arg <- if ("baseline_model" %in% nm) {
+      "baseline_model"
+    } else {
+      "baseline.model"
+    }
+
+    method_fn <- function(object, ...) NULL
+    formals(method_fn) <- gf
+    body(method_fn) <- bquote({
+      inlav_fit_measures(
+        object,
+        fit.measures = .(as.name(fit_measures_arg)),
+        baseline.model = .(as.name(baseline_model_arg)),
+        ...
+      )
+    })
+    environment(method_fn) <- ns
+    methods::setMethod(generic_name, "INLAvaan", method_fn, where = ns)
+  }
+}
