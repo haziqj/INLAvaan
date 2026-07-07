@@ -130,8 +130,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7535.347 29.666 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7757.222 27.008 -3878.134 46.800 27.516
+#>    fit   30   -3885.211    0.000 7534.828 29.406 -3769.109 42.945 32.433
+#>  fit1f   27   -3990.563 -105.352 7757.305 27.050 -3878.134 46.800 27.516
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -109.025  17.072
@@ -240,8 +240,8 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.892   0.000 7538.960 59.830 -3748.090 44.737 45.076
-#>  fit_cond1   29   -3903.093 -27.201 7567.499 29.704 -3787.678 43.881 38.271
+#>   fit_cond   32   -3875.892   0.000 7540.841 60.771 -3748.090 44.737 45.076
+#>  fit_cond1   29   -3903.093 -27.201 7567.398 29.653 -3787.678 43.881 38.271
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>    -39.587  10.261
@@ -313,9 +313,9 @@ waic(fit)
 #> Computed from 1000 posterior draws and 301 subjects
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3769.3 42.9
+#> elpd_waic  -3769.1 42.9
 #> p_waic        32.0  2.1
-#> waic        7538.5 85.8
+#> waic        7538.3 85.9
 #> 
 #> 9 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
 ```

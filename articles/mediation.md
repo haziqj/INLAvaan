@@ -101,19 +101,19 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [50ms]
+#> ✔ Posterior mode and Hessian. [54ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.084σ. [218ms]
+#> ✔ VB correction; mean |δ| = 0.084σ. [220ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [168ms]
+#> ✔ Fit 7/7 skew-normal marginals. [164ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [19ms]
+#> ✔ Adjust copula correlations (NORTA). [18ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [929ms]
+#> ✔ Summarise 1000 posterior draws. [931ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 ```

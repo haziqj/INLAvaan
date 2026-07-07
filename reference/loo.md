@@ -275,10 +275,11 @@ fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ✔ Posterior mode and Hessian. [149ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [132ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [134ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [824ms]
+#> ⠹ Fitting 4/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [833ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjust copula correlations (NORTA). [140ms]
@@ -346,23 +347,24 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [970ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [995ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [543ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [539ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 5/34 skew-normal marginals.
-#> ⠸ Fitting 18/34 skew-normal marginals.
-#> ⠼ Fitting 30/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [8.4s]
+#> ⠹ Fitting 8/34 skew-normal marginals.
+#> ⠸ Fitting 20/34 skew-normal marginals.
+#> ⠼ Fitting 32/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [8.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [147ms]
+#> ✔ Adjust copula correlations (NORTA). [134ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [57.6s]
+#> ✔ Summarise 1000 posterior draws. [57s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 loo(fit2l)
