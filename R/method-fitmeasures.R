@@ -608,6 +608,14 @@ NULL
 # So -- like the lavaan___-prefixed internals in lavaan-unexported.R -- these
 # methods must be (re)built from whichever lavaan generic is actually active
 # in the current session, in .onLoad(), not baked in at build/install time.
+#
+# INLAvaan's own documented/stable parameter names are fit.measures and
+# baseline.model (used internally, e.g. by compare()), regardless of which
+# lavaan is loaded. Under lavaan >= 0.7 those don't match the active
+# generic's own (renamed) formals, so a caller using our documented names
+# falls through into "..." unmatched rather than being dropped; recover it
+# from there instead of re-forwarding "..." verbatim (which would otherwise
+# also duplicate whatever the generic's own formal already bound).
 register_fitmeasures_methods <- function(ns) {
   for (generic_name in c("fitMeasures", "fitmeasures")) {
     gf <- formals(methods::getGeneric(generic_name))
@@ -626,11 +634,27 @@ register_fitmeasures_methods <- function(ns) {
     method_fn <- function(object, ...) NULL
     formals(method_fn) <- gf
     body(method_fn) <- bquote({
-      inlav_fit_measures(
-        object,
-        fit.measures = .(as.name(fit_measures_arg)),
-        baseline.model = .(as.name(baseline_model_arg)),
-        ...
+      dots <- list(...)
+      fit.measures <- .(as.name(fit_measures_arg))
+      baseline.model <- .(as.name(baseline_model_arg))
+      if ("fit.measures" %in% names(dots)) {
+        fit.measures <- dots[["fit.measures"]]
+        dots[["fit.measures"]] <- NULL
+      }
+      if ("baseline.model" %in% names(dots)) {
+        baseline.model <- dots[["baseline.model"]]
+        dots[["baseline.model"]] <- NULL
+      }
+      do.call(
+        inlav_fit_measures,
+        c(
+          list(
+            object,
+            fit.measures = fit.measures,
+            baseline.model = baseline.model
+          ),
+          dots
+        )
       )
     })
     environment(method_fn) <- ns
