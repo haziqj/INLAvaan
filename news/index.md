@@ -93,6 +93,9 @@
   the skew-normal marginal scans skip the intercept axes, emitting their
   exact Gaussian marginals directly. About 25% faster on typical CFA/SEM
   fits, with results identical to within finite-difference noise.
+- Improved messaging for
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) fit
+  calls.
 
 ### Bug fixes
 

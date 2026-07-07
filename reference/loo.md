@@ -272,20 +272,20 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [144ms]
+#> ✔ Posterior mode and Hessian. [156ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [128ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [144ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [755ms]
+#> ✔ Fit 30/30 skew-normal marginals. [859ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [130ms]
+#> ✔ Adjust copula correlations (NORTA). [365ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.6s]
+#> ⠹ Computing WAIC.
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -347,23 +347,23 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [887ms]
+#> ✔ Posterior mode and Hessian. [930ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [486ms]
+#> ✔ VB correction; mean |δ| = 0.087σ. [525ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 8/34 skew-normal marginals.
-#> ⠸ Fitting 21/34 skew-normal marginals.
-#> ⠼ Fitting 34/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [7.6s]
+#> ⠹ Fitting 3/34 skew-normal marginals.
+#> ⠸ Fitting 16/34 skew-normal marginals.
+#> ⠼ Fitting 28/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [8.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [138ms]
+#> ✔ Adjust copula correlations (NORTA). [109ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [47.5s]
+#> ✔ Summarise 1000 posterior draws. [37.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 loo(fit2l)
@@ -372,7 +372,7 @@ loo(fit2l)
 #> 
 #>          Estimate     SE
 #> elpd_loo -23344.2  731.4
-#> p_loo        34.3    2.0
+#> p_loo        34.2    2.0
 #> looic     46688.3 1462.9
 # }
 ```

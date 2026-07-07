@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -223,21 +223,22 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [738ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [797ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.123σ. [366ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.123σ. [408ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/20 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 9/20 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 20/20 skew-normal marginals. [2.7s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 8/20 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 20/20 skew-normal marginals. [3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [117ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [107ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Computing WAIC.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [44.3s]</span></span>
+<span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
+<span><span class="co">#&gt; ⠸ Computing WAIC.</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [35.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span></code></pre></div>
 </div>
@@ -247,7 +248,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.2.5.9002 ended normally after 108 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.2.5.9003 ended normally after 108 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -259,12 +260,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                  -12185.537 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.025 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.039 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            24192.223 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    19.462 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24192.392 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    19.546 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>

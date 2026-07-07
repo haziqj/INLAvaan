@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,6 +74,7 @@
 <div class="section level3">
 <h3 id="minor-improvements-and-fixes-development-version">Minor improvements and fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-fixes-development-version"></a></h3>
 <ul><li>Saturated-means fast path: when the mean structure is saturated (all intercepts free and unconstrained with normal priors, no nonzero latent means), the posterior is exactly block-diagonal between the intercepts and the covariance parameters at the mode. The Hessian intercept block is now computed analytically with an exact zero cross block (finite differences run over the covariance columns only), and the skew-normal marginal scans skip the intercept axes, emitting their exact Gaussian marginals directly. About 25% faster on typical CFA/SEM fits, with results identical to within finite-difference noise.</li>
+<li>Improved messaging for <code><a href="../reference/inlavaan.html">inlavaan()</a></code> fit calls.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
