@@ -188,7 +188,7 @@ test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
     textual =~ x4 + x5 + x6
     visual ~ ageyr
   "
-  fitA <- asem(
+  suppressWarnings(fitA <- asem(
     modA,
     dat,
     fixed.x = TRUE,
@@ -196,8 +196,8 @@ test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
     verbose = FALSE,
     nsamp = 3,
     test = "none"
-  )
-  fitB <- asem(
+  ))
+  suppressWarnings(fitB <- asem(
     modB,
     dat,
     fixed.x = TRUE,
@@ -205,7 +205,7 @@ test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
     verbose = FALSE,
     nsamp = 3,
     test = "none"
-  )
+  ))
   expect_error(
     suppressWarnings(compare(fitA, fitB, loo = TRUE)),
     "outcome variables"

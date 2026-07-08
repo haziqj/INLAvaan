@@ -60,9 +60,9 @@ test_that("Multigroup fitting and testing", {
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {
-  suppressMessages(
+  suppressWarnings(suppressMessages(
     tmp <- capture.output(fit <- acfa(mod, dat, test = "none", debug = TRUE))
-  )
+  ))
   test_df <- read.table(text = tmp, skip = 1)[, -1]
   colnames(test_df) <- c("fd", "analytic", "diff")
 
