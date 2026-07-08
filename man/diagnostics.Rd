@@ -39,6 +39,12 @@ Extract convergence and approximation-quality diagnostics from a fitted
 \item{\code{grad_inf_rel}}{Relative L-infinity norm of the analytic gradient
 (max |grad| / (|par| + 1e-6)).}
 \item{\code{grad_l2}}{L2 (Euclidean) norm of the analytic gradient at the mode.}
+\item{\code{mode_shift_max}}{Maximum, across parameters, of the Newton
+step at the reported mode in posterior-SD units
+(max |\eqn{\Sigma_\theta} grad| / se). Unlike the raw gradient norms
+this is scale-free: it estimates how far the reported mode sits from
+the true posterior mode relative to the posterior uncertainty. Should
+be ~0 at convergence.}
 \item{\code{hess_cond}}{Condition number of the Hessian (precision matrix)
 computed from \eqn{\Sigma_\theta}. Large values indicate near-singularity.}
 \item{\code{vb_kld_global}}{Global KL divergence from the VB mean correction
@@ -63,12 +69,23 @@ analytic gradient.}
 \item{\code{grad_diff}}{Difference \code{grad_num - grad}: should be ~0.}
 \item{\code{grad_abs}}{Absolute analytic gradient.}
 \item{\code{grad_rel}}{Relative analytic gradient |grad| / (|par| + 1e-6).}
+\item{\code{mode_shift_sigma}}{Newton step at the reported mode in
+posterior-SD units. Should be ~0 at convergence.}
 \item{\code{kld}}{Per-parameter KL divergence from the VB correction.}
 \item{\code{vb_shift}}{VB correction shift (in original scale).}
 \item{\code{vb_shift_sigma}}{VB shift in units of posterior SD.}
 \item{\code{nmad}}{Normalised max-absolute-deviation of the skew-normal fit
 (NA when not using the skewnorm method).}
 }
+
+\strong{Fit-time warnings}: \code{\link[=inlavaan]{inlavaan()}} runs these checks once at the end
+of every fit and emits a single consolidated warning (condition class
+\code{"inlavaan_diagnostics_warning"}) when any of them look off: the
+optimiser did not converge, \code{mode_shift_max} exceeds 0.1,
+any marginal has NMAD above 0.1, the VB correction shifted a posterior
+mean by more than 1 posterior SD, or the Hessian condition number exceeds
+1e8. A healthy fit stays silent. Silence the check with
+\code{suppressWarnings()}, or selectively by handling the condition class.
 }
 \examples{
 \donttest{

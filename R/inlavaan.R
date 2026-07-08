@@ -1034,6 +1034,10 @@ inlavaan <- function(
   )
   class(out) <- "inlavaan_internal"
 
+  # Warn (once, consolidated) if the convergence/approximation diagnostics
+  # look off; see warn_fit_diagnostics() for the checks and thresholds
+  warn_fit_diagnostics(out)
+
   if (isTRUE(debug)) {
     return(out)
   } else {

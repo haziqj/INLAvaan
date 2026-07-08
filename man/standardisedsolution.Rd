@@ -74,43 +74,30 @@ standardizedSolution(
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
 
-\item{type}{If \code{"std.lv"}, the standardized estimates are
+\item{type}{If \code{"std.lv"}, the standardized estimates are based
 on the variances of the (continuous) latent variables only.
 If \code{"std.all"}, the standardized estimates are based
-on both the variances of both (continuous) observed and latent variables.
+on the variances of both (continuous) observed and latent variables.
 If \code{"std.nox"}, the standardized estimates are based
-on both the variances of both (continuous) observed and latent variables, 
-but not the variances of exogenous covariates.}
+on the variances of both (continuous) observed and latent variables,
+but not the variances of exogenous covariates.
+Alternatively, \code{type} may be a vector of (observed) variable names
+(for example \code{type = c("x1", "x2")}); in that case only the parameters
+involving these variables are standardized (the other observed variables are
+left unstandardized). This is a generalization of \code{"std.nox"}, where the
+(observed) exogenous \code{x} variables are the ones left unstandardized.}
 
 \item{se}{Logical. If TRUE, standard errors for the standardized parameters
 will be computed, together with a z-statistic and a p-value.}
 
-\item{ci}{If \code{TRUE}, simple symmetric confidence intervals are added to 
-the output}
+\item{ci}{If \code{TRUE}, confidence intervals are added to
+the output.}
 
 \item{level}{The confidence level required.}
 
 \item{postmedian}{Logical; if TRUE, include posterior median in estimates.}
 
 \item{postmode}{Logical; if TRUE, include posterior mode in estimates.}
-
-\item{cov.std}{Logical. If TRUE, the (residual) observed
-covariances are scaled by the square root of the `Theta' diagonal elements, and
-the (residual) latent covariances are scaled by the square root of the `Psi'
-diagonal elements. If FALSE, the (residual) observed covariances
-are scaled by the square root of the diagonal elements of the observed
-model-implied covariance matrix (Sigma), and the (residual) latent covariances
-are scaled by the square root of diagonal elements of the model-implied
-covariance matrix of the latent variables.}
-
-\item{remove.eq}{Logical. If TRUE, filter the output by removing all rows 
-containing equality constraints, if any.}
-
-\item{remove.ineq}{Logical. If TRUE, filter the output by removing all
-rows containing inequality constraints, if any.}
-
-\item{remove.def}{Logical. If TRUE, filter the ouitput by removing all
-rows containing parameter definitions, if any.}
 
 \item{nsamp}{The number of samples to draw from the approximate posterior
 distribution for the calculation of standardised estimates.}

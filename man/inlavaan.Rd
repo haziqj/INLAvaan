@@ -33,18 +33,12 @@ inlavaan(
 \item{model}{A description of the user-specified model. Typically, the model
     is described using the lavaan model syntax. See 
     \code{\link[lavaan]{model.syntax}} for more information. Alternatively, a
-    parameter table (eg. the output of the \code{lavParTable()} function) is also
+    parameter table (e.g., the output of the \code{lavParTable()} function) is also
     accepted.}
 
 \item{data}{An optional data frame containing the observed variables used in
     the model. If some variables are declared as ordered factors, lavaan will
     treat them as ordinal variables.}
-
-\item{model.type}{Set the model type: possible values
-    are \code{"cfa"}, \code{"sem"} or \code{"growth"}. This may affect
-    how starting values are computed, and may be used to alter the terminology
-    used in the summary output, or the layout of path diagrams that are
-    based on a fitted lavaan object.}
 
 \item{dp}{Default prior distributions for the different types of model
 parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}.}
