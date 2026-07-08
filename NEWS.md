@@ -117,6 +117,9 @@
   without a mean structure now include the saturated (sample) means, so
   posterior predictive replicates live on the data scale instead of being
   centred at zero.
+* `sampling()` and `simulate()` no longer error for models with a single
+  latent variable, and their saturated-mean recovery is now robust to missing
+  data (replicate columns were previously `NA` under `missing = "pairwise"`).
 * The PPP's observed discrepancy now uses the unbiased (divisor n-1)
   sample covariance, matching the scale of the Wishart-replicated
   covariances it is compared against; previously the divisor-n form made
