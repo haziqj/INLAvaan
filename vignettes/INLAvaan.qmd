@@ -111,6 +111,10 @@ mod <- "
 fit <- asem(mod, dat)
 ```
 
+As with `lavaan::sem()`, this model is fitted without a mean structure by default (`meanstructure = FALSE`).
+Rather than profiling the means out as lavaan does, `{INLAvaan}` assigns the saturated means flat priors and marginalises them analytically, which keeps the likelihood a proper Bayesian object; intercepts can instead be modelled explicitly with `meanstructure = TRUE`.
+See the [mean structures article](https://inlavaan.haziqj.ml/articles/meanstructure.html) for how the two treatments relate and when model comparisons across them are meaningful.
+
 `{INLAvaan}` computes an approximation to the posterior density by way of a Laplace approximation [@tierney1989fully; @jamil2026approximate].
 The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters.
 The default method for optimisation is `stats::nlminb()`, but other optimisers can be used by specifying `optim_method = "ucminf"` for the `{ucminf}` package or `optim_method = "optim"` to call the `stats::optim()` function with method `"BFGS"`.
@@ -168,6 +172,29 @@ summ_eta <- summary(eta_preds)
 str(summ_eta)
 head(summ_eta$Mean)
 ```
+
+### Predictive checks
+
+The generative side of the model is exposed by `sampling()`, which draws parameters, latent variables, or observed variables from the posterior (or prior) generative SEM, and by `simulate()`, which produces complete replicate data sets from the fitted model.
+
+```{r}
+#| label: results-simulate
+yrep <- simulate(fit, nsim = 1, seed = 1)
+head(yrep[[1]])
+```
+
+Comparing such replicates with the observed data is the basis of prior and posterior predictive checking; the [predictive checks article](https://inlavaan.haziqj.ml/articles/predictive-checks.html) walks through that workflow, and the [sampling article](https://inlavaan.haziqj.ml/articles/sampling.html) explains the machinery behind it.
+
+### Fit measures
+
+Global fit measures are collected by `fitmeasures()`: the PPP and DIC mentioned earlier, Bayesian analogues of the classical fit indices (BRMSEA, BGammaHat, and related indices), and the LOO and WAIC measures of the model comparison section below when these are stored with the fit.
+
+```{r}
+#| label: results-fitmeasures
+fitmeasures(fit)
+```
+
+Definitions and worked examples are in the [Bayesian fit indices article](https://inlavaan.haziqj.ml/articles/fit-indices.html).
 
 ### Diagnostics
 
