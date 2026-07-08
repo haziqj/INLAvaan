@@ -5,9 +5,15 @@ mod <- "
 "
 
 # Fit once, reuse (fast defaults)
-fit <- acfa(mod, dat, verbose = FALSE, nsamp = 5,
-            vb_correction = FALSE, test = "none",
-            marginal_method = "marggaus")
+fit <- acfa(
+  mod,
+  dat,
+  verbose = FALSE,
+  nsamp = 5,
+  vb_correction = FALSE,
+  test = "none",
+  marginal_method = "marggaus"
+)
 
 test_that("sampling() returns matrix for type = 'lavaan'", {
   s <- sampling(fit, type = "lavaan", nsamp = 10)
@@ -33,7 +39,7 @@ test_that("sampling() type = 'latent' returns nsamp x nlv matrix", {
   s <- sampling(fit, type = "latent", nsamp = 8)
   expect_true(is.matrix(s))
   expect_equal(nrow(s), 8)
-  expect_equal(ncol(s), 2)  # visual, textual
+  expect_equal(ncol(s), 2) # visual, textual
   expect_equal(colnames(s), c("visual", "textual"))
 })
 
@@ -41,7 +47,7 @@ test_that("sampling() type = 'observed' returns nsamp x nobs_vars matrix", {
   s <- sampling(fit, type = "observed", nsamp = 8)
   expect_true(is.matrix(s))
   expect_equal(nrow(s), 8)
-  expect_equal(ncol(s), 6)  # x1..x6
+  expect_equal(ncol(s), 6) # x1..x6
   expect_equal(colnames(s), paste0("x", 1:6))
 })
 
@@ -117,6 +123,33 @@ test_that("sampling.inlavaan_internal S3 dispatch works", {
   expect_equal(nrow(s), 5)
 })
 
+test_that("sampling() works with a single latent variable (nlv = 1)", {
+  # Regression test: with one latent variable the generative draws were built
+  # with t(vapply(., numeric(1))), yielding a 1 x nsamp row matrix and a
+  # dimnames crash. They must come back as nsamp x 1 / nsamp x nobs matrices.
+  fit1 <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dat,
+    verbose = FALSE,
+    nsamp = 5,
+    vb_correction = FALSE,
+    test = "none",
+    marginal_method = "marggaus"
+  )
+
+  lat <- sampling(fit1, type = "latent", nsamp = 8)
+  expect_equal(dim(lat), c(8L, 1L))
+  expect_equal(colnames(lat), "visual")
+
+  obs <- sampling(fit1, type = "observed", nsamp = 8, silent = TRUE)
+  expect_equal(dim(obs), c(8L, 3L))
+  expect_equal(colnames(obs), paste0("x", 1:3))
+
+  all_s <- sampling(fit1, type = "all", nsamp = 8, silent = TRUE)
+  expect_equal(ncol(all_s$latent), 1L)
+  expect_equal(ncol(all_s$observed), 3L)
+})
+
 test_that("Observed posterior draws are centred without a mean structure", {
   # Regression test: with meanstructure = FALSE the generative draws were
   # centred at zero; they must live on the data scale (saturated means).
@@ -125,8 +158,15 @@ test_that("Observed posterior draws are centred without a mean structure", {
     textual =~ x4 + x5 + x6
   "
   hs <- lavaan::HolzingerSwineford1939
-  fit <- acfa(mod_hs, hs, meanstructure = FALSE, verbose = FALSE,
-              nsamp = 200, vb_correction = FALSE, test = "none")
+  fit <- acfa(
+    mod_hs,
+    hs,
+    meanstructure = FALSE,
+    verbose = FALSE,
+    nsamp = 200,
+    vb_correction = FALSE,
+    test = "none"
+  )
   yrep <- sampling(fit, type = "observed", nsamp = 200, silent = TRUE)
   ybar <- colMeans(hs[, colnames(yrep)])
   expect_lt(max(abs(colMeans(yrep) - ybar)), 0.5)

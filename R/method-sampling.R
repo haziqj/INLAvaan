@@ -173,7 +173,8 @@ sample_params_prior <- function(int, nsamp) {
       } else {
         x_natural[, j] <- raw
       }
-    } else if (grepl("^beta", prior_str)) { # nocov start
+    } else if (grepl("^beta", prior_str)) {
+      # nocov start
       par <- as.numeric(strsplit(
         gsub("beta\\(|\\)", "", prior_str),
         ","
@@ -393,7 +394,8 @@ sampling_prior_generative <- function(
 
     for (i in seq_len(batch_n)) {
       attempts <- attempts + 1L
-      if (attempts > max_attempts) { # nocov
+      if (attempts > max_attempts) {
+        # nocov
         break
       }
 
@@ -404,7 +406,8 @@ sampling_prior_generative <- function(
         sample_latent_from_model(x1, lavmodel, strict = TRUE),
         error = function(e) NULL
       )
-      if (is.null(eta1)) { # nocov
+      if (is.null(eta1)) {
+        # nocov
         next
       }
 
@@ -425,7 +428,8 @@ sampling_prior_generative <- function(
       if (nG == 1L) {
         eta_mat[collected, ] <- eta1
         if (need_obs) y_mat[collected, ] <- y1
-      } else { # nocov start
+      } else {
+        # nocov start
         eta_mat[collected, ] <- unlist(eta1)
         if (need_obs) y_mat[collected, ] <- unlist(y1)
       } # nocov end
@@ -554,13 +558,21 @@ sampling_impl <- function(
 
   # Step 2: draw latent variables from model-implied distribution
   if (nG == 1L) {
-    eta_mat <- t(vapply(
-      seq_len(nsamp),
-      function(i) {
-        sample_latent_from_model(samp$x_samp[i, ], lavmodel)
-      },
-      numeric(nlv)
-    ))
+    # matrix(..., byrow = TRUE) rather than t(vapply()): with a single latent
+    # variable vapply() returns a length-nsamp vector and t() would produce a
+    # 1 x nsamp row matrix, corrupting the sample/variable orientation.
+    eta_mat <- matrix(
+      vapply(
+        seq_len(nsamp),
+        function(i) {
+          sample_latent_from_model(samp$x_samp[i, ], lavmodel)
+        },
+        numeric(nlv)
+      ),
+      nrow = nsamp,
+      ncol = nlv,
+      byrow = TRUE
+    )
     colnames(eta_mat) <- lv_names
   } else {
     # nocov start
@@ -586,13 +598,20 @@ sampling_impl <- function(
 
   # Step 3: draw observed variables from model given eta
   if (nG == 1L) {
-    y_mat <- t(vapply(
-      seq_len(nsamp),
-      function(i) {
-        sample_observed_from_model(samp$x_samp[i, ], eta_mat[i, ], lavmodel)
-      },
-      numeric(nobs)
-    ))
+    # matrix(..., byrow = TRUE) rather than t(vapply()): guards the single
+    # observed variable case the same way as the latent draws above.
+    y_mat <- matrix(
+      vapply(
+        seq_len(nsamp),
+        function(i) {
+          sample_observed_from_model(samp$x_samp[i, ], eta_mat[i, ], lavmodel)
+        },
+        numeric(nobs)
+      ),
+      nrow = nsamp,
+      ncol = nobs,
+      byrow = TRUE
+    )
     colnames(y_mat) <- ov_names
   } else {
     # nocov start
