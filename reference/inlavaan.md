@@ -12,7 +12,7 @@ specification and estimation.
 inlavaan(
   model,
   data,
-  model_type = "sem",
+  model.type = "sem",
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
@@ -51,12 +51,17 @@ inlavaan(
   model. If some variables are declared as ordered factors, lavaan will
   treat them as ordinal variables.
 
-- model_type:
+- model.type:
 
-  Set the model type: possible values are `"cfa"`, `"sem"` or
-  `"growth"`. This may affect how starting values are computed, and may
-  be used to alter the terminology used in the summary output, or the
-  layout of path diagrams that are based on a fitted lavaan object.
+  The lavaan entry point used to fit `model`: `"cfa"`, `"sem"`, or
+  `"growth"` (matching lavaan's model-specific wrapper functions), or
+  `"lavaan"` for the general-purpose interface. Set automatically by
+  [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),
+  [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md), and
+  [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md);
+  documented explicitly here because lavaan \>= 0.7-1 renamed the
+  corresponding `simulateData()` argument to `model_type`, so it can no
+  longer be inherited from there.
 
 - dp:
 
@@ -215,20 +220,20 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [138ms]
+#> ✔ Posterior mode and Hessian. [144ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.209σ. [112ms]
+#> ✔ VB correction; mean |δ| = 0.209σ. [134ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [837ms]
+#> ✔ Fit 21/21 skew-normal marginals. [944ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [121ms]
+#> ✔ Adjust copula correlations (NORTA). [130ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
