@@ -59,7 +59,7 @@ names(int)
 #> [13] "R_star"           "vcov_x"           "theta_star_trans" "approx_data"     
 #> [17] "nsamp"            "pdf_data"         "partable"         "lavmodel"        
 #> [21] "lavsamplestats"   "lavdata"          "opt"              "timing"          
-#> [25] "visual_debug"     "vb"              
+#> [25] "visual_debug"     "vb"               "version"         
 
 # Extract a specific element
 get_inlavaan_internal(fit, "coefficients")

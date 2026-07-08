@@ -122,7 +122,7 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Adjust copula correlations (NORTA). [20ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [856ms]
+#> ✔ Summarise 1000 posterior draws. [858ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
