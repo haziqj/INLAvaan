@@ -112,7 +112,8 @@ fit <- asem(mod, dat)
 ```
 
 As with `lavaan::sem()`, this model is fitted without a mean structure by default (`meanstructure = FALSE`).
-Rather than profiling the means out as lavaan does, `{INLAvaan}` assigns the saturated means flat priors and marginalises them analytically, which keeps the likelihood a proper Bayesian object; intercepts can instead be modelled explicitly with `meanstructure = TRUE`.
+Rather than profiling the means out as lavaan does, `{INLAvaan}` assigns the saturated means flat priors and marginalises them analytically, which keeps the likelihood a proper Bayesian object.
+Intercepts can instead be modelled explicitly with `meanstructure = TRUE`.
 See the [mean structures article](https://inlavaan.haziqj.ml/articles/meanstructure.html) for how the two treatments relate and when model comparisons across them are meaningful.
 
 `{INLAvaan}` computes an approximation to the posterior density by way of a Laplace approximation [@tierney1989fully; @jamil2026approximate].
@@ -183,7 +184,8 @@ yrep <- simulate(fit, nsim = 1, seed = 1)
 head(yrep[[1]])
 ```
 
-Comparing such replicates with the observed data is the basis of prior and posterior predictive checking; the [predictive checks article](https://inlavaan.haziqj.ml/articles/predictive-checks.html) walks through that workflow, and the [sampling article](https://inlavaan.haziqj.ml/articles/sampling.html) explains the machinery behind it.
+Comparing such replicates with the observed data is the basis of prior and posterior predictive checking.
+The [predictive checks article](https://inlavaan.haziqj.ml/articles/predictive-checks.html) walks through that workflow, and the [sampling article](https://inlavaan.haziqj.ml/articles/sampling.html) explains the machinery behind it.
 
 ### Fit measures
 
@@ -242,14 +244,16 @@ compare(fit, fit2)
 
 As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs [@tendeiro2019review; @schad2023workflow].
 Leave-one-out cross-validation [LOO, @vehtari2017practical] and the widely applicable information criterion [WAIC, @watanabe2010asymptotic] are popular alternatives which compare models on out-of-sample predictive accuracy instead; see @merkle2019bayesian for their use with latent variable models.
-Both are available from a single fit: `loo()` requires neither refitting nor sampling, using a Taylor approximation of the case-deletion posterior, while `waic()` reuses the fit's own posterior draws.
+Both are implemented in `{INLAvaan}`.
+The function `loo()` requires neither refitting nor sampling, computing the statistic using a Taylor approximation of the case-deletion posterior, while `waic()` reuses the fit's own posterior draws.
 
 ```{r}
 #| label: results-loo
 loo(fit)
 ```
 
-To compare models on this predictive scale, pass `loo = TRUE` to `compare()`; models are sorted by expected log predictive density (ELPD), with paired standard errors for the ELPD differences.
+To compare models on this predictive scale, pass `loo = TRUE` to `compare()`.
+Models are sorted by expected log predictive density (ELPD), with paired standard errors for the ELPD differences.
 
 ```{r}
 #| label: results-compare-loo
@@ -266,7 +270,7 @@ Essentially, there are two ways to set priors for model parameters:
 1) Globally for all parameters of a certain type (e.g., all factor loadings, all regression coefficients, etc.); and
 2) Individually for specific parameters in the model syntax.
 
-The default global priors are derived from `{blavaan}`:
+The default global priors are similar to those from `{blavaan}`:
 
 ```{r}
 #| label: priors-default
