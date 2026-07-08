@@ -152,9 +152,6 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   ## ----- Change baseline slot ------------------------------------------------
   fit0@baseline <- list()
 
-  ## ----- Change version slot -------------------------------------------------
-  fit0@version <- as.character(packageVersion("INLAvaan"))
-
   ## ----- Change timing slot --------------------------------------------------
   t0 <- fit0@timing
   t1 <- fit_inlv$timing

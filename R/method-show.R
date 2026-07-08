@@ -5,11 +5,14 @@ print.inlavaan_internal <- function(x, digits = 3, ...) {
 }
 
 show_inlavaan <- function(object) {
+  inlavaan_version <- object@external$inlavaan_internal$version
+  lavaan_version <- object@version[1]
   class(object) <- "lavaan"
   garb <- capture.output(tmp <- show(object))
   tmp$test <- NULL
   garb <- capture.output(tmp)
   garb <- gsub("lavaan", "INLAvaan", garb)
+  garb <- gsub(lavaan_version, inlavaan_version, garb, fixed = TRUE)
   cat(paste0(garb, collapse = "\n"))
   cat("\n\n")
 

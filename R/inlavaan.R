@@ -1029,7 +1029,8 @@ inlavaan <- function(
     opt = opt,
     timing = timing[-1], # remove start.time
     visual_debug = visual_debug,
-    vb = vb
+    vb = vb,
+    version = as.character(utils::packageVersion("INLAvaan"))
   )
   class(out) <- "inlavaan_internal"
 
