@@ -639,7 +639,7 @@ sampling_impl <- function(
   # draws at zero (nu does not exist); add the saturated (sample) means of
   # the fitted data so replicates live on the data scale
   if (!isTRUE(lavmodel@meanstructure) && !isTRUE(prior) && nG == 1L) {
-    y_mat <- sweep(y_mat, 2L, colMeans(int$lavdata@X[[1L]]), "+")
+    y_mat <- sweep(y_mat, 2L, colMeans(int$lavdata@X[[1L]], na.rm = TRUE), "+")
     # under the marginalised likelihood the saturated means have posterior
     # N(ybar, Sigma/n); propagate that uncertainty into each replicate, as
     # estimated-nu draws do automatically when a mean structure exists
