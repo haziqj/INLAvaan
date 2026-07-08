@@ -15,10 +15,10 @@ standardisedsolution(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov_std = TRUE,
-  remove_eq = TRUE,
-  remove_ineq = TRUE,
-  remove_def = FALSE,
+  cov.std = TRUE,
+  remove.eq = TRUE,
+  remove.ineq = TRUE,
+  remove.def = FALSE,
   nsamp = 250,
   ...
 )
@@ -31,10 +31,10 @@ standardisedSolution(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov_std = TRUE,
-  remove_eq = TRUE,
-  remove_ineq = TRUE,
-  remove_def = FALSE,
+  cov.std = TRUE,
+  remove.eq = TRUE,
+  remove.ineq = TRUE,
+  remove.def = FALSE,
   nsamp = 250,
   ...
 )
@@ -47,10 +47,10 @@ standardizedsolution(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov_std = TRUE,
-  remove_eq = TRUE,
-  remove_ineq = TRUE,
-  remove_def = FALSE,
+  cov.std = TRUE,
+  remove.eq = TRUE,
+  remove.ineq = TRUE,
+  remove.def = FALSE,
   nsamp = 250,
   ...
 )
@@ -63,10 +63,10 @@ standardizedSolution(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov_std = TRUE,
-  remove_eq = TRUE,
-  remove_ineq = TRUE,
-  remove_def = FALSE,
+  cov.std = TRUE,
+  remove.eq = TRUE,
+  remove.ineq = TRUE,
+  remove.def = FALSE,
   nsamp = 250,
   ...
 )
@@ -98,24 +98,6 @@ the output.}
 \item{postmedian}{Logical; if TRUE, include posterior median in estimates.}
 
 \item{postmode}{Logical; if TRUE, include posterior mode in estimates.}
-
-\item{cov_std}{Logical. If TRUE, the (residual) observed
-covariances are scaled by the square root of the `Theta' diagonal elements, and
-the (residual) latent covariances are scaled by the square root of the `Psi'
-diagonal elements. If FALSE, the (residual) observed covariances
-are scaled by the square root of the diagonal elements of the observed
-model-implied covariance matrix (Sigma), and the (residual) latent covariances
-are scaled by the square root of diagonal elements of the model-implied
-covariance matrix of the latent variables.}
-
-\item{remove_eq}{Logical. If TRUE, filter the output by removing all rows
-containing equality constraints, if any.}
-
-\item{remove_ineq}{Logical. If TRUE, filter the output by removing all
-rows containing inequality constraints, if any.}
-
-\item{remove_def}{Logical. If TRUE, filter the output by removing all
-rows containing parameter definitions, if any.}
 
 \item{nsamp}{The number of samples to draw from the approximate posterior
 distribution for the calculation of standardised estimates.}

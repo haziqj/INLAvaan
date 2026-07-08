@@ -23,10 +23,10 @@ standardisedsolution <- function(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov_std = TRUE,
-  remove_eq = TRUE,
-  remove_ineq = TRUE,
-  remove_def = FALSE,
+  cov.std = TRUE,
+  remove.eq = TRUE,
+  remove.ineq = TRUE,
+  remove.def = FALSE,
   nsamp = 250,
   ...
 ) {
@@ -70,10 +70,10 @@ standardisedsolution <- function(
       est = esti,
       GLIST = lavmodel@GLIST,
       type = type,
-      cov_std = cov_std,
-      remove_eq = remove_eq,
-      remove_ineq = remove_ineq,
-      remove_def = remove_def,
+      cov.std = cov.std,
+      remove.eq = remove.eq,
+      remove.ineq = remove.ineq,
+      remove.def = remove.def,
       ...
     )$est.std
   }
@@ -92,10 +92,10 @@ standardisedsolution <- function(
     object = object,
     est = esti,
     type = type,
-    cov_std = cov_std,
-    remove_eq = remove_eq,
-    remove_ineq = remove_ineq,
-    remove_def = remove_def,
+    cov.std = cov.std,
+    remove.eq = remove.eq,
+    remove.ineq = remove.ineq,
+    remove.def = remove.def,
     ...
   )
   out$est.std <- res$mean
@@ -126,10 +126,10 @@ standardisedSolution <- function(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov_std = TRUE,
-  remove_eq = TRUE,
-  remove_ineq = TRUE,
-  remove_def = FALSE,
+  cov.std = TRUE,
+  remove.eq = TRUE,
+  remove.ineq = TRUE,
+  remove.def = FALSE,
   nsamp = 250,
   ...
 ) {
@@ -141,10 +141,10 @@ standardisedSolution <- function(
     level = level,
     postmedian = postmedian,
     postmode = postmode,
-    cov_std = cov_std,
-    remove_eq = remove_eq,
-    remove_ineq = remove_ineq,
-    remove_def = remove_def,
+    cov.std = cov.std,
+    remove.eq = remove.eq,
+    remove.ineq = remove.ineq,
+    remove.def = remove.def,
     nsamp = nsamp,
     ...
   )
@@ -161,10 +161,10 @@ standardizedsolution <- function(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov_std = TRUE,
-  remove_eq = TRUE,
-  remove_ineq = TRUE,
-  remove_def = FALSE,
+  cov.std = TRUE,
+  remove.eq = TRUE,
+  remove.ineq = TRUE,
+  remove.def = FALSE,
   nsamp = 250,
   ...
 ) {
@@ -176,10 +176,10 @@ standardizedsolution <- function(
     level = level,
     postmedian = postmedian,
     postmode = postmode,
-    cov_std = cov_std,
-    remove_eq = remove_eq,
-    remove_ineq = remove_ineq,
-    remove_def = remove_def,
+    cov.std = cov.std,
+    remove.eq = remove.eq,
+    remove.ineq = remove.ineq,
+    remove.def = remove.def,
     nsamp = nsamp,
     ...
   )
@@ -196,10 +196,10 @@ standardizedSolution <- function(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov_std = TRUE,
-  remove_eq = TRUE,
-  remove_ineq = TRUE,
-  remove_def = FALSE,
+  cov.std = TRUE,
+  remove.eq = TRUE,
+  remove.ineq = TRUE,
+  remove.def = FALSE,
   nsamp = 250,
   ...
 ) {
@@ -211,10 +211,10 @@ standardizedSolution <- function(
     level = level,
     postmedian = postmedian,
     postmode = postmode,
-    cov_std = cov_std,
-    remove_eq = remove_eq,
-    remove_ineq = remove_ineq,
-    remove_def = remove_def,
+    cov.std = cov.std,
+    remove.eq = remove.eq,
+    remove.ineq = remove.ineq,
+    remove.def = remove.def,
     nsamp = nsamp,
     ...
   )

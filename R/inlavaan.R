@@ -83,7 +83,7 @@
 inlavaan <- function(
   model,
   data,
-  model_type = "sem",
+  model.type = "sem",
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
@@ -162,13 +162,13 @@ inlavaan <- function(
   }
 
   ## ----- Initialise lavaan object --------------------------------------------
-  fit0 <- do.call(get(model_type, envir = asNamespace("lavaan")), lavargs)
+  fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
   if (length(fit0@Data@ordered) > 0) {
     # Redo automatically with PML if ordinal data
     lavargs$estimator <- "PML"
     lavargs$parameterization <- "theta"
     lavargs$test <- "none"
-    fit0 <- do.call(get(model_type, envir = asNamespace("lavaan")), lavargs)
+    fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
   }
   lavmodel <- fit0@Model
   lavsamplestats <- fit0@SampleStats
@@ -1093,7 +1093,7 @@ acfa <- function(
   ...
 ) {
   sc <- sys.call()
-  sc[["model_type"]] <- quote("cfa")
+  sc[["model.type"]] <- quote("cfa")
   sc[[1L]] <- quote(INLAvaan::inlavaan)
   eval(sc, parent.frame())
 }
@@ -1145,7 +1145,7 @@ asem <- function(
   ...
 ) {
   sc <- sys.call()
-  sc[["model_type"]] <- quote("sem")
+  sc[["model.type"]] <- quote("sem")
   sc[[1L]] <- quote(INLAvaan::inlavaan)
   eval(sc, parent.frame())
 }
@@ -1195,7 +1195,7 @@ agrowth <- function(
   ...
 ) {
   sc <- sys.call()
-  sc[["model_type"]] <- quote("growth")
+  sc[["model.type"]] <- quote("growth")
   sc[[1L]] <- quote(INLAvaan::inlavaan)
   eval(sc, parent.frame())
 }
