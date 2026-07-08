@@ -67,10 +67,10 @@
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  postmedian <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  postmode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  cov.std <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.ineq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.def <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cov_std <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_ineq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_def <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="fl">250</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -83,10 +83,10 @@
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  postmedian <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  postmode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  cov.std <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.ineq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.def <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cov_std <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_ineq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_def <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="fl">250</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -99,10 +99,10 @@
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  postmedian <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  postmode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  cov.std <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.ineq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.def <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cov_std <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_ineq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_def <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="fl">250</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -115,10 +115,10 @@
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  postmedian <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  postmode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  cov.std <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.ineq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  remove.def <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  cov_std <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_eq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_ineq <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  remove_def <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="fl">250</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -169,6 +169,32 @@ the output.</p></dd>
 <dd><p>Logical; if TRUE, include posterior mode in estimates.</p></dd>
 
 
+<dt id="arg-cov-std">cov_std<a class="anchor" aria-label="anchor" href="#arg-cov-std"></a></dt>
+<dd><p>Logical. If TRUE, the (residual) observed
+covariances are scaled by the square root of the `Theta' diagonal elements, and
+the (residual) latent covariances are scaled by the square root of the `Psi'
+diagonal elements. If FALSE, the (residual) observed covariances
+are scaled by the square root of the diagonal elements of the observed
+model-implied covariance matrix (Sigma), and the (residual) latent covariances
+are scaled by the square root of diagonal elements of the model-implied
+covariance matrix of the latent variables.</p></dd>
+
+
+<dt id="arg-remove-eq">remove_eq<a class="anchor" aria-label="anchor" href="#arg-remove-eq"></a></dt>
+<dd><p>Logical. If TRUE, filter the output by removing all rows
+containing equality constraints, if any.</p></dd>
+
+
+<dt id="arg-remove-ineq">remove_ineq<a class="anchor" aria-label="anchor" href="#arg-remove-ineq"></a></dt>
+<dd><p>Logical. If TRUE, filter the output by removing all
+rows containing inequality constraints, if any.</p></dd>
+
+
+<dt id="arg-remove-def">remove_def<a class="anchor" aria-label="anchor" href="#arg-remove-def"></a></dt>
+<dd><p>Logical. If TRUE, filter the output by removing all
+rows containing parameter definitions, if any.</p></dd>
+
+
 <dt id="arg-nsamp">nsamp<a class="anchor" aria-label="anchor" href="#arg-nsamp"></a></dt>
 <dd><p>The number of samples to draw from the approximate posterior
 distribution for the calculation of standardised estimates.</p></dd>
@@ -205,22 +231,7 @@ distribution for the calculation of standardised estimates.</p></dd>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">standardisedsolution</span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">10</span>, se <span class="op">=</span> <span class="cn">FALSE</span>, ci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        lhs op     rhs est.std</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   visual =~      x1   0.786</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   visual =~      x2   0.426</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   visual =~      x3   0.538</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  textual =~      x4   0.844</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  textual =~      x5   0.846</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  textual =~      x6   0.838</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7       x1 ~~      x1   0.380</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8       x2 ~~      x2   0.816</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9       x3 ~~      x3   0.708</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10      x4 ~~      x4   0.288</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11      x5 ~~      x5   0.283</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12      x6 ~~      x6   0.296</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13  visual ~~  visual   1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 textual ~~ textual   1.000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15  visual ~~ textual   0.478</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in lavaan::standardizedSolution(object = object, est = esti, GLIST = lavmodel@GLIST,     type = type, cov_std = cov_std, remove_eq = remove_eq, remove_ineq = remove_ineq,     remove_def = remove_def, ...):</span> unused arguments (cov_std = cov_std, remove_eq = remove_eq, remove_ineq = remove_ineq, remove_def = remove_def)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -13,10 +13,10 @@ standardisedsolution(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov.std = TRUE,
-  remove.eq = TRUE,
-  remove.ineq = TRUE,
-  remove.def = FALSE,
+  cov_std = TRUE,
+  remove_eq = TRUE,
+  remove_ineq = TRUE,
+  remove_def = FALSE,
   nsamp = 250,
   ...
 )
@@ -29,10 +29,10 @@ standardisedSolution(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov.std = TRUE,
-  remove.eq = TRUE,
-  remove.ineq = TRUE,
-  remove.def = FALSE,
+  cov_std = TRUE,
+  remove_eq = TRUE,
+  remove_ineq = TRUE,
+  remove_def = FALSE,
   nsamp = 250,
   ...
 )
@@ -45,10 +45,10 @@ standardizedsolution(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov.std = TRUE,
-  remove.eq = TRUE,
-  remove.ineq = TRUE,
-  remove.def = FALSE,
+  cov_std = TRUE,
+  remove_eq = TRUE,
+  remove_ineq = TRUE,
+  remove_def = FALSE,
   nsamp = 250,
   ...
 )
@@ -61,10 +61,10 @@ standardizedSolution(
   level = 0.95,
   postmedian = FALSE,
   postmode = FALSE,
-  cov.std = TRUE,
-  remove.eq = TRUE,
-  remove.ineq = TRUE,
-  remove.def = FALSE,
+  cov_std = TRUE,
+  remove_eq = TRUE,
+  remove_ineq = TRUE,
+  remove_def = FALSE,
   nsamp = 250,
   ...
 )
@@ -113,6 +113,32 @@ standardizedSolution(
 
   Logical; if TRUE, include posterior mode in estimates.
 
+- cov_std:
+
+  Logical. If TRUE, the (residual) observed covariances are scaled by
+  the square root of the \`Theta' diagonal elements, and the (residual)
+  latent covariances are scaled by the square root of the \`Psi'
+  diagonal elements. If FALSE, the (residual) observed covariances are
+  scaled by the square root of the diagonal elements of the observed
+  model-implied covariance matrix (Sigma), and the (residual) latent
+  covariances are scaled by the square root of diagonal elements of the
+  model-implied covariance matrix of the latent variables.
+
+- remove_eq:
+
+  Logical. If TRUE, filter the output by removing all rows containing
+  equality constraints, if any.
+
+- remove_ineq:
+
+  Logical. If TRUE, filter the output by removing all rows containing
+  inequality constraints, if any.
+
+- remove_def:
+
+  Logical. If TRUE, filter the output by removing all rows containing
+  parameter definitions, if any.
+
 - nsamp:
 
   The number of samples to draw from the approximate posterior
@@ -152,20 +178,5 @@ fit <- acfa(
   verbose = FALSE
 )
 standardisedsolution(fit, nsamp = 10, se = FALSE, ci = FALSE)
-#>        lhs op     rhs est.std
-#> 1   visual =~      x1   0.786
-#> 2   visual =~      x2   0.426
-#> 3   visual =~      x3   0.538
-#> 4  textual =~      x4   0.844
-#> 5  textual =~      x5   0.846
-#> 6  textual =~      x6   0.838
-#> 7       x1 ~~      x1   0.380
-#> 8       x2 ~~      x2   0.816
-#> 9       x3 ~~      x3   0.708
-#> 10      x4 ~~      x4   0.288
-#> 11      x5 ~~      x5   0.283
-#> 12      x6 ~~      x6   0.296
-#> 13  visual ~~  visual   1.000
-#> 14 textual ~~ textual   1.000
-#> 15  visual ~~ textual   0.478
+#> Error in lavaan::standardizedSolution(object = object, est = esti, GLIST = lavmodel@GLIST,     type = type, cov_std = cov_std, remove_eq = remove_eq, remove_ineq = remove_ineq,     remove_def = remove_def, ...): unused arguments (cov_std = cov_std, remove_eq = remove_eq, remove_ineq = remove_ineq, remove_def = remove_def)
 ```

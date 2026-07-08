@@ -148,17 +148,17 @@ fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ✔ Posterior mode and Hessian. [150ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [132ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [108ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [838ms]
+#> ⠹ Fitting 1/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [783ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [138ms]
+#> ✔ Adjust copula correlations (NORTA). [123ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.3s]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 waic(fit)

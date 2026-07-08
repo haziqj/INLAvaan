@@ -121,22 +121,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [420ms]
+#> ✔ Posterior mode and Hessian. [390ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [552ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [511ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 20/60 skew-normal marginals.
-#> ⠸ Fitting 45/60 skew-normal marginals.
-#> ✔ Fit 60/60 skew-normal marginals. [6.7s]
+#> ⠹ Fitting 14/60 skew-normal marginals.
+#> ⠸ Fitting 43/60 skew-normal marginals.
+#> ✔ Fit 60/60 skew-normal marginals. [6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [579ms]
+#> ✔ Adjust copula correlations (NORTA). [314ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [2.1s]
+#> ⠹ Computing WAIC.
+#> ✔ Summarise 1000 posterior draws. [2.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -148,22 +148,22 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [388ms]
+#> ✔ Posterior mode and Hessian. [347ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [275ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [251ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 9/54 skew-normal marginals.
-#> ⠸ Fitting 39/54 skew-normal marginals.
-#> ✔ Fit 54/54 skew-normal marginals. [5.4s]
+#> ⠹ Fitting 11/54 skew-normal marginals.
+#> ⠸ Fitting 40/54 skew-normal marginals.
+#> ✔ Fit 54/54 skew-normal marginals. [5.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [538ms]
+#> ✔ Adjust copula correlations (NORTA). [455ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [2.1s]
+#> ⠹ Computing WAIC.
+#> ✔ Summarise 1000 posterior draws. [1.9s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -175,21 +175,20 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [359ms]
+#> ✔ Posterior mode and Hessian. [334ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [272ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [243ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 12/48 skew-normal marginals.
-#> ⠸ Fitting 43/48 skew-normal marginals.
-#> ✔ Fit 48/48 skew-normal marginals. [4.5s]
+#> ⠹ Fitting 19/48 skew-normal marginals.
+#> ✔ Fit 48/48 skew-normal marginals. [4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [591ms]
+#> ✔ Adjust copula correlations (NORTA). [528ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [2s]
+#> ✔ Summarise 1000 posterior draws. [1.8s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 

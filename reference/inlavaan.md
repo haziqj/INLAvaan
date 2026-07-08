@@ -12,7 +12,7 @@ specification and estimation.
 inlavaan(
   model,
   data,
-  model.type = "sem",
+  model_type = "sem",
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
@@ -50,6 +50,13 @@ inlavaan(
   An optional data frame containing the observed variables used in the
   model. If some variables are declared as ordered factors, lavaan will
   treat them as ordinal variables.
+
+- model_type:
+
+  Set the model type: possible values are `"cfa"`, `"sem"` or
+  `"growth"`. This may affect how starting values are computed, and may
+  be used to alter the terminology used in the summary output, or the
+  layout of path diagrams that are based on a fitted lavaan object.
 
 - dp:
 
@@ -208,20 +215,20 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [144ms]
+#> ✔ Posterior mode and Hessian. [138ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.209σ. [136ms]
+#> ✔ VB correction; mean |δ| = 0.209σ. [112ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [945ms]
+#> ✔ Fit 21/21 skew-normal marginals. [837ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [140ms]
+#> ✔ Adjust copula correlations (NORTA). [121ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
