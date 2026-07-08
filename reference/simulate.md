@@ -113,7 +113,7 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Posterior mode and Hessian. [44ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.247σ. [82ms]
+#> ✔ VB correction; mean |δ| = 0.247σ. [83ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
 #> ✔ Fit 6/6 skew-normal marginals. [100ms]
@@ -122,20 +122,20 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Adjust copula correlations (NORTA). [20ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [858ms]
+#> ✔ Summarise 1000 posterior draws. [909ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
 # Simulate one replicate dataset from the posterior
 sims <- simulate(fit, nsim = 1)
 head(sims[[1]])                    # data frame
-#>            x1          x2         x3
-#> 1 -0.72562791  0.10827401  0.9045192
-#> 2  0.04916879 -0.01699245 -0.2939545
-#> 3  1.18098188  0.22887337  0.5109881
-#> 4 -0.68410378 -1.01588753 -1.8746333
-#> 5  0.72450768 -3.12496260 -0.8376251
-#> 6  1.04897635  1.43501403  0.5854700
+#>         x1       x2        x3
+#> 1 4.283820 6.124441 3.1648154
+#> 2 5.058616 5.999174 1.9663417
+#> 3 6.190429 6.245040 2.7712843
+#> 4 4.325344 5.000279 0.3856629
+#> 5 5.733955 2.891204 1.4226711
+#> 6 6.058424 7.451181 2.8457662
 attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
 #>      0.7976085      0.9776786      0.7434209      1.0159419      0.8360347 

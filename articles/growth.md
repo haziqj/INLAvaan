@@ -39,23 +39,23 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [244ms]
+#> ✔ Posterior mode and Hessian. [242ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.051σ. [213ms]
+#> ✔ VB correction; mean |δ| = 0.051σ. [222ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [877ms]
+#> ✔ Fit 17/17 skew-normal marginals. [928ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [89ms]
+#> ✔ Adjust copula correlations (NORTA). [93ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [444ms]
+#> ✔ Summarise 100 posterior draws. [497ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.2.5.9003 ended normally after 83 iterations
+#> INLAvaan 0.2.5.9004 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -66,12 +66,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.904 
-#>    PPP (Chi-square)                              0.910 
+#>    PPP (Chi-square)                              0.930 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.317 
-#>    Effective parameters (pD)                    16.958 
+#>    Deviance (DIC)                             4995.612 
+#>    Effective parameters (pD)                    16.606 
 #> 
 #> Parameter Estimates:
 #> 
@@ -111,7 +111,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.080    0.042   -0.002    0.161    0.006       beta(1,1)
+#>    .s                 0.074    0.039   -0.002    0.150    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

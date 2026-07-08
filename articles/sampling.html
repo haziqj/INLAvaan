@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,6 +58,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/meanstructure.html">Mean structures</a></li>
     <li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/predictive-checks.html">Prior and posterior predictive checks</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
     <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul>
@@ -103,7 +104,43 @@
 \underbrace{\mathbf{y}^*}_{\text{observed variables}}
 </annotation></semantics></math></p>
 <p>producing samples that are <strong>not tied to any individual observation</strong>. This is distinct from <code><a href="../reference/predict.html">predict()</a></code>, which returns individual-specific factor scores <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛈</mi><mo>∣</mo><mi>𝐲</mi><mo>,</mo><mi>𝛉</mi></mrow><annotation encoding="application/x-tex">\boldsymbol\eta \mid \mathbf{y}, \boldsymbol\theta</annotation></semantics></math>.</p>
-<p>Typical use cases include <strong>posterior predictive checks</strong> (PPCs) and <strong>prior predictive checks</strong>.</p>
+<p>Typical use cases include <strong>posterior predictive checks</strong> (PPCs) and <strong>prior predictive checks</strong>; the <a href="predictive-checks.html">predictive checks article</a> walks through that workflow.</p>
+</section><section class="level2"><h2 id="sampling-versus-simulate">
+<code>sampling()</code> versus <code>simulate()</code>
+<a class="anchor" aria-label="anchor" href="#sampling-versus-simulate"></a>
+</h2>
+<p>INLAvaan offers two ways to draw data from the generative model, and the difference is <em>what varies between draws</em>:</p>
+<table class="table caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead><tr class="header">
+<th></th>
+<th>One draw is</th>
+<th>Returns</th>
+<th>Use for</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="../reference/sampling.html">sampling()</a></code></td>
+<td>one <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝛉</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> → <strong>one observation</strong> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝐲</mi><mrow><mi>*</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\mathbf{y}^{*(s)}</annotation></semantics></math>
+</td>
+<td>a matrix (or list)</td>
+<td>distributions of <em>quantities</em>: parameters, implied moments</td>
+</tr>
+<tr class="even">
+<td><code><a href="../reference/simulate.html">simulate()</a></code></td>
+<td>one <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝛉</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> → a <strong>whole dataset</strong> of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> rows</td>
+<td>a list of data frames</td>
+<td>
+<em>replicate datasets</em>: PPC overlays, test statistics, SBC</td>
+</tr>
+</tbody>
+</table>
+<p><code><a href="../reference/sampling.html">sampling()</a></code> refreshes <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛉</mi><annotation encoding="application/x-tex">\boldsymbol\theta</annotation></semantics></math> at every draw, pooling parameter uncertainty and sampling variability into a single marginal predictive distribution. <code><a href="../reference/simulate.html">simulate()</a></code> holds each <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝛉</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> fixed for a whole dataset, so variation <em>across</em> replicates reflects parameter uncertainty while variation <em>within</em> a replicate reflects sampling variability—which is what makes replicates exchangeable with the observed data, and hence the right tool for predictive checks and simulation-based calibration. Both functions accept <code>prior = TRUE</code>. The rest of this article covers <code><a href="../reference/sampling.html">sampling()</a></code>.</p>
 </section><section class="level2"><h2 id="the-generative-model">The generative model<a class="anchor" aria-label="anchor" href="#the-generative-model"></a>
 </h2>
 <p>Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>𝛉</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">s = 1, \dots, S</annotation></semantics></math>) denote one parameter draw. From this draw the SEM matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝚲</mi><annotation encoding="application/x-tex">\boldsymbol\Lambda</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝚿</mi><annotation encoding="application/x-tex">\boldsymbol\Psi</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐁</mi><annotation encoding="application/x-tex">\mathbf{B}</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛂</mi><annotation encoding="application/x-tex">\boldsymbol\alpha</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝛎</mi><annotation encoding="application/x-tex">\boldsymbol\nu</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝚯</mi><annotation encoding="application/x-tex">\boldsymbol\Theta</annotation></semantics></math> are constructed. The generative chain is:</p>
@@ -264,42 +301,9 @@ Figure 2: Comparison of marginal histograms from copula sampling (blue) and Gau
 </div>
 </div>
 <p>For symmetric posteriors (e.g., factor loadings), the two methods are nearly identical. For positively-skewed posteriors (e.g., residual variances), the copula method captures the asymmetry while the Gaussian approximation is symmetric by construction.</p>
-</section><section class="level2"><h2 id="prior-predictive-sampling">Prior predictive sampling<a class="anchor" aria-label="anchor" href="#prior-predictive-sampling"></a>
+</section><section class="level2"><h2 id="prior-sampling">Prior sampling<a class="anchor" aria-label="anchor" href="#prior-sampling"></a>
 </h2>
-<p>Setting <code>prior = TRUE</code> draws parameters from the prior distribution (independently, ignoring the data) and propagates them through the generative model. This is useful for checking whether the priors imply sensible ranges for the observed data.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">y_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sampling.html">sampling</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"observed"</span>, nsamp <span class="op">=</span> <span class="fl">10000</span>, prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Prior sampling: 6106 of 16106 draws (37.9%) rejected (non-PD model-implied</span></span>
-<span><span class="co">#&gt; covariance).</span></span>
-<span><span class="va">y_post</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sampling.html">sampling</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"observed"</span>, nsamp <span class="op">=</span> <span class="fl">10000</span>, prior <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df_pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  x1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">y_prior</span><span class="op">[</span>, <span class="st">"x1"</span><span class="op">]</span>, <span class="va">y_post</span><span class="op">[</span>, <span class="st">"x1"</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Prior"</span>, <span class="st">"Posterior"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">df_pp</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x1</span>, fill <span class="op">=</span> <span class="va">source</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="fu">after_stat</span><span class="op">(</span><span class="va">density</span><span class="op">)</span><span class="op">)</span>, bins <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>                 alpha <span class="op">=</span> <span class="fl">0.5</span>, position <span class="op">=</span> <span class="st">"identity"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_fill_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Prior <span class="op">=</span> <span class="st">"#F18F00"</span>, Posterior <span class="op">=</span> <span class="st">"#00A6AA"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"x1"</span>, y <span class="op">=</span> <span class="st">"Density"</span>, fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>       title <span class="op">=</span> <span class="st">"Prior vs. posterior predictive distribution of x1"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme_minimal</span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
-<div class="cell-output-display">
-<div id="fig-prior-post-predictive" class="quarto-float quarto-figure quarto-figure-center">
-<figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-prior-post-predictive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="sampling_files/figure-html/fig-prior-post-predictive-1.png" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prior-post-predictive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure 3: Model-implied distribution of x1 under the prior (orange) and posterior (blue).
-</figcaption></figure>
-</div>
-</div>
-</div>
+<p>Both <code><a href="../reference/sampling.html">sampling()</a></code> and <code><a href="../reference/simulate.html">simulate()</a></code> accept <code>prior = TRUE</code>: each free parameter is drawn independently from its prior (the data play no role) and propagated through the generative chain. Draws that imply a non-positive-definite covariance matrix are rejected and redrawn, so the exact prior is preserved. What these draws are useful for—and how to read them when the model has no mean structure—is the subject of the <a href="predictive-checks.html">predictive checks article</a>.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
@@ -393,7 +397,7 @@ Figure 3: Model-implied distribution of x1 under the prior (orange) and posteri
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

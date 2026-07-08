@@ -118,22 +118,33 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [256ms]
+#> ✔ Posterior mode and Hessian. [272ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [146ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [148ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [482ms]
+#> ✔ Fit 13/13 skew-normal marginals. [471ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [98ms]
+#> ✔ Adjust copula correlations (NORTA). [78ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 ```
+
+As with [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html), this
+model is fitted without a mean structure by default
+(`meanstructure = FALSE`). Rather than profiling the means out as lavaan
+does, [INLAvaan](https://inlavaan.haziqj.ml/) assigns the saturated
+means flat priors and marginalises them analytically, which keeps the
+likelihood a proper Bayesian object. Intercepts can instead be modelled
+explicitly with `meanstructure = TRUE`. See the [mean structures
+article](https://inlavaan.haziqj.ml/articles/meanstructure.html) for how
+the two treatments relate and when model comparisons across them are
+meaningful.
 
 [INLAvaan](https://inlavaan.haziqj.ml/) computes an approximation to the
 posterior density by way of a Laplace approximation ([Tierney et al.
@@ -162,10 +173,14 @@ further use these to compute any derived quantities of interest via
 copula sampling. The posterior predictive p-values ([Gelman et al.
 1996](#ref-gelman1996posterior)) and Deviance Information Criterion
 (DIC, [Spiegelhalter et al. 2002](#ref-spiegelhalter2002bayesian)) are
-computed this way. Often, the posterior sampling takes longer than the
-model fitting itself, so the number of samples can be controlled via the
-`nsamp` argument (default is `nsamp = 1000`) or can be skipped
-altoghether (`test = "none"`).
+computed this way. Under the default `test = "standard"`, leave-one-out
+cross-validation and WAIC results (see the model comparison section
+below) are also computed at fit time and stored with the fit, whenever
+the model supports them and the additional cost is small. Often, the
+posterior sampling takes longer than the model fitting itself, so the
+number of samples can be controlled via the `nsamp` argument (default is
+`nsamp = 1000`), or the post-fitting computations can be skipped
+altogether (`test = "none"`).
 
 ## Methods
 
@@ -177,7 +192,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.2.5.9003 ended normally after 64 iterations
+#> INLAvaan 0.2.5.9004 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -207,7 +222,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.2.5.9003 ended normally after 64 iterations
+#> INLAvaan 0.2.5.9004 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -334,6 +349,58 @@ head(summ_eta$Mean)
 #> [6,] -1.75458945 -0.92234954
 ```
 
+### Predictive checks
+
+The generative side of the model is exposed by
+[`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md), which
+draws parameters, latent variables, or observed variables from the
+posterior (or prior) generative SEM, and by
+[`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md), which
+produces complete replicate data sets from the fitted model.
+
+``` r
+
+yrep <- simulate(fit, nsim = 1, seed = 1)
+head(yrep[[1]])
+#>           y1         y2         y3           y4         y5         y6
+#> 1  0.8815117  1.4614649 -0.2676955 -1.562767776 -1.4735554 -0.7340580
+#> 2  2.3149741  1.6291900  0.3387601  2.144584058  0.5775957  0.2953239
+#> 3 -0.3180181  0.5517283 -1.3670586 -2.450991040 -2.9069360 -1.1067340
+#> 4 -0.8741058  1.9192487 -0.2864483 -0.786006621 -0.4586870 -0.6205432
+#> 5 -2.9244246 -1.3076265 -1.4116572 -2.174296573 -1.3167004 -0.6295747
+#> 6 -1.4214290 -0.3727369 -1.0338816  0.003341353 -0.2033855  1.0597973
+```
+
+Comparing such replicates with the observed data is the basis of prior
+and posterior predictive checking. The [predictive checks
+article](https://inlavaan.haziqj.ml/articles/predictive-checks.html)
+walks through that workflow, and the [sampling
+article](https://inlavaan.haziqj.ml/articles/sampling.html) explains the
+machinery behind it.
+
+### Fit measures
+
+Global fit measures are collected by
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md):
+the PPP and DIC mentioned earlier, Bayesian analogues of the classical
+fit indices (BRMSEA, BGammaHat, and related indices), and the LOO and
+WAIC measures of the model comparison section below when these are
+stored with the fit.
+
+``` r
+
+fitmeasures(fit)
+#>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
+#>           13    -8084.532        0.316    16063.435       13.080        0.066 
+#>    BGammaHat adjBGammaHat          BMc     elpd_loo        p_loo        looic 
+#>        0.989        0.970        0.983    -8021.957       13.040    16043.915 
+#>       se_loo    elpd_waic       p_waic         waic      se_waic 
+#>      107.965    -8022.060       13.087    16044.120      108.055
+```
+
+Definitions and worked examples are in the [Bayesian fit indices
+article](https://inlavaan.haziqj.ml/articles/fit-indices.html).
+
 ### Diagnostics
 
 The
@@ -399,16 +466,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [111ms]
+#> ✔ Posterior mode and Hessian. [117ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [94ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [98ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [321ms]
+#> ✔ Fit 12/12 skew-normal marginals. [340ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [46ms]
+#> ✔ Adjust copula correlations (NORTA). [62ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.2s]
@@ -420,18 +487,62 @@ compare(fit, fit2)
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD
 #>    fit   13   -8084.532   0.000 16063.43 13.080
-#>   fit2   12   -8104.369 -19.837 16112.78 11.719
+#>   fit2   12   -8104.369 -19.837 16113.72 12.187
 ```
 
 As a note, there have been several criticisms of the use of Bayes
 factors for model comparison, particularly in the context of SEMs
 ([Tendeiro and Kiers 2019](#ref-tendeiro2019review); [Schad et al.
-2023](#ref-schad2023workflow)). The
-[blavaan](https://ecmerkle.github.io/blavaan/) package is able to
-implement [WAICs and
-LOOs](https://blavaan.org/articles/model_comparison.html) as alternative
-model comparison metrics, and these will hopefully also be implemented
-in future versions of [INLAvaan](https://inlavaan.haziqj.ml/).
+2023](#ref-schad2023workflow)). Leave-one-out cross-validation (LOO,
+[Vehtari et al. 2017](#ref-vehtari2017practical)) and the widely
+applicable information criterion (WAIC, [Watanabe
+2010](#ref-watanabe2010asymptotic)) are popular alternatives which
+compare models on out-of-sample predictive accuracy instead; see Merkle
+et al. ([2019](#ref-merkle2019bayesian)) for their use with latent
+variable models. Both are implemented in
+[INLAvaan](https://inlavaan.haziqj.ml/). The function
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) requires neither
+refitting nor sampling, computing the statistic using a Taylor
+approximation of the case-deletion posterior, while
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) reuses the
+fit’s own posterior draws.
+
+``` r
+
+loo(fit)
+#> Taylor leave-one-subject-out cross-validation (INLAvaan)
+#> Computed from 1000 subjects (second-order Taylor approximation)
+#> 
+#>          Estimate    SE
+#> elpd_loo  -8022.0  54.0
+#> p_loo        13.0   0.5
+#> looic     16043.9 108.0
+```
+
+To compare models on this predictive scale, pass `loo = TRUE` to
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md). Models
+are sorted by expected log predictive density (ELPD), with paired
+standard errors for the ELPD differences.
+
+``` r
+
+compare(fit, fit2, loo = TRUE)
+#> Bayesian Model Comparison (INLAvaan)
+#> Models ordered by ELPD (Taylor LOO)
+#> elpd_diff/se_diff are paired differences vs the best model
+#> 
+#>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
+#>    fit   13   -8084.532   0.000 16063.43 13.080 -8021.957 53.982 13.040
+#>   fit2   12   -8104.369 -19.837 16113.72 12.187 -8046.997 54.288 12.013
+#>  elpd_diff se_diff
+#>       0.00   0.000
+#>     -25.04   7.143
+```
+
+See the [cross-validation
+article](https://inlavaan.haziqj.ml/articles/loo.html) for the
+methodology and more advanced usage, including multigroup and two-level
+models, missing data, and scoring submodels without refitting.
 
 ## Setting priors
 
@@ -445,7 +556,7 @@ parameters of a certain type (e.g., all factor loadings, all regression
 coefficients, etc.); and 2) Individually for specific parameters in the
 model syntax.
 
-The default global priors are derived from
+The default global priors are similar to those from
 [blavaan](https://ecmerkle.github.io/blavaan/):
 
 ``` r
@@ -530,6 +641,11 @@ Merkle, Edgar C., Ellen Fitzsimmons, James Uanhoro, and Ben Goodrich.
 *Journal of Statistical Software* 100 (November): 1–22.
 <https://doi.org/10.18637/jss.v100.i06>.
 
+Merkle, Edgar C., Daniel Furr, and Sophia Rabe-Hesketh. 2019. “Bayesian
+Comparison of Latent Variable Models: Conditional Versus Marginal
+Likelihoods.” *Psychometrika* 84 (3): 802–29.
+<https://doi.org/10.1007/s11336-019-09679-0>.
+
 Merkle, Edgar C., and Yves Rosseel. 2018. “blavaan: Bayesian Structural
 Equation Models via Parameter Expansion.” *Journal of Statistical
 Software* 85 (June): 1–30. <https://doi.org/10.18637/jss.v085.i04>.
@@ -564,3 +680,12 @@ Exponential Laplace Approximations to Expectations and Variances of
 Nonpositive Functions.” *Journal of the American Statistical
 Association* 84 (407): 710–16.
 <https://doi.org/10.1080/01621459.1989.10478824>.
+
+Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. “Practical Bayesian
+Model Evaluation Using Leave-One-Out Cross-Validation and WAIC.”
+*Statistics and Computing* 27 (5): 1413–32.
+<https://doi.org/10.1007/s11222-016-9696-4>.
+
+Watanabe, Sumio. 2010. “Asymptotic Equivalence of Bayes Cross Validation
+and Widely Applicable Information Criterion in Singular Learning
+Theory.” *Journal of Machine Learning Research* 11: 3571–94.

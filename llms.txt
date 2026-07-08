@@ -426,11 +426,19 @@ Main lavaan-style functions to estimate SEM.
 
 - [Multilevel SEM](https://inlavaan.haziqj.ml/articles/multilevel.md):
 
+- [Prior and Posterior Predictive
+  Checks](https://inlavaan.haziqj.ml/articles/predictive-checks.md):
+
+  Check a model by comparing data it generates against data you have (or
+  expect)—posterior predictive checks for fit, prior predictive checks
+  for your priors.
+
 - [Sampling from the Generative
   Model](https://inlavaan.haziqj.ml/articles/sampling.md):
 
   Draw model parameters, latent variables, and observed data from the
-  generative SEM—useful for posterior and prior predictive checks.
+  generative SEM—how sampling() differs from simulate(), and how the
+  copula method works.
 
 - [Structural Equation
   Modelling](https://inlavaan.haziqj.ml/articles/sem.md):

@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,6 +58,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/meanstructure.html">Mean structures</a></li>
     <li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/predictive-checks.html">Prior and posterior predictive checks</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
     <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul>
@@ -170,8 +171,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7535.345 29.665 -3769.109 42.945 32.433</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7756.931 26.863 -3878.134 46.800 27.516</span></span>
+<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7535.700 29.842 -3769.109 42.945 32.433</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7757.198 26.997 -3878.134 46.800 27.516</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;   -109.025  17.072</span></span></code></pre></div>
@@ -247,8 +248,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7540.455 60.577 -3748.090 44.737 45.076</span></span>
-<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7570.599 31.253 -3787.678 43.881 38.271</span></span>
+<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7536.104 58.402 -3748.090 44.737 45.076</span></span>
+<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7569.118 30.513 -3787.678 43.881 38.271</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;    -39.587  10.261</span></span></code></pre></div>
@@ -286,11 +287,11 @@
 <span><span class="co">#&gt; Computed from 1000 posterior draws and 301 subjects</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_waic  -3769.4 43.0</span></span>
-<span><span class="co">#&gt; p_waic        32.3  2.1</span></span>
-<span><span class="co">#&gt; waic        7538.8 85.9</span></span>
+<span><span class="co">#&gt; elpd_waic  -3769.7 42.9</span></span>
+<span><span class="co">#&gt; p_waic        32.6  2.2</span></span>
+<span><span class="co">#&gt; waic        7539.4 85.9</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; 11 units with p_waic &gt; 0.4: the WAIC may be unreliable; prefer loo().</span></span></code></pre></div>
+<span><span class="co">#&gt; 10 units with p_waic &gt; 0.4: the WAIC may be unreliable; prefer loo().</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="scoring-submodels-without-refitting">Scoring submodels without refitting<a class="anchor" aria-label="anchor" href="#scoring-submodels-without-refitting"></a>
 </h2>
@@ -436,7 +437,7 @@ Watanabe, Sumio. 2010. <span>“Asymptotic Equivalence of Bayes Cross Validation
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

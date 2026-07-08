@@ -41,17 +41,17 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [252ms]
+#> ✔ Posterior mode and Hessian. [263ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.223σ. [498ms]
+#> ✔ VB correction; mean |δ| = 0.223σ. [526ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 23/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.3s]
+#> ⠹ Fitting 21/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [286ms]
+#> ✔ Adjust copula correlations (NORTA). [297ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.4s]
@@ -60,7 +60,7 @@ fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.2.5.9003 ended normally after 71 iterations
+#> INLAvaan 0.2.5.9004 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -96,14 +96,15 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [460ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [475ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.194σ. [513ms]
+#> ✔ VB correction; mean |δ| = 0.194σ. [518ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 19/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [4s]
+#> ⠹ Fitting 16/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [4.1s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -142,7 +143,7 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 print(fit2)
-#> INLAvaan 0.2.5.9003 ended normally after 93 iterations
+#> INLAvaan 0.2.5.9004 ended normally after 93 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

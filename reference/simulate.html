@@ -13,7 +13,7 @@ distribution at that parameter value."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,6 +38,7 @@ distribution at that parameter value."><meta property="og:image" content="https:
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/meanstructure.html">Mean structures</a></li>
     <li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/predictive-checks.html">Prior and posterior predictive checks</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
     <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul></li>
@@ -161,7 +162,7 @@ distribution (prior/posterior predictive checks).</p></div>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[44ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.247σ. <span style="color: #B2B2B2;">[82ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.247σ. <span style="color: #B2B2B2;">[83ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/6 skew-normal marginals.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 6/6 skew-normal marginals. <span style="color: #B2B2B2;">[100ms]</span></span>
@@ -170,20 +171,20 @@ distribution (prior/posterior predictive checks).</p></div>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjust copula correlations (NORTA). <span style="color: #B2B2B2;">[20ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[858ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[909ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC, LOO, WAIC.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simulate one replicate dataset from the posterior</span></span></span>
 <span class="r-in"><span><span class="va">sims</span> <span class="op">&lt;-</span> <span class="fu">simulate</span><span class="op">(</span><span class="va">fit</span>, nsim <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sims</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>                    <span class="co"># data frame</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            x1          x2         x3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.72562791  0.10827401  0.9045192</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.04916879 -0.01699245 -0.2939545</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  1.18098188  0.22887337  0.5109881</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.68410378 -1.01588753 -1.8746333</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.72450768 -3.12496260 -0.8376251</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  1.04897635  1.43501403  0.5854700</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         x1       x2        x3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 4.283820 6.124441 3.1648154</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 5.058616 5.999174 1.9663417</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 6.190429 6.245040 2.7712843</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 4.325344 5.000279 0.3856629</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 5.733955 2.891204 1.4226711</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 6.058424 7.451181 2.8457662</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sims</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="st">"truth"</span><span class="op">)</span>           <span class="co"># true lavaan-side (x-space) parameters</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      0.7976085      0.9776786      0.7434209      1.0159419      0.8360347 </span>
@@ -224,7 +225,7 @@ distribution (prior/posterior predictive checks).</p></div>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

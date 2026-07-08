@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.5.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/meanstructure.html">Mean structures</a></li>
     <li><a class="dropdown-item" href="../articles/sampling.html">Sampling from the generative model</a></li>
+    <li><a class="dropdown-item" href="../articles/predictive-checks.html">Prior and posterior predictive checks</a></li>
     <li><a class="dropdown-item" href="../articles/fit-indices.html">Bayesian fit indices</a></li>
     <li><a class="dropdown-item" href="../articles/loo.html">Leave-one-out cross-validation</a></li>
   </ul></li>
@@ -92,6 +93,7 @@
 </li>
 <li><p><code><a href="../reference/predict.html">predict()</a></code> now centres the conditioning data on the model-implied means (or the saturated sample means when the model has no mean structure) when drawing factor scores and predicted observed variables. Previously the kernels conditioned on raw data, offsetting every factor score by a constant that grows with the variable means.</p></li>
 <li><p><code><a href="../reference/sampling.html">sampling()</a></code> and <code><a href="../reference/simulate.html">simulate()</a></code> draws of observed variables from models without a mean structure now include the saturated (sample) means, so posterior predictive replicates live on the data scale instead of being centred at zero.</p></li>
+<li><p><code><a href="../reference/sampling.html">sampling()</a></code> and <code><a href="../reference/simulate.html">simulate()</a></code> no longer error for models with a single latent variable, and their saturated-mean recovery is now robust to missing data (replicate columns were previously <code>NA</code> under <code>missing = "pairwise"</code>).</p></li>
 <li><p>The PPP’s observed discrepancy now uses the unbiased (divisor n-1) sample covariance, matching the scale of the Wishart-replicated covariances it is compared against; previously the divisor-n form made the PPP very slightly optimistic (an O(1/n) effect, all models).</p></li>
 <li><p><code><a href="../reference/INLAvaan-class.html">coef()</a></code> (and the merged parameter table, fitted values, and implied moments) now reports covariance parameters on the covariance scale. Previously these slots carried the posterior-mean <em>correlation</em>, while <code><a href="../reference/INLAvaan-class.html">summary()</a></code> showed the correct sample-based covariance; the discrepancy is visible whenever the relevant standard deviations are far from 1.</p></li>
 </ul></div>
@@ -206,7 +208,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

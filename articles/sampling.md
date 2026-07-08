@@ -24,7 +24,32 @@ returns individual-specific factor scores
 $`\boldsymbol\eta \mid \mathbf{y}, \boldsymbol\theta`$.
 
 Typical use cases include **posterior predictive checks** (PPCs) and
-**prior predictive checks**.
+**prior predictive checks**; the [predictive checks
+article](https://inlavaan.haziqj.ml/articles/predictive-checks.md) walks
+through that workflow.
+
+## `sampling()` versus `simulate()`
+
+INLAvaan offers two ways to draw data from the generative model, and the
+difference is *what varies between draws*:
+
+|  | One draw is | Returns | Use for |
+|----|----|----|----|
+| [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) | one $`\boldsymbol\theta^{(s)}`$ → **one observation** $`\mathbf{y}^{*(s)}`$ | a matrix (or list) | distributions of *quantities*: parameters, implied moments |
+| [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) | one $`\boldsymbol\theta^{(s)}`$ → a **whole dataset** of $`n`$ rows | a list of data frames | *replicate datasets*: PPC overlays, test statistics, SBC |
+
+[`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
+refreshes $`\boldsymbol\theta`$ at every draw, pooling parameter
+uncertainty and sampling variability into a single marginal predictive
+distribution.
+[`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) holds
+each $`\boldsymbol\theta^{(s)}`$ fixed for a whole dataset, so variation
+*across* replicates reflects parameter uncertainty while variation
+*within* a replicate reflects sampling variability—which is what makes
+replicates exchangeable with the observed data, and hence the right tool
+for predictive checks and simulation-based calibration. Both functions
+accept `prior = TRUE`. The rest of this article covers
+[`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md).
 
 ## The generative model
 
@@ -211,39 +236,14 @@ nearly identical. For positively-skewed posteriors (e.g., residual
 variances), the copula method captures the asymmetry while the Gaussian
 approximation is symmetric by construction.
 
-## Prior predictive sampling
+## Prior sampling
 
-Setting `prior = TRUE` draws parameters from the prior distribution
-(independently, ignoring the data) and propagates them through the
-generative model. This is useful for checking whether the priors imply
-sensible ranges for the observed data.
-
-``` r
-
-y_prior <- sampling(fit, type = "observed", nsamp = 10000, prior = TRUE)
-#> Prior sampling: 6106 of 16106 draws (37.9%) rejected (non-PD model-implied
-#> covariance).
-y_post  <- sampling(fit, type = "observed", nsamp = 10000, prior = FALSE)
-```
-
-``` r
-
-df_pp <- data.frame(
-  x1 = c(y_prior[, "x1"], y_post[, "x1"]),
-  source = rep(c("Prior", "Posterior"), each = 2000)
-)
-
-ggplot(df_pp, aes(x = x1, fill = source)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 50,
-                 alpha = 0.5, position = "identity") +
-  scale_fill_manual(values = c(Prior = "#F18F00", Posterior = "#00A6AA")) +
-  labs(x = "x1", y = "Density", fill = NULL,
-       title = "Prior vs. posterior predictive distribution of x1") +
-  theme_minimal(base_size = 12) +
-  theme(legend.position = "top")
-```
-
-![](sampling_files/figure-html/fig-prior-post-predictive-1.png)
-
-Figure 3: Model-implied distribution of x1 under the prior (orange) and
-posterior (blue).
+Both [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
+and [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md)
+accept `prior = TRUE`: each free parameter is drawn independently from
+its prior (the data play no role) and propagated through the generative
+chain. Draws that imply a non-positive-definite covariance matrix are
+rejected and redrawn, so the exact prior is preserved. What these draws
+are useful for—and how to read them when the model has no mean
+structure—is the subject of the [predictive checks
+article](https://inlavaan.haziqj.ml/articles/predictive-checks.md).
