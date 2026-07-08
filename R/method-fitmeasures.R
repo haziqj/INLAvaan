@@ -608,6 +608,9 @@ NULL
 # So -- like the lavaan___-prefixed internals in lavaan-unexported.R -- these
 # methods must be (re)built from whichever lavaan generic is actually active
 # in the current session, in .onLoad(), not baked in at build/install time.
+# The resolved installed spellings come from the shared lavaan_argnames map
+# (see lavaan-argnames.R, resolved earlier in the same .onLoad()), the one
+# mechanism INLAvaan uses for every renamed lavaan argument.
 #
 # INLAvaan's own documented/stable parameter names are fit.measures and
 # baseline.model (used internally, e.g. by compare()), regardless of which
@@ -617,19 +620,12 @@ NULL
 # from there instead of re-forwarding "..." verbatim (which would otherwise
 # also duplicate whatever the generic's own formal already bound).
 register_fitmeasures_methods <- function(ns) {
+  fm_map <- lavaan_argnames[["fitMeasures"]]
+  fit_measures_arg <- fm_map[["fit.measures"]]
+  baseline_model_arg <- fm_map[["baseline.model"]]
+
   for (generic_name in c("fitMeasures", "fitmeasures")) {
     gf <- formals(methods::getGeneric(generic_name))
-    nm <- names(gf)
-    fit_measures_arg <- if ("fit_measures" %in% nm) {
-      "fit_measures"
-    } else {
-      "fit.measures"
-    }
-    baseline_model_arg <- if ("baseline_model" %in% nm) {
-      "baseline_model"
-    } else {
-      "baseline.model"
-    }
 
     method_fn <- function(object, ...) NULL
     formals(method_fn) <- gf

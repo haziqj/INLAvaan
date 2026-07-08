@@ -70,7 +70,8 @@ summary_inlavaan <- function(
     # else if (marg_method == "sampling")
     #   marg_method <- "Sampling"
 
-    PE <- lavaan::parameterEstimates(
+    PE <- call_lavaan(
+      "parameterEstimates",
       object,
       se = FALSE, # create our own
       zstat = FALSE,
@@ -142,7 +143,8 @@ summary_inlavaan <- function(
     }
 
     # Standardised solution?
-    if (isTRUE(standardized)) { # nocov start
+    if (isTRUE(standardized)) {
+      # nocov start
       stdlv <- standardisedsolution(object, type = "std.lv")
       stdall <- standardisedsolution(object, type = "std.all")
       PE$std.lv <- stdlv$est
@@ -150,7 +152,8 @@ summary_inlavaan <- function(
     } # nocov end
 
     # NMAD (skewnorm marginal fit quality)
-    if (isTRUE(nmad)) { # nocov start
+    if (isTRUE(nmad)) {
+      # nocov start
       nmad_vals <- tryCatch(
         object@external$inlavaan_internal$approx_data[, "nmad"],
         error = function(e) NULL
@@ -163,7 +166,8 @@ summary_inlavaan <- function(
     } # nocov end
 
     # KLD and VB shift in units of posterior SD (opt-in)
-    if (isTRUE(vb_correction)) { # nocov start
+    if (isTRUE(vb_correction)) {
+      # nocov start
       if (isTRUE(kld)) {
         PE$KLD <- ""
         PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
@@ -181,7 +185,8 @@ summary_inlavaan <- function(
       }
     } # nocov end
 
-    if (isTRUE(priors)) { # nocov start
+    if (isTRUE(priors)) {
+      # nocov start
       PE$Prior <- ""
       PE$Prior[peidx] <- summ$Prior[summidx]
       PE$Prior[peidx][is.na(PE$Prior[peidx])] <- ""

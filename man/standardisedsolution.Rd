@@ -99,6 +99,26 @@ the output.}
 
 \item{postmode}{Logical; if TRUE, include posterior mode in estimates.}
 
+\item{cov.std}{Logical. If \code{TRUE}, the (residual) observed covariances
+are scaled by the square root of the \code{Theta} diagonal elements, and the
+(residual) latent covariances are scaled by the square root of the
+\code{Psi} diagonal elements. If \code{FALSE}, the (residual) observed
+covariances are scaled by the square root of the diagonal elements of
+the model-implied observed covariance matrix, and the (residual)
+latent covariances are scaled similarly using the model-implied
+covariance matrix of the latent variables. Documented explicitly here
+(rather than inherited) because lavaan >= 0.7-1 renamed this and the
+next three arguments to snake_case.}
+
+\item{remove.eq}{Logical. If \code{TRUE}, filter the output by removing all
+rows containing equality constraints, if any.}
+
+\item{remove.ineq}{Logical. If \code{TRUE}, filter the output by removing all
+rows containing inequality constraints, if any.}
+
+\item{remove.def}{Logical. If \code{TRUE}, filter the output by removing all
+rows containing parameter definitions, if any.}
+
 \item{nsamp}{The number of samples to draw from the approximate posterior
 distribution for the calculation of standardised estimates.}
 

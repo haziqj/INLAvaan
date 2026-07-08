@@ -3,6 +3,22 @@
 #' @inheritParams lavaan::standardizedSolution
 #' @inheritParams INLAvaan-class
 #' @param object An object of class [INLAvaan].
+#' @param cov.std Logical. If `TRUE`, the (residual) observed covariances
+#'   are scaled by the square root of the `Theta` diagonal elements, and the
+#'   (residual) latent covariances are scaled by the square root of the
+#'   `Psi` diagonal elements. If `FALSE`, the (residual) observed
+#'   covariances are scaled by the square root of the diagonal elements of
+#'   the model-implied observed covariance matrix, and the (residual)
+#'   latent covariances are scaled similarly using the model-implied
+#'   covariance matrix of the latent variables. Documented explicitly here
+#'   (rather than inherited) because lavaan >= 0.7-1 renamed this and the
+#'   next three arguments to snake_case.
+#' @param remove.eq Logical. If `TRUE`, filter the output by removing all
+#'   rows containing equality constraints, if any.
+#' @param remove.ineq Logical. If `TRUE`, filter the output by removing all
+#'   rows containing inequality constraints, if any.
+#' @param remove.def Logical. If `TRUE`, filter the output by removing all
+#'   rows containing parameter definitions, if any.
 #' @param nsamp The number of samples to draw from the approximate posterior
 #'   distribution for the calculation of standardised estimates.
 #' @param ... Additional arguments sent to `lavaan::standardizedSolution()`.
@@ -65,7 +81,8 @@ standardisedsolution <- function(
       def_names <- pt$names[pt_def_rows]
       esti[pt_def_rows] <- fit_inlv$summary[def_names, "Mean"]
     }
-    xstd_samp[[i]] <- lavaan::standardizedSolution(
+    xstd_samp[[i]] <- call_lavaan(
+      "standardizedSolution",
       object = object,
       est = esti,
       GLIST = lavmodel@GLIST,
@@ -88,7 +105,8 @@ standardisedsolution <- function(
     mode = apply(xstd_samp, 2, dmode)
   )
 
-  out <- lavaan::standardizedSolution(
+  out <- call_lavaan(
+    "standardizedSolution",
     object = object,
     est = esti,
     type = type,
