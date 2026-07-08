@@ -85,6 +85,8 @@ navbar:
         href: articles/meanstructure.html
       - text: Sampling from the generative model
         href: articles/sampling.html
+      - text: Prior and posterior predictive checks
+        href: articles/predictive-checks.html
       - text: Bayesian fit indices
         href: articles/fit-indices.html
       - text: Leave-one-out cross-validation
