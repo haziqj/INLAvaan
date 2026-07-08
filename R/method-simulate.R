@@ -101,7 +101,8 @@ setMethod(
       attempts <- attempts + 1L
 
       # Refill batch if exhausted
-      if (idx > nrow(samp$x_samp)) { # nocov start
+      if (idx > nrow(samp$x_samp)) {
+        # nocov start
         if (isTRUE(prior)) {
           samp <- sample_params_prior(int, oversample)
         } else {
@@ -146,8 +147,40 @@ setMethod(
         lavaan::simulateData(pt_sim, sample.nobs = n),
         error = function(e) NULL
       )
-      if (is.null(dat)) { # nocov
+      if (is.null(dat)) {
+        # nocov
         next
+      }
+
+      # Without a mean structure lavaan::simulateData() centres the columns at
+      # zero (there are no intercepts in the partable). INLAvaan integrates the
+      # saturated means out under a flat prior, so the posterior of the mean is
+      # N(ybar, Sigma / n). Draw one such mean vector for this replicate (all
+      # its rows share the same theta, hence the same mean) and shift the data
+      # onto the observed scale, mirroring sampling(type = "observed").
+      if (
+        !isTRUE(lavmodel@meanstructure) &&
+          !isTRUE(prior) &&
+          lavmodel@ngroups == 1L
+      ) {
+        ybar <- colMeans(int$lavdata@X[[1L]], na.rm = TRUE)
+        names(ybar) <- int$lavdata@ov.names[[1L]]
+        mu <- ybar
+        if (marginalised_means_active(lavmodel)) {
+          Sig <- implied$cov[[1L]]
+          ch <- tryCatch(chol(Sig), error = function(e) NULL) # nocov
+          if (!is.null(ch)) {
+            n_fit <- nrow(int$lavdata@X[[1L]])
+            mu <- ybar +
+              as.numeric(crossprod(ch, stats::rnorm(length(ybar)))) /
+                sqrt(n_fit)
+          }
+        }
+        for (v in intersect(names(mu), colnames(dat))) {
+          if (is.numeric(dat[[v]])) {
+            dat[[v]] <- dat[[v]] + mu[[v]]
+          }
+        }
       }
 
       collected <- collected + 1L
@@ -157,14 +190,16 @@ setMethod(
     }
 
     rejected <- attempts - collected
-    if (rejected > 0L && !isTRUE(silent)) { # nocov start
+    if (rejected > 0L && !isTRUE(silent)) {
+      # nocov start
       rej_pct <- round(100 * rejected / attempts, 1)
       cli_inform(
         "simulate: {rejected} of {attempts} draw{?s} ({rej_pct}%) rejected (non-PD model-implied covariance)."
       )
     } # nocov end
 
-    if (collected < nsim) { # nocov start
+    if (collected < nsim) {
+      # nocov start
       cli_warn(c(
         "Rejection sampling fell short of the requested {nsim} simulations.",
         "i" = "Only {collected} of {nsim} obtained after {attempts} attempts.",
