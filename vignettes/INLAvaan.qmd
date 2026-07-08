@@ -119,7 +119,8 @@ From this, marginal posterior distributions for each parameter can be obtained b
 
 Once the marginal posterior distributions have been obtained, we can further use these to compute any derived quantities of interest via copula sampling.
 The posterior predictive p-values [@gelman1996posterior] and Deviance Information Criterion [DIC, @spiegelhalter2002bayesian] are computed this way.
-Often, the posterior sampling takes longer than the model fitting itself, so the number of samples can be controlled via the `nsamp` argument (default is `nsamp = 1000`) or can be skipped altoghether (`test = "none"`).
+Under the default `test = "standard"`, leave-one-out cross-validation and WAIC results (see the model comparison section below) are also computed at fit time and stored with the fit, whenever the model supports them and the additional cost is small.
+Often, the posterior sampling takes longer than the model fitting itself, so the number of samples can be controlled via the `nsamp` argument (default is `nsamp = 1000`), or the post-fitting computations can be skipped altogether (`test = "none"`).
 
 ## Methods
 
@@ -213,7 +214,22 @@ compare(fit, fit2)
 ```
 
 As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs [@tendeiro2019review; @schad2023workflow].
-The `{blavaan}` package is able to implement [WAICs and LOOs](https://blavaan.org/articles/model_comparison.html) as alternative model comparison metrics, and these will hopefully also be implemented in future versions of `{INLAvaan}`.
+Leave-one-out cross-validation [LOO, @vehtari2017practical] and the widely applicable information criterion [WAIC, @watanabe2010asymptotic] are popular alternatives which compare models on out-of-sample predictive accuracy instead; see @merkle2019bayesian for their use with latent variable models.
+Both are available from a single fit: `loo()` requires neither refitting nor sampling, using a Taylor approximation of the case-deletion posterior, while `waic()` reuses the fit's own posterior draws.
+
+```{r}
+#| label: results-loo
+loo(fit)
+```
+
+To compare models on this predictive scale, pass `loo = TRUE` to `compare()`; models are sorted by expected log predictive density (ELPD), with paired standard errors for the ELPD differences.
+
+```{r}
+#| label: results-compare-loo
+compare(fit, fit2, loo = TRUE)
+```
+
+See the [cross-validation article](https://inlavaan.haziqj.ml/articles/loo.html) for the methodology and more advanced usage, including multigroup and two-level models, missing data, and scoring submodels without refitting.
 
 
 ## Setting priors
