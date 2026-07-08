@@ -40,6 +40,14 @@ inlavaan(
     the model. If some variables are declared as ordered factors, lavaan will
     treat them as ordinal variables.}
 
+\item{model.type}{The lavaan entry point used to fit \code{model}: \code{"cfa"},
+\code{"sem"}, or \code{"growth"} (matching lavaan's model-specific wrapper
+functions), or \code{"lavaan"} for the general-purpose interface. Set
+automatically by \code{\link[=acfa]{acfa()}}, \code{\link[=asem]{asem()}}, and \code{\link[=agrowth]{agrowth()}}; documented
+explicitly here because lavaan >= 0.7-1 renamed the corresponding
+\code{simulateData()} argument to \code{model_type}, so it can no longer be
+inherited from there.}
+
 \item{dp}{Default prior distributions for the different types of model
 parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}.}
 

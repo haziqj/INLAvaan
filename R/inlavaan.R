@@ -9,6 +9,13 @@
 #' @inheritParams lavaan::lavaan
 #' @inheritParams lavaan::simulateData
 #' @inheritParams blavaan::blavaan
+#' @param model.type The lavaan entry point used to fit `model`: `"cfa"`,
+#'   `"sem"`, or `"growth"` (matching lavaan's model-specific wrapper
+#'   functions), or `"lavaan"` for the general-purpose interface. Set
+#'   automatically by [acfa()], [asem()], and [agrowth()]; documented
+#'   explicitly here because lavaan >= 0.7-1 renamed the corresponding
+#'   `simulateData()` argument to `model_type`, so it can no longer be
+#'   inherited from there.
 #'
 #' @param dp Default prior distributions for the different types of model
 #'   parameters; a named character vector as returned by [priors_for()].
