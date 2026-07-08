@@ -2,7 +2,8 @@
 title: 'Prior and Posterior Predictive Checks'
 description: >
   Check a model by comparing data it generates against data you have (or
-  expect)—and learn when to reach for simulate() versus sampling().
+  expect)—posterior predictive checks for fit, prior predictive checks for
+  your priors.
 vignette: >
   %\VignetteIndexEntry{Prior and posterior predictive checks}
   %\VignetteEngine{quarto::html}
@@ -30,26 +31,17 @@ this is a *posterior* predictive check (PPC)—a goodness-of-fit tool. With
 parameters drawn from the prior it is a *prior* predictive check—a way to see
 what your priors actually imply before the data have any say.
 
-## Two tools: `simulate()` and `sampling()`
+## Which function?
 
-INLAvaan offers two ways to draw from the generative model
-$\boldsymbol\theta \to \boldsymbol\eta \to \mathbf{y}$, and the difference
-matters for predictive checks:
-
-| | One draw is | Returns | Use for |
-|---|---|---|---|
-| `sampling()` | one $\boldsymbol\theta^{(s)}$ → **one observation** $\mathbf{y}^{*(s)}$ | a matrix (or list) | distributions of *quantities*: parameters, implied moments |
-| `simulate()` | one $\boldsymbol\theta^{(s)}$ → a **whole dataset** of $n$ rows | a list of data frames | *replicate datasets*: PPC overlays, test statistics, SBC |
-
-For a PPC overlay we want `simulate()`: each replicate dataset holds one
-parameter draw fixed across its $n$ rows, so the spread *across* replicates
-shows parameter uncertainty and the spread *within* a replicate shows sampling
-variability—exactly what the observed data should be exchangeable with.
-`sampling(type = "observed")` instead refreshes $\boldsymbol\theta$ at every
-row, which pools everything into a single marginal predictive
-distribution—useful in its own right, but it cannot show dataset-to-dataset
-variability. Both functions take `prior = TRUE`. See the
-[sampling article](sampling.html) for the full generative chain.
+A predictive check compares the observed *dataset* against replicate
+datasets, so it calls for `simulate()`: each replicate holds one parameter
+draw $\boldsymbol\theta^{(s)}$ fixed across its $n$ rows, which is what
+makes the observed data exchangeable with the replicates. Its sibling
+`sampling()` refreshes $\boldsymbol\theta$ at every draw—the right tool for
+distributions of *quantities* (parameters, model-implied moments) rather
+than data, and we use it that way in the last section. Both accept
+`prior = TRUE`; the [sampling article](sampling.html) compares the two
+functions in detail and documents the generative chain.
 
 ## Posterior predictive checks
 
