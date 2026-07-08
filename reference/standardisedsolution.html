@@ -133,13 +133,18 @@
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>If <code>"std.lv"</code>, the standardized estimates are
+<dd><p>If <code>"std.lv"</code>, the standardized estimates are based
 on the variances of the (continuous) latent variables only.
 If <code>"std.all"</code>, the standardized estimates are based
-on both the variances of both (continuous) observed and latent variables.
+on the variances of both (continuous) observed and latent variables.
 If <code>"std.nox"</code>, the standardized estimates are based
-on both the variances of both (continuous) observed and latent variables,
-but not the variances of exogenous covariates.</p></dd>
+on the variances of both (continuous) observed and latent variables,
+but not the variances of exogenous covariates.
+Alternatively, <code>type</code> may be a vector of (observed) variable names
+(for example <code>type = c("x1", "x2")</code>); in that case only the parameters
+involving these variables are standardized (the other observed variables are
+left unstandardized). This is a generalization of <code>"std.nox"</code>, where the
+(observed) exogenous <code>x</code> variables are the ones left unstandardized.</p></dd>
 
 
 <dt id="arg-se">se<a class="anchor" aria-label="anchor" href="#arg-se"></a></dt>
@@ -148,8 +153,8 @@ will be computed, together with a z-statistic and a p-value.</p></dd>
 
 
 <dt id="arg-ci">ci<a class="anchor" aria-label="anchor" href="#arg-ci"></a></dt>
-<dd><p>If <code>TRUE</code>, simple symmetric confidence intervals are added to
-the output</p></dd>
+<dd><p>If <code>TRUE</code>, confidence intervals are added to
+the output.</p></dd>
 
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
@@ -162,32 +167,6 @@ the output</p></dd>
 
 <dt id="arg-postmode">postmode<a class="anchor" aria-label="anchor" href="#arg-postmode"></a></dt>
 <dd><p>Logical; if TRUE, include posterior mode in estimates.</p></dd>
-
-
-<dt id="arg-cov-std">cov.std<a class="anchor" aria-label="anchor" href="#arg-cov-std"></a></dt>
-<dd><p>Logical. If TRUE, the (residual) observed
-covariances are scaled by the square root of the `Theta' diagonal elements, and
-the (residual) latent covariances are scaled by the square root of the `Psi'
-diagonal elements. If FALSE, the (residual) observed covariances
-are scaled by the square root of the diagonal elements of the observed
-model-implied covariance matrix (Sigma), and the (residual) latent covariances
-are scaled by the square root of diagonal elements of the model-implied
-covariance matrix of the latent variables.</p></dd>
-
-
-<dt id="arg-remove-eq">remove.eq<a class="anchor" aria-label="anchor" href="#arg-remove-eq"></a></dt>
-<dd><p>Logical. If TRUE, filter the output by removing all rows
-containing equality constraints, if any.</p></dd>
-
-
-<dt id="arg-remove-ineq">remove.ineq<a class="anchor" aria-label="anchor" href="#arg-remove-ineq"></a></dt>
-<dd><p>Logical. If TRUE, filter the output by removing all
-rows containing inequality constraints, if any.</p></dd>
-
-
-<dt id="arg-remove-def">remove.def<a class="anchor" aria-label="anchor" href="#arg-remove-def"></a></dt>
-<dd><p>Logical. If TRUE, filter the ouitput by removing all
-rows containing parameter definitions, if any.</p></dd>
 
 
 <dt id="arg-nsamp">nsamp<a class="anchor" aria-label="anchor" href="#arg-nsamp"></a></dt>

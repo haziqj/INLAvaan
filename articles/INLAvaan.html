@@ -210,13 +210,13 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [272ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [267ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [148ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [150ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [471ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [492ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
 <span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [78ms]</span></span>
@@ -408,19 +408,19 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/diagnostics.html">diagnostics</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          npar         nsamp     converged    iterations      grad_inf </span></span>
-<span><span class="co">#&gt;            13          1000             1            64      3.46e-03 </span></span>
-<span><span class="co">#&gt;  grad_inf_rel       grad_l2     hess_cond    vb_applied vb_kld_global </span></span>
-<span><span class="co">#&gt;      7.60e-02      6.60e-03      2.99e+01             1        6.3014 </span></span>
-<span><span class="co">#&gt;       kld_max      kld_mean      nmad_max     nmad_mean </span></span>
-<span><span class="co">#&gt;        0.0087        0.0023        0.0064        0.0031</span></span></code></pre></div>
+<span><span class="co">#&gt;           npar          nsamp      converged     iterations       grad_inf </span></span>
+<span><span class="co">#&gt;             13           1000              1             64       3.46e-03 </span></span>
+<span><span class="co">#&gt;   grad_inf_rel        grad_l2 mode_shift_max      hess_cond     vb_applied </span></span>
+<span><span class="co">#&gt;       7.60e-02       6.60e-03       4.33e-04       2.99e+01              1 </span></span>
+<span><span class="co">#&gt;  vb_kld_global        kld_max       kld_mean       nmad_max      nmad_mean </span></span>
+<span><span class="co">#&gt;         6.3014         0.0087         0.0023         0.0064         0.0031</span></span></code></pre></div>
 </div>
 <p>The <code><a href="../reference/timing.html">timing()</a></code> function reports how long each computation stage took, which can help identify bottlenecks when scaling to larger models.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 2.17 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 2.22 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -448,16 +448,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [117ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [115ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [98ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [99ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [340ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [337ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [62ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [48ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.2s]</span></span>

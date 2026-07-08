@@ -37,8 +37,8 @@ agrowth(
   A description of the user-specified model. Typically, the model is
   described using the lavaan model syntax. See
   [`model.syntax`](https://rdrr.io/pkg/lavaan/man/model.syntax.html) for
-  more information. Alternatively, a parameter table (eg. the output of
-  the `lavParTable()` function) is also accepted.
+  more information. Alternatively, a parameter table (e.g., the output
+  of the `lavParTable()` function) is also accepted.
 
 - data:
 
@@ -248,20 +248,19 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [198ms]
+#> ✔ Posterior mode and Hessian. [200ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.045σ. [172ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 12/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [838ms]
+#> ✔ Fit 17/17 skew-normal marginals. [827ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [81ms]
+#> ✔ Adjust copula correlations (NORTA). [83ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [605ms]
+#> ✔ Summarise 100 posterior draws. [603ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)

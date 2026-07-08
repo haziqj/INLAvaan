@@ -37,8 +37,8 @@ acfa(
   A description of the user-specified model. Typically, the model is
   described using the lavaan model syntax. See
   [`model.syntax`](https://rdrr.io/pkg/lavaan/man/model.syntax.html) for
-  more information. Alternatively, a parameter table (eg. the output of
-  the `lavParTable()` function) is also accepted.
+  more information. Alternatively, a parameter table (e.g., the output
+  of the `lavParTable()` function) is also accepted.
 
 - data:
 
@@ -233,13 +233,13 @@ fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ✔ VB correction; mean |δ| = 0.081σ. [120ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [949ms]
+#> ✔ Fit 21/21 skew-normal marginals. [950ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [142ms]
+#> ✔ Adjust copula correlations (NORTA). [140ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [488ms]
+#> ✔ Summarise 100 posterior draws. [486ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)

@@ -130,8 +130,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7535.700 29.842 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7757.198 26.997 -3878.134 46.800 27.516
+#>    fit   30   -3885.211    0.000 7534.642 29.313 -3769.109 42.945 32.433
+#>  fit1f   27   -3990.563 -105.352 7756.684 26.739 -3878.134 46.800 27.516
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -109.025  17.072
@@ -163,6 +163,12 @@ model2l <- "
 "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE, verbose = FALSE)
+#> Warning: Fit diagnostics flagged 2 potential issues:
+#> ✖ The optimiser did not converge: iteration limit reached without convergence
+#>   (10).
+#> ✖ The gradient at the posterior mode is not zero (max |grad| = 2.33): a Newton
+#>   step would move `y1~~y1.l2` by 0.169 posterior SDs.
+#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)
@@ -205,6 +211,10 @@ dat_x <- na.omit(
 
 # lavaan's default fixed.x = TRUE: scored conditionally on the covariates
 fit_cond <- asem(model_x, dat_x, meanstructure = TRUE, verbose = FALSE)
+#> Warning: Fit diagnostics flagged 1 potential issue:
+#> ✖ The fitted marginal deviates from the scanned posterior (NMAD > 0.1) for
+#>   `x2~1` (0.11), `x3~1` (0.10).
+#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 loo(fit_cond)
 #> Taylor leave-one-subject-out cross-validation (INLAvaan)
 #> Computed from 300 subjects (second-order Taylor approximation)
@@ -240,7 +250,7 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.892   0.000 7536.104 58.402 -3748.090 44.737 45.076
+#>   fit_cond   32   -3875.892   0.000 7540.149 60.425 -3748.090 44.737 45.076
 #>  fit_cond1   29   -3903.093 -27.201 7569.118 30.513 -3787.678 43.881 38.271
 #>  elpd_diff se_diff
 #>      0.000   0.000
@@ -313,11 +323,11 @@ waic(fit)
 #> Computed from 1000 posterior draws and 301 subjects
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3769.7 42.9
-#> p_waic        32.6  2.2
-#> waic        7539.4 85.9
+#> elpd_waic  -3769.1 43.0
+#> p_waic        32.0  2.1
+#> waic        7538.2 85.9
 #> 
-#> 10 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
+#> 9 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
 ```
 
 ## Scoring submodels without refitting

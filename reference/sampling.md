@@ -146,13 +146,13 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ VB correction; mean |δ| = 0.247σ. [76ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [108ms]
+#> ✔ Fit 6/6 skew-normal marginals. [109ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjust copula correlations (NORTA). [20ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [862ms]
+#> ✔ Summarise 1000 posterior draws. [879ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 

@@ -79,13 +79,18 @@ standardizedSolution(
 
 - type:
 
-  If `"std.lv"`, the standardized estimates are on the variances of the
-  (continuous) latent variables only. If `"std.all"`, the standardized
-  estimates are based on both the variances of both (continuous)
+  If `"std.lv"`, the standardized estimates are based on the variances
+  of the (continuous) latent variables only. If `"std.all"`, the
+  standardized estimates are based on the variances of both (continuous)
   observed and latent variables. If `"std.nox"`, the standardized
-  estimates are based on both the variances of both (continuous)
-  observed and latent variables, but not the variances of exogenous
-  covariates.
+  estimates are based on the variances of both (continuous) observed and
+  latent variables, but not the variances of exogenous covariates.
+  Alternatively, `type` may be a vector of (observed) variable names
+  (for example `type = c("x1", "x2")`); in that case only the parameters
+  involving these variables are standardized (the other observed
+  variables are left unstandardized). This is a generalization of
+  `"std.nox"`, where the (observed) exogenous `x` variables are the ones
+  left unstandardized.
 
 - se:
 
@@ -94,8 +99,7 @@ standardizedSolution(
 
 - ci:
 
-  If `TRUE`, simple symmetric confidence intervals are added to the
-  output
+  If `TRUE`, confidence intervals are added to the output.
 
 - level:
 
@@ -108,32 +112,6 @@ standardizedSolution(
 - postmode:
 
   Logical; if TRUE, include posterior mode in estimates.
-
-- cov.std:
-
-  Logical. If TRUE, the (residual) observed covariances are scaled by
-  the square root of the \`Theta' diagonal elements, and the (residual)
-  latent covariances are scaled by the square root of the \`Psi'
-  diagonal elements. If FALSE, the (residual) observed covariances are
-  scaled by the square root of the diagonal elements of the observed
-  model-implied covariance matrix (Sigma), and the (residual) latent
-  covariances are scaled by the square root of diagonal elements of the
-  model-implied covariance matrix of the latent variables.
-
-- remove.eq:
-
-  Logical. If TRUE, filter the output by removing all rows containing
-  equality constraints, if any.
-
-- remove.ineq:
-
-  Logical. If TRUE, filter the output by removing all rows containing
-  inequality constraints, if any.
-
-- remove.def:
-
-  Logical. If TRUE, filter the ouitput by removing all rows containing
-  parameter definitions, if any.
 
 - nsamp:
 

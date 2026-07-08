@@ -42,21 +42,14 @@ inlavaan(
   A description of the user-specified model. Typically, the model is
   described using the lavaan model syntax. See
   [`model.syntax`](https://rdrr.io/pkg/lavaan/man/model.syntax.html) for
-  more information. Alternatively, a parameter table (eg. the output of
-  the `lavParTable()` function) is also accepted.
+  more information. Alternatively, a parameter table (e.g., the output
+  of the `lavParTable()` function) is also accepted.
 
 - data:
 
   An optional data frame containing the observed variables used in the
   model. If some variables are declared as ordered factors, lavaan will
   treat them as ordinal variables.
-
-- model.type:
-
-  Set the model type: possible values are `"cfa"`, `"sem"` or
-  `"growth"`. This may affect how starting values are computed, and may
-  be used to alter the terminology used in the summary output, or the
-  layout of path diagrams that are based on a fitted lavaan object.
 
 - dp:
 
@@ -215,19 +208,19 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [141ms]
+#> ✔ Posterior mode and Hessian. [144ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.209σ. [133ms]
+#> ✔ VB correction; mean |δ| = 0.209σ. [136ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [946ms]
+#> ✔ Fit 21/21 skew-normal marginals. [945ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [137ms]
+#> ✔ Adjust copula correlations (NORTA). [140ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
+#> ⠹ Computing WAIC.
 #> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.

@@ -66,13 +66,13 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [230ms]
+#> ✔ Posterior mode and Hessian. [226ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.403σ. [436ms]
+#> ✔ VB correction; mean |δ| = 0.403σ. [441ms]
 #> 
 #> ⠙ Fitting 0/10 skew-normal marginals.
-#> ✔ Fit 10/10 skew-normal marginals. [729ms]
+#> ✔ Fit 10/10 skew-normal marginals. [734ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjust copula correlations (NORTA). [48ms]
@@ -82,6 +82,10 @@ fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
+#> Warning: Fit diagnostics flagged 1 potential issue:
+#> ✖ The VB correction shifted `y4|t1` by 1.12 posterior SDs; the Gaussian
+#>   approximation at the mode may be inaccurate.
+#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 summary(fit)
 #> INLAvaan 0.2.5.9004 ended normally after 37 iterations
 #> 

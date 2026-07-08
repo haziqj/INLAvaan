@@ -134,9 +134,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;      fit_scalar   48   -3914.104   0.000 7509.582 48.126</span></span>
-<span><span class="co">#&gt;      fit_metric   54   -3934.608 -20.504 7480.131 53.323</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3958.319 -44.215 7484.846 59.785</span></span></code></pre></div>
+<span><span class="co">#&gt;      fit_scalar   48   -3914.104   0.000 7509.281 47.975</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3934.608 -20.504 7480.923 53.719</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3958.319 -44.215 7484.082 59.403</span></span></code></pre></div>
 </div>
 <p>These are within-flavour comparisons (all three fits model the means with proper priors), so the Bayes factors are meaningful here. But marginal likelihoods answer a prior-sensitive question – “which model gave these data the highest prior predictive density?” – and for invariance testing we usually want the predictive one: <em>which rung of the ladder predicts new children best?</em></p>
 <p><code>compare(..., loo = TRUE)</code> answers that with leave-one-out cross-validation computed from each single fit – no refitting, no sampling (see the <a href="loo.html">LOO article</a> for the machinery). Groups are independent, so every child is scored against their own school’s implied moments, and the expected log predictive density (ELPD) sums over both schools. Differences come with <em>paired</em> standard errors, since the same children are scored under every model:</p>
@@ -148,9 +148,9 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
-<span><span class="co">#&gt;      fit_metric   54   -3934.608 -20.504 7480.131 53.323 -3743.245 44.422</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3958.319 -44.215 7484.846 59.785 -3746.600 44.744</span></span>
-<span><span class="co">#&gt;      fit_scalar   48   -3914.104   0.000 7509.582 48.126 -3757.569 43.901</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3934.608 -20.504 7480.923 53.719 -3743.245 44.422</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3958.319 -44.215 7484.082 59.403 -3746.600 44.744</span></span>
+<span><span class="co">#&gt;      fit_scalar   48   -3914.104   0.000 7509.281 47.975 -3757.569 43.901</span></span>
 <span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;  57.588     0.000   0.000</span></span>
 <span><span class="co">#&gt;  68.560    -3.356   3.647</span></span>
@@ -170,8 +170,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3958.319 -73.108 7484.846 59.785 -3746.600 44.744</span></span>
-<span><span class="co">#&gt;      fit_pooled   30   -3885.211   0.000 7535.274 29.629 -3769.109 42.945</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3958.319 -73.108 7484.082 59.403 -3746.600 44.744</span></span>
+<span><span class="co">#&gt;      fit_pooled   30   -3885.211   0.000 7534.888 29.436 -3769.109 42.945</span></span>
 <span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;  68.560     0.000   0.000</span></span>
 <span><span class="co">#&gt;  32.433   -22.508  11.743</span></span></code></pre></div>

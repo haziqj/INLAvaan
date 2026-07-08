@@ -37,8 +37,8 @@ asem(
   A description of the user-specified model. Typically, the model is
   described using the lavaan model syntax. See
   [`model.syntax`](https://rdrr.io/pkg/lavaan/man/model.syntax.html) for
-  more information. Alternatively, a parameter table (eg. the output of
-  the `lavParTable()` function) is also accepted.
+  more information. Alternatively, a parameter table (e.g., the output
+  of the `lavParTable()` function) is also accepted.
 
 - data:
 
@@ -239,20 +239,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [270ms]
+#> ✔ Posterior mode and Hessian. [267ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.159σ. [299ms]
+#> ✔ VB correction; mean |δ| = 0.159σ. [295ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 13/28 skew-normal marginals.
+#> ⠹ Fitting 26/28 skew-normal marginals.
 #> ✔ Fit 28/28 skew-normal marginals. [2.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [222ms]
+#> ✔ Adjust copula correlations (NORTA). [224ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [331ms]
+#> ✔ Summarise 1000 posterior draws. [330ms]
 #> 
 summary(fit)
 #> INLAvaan 0.2.5.9004 ended normally after 82 iterations

@@ -118,13 +118,13 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [272ms]
+#> ✔ Posterior mode and Hessian. [267ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [148ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [150ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [471ms]
+#> ✔ Fit 13/13 skew-normal marginals. [492ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjust copula correlations (NORTA). [78ms]
@@ -416,12 +416,12 @@ any problematic parameters.
 ``` r
 
 diagnostics(fit)
-#>          npar         nsamp     converged    iterations      grad_inf 
-#>            13          1000             1            64      3.46e-03 
-#>  grad_inf_rel       grad_l2     hess_cond    vb_applied vb_kld_global 
-#>      7.60e-02      6.60e-03      2.99e+01             1        6.3014 
-#>       kld_max      kld_mean      nmad_max     nmad_mean 
-#>        0.0087        0.0023        0.0064        0.0031
+#>           npar          nsamp      converged     iterations       grad_inf 
+#>             13           1000              1             64       3.46e-03 
+#>   grad_inf_rel        grad_l2 mode_shift_max      hess_cond     vb_applied 
+#>       7.60e-02       6.60e-03       4.33e-04       2.99e+01              1 
+#>  vb_kld_global        kld_max       kld_mean       nmad_max      nmad_mean 
+#>         6.3014         0.0087         0.0023         0.0064         0.0031
 ```
 
 The [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)
@@ -432,7 +432,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 2.17 s
+#> 2.22 s
 ```
 
 ### Plot
@@ -466,16 +466,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [117ms]
+#> ✔ Posterior mode and Hessian. [115ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [98ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [99ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [340ms]
+#> ✔ Fit 12/12 skew-normal marginals. [337ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [62ms]
+#> ✔ Adjust copula correlations (NORTA). [48ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.2s]
