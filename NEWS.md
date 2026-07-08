@@ -61,6 +61,16 @@
   the budget, `test = "none"` skips everything, and `fit <- add_loo(fit)`
   stores it post hoc. Stored results are reused by `loo()`, `waic()`,
   `fitmeasures()`, and `compare()`.
+* Fits now self-check their diagnostics: `inlavaan()` warns once, at the
+  end of the fit, if the optimiser did not converge, the gradient at the
+  reported mode is materially non-zero (Newton step > 0.1 posterior SD),
+  a skew-normal marginal fits poorly (NMAD > 0.1), the VB correction
+  shifted a posterior mean by more than 1 posterior SD, or the Hessian is
+  near-singular -- naming the offending parameters. A healthy fit stays
+  silent; suppress via the `inlavaan_diagnostics_warning` condition class.
+  `diagnostics()` gains the scale-free `mode_shift_max` (global) and
+  `mode_shift_sigma` (per-parameter) measures backing the gradient check.
+  (#18)
 
 ## Minor improvements and fixes
 
