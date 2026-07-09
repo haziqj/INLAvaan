@@ -87,6 +87,11 @@
 
 ## Bug fixes
 
+* `standardisedsolution()` and `summary(standardized = TRUE)` no longer
+  silently drop their arguments under lavaan >= 0.7-1, which renamed several
+  exported arguments (e.g. `cov.std` to `cov_std`, `GLIST` to `glist`).
+  INLAvaan now resolves the spelling the installed lavaan expects once per
+  session at load, working across lavaan versions.
 * Two-level FIML `loo()`/`waic()` scores are now correct for clusters
   containing a case fully missing on the within-level variables. lavaan
   retains such cases but its analytic gradient kernel mishandles the
