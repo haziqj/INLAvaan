@@ -57,12 +57,6 @@ summary_inlavaan <- function(
   nd = 3L,
   ...
 ) {
-  if (isTRUE(rsquare)) {
-    cli_warn(
-      "{.arg rsquare = TRUE} is not implemented yet."
-    )
-  }
-
   vb_correction <- all(!is.na(object@external$inlavaan_internal$vb$correction))
 
   ## ----- Header --------------------------------------------------------------
@@ -282,7 +276,8 @@ summary_inlavaan <- function(
 #' @param fit.measures Logical; if TRUE, print fit measures (DIC and PPP).
 #' @param estimates Logical; if TRUE, print parameter estimates table.
 #' @param standardized Logical; if TRUE, include standardized estimates.
-#' @param rsquare Logical; if TRUE, include R-square values.
+#' @param rsquare Logical; if TRUE, include R-square values for the observed
+#'   dependent variables, computed at the posterior mean point estimates.
 #' @param postmedian Logical; if TRUE, include posterior median in estimates.
 #' @param postmode Logical; if TRUE, include posterior mode in estimates.
 #' @param nmad Logical; if TRUE (default), include the NMAD column for

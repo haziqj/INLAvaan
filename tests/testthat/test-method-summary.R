@@ -19,3 +19,18 @@ test_that("summary(estimates = FALSE) prints the header only", {
   expect_true(any(grepl("Number of model parameters", out)))
   expect_false(any(grepl("Parameter Estimates", out)))
 })
+
+test_that("summary(rsquare = TRUE) prints the R-square section", {
+  expect_no_warning(out <- capture.output(summary(fit, rsquare = TRUE)))
+  expect_true(any(grepl("R-Square", out)))
+})
+
+test_that("summary(rsquare = TRUE, standardized = TRUE) rows stay aligned", {
+  expect_no_error(
+    out <- capture.output(
+      summary(fit, rsquare = TRUE, standardized = TRUE, nsamp = 5)
+    )
+  )
+  expect_true(any(grepl("R-Square", out)))
+  expect_true(any(grepl("Std.all", out)))
+})
