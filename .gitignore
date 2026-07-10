@@ -53,3 +53,5 @@ docs
 inst/doc
 /inst/workflows
 .positai
+# hunkwise
+.vscode/hunkwise/
