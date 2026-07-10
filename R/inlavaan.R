@@ -118,6 +118,8 @@ inlavaan <- function(
   cores = NULL,
   ...
 ) {
+  mc <- match.call()
+  mc$start <- NULL # warm start is transient; keep it out of the recorded call
   start.time0 <- proc.time()[3]
   timing <- list(start.time = start.time0)
 
@@ -1059,6 +1061,7 @@ inlavaan <- function(
     timing = timing[-1], # remove start.time
     visual_debug = visual_debug,
     vb = vb,
+    call = mc,
     version = as.character(utils::packageVersion("INLAvaan"))
   )
   class(out) <- "inlavaan_internal"
