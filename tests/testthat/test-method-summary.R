@@ -13,3 +13,9 @@ test_that("summary(standardized = TRUE) works with equality constraints", {
   expect_true(any(grepl("Std.lv", out)))
   expect_true(any(grepl("Std.all", out)))
 })
+
+test_that("summary(estimates = FALSE) prints the header only", {
+  expect_no_error(out <- capture.output(summary(fit, estimates = FALSE)))
+  expect_true(any(grepl("Number of model parameters", out)))
+  expect_false(any(grepl("Parameter Estimates", out)))
+})

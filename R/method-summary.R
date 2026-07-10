@@ -85,139 +85,142 @@ summary_inlavaan <- function(
     )
   }
 
-  if (isTRUE(estimates)) {
-    marg_method <- object@external$inlavaan_internal$marginal_method
-    # if (marg_method == "skewnorm")
-    #   marg_method <- "Skew Normal"
-    # else if (marg_method == "asymgaus")
-    #   marg_method <- "Two-piece Gaussian"
-    # else if (marg_method == "marggaus")
-    #   marg_method <- "Marginal Gaussian"
-    # else if (marg_method == "sampling")
-    #   marg_method <- "Sampling"
-
-    PE <- call_lavaan(
-      "parameterEstimates",
-      object,
-      se = FALSE, # create our own
-      zstat = FALSE,
-      ci = TRUE,
-      standardized = FALSE,
-      rsquare = rsquare,
-      remove.eq = FALSE,
-      remove.system.eq = TRUE,
-      remove.ineq = FALSE,
-      remove.def = FALSE,
-      header = TRUE,
-      output = "text"
-    )
-    if (is.null(PE$block)) {
-      PE$block <- 1
-      PE$block[PE$op == ":="] <- 0
-    }
-
-    # # If PML, remove intercepts when not estimated
-    # if (object@Model@estimator == "PML") {
-    #   browser()
-    # }
-
-    # Now need to put information into PE from pt and summary
-    pt <- object@ParTable
-    ptfreeidx <- which(pt$free > 0)
-    ptdefidx <- which(pt$op == ":=")
-    ptdeltaidx <- which(pt$op == "~*~")
-    ptidx <- c(ptfreeidx, ptdefidx, ptdeltaidx)
-    summ <- object@external$inlavaan_internal$summary
-    peidx <- match(
-      paste0(
-        pt$lhs[ptidx],
-        pt$op[ptidx],
-        pt$rhs[ptidx],
-        pt$block[ptidx]
-      ),
-      paste0(PE$lhs, PE$op, PE$rhs, PE$block)
-    )
-    summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
-    if (length(ptdefidx) > 0 | length(ptdeltaidx) > 0) {
-      # FIXME: I think this should be ok, since pt$free always in increasing
-      # order
-      summidx <- seq_len(nrow(summ))
-    }
-
-    char.format <- paste("%", max(8, nd + 5), "s", sep = "")
-    PE$SD <- ""
-    PE$SD[peidx] <- formatC(summ$SD[summidx], digits = nd, format = "f")
-
-    PE$`2.5%` <- ""
-    PE$`2.5%`[peidx] <- formatC(summ$`2.5%`[summidx], digits = nd, format = "f")
-
-    if (isTRUE(postmedian)) {
-      PE$`50%` <- ""
-      PE$`50%`[peidx] <- formatC(summ$`50%`[summidx], digits = nd, format = "f")
-    }
-
-    PE$`97.5%` <- ""
-    PE$`97.5%`[peidx] <- formatC(
-      summ$`97.5%`[summidx],
-      digits = nd,
-      format = "f"
-    )
-
-    if (isTRUE(postmode)) {
-      PE$Mode <- ""
-      PE$Mode[peidx] <- formatC(summ$Mode[summidx], digits = nd, format = "f")
-    }
-
-    # Standardised solution?
-    if (isTRUE(standardized)) {
-      stdlv <- standardisedsolution(object, type = "std.lv", ...)
-      stdall <- standardisedsolution(object, type = "std.all", ...)
-      stdidx <- match_partable_rows(PE, stdlv)
-      PE$std.lv <- format_pe_col(stdlv$est.std[stdidx], nd)
-      PE$std.all <- format_pe_col(stdall$est.std[stdidx], nd)
-    }
-
-    # NMAD (skewnorm marginal fit quality)
-    if (isTRUE(nmad)) {
-      # nocov start
-      nmad_vals <- tryCatch(
-        object@external$inlavaan_internal$approx_data[, "nmad"],
-        error = function(e) NULL
-      )
-      if (!is.null(nmad_vals) && !all(is.na(nmad_vals))) {
-        PE$NMAD <- ""
-        PE$NMAD[peidx] <- formatC(nmad_vals[summidx], digits = nd, format = "f")
-        PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
-      }
-    } # nocov end
-
-    # KLD and VB shift in units of posterior SD (opt-in)
-    if (isTRUE(vb_correction)) {
-      # nocov start
-      if (isTRUE(kld)) {
-        PE$KLD <- ""
-        PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
-        PE$KLD[peidx][grepl("NA", PE$KLD[peidx])] <- ""
-      }
-
-      if (isTRUE(vb_shift)) {
-        PE$VBshift <- ""
-        PE$VBshift[peidx] <- formatC(
-          summ$vb_shift_sigma[summidx],
-          digits = nd,
-          format = "f"
-        )
-        PE$VBshift[peidx][grepl("NA", PE$VBshift[peidx])] <- ""
-      }
-    } # nocov end
-
-    if (isTRUE(priors)) {
-      # nocov start
-      PE$Prior <- ""
-      PE$Prior[peidx] <- summ$Prior[summidx]
-      PE$Prior[peidx][is.na(PE$Prior[peidx])] <- ""
-    } # nocov end
+  # Everything below prints the parameter estimates table
+  if (!isTRUE(estimates)) {
+    return(invisible(NULL))
   }
+
+  marg_method <- object@external$inlavaan_internal$marginal_method
+  # if (marg_method == "skewnorm")
+  #   marg_method <- "Skew Normal"
+  # else if (marg_method == "asymgaus")
+  #   marg_method <- "Two-piece Gaussian"
+  # else if (marg_method == "marggaus")
+  #   marg_method <- "Marginal Gaussian"
+  # else if (marg_method == "sampling")
+  #   marg_method <- "Sampling"
+
+  PE <- call_lavaan(
+    "parameterEstimates",
+    object,
+    se = FALSE, # create our own
+    zstat = FALSE,
+    ci = TRUE,
+    standardized = FALSE,
+    rsquare = rsquare,
+    remove.eq = FALSE,
+    remove.system.eq = TRUE,
+    remove.ineq = FALSE,
+    remove.def = FALSE,
+    header = TRUE,
+    output = "text"
+  )
+  if (is.null(PE$block)) {
+    PE$block <- 1
+    PE$block[PE$op == ":="] <- 0
+  }
+
+  # # If PML, remove intercepts when not estimated
+  # if (object@Model@estimator == "PML") {
+  #   browser()
+  # }
+
+  # Now need to put information into PE from pt and summary
+  pt <- object@ParTable
+  ptfreeidx <- which(pt$free > 0)
+  ptdefidx <- which(pt$op == ":=")
+  ptdeltaidx <- which(pt$op == "~*~")
+  ptidx <- c(ptfreeidx, ptdefidx, ptdeltaidx)
+  summ <- object@external$inlavaan_internal$summary
+  peidx <- match(
+    paste0(
+      pt$lhs[ptidx],
+      pt$op[ptidx],
+      pt$rhs[ptidx],
+      pt$block[ptidx]
+    ),
+    paste0(PE$lhs, PE$op, PE$rhs, PE$block)
+  )
+  summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
+  if (length(ptdefidx) > 0 | length(ptdeltaidx) > 0) {
+    # FIXME: I think this should be ok, since pt$free always in increasing
+    # order
+    summidx <- seq_len(nrow(summ))
+  }
+
+  char.format <- paste("%", max(8, nd + 5), "s", sep = "")
+  PE$SD <- ""
+  PE$SD[peidx] <- formatC(summ$SD[summidx], digits = nd, format = "f")
+
+  PE$`2.5%` <- ""
+  PE$`2.5%`[peidx] <- formatC(summ$`2.5%`[summidx], digits = nd, format = "f")
+
+  if (isTRUE(postmedian)) {
+    PE$`50%` <- ""
+    PE$`50%`[peidx] <- formatC(summ$`50%`[summidx], digits = nd, format = "f")
+  }
+
+  PE$`97.5%` <- ""
+  PE$`97.5%`[peidx] <- formatC(
+    summ$`97.5%`[summidx],
+    digits = nd,
+    format = "f"
+  )
+
+  if (isTRUE(postmode)) {
+    PE$Mode <- ""
+    PE$Mode[peidx] <- formatC(summ$Mode[summidx], digits = nd, format = "f")
+  }
+
+  # Standardised solution?
+  if (isTRUE(standardized)) {
+    stdlv <- standardisedsolution(object, type = "std.lv", ...)
+    stdall <- standardisedsolution(object, type = "std.all", ...)
+    stdidx <- match_partable_rows(PE, stdlv)
+    PE$std.lv <- format_pe_col(stdlv$est.std[stdidx], nd)
+    PE$std.all <- format_pe_col(stdall$est.std[stdidx], nd)
+  }
+
+  # NMAD (skewnorm marginal fit quality)
+  if (isTRUE(nmad)) {
+    # nocov start
+    nmad_vals <- tryCatch(
+      object@external$inlavaan_internal$approx_data[, "nmad"],
+      error = function(e) NULL
+    )
+    if (!is.null(nmad_vals) && !all(is.na(nmad_vals))) {
+      PE$NMAD <- ""
+      PE$NMAD[peidx] <- formatC(nmad_vals[summidx], digits = nd, format = "f")
+      PE$NMAD[peidx][grepl("NA", PE$NMAD[peidx])] <- ""
+    }
+  } # nocov end
+
+  # KLD and VB shift in units of posterior SD (opt-in)
+  if (isTRUE(vb_correction)) {
+    # nocov start
+    if (isTRUE(kld)) {
+      PE$KLD <- ""
+      PE$KLD[peidx] <- formatC(summ$kld[summidx], digits = nd, format = "f")
+      PE$KLD[peidx][grepl("NA", PE$KLD[peidx])] <- ""
+    }
+
+    if (isTRUE(vb_shift)) {
+      PE$VBshift <- ""
+      PE$VBshift[peidx] <- formatC(
+        summ$vb_shift_sigma[summidx],
+        digits = nd,
+        format = "f"
+      )
+      PE$VBshift[peidx][grepl("NA", PE$VBshift[peidx])] <- ""
+    }
+  } # nocov end
+
+  if (isTRUE(priors)) {
+    # nocov start
+    PE$Prior <- ""
+    PE$Prior[peidx] <- summ$Prior[summidx]
+    PE$Prior[peidx][is.na(PE$Prior[peidx])] <- ""
+  } # nocov end
 
   # If PML, intercepts shown regardless
   if (object@Model@estimator == "PML") {
