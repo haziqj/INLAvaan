@@ -30,6 +30,7 @@ inlavaan(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  start = NULL,
   cores = NULL,
   ...
 )
@@ -170,6 +171,17 @@ inlavaan(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- start:
+
+  Optional numeric vector of starting values for the optimiser, given as
+  a full vector of free parameters in the internal (unconstrained)
+  parameterisation. Mainly for internal use by
+  [`update()`](https://inlavaan.haziqj.ml/reference/update.md), which
+  warm-starts mode-finding from a previous fit's posterior mode;
+  supplying a hand-built vector requires knowledge of the internal
+  parameter ordering. Its length must equal the number of free
+  parameters or an error is raised.
+
 - cores:
 
   Integer or `NULL`. Number of cores for parallel marginal fitting. When
@@ -220,20 +232,20 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [176ms]
+#> ✔ Posterior mode and Hessian. [148ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.209σ. [162ms]
+#> ✔ VB correction; mean |δ| = 0.209σ. [124ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1.4s]
+#> ⠹ Fitting 2/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [938ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [130ms]
+#> ✔ Adjust copula correlations (NORTA). [139ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)

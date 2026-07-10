@@ -41,6 +41,12 @@ BIC(object, ...)
 
   Currently unused.
 
+- k:
+
+  Numeric penalty per parameter passed to the (disabled)
+  [`AIC()`](https://rdrr.io/r/stats/AIC.html) method; see
+  [`stats::AIC()`](https://rdrr.io/r/stats/AIC.html). Defaults to 2.
+
 ## Value
 
 For `type = "marginal"`, a length-one numeric of class `inlavaan_logLik`

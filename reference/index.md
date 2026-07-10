@@ -42,6 +42,8 @@ Main lavaan-style functions to estimate SEM.
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
   [`anova(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/compare.md)
   : Compare Bayesian Models Fitted with INLAvaan
+- [`update(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/update.md)
+  : Update and re-fit an INLAvaan model
 - [`logLik(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/logLik.md)
   [`AIC(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/logLik.md)
   [`BIC(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/logLik.md)

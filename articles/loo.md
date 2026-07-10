@@ -130,8 +130,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7534.616 29.300 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7757.107 26.951 -3878.134 46.800 27.516
+#>    fit   30   -3885.211    0.000 7535.160 29.572 -3769.109 42.945 32.433
+#>  fit1f   27   -3990.563 -105.352 7757.243 27.019 -3878.134 46.800 27.516
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -109.025  17.072
@@ -166,8 +166,8 @@ fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
 #> Warning: Fit diagnostics flagged 2 potential issues:
 #> ✖ The optimiser did not converge: iteration limit reached without convergence
 #>   (10).
-#> ✖ The gradient at the posterior mode is not zero (max |grad| = 0.403): a Newton
-#>   step would move `y1~~y1.l2` by 0.188 posterior SDs.
+#> ✖ The gradient at the posterior mode is not zero (max |grad| = 2.33): a Newton
+#>   step would move `y1~~y1.l2` by 0.169 posterior SDs.
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 
 loo(fit2l)
@@ -250,11 +250,11 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.892   0.000 7546.858 63.779 -3748.090 44.737 45.076
-#>  fit_cond1   29   -3903.093 -27.201 7567.722 29.815 -3787.678 43.881 38.272
+#>   fit_cond   32   -3875.892   0.000 7541.926 61.313 -3748.090 44.737 45.076
+#>  fit_cond1   29   -3903.093 -27.201 7569.070 30.489 -3787.678 43.881 38.271
 #>  elpd_diff se_diff
 #>      0.000   0.000
-#>    -39.588  10.261
+#>    -39.587  10.261
 ```
 
 (Under the joint flavour the same comparison would require retaining
@@ -323,9 +323,9 @@ waic(fit)
 #> Computed from 1000 posterior draws and 301 subjects
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3769.1 42.9
-#> p_waic        32.1  2.2
-#> waic        7538.2 85.8
+#> elpd_waic  -3769.3 42.9
+#> p_waic        32.3  2.0
+#> waic        7538.7 85.8
 #> 
 #> 9 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
 ```

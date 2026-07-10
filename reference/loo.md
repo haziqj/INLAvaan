@@ -272,20 +272,20 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [199ms]
+#> ✔ Posterior mode and Hessian. [159ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [141ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [119ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [1s]
+#> ✔ Fit 30/30 skew-normal marginals. [819ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [136ms]
+#> ✔ Adjust copula correlations (NORTA). [143ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -347,31 +347,31 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [1.1s]
+#> ✔ Posterior mode and Hessian. [967ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.087σ. [630ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [519ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 2/34 skew-normal marginals.
-#> ⠸ Fitting 12/34 skew-normal marginals.
-#> ⠼ Fitting 22/34 skew-normal marginals.
-#> ⠴ Fitting 32/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [10.1s]
+#> ⠹ Fitting 1/34 skew-normal marginals.
+#> ⠸ Fitting 13/34 skew-normal marginals.
+#> ⠼ Fitting 25/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [8.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [128ms]
+#> ✔ Adjust copula correlations (NORTA). [141ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [37.3s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ⠸ Computing WAIC.
+#> ✔ Summarise 1000 posterior draws. [56.9s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 #> Warning: Fit diagnostics flagged 2 potential issues:
 #> ✖ The optimiser did not converge: iteration limit reached without convergence
 #>   (10).
-#> ✖ The gradient at the posterior mode is not zero (max |grad| = 0.403): a Newton
-#>   step would move `y1~~y1.l2` by 0.188 posterior SDs.
+#> ✖ The gradient at the posterior mode is not zero (max |grad| = 2.33): a Newton
+#>   step would move `y1~~y1.l2` by 0.169 posterior SDs.
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)
@@ -379,7 +379,7 @@ loo(fit2l)
 #> 
 #>          Estimate     SE
 #> elpd_loo -23344.2  731.4
-#> p_loo        34.2    2.0
+#> p_loo        34.3    2.0
 #> looic     46688.3 1462.9
 # }
 ```

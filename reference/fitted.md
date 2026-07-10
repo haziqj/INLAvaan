@@ -55,7 +55,7 @@ are the posterior-mean model-implied moments (mirroring blavaan).
 
 [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md),
 [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
-`fitMeasures()`
+[fitMeasures()](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
 
 ## Examples
 

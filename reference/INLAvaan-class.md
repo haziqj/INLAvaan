@@ -22,7 +22,9 @@ summary(
   header = TRUE,
   fit.measures = TRUE,
   estimates = TRUE,
+  ci = TRUE,
   standardized = FALSE,
+  standardised = standardized,
   rsquare = FALSE,
   postmedian = FALSE,
   postmode = FALSE,
@@ -57,13 +59,24 @@ summary(
 
   Logical; if TRUE, print parameter estimates table.
 
+- ci:
+
+  Logical; if TRUE (default), include 95% credible intervals (2.5% and
+  97.5% posterior quantiles) in the estimates table.
+
 - standardized:
 
   Logical; if TRUE, include standardized estimates.
 
+- standardised:
+
+  Alias of `standardized`; either spelling is accepted (the alias wins
+  if both are supplied).
+
 - rsquare:
 
-  Logical; if TRUE, include R-square values.
+  Logical; if TRUE, include R-square values for the observed dependent
+  variables, computed at the posterior mean point estimates.
 
 - postmedian:
 

@@ -77,7 +77,9 @@ available.</p>
 <span>  header <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  fit.measures <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  estimates <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  ci <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  standardized <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  standardised <span class="op">=</span> <span class="va">standardized</span>,</span>
 <span>  rsquare <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  postmedian <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  postmode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -114,12 +116,23 @@ available.</p>
 <dd><p>Logical; if TRUE, print parameter estimates table.</p></dd>
 
 
+<dt id="arg-ci">ci<a class="anchor" aria-label="anchor" href="#arg-ci"></a></dt>
+<dd><p>Logical; if TRUE (default), include 95% credible intervals
+(2.5% and 97.5% posterior quantiles) in the estimates table.</p></dd>
+
+
 <dt id="arg-standardized">standardized<a class="anchor" aria-label="anchor" href="#arg-standardized"></a></dt>
 <dd><p>Logical; if TRUE, include standardized estimates.</p></dd>
 
 
+<dt id="arg-standardised">standardised<a class="anchor" aria-label="anchor" href="#arg-standardised"></a></dt>
+<dd><p>Alias of <code>standardized</code>; either spelling is accepted
+(the alias wins if both are supplied).</p></dd>
+
+
 <dt id="arg-rsquare">rsquare<a class="anchor" aria-label="anchor" href="#arg-rsquare"></a></dt>
-<dd><p>Logical; if TRUE, include R-square values.</p></dd>
+<dd><p>Logical; if TRUE, include R-square values for the observed
+dependent variables, computed at the posterior mean point estimates.</p></dd>
 
 
 <dt id="arg-postmedian">postmedian<a class="anchor" aria-label="anchor" href="#arg-postmedian"></a></dt>
