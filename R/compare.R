@@ -45,6 +45,9 @@
 #' sets may differ, which is the covariate-selection setting. Stored LOO
 #' results (`test = "loo"` or [add_loo()]) are reused.
 #'
+#' `anova()` is disabled for `INLAvaan` fits -- there is no direct Bayesian
+#' analogue of the classical likelihood-ratio test -- and points here instead.
+#'
 #' @param x An [INLAvaan] (or `inlavaan_internal`) object used as the
 #'   **baseline** (null) model. It is included in the comparison table and
 #'   passed to [fitMeasures()][lavaan::fitMeasures] for incremental indices.
