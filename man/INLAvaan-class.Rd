@@ -27,6 +27,7 @@
   estimates = TRUE,
   ci = TRUE,
   standardized = FALSE,
+  standardised = standardized,
   rsquare = FALSE,
   postmedian = FALSE,
   postmode = FALSE,
@@ -53,6 +54,9 @@
 (2.5\% and 97.5\% posterior quantiles) in the estimates table.}
 
 \item{standardized}{Logical; if TRUE, include standardized estimates.}
+
+\item{standardised}{Alias of \code{standardized}; either spelling is accepted
+(the alias wins if both are supplied).}
 
 \item{rsquare}{Logical; if TRUE, include R-square values for the observed
 dependent variables, computed at the posterior mean point estimates.}

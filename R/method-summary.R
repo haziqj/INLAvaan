@@ -48,6 +48,7 @@ summary_inlavaan <- function(
   estimates = TRUE,
   ci = TRUE,
   standardized = FALSE,
+  standardised = standardized,
   rsquare = FALSE,
   postmedian = FALSE,
   postmode = FALSE,
@@ -172,7 +173,7 @@ summary_inlavaan <- function(
   }
 
   # Standardised solution?
-  if (isTRUE(standardized)) {
+  if (isTRUE(standardised)) {
     stdlv <- standardisedsolution(object, type = "std.lv", ...)
     stdall <- standardisedsolution(object, type = "std.all", ...)
     stdidx <- match_partable_rows(PE, stdlv)
@@ -283,6 +284,8 @@ summary_inlavaan <- function(
 #' @param ci Logical; if TRUE (default), include 95% credible intervals
 #'   (2.5% and 97.5% posterior quantiles) in the estimates table.
 #' @param standardized Logical; if TRUE, include standardized estimates.
+#' @param standardised Alias of `standardized`; either spelling is accepted
+#'   (the alias wins if both are supplied).
 #' @param rsquare Logical; if TRUE, include R-square values for the observed
 #'   dependent variables, computed at the posterior mean point estimates.
 #' @param postmedian Logical; if TRUE, include posterior median in estimates.

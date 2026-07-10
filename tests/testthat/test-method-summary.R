@@ -25,6 +25,14 @@ test_that("summary(rsquare = TRUE) prints the R-square section", {
   expect_true(any(grepl("R-Square", out)))
 })
 
+test_that("summary accepts the British spelling standardised = TRUE", {
+  expect_no_error(
+    out <- capture.output(summary(fit, standardised = TRUE, nsamp = 5))
+  )
+  expect_true(any(grepl("Std.lv", out)))
+  expect_true(any(grepl("Std.all", out)))
+})
+
 test_that("summary(ci = FALSE) omits the credible interval columns", {
   out <- capture.output(summary(fit, ci = FALSE))
   expect_false(any(grepl("2.5%", out, fixed = TRUE)))
