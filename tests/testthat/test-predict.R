@@ -98,6 +98,23 @@ test_that("multigroup predict works for lv, yhat, and newdata", {
   expect_equal(nrow(summary(prd_new)$Mean),  5L)
 })
 
+# ---- summary = TRUE shortcut ---------------------------------------------
+
+test_that("predict(summary = TRUE) matches summary(predict(...))", {
+  set.seed(1)
+  a <- predict(fit_cfa, type = "yhat", nsamp = NSAMP, summary = TRUE)
+  set.seed(1)
+  b <- summary(predict(fit_cfa, type = "yhat", nsamp = NSAMP))
+  expect_s3_class(a, "summary.predict.inlavaan_internal")
+  expect_equal(a, b)
+})
+
+test_that("predict() default (summary = FALSE) still returns raw draws", {
+  prd <- predict(fit_cfa, type = "yhat", nsamp = NSAMP)
+  expect_s3_class(prd, "predict.inlavaan_internal")
+  expect_equal(length(prd), NSAMP)
+})
+
 test_that("Factor scores are centred on the implied/saturated means", {
   # Regression test: predict() used to condition on raw y instead of
   # y - mu_y, offsetting every factor score by Phi Lambda' Sigma^{-1} mu_y

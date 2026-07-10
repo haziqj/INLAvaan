@@ -5,6 +5,10 @@
 * `fitted()` (and `fitted.values()`) return the model-implied moments of an
   `INLAvaan` fit, evaluated at the posterior means, matching the lavaan and
   blavaan output structure. `type = "ov"` gives casewise predicted values.
+* `predict()` gains a `summary` argument; `summary = TRUE` collapses the
+  posterior draws and returns point estimates directly, equivalent to
+  `summary(predict(...))` in one call. Default `FALSE`, so existing code is
+  unaffected.
 * `loo()` computes leave-one-out cross-validation from a single fit without 
   refitting nor sampling, via a Taylor approximation of the case-deletion
   posterior: per-subject (LOSO) for single-level models, per-cluster (LOCO)

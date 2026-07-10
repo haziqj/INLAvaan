@@ -12,6 +12,7 @@
   level = 1L,
   nsamp = 1000,
   ymis_only = FALSE,
+  summary = FALSE,
   ...
 )
 }
@@ -48,12 +49,20 @@ sample (names of the form \code{"varname[rowindex]"}, matching the blavaan
 convention). When \code{FALSE} (default), returns the full data matrix with
 missing values filled in.}
 
+\item{summary}{Logical. When \code{TRUE}, collapse the posterior draws with
+\code{summary()} and return summary statistics (mean, SD, quantiles, mode)
+instead of the raw draws -- equivalent to calling
+\code{summary(predict(object, ...))} but without materialising the
+intermediate draws object. Default \code{FALSE}.}
+
 \item{...}{Currently unused.}
 }
 \value{
-A matrix of posterior draws with rows corresponding to samples and
-columns to variables or latent factors, or a list of such matrices when
-\code{ymis_only = FALSE}.
+A list of \code{nsamp} posterior draws, each a matrix (or data
+frame, for multiple groups) with rows corresponding to cases and columns
+to variables or latent factors. When \code{summary = TRUE}, instead
+returns a \code{summary.predict.inlavaan_internal} object with the
+posterior mean, SD, quantiles, and mode for each case/variable.
 }
 \description{
 Compute posterior predictions from a fitted \code{INLAvaan} model,
@@ -78,6 +87,9 @@ head(lv_scores)
 # Predicted observed variable means
 yhat <- predict(fit, type = "yhat")
 head(yhat)
+
+# Point estimates only, skipping the manual summary() step
+predict(fit, type = "yhat", summary = TRUE)
 }
 
 }

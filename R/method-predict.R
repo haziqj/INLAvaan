@@ -260,6 +260,7 @@ predict.inlavaan_internal <- function(
   level = 1L,
   nsamp = 250,
   ymis_only = FALSE,
+  summary = FALSE,
   ...
 ) {
   type <- match.arg(type)
@@ -1093,7 +1094,11 @@ predict.inlavaan_internal <- function(
 
   attr(out, "nobs") <- nobs_out
   attr(out, "type") <- type
-  structure(out, class = "predict.inlavaan_internal")
+  out <- structure(out, class = "predict.inlavaan_internal")
+  if (isTRUE(summary)) {
+    return(base::summary(out))
+  }
+  out
 }
 
 #' @exportS3Method print predict.inlavaan_internal
@@ -1307,11 +1312,18 @@ print.summary.predict.inlavaan_internal <- function(
 #'   sample (names of the form \code{"varname[rowindex]"}, matching the blavaan
 #'   convention). When \code{FALSE} (default), returns the full data matrix with
 #'   missing values filled in.
+#' @param summary Logical. When \code{TRUE}, collapse the posterior draws with
+#'   \code{summary()} and return summary statistics (mean, SD, quantiles, mode)
+#'   instead of the raw draws -- equivalent to calling
+#'   \code{summary(predict(object, ...))} but without materialising the
+#'   intermediate draws object. Default \code{FALSE}.
 #' @param ... Currently unused.
 #'
-#' @returns A matrix of posterior draws with rows corresponding to samples and
-#'   columns to variables or latent factors, or a list of such matrices when
-#'   \code{ymis_only = FALSE}.
+#' @returns A list of \code{nsamp} posterior draws, each a matrix (or data
+#'   frame, for multiple groups) with rows corresponding to cases and columns
+#'   to variables or latent factors. When \code{summary = TRUE}, instead
+#'   returns a \code{summary.predict.inlavaan_internal} object with the
+#'   posterior mean, SD, quantiles, and mode for each case/variable.
 #'
 #' @examples
 #' \donttest{
@@ -1331,6 +1343,9 @@ print.summary.predict.inlavaan_internal <- function(
 #' # Predicted observed variable means
 #' yhat <- predict(fit, type = "yhat")
 #' head(yhat)
+#'
+#' # Point estimates only, skipping the manual summary() step
+#' predict(fit, type = "yhat", summary = TRUE)
 #' }
 #'
 #' @seealso [sampling()], [simulate()], [summary()]
@@ -1349,6 +1364,7 @@ setMethod(
     level = 1L,
     nsamp = 1000,
     ymis_only = FALSE,
+    summary = FALSE,
     ...
   ) {
     type <- match.arg(type)
@@ -1359,6 +1375,7 @@ setMethod(
       level = level,
       nsamp = nsamp,
       ymis_only = ymis_only,
+      summary = summary,
       ...
     )
   }
