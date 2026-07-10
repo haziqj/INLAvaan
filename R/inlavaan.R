@@ -70,6 +70,12 @@
 #'   (BFGS).
 #' @param numerical_grad Logical indicating whether to use numerical gradients
 #'   for the optimisation. Defaults to `FALSE` to use analytical gradients.
+#' @param start Optional numeric vector of starting values for the optimiser,
+#'   given as a full vector of free parameters in the internal (unconstrained)
+#'   parameterisation. Mainly for internal use by [update()], which warm-starts
+#'   mode-finding from a previous fit's posterior mode; supplying a hand-built
+#'   vector requires knowledge of the internal parameter ordering. Its length
+#'   must equal the number of free parameters or an error is raised.
 #' @param cores Integer or `NULL`. Number of cores for parallel marginal
 #'   fitting. When `NULL` (default), serial execution is used unless the number
 #'   of free parameters exceeds 120, in which case parallelisation is enabled
@@ -108,6 +114,7 @@ inlavaan <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  start = NULL,
   cores = NULL,
   ...
 ) {
@@ -333,6 +340,21 @@ inlavaan <- function(
   ob <- function(x) -1 * joint_lp(x)
   gr <- if (isTRUE(numerical_grad)) NULL else function(x) -1 * joint_lp_grad(x)
   parstart <- pt$parstart[PTFREEIDX]
+
+  # Warm start: `start` is a full vector of free parameters in the internal
+  # (unconstrained) parameterisation, e.g. the posterior mode of an earlier
+  # fit reused by `update()`. Only valid when the parameter structure matches.
+  if (!is.null(start)) {
+    if (length(start) != length(parstart)) {
+      cli_abort(c(
+        "{.arg start} has length {length(start)} but the model has
+         {length(parstart)} free parameter{?s}.",
+        "i" = "{.arg start} must be a full vector of free parameters in the
+               internal (unconstrained) parameterisation."
+      ))
+    }
+    parstart <- as.numeric(start)
+  }
 
   if (optim_method == "nlminb") {
     opt <- nlminb(

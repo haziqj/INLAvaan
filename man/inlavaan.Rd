@@ -25,6 +25,7 @@ inlavaan(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  start = NULL,
   cores = NULL,
   ...
 )
@@ -117,6 +118,13 @@ mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"opt
 
 \item{numerical_grad}{Logical indicating whether to use numerical gradients
 for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
+
+\item{start}{Optional numeric vector of starting values for the optimiser,
+given as a full vector of free parameters in the internal (unconstrained)
+parameterisation. Mainly for internal use by \code{\link[=update]{update()}}, which warm-starts
+mode-finding from a previous fit's posterior mode; supplying a hand-built
+vector requires knowledge of the internal parameter ordering. Its length
+must equal the number of free parameters or an error is raised.}
 
 \item{cores}{Integer or \code{NULL}. Number of cores for parallel marginal
 fitting. When \code{NULL} (default), serial execution is used unless the number
