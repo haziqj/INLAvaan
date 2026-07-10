@@ -9,6 +9,10 @@
   posterior draws and returns point estimates directly, equivalent to
   `summary(predict(...))` in one call. Default `FALSE`, so existing code is
   unaffected.
+* `residuals()` (and `resid()`) return the observed-minus-fitted moments of
+  an `INLAvaan` fit, matching the lavaan and blavaan output structure and
+  supporting all lavaan residual `type`s (`raw`, `cor`, `cor.bentler`,
+  `normalized`, `standardized`) plus `type = "casewise"`.
 * `loo()` computes leave-one-out cross-validation from a single fit without 
   refitting nor sampling, via a Taylor approximation of the case-deletion
   posterior: per-subject (LOSO) for single-level models, per-cluster (LOCO)
