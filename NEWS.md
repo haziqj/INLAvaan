@@ -18,6 +18,16 @@
   blavaan (which silently inherits lavaan's frequentist likelihood-ratio
   test): there is no direct Bayesian analogue of that test, and `compare()`
   already provides the appropriate tools (Bayes factors, DIC/pD, LOO/WAIC).
+* `logLik()` returns the Laplace-approximated marginal log-likelihood (log
+  evidence) by default, printed with a note that it is not comparable to a
+  classical log-likelihood; `type = "plugin"` instead returns the classical
+  log-likelihood at the posterior mean, with `df`/`nobs` attributes so it
+  supports `AIC()`/`BIC()` at the point estimate.
+* `deviance()` is new for `INLAvaan` fits (lavaan has no `deviance()` at
+  all). Follows the BUGS/JAGS/Stan convention: `type = "mean"` (default)
+  returns the posterior mean deviance with `pD`/`DIC` attached as
+  attributes; `type = "plugin"` returns the deviance at the posterior mean
+  (matching `-2 * logLik(type = "plugin")`). Both require `test != "none"`.
 * `loo()` computes leave-one-out cross-validation from a single fit without 
   refitting nor sampling, via a Taylor approximation of the case-deletion
   posterior: per-subject (LOSO) for single-level models, per-cluster (LOCO)
