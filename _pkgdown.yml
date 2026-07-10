@@ -33,6 +33,7 @@ reference:
     - fitmeasures
     - bfit_indices
     - compare
+    - update
     - logLik
     - deviance
     - loo
