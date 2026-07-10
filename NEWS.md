@@ -2,6 +2,9 @@
 
 ## New features
 
+* `fitted()` (and `fitted.values()`) return the model-implied moments of an
+  `INLAvaan` fit, evaluated at the posterior means, matching the lavaan and
+  blavaan output structure. `type = "ov"` gives casewise predicted values.
 * `loo()` computes leave-one-out cross-validation from a single fit without 
   refitting nor sampling, via a Taylor approximation of the case-deletion
   posterior: per-subject (LOSO) for single-level models, per-cluster (LOCO)
