@@ -33,11 +33,15 @@ reference:
     - fitmeasures
     - bfit_indices
     - compare
+    - logLik
+    - deviance
     - loo
     - waic
     - plot
     - vcov
     - predict
+    - fitted
+    - residuals
     - simulate
     - sampling
 
