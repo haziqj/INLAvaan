@@ -25,7 +25,7 @@
 #' as the point estimates of the fitted object, the implied moments are the
 #' posterior-mean model-implied moments (mirroring \pkg{blavaan}).
 #'
-#' @seealso [predict()], [coef()], [fitMeasures()]
+#' @seealso [predict()], [coef()], [fitMeasures()][lavaan::fitMeasures]
 #'
 #' @examples
 #' \donttest{

@@ -60,6 +60,8 @@
 #' @param loo Logical; if `TRUE`, compare models by leave-one-out
 #'   cross-validation with paired standard errors (see Details). Defaults to
 #'   `FALSE`.
+#' @param object An [INLAvaan] object (the `anova()` method, which is disabled
+#'   and redirects to `compare()`).
 #'
 #' @return A data frame of class `compare.inlavaan_internal` containing model
 #'   fit statistics, sorted by descending marginal log-likelihood (or by

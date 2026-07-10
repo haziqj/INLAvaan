@@ -61,5 +61,5 @@ head(fitted(fit, type = "ov"))
 
 }
 \seealso{
-\code{\link[=predict]{predict()}}, \code{\link[=coef]{coef()}}, \code{\link[=fitMeasures]{fitMeasures()}}
+\code{\link[=predict]{predict()}}, \code{\link[=coef]{coef()}}, \link[lavaan:fitMeasures]{fitMeasures()}
 }

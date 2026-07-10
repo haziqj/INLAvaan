@@ -29,6 +29,9 @@ measure returned by \link[lavaan:fitMeasures]{fitMeasures()}. The default
 \item{loo}{Logical; if \code{TRUE}, compare models by leave-one-out
 cross-validation with paired standard errors (see Details). Defaults to
 \code{FALSE}.}
+
+\item{object}{An \link{INLAvaan} object (the \code{anova()} method, which is disabled
+and redirects to \code{compare()}).}
 }
 \value{
 A data frame of class \code{compare.inlavaan_internal} containing model

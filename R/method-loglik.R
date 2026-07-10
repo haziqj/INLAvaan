@@ -15,6 +15,8 @@
 #'   estimate. Requires the model to have been fitted with
 #'   \code{test != "none"}.
 #' @param ... Currently unused.
+#' @param k Numeric penalty per parameter passed to the (disabled) `AIC()`
+#'   method; see [stats::AIC()]. Defaults to 2.
 #'
 #' @returns For \code{type = "marginal"}, a length-one numeric of class
 #'   \code{inlavaan_logLik} that prints with a note on its interpretation.

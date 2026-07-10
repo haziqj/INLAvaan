@@ -72,5 +72,5 @@ head(residuals(fit, type = "casewise"))
 
 }
 \seealso{
-\code{\link[=fitted]{fitted()}}, \code{\link[=predict]{predict()}}, \code{\link[=fitMeasures]{fitMeasures()}}
+\code{\link[=fitted]{fitted()}}, \code{\link[=predict]{predict()}}, \link[lavaan:fitMeasures]{fitMeasures()}
 }

@@ -33,7 +33,7 @@
 #' statistics (mirroring \pkg{blavaan}, which likewise inherits lavaan's
 #' \code{residuals()} without overriding it).
 #'
-#' @seealso [fitted()], [predict()], [fitMeasures()]
+#' @seealso [fitted()], [predict()], [fitMeasures()][lavaan::fitMeasures]
 #'
 #' @examples
 #' \donttest{

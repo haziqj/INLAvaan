@@ -26,6 +26,9 @@ estimate. Requires the model to have been fitted with
 \code{test != "none"}.}
 
 \item{...}{Currently unused.}
+
+\item{k}{Numeric penalty per parameter passed to the (disabled) \code{AIC()}
+method; see \code{\link[stats:AIC]{stats::AIC()}}. Defaults to 2.}
 }
 \value{
 For \code{type = "marginal"}, a length-one numeric of class
