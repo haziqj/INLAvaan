@@ -13,6 +13,11 @@
   an `INLAvaan` fit, matching the lavaan and blavaan output structure and
   supporting all lavaan residual `type`s (`raw`, `cor`, `cor.bentler`,
   `normalized`, `standardized`) plus `type = "casewise"`.
+* `anova()` on an `INLAvaan` fit now errors, pointing to `compare()`. Unlike
+  `fitted()`/`residuals()`/`predict()`, this is a deliberate departure from
+  blavaan (which silently inherits lavaan's frequentist likelihood-ratio
+  test): there is no direct Bayesian analogue of that test, and `compare()`
+  already provides the appropriate tools (Bayes factors, DIC/pD, LOO/WAIC).
 * `loo()` computes leave-one-out cross-validation from a single fit without 
   refitting nor sampling, via a Taylor approximation of the case-deletion
   posterior: per-subject (LOSO) for single-level models, per-cluster (LOCO)
