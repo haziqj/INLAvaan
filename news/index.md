@@ -4,6 +4,59 @@
 
 ### New features
 
+- [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md) (and
+  [`fitted.values()`](https://rdrr.io/r/stats/fitted.values.html))
+  return the model-implied moments of an `INLAvaan` fit, evaluated at
+  the posterior means, matching the lavaan and blavaan output structure.
+  `type = "ov"` gives casewise predicted values.
+- [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) gains a
+  `summary` argument; `summary = TRUE` collapses the posterior draws and
+  returns point estimates directly, equivalent to
+  `summary(predict(...))` in one call. Default `FALSE`, so existing code
+  is unaffected.
+- [`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md)
+  (and [`resid()`](https://rdrr.io/r/stats/residuals.html)) return the
+  observed-minus-fitted moments of an `INLAvaan` fit, matching the
+  lavaan and blavaan output structure and supporting all lavaan residual
+  `type`s (`raw`, `cor`, `cor.bentler`, `normalized`, `standardized`)
+  plus `type = "casewise"`.
+- [`anova()`](https://inlavaan.haziqj.ml/reference/compare.md) on an
+  `INLAvaan` fit now errors, pointing to
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md). Unlike
+  [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md)/[`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md)/[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md),
+  this is a deliberate departure from blavaan (which silently inherits
+  lavaan’s frequentist likelihood-ratio test): there is no direct
+  Bayesian analogue of that test, and
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) already
+  provides the appropriate tools (Bayes factors, DIC/pD, LOO/WAIC).
+- [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md) returns
+  the Laplace-approximated marginal log-likelihood (log evidence) by
+  default, printed with a note that it is not comparable to a classical
+  log-likelihood; `type = "plugin"` instead returns the classical
+  log-likelihood at the posterior mean, with `df`/`nobs` attributes so
+  it supports
+  [`AIC()`](https://rdrr.io/r/stats/AIC.html)/[`BIC()`](https://rdrr.io/r/stats/AIC.html)
+  at the point estimate.
+- [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md) is
+  new for `INLAvaan` fits (lavaan has no
+  [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md) at
+  all). Follows the BUGS/JAGS/Stan convention: `type = "mean"` (default)
+  returns the posterior mean deviance with `pD`/`DIC` attached as
+  attributes; `type = "plugin"` returns the deviance at the posterior
+  mean (matching `-2 * logLik(type = "plugin")`). Both require
+  `test != "none"`.
+- [`AIC()`](https://rdrr.io/r/stats/AIC.html)/[`BIC()`](https://rdrr.io/r/stats/AIC.html)
+  on an `INLAvaan` fit now error, documented alongside
+  [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md). Both are
+  large-sample asymptotic approximations to quantities INLAvaan already
+  computes directly – `AIC` approximates predictive accuracy
+  ([`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)/[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)),
+  `BIC` approximates -2 \* log(marginal likelihood)
+  ([`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md)) – so
+  reporting them at the posterior mean would be a cruder proxy for
+  numbers already available. The point estimate remains available for
+  reporting-convention purposes via
+  `AIC(logLik(object, type = "plugin"))` / `BIC(...)`.
 - [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) computes
   leave-one-out cross-validation from a single fit without refitting nor
   sampling, via a Taylor approximation of the case-deletion posterior:
@@ -111,6 +164,13 @@
   calls.
 
 ### Bug fixes
+
+- [`standardisedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
+  and `summary(standardized = TRUE)` no longer silently drop their
+  arguments under lavaan \>= 0.7-1, which renamed several exported
+  arguments (e.g. `cov.std` to `cov_std`, `GLIST` to `glist`). INLAvaan
+  now resolves the spelling the installed lavaan expects once per
+  session at load, working across lavaan versions.
 
 - Two-level FIML
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)/[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)

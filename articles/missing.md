@@ -41,20 +41,20 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [254ms]
+#> ✔ Posterior mode and Hessian. [361ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.223σ. [503ms]
+#> ✔ VB correction; mean |δ| = 0.223σ. [557ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 23/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.3s]
+#> ⠹ Fitting 19/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.7s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [285ms]
+#> ✔ Adjust copula correlations (NORTA). [229ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.4s]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
@@ -96,14 +96,16 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [467ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [547ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.194σ. [596ms]
+#> ✔ VB correction; mean |δ| = 0.194σ. [648ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 19/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [4s]
+#> ⠹ Fitting 12/42 skew-normal marginals.
+#> ⠸ Fitting 30/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [5.2s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -134,11 +136,10 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [298ms]
+#> ✔ Adjust copula correlations (NORTA). [226ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [1.9s]
+#> ✔ Summarise 1000 posterior draws. [1.4s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 print(fit2)

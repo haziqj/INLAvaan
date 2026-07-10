@@ -336,8 +336,15 @@ Main lavaan-style functions to estimate SEM.
   [`summary(`*`<bfit_indices>`*`)`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
   [`print(`*`<bfit_indices>`*`)`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
   : Bayesian Fit Indices
-- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) :
-  Compare Bayesian Models Fitted with INLAvaan
+- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
+  [`anova(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/compare.md)
+  : Compare Bayesian Models Fitted with INLAvaan
+- [`logLik(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/logLik.md)
+  [`AIC(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/logLik.md)
+  [`BIC(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/logLik.md)
+  : Log-Likelihood for INLAvaan Models
+- [`deviance(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/deviance.md)
+  : Deviance for INLAvaan Models
 - [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)
   [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md) :
   Approximate Leave-One-Out Cross-Validation for INLAvaan Models
@@ -349,6 +356,12 @@ Main lavaan-style functions to estimate SEM.
   : Variance-Covariance Matrix for INLAvaan Models
 - [`predict(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/predict.md)
   : Posterior Predictions for INLAvaan Models
+- [`fitted(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitted.md)
+  [`fitted.values(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitted.md)
+  : Model-Implied Moments for INLAvaan Models
+- [`residuals(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/residuals.md)
+  [`resid(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/residuals.md)
+  : Model Residuals for INLAvaan Models
 - [`simulate(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/simulate.md)
   : Simulate Datasets from the Generative Model
 - [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) :

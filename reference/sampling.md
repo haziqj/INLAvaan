@@ -140,19 +140,19 @@ for Bayesian fit indices.
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [44ms]
+#> ✔ Posterior mode and Hessian. [35ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.247σ. [76ms]
+#> ✔ VB correction; mean |δ| = 0.247σ. [70ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [105ms]
+#> ✔ Fit 6/6 skew-normal marginals. [74ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [20ms]
+#> ✔ Adjust copula correlations (NORTA). [17ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [846ms]
+#> ✔ Summarise 1000 posterior draws. [706ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -160,12 +160,12 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  1.0312735   1.636625 1.1242859 1.0956246 0.5700118      0.3042866
-#> [2,]  1.2021314   1.655286 1.0366787 1.1730586 0.4806630      0.2973419
-#> [3,]  0.7488028   1.232729 1.0112199 1.0713456 0.4830374      0.5051963
-#> [4,]  0.9769379   1.337280 0.8802030 0.9778821 0.4864733      0.3320573
-#> [5,]  0.9440132   1.455698 0.9745138 1.1028150 0.5854760      0.3599197
-#> [6,]  0.6558039   1.241044 0.7539142 1.1476144 0.3773284      0.4765986
+#> [1,]  0.8340108  1.1326184 0.9592854 1.1238918 0.4756688      0.5856419
+#> [2,]  0.5413290  0.9381464 0.7976655 1.0815794 0.7289457      0.6925345
+#> [3,]  0.6411047  1.2613409 0.8385270 1.1815162 0.4770222      0.5091393
+#> [4,]  0.5430467  1.3342505 0.8955872 1.1082828 0.6117675      0.4043779
+#> [5,]  0.8014610  1.0506824 0.9762700 1.0193204 0.8359192      0.4563288
+#> [6,]  0.7620878  1.5761469 1.0628360 0.9559976 0.2601366      0.3651592
 
 # Compare copula vs Gaussian sampling
 s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)

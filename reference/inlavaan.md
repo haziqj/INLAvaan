@@ -220,20 +220,20 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [144ms]
+#> ✔ Posterior mode and Hessian. [176ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.209σ. [134ms]
+#> ✔ VB correction; mean |δ| = 0.209σ. [162ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [944ms]
+#> ✔ Fit 21/21 skew-normal marginals. [1.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjust copula correlations (NORTA). [130ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
@@ -252,8 +252,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.504 
-#>    Effective parameters (pD)                    20.529 
+#>    Deviance (DIC)                             7552.540 
+#>    Effective parameters (pD)                    20.547 
 #> 
 #> Parameter Estimates:
 #> 
@@ -278,10 +278,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.396    0.079    0.241    0.551    0.001       beta(1,1)
-#>     speed             0.251    0.055    0.143    0.359    0.011       beta(1,1)
+#>     textual           0.396    0.077    0.245    0.548    0.001       beta(1,1)
+#>     speed             0.249    0.053    0.146    0.353    0.011       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.165    0.046    0.074    0.255    0.003       beta(1,1)
+#>     speed             0.167    0.046    0.076    0.258    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
