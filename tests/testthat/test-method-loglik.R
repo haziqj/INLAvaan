@@ -31,3 +31,23 @@ test_that("plain lavaan fits are unaffected by the INLAvaan logLik() method", {
   fit_lav <- lavaan::cfa(mod, dat)
   expect_s3_class(logLik(fit_lav), "logLik")
 })
+
+test_that("AIC()/BIC() on an INLAvaan fit redirect instead of computing", {
+  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "standard")
+  expect_error(AIC(fit), "plugin")
+  expect_error(BIC(fit), "plugin")
+})
+
+test_that("AIC()/BIC() still work via the logLik(type = 'plugin') escape hatch", {
+  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "standard")
+  ll <- logLik(fit, type = "plugin")
+  expect_true(is.finite(AIC(ll)))
+  expect_true(is.finite(BIC(ll)))
+  expect_equal(AIC(ll), -2 * as.numeric(ll) + 2 * attr(ll, "df"))
+})
+
+test_that("plain lavaan fits are unaffected by the INLAvaan AIC()/BIC() methods", {
+  fit_lav <- lavaan::cfa(mod, dat)
+  expect_no_error(AIC(fit_lav))
+  expect_no_error(BIC(fit_lav))
+})

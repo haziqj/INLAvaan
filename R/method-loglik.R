@@ -29,7 +29,18 @@
 #' factors, DIC, or LOO/WAIC. The plug-in variant exists for users who
 #' specifically want a point-estimate-based classical comparison.
 #'
-#' @seealso [deviance()], [compare()]
+#' \code{AIC()}/\code{BIC()} on an \code{INLAvaan} fit are themselves
+#' disabled (mirroring [anova()]): both are large-sample asymptotic
+#' approximations to quantities INLAvaan already computes directly --
+#' \code{AIC} approximates predictive accuracy, which [loo()]/[waic()]
+#' already estimate more rigorously; \code{BIC} approximates \eqn{-2} times
+#' the log marginal likelihood, which \code{logLik()} already returns
+#' directly (up to the Laplace approximation). Point-estimate AIC/BIC remain
+#' available for reporting-convention purposes via
+#' \code{AIC(logLik(object, type = "plugin"))} /
+#' \code{BIC(logLik(object, type = "plugin"))}.
+#'
+#' @seealso [deviance()], [compare()], [loo()], [waic()]
 #'
 #' @examples
 #' \donttest{
@@ -73,6 +84,32 @@ setMethod("logLik", "INLAvaan", function(object, type = c("marginal", "plugin"),
   attr(val, "nobs") <- nobs(object)
   class(val) <- "logLik"
   val
+})
+
+#' @rdname logLik
+#' @aliases AIC,INLAvaan-method
+#' @export
+setMethod("AIC", "INLAvaan", function(object, ..., k = 2) {
+  cli_abort(
+    "{.fn AIC} at the posterior mean is a large-sample asymptotic proxy for
+     predictive accuracy, which {.fn loo} and {.fn waic} already estimate
+     more rigorously for {.cls INLAvaan} fits. For the point-estimate AIC
+     (e.g. for reporting conventions), use
+     {.code AIC(logLik(object, type = \"plugin\"))}."
+  )
+})
+
+#' @rdname logLik
+#' @aliases BIC,INLAvaan-method
+#' @export
+setMethod("BIC", "INLAvaan", function(object, ...) {
+  cli_abort(
+    "{.fn BIC} at the posterior mean is a large-sample asymptotic proxy for
+     -2 * log(marginal likelihood), which {.fn logLik} already returns
+     directly for {.cls INLAvaan} fits. For the point-estimate BIC (e.g. for
+     reporting conventions), use
+     {.code BIC(logLik(object, type = \"plugin\"))}."
+  )
 })
 
 #' @exportS3Method print inlavaan_logLik

@@ -28,6 +28,14 @@
   returns the posterior mean deviance with `pD`/`DIC` attached as
   attributes; `type = "plugin"` returns the deviance at the posterior mean
   (matching `-2 * logLik(type = "plugin")`). Both require `test != "none"`.
+* `AIC()`/`BIC()` on an `INLAvaan` fit now error, documented alongside
+  `logLik()`. Both are large-sample asymptotic approximations to quantities
+  INLAvaan already computes directly -- `AIC` approximates predictive
+  accuracy (`loo()`/`waic()`), `BIC` approximates -2 * log(marginal
+  likelihood) (`logLik()`) -- so reporting them at the posterior mean would
+  be a cruder proxy for numbers already available. The point estimate
+  remains available for reporting-convention purposes via
+  `AIC(logLik(object, type = "plugin"))` / `BIC(...)`.
 * `loo()` computes leave-one-out cross-validation from a single fit without 
   refitting nor sampling, via a Taylor approximation of the case-deletion
   posterior: per-subject (LOSO) for single-level models, per-cluster (LOCO)

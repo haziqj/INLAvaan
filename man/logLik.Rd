@@ -3,9 +3,15 @@
 \name{logLik}
 \alias{logLik}
 \alias{logLik,INLAvaan-method}
+\alias{AIC,INLAvaan-method}
+\alias{BIC,INLAvaan-method}
 \title{Log-Likelihood for INLAvaan Models}
 \usage{
 \S4method{logLik}{INLAvaan}(object, type = c("marginal", "plugin"), ...)
+
+\S4method{AIC}{INLAvaan}(object, ..., k = 2)
+
+\S4method{BIC}{INLAvaan}(object, ...)
 }
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
@@ -40,6 +46,17 @@ doing so would double-penalise model complexity that the evidence has
 already accounted for. Use \code{\link[=compare]{compare()}} to compare models via Bayes
 factors, DIC, or LOO/WAIC. The plug-in variant exists for users who
 specifically want a point-estimate-based classical comparison.
+
+\code{AIC()}/\code{BIC()} on an \code{INLAvaan} fit are themselves
+disabled (mirroring \code{\link[=anova]{anova()}}): both are large-sample asymptotic
+approximations to quantities INLAvaan already computes directly --
+\code{AIC} approximates predictive accuracy, which \code{\link[=loo]{loo()}}/\code{\link[=waic]{waic()}}
+already estimate more rigorously; \code{BIC} approximates \eqn{-2} times
+the log marginal likelihood, which \code{logLik()} already returns
+directly (up to the Laplace approximation). Point-estimate AIC/BIC remain
+available for reporting-convention purposes via
+\code{AIC(logLik(object, type = "plugin"))} /
+\code{BIC(logLik(object, type = "plugin"))}.
 }
 \examples{
 \donttest{
@@ -62,5 +79,5 @@ AIC(ll)
 
 }
 \seealso{
-\code{\link[=deviance]{deviance()}}, \code{\link[=compare]{compare()}}
+\code{\link[=deviance]{deviance()}}, \code{\link[=compare]{compare()}}, \code{\link[=loo]{loo()}}, \code{\link[=waic]{waic()}}
 }
