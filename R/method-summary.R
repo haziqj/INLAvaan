@@ -46,6 +46,7 @@ summary_inlavaan <- function(
   header = TRUE,
   fit.measures = TRUE,
   estimates = TRUE,
+  ci = TRUE,
   standardized = FALSE,
   rsquare = FALSE,
   postmedian = FALSE,
@@ -146,20 +147,24 @@ summary_inlavaan <- function(
   PE$SD <- ""
   PE$SD[peidx] <- formatC(summ$SD[summidx], digits = nd, format = "f")
 
-  PE$`2.5%` <- ""
-  PE$`2.5%`[peidx] <- formatC(summ$`2.5%`[summidx], digits = nd, format = "f")
+  if (isTRUE(ci)) {
+    PE$`2.5%` <- ""
+    PE$`2.5%`[peidx] <- formatC(summ$`2.5%`[summidx], digits = nd, format = "f")
+  }
 
   if (isTRUE(postmedian)) {
     PE$`50%` <- ""
     PE$`50%`[peidx] <- formatC(summ$`50%`[summidx], digits = nd, format = "f")
   }
 
-  PE$`97.5%` <- ""
-  PE$`97.5%`[peidx] <- formatC(
-    summ$`97.5%`[summidx],
-    digits = nd,
-    format = "f"
-  )
+  if (isTRUE(ci)) {
+    PE$`97.5%` <- ""
+    PE$`97.5%`[peidx] <- formatC(
+      summ$`97.5%`[summidx],
+      digits = nd,
+      format = "f"
+    )
+  }
 
   if (isTRUE(postmode)) {
     PE$Mode <- ""
@@ -275,6 +280,8 @@ summary_inlavaan <- function(
 #' @param header Logical; if TRUE, print model fit information header.
 #' @param fit.measures Logical; if TRUE, print fit measures (DIC and PPP).
 #' @param estimates Logical; if TRUE, print parameter estimates table.
+#' @param ci Logical; if TRUE (default), include 95% credible intervals
+#'   (2.5% and 97.5% posterior quantiles) in the estimates table.
 #' @param standardized Logical; if TRUE, include standardized estimates.
 #' @param rsquare Logical; if TRUE, include R-square values for the observed
 #'   dependent variables, computed at the posterior mean point estimates.

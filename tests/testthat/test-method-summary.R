@@ -25,6 +25,14 @@ test_that("summary(rsquare = TRUE) prints the R-square section", {
   expect_true(any(grepl("R-Square", out)))
 })
 
+test_that("summary(ci = FALSE) omits the credible interval columns", {
+  out <- capture.output(summary(fit, ci = FALSE))
+  expect_false(any(grepl("2.5%", out, fixed = TRUE)))
+  out_ci <- capture.output(summary(fit))
+  expect_true(any(grepl("2.5%", out_ci, fixed = TRUE)))
+  expect_true(any(grepl("97.5%", out_ci, fixed = TRUE)))
+})
+
 test_that("summary(rsquare = TRUE, standardized = TRUE) rows stay aligned", {
   expect_no_error(
     out <- capture.output(

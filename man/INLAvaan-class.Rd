@@ -25,6 +25,7 @@
   header = TRUE,
   fit.measures = TRUE,
   estimates = TRUE,
+  ci = TRUE,
   standardized = FALSE,
   rsquare = FALSE,
   postmedian = FALSE,
@@ -48,9 +49,13 @@
 
 \item{estimates}{Logical; if TRUE, print parameter estimates table.}
 
+\item{ci}{Logical; if TRUE (default), include 95\% credible intervals
+(2.5\% and 97.5\% posterior quantiles) in the estimates table.}
+
 \item{standardized}{Logical; if TRUE, include standardized estimates.}
 
-\item{rsquare}{Logical; if TRUE, include R-square values.}
+\item{rsquare}{Logical; if TRUE, include R-square values for the observed
+dependent variables, computed at the posterior mean point estimates.}
 
 \item{postmedian}{Logical; if TRUE, include posterior median in estimates.}
 
