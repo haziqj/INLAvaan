@@ -15,6 +15,32 @@ print.summary.inlavaan_internal <- function(x, digits = 3, ...) {
   invisible(x)
 }
 
+# Match rows of one parameter table (e.g. parameterEstimates() output) to
+# rows of another (e.g. standardisedsolution() output) by lhs/op/rhs and
+# group, because the two need not align row-for-row: parameterEstimates()
+# keeps user equality constraints and r-square rows that
+# standardizedSolution() drops, and the latter keeps system equality
+# constraints the former drops. Duplicate keys (the same parameter in
+# different blocks of a multilevel model, where lavaan omits the block
+# column) are matched by order of occurrence, both tables being in partable
+# order. Rows with no counterpart get NA.
+match_partable_rows <- function(a, b) {
+  key <- function(df) {
+    k <- paste(df$lhs, df$op, df$rhs, if (is.null(df$group)) 1L else df$group)
+    paste(k, stats::ave(seq_along(k), k, FUN = seq_along))
+  }
+  match(key(a), key(b))
+}
+
+# Format a numeric column for the estimates table: nd decimal places, blanks
+# for missing entries.
+format_pe_col <- function(x, nd) {
+  out <- rep("", length(x))
+  ok <- !is.na(x)
+  out[ok] <- formatC(x[ok], digits = nd, format = "f")
+  out
+}
+
 summary_inlavaan <- function(
   object,
   header = TRUE,
@@ -144,12 +170,12 @@ summary_inlavaan <- function(
 
     # Standardised solution?
     if (isTRUE(standardized)) {
-      # nocov start
-      stdlv <- standardisedsolution(object, type = "std.lv")
-      stdall <- standardisedsolution(object, type = "std.all")
-      PE$std.lv <- stdlv$est
-      PE$std.all <- stdall$est
-    } # nocov end
+      stdlv <- standardisedsolution(object, type = "std.lv", ...)
+      stdall <- standardisedsolution(object, type = "std.all", ...)
+      stdidx <- match_partable_rows(PE, stdlv)
+      PE$std.lv <- format_pe_col(stdlv$est.std[stdidx], nd)
+      PE$std.all <- format_pe_col(stdall$est.std[stdidx], nd)
+    }
 
     # NMAD (skewnorm marginal fit quality)
     if (isTRUE(nmad)) {
