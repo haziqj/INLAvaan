@@ -272,20 +272,19 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [163ms]
+#> ✔ Posterior mode and Hessian. [146ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [120ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [105ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 1/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [1.1s]
+#> ✔ Fit 30/30 skew-normal marginals. [744ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [149ms]
+#> ✔ Adjust copula correlations (NORTA). [132ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.3s]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -348,23 +347,23 @@ fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
 #> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [988ms]
+#> ✔ Posterior mode and Hessian. [869ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [534ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [453ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 7/34 skew-normal marginals.
-#> ⠸ Fitting 19/34 skew-normal marginals.
-#> ⠼ Fitting 31/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [8.4s]
+#> ⠹ Fitting 11/34 skew-normal marginals.
+#> ⠸ Fitting 24/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [7.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [151ms]
+#> ✔ Adjust copula correlations (NORTA). [130ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [58.3s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ⠸ Computing WAIC.
+#> ✔ Summarise 1000 posterior draws. [46s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 #> Warning: Fit diagnostics flagged 2 potential issues:
