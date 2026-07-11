@@ -126,20 +126,19 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod_poldem</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [85ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [95ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.157σ. [101ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.157σ. [105ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/30 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 30/30 skew-normal marginals. [827ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 30/30 skew-normal marginals. [895ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [108ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [110ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Computing WAIC.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [503ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [531ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span></span>
@@ -155,12 +154,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1659.573 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.467 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.457 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3174.405 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    29.230 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3174.452 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    29.254 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -196,16 +195,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.855    0.400    0.127    1.697    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.849    0.397    0.158    1.712    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                1.052    0.697   -0.187    2.547    0.004       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                2.156    0.751    0.829    3.776    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                1.026    0.735   -0.295    2.591    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                2.211    0.725    0.907    3.754    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                1.029    0.671   -0.181    2.455    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                1.029    0.624   -0.142    2.311    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y8 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.264    0.464   -0.645    1.173    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.245    0.460   -0.656    1.146    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                1.299    0.608    0.253    2.634    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                1.278    0.579    0.228    2.503    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -362,7 +361,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</cod
 <li><a href="https://cran.r-project.org/package=INLAvaan" class="external-link"><img src="http://www.r-pkg.org/badges/version-ago/INLAvaan" alt="CRAN_Status_Badge_version_ago"></a></li>
 <li><a href="https://cran.r-project.org/package=INLAvaan" class="external-link"><img src="https://tinyverse.netlify.app/badge/INLAvaan" alt="Dependencies"></a></li>
 <li><a href="https://cran.r-project.org/package=INLAvaan" class="external-link"><img src="http://cranlogs.r-pkg.org/badges/grand-total/INLAvaan" alt="CRAN Downloads"></a></li>
-<li><a href="https://github.com/haziqj/INLAvaan/stargazers" class="external-link"><img src="https://img.shields.io/github/stars/haziqj/inlavaan" alt="GitHub Repo stars"></a></li>
 </ul>
 </div>
 
