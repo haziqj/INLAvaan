@@ -1,6 +1,8 @@
 ## Release summary
 
-This is a feature and compatibility release. It adds LOO and WAIC
+* Removed (possibly) invalid URL note.
+
+* This is a feature and compatibility release. It adds LOO and WAIC
 model-comparison support, extends standard model methods to align more closely
 with lavaan and blavaan, and improves diagnostics and user messaging. The
 release also maintains compatibility across the supported lavaan series,
