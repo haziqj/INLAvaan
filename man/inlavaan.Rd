@@ -133,12 +133,12 @@ automatically using all available physical cores. Set to \code{1L} to force
 serial execution. If \code{cores > 1}, marginal fits are distributed across
 cores using \code{\link[parallel:mclapply]{parallel::mclapply()}} (fork-based; no parallelism on Windows).}
 
-\item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan::lavaan} model fitting
+\item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan} model fitting
 function.}
 }
 \value{
 An S4 object of class \code{INLAvaan} which is a subclass of the
-\link[lavaan:lavaan-class]{lavaan::lavaan} class.
+\link[lavaan:lavaan-class]{lavaan} class.
 }
 \description{
 This function fits a Bayesian latent variable model by approximating the

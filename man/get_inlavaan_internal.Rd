@@ -45,5 +45,5 @@ get_inlavaan_internal(fit, "coefficients")
 
 }
 \seealso{
-\linkS4class{INLAvaan}, \code{\link[=diagnostics]{diagnostics()}}, \code{\link[=timing]{timing()}}
+\link[=INLAvaan-class]{INLAvaan}, \code{\link[=diagnostics]{diagnostics()}}, \code{\link[=timing]{timing()}}
 }

@@ -79,7 +79,7 @@ Set to TRUE to show it.}
 \item{nd}{Integer; number of decimal places to print for numeric values.}
 }
 \description{
-This is a class that extends the \link[lavaan:lavaan-class]{lavaan::lavaan} class. Several S4 methods are
+This is a class that extends the \link[lavaan:lavaan-class]{lavaan} class. Several S4 methods are
 available.
 }
 \section{Slots}{
@@ -111,5 +111,5 @@ coef(fit)
 
 }
 \seealso{
-\link[lavaan:lavaan-class]{lavaan::lavaan}, \code{\link[=inlavaan]{inlavaan()}}, \code{\link[=acfa]{acfa()}}, \code{\link[=asem]{asem()}}, \code{\link[=agrowth]{agrowth()}}
+\link[lavaan:lavaan-class]{lavaan}, \code{\link[=inlavaan]{inlavaan()}}, \code{\link[=acfa]{acfa()}}, \code{\link[=asem]{asem()}}, \code{\link[=agrowth]{agrowth()}}
 }

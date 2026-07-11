@@ -32,7 +32,7 @@ Supports advanced 'lavaan' syntax features, including:
 \section{Methods for \code{INLAvaan} objects}{
 
 After fitting a model an \link{INLAvaan} object is returned. The following S4
-methods are available. See \linkS4class{INLAvaan} for the class definition.
+methods are available. See \link[=INLAvaan-class]{INLAvaan} for the class definition.
 \itemize{
 \item Summaries and parameter estimates: \code{\link[=summary]{summary()}}, \code{\link[=coef]{coef()}}, \code{\link[=vcov]{vcov()}}, \code{\link[=standardisedsolution]{standardisedsolution()}}
 \item Fit assessment and model comparison: \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}, \code{\link[=compare]{compare()}}, \code{\link[=diagnostics]{diagnostics()}}, \code{\link[=timing]{timing()}}
@@ -64,6 +64,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Haziq Jamil \email{haziq.jamil@gmail.com} (\href{https://orcid.org/0000-0003-3298-1010}{ORCID}) [copyright holder]
+
+Authors:
+\itemize{
+  \item Haziq Jamil \email{haziq.jamil@gmail.com} (\href{https://orcid.org/0000-0003-3298-1010}{ORCID}) [copyright holder]
+}
 
 Other contributors:
 \itemize{
