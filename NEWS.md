@@ -1,41 +1,7 @@
-# INLAvaan (development version)
+# INLAvaan 0.3.0
 
 ## New features
 
-* `fitted()` (and `fitted.values()`) return the model-implied moments of an
-  `INLAvaan` fit, evaluated at the posterior means, matching the lavaan and
-  blavaan output structure. `type = "ov"` gives casewise predicted values.
-* `predict()` gains a `summary` argument; `summary = TRUE` collapses the
-  posterior draws and returns point estimates directly, equivalent to
-  `summary(predict(...))` in one call. Default `FALSE`, so existing code is
-  unaffected.
-* `residuals()` (and `resid()`) return the observed-minus-fitted moments of
-  an `INLAvaan` fit, matching the lavaan and blavaan output structure and
-  supporting all lavaan residual `type`s (`raw`, `cor`, `cor.bentler`,
-  `normalized`, `standardized`) plus `type = "casewise"`.
-* `anova()` on an `INLAvaan` fit now errors, pointing to `compare()`. Unlike
-  `fitted()`/`residuals()`/`predict()`, this is a deliberate departure from
-  blavaan (which silently inherits lavaan's frequentist likelihood-ratio
-  test): there is no direct Bayesian analogue of that test, and `compare()`
-  already provides the appropriate tools (Bayes factors, DIC/pD, LOO/WAIC).
-* `logLik()` returns the Laplace-approximated marginal log-likelihood (log
-  evidence) by default, printed with a note that it is not comparable to a
-  classical log-likelihood; `type = "plugin"` instead returns the classical
-  log-likelihood at the posterior mean, with `df`/`nobs` attributes so it
-  supports `AIC()`/`BIC()` at the point estimate.
-* `deviance()` is new for `INLAvaan` fits (lavaan has no `deviance()` at
-  all). Follows the BUGS/JAGS/Stan convention: `type = "mean"` (default)
-  returns the posterior mean deviance with `pD`/`DIC` attached as
-  attributes; `type = "plugin"` returns the deviance at the posterior mean
-  (matching `-2 * logLik(type = "plugin")`). Both require `test != "none"`.
-* `AIC()`/`BIC()` on an `INLAvaan` fit now error, documented alongside
-  `logLik()`. Both are large-sample asymptotic approximations to quantities
-  INLAvaan already computes directly -- `AIC` approximates predictive
-  accuracy (`loo()`/`waic()`), `BIC` approximates -2 * log(marginal
-  likelihood) (`logLik()`) -- so reporting them at the posterior mean would
-  be a cruder proxy for numbers already available. The point estimate
-  remains available for reporting-convention purposes via
-  `AIC(logLik(object, type = "plugin"))` / `BIC(...)`.
 * `loo()` computes leave-one-out cross-validation from a single fit without 
   refitting nor sampling, via a Taylor approximation of the case-deletion
   posterior: per-subject (LOSO) for single-level models, per-cluster (LOCO)
@@ -95,6 +61,40 @@
   the budget, `test = "none"` skips everything, and `fit <- add_loo(fit)`
   stores it post hoc. Stored results are reused by `loo()`, `waic()`,
   `fitmeasures()`, and `compare()`.
+* `fitted()` (and `fitted.values()`) return the model-implied moments of an
+  `INLAvaan` fit, evaluated at the posterior means, matching the lavaan and
+  blavaan output structure. `type = "ov"` gives casewise predicted values.
+* `predict()` gains a `summary` argument; `summary = TRUE` collapses the
+  posterior draws and returns point estimates directly, equivalent to
+  `summary(predict(...))` in one call. Default `FALSE`, so existing code is
+  unaffected.
+* `residuals()` (and `resid()`) return the observed-minus-fitted moments of
+  an `INLAvaan` fit, matching the lavaan and blavaan output structure and
+  supporting all lavaan residual `type`s (`raw`, `cor`, `cor.bentler`,
+  `normalized`, `standardized`) plus `type = "casewise"`.
+* `anova()` on an `INLAvaan` fit now errors, pointing to `compare()`. Unlike
+  `fitted()`/`residuals()`/`predict()`, this is a deliberate departure from
+  blavaan (which silently inherits lavaan's frequentist likelihood-ratio
+  test): there is no direct Bayesian analogue of that test, and `compare()`
+  already provides the appropriate tools (Bayes factors, DIC/pD, LOO/WAIC).
+* `logLik()` returns the Laplace-approximated marginal log-likelihood (log
+  evidence) by default, printed with a note that it is not comparable to a
+  classical log-likelihood; `type = "plugin"` instead returns the classical
+  log-likelihood at the posterior mean, with `df`/`nobs` attributes so it
+  supports `AIC()`/`BIC()` at the point estimate.
+* `deviance()` is new for `INLAvaan` fits (lavaan has no `deviance()` at
+  all). Follows the BUGS/JAGS/Stan convention: `type = "mean"` (default)
+  returns the posterior mean deviance with `pD`/`DIC` attached as
+  attributes; `type = "plugin"` returns the deviance at the posterior mean
+  (matching `-2 * logLik(type = "plugin")`). Both require `test != "none"`.
+* `AIC()`/`BIC()` on an `INLAvaan` fit now error, documented alongside
+  `logLik()`. Both are large-sample asymptotic approximations to quantities
+  INLAvaan already computes directly -- `AIC` approximates predictive
+  accuracy (`loo()`/`waic()`), `BIC` approximates -2 * log(marginal
+  likelihood) (`logLik()`) -- so reporting them at the posterior mean would
+  be a cruder proxy for numbers already available. The point estimate
+  remains available for reporting-convention purposes via
+  `AIC(logLik(object, type = "plugin"))` / `BIC(...)`.
 * Fits now self-check their diagnostics: `inlavaan()` warns once, at the
   end of the fit, if the optimiser did not converge, the gradient at the
   reported mode is materially non-zero (Newton step > 0.1 posterior SD),
@@ -135,28 +135,25 @@
   `inlavaan()` warns when such cases are present on lavaan versions before
   the fix.
 * Models fitted with `meanstructure = FALSE` now use a proper Bayesian
-  likelihood.
-  
-    - The saturated means are given flat priors and marginalised
-      analytically (closed form), replacing lavaan's profiled likelihood, which
-      is not a valid Bayesian object. 
-    - Posterior modes recalibrate by the factor n/(n-1) on the covariance side.
-    - `loo()` and `waic()` score such fits on the exact exchangeable 
-      case-deletion conditionals. The previous zero-mean fallback and its 
-      warning are gone, and absolute ELPD values are meaningful and comparable 
-      with `meanstructure = TRUE` fits. 
-    - Posterior predictive draws include the saturated means and their 
-      mean-uncertainty.
-    - Requesting `meanstructure = FALSE` for a two-level model now warns and 
-      fits with `meanstructure = TRUE` (the mean structure is required there).
-    - The conditional (`fixed.x = TRUE`) flavour — the default for SEM with
-      exogenous covariates — is fully supported: the mean marginalisation
-      factorises blockwise, so each unit is scored by the difference of two
-      exchangeable conditionals, with the frozen-covariate term entering as
-      an exact constant.
-
-  See "Mean structures" vignette for details, including when model comparisons 
-  across the two mean treatments are meaningful.
+  likelihood. See "Mean structures" vignette for details, including when model
+  comparisons across the two mean treatments are meaningful.
+  - The saturated means are given flat priors and marginalised analytically
+    (closed form), replacing lavaan's profiled likelihood, which is not a valid
+    Bayesian object.
+  - Posterior modes recalibrate by the factor n/(n-1) on the covariance side.
+  - `loo()` and `waic()` score such fits on the exact exchangeable
+    case-deletion conditionals. The previous zero-mean fallback and its
+    warning are gone, and absolute ELPD values are meaningful and comparable
+    with `meanstructure = TRUE` fits.
+  - Posterior predictive draws include the saturated means and their
+    mean-uncertainty.
+  - Requesting `meanstructure = FALSE` for a two-level model now warns and
+    fits with `meanstructure = TRUE` (the mean structure is required there).
+  - The conditional (`fixed.x = TRUE`) flavour — the default for SEM with
+    exogenous covariates — is fully supported: the mean marginalisation
+    factorises blockwise, so each unit is scored by the difference of two
+    exchangeable conditionals, with the frozen-covariate term entering as an
+    exact constant.
 * `predict()` now centres the conditioning data on the model-implied means
   (or the saturated sample means when the model has no mean structure) when
   drawing factor scores and predicted observed variables. Previously the
