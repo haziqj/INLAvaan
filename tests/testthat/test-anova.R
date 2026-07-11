@@ -3,16 +3,15 @@ mod <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
 "
+fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none", 
+            marginal_method = "marggaus", vb_correction = FALSE)
 
 test_that("anova() on a single INLAvaan fit redirects to compare()", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
   expect_error(anova(fit), "compare")
 })
 
 test_that("anova() on two INLAvaan fits redirects to compare()", {
-  fit1 <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
-  fit2 <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
-  expect_error(anova(fit1, fit2), "compare")
+  expect_error(anova(fit, fit), "compare")
 })
 
 test_that("plain lavaan fits are unaffected by the INLAvaan anova() override", {

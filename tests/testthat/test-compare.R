@@ -32,6 +32,8 @@ fit1_ms <- acfa(
   mod_null,
   dat,
   meanstructure = TRUE,
+  marginal_method = "marggaus",
+  vb_correction = FALSE,
   verbose = FALSE,
   nsamp = 3,
   test = "none"
@@ -40,6 +42,8 @@ fit2_ms <- acfa(
   mod_full,
   dat,
   meanstructure = TRUE,
+  marginal_method = "marggaus",
+  vb_correction = FALSE,  
   verbose = FALSE,
   nsamp = 3,
   test = "none"
