@@ -19,6 +19,7 @@
 ^data-raw$
 ^inst/workflows$
 ^\.positai$
+^\.vscode$
 ^CLAUDE\.md$
 ^CONTRIBUTING\.md$
 ^lab$
