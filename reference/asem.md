@@ -167,14 +167,13 @@ asem(
 - ...:
 
   Additional arguments to be passed to the
-  [lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model
-  fitting function.
+  [lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model fitting
+  function.
 
 ## Value
 
 An S4 object of class `INLAvaan` which is a subclass of the
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html)
-class.
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html) class.
 
 ## Details
 
@@ -239,23 +238,23 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [266ms]
+#> ✔ Posterior mode and Hessian. [395ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.159σ. [289ms]
+#> ✔ VB correction; mean |δ| = 0.159σ. [412ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 1/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.4s]
+#> ⠹ Fitting 25/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [3.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [218ms]
+#> ✔ Adjust copula correlations (NORTA). [200ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [333ms]
+#> ✔ Summarise 1000 posterior draws. [270ms]
 #> 
 summary(fit)
-#> INLAvaan 0.2.5.9004 ended normally after 82 iterations
+#> INLAvaan 0.3.0 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

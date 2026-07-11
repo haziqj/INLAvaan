@@ -196,14 +196,13 @@ inlavaan(
 - ...:
 
   Additional arguments to be passed to the
-  [lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model
-  fitting function.
+  [lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model fitting
+  function.
 
 ## Value
 
 An S4 object of class `INLAvaan` which is a subclass of the
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html)
-class.
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html) class.
 
 ## See also
 
@@ -232,24 +231,24 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [148ms]
+#> ✔ Posterior mode and Hessian. [208ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.209σ. [124ms]
+#> ✔ VB correction; mean |δ| = 0.209σ. [164ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 2/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [938ms]
+#> ✔ Fit 21/21 skew-normal marginals. [1.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [139ms]
+#> ✔ Adjust copula correlations (NORTA). [144ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
+#> ⠹ Computing fit indices (PPP/DIC).
 #> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.2.5.9004 ended normally after 65 iterations
+#> INLAvaan 0.3.0 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

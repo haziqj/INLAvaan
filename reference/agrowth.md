@@ -167,14 +167,13 @@ agrowth(
 - ...:
 
   Additional arguments to be passed to the
-  [lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model
-  fitting function.
+  [lavaan](https://rdrr.io/pkg/lavaan/man/lavaan.html) model fitting
+  function.
 
 ## Value
 
 An S4 object of class `INLAvaan` which is a subclass of the
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html)
-class.
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html) class.
 
 ## Details
 
@@ -248,23 +247,24 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [202ms]
+#> ✔ Posterior mode and Hessian. [292ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.045σ. [172ms]
+#> ✔ VB correction; mean |δ| = 0.045σ. [257ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [822ms]
+#> ⠹ Fitting 3/17 skew-normal marginals.
+#> ✔ Fit 17/17 skew-normal marginals. [1.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [82ms]
+#> ✔ Adjust copula correlations (NORTA). [89ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [599ms]
+#> ✔ Summarise 100 posterior draws. [622ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.2.5.9004 ended normally after 83 iterations
+#> INLAvaan 0.3.0 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

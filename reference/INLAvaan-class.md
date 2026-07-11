@@ -1,8 +1,8 @@
 # Class For Representing a (Fitted) Latent Variable Model
 
 This is a class that extends the
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html)
-class. Several S4 methods are available.
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html) class.
+Several S4 methods are available.
 
 ## Usage
 
@@ -117,7 +117,7 @@ summary(
 
 ## See also
 
-[lavaan::lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html),
+[lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html),
 [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),
 [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),
 [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md),
@@ -138,7 +138,7 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 
 # Print basic info
 fit
-#> INLAvaan 0.2.5.9004 ended normally after 66 iterations
+#> INLAvaan 0.3.0 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -152,7 +152,7 @@ fit
 
 # Detailed summary
 summary(fit)
-#> INLAvaan 0.2.5.9004 ended normally after 66 iterations
+#> INLAvaan 0.3.0 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

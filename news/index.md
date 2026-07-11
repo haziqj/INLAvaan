@@ -1,62 +1,9 @@
 # Changelog
 
-## INLAvaan (development version)
+## INLAvaan 0.3.0
 
 ### New features
 
-- [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md) (and
-  [`fitted.values()`](https://rdrr.io/r/stats/fitted.values.html))
-  return the model-implied moments of an `INLAvaan` fit, evaluated at
-  the posterior means, matching the lavaan and blavaan output structure.
-  `type = "ov"` gives casewise predicted values.
-- [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) gains a
-  `summary` argument; `summary = TRUE` collapses the posterior draws and
-  returns point estimates directly, equivalent to
-  `summary(predict(...))` in one call. Default `FALSE`, so existing code
-  is unaffected.
-- [`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md)
-  (and [`resid()`](https://rdrr.io/r/stats/residuals.html)) return the
-  observed-minus-fitted moments of an `INLAvaan` fit, matching the
-  lavaan and blavaan output structure and supporting all lavaan residual
-  `type`s (`raw`, `cor`, `cor.bentler`, `normalized`, `standardized`)
-  plus `type = "casewise"`.
-- [`anova()`](https://inlavaan.haziqj.ml/reference/compare.md) on an
-  `INLAvaan` fit now errors, pointing to
-  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md). Unlike
-  [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md)/[`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md)/[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md),
-  this is a deliberate departure from blavaan (which silently inherits
-  lavaan’s frequentist likelihood-ratio test): there is no direct
-  Bayesian analogue of that test, and
-  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) already
-  provides the appropriate tools (Bayes factors, DIC/pD, LOO/WAIC).
-- [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md) returns
-  the Laplace-approximated marginal log-likelihood (log evidence) by
-  default, printed with a note that it is not comparable to a classical
-  log-likelihood; `type = "plugin"` instead returns the classical
-  log-likelihood at the posterior mean, with `df`/`nobs` attributes so
-  it supports
-  [`AIC()`](https://rdrr.io/r/stats/AIC.html)/[`BIC()`](https://rdrr.io/r/stats/AIC.html)
-  at the point estimate.
-- [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md) is
-  new for `INLAvaan` fits (lavaan has no
-  [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md) at
-  all). Follows the BUGS/JAGS/Stan convention: `type = "mean"` (default)
-  returns the posterior mean deviance with `pD`/`DIC` attached as
-  attributes; `type = "plugin"` returns the deviance at the posterior
-  mean (matching `-2 * logLik(type = "plugin")`). Both require
-  `test != "none"`.
-- [`AIC()`](https://rdrr.io/r/stats/AIC.html)/[`BIC()`](https://rdrr.io/r/stats/AIC.html)
-  on an `INLAvaan` fit now error, documented alongside
-  [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md). Both are
-  large-sample asymptotic approximations to quantities INLAvaan already
-  computes directly – `AIC` approximates predictive accuracy
-  ([`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)/[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)),
-  `BIC` approximates -2 \* log(marginal likelihood)
-  ([`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md)) – so
-  reporting them at the posterior mean would be a cruder proxy for
-  numbers already available. The point estimate remains available for
-  reporting-convention purposes via
-  `AIC(logLik(object, type = "plugin"))` / `BIC(...)`.
 - [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) computes
   leave-one-out cross-validation from a single fit without refitting nor
   sampling, via a Taylor approximation of the case-deletion posterior:
@@ -134,6 +81,59 @@
   [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md),
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
   and [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md).
+- [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md) (and
+  [`fitted.values()`](https://rdrr.io/r/stats/fitted.values.html))
+  return the model-implied moments of an `INLAvaan` fit, evaluated at
+  the posterior means, matching the lavaan and blavaan output structure.
+  `type = "ov"` gives casewise predicted values.
+- [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) gains a
+  `summary` argument; `summary = TRUE` collapses the posterior draws and
+  returns point estimates directly, equivalent to
+  `summary(predict(...))` in one call. Default `FALSE`, so existing code
+  is unaffected.
+- [`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md)
+  (and [`resid()`](https://rdrr.io/r/stats/residuals.html)) return the
+  observed-minus-fitted moments of an `INLAvaan` fit, matching the
+  lavaan and blavaan output structure and supporting all lavaan residual
+  `type`s (`raw`, `cor`, `cor.bentler`, `normalized`, `standardized`)
+  plus `type = "casewise"`.
+- [`anova()`](https://inlavaan.haziqj.ml/reference/compare.md) on an
+  `INLAvaan` fit now errors, pointing to
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md). Unlike
+  [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md)/[`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md)/[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md),
+  this is a deliberate departure from blavaan (which silently inherits
+  lavaan’s frequentist likelihood-ratio test): there is no direct
+  Bayesian analogue of that test, and
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) already
+  provides the appropriate tools (Bayes factors, DIC/pD, LOO/WAIC).
+- [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md) returns
+  the Laplace-approximated marginal log-likelihood (log evidence) by
+  default, printed with a note that it is not comparable to a classical
+  log-likelihood; `type = "plugin"` instead returns the classical
+  log-likelihood at the posterior mean, with `df`/`nobs` attributes so
+  it supports
+  [`AIC()`](https://rdrr.io/r/stats/AIC.html)/[`BIC()`](https://rdrr.io/r/stats/AIC.html)
+  at the point estimate.
+- [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md) is
+  new for `INLAvaan` fits (lavaan has no
+  [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md) at
+  all). Follows the BUGS/JAGS/Stan convention: `type = "mean"` (default)
+  returns the posterior mean deviance with `pD`/`DIC` attached as
+  attributes; `type = "plugin"` returns the deviance at the posterior
+  mean (matching `-2 * logLik(type = "plugin")`). Both require
+  `test != "none"`.
+- [`AIC()`](https://rdrr.io/r/stats/AIC.html)/[`BIC()`](https://rdrr.io/r/stats/AIC.html)
+  on an `INLAvaan` fit now error, documented alongside
+  [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md). Both are
+  large-sample asymptotic approximations to quantities INLAvaan already
+  computes directly – `AIC` approximates predictive accuracy
+  ([`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)/[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)),
+  `BIC` approximates -2 \* log(marginal likelihood)
+  ([`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md)) – so
+  reporting them at the posterior mean would be a cruder proxy for
+  numbers already available. The point estimate remains available for
+  reporting-convention purposes via
+  `AIC(logLik(object, type = "plugin"))` / `BIC(...)`.
 - Fits now self-check their diagnostics:
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) warns
   once, at the end of the fit, if the optimiser did not converge, the
@@ -171,7 +171,6 @@
   arguments (e.g. `cov.std` to `cov_std`, `GLIST` to `glist`). INLAvaan
   now resolves the spelling the installed lavaan expects once per
   session at load, working across lavaan versions.
-
 - Two-level FIML
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)/[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)
   scores are now correct for clusters containing a case fully missing on
@@ -183,10 +182,9 @@
   [\#581](https://github.com/haziqj/INLAvaan/issues/581)), so
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) warns
   when such cases are present on lavaan versions before the fix.
-
 - Models fitted with `meanstructure = FALSE` now use a proper Bayesian
-  likelihood.
-
+  likelihood. See “Mean structures” vignette for details, including when
+  model comparisons across the two mean treatments are meaningful.
   - The saturated means are given flat priors and marginalised
     analytically (closed form), replacing lavaan’s profiled likelihood,
     which is not a valid Bayesian object.
@@ -208,34 +206,26 @@
     marginalisation factorises blockwise, so each unit is scored by the
     difference of two exchangeable conditionals, with the
     frozen-covariate term entering as an exact constant.
-
-  See “Mean structures” vignette for details, including when model
-  comparisons across the two mean treatments are meaningful.
-
 - [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) now
   centres the conditioning data on the model-implied means (or the
   saturated sample means when the model has no mean structure) when
   drawing factor scores and predicted observed variables. Previously the
   kernels conditioned on raw data, offsetting every factor score by a
   constant that grows with the variable means.
-
 - [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) and
   [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) draws
   of observed variables from models without a mean structure now include
   the saturated (sample) means, so posterior predictive replicates live
   on the data scale instead of being centred at zero.
-
 - [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) and
   [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) no
   longer error for models with a single latent variable, and their
   saturated-mean recovery is now robust to missing data (replicate
   columns were previously `NA` under `missing = "pairwise"`).
-
 - The PPP’s observed discrepancy now uses the unbiased (divisor n-1)
   sample covariance, matching the scale of the Wishart-replicated
   covariances it is compared against; previously the divisor-n form made
   the PPP very slightly optimistic (an O(1/n) effect, all models).
-
 - [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   (and the merged parameter table, fitted values, and implied moments)
   now reports covariance parameters on the covariance scale. Previously

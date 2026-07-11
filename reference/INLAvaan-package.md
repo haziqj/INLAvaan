@@ -92,6 +92,11 @@ Useful links:
 **Maintainer**: Haziq Jamil <haziq.jamil@gmail.com>
 ([ORCID](https://orcid.org/0000-0003-3298-1010)) \[copyright holder\]
 
+Authors:
+
+- Haziq Jamil <haziq.jamil@gmail.com>
+  ([ORCID](https://orcid.org/0000-0003-3298-1010)) \[copyright holder\]
+
 Other contributors:
 
 - Håvard Rue ([ORCID](https://orcid.org/0000-0002-0222-1881))
