@@ -51,6 +51,24 @@ compare_mcmc <- function(
   })
   inlav_names <- names(fit_inlavaan_list)
 
+  # INLAvaan may estimate fewer parameters than blavaan. In particular, blavaan
+  # fits a meanstructure (intercepts) by default whereas INLAvaan does not
+  # (meanstructure = FALSE), so coef(fit_blavaan) carries intercepts that have
+  # no INLAvaan counterpart. Restrict the comparison to parameters INLAvaan
+  # actually produced, otherwise those blavaan-only parameters render as panels
+  # with an MCMC density but no INLAvaan curve.
+  inlav_available <- unique(unlist(lapply(fit_inlavaan_list, names)))
+  parnames <- parnames[parnames %in% inlav_available]
+  plot_df_blav <- plot_df_blav[
+    as.character(plot_df_blav$name) %in% parnames,
+    ,
+    drop = FALSE
+  ]
+  plot_df_blav$name <- factor(
+    as.character(plot_df_blav$name),
+    levels = parnames
+  )
+
   # Subset parameters if requested
   if (!is.null(params)) {
     bad <- setdiff(params, parnames)
