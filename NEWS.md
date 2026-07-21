@@ -1,5 +1,10 @@
 # INLAvaan (development version)
 
+## Bug fixes
+
+* The `timing()` function did not return the correct total time due to a breaking name change in lavaan.
+* Fixed CRAN errors and notes on certain linux builds relating to .Rd usage and convergence checks.
+
 # INLAvaan 0.3.0
 
 ## New features

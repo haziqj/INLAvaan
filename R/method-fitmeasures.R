@@ -584,6 +584,11 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' fitMeasures(fit, c("npar", "DIC", "pD", "ppp"))
 #' }
 #'
+#' @usage
+#' \S4method{fitMeasures}{INLAvaan}(object, fit.measures = "all",
+#'   baseline.model = NULL, h1.model = NULL, fm.args = list(),
+#'   output = "vector", ...)
+#'
 #' @importMethodsFrom lavaan fitmeasures fitMeasures
 #' @name fitmeasures
 #' @rdname fitmeasures
@@ -591,6 +596,11 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' @rawNamespace exportMethods(fitMeasures)
 NULL
 
+#' @usage
+#' \S4method{fitmeasures}{INLAvaan}(object, fit.measures = "all",
+#'   baseline.model = NULL, h1.model = NULL, fm.args = list(),
+#'   output = "vector", ...)
+#'
 #' @name fitmeasures
 #' @rdname fitmeasures
 #' @aliases fitmeasures,INLAvaan-method
