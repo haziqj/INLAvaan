@@ -120,8 +120,8 @@ inlavaan <- function(
 ) {
   mc <- match.call()
   mc$start <- NULL # warm start is transient; keep it out of the recorded call
-  start.time0 <- proc.time()[3]
-  timing <- list(start.time = start.time0)
+  start_time0 <- proc.time()[3]
+  timing <- list(start_time = start_time0)
 
   ## ----- Check arguments -----------------------------------------------------
   if (!is.null(cores)) {

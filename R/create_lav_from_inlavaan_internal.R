@@ -162,7 +162,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   })
   names(fit0@timing) <- nms
   fit0@timing$total <- NULL
-  fit0@timing$total <- sum(unlist(fit0@timing))
+  fit0@timing$total <- sum(unlist(fit0@timing)[-1])  # excldue start_time
 
   ## ----- Return --------------------------------------------------------------
   fit0@external <- list(

@@ -123,11 +123,12 @@ get_inlavaan_internal <- function(object, what) {
 # author: Luc De Wilde (lavaan).
 add_timing <- function(timing, part) {
   timenow <- proc.time()[3]
-  timing[[part]] <- (timenow - timing$start.time)
-  timing$start.time <- timenow
+  timing[[part]] <- (timenow - timing$start_time)
+  timing$start_time <- timenow
 
   timing
 }
+
 is_lavaan <- function(object) { # nocov start
   is(object, "lavaan") & attr(class(object), "package") == "lavaan"
 }
