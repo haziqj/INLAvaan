@@ -41,27 +41,26 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [472ms]
+#> ✔ Posterior mode and Hessian. [381ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.223σ. [727ms]
+#> ✔ VB correction; mean |δ| = 0.223σ. [421ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 11/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [3.6s]
+#> ⠹ Fitting 25/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [263ms]
+#> ✔ Adjust copula correlations (NORTA). [259ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.6s]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.0.9000 ended normally after 71 iterations
+#> INLAvaan 0.3.1 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -97,15 +96,14 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [664ms]
+#> ✔ Posterior mode and Hessian. [478ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.194σ. [804ms]
+#> ✔ VB correction; mean |δ| = 0.194σ. [535ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 14/42 skew-normal marginals.
-#> ⠸ Fitting 28/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [6.5s]
+#> ⠹ Fitting 21/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [4.3s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -136,14 +134,14 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [341ms]
+#> ✔ Adjust copula correlations (NORTA). [258ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.8s]
+#> ✔ Summarise 1000 posterior draws. [1.7s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 print(fit2)
-#> INLAvaan 0.3.0.9000 ended normally after 93 iterations
+#> INLAvaan 0.3.1 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -168,9 +166,9 @@ coef(fit2)
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
 #>        4.439       12.553        4.898        8.195        0.980       11.150 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>       11.336        5.060        4.791        3.557        5.462        5.780 
+#>       11.337        5.060        4.791        3.557        5.462        5.780 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        7.155        5.250        5.354        4.104        6.853        4.423
+#>        7.155        5.250        5.354        4.103        6.853        4.423
 ```
 
 ``` r

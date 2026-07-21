@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,27 +130,26 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [472ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [381ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.223σ. [727ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.223σ. [421ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 11/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [3.6s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 25/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [263ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [259ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.6s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="va">fit1</span><span class="op">@</span><span class="va">Data</span><span class="op">@</span><span class="va">nobs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.0.9000 ended normally after 71 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1 ended normally after 71 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -185,15 +184,14 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [664ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [478ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.194σ. [804ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.194σ. [535ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 14/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 28/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [6.5s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 21/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [4.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
@@ -224,14 +222,14 @@
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [341ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [258ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.8s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.0.9000 ended normally after 93 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1 ended normally after 91 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -256,9 +254,9 @@
 <span><span class="co">#&gt;       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 </span></span>
 <span><span class="co">#&gt;        4.439       12.553        4.898        8.195        0.980       11.150 </span></span>
 <span><span class="co">#&gt; dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 </span></span>
-<span><span class="co">#&gt;       11.336        5.060        4.791        3.557        5.462        5.780 </span></span>
+<span><span class="co">#&gt;       11.337        5.060        4.791        3.557        5.462        5.780 </span></span>
 <span><span class="co">#&gt;         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 </span></span>
-<span><span class="co">#&gt;        7.155        5.250        5.354        4.104        6.853        4.423</span></span></code></pre></div>
+<span><span class="co">#&gt;        7.155        5.250        5.354        4.103        6.853        4.423</span></span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">

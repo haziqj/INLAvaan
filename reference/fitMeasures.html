@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,6 +57,18 @@
     <p>Fit Measures for a Latent Variable Model estimated using INLA</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S4 method for class 'INLAvaan'</span></span>
+<span><span class="fu">fitMeasures</span><span class="op">(</span><span class="va">object</span>, fit_measures <span class="op">=</span> <span class="st">"all"</span>,</span>
+<span>  baseline_model <span class="op">=</span> <span class="cn">NULL</span>, h1_model <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">fm_args</span>,</span>
+<span>  output <span class="op">=</span> <span class="st">"vector"</span>, level <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S4 method for class 'INLAvaan'</span></span>
+<span><span class="fu">fitmeasures</span><span class="op">(</span><span class="va">object</span>, fit_measures <span class="op">=</span> <span class="st">"all"</span>,</span>
+<span>  baseline_model <span class="op">=</span> <span class="cn">NULL</span>, h1_model <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">fm_args</span>,</span>
+<span>  output <span class="op">=</span> <span class="st">"vector"</span>, level <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+    </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
@@ -66,7 +78,7 @@
 <dd><p>An object of class <a href="INLAvaan-package.html">INLAvaan</a>.</p></dd>
 
 
-<dt id="arg-fit-measures">fit.measures<a class="anchor" aria-label="anchor" href="#arg-fit-measures"></a></dt>
+<dt id="arg-fit-measures">fit_measures<a class="anchor" aria-label="anchor" href="#arg-fit-measures"></a></dt>
 <dd><p>If <code>"all"</code>, all fit measures available will be returned. If
 only a single or a few fit measures are specified by name, only those are
 computed and returned. The LOO measures <code>"elpd_loo"</code>, <code>"se_loo"</code>,
@@ -74,26 +86,33 @@ computed and returned. The LOO measures <code>"elpd_loo"</code>, <code>"se_loo"<
 a LOO result is stored with the fit (<code>test = "loo"</code> in <code><a href="inlavaan.html">inlavaan()</a></code> or
 <code><a href="loo.html">add_loo()</a></code>); otherwise they are computed on demand when requested by
 name, and recomputed on every call – store the result with
-<code>fit &lt;- add_loo(fit)</code> (or call <code><a href="loo.html">loo()</a></code> directly) for repeated access.</p></dd>
+<code>fit &lt;- add_loo(fit)</code> (or call <code><a href="loo.html">loo()</a></code> directly) for repeated access.
+INLAvaan's stable spelling <code>fit.measures</code> is also accepted.</p></dd>
 
 
-<dt id="arg-baseline-model">baseline.model<a class="anchor" aria-label="anchor" href="#arg-baseline-model"></a></dt>
+<dt id="arg-baseline-model">baseline_model<a class="anchor" aria-label="anchor" href="#arg-baseline-model"></a></dt>
 <dd><p>An optional <a href="INLAvaan-package.html">INLAvaan</a> object representing the
 baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-BNFI). Must have been fitted with <code>test != "none"</code>.</p></dd>
+BNFI). Must have been fitted with <code>test != "none"</code>. INLAvaan's stable
+spelling <code>baseline.model</code> is also accepted.</p></dd>
 
 
-<dt id="arg-h-model">h1.model<a class="anchor" aria-label="anchor" href="#arg-h-model"></a></dt>
+<dt id="arg-h-model">h1_model<a class="anchor" aria-label="anchor" href="#arg-h-model"></a></dt>
 <dd><p>Ignored (included for compatibility with the lavaan
 generic).</p></dd>
 
 
-<dt id="arg-fm-args">fm.args<a class="anchor" aria-label="anchor" href="#arg-fm-args"></a></dt>
+<dt id="arg-fm-args">fm_args<a class="anchor" aria-label="anchor" href="#arg-fm-args"></a></dt>
 <dd><p>Ignored (included for compatibility with the lavaan
 generic).</p></dd>
 
 
 <dt id="arg-output">output<a class="anchor" aria-label="anchor" href="#arg-output"></a></dt>
+<dd><p>Ignored (included for compatibility with the lavaan
+generic).</p></dd>
+
+
+<dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
 <dd><p>Ignored (included for compatibility with the lavaan
 generic).</p></dd>
 

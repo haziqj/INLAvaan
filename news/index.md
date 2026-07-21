@@ -1,8 +1,18 @@
 # Changelog
 
-## INLAvaan (development version)
+## INLAvaan 0.3.1
+
+### Bug fixes
+
+- The [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)
+  function did not return the correct total time due to a breaking name
+  change in lavaan.
+- Fixed CRAN errors and notes on certain linux builds relating to .Rd
+  usage and convergence checks.
 
 ## INLAvaan 0.3.0
+
+CRAN release: 2026-07-11
 
 ### New features
 

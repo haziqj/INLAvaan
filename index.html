@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -126,25 +126,25 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod_poldem</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [88ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [90ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.157σ. [119ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.157σ. [103ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/30 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 30/30 skew-normal marginals. [905ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 30/30 skew-normal marginals. [951ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [109ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [100ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [494ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [503ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.0.9000 ended normally after 71 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1 ended normally after 71 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -155,12 +155,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1659.573 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.502 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.464 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3174.089 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    29.072 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3175.519 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    29.787 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -196,16 +196,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.843    0.378    0.102    1.583    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.836    0.401    0.111    1.687    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                1.071    0.722   -0.274    2.561    0.004       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                2.159    0.746    0.797    3.727    0.011       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                1.102    0.729   -0.201    2.662    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                2.221    0.760    0.809    3.795    0.011       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                1.011    0.630   -0.180    2.293    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                1.032    0.670   -0.186    2.447    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y8 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                0.262    0.454   -0.573    1.213    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.256    0.461   -0.646    1.159    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                1.305    0.582    0.264    2.548    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                1.297    0.596    0.244    2.583    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
@@ -362,7 +362,6 @@ along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</cod
 <li><a href="https://cran.r-project.org/package=INLAvaan" class="external-link"><img src="http://www.r-pkg.org/badges/version-ago/INLAvaan" alt="CRAN_Status_Badge_version_ago"></a></li>
 <li><a href="https://cran.r-project.org/package=INLAvaan" class="external-link"><img src="https://tinyverse.netlify.app/badge/INLAvaan" alt="Dependencies"></a></li>
 <li><a href="https://cran.r-project.org/package=INLAvaan" class="external-link"><img src="http://cranlogs.r-pkg.org/badges/grand-total/INLAvaan" alt="CRAN Downloads"></a></li>
-<li><a href="https://github.com/haziqj/INLAvaan/stargazers" class="external-link"><img src="https://img.shields.io/github/stars/haziqj/inlavaan" alt="GitHub Repo stars"></a></li>
 </ul>
 </div>
 

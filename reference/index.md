@@ -31,9 +31,8 @@ Main lavaan-style functions to estimate SEM.
   : Convergence and Approximation Diagnostics for INLAvaan Models
 - [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md) : Timing
   Information for INLAvaan Models
-- [`fitmeasures`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
-  [`fitMeasures,INLAvaan-method`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
-  [`fitmeasures,INLAvaan-method`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+- [`fitMeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+  [`fitmeasures(`*`<INLAvaan>`*`)`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
   : Fit Measures for a Latent Variable Model estimated using INLA
 - [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
   [`summary(`*`<bfit_indices>`*`)`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)

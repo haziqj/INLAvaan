@@ -84,13 +84,16 @@ standardizedSolution(
   standardized estimates are based on the variances of both (continuous)
   observed and latent variables. If `"std.nox"`, the standardized
   estimates are based on the variances of both (continuous) observed and
-  latent variables, but not the variances of exogenous covariates.
-  Alternatively, `type` may be a vector of (observed) variable names
-  (for example `type = c("x1", "x2")`); in that case only the parameters
-  involving these variables are standardized (the other observed
-  variables are left unstandardized). This is a generalization of
-  `"std.nox"`, where the (observed) exogenous `x` variables are the ones
-  left unstandardized.
+  latent variables, but not the variances of exogenous covariates. Note
+  that `"std.nox"` only differs from `"std.all"` if `fixed.x = TRUE`; if
+  `fixed.x = FALSE`, the exogenous covariates are treated as random
+  variables (and standardized) just like any other variable, and a
+  warning is issued. Alternatively, `type` may be a vector of (observed)
+  variable names (for example `type = c("x1", "x2")`); in that case only
+  the parameters involving these variables are standardized (the other
+  observed variables are left unstandardized). This is a generalization
+  of `"std.nox"`, where the (observed) exogenous `x` variables are the
+  ones left unstandardized.
 
 - se:
 

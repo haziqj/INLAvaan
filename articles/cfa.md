@@ -18,24 +18,23 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [252ms]
+#> ✔ Posterior mode and Hessian. [266ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [250ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [155ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1.5s]
+#> ✔ Fit 21/21 skew-normal marginals. [846ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [141ms]
+#> ✔ Adjust copula correlations (NORTA). [129ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 100 posterior draws. [375ms]
+#> ✔ Summarise 100 posterior draws. [351ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.3.0.9000 ended normally after 66 iterations
+#> INLAvaan 0.3.1 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -50,8 +49,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.601 
-#>    Effective parameters (pD)                    20.727 
+#>    Deviance (DIC)                             7551.389 
+#>    Effective parameters (pD)                    20.121 
 #> 
 #> Parameter Estimates:
 #> 
