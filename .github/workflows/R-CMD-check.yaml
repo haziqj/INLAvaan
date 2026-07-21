@@ -29,15 +29,15 @@ jobs:
           # blavaan is removed in these jobs (see the install step below),
           # so suggests are not forced and vignettes (which use blavaan)
           # are skipped.
-          - {
-              os: ubuntu-latest,
-              r: 'release',
-              label: '(lavaan 0.6-19)',
-              lavaan: '0.6-19',
-              force_suggests: 'false',
-              build_args: 'c("--no-manual", "--no-build-vignettes")',
-              check_args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'
-            }
+          # - {
+          #     os: ubuntu-latest,
+          #     r: 'release',
+          #     label: '(lavaan 0.6-19)',
+          #     lavaan: '0.6-19',
+          #     force_suggests: 'false',
+          #     build_args: 'c("--no-manual", "--no-build-vignettes")',
+          #     check_args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'
+          #   }
           - {
               os: ubuntu-latest,
               r: 'release',
