@@ -536,7 +536,7 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' Fit Measures for a Latent Variable Model estimated using INLA
 #'
 #' @param object An object of class [INLAvaan].
-#' @param fit.measures If `"all"`, all fit measures available will be returned. If
+#' @param fit_measures If `"all"`, all fit measures available will be returned. If
 #'   only a single or a few fit measures are specified by name, only those are
 #'   computed and returned. The LOO measures `"elpd_loo"`, `"se_loo"`,
 #'   `"p_loo"` and `"looic"` (see [loo()]) are included in `"all"` only when
@@ -544,14 +544,18 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #'   [add_loo()]); otherwise they are computed on demand when requested by
 #'   name, and recomputed on every call -- store the result with
 #'   `fit <- add_loo(fit)` (or call [loo()] directly) for repeated access.
-#' @param baseline.model An optional [INLAvaan] object representing the
+#'   INLAvaan's stable spelling `fit.measures` is also accepted.
+#' @param baseline_model An optional [INLAvaan] object representing the
 #'   baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-#'   BNFI). Must have been fitted with `test != "none"`.
-#' @param h1.model Ignored (included for compatibility with the lavaan
+#'   BNFI). Must have been fitted with `test != "none"`. INLAvaan's stable
+#'   spelling `baseline.model` is also accepted.
+#' @param h1_model Ignored (included for compatibility with the lavaan
 #'   generic).
-#' @param fm.args Ignored (included for compatibility with the lavaan
+#' @param fm_args Ignored (included for compatibility with the lavaan
 #'   generic).
 #' @param output Ignored (included for compatibility with the lavaan
+#'   generic).
+#' @param level Ignored (included for compatibility with the lavaan
 #'   generic).
 #' @param ... Additional arguments. Currently supports:
 #' \describe{
@@ -585,9 +589,9 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' }
 #'
 #' @usage
-#' \S4method{fitMeasures}{INLAvaan}(object, fit.measures = "all",
-#'   baseline.model = NULL, h1.model = NULL, fm.args = list(),
-#'   output = "vector", ...)
+#' \S4method{fitMeasures}{INLAvaan}(object, fit_measures = "all",
+#'   baseline_model = NULL, h1_model = NULL, fm_args,
+#'   output = "vector", level = NULL, ...)
 #'
 #' @importMethodsFrom lavaan fitmeasures fitMeasures
 #' @name fitmeasures
@@ -597,9 +601,9 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 NULL
 
 #' @usage
-#' \S4method{fitmeasures}{INLAvaan}(object, fit.measures = "all",
-#'   baseline.model = NULL, h1.model = NULL, fm.args = list(),
-#'   output = "vector", ...)
+#' \S4method{fitmeasures}{INLAvaan}(object, fit_measures = "all",
+#'   baseline_model = NULL, h1_model = NULL, fm_args,
+#'   output = "vector", level = NULL, ...)
 #'
 #' @name fitmeasures
 #' @rdname fitmeasures

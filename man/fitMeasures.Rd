@@ -6,37 +6,42 @@
 \alias{fitmeasures,INLAvaan-method}
 \title{Fit Measures for a Latent Variable Model estimated using INLA}
 \usage{
-\S4method{fitMeasures}{INLAvaan}(object, fit.measures = "all",
-  baseline.model = NULL, h1.model = NULL, fm.args = list(),
-  output = "vector", ...)
+\S4method{fitMeasures}{INLAvaan}(object, fit_measures = "all",
+  baseline_model = NULL, h1_model = NULL, fm_args,
+  output = "vector", level = NULL, ...)
 
-\S4method{fitmeasures}{INLAvaan}(object, fit.measures = "all",
-  baseline.model = NULL, h1.model = NULL, fm.args = list(),
-  output = "vector", ...)
+\S4method{fitmeasures}{INLAvaan}(object, fit_measures = "all",
+  baseline_model = NULL, h1_model = NULL, fm_args,
+  output = "vector", level = NULL, ...)
 }
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
 
-\item{fit.measures}{If \code{"all"}, all fit measures available will be returned. If
+\item{fit_measures}{If \code{"all"}, all fit measures available will be returned. If
 only a single or a few fit measures are specified by name, only those are
 computed and returned. The LOO measures \code{"elpd_loo"}, \code{"se_loo"},
 \code{"p_loo"} and \code{"looic"} (see \code{\link[=loo]{loo()}}) are included in \code{"all"} only when
 a LOO result is stored with the fit (\code{test = "loo"} in \code{\link[=inlavaan]{inlavaan()}} or
 \code{\link[=add_loo]{add_loo()}}); otherwise they are computed on demand when requested by
 name, and recomputed on every call -- store the result with
-\code{fit <- add_loo(fit)} (or call \code{\link[=loo]{loo()}} directly) for repeated access.}
+\code{fit <- add_loo(fit)} (or call \code{\link[=loo]{loo()}} directly) for repeated access.
+INLAvaan's stable spelling \code{fit.measures} is also accepted.}
 
-\item{baseline.model}{An optional \link{INLAvaan} object representing the
+\item{baseline_model}{An optional \link{INLAvaan} object representing the
 baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-BNFI). Must have been fitted with \code{test != "none"}.}
+BNFI). Must have been fitted with \code{test != "none"}. INLAvaan's stable
+spelling \code{baseline.model} is also accepted.}
 
-\item{h1.model}{Ignored (included for compatibility with the lavaan
+\item{h1_model}{Ignored (included for compatibility with the lavaan
 generic).}
 
-\item{fm.args}{Ignored (included for compatibility with the lavaan
+\item{fm_args}{Ignored (included for compatibility with the lavaan
 generic).}
 
 \item{output}{Ignored (included for compatibility with the lavaan
+generic).}
+
+\item{level}{Ignored (included for compatibility with the lavaan
 generic).}
 
 \item{...}{Additional arguments. Currently supports:
