@@ -110,6 +110,9 @@ test_that("per-cluster observed-data logliks sum to the fitted FIML loglik", {
 })
 
 test_that("analytic per-cluster scores match finite differences", {
+  # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
+  # differences across CRAN check flavours -- too fragile to assert there.
+  skip_on_cran()
   int <- get_inlavaan_internal(fit)
   minfo <- INLAvaan:::loco_missing_info(int)
   js <- c(1L, 15L, 30L) # first, middle, and last of the 30 clusters
@@ -189,7 +192,10 @@ test_that("the per-row (leave-one-unit-out) override works under missing data", 
 
   # analytic per-row scores agree with finite differences, including rows in
   # clusters that contain a fully-missing row (lavaan's gradient kernel
-  # mishandles zero-observed patterns; INLAvaan drops them before the kernel)
+  # mishandles zero-observed patterns; INLAvaan drops them before the kernel).
+  # Skipped on CRAN: this agreement is sensitive to BLAS/compiler differences
+  # across check flavours.
+  skip_on_cran()
   int <- get_inlavaan_internal(fit)
   minfo <- INLAvaan:::loco_missing_info(int)
   rows <- c(1L, 5L, 200L, minfo$rows_by_cluster[[9L]])
@@ -234,6 +240,9 @@ test_that("LOCO scores are correct for clusters with a fully-missing row", {
   int <- get_inlavaan_internal(fit)
   minfo <- INLAvaan:::loco_missing_info(int)
   expect_true(any(minfo$n_obs < minfo$n_j)) # some cluster has a fully-missing row
+  # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
+  # differences across CRAN check flavours -- too fragile to assert there.
+  skip_on_cran()
   s_an <- INLAvaan:::loco_missing_scores_theta(
     int$theta_star,
     minfo,

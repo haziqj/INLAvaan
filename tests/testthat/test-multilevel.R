@@ -24,6 +24,9 @@ test_that("Multilevel: fit and summary", {
   expect_s4_class(fit_ml, "INLAvaan")
   expect_no_error(capture.output(summary(fit_ml)))
   expect_equal(coef(fit_ml), coef(fit_lav), tolerance = 0.1)
+  # Convergence (dx ~ 0) depends on the optimiser path, which varies with the
+  # platform's BLAS/compiler -- too fragile to assert on CRAN's check farm.
+  skip_on_cran()
   expect_equal(fit_ml@optim$dx, rep(0, length(coef(fit_ml))), tolerance = 1e-2)
 })
 

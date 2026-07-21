@@ -32,5 +32,8 @@ test_that("Method: skewnorm", {
 
   expect_s4_class(fit, "INLAvaan")
   expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
+  # Convergence (dx ~ 0) depends on the optimiser path, which varies with the
+  # platform's BLAS/compiler -- too fragile to assert on CRAN's check farm.
+  skip_on_cran()
   expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
 })

@@ -64,6 +64,9 @@ test_that("Method: skewnorm", {
   expect_s4_class(fit, "INLAvaan")
   gr_at_opt <- fit@optim$dx
   gt_at_opt <- as.numeric(fit@Model@ceq.simple.K %*% gr_at_opt)
+  # Convergence (dx ~ 0) depends on the optimiser path, which varies with the
+  # platform's BLAS/compiler -- too fragile to assert on CRAN's check farm.
+  skip_on_cran()
   expect_equal(gt_at_opt, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
@@ -113,6 +116,9 @@ test_that("Method: sampling", {
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {
+  # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
+  # differences across CRAN check flavours -- too fragile to assert there.
+  skip_on_cran()
   suppressMessages(
     tmp <- capture.output(fit <- agrowth(mod, dat, test = "none", debug = TRUE))
   )

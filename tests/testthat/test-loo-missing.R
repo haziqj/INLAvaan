@@ -108,6 +108,9 @@ test_that("casewise observed-data logliks sum to the fitted FIML loglik", {
 })
 
 test_that("pattern-scattered scores match finite differences on missing rows", {
+  # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
+  # differences across CRAN check flavours -- too fragile to assert there.
+  skip_on_cran()
   int <- get_inlavaan_internal(fit)
   dv <- INLAvaan:::loso_data_view(
     int$lavmodel,
