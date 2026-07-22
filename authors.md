@@ -16,7 +16,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/haziqj/INLAvaan/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/haziqj/INLAvaan/blob/v0.3.1/inst/CITATION)
 
 Jamil H, Rue H (2026). “Approximate Bayesian inference for structural
 equation models using integrated nested Laplace approximations.”

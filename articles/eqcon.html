@@ -84,7 +84,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/articles/eqcon.qmd" class="external-link"><code>vignettes/articles/eqcon.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.1/vignettes/articles/eqcon.qmd" class="external-link"><code>vignettes/articles/eqcon.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -147,16 +147,16 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"^Reaction\\.(.*)$"</span>, <span class="st">"Day\\1"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/agrowth.html">agrowth</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [93ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [96ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.172σ. [359ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.172σ. [366ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/6 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 6/6 skew-normal marginals. [140ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 6/6 skew-normal marginals. [145ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [30ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [32ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1s]</span></span>
@@ -164,7 +164,7 @@
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      i~~i       i~1      s~~s       s~1      i~~s         v         v         v </span></span>
-<span><span class="co">#&gt; 12103.397    32.694    38.488     9.351    92.878   622.801   622.801   622.801 </span></span>
+<span><span class="co">#&gt; 12103.397    32.694    38.488     9.351    84.034   622.801   622.801   622.801 </span></span>
 <span><span class="co">#&gt;         v         v         v         v         v         v         v </span></span>
 <span><span class="co">#&gt;   622.801   622.801   622.801   622.801   622.801   622.801   622.801</span></span></code></pre></div>
 </div>

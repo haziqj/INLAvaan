@@ -136,7 +136,7 @@ fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ✔ Posterior mode and Hessian. [696ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.123σ. [352ms]
+#> ✔ VB correction; mean |δ| = 0.123σ. [354ms]
 #> 
 #> ⠙ Fitting 0/20 skew-normal marginals.
 #> ⠹ Fitting 9/20 skew-normal marginals.
@@ -148,7 +148,7 @@ fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
 #> ⠸ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [49.9s]
+#> ✔ Summarise 1000 posterior draws. [49.4s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 ```
@@ -173,12 +173,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.537 
-#>    PPP (Chi-square)                              0.038 
+#>    PPP (Chi-square)                              0.024 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24191.569 
-#>    Effective parameters (pD)                    19.135 
+#>    Deviance (DIC)                            24192.986 
+#>    Effective parameters (pD)                    19.844 
 #> 
 #> Parameter Estimates:
 #> 

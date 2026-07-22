@@ -272,19 +272,20 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [171ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [180ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [126ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [129ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [867ms]
+#> ✔ Fit 30/30 skew-normal marginals. [889ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [145ms]
+#> ✔ Adjust copula correlations (NORTA). [133ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.6s]
+#> ✔ Summarise 1000 posterior draws. [1.7s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -346,23 +347,23 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [804ms]
+#> ✔ Posterior mode and Hessian. [816ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.087σ. [460ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 9/34 skew-normal marginals.
-#> ⠸ Fitting 25/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.5s]
+#> ⠹ Fitting 7/34 skew-normal marginals.
+#> ⠸ Fitting 23/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6.6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [142ms]
+#> ✔ Adjust copula correlations (NORTA). [144ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
 #> ⠸ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [52.2s]
+#> ✔ Summarise 1000 posterior draws. [53.5s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 #> Warning: Fit diagnostics flagged 2 potential issues:

@@ -84,7 +84,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/articles/missing.qmd" class="external-link"><code>vignettes/articles/missing.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.1/vignettes/articles/missing.qmd" class="external-link"><code>vignettes/articles/missing.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -130,17 +130,17 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [397ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [386ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.223σ. [483ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.223σ. [474ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 20/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 21/42 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [294ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [295ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.5s]</span></span>
@@ -185,7 +185,7 @@
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [542ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [540ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
 <span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.194σ. [607ms]</span></span>
@@ -223,7 +223,7 @@
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [320ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [302ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.9s]</span></span>

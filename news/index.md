@@ -2,6 +2,8 @@
 
 ## INLAvaan 0.3.1
 
+CRAN release: 2026-07-21
+
 ### Bug fixes
 
 - The [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)

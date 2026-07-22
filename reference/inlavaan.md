@@ -231,16 +231,16 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [163ms]
+#> ✔ Posterior mode and Hessian. [165ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.209σ. [136ms]
+#> ✔ VB correction; mean |δ| = 0.209σ. [142ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
 #> ✔ Fit 21/21 skew-normal marginals. [1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [143ms]
+#> ✔ Adjust copula correlations (NORTA). [145ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing WAIC.

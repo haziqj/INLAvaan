@@ -256,10 +256,10 @@ fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ✔ Fit 17/17 skew-normal marginals. [1.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [79ms]
+#> ✔ Adjust copula correlations (NORTA). [82ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [675ms]
+#> ✔ Summarise 100 posterior draws. [679ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
