@@ -14,9 +14,9 @@ coverage](https://codecov.io/gh/haziqj/INLAvaan/branch/main/graph/badge.svg)](ht
 [![Dependencies](https://tinyverse.netlify.app/badge/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
 [![CRAN
 Downloads](http://cranlogs.r-pkg.org/badges/grand-total/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
-![GitHub Repo
-stars](https://img.shields.io/github/stars/haziqj/inlavaan)
-<!-- [![GitHub Repo stars](https://img.shields.io/github/stars/haziqj/inlavaan)](https://github.com/haziqj/INLAvaan/stargazers) -->
+[![GitHub Repo
+stars](https://img.shields.io/github/stars/haziqj/inlavaan)](https://github.com/haziqj/INLAvaan/stargazers)
+<!-- ![GitHub Repo stars](https://img.shields.io/github/stars/haziqj/inlavaan) -->
 <!-- badges: end -->
 
 > Efficient approximate Bayesian inference for Structural Equation
@@ -74,20 +74,19 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [90ms]
+#> ✔ Posterior mode and Hessian. [94ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.157σ. [103ms]
+#> ✔ VB correction; mean |δ| = 0.157σ. [106ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [951ms]
+#> ✔ Fit 30/30 skew-normal marginals. [895ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [100ms]
+#> ✔ Adjust copula correlations (NORTA). [198ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [503ms]
+#> ✔ Summarise 1000 posterior draws. [494ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -103,12 +102,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1659.573 
-#>    PPP (Chi-square)                              0.464 
+#>    PPP (Chi-square)                              0.493 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3175.519 
-#>    Effective parameters (pD)                    29.787 
+#>    Deviance (DIC)                             3174.665 
+#>    Effective parameters (pD)                    29.360 
 #> 
 #> Parameter Estimates:
 #> 
@@ -144,16 +143,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.836    0.401    0.111    1.687    0.005       beta(1,1)
+#>    .y5                0.832    0.386    0.133    1.649    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                1.102    0.729   -0.201    2.662    0.004       beta(1,1)
-#>    .y6                2.221    0.760    0.809    3.795    0.011       beta(1,1)
+#>    .y4                1.052    0.699   -0.214    2.532    0.004       beta(1,1)
+#>    .y6                2.211    0.784    0.837    3.911    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                1.032    0.670   -0.186    2.447    0.005       beta(1,1)
+#>    .y7                1.064    0.661   -0.232    2.360    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.256    0.461   -0.646    1.159    0.003       beta(1,1)
+#>    .y4                0.205    0.460   -0.607    1.197    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                1.297    0.596    0.244    2.583    0.005       beta(1,1)
+#>    .y8                1.291    0.615    0.192    2.606    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
