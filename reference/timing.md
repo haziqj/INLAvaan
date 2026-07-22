@@ -58,24 +58,24 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 # Total elapsed time
 timing(fit)
 #>  total 
-#> 1.40 s 
+#> 1.38 s 
 
 # All stages
 timing(fit, what = "all")
 #>  start_time        init    ov.names     Options        Data    ParTable 
-#>     2.8 min      0.02 s      0.00 s      0.00 s      0.00 s      0.00 s 
+#>     2.1 min      0.02 s      0.00 s      0.00 s      0.00 s      0.00 s 
 #> SampleStats          h1      bounds       start       Model       cache 
 #>      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s 
 #>       optim     implied      loglik        vcov        test         Fit 
 #>      0.14 s      0.00 s      0.00 s      0.00 s      0.00 s      0.00 s 
 #>    baseline    rotation          vb   marginals       norta    sampling 
-#>      0.00 s      0.00 s      0.11 s      0.96 s      0.13 s      0.01 s 
+#>      0.00 s      0.00 s      0.10 s      0.99 s      0.11 s      0.01 s 
 #> covariances definedpars   deltapars       total 
-#>      0.00 s      0.00 s      0.00 s      1.40 s 
+#>      0.00 s      0.00 s      0.00 s      1.38 s 
 
 # Specific stages
 timing(fit, what = c("optim", "marginals"))
 #>     optim marginals 
-#>    0.14 s    0.96 s 
+#>    0.14 s    0.99 s 
 # }
 ```

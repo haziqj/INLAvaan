@@ -140,20 +140,19 @@ for Bayesian fit indices.
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [50ms]
+#> ✔ Posterior mode and Hessian. [51ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.247σ. [88ms]
+#> ✔ VB correction; mean |δ| = 0.247σ. [57ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [126ms]
+#> ✔ Fit 6/6 skew-normal marginals. [78ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [21ms]
+#> ✔ Adjust copula correlations (NORTA). [16ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [981ms]
+#> ✔ Summarise 1000 posterior draws. [773ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 

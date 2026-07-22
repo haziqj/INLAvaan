@@ -273,19 +273,19 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
 #> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [180ms]
+#> ✔ Posterior mode and Hessian. [177ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [129ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [126ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [889ms]
+#> ✔ Fit 30/30 skew-normal marginals. [761ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [133ms]
+#> ✔ Adjust copula correlations (NORTA). [107ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.7s]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -347,38 +347,35 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [816ms]
+#> ✔ Posterior mode and Hessian. [793ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.087σ. [460ms]
+#> ✔ VB correction; mean |δ| = 0.094σ. [489ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 7/34 skew-normal marginals.
-#> ⠸ Fitting 23/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.6s]
+#> ⠹ Fitting 13/34 skew-normal marginals.
+#> ⠸ Fitting 29/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [144ms]
+#> ✔ Adjust copula correlations (NORTA). [93ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ⠸ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [53.5s]
+#> ⠹ Computing WAIC.
+#> ✔ Summarise 1000 posterior draws. [31.7s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
-#> Warning: Fit diagnostics flagged 2 potential issues:
+#> Warning: Fit diagnostics flagged 1 potential issue:
 #> ✖ The optimiser did not converge: iteration limit reached without convergence
 #>   (10).
-#> ✖ The gradient at the posterior mode is not zero (max |grad| = 0.399): a Newton
-#>   step would move `y1~~y1.l2` by 0.211 posterior SDs.
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)
 #> Computed from 200 clusters (second-order Taylor approximation)
 #> 
 #>          Estimate     SE
-#> elpd_loo -23344.2  731.4
-#> p_loo        34.2    2.0
-#> looic     46688.3 1462.9
+#> elpd_loo -23344.3  731.4
+#> p_loo        34.4    2.1
+#> looic     46688.5 1462.9
 # }
 ```
