@@ -1,5 +1,16 @@
 # INLAvaan (development version)
 
+## Bug fixes
+
+* `loo()` no longer drops units without a second-order term from `elpd_loo`,
+  `p_loo` and their standard errors. A unit whose curvature matrix is not
+  positive definite has no second-order value, and the aggregates summed over
+  the remaining units only -- scoring a model over fewer units and so flattering
+  it precisely when one of its units was pathological. Such units now contribute
+  their first-order term, as the documentation already described. The pointwise
+  `log_cpo_2` column keeps its `NA`. This changes `p_loo` for fits with any
+  such unit.
+
 ## New features
 
 * `loo()` now reports two tail-index diagnostics per unit, `k_max` and `k_sum`.

@@ -87,7 +87,9 @@ test_that("conditional LOSO on a fixed.x fit matches reference values", {
   expect_equal(res_c$elpd_2, -1165.6523740521, tolerance = 1e-4)
   expect_equal(res_c$se_1, 21.0799322283, tolerance = 1e-3)
   expect_equal(res_c$se_2, 21.5461686423, tolerance = 1e-3)
-  expect_equal(res_c$p_loo_2, 58.1103250541, tolerance = 1e-2)
+  # Updated when the aggregates stopped dropping units without a second-order
+  # term: the reference above was computed under the old drop convention.
+  expect_equal(res_c$p_loo_2, 60.1929381913, tolerance = 1e-2)
 
   pu <- res_c$per_unit[c(1L, 45L, 90L), ]
   expect_equal(

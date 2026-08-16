@@ -38,7 +38,10 @@ test_that("LOSO matches reference values", {
   expect_equal(res$se_1, 14.9606326798, tolerance = 1e-4)
   expect_equal(res$se_2, 16.1424977191, tolerance = 1e-4)
   expect_equal(res$p_loo_1, 28.1110170037, tolerance = 1e-4)
-  expect_equal(res$p_loo_2, 33.8073861249, tolerance = 1e-4)
+  # Updated when the aggregates stopped dropping units without a second-order
+  # term: one unit here has lpd_2 void and now contributes its first-order
+  # difference instead of nothing.
+  expect_equal(res$p_loo_2, 35.5963931926, tolerance = 1e-4)
 
   pu <- res$per_unit[c(1L, 20L, 40L), ]
   expect_equal(

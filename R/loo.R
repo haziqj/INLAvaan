@@ -1343,17 +1343,32 @@ inlav_loo <- function(
   per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
 
   # loo-style SE of the total ELPD: sqrt(n * var(pointwise)). n is the number
-  # of units scored, known a priori: a failed second-order term voids only
-  # that unit's term (NA, dropped from the sum/var), not its place in the
-  # sample, so both orders scale by the same n.
+  # of units scored, known a priori, and every unit contributes a term to both
+  # orders: a unit whose second-order curvature is not positive definite has no
+  # second-order value (its tilted Gaussian integral diverges), so the
+  # aggregates substitute that unit's first-order term. Dropping it instead
+  # would sum the model over fewer units, which flatters a model precisely
+  # because one of its units is pathological. The pointwise columns keep the
+  # honest NA; only the aggregates fall back.
   elpd_1 <- sum(per_unit$log_cpo_1)
   se_1 <- sqrt(n_units * var(per_unit$log_cpo_1))
   p_loo_1 <- sum(per_unit$lpd_1 - per_unit$log_cpo_1)
   n_ok <- sum(per_unit$ok)
   if (isTRUE(second_order)) {
-    elpd_2 <- sum(per_unit$log_cpo_2, na.rm = TRUE)
-    se_2 <- sqrt(n_units * var(per_unit$log_cpo_2, na.rm = TRUE))
-    p_loo_2 <- sum(per_unit$lpd_2 - per_unit$log_cpo_2, na.rm = TRUE)
+    cpo_mix <- ifelse(is.na(per_unit$log_cpo_2), per_unit$log_cpo_1, per_unit$log_cpo_2)
+    elpd_2 <- sum(cpo_mix)
+    se_2 <- sqrt(n_units * var(cpo_mix))
+    # p_loo differences stay order-consistent within a unit. lpd_2 can be void
+    # independently of log_cpo_2 (it factorises Sigma^-1 - H_u rather than
+    # Sigma^-1 + H_u), and pairing lpd_1 with log_cpo_2 would mix orders inside
+    # a single unit's difference, so such a unit uses first order on both sides.
+    both_2 <- !is.na(per_unit$lpd_2) & !is.na(per_unit$log_cpo_2)
+    p_diff_2 <- ifelse(
+      both_2,
+      per_unit$lpd_2 - per_unit$log_cpo_2,
+      per_unit$lpd_1 - per_unit$log_cpo_1
+    )
+    p_loo_2 <- sum(p_diff_2)
     if (n_ok < ceiling(0.9 * n_units)) {
       cli_warn(c(
         "{n_units - n_ok} of {n_units} units fell back to the first-order
@@ -1371,7 +1386,7 @@ inlav_loo <- function(
   p_loo <- if (use_second && is.finite(p_loo_2)) p_loo_2 else p_loo_1
   p_diff <- per_unit$lpd_1 - per_unit$log_cpo_1
   if (use_second && is.finite(p_loo_2)) {
-    p_diff <- per_unit$lpd_2 - per_unit$log_cpo_2
+    p_diff <- p_diff_2
   }
   estimates <- cbind(
     Estimate = c(elpd_loo, p_loo, -2 * elpd_loo),

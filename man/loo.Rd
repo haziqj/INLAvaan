@@ -120,8 +120,10 @@ when \code{second_order = FALSE}), with standard error
 \eqn{p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)},
 where \eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
 full-posterior pointwise log predictive density. Units whose second-order
-curvature matrix is not positive definite fall back to first order for
-that unit only (flagged in \code{per_unit$ok}).
+curvature matrix is not positive definite have no second-order term at all
+(the underlying integral diverges): \code{per_unit$log_cpo_2} is \code{NA} and
+\code{per_unit$ok} is \code{FALSE} for them, while the reported aggregates substitute
+that unit's first-order term, so every scored unit contributes to the total.
 
 Two tail-index diagnostics accompany each unit. Writing the importance
 ratio between the unit-deleted and full posteriors as

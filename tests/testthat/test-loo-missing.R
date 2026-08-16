@@ -64,7 +64,9 @@ test_that("FIML LOSO matches reference values", {
   expect_equal(res$se_1, 21.8869310500, tolerance = 1e-4)
   expect_equal(res$se_2, 22.5837971790, tolerance = 1e-4)
   expect_equal(res$p_loo_1, 27.7612891234, tolerance = 1e-2)
-  expect_equal(res$p_loo_2, 31.1295585209, tolerance = 1e-2)
+  # Updated when the aggregates stopped dropping units without a second-order
+  # term (see test-loo-loso.R).
+  expect_equal(res$p_loo_2, 32.7683746310, tolerance = 1e-2)
 
   # rows spanning complete (4), one hole (2), and three holes (11)
   pu <- res$per_unit[c(4L, 2L, 11L), ]
