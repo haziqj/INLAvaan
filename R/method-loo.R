@@ -26,6 +26,20 @@
 #' curvature matrix is not positive definite fall back to first order for
 #' that unit only (flagged in `per_unit$ok`).
 #'
+#' Two tail-index diagnostics accompany each unit. Writing the importance
+#' ratio between the unit-deleted and full posteriors as
+#' \eqn{r(\theta) \propto 1 / p(y_u \mid \theta)}, its moments satisfy
+#' \eqn{E[r^a] < \infty} exactly when \eqn{a < 1 / k_u}, where
+#' \eqn{k_u = \lambda_{\max}(-\Sigma H_u)} is reported as `k_max`. Thus
+#' \eqn{k_u < 1} is equivalent to positive definiteness of the second-order
+#' curvature matrix (so `k_max >= 1` iff `ok` is `FALSE`), and
+#' \eqn{k_u < 1/2} is the finite-variance condition familiar from Pareto
+#' smoothed importance sampling -- but computed exactly from the Laplace
+#' summary rather than estimated from draws. `k_sum` is
+#' \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's total leverage, which sums
+#' across units to the effective number of parameters. Both are `NA` when
+#' the second-order term is not computed. No threshold is applied to either.
+#'
 #' The type is resolved automatically: per-cluster (`"loco"`) when the model
 #' was fitted with a `cluster` argument, per-subject (`"loso"`) otherwise.
 #' For a two-level model these are the two estimands of Merkle, Furr &
@@ -155,7 +169,8 @@
 #'       `l_star` (unit log-likelihood at the summary), `score_norm`,
 #'       `lpd_1`/`lpd_2` (pointwise log predictive density),
 #'       `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions), `det_term`,
-#'       and `ok` (second-order success flag).}
+#'       `k_max`/`k_sum` (tail-index diagnostics, see below), and `ok`
+#'       (second-order success flag).}
 #'     \item{`estimates`}{Matrix with rows `elpd_loo`, `p_loo`, `looic` and
 #'       columns `Estimate`, `SE` (headline second-order values).}
 #'     \item{`elpd_1`, `elpd_2`, `se_1`, `se_2`, `p_loo_1`, `p_loo_2`}{

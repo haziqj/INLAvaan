@@ -86,6 +86,8 @@ test_that("multigroup LOSO structure: case ids, groups, and identities", {
       "log_cpo_1",
       "log_cpo_2",
       "det_term",
+      "k_max",
+      "k_sum",
       "ok"
     )
   )

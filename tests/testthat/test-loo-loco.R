@@ -94,6 +94,23 @@ test_that("LOCO structure and internal identities", {
   expect_equal(sum(res$per_unit$l_star), ll, tolerance = 1e-6)
 })
 
+test_that("tail-index diagnostics satisfy their defining identities", {
+  pu <- res$per_unit
+  # k_u = lambda_max(-Sigma H_u) >= 0 when the unit curvature is n.s.d.
+  expect_true(all(pu$k_max >= 0))
+  # Finite mean of the importance ratio <=> A_u positive definite <=> ok
+  expect_identical(pu$ok, pu$k_max < 1)
+  # det_term = 1/2 sum_i log(1 - k_i) <= 1/2 log(1 - k_max), so k_max is
+  # bounded by the determinant term alone
+  expect_true(all(pu$k_max <= 1 - exp(2 * pu$det_term) + 1e-10))
+  # Trace dominates the largest eigenvalue
+  expect_true(all(pu$k_sum >= pu$k_max - 1e-10))
+  # First-order scoring computes no curvature, so both are NA
+  res1 <- loo(fit, second_order = FALSE)
+  expect_true(all(is.na(res1$per_unit$k_max)))
+  expect_true(all(is.na(res1$per_unit$k_sum)))
+})
+
 test_that("LOCO unit subsetting and theta/Sigma override", {
   sub <- c(3L, 7L, 11L)
   res_sub <- loo(fit, units = sub)

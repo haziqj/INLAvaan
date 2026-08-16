@@ -78,7 +78,8 @@ fits only), \code{nobs} (1 for LOSO, the cluster size for LOCO),
 \code{l_star} (unit log-likelihood at the summary), \code{score_norm},
 \code{lpd_1}/\code{lpd_2} (pointwise log predictive density),
 \code{log_cpo_1}/\code{log_cpo_2} (pointwise LOO contributions), \code{det_term},
-and \code{ok} (second-order success flag).}
+\code{k_max}/\code{k_sum} (tail-index diagnostics, see below), and \code{ok}
+(second-order success flag).}
 \item{\code{estimates}}{Matrix with rows \code{elpd_loo}, \code{p_loo}, \code{looic} and
 columns \code{Estimate}, \code{SE} (headline second-order values).}
 \item{\code{elpd_1}, \code{elpd_2}, \code{se_1}, \code{se_2}, \code{p_loo_1}, \code{p_loo_2}}{
@@ -121,6 +122,20 @@ where \eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
 full-posterior pointwise log predictive density. Units whose second-order
 curvature matrix is not positive definite fall back to first order for
 that unit only (flagged in \code{per_unit$ok}).
+
+Two tail-index diagnostics accompany each unit. Writing the importance
+ratio between the unit-deleted and full posteriors as
+\eqn{r(\theta) \propto 1 / p(y_u \mid \theta)}, its moments satisfy
+\eqn{E[r^a] < \infty} exactly when \eqn{a < 1 / k_u}, where
+\eqn{k_u = \lambda_{\max}(-\Sigma H_u)} is reported as \code{k_max}. Thus
+\eqn{k_u < 1} is equivalent to positive definiteness of the second-order
+curvature matrix (so \code{k_max >= 1} iff \code{ok} is \code{FALSE}), and
+\eqn{k_u < 1/2} is the finite-variance condition familiar from Pareto
+smoothed importance sampling -- but computed exactly from the Laplace
+summary rather than estimated from draws. \code{k_sum} is
+\eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's total leverage, which sums
+across units to the effective number of parameters. Both are \code{NA} when
+the second-order term is not computed. No threshold is applied to either.
 
 The type is resolved automatically: per-cluster (\code{"loco"}) when the model
 was fitted with a \code{cluster} argument, per-subject (\code{"loso"}) otherwise.

@@ -835,6 +835,7 @@ taylor_loo_unit <- function(
   H_u,
   S_act,
   S_inv,
+  R_act = NULL,
   second_order = TRUE
 ) {
   d <- length(s_u)
@@ -845,9 +846,23 @@ taylor_loo_unit <- function(
     log_cpo_2 = NA_real_,
     lpd_2 = NA_real_,
     det_term = NA_real_,
+    k_max = NA_real_,
+    k_sum = NA_real_,
     ok = FALSE
   )
   if (second_order && !is.null(H_u)) {
+    # Tail index of the importance ratio: eigenvalues of -Sigma* H_u, obtained
+    # from the symmetric similarity R (-H_u) R' so the spectrum is real. k_max
+    # is the exact Pareto shape; k_sum = tr(Sigma*(-H_u)) is the unit leverage.
+    if (!is.null(R_act)) {
+      ev <- eigen(
+        -R_act %*% H_u %*% t(R_act),
+        symmetric = TRUE,
+        only.values = TRUE
+      )$values
+      out$k_max <- max(ev[1L], 0)
+      out$k_sum <- sum(ev)
+    }
     A_u <- S_inv + H_u
     Ac <- tryCatch(chol(A_u), error = function(e) NULL)
     if (!is.null(Ac)) {
@@ -1160,7 +1175,8 @@ inlav_loo <- function(
   # those dimensions) and is a no-op for an unconditioned summary.
   free <- which(diag(Sigma) > .Machine$double.eps)
   S_act <- Sigma[free, free, drop = FALSE]
-  S_inv <- chol2inv(chol(S_act))
+  R_act <- chol(S_act) # upper factor, S_act = t(R_act) %*% R_act
+  S_inv <- chol2inv(R_act)
 
   if (isTRUE(verbose)) {
     cli_progress_step(
@@ -1305,6 +1321,7 @@ inlav_loo <- function(
       if (isTRUE(second_order)) H_arr[,, u] else NULL,
       S_act,
       S_inv,
+      R_act = R_act,
       second_order = second_order
     )
   })
@@ -1319,6 +1336,8 @@ inlav_loo <- function(
     log_cpo_1 = vapply(raw, `[[`, numeric(1), "log_cpo_1"),
     log_cpo_2 = vapply(raw, `[[`, numeric(1), "log_cpo_2"),
     det_term = vapply(raw, `[[`, numeric(1), "det_term"),
+    k_max = vapply(raw, `[[`, numeric(1), "k_max"),
+    k_sum = vapply(raw, `[[`, numeric(1), "k_sum"),
     ok = vapply(raw, `[[`, logical(1), "ok")
   )
   per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
