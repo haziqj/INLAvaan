@@ -1411,10 +1411,9 @@ inlav_loo <- function(
              ({.field k_max} at or above 1): deleting {qty(n_bad)}{?it/them}
              leaves the remaining data and the prior unable to identify some
              combination of parameters.",
-      "i" = "Every estimate is reported at first order instead, so the totals
-             remain an approximation of one order throughout.",
       "i" = "This usually says something about the data or the model rather
-             than the arithmetic; see {.code per_unit[!per_unit$ok, ]}."
+             than the arithmetic; see {.code per_unit[!per_unit$ok, ]}.",
+      "i" = "Reverting to first-order approximation."
     ))
   }
   # A missing lpd term deliberately says nothing at the console. It is the

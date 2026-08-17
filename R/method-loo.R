@@ -311,12 +311,12 @@ add_loo <- function(object, cores = NULL, verbose = FALSE) {
 print.inlavaan_loo <- function(x, ...) {
   label <- switch(
     x$type,
-    loso = "leave-one-subject-out",
-    loco = "leave-one-cluster-out"
+    loso = "Leave-one-subject-out",
+    loco = "Leave-one-cluster-out"
   )
   unit_word <- switch(x$type, loso = "subject", loco = "cluster")
   order_lab <- if (isTRUE(x$use_second)) "second-order" else "first-order"
-  cat("Taylor ", label, " cross-validation (INLAvaan)\n", sep = "")
+  cat(label, " cross-validation (INLAvaan)\n", sep = "")
   cat(
     "Computed from ",
     x$n_units,
@@ -328,29 +328,15 @@ print.inlavaan_loo <- function(x, ...) {
     },
     " (",
     order_lab,
-    " Taylor approximation)\n",
+    " approximation)\n",
     sep = ""
   )
-  if (identical(x$flavour, "conditional")) {
-    cat("Scored conditionally on the exogenous covariates (fixed.x fit)\n")
-  }
   cat("\n")
   print(round(x$estimates, 1))
-  # Which existence condition failed, and hence what the estimates did. The
-  # log CPO condition takes every estimate down an order; a missing
-  # second-order lpd only drops that unit from p_loo.
-  if (isTRUE(x$second_order) && x$n_ok < x$n_units) {
-    n <- x$n_units
-    n_bad <- n - x$n_ok
-    cat(
-      "\n",
-      pluralize(
-        "{n_bad} of {n} units {qty(n_bad)}{?has/have} no second-order term"
-      ),
-      " (k_max >= 1);\nall estimates are reported at first order.\n",
-      sep = ""
-    )
-  } else if (isTRUE(x$second_order) && x$n_lpd_ok < x$n_units) {
+  # A missing log CPO term already warned at computation time, and the header
+  # above records the order, so repeating it here would only duplicate. The
+  # lpd substitution has no warning, so this is the only place it is said.
+  if (isTRUE(x$use_second) && x$n_lpd_ok < x$n_units) {
     n <- x$n_units
     n_bad <- n - x$n_lpd_ok
     cat(

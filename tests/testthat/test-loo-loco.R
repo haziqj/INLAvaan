@@ -76,7 +76,7 @@ test_that("LOCO structure and internal identities", {
     res$per_unit$lpd_1 + res$per_unit$log_cpo_1,
     2 * res$per_unit$l_star
   )
-  expect_output(print(res), "leave-one-cluster-out")
+  expect_output(print(res), "Leave-one-cluster-out")
 
   # Sum of cluster logliks equals the model loglik at the mode
   int <- get_inlavaan_internal(fit)

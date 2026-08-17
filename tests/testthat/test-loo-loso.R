@@ -135,7 +135,7 @@ test_that("loo object structure and internal identities", {
     2 * res$se_2
   )
 
-  expect_output(print(res), "leave-one-subject-out")
+  expect_output(print(res), "Leave-one-subject-out")
   expect_output(print(res), "elpd_loo")
 })
 

@@ -107,7 +107,7 @@ test_that("conditional LOSO on a fixed.x fit matches reference values", {
     tolerance = 1e-4
   )
 
-  expect_output(print(res_c), "conditionally on the exogenous covariates")
+  expect_output(print(res_c), "Leave-one-subject-out")
 })
 
 test_that("conditional unit logliks sum to the fitted likelihood", {
