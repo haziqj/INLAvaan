@@ -316,7 +316,7 @@ print.inlavaan_loo <- function(x, ...) {
   )
   unit_word <- switch(x$type, loso = "subject", loco = "cluster")
   order_lab <- if (isTRUE(x$use_second)) "second-order" else "first-order"
-  cat(label, " cross-validation (INLAvaan)\n", sep = "")
+  cat(label, " cross-validation\n", sep = "")
   cat(
     "Computed from ",
     x$n_units,

@@ -1405,15 +1405,13 @@ inlav_loo <- function(
       style = list("vec-trunc" = 10L)
     )
     cli_warn(c(
-      "{n_bad} of {n_units} units {qty(n_bad)}{?has/have} no second-order
-       term: {.val {bad_units}}.",
+      "Reverting to first-order approximation.",
+      "i" = "{n_bad} of {n_units} units {qty(n_bad)}{?has/have} no second-order term: {.val {bad_units}}. ",
       "i" = "{qty(n_bad)}{?Its/Their} case-deletion integral diverges
              ({.field k_max} at or above 1): deleting {qty(n_bad)}{?it/them}
              leaves the remaining data and the prior unable to identify some
              combination of parameters.",
-      "i" = "This usually says something about the data or the model rather
-             than the arithmetic; see {.code per_unit[!per_unit$ok, ]}.",
-      "i" = "Reverting to first-order approximation."
+      "i" = "This usually says something about the data or the model; see {.code per_unit[!per_unit$ok, ]}."
     ))
   }
   # A missing lpd term deliberately says nothing at the console. It is the
