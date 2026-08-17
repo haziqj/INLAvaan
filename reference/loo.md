@@ -322,27 +322,28 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [149ms]
+#> ✔ Posterior mode and Hessian. [183ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [129ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [131ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [780ms]
+#> ✔ Fit 30/30 skew-normal marginals. [922ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [132ms]
+#> ✔ Adjust copula correlations (NORTA). [145ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.3s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.5s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
 # Leave-one-subject-out (LOSO) from the single fit -- no refitting
 res <- loo(fit)
 res
-#> Taylor leave-one-subject-out cross-validation (INLAvaan)
-#> Computed from 301 subjects (second-order Taylor approximation)
+#> Leave-one-subject-out cross-validation
+#> Computed from 301 subjects (second-order approximation)
 #> 
 #>          Estimate   SE
 #> elpd_loo  -3769.1 43.0
@@ -373,8 +374,8 @@ p <- which(names(coef(fit)) == "visual~~speed")
 theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
 Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
 loo(fit, theta = theta_c, Sigma = Sigma_c)
-#> Taylor leave-one-subject-out cross-validation (INLAvaan)
-#> Computed from 301 subjects (second-order Taylor approximation)
+#> Leave-one-subject-out cross-validation
+#> Computed from 301 subjects (second-order approximation)
 #> 
 #>          Estimate   SE
 #> elpd_loo  -3786.3 45.0
@@ -396,22 +397,23 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [724ms]
+#> ✔ Posterior mode and Hessian. [874ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.087σ. [407ms]
+#> ✔ VB correction; mean |δ| = 0.087σ. [458ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 9/34 skew-normal marginals.
-#> ⠸ Fitting 26/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [5.9s]
+#> ⠹ Fitting 1/34 skew-normal marginals.
+#> ⠸ Fitting 16/34 skew-normal marginals.
+#> ⠼ Fitting 31/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6.8s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [126ms]
+#> ✔ Adjust copula correlations (NORTA). [135ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [41.2s]
+#> ✔ Summarise 1000 posterior draws. [54.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 #> Warning: Fit diagnostics flagged 2 potential issues:
@@ -421,8 +423,8 @@ fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
 #>   step would move `y1~~y1.l2` by 0.211 posterior SDs.
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 loo(fit2l)
-#> Taylor leave-one-cluster-out cross-validation (INLAvaan)
-#> Computed from 200 clusters (second-order Taylor approximation)
+#> Leave-one-cluster-out cross-validation
+#> Computed from 200 clusters (second-order approximation)
 #> 
 #>          Estimate     SE
 #> elpd_loo -23344.2  731.4

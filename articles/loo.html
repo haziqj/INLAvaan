@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -129,8 +129,8 @@
 <span>            verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">(</span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Taylor leave-one-subject-out cross-validation (INLAvaan)</span></span>
-<span><span class="co">#&gt; Computed from 301 subjects (second-order Taylor approximation)</span></span>
+<span><span class="co">#&gt; Leave-one-subject-out cross-validation</span></span>
+<span><span class="co">#&gt; Computed from 301 subjects (second-order approximation)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
 <span><span class="co">#&gt; elpd_loo  -3769.1 42.9</span></span>
@@ -171,8 +171,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7534.238 29.111 -3769.109 42.945 32.433</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7757.120 26.957 -3878.134 46.800 27.516</span></span>
+<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7535.006 29.495 -3769.109 42.945 32.433</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7756.447 26.621 -3878.134 46.800 27.516</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;   -109.025  17.072</span></span></code></pre></div>
@@ -201,8 +201,8 @@
 <span><span class="co">#&gt; ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit2l</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Taylor leave-one-cluster-out cross-validation (INLAvaan)</span></span>
-<span><span class="co">#&gt; Computed from 200 clusters (second-order Taylor approximation)</span></span>
+<span><span class="co">#&gt; Leave-one-cluster-out cross-validation</span></span>
+<span><span class="co">#&gt; Computed from 200 clusters (second-order approximation)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate     SE</span></span>
 <span><span class="co">#&gt; elpd_loo -23344.2  731.4</span></span>
@@ -232,9 +232,8 @@
 <span><span class="co">#&gt;   `x2~1` (0.11), `x3~1` (0.10).</span></span>
 <span><span class="co">#&gt; ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.</span></span>
 <span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit_cond</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Taylor leave-one-subject-out cross-validation (INLAvaan)</span></span>
-<span><span class="co">#&gt; Computed from 300 subjects (second-order Taylor approximation)</span></span>
-<span><span class="co">#&gt; Scored conditionally on the exogenous covariates (fixed.x fit)</span></span>
+<span><span class="co">#&gt; Leave-one-subject-out cross-validation</span></span>
+<span><span class="co">#&gt; Computed from 300 subjects (second-order approximation)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
 <span><span class="co">#&gt; elpd_loo  -3748.1 44.7</span></span>
@@ -258,8 +257,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7532.481 56.591 -3748.090 44.737 45.076</span></span>
-<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7569.425 30.667 -3787.678 43.881 38.271</span></span>
+<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7543.431 62.066 -3748.090 44.737 45.076</span></span>
+<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7568.213 30.061 -3787.678 43.881 38.271</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;    -39.587  10.261</span></span></code></pre></div>
@@ -297,11 +296,11 @@
 <span><span class="co">#&gt; Computed from 1000 posterior draws and 301 subjects</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_waic  -3768.8 42.9</span></span>
-<span><span class="co">#&gt; p_waic        31.5  2.1</span></span>
-<span><span class="co">#&gt; waic        7537.6 85.8</span></span>
+<span><span class="co">#&gt; elpd_waic  -3769.2 43.0</span></span>
+<span><span class="co">#&gt; p_waic        32.2  2.1</span></span>
+<span><span class="co">#&gt; waic        7538.5 86.0</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; 8 units with p_waic &gt; 0.4: the WAIC may be unreliable; prefer loo().</span></span></code></pre></div>
+<span><span class="co">#&gt; 9 units with p_waic &gt; 0.4: the WAIC may be unreliable; prefer loo().</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="scoring-submodels-without-refitting">Scoring submodels without refitting<a class="anchor" aria-label="anchor" href="#scoring-submodels-without-refitting"></a>
 </h2>
@@ -317,8 +316,8 @@
 <span><span class="va">Sigma_c</span> <span class="op">&lt;-</span> <span class="va">Sigma</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">Sigma</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="va">Sigma</span><span class="op">[</span><span class="va">p</span>, <span class="va">p</span><span class="op">]</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit</span>, theta <span class="op">=</span> <span class="va">theta_c</span>, Sigma <span class="op">=</span> <span class="va">Sigma_c</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Taylor leave-one-subject-out cross-validation (INLAvaan)</span></span>
-<span><span class="co">#&gt; Computed from 301 subjects (second-order Taylor approximation)</span></span>
+<span><span class="co">#&gt; Leave-one-subject-out cross-validation</span></span>
+<span><span class="co">#&gt; Computed from 301 subjects (second-order approximation)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
 <span><span class="co">#&gt; elpd_loo  -3785.9 45.0</span></span>

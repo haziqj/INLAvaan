@@ -79,8 +79,8 @@ fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE,
             verbose = FALSE)
 
 (res <- loo(fit))
-#> Taylor leave-one-subject-out cross-validation (INLAvaan)
-#> Computed from 301 subjects (second-order Taylor approximation)
+#> Leave-one-subject-out cross-validation
+#> Computed from 301 subjects (second-order approximation)
 #> 
 #>          Estimate   SE
 #> elpd_loo  -3769.1 42.9
@@ -130,8 +130,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7534.238 29.111 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7757.120 26.957 -3878.134 46.800 27.516
+#>    fit   30   -3885.211    0.000 7535.006 29.495 -3769.109 42.945 32.433
+#>  fit1f   27   -3990.563 -105.352 7756.447 26.621 -3878.134 46.800 27.516
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -109.025  17.072
@@ -171,8 +171,8 @@ fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 
 loo(fit2l)
-#> Taylor leave-one-cluster-out cross-validation (INLAvaan)
-#> Computed from 200 clusters (second-order Taylor approximation)
+#> Leave-one-cluster-out cross-validation
+#> Computed from 200 clusters (second-order approximation)
 #> 
 #>          Estimate     SE
 #> elpd_loo -23344.2  731.4
@@ -216,9 +216,8 @@ fit_cond <- asem(model_x, dat_x, meanstructure = TRUE, verbose = FALSE)
 #>   `x2~1` (0.11), `x3~1` (0.10).
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 loo(fit_cond)
-#> Taylor leave-one-subject-out cross-validation (INLAvaan)
-#> Computed from 300 subjects (second-order Taylor approximation)
-#> Scored conditionally on the exogenous covariates (fixed.x fit)
+#> Leave-one-subject-out cross-validation
+#> Computed from 300 subjects (second-order approximation)
 #> 
 #>          Estimate   SE
 #> elpd_loo  -3748.1 44.7
@@ -250,8 +249,8 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.892   0.000 7532.481 56.591 -3748.090 44.737 45.076
-#>  fit_cond1   29   -3903.093 -27.201 7569.425 30.667 -3787.678 43.881 38.271
+#>   fit_cond   32   -3875.892   0.000 7543.431 62.066 -3748.090 44.737 45.076
+#>  fit_cond1   29   -3903.093 -27.201 7568.213 30.061 -3787.678 43.881 38.271
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>    -39.587  10.261
@@ -323,11 +322,11 @@ waic(fit)
 #> Computed from 1000 posterior draws and 301 subjects
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3768.8 42.9
-#> p_waic        31.5  2.1
-#> waic        7537.6 85.8
+#> elpd_waic  -3769.2 43.0
+#> p_waic        32.2  2.1
+#> waic        7538.5 86.0
 #> 
-#> 8 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
+#> 9 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
 ```
 
 ## Scoring submodels without refitting
@@ -350,8 +349,8 @@ theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
 Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
 
 loo(fit, theta = theta_c, Sigma = Sigma_c)
-#> Taylor leave-one-subject-out cross-validation (INLAvaan)
-#> Computed from 301 subjects (second-order Taylor approximation)
+#> Leave-one-subject-out cross-validation
+#> Computed from 301 subjects (second-order approximation)
 #> 
 #>          Estimate   SE
 #> elpd_loo  -3785.9 45.0

@@ -58,9 +58,9 @@ compare(fit_configural, fit_metric, fit_scalar)
 #> Models ordered by marginal log-likelihood
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD
-#>      fit_scalar   48   -3914.104   0.000 7508.829 47.749
-#>      fit_metric   54   -3934.608 -20.504 7481.102 53.808
-#>  fit_configural   60   -3958.319 -44.215 7483.927 59.325
+#>      fit_scalar   48   -3914.104   0.000 7508.754 47.712
+#>      fit_metric   54   -3934.608 -20.504 7480.148 53.331
+#>  fit_configural   60   -3958.319 -44.215 7484.730 59.727
 ```
 
 These are within-flavour comparisons (all three fits model the means
@@ -87,9 +87,9 @@ compare(fit_configural, fit_metric, fit_scalar, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>      fit_metric   54   -3934.608 -20.504 7481.102 53.808 -3743.245 44.422
-#>  fit_configural   60   -3958.319 -44.215 7483.927 59.325 -3746.600 44.744
-#>      fit_scalar   48   -3914.104   0.000 7508.829 47.749 -3757.569 43.901
+#>      fit_metric   54   -3934.608 -20.504 7480.148 53.331 -3743.245 44.422
+#>  fit_configural   60   -3958.319 -44.215 7484.730 59.727 -3746.600 44.744
+#>      fit_scalar   48   -3914.104   0.000 7508.754 47.712 -3757.569 43.901
 #>   p_loo elpd_diff se_diff
 #>  57.588     0.000   0.000
 #>  68.560    -3.356   3.647
@@ -125,8 +125,8 @@ compare(fit_pooled, fit_configural, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>  fit_configural   60   -3958.319 -73.108 7483.927 59.325 -3746.600 44.744
-#>      fit_pooled   30   -3885.211   0.000 7534.641 29.313 -3769.109 42.945
+#>  fit_configural   60   -3958.319 -73.108 7484.730 59.727 -3746.600 44.744
+#>      fit_pooled   30   -3885.211   0.000 7534.281 29.133 -3769.109 42.945
 #>   p_loo elpd_diff se_diff
 #>  68.560     0.000   0.000
 #>  32.433   -22.508  11.743
@@ -147,8 +147,8 @@ school contributes to the scalar rung’s loss:
 loo_metric <- loo(fit_metric)
 loo_scalar <- loo(fit_scalar)
 loo_metric
-#> Taylor leave-one-subject-out cross-validation (INLAvaan)
-#> Computed from 301 subjects in 2 groups (second-order Taylor approximation)
+#> Leave-one-subject-out cross-validation
+#> Computed from 301 subjects in 2 groups (second-order approximation)
 #> 
 #>          Estimate   SE
 #> elpd_loo  -3743.2 44.4

@@ -118,19 +118,20 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [263ms]
+#> ✔ Posterior mode and Hessian. [282ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [128ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [147ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [394ms]
+#> ✔ Fit 13/13 skew-normal marginals. [468ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [70ms]
+#> ✔ Adjust copula correlations (NORTA). [76ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ⠹ Computing WAIC.
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 ```
@@ -192,7 +193,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.1.9002 ended normally after 64 iterations
+#> INLAvaan 0.3.1.9004 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -222,7 +223,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.1.9002 ended normally after 64 iterations
+#> INLAvaan 0.3.1.9004 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -432,7 +433,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 2.06 s
+#> 2.38 s
 ```
 
 ### Plot
@@ -466,19 +467,19 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [110ms]
+#> ✔ Posterior mode and Hessian. [130ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [114ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [129ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [312ms]
+#> ✔ Fit 12/12 skew-normal marginals. [380ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [46ms]
+#> ✔ Adjust copula correlations (NORTA). [48ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [1.4s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 compare(fit, fit2)
@@ -510,8 +511,8 @@ fit’s own posterior draws.
 ``` r
 
 loo(fit)
-#> Taylor leave-one-subject-out cross-validation (INLAvaan)
-#> Computed from 1000 subjects (second-order Taylor approximation)
+#> Leave-one-subject-out cross-validation
+#> Computed from 1000 subjects (second-order approximation)
 #> 
 #>          Estimate    SE
 #> elpd_loo  -8022.0  54.0

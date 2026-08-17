@@ -31,7 +31,11 @@
   of an SEM fit and a smaller error than the second-order `lpd`’s own
   bias on the units that keep it, and is instead noted when a result is
   printed and counted by `n_lpd_ok`. This changes `elpd_loo`/`looic` for
-  fits with any `k_max >= 1`.
+  fits with any `k_max >= 1`. The warning names the offending units:
+  since `Sigma^-1 + H_u` is the *deleted* posterior precision,
+  `k_max >= 1` says that removing the unit leaves the remaining data and
+  the prior unable to identify some combination of parameters — a
+  finding about that unit, worth inspecting rather than worked around.
 
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
   computed `se_diff` from pointwise contributions that did not match the
