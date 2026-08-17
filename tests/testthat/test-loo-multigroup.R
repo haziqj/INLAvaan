@@ -299,7 +299,7 @@ test_that("conditional flavour scores fixed.x multigroup fits", {
   )
   # A few influential rows have no second-order term, which takes every
   # estimate for this fit down to first order
-  expect_warning(res_x <- loo(fit_x), "No second-order term exists")
+  expect_warning(res_x <- loo(fit_x), "no second-order term")
   expect_equal(res_x$flavour, "conditional")
   expect_lt(res_x$n_ok, res_x$n_units)
   expect_false(res_x$use_second)

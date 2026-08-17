@@ -152,7 +152,7 @@ test_that("a missing second-order term takes the whole statistic to first order"
   # is not identified for that unit
   expect_warning(
     loo(fit, Sigma = S * 4, cores = 1L),
-    "No second-order term exists"
+    "no second-order term"
   )
 })
 

@@ -330,23 +330,25 @@ print.inlavaan_loo <- function(x, ...) {
   # order. The log CPO condition takes every estimate down with it; a missing
   # second-order lpd reaches p_loo alone.
   if (isTRUE(x$second_order) && x$n_ok < x$n_units) {
+    n <- x$n_units
+    n_bad <- n - x$n_ok
     cat(
-      "\nNo second-order term for ",
-      x$n_units - x$n_ok,
-      " of ",
-      x$n_units,
-      " units (k_max >= 1);\n",
-      "all estimates are reported at first order.\n",
+      "\n",
+      pluralize(
+        "{n_bad} of {n} units {qty(n_bad)}{?has/have} no second-order term"
+      ),
+      " (k_max >= 1);\nall estimates are reported at first order.\n",
       sep = ""
     )
   } else if (isTRUE(x$second_order) && x$n_lpd_ok < x$n_units) {
+    n <- x$n_units
+    n_bad <- n - x$n_lpd_ok
     cat(
-      "\nNo second-order lpd for ",
-      x$n_units - x$n_lpd_ok,
-      " of ",
-      x$n_units,
-      " units;\n",
-      "p_loo is reported at first order.\n",
+      "\n",
+      pluralize(
+        "{n_bad} of {n} units {qty(n_bad)}{?has/have} no second-order lpd"
+      ),
+      ";\np_loo is reported at first order.\n",
       sep = ""
     )
   }

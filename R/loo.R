@@ -1391,10 +1391,13 @@ inlav_loo <- function(
     p_loo_2 <- NA_real_
   }
   if (isTRUE(second_order) && n_ok < n_units) {
+    n_bad <- n_units - n_ok
     cli_warn(c(
-      "No second-order term exists for {n_units - n_ok} of {n_units} units.",
-      "i" = "Their case-deletion integral diverges ({.field k_max} at or above
-             1), which is what leaves the term undefined.",
+      "{n_bad} of {n_units} units {qty(n_bad)}{?has/have} no second-order
+       term.",
+      "i" = "{qty(n_bad)}{?Its/Their} case-deletion integral diverges
+             ({.field k_max} at or above 1), which is what leaves the term
+             undefined.",
       "i" = "Every estimate is reported at first order instead, so the totals
              remain an approximation of one order throughout.",
       "i" = "Such units are individually influential enough that

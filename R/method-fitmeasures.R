@@ -473,9 +473,11 @@ inlav_fit_measures <- function(
     # computed, so say it here too: a stored LOO warned at fit time and would
     # otherwise hand back first-order measures without a word
     if (isTRUE(res_loo$second_order) && res_loo$n_ok < res_loo$n_units) {
+      n_loo <- res_loo$n_units
+      n_bad <- n_loo - res_loo$n_ok
       cli_warn(c(
-        "{res_loo$n_units - res_loo$n_ok} of {res_loo$n_units} units have no
-         second-order term ({.field k_max} at or above 1).",
+        "{n_bad} of {n_loo} units {qty(n_bad)}{?has/have} no second-order
+         term ({.field k_max} at or above 1).",
         "i" = "{.field elpd_loo}, {.field p_loo} and {.field looic} are
                reported at first order. See {.fun loo}."
       ))
