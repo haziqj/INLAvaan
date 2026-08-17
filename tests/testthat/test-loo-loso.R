@@ -39,18 +39,21 @@ test_that("LOSO matches reference values", {
   expect_equal(res$se_2, 16.1424977191, tolerance = 1e-4)
   expect_equal(res$p_loo_1, 28.1110170037, tolerance = 1e-4)
   # Every log CPO term exists here, but one unit has no second-order lpd, so
-  # elpd_loo keeps its second order and p_loo simply omits that unit
+  # elpd_loo keeps its second order and that unit contributes its first-order
+  # difference to p_loo
   expect_equal(res$n_ok, 40L)
   expect_equal(res$n_lpd_ok, 39L)
   expect_true(res$use_second)
-  expect_equal(res$p_loo_2, 33.8073861249, tolerance = 1e-4)
+  expect_equal(res$p_loo_2, 35.5963931926, tolerance = 1e-4)
   expect_equal(unname(res$estimates["elpd_loo", "Estimate"]), res$elpd_2)
   expect_equal(unname(res$estimates["p_loo", "Estimate"]), res$p_loo_2)
-  # ... which is the sum over the 39 units that have both terms
+  # ... covering all 40 units, not the 39 with a second-order lpd
   pu_all <- res$per_unit
+  has2 <- !is.na(pu_all$lpd_2)
   expect_equal(
     res$p_loo_2,
-    sum((pu_all$lpd_2 - pu_all$log_cpo_2)[!is.na(pu_all$lpd_2)])
+    sum((pu_all$lpd_2 - pu_all$log_cpo_2)[has2]) +
+      sum((pu_all$lpd_1 - pu_all$log_cpo_1)[!has2])
   )
 
   pu <- res$per_unit[c(1L, 20L, 40L), ]
@@ -73,6 +76,22 @@ test_that("LOSO matches reference values", {
     pu$det_term,
     c(-0.3503871084, -0.3930981418, -0.2827972374),
     tolerance = 1e-3
+  )
+})
+
+test_that("an omitted lpd unit informs rather than warns", {
+  # A missing lpd term is the ordinary state of an SEM fit and leaves
+  # elpd_loo untouched, so it must not carry warning severity -- otherwise
+  # nearly every loo() call would warn and users would learn to ignore it.
+  # The k_max >= 1 case is the rare one, and that does warn (test-loo-loco.R).
+  expect_no_warning(loo(fit, cores = 1L))
+  expect_message(loo(fit, cores = 1L), "first-order contribution for 1 of 40")
+  # ... and the same holds where p_loo actually reaches users, from a fit
+  # carrying a stored LOO result
+  expect_no_warning(fitMeasures(fit_with_loo, "p_loo"))
+  expect_message(
+    fitMeasures(fit_with_loo, "p_loo"),
+    "first-order contribution for 1 of 40"
   )
 })
 

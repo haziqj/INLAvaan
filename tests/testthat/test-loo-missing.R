@@ -64,12 +64,13 @@ test_that("FIML LOSO matches reference values", {
   expect_equal(res$se_1, 21.8869310500, tolerance = 1e-4)
   expect_equal(res$se_2, 22.5837971790, tolerance = 1e-4)
   expect_equal(res$p_loo_1, 27.7612891234, tolerance = 1e-2)
-  # A unit here has no second-order lpd and is omitted from p_loo, while
-  # elpd_loo keeps its second order (see test-loo-loso.R).
+  # A unit here has no second-order lpd and contributes its first-order
+  # difference to p_loo, while elpd_loo keeps its second order (see
+  # test-loo-loso.R).
   expect_equal(res$n_ok, res$n_units)
   expect_lt(res$n_lpd_ok, res$n_units)
   expect_true(res$use_second)
-  expect_equal(res$p_loo_2, 31.1295585209, tolerance = 1e-2)
+  expect_equal(res$p_loo_2, 32.7683746310, tolerance = 1e-2)
   expect_equal(unname(res$estimates["p_loo", "Estimate"]), res$p_loo_2)
 
   # rows spanning complete (4), one hole (2), and three holes (11)

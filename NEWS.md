@@ -12,15 +12,17 @@
   rather than a mix of two — substituting first-order terms for the failing
   units alone drops exactly the curvature that made the integral diverge,
   giving an error that is systematic, one-directional and concentrated on
-  those units. `p_loo` is treated differently, being a diagnostic aggregate
-  of per-unit shares rather than a predictive score whose meaning depends on
-  a fixed unit set: it keeps the order of the `elpd_loo` it accompanies and
-  is summed over the units having both second-order terms, so a unit missing
-  only the `lpd` term is omitted from `p_loo` while `elpd_loo` and `looic`
-  are unaffected. Both cases warn — from `loo()` and, for the log CPO case,
-  from `fitmeasures()` — with the omission from `p_loo` quantified by the
-  omitted units' first-order contributions. This changes `elpd_loo`/`looic`
-  for fits with any `k_max >= 1`.
+  those units. A missing `lpd` term gets the opposite remedy, because the two
+  divergences mean opposite things: the case-deletion integral can genuinely
+  be infinite, but the `lpd` integral is always finite in truth (a density is
+  bounded), so a missing `lpd` term is an artefact of extrapolating the
+  quadratic rather than a feature of the unit. Its first-order contribution
+  recovers most of the true one — against a sampled reference, roughly 90%,
+  where dropping the unit recovers none — so such a unit now contributes its
+  first-order difference to `p_loo`, leaving `elpd_loo` and `looic` untouched.
+  The log CPO case warns, from `loo()` and from `fitmeasures()`; the `lpd`
+  case, being the ordinary state of an SEM fit, is a message. This changes
+  `elpd_loo`/`looic` for fits with any `k_max >= 1`.
 
 * `compare()` computed `se_diff` from pointwise contributions that did not
   match the `elpd_diff` above them: units without a second-order term were

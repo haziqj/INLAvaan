@@ -1364,22 +1364,32 @@ inlav_loo <- function(
   # second-order lpd iff Sigma^-1 - H_u is; the second condition reads the
   # opposite end of the spectrum of Sigma H_u and only p_loo needs it.
   #
-  # elpd is a predictive score, so its meaning depends on scoring a fixed set
-  # of units: a missing log CPO term takes every estimate down to first order
-  # over all units rather than dropping the unit (which would score the model
-  # over fewer units, flattering it) or substituting its first-order term
-  # (which would leave the total a mix of two orders, wrong by exactly the
-  # curvature that made the term diverge). p_loo is not a score but a
-  # diagnostic aggregate of per-unit shares of the effective dimension, and is
-  # not used to rank models, so it keeps the order of the elpd it accompanies
-  # and simply sums the units that have both terms.
+  # The two divergences mean opposite things, so they get opposite remedies.
+  #
+  # E[1/p(y_u|theta)] can genuinely be infinite, so a missing log CPO term
+  # says the unit's true leave-one-out term really is extreme; a first-order
+  # stand-in, which ignores exactly the curvature that made the integral
+  # diverge, would be wrong by an unbounded amount. elpd is also a predictive
+  # score, whose meaning depends on scoring a fixed set of units, so dropping
+  # the unit would score the model over fewer units and flatter it. Hence:
+  # every estimate falls to first order over all units.
+  #
+  # E[p(y_u|theta)] is always finite in truth (a density is bounded), so a
+  # missing lpd term is an artefact of extrapolating the quadratic, not a
+  # feature of the unit: its true contribution is ordinary, and its
+  # first-order contribution recovers roughly 90% of it against a sampled
+  # reference, against 0% for dropping the unit. Hence: substitute.
   n_ok <- sum(per_unit$ok)
   has_lpd_2 <- !is.na(per_unit$lpd_2)
   n_lpd_ok <- sum(has_lpd_2)
   if (isTRUE(second_order) && n_ok == n_units) {
     elpd_2 <- sum(per_unit$log_cpo_2)
     se_2 <- sqrt(n_units * var(per_unit$log_cpo_2))
-    p_diff_2 <- (per_unit$lpd_2 - per_unit$log_cpo_2)[has_lpd_2]
+    p_diff_2 <- ifelse(
+      has_lpd_2,
+      per_unit$lpd_2 - per_unit$log_cpo_2,
+      p_diff_1
+    )
     p_loo_2 <- sum(p_diff_2)
   } else {
     elpd_2 <- se_2 <- p_loo_2 <- NA_real_
@@ -1400,17 +1410,17 @@ inlav_loo <- function(
     ))
   } else if (isTRUE(second_order) && n_lpd_ok < n_units) {
     n_bad <- n_units - n_lpd_ok
-    # The omitted units' first-order differences are always computable, so the
-    # warning can size the omission instead of just naming it
-    omitted <- sum(p_diff_1[!has_lpd_2])
-    cli_warn(c(
-      "{.field p_loo} omits {n_bad} of {n_units} units, which
-       {qty(n_bad)}{?has/have} no second-order lpd.",
-      "i" = "{qty(n_bad)}{?Its/Their} first-order contribution to
-             {.field p_loo} is {round(omitted, 2)}, so it is understated by
-             roughly that much. {.field elpd_loo} and {.field looic} are
-             unaffected.",
-      "i" = "Use {.code second_order = FALSE} for a p_loo over every unit."
+    # Informed rather than warned: a missing lpd term is the ordinary state of
+    # an SEM fit, it leaves elpd_loo and looic untouched, and a warning at that
+    # frequency would only teach users to stop reading warnings.
+    substituted <- sum(p_diff_1[!has_lpd_2])
+    cli_inform(c(
+      "!" = "{.field p_loo} uses the first-order contribution for {n_bad} of
+             {n_units} units, which {qty(n_bad)}{?has/have} no second-order
+             lpd.",
+      "i" = "{qty(n_bad)}{?That/Those} {qty(n_bad)}{?contributes/contribute}
+             {round(substituted, 2)} of {round(p_loo_2, 2)}.
+             {.field elpd_loo} and {.field looic} are unaffected."
     ))
   }
 

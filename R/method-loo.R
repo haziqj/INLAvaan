@@ -33,22 +33,23 @@
 #' term is `NA` in `per_unit`, with `per_unit$ok` recording the
 #' \eqn{\log \mathrm{CPO}} condition.
 #'
-#' The two failures are handled differently, because the two statistics are
-#' different kinds of thing. `elpd_loo` is a predictive score, so its meaning
-#' depends on scoring a fixed set of units: if any
-#' \eqn{\log \mathrm{CPO}_u^{(2)}} is missing, every estimate is reported at
-#' *first order over all units*, and warns. Dropping the unit instead would
-#' score the model over fewer units and so flatter it, while substituting its
-#' first-order term would discard exactly the curvature that made the integral
-#' diverge, leaving the total an approximation of no single order.
-#' `p_loo` is not a score but a diagnostic aggregate of per-unit shares of the
-#' effective dimension, and is not used to rank models; it keeps the order of
-#' the `elpd_loo` it accompanies and is summed over the units that have both
-#' second-order terms. A unit missing only \eqn{\mathrm{lpd}_u^{(2)}} is
-#' therefore omitted from `p_loo`, which understates it, while `elpd_loo` and
-#' `looic` are unaffected. That omission warns too, quantified by the omitted
-#' units' first-order contributions, and `second_order = FALSE` gives a
-#' `p_loo` over every unit.
+#' The two failures get opposite remedies, because the two divergences mean
+#' opposite things. \eqn{E[1/p(y_u \mid \theta)]} can genuinely be infinite,
+#' so a missing \eqn{\log \mathrm{CPO}_u^{(2)}} says the unit's true
+#' leave-one-out term really is extreme, and a first-order stand-in --
+#' ignoring exactly the curvature that made the integral diverge -- would be
+#' wrong by an unbounded amount. `elpd_loo` is also a predictive score, whose
+#' meaning depends on scoring a fixed set of units, so dropping the unit would
+#' score the model over fewer units and flatter it. Every estimate is
+#' therefore reported at *first order over all units*, and warns.
+#'
+#' \eqn{E[p(y_u \mid \theta)]}, by contrast, is always finite in truth (a
+#' density is bounded), so a missing \eqn{\mathrm{lpd}_u^{(2)}} is an artefact
+#' of extrapolating the quadratic rather than a feature of the unit: its true
+#' contribution is ordinary, and its first-order contribution recovers most of
+#' it. Such a unit therefore contributes its first-order difference to `p_loo`
+#' while `elpd_loo` and `looic` are unaffected, which is reported as a message
+#' rather than a warning.
 #'
 #' Two curvature diagnostics accompany each unit. Writing the importance
 #' ratio between the unit-deleted and full posteriors as
@@ -199,10 +200,10 @@
 #'     \item{`estimates`}{Matrix with rows `elpd_loo`, `p_loo`, `looic` and
 #'       columns `Estimate`, `SE`, at the highest order available to each.}
 #'     \item{`elpd_1`, `elpd_2`, `se_1`, `se_2`, `p_loo_1`, `p_loo_2`}{
-#'       First- and second-order aggregates. `p_loo_1` covers every unit;
-#'       `p_loo_2` covers those with both second-order terms. All the
-#'       second-order ones are `NA` when any
-#'       \eqn{\log \mathrm{CPO}_u^{(2)}} does not exist.}
+#'       First- and second-order aggregates, all over every unit; `p_loo_2`
+#'       takes a unit's first-order difference where its
+#'       \eqn{\mathrm{lpd}^{(2)}} does not exist. The second-order ones are
+#'       `NA` when any \eqn{\log \mathrm{CPO}_u^{(2)}} does not exist.}
 #'     \item{`type`, `flavour`, `n_units`, `n_groups`, `n_ok`, `n_lpd_ok`,
 #'       `second_order`, `use_second`, `theta_overridden`}{Metadata; `n_ok`
 #'       and `n_lpd_ok` count the units whose second-order
@@ -353,9 +354,9 @@ print.inlavaan_loo <- function(x, ...) {
     cat(
       "\n",
       pluralize(
-        "p_loo omits {n_bad} of {n} units with no second-order lpd"
+        "p_loo uses first-order contributions for {n_bad} of {n} units"
       ),
-      ";\nelpd_loo and looic are unaffected.\n",
+      "\nwith no second-order lpd; elpd_loo and looic are unaffected.\n",
       sep = ""
     )
   }
