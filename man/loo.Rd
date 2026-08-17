@@ -78,14 +78,19 @@ fits only), \code{nobs} (1 for LOSO, the cluster size for LOCO),
 \code{l_star} (unit log-likelihood at the summary), \code{score_norm},
 \code{lpd_1}/\code{lpd_2} (pointwise log predictive density),
 \code{log_cpo_1}/\code{log_cpo_2} (pointwise LOO contributions), \code{det_term},
-\code{k_max}/\code{k_sum} (tail-index diagnostics, see below), and \code{ok}
-(second-order success flag).}
+\code{k_max}/\code{k_sum} (leverage diagnostics, see below), and \code{ok}
+(whether the second-order \eqn{\log \mathrm{CPO}} exists).}
 \item{\code{estimates}}{Matrix with rows \code{elpd_loo}, \code{p_loo}, \code{looic} and
-columns \code{Estimate}, \code{SE} (headline second-order values).}
+columns \code{Estimate}, \code{SE}, at the highest order available to each.}
 \item{\code{elpd_1}, \code{elpd_2}, \code{se_1}, \code{se_2}, \code{p_loo_1}, \code{p_loo_2}}{
-First- and second-order aggregates.}
-\item{\code{type}, \code{flavour}, \code{n_units}, \code{n_groups}, \code{n_ok},
-\code{second_order}, \code{theta_overridden}}{Metadata; \code{flavour} records
+First- and second-order aggregates; the second-order ones are \code{NA}
+when any term they need does not exist.}
+\item{\code{type}, \code{flavour}, \code{n_units}, \code{n_groups}, \code{n_ok}, \code{n_lpd_ok},
+\code{second_order}, \code{use_second}, \code{use_second_p},
+\code{theta_overridden}}{Metadata; \code{n_ok} and \code{n_lpd_ok} count the units
+whose second-order \eqn{\log \mathrm{CPO}} and \eqn{\mathrm{lpd}}
+exist, \code{use_second} and \code{use_second_p} record the order actually
+used for \code{elpd_loo} and for \code{p_loo}; \code{flavour} records
 whether units were scored jointly with their covariates
 (\code{"joint"}) or conditionally on them (\code{"conditional"}, for
 \code{fixed.x} fits).}
@@ -119,11 +124,27 @@ when \code{second_order = FALSE}), with standard error
 \code{looic} \eqn{= -2 \, \mathrm{elpd}}. The effective number of parameters is
 \eqn{p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)},
 where \eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
-full-posterior pointwise log predictive density. Units whose second-order
-curvature matrix is not positive definite have no second-order term at all
-(the underlying integral diverges): \code{per_unit$log_cpo_2} is \code{NA} and
-\code{per_unit$ok} is \code{FALSE} for them, while the reported aggregates substitute
-that unit's first-order term, so every scored unit contributes to the total.
+full-posterior pointwise log predictive density.
+
+\strong{Existence, and a single order throughout.} The second-order terms are
+Gaussian integrals that need not converge. \eqn{\log \mathrm{CPO}_u^{(2)}}
+exists exactly when \eqn{\Sigma^{-1} + H_u} is positive definite, and
+\eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Sigma^{-1} - H_u} is; these
+are separate conditions on the same \eqn{H_u}, and a unit can satisfy one
+and fail the other. A missing term is \code{NA} in \code{per_unit}, with
+\code{per_unit$ok} recording the \eqn{\log \mathrm{CPO}} condition.
+
+When a term any statistic needs does not exist, that statistic is reported
+at \emph{first order over every unit} rather than substituting a first-order
+term for the failing units alone. Such a substitution drops precisely the
+curvature that made the integral diverge, so its error is systematic,
+one-directional and concentrated on the units it is applied to, and the
+resulting total would be an approximation of no single order. Because the
+two conditions are gated separately, \code{p_loo} can fall to first order while
+\code{elpd_loo} and \code{looic} remain at second order; each is order-homogeneous in
+itself. Failures of the \eqn{\log \mathrm{CPO}} condition warn, since they
+say the unit is influential enough that leave-one-out is not identified
+from the fit; both cases are noted when the result is printed.
 
 Two tail-index diagnostics accompany each unit. Writing the importance
 ratio between the unit-deleted and full posteriors as

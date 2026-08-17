@@ -111,34 +111,49 @@ test_that("tail-index diagnostics satisfy their defining identities", {
   expect_true(all(is.na(res1$per_unit$k_sum)))
 })
 
-test_that("aggregates substitute first order for units lacking a second-order term", {
+test_that("a missing second-order term takes the whole statistic to first order", {
   S <- get_inlavaan_internal(fit)$Sigma_theta
   # Inflating Sigma scales every k_u linearly, driving A_u = Sigma^-1 + H_u
   # toward the negative-definite H_u, so units lose their second-order term
   # deterministically rather than by a lucky data seed.
 
-  # Nothing fails here: the fallback must be a no-op.
+  # Nothing fails here: the second-order total is the plain sum, no warning.
+  expect_equal(res$n_ok, res$n_units)
+  expect_true(res$use_second)
   expect_equal(res$elpd_2, sum(res$per_unit$log_cpo_2))
+  expect_no_warning(loo(fit, cores = 1L))
 
-  # Every unit fails: the total is the first-order total, not an empty sum of 0.
+  # Every unit fails: there is no second-order total to report at all.
   r_all <- suppressWarnings(loo(fit, Sigma = S * 1e6, cores = 1L))
   expect_equal(r_all$n_ok, 0L)
   expect_true(all(is.na(r_all$per_unit$log_cpo_2)))
-  expect_equal(r_all$elpd_2, r_all$elpd_1)
+  expect_true(is.na(r_all$elpd_2))
+  expect_false(r_all$use_second)
+  expect_equal(unname(r_all$estimates["elpd_loo", "Estimate"]), r_all$elpd_1)
 
-  # Some units fail: the total blends the two orders and keeps all n units.
+  # Some units fail, and that is enough: elpd_loo is the first-order total
+  # over all n units. It is neither a blend of the two orders nor the
+  # second-order sum over the surviving units, which would score the model
+  # over fewer units and so flatter it.
   r_mix <- suppressWarnings(loo(fit, Sigma = S * 4, cores = 1L))
   pu <- r_mix$per_unit
   expect_true(any(is.na(pu$log_cpo_2)))
   expect_false(all(is.na(pu$log_cpo_2)))
+  expect_true(is.na(r_mix$elpd_2))
+  expect_equal(unname(r_mix$estimates["elpd_loo", "Estimate"]), r_mix$elpd_1)
   blended <- ifelse(is.na(pu$log_cpo_2), pu$log_cpo_1, pu$log_cpo_2)
-  expect_equal(r_mix$elpd_2, sum(blended))
-  # ... and is not the sum that silently drops them, which scores the model
-  # over fewer units and so flatters it
-  expect_false(isTRUE(all.equal(r_mix$elpd_2, sum(pu$log_cpo_2, na.rm = TRUE))))
+  expect_false(isTRUE(all.equal(r_mix$elpd_1, sum(blended))))
+  expect_false(isTRUE(all.equal(r_mix$elpd_1, sum(pu$log_cpo_2, na.rm = TRUE))))
 
-  # The pointwise column stays honest: only the aggregates fall back.
+  # The pointwise column records the same failures the aggregates react to.
   expect_true(all(is.na(pu$log_cpo_2) == !pu$ok))
+
+  # A missing log CPO term warns; it is the condition that says leave-one-out
+  # is not identified for that unit
+  expect_warning(
+    loo(fit, Sigma = S * 4, cores = 1L),
+    "No second-order term exists"
+  )
 })
 
 test_that("LOCO unit subsetting and theta/Sigma override", {

@@ -889,15 +889,11 @@ taylor_loo_unit <- function(
   out
 }
 
-# Pointwise log CPO behind the headline ELPD: the second-order term where it
-# exists, that unit's first-order term where it does not. inlav_loo() sums it
-# for the aggregates and compare() pairs it across models, so the reported
-# elpd_diff and its se_diff rest on the same per-unit contributions.
+# Pointwise log CPO behind the headline ELPD, at whichever order that ELPD was
+# reported at. compare() pairs it across models so that the reported elpd_diff
+# and its se_diff rest on the same per-unit contributions.
 loo_headline_pointwise <- function(per_unit, use_second) {
-  if (!isTRUE(use_second)) {
-    return(per_unit$log_cpo_1)
-  }
-  ifelse(is.na(per_unit$log_cpo_2), per_unit$log_cpo_1, per_unit$log_cpo_2)
+  if (isTRUE(use_second)) per_unit$log_cpo_2 else per_unit$log_cpo_1
 }
 
 # Insert a group column (labels when available) after `unit` for multigroup
@@ -1363,45 +1359,58 @@ inlav_loo <- function(
   # honest NA; only the aggregates fall back.
   elpd_1 <- sum(per_unit$log_cpo_1)
   se_1 <- sqrt(n_units * var(per_unit$log_cpo_1))
-  p_loo_1 <- sum(per_unit$lpd_1 - per_unit$log_cpo_1)
+  p_diff_1 <- per_unit$lpd_1 - per_unit$log_cpo_1
+  p_loo_1 <- sum(p_diff_1)
+
+  # Every reported statistic stays at a single approximation order. A unit's
+  # second-order log CPO exists iff Sigma^-1 + H_u is positive definite
+  # (equivalently k_u < 1); its second-order lpd, which only p_loo needs,
+  # exists iff Sigma^-1 - H_u is. These are separate conditions on the same
+  # H_u, so they are gated separately. Where a term does not exist, the
+  # statistic needing it reverts to first order over *all* units rather than
+  # substituting a first-order term for the failing ones alone: that
+  # substitution ignores exactly the curvature that made the term diverge, so
+  # its error is systematic, one-directional and concentrated on the units it
+  # is applied to, and the total would no longer be an approximation of any
+  # single order.
   n_ok <- sum(per_unit$ok)
-  if (isTRUE(second_order)) {
-    cpo_mix <- loo_headline_pointwise(per_unit, TRUE)
-    elpd_2 <- sum(cpo_mix)
-    se_2 <- sqrt(n_units * var(cpo_mix))
-    # p_loo differences stay order-consistent within a unit. lpd_2 can be void
-    # independently of log_cpo_2 (it factorises Sigma^-1 - H_u rather than
-    # Sigma^-1 + H_u), and pairing lpd_1 with log_cpo_2 would mix orders inside
-    # a single unit's difference, so such a unit uses first order on both sides.
-    both_2 <- !is.na(per_unit$lpd_2) & !is.na(per_unit$log_cpo_2)
-    p_diff_2 <- ifelse(
-      both_2,
-      per_unit$lpd_2 - per_unit$log_cpo_2,
-      per_unit$lpd_1 - per_unit$log_cpo_1
-    )
-    p_loo_2 <- sum(p_diff_2)
-    if (n_ok < ceiling(0.9 * n_units)) {
-      cli_warn(c(
-        "{n_units - n_ok} of {n_units} units fell back to the first-order
-         approximation (non-positive-definite curvature).",
-        "i" = "The Gaussian posterior summary may be a poor fit."
-      ))
-    }
+  n_lpd_ok <- sum(!is.na(per_unit$lpd_2))
+  if (isTRUE(second_order) && n_ok == n_units) {
+    elpd_2 <- sum(per_unit$log_cpo_2)
+    se_2 <- sqrt(n_units * var(per_unit$log_cpo_2))
   } else {
-    elpd_2 <- se_2 <- p_loo_2 <- NA_real_
+    elpd_2 <- se_2 <- NA_real_
+  }
+  if (isTRUE(second_order) && n_ok == n_units && n_lpd_ok == n_units) {
+    p_diff_2 <- per_unit$lpd_2 - per_unit$log_cpo_2
+    p_loo_2 <- sum(p_diff_2)
+  } else {
+    p_diff_2 <- NULL
+    p_loo_2 <- NA_real_
+  }
+  if (isTRUE(second_order) && n_ok < n_units) {
+    cli_warn(c(
+      "No second-order term exists for {n_units - n_ok} of {n_units} units.",
+      "i" = "Their case-deletion integral diverges ({.field k_max} at or above
+             1), which is what leaves the term undefined.",
+      "i" = "Every estimate is reported at first order instead, so the totals
+             remain an approximation of one order throughout.",
+      "i" = "Such units are individually influential enough that
+             leave-one-out is not identified from this fit alone."
+    ))
   }
 
-  use_second <- isTRUE(second_order) && n_ok > 0L
+  # elpd and p_loo are gated separately, so p_loo can sit at first order while
+  # elpd is at second; each is order-homogeneous in itself
+  use_second <- isTRUE(second_order) && is.finite(elpd_2)
+  use_second_p <- isTRUE(second_order) && is.finite(p_loo_2)
   elpd_loo <- if (use_second) elpd_2 else elpd_1
   se_elpd <- if (use_second) se_2 else se_1
-  p_loo <- if (use_second && is.finite(p_loo_2)) p_loo_2 else p_loo_1
-  p_diff <- per_unit$lpd_1 - per_unit$log_cpo_1
-  if (use_second && is.finite(p_loo_2)) {
-    p_diff <- p_diff_2
-  }
+  p_loo <- if (use_second_p) p_loo_2 else p_loo_1
+  p_diff <- if (use_second_p) p_diff_2 else p_diff_1
   estimates <- cbind(
     Estimate = c(elpd_loo, p_loo, -2 * elpd_loo),
-    SE = c(se_elpd, sqrt(n_units * var(p_diff, na.rm = TRUE)), 2 * se_elpd)
+    SE = c(se_elpd, sqrt(n_units * var(p_diff)), 2 * se_elpd)
   )
   rownames(estimates) <- c("elpd_loo", "p_loo", "looic")
 
@@ -1420,7 +1429,10 @@ inlav_loo <- function(
       n_units = n_units,
       n_groups = lavdata@ngroups,
       n_ok = n_ok,
+      n_lpd_ok = n_lpd_ok,
       second_order = isTRUE(second_order),
+      use_second = use_second,
+      use_second_p = use_second_p,
       theta_overridden = theta_overridden
     ),
     class = "inlavaan_loo"

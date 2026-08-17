@@ -3,11 +3,21 @@
 ## Bug fixes
 
 * `loo()` no longer drops units without a second-order term from `elpd_loo`,
-  `p_loo` and their standard errors. A unit whose curvature matrix is not
-  positive definite has no second-order value, and the aggregates summed over
-  the remaining units only. Such units now contribute their first-order term, as 
-  the documentation already described. The pointwise `log_cpo_2` column keeps 
-  its `NA`. This changes `p_loo` for fits with any such unit.
+  `p_loo` and their standard errors, which summed the model over fewer units
+  and so flattered it. A second-order term is a Gaussian integral that need
+  not converge: the log CPO term exists only where `k_max < 1`, the `lpd`
+  term only where the complementary condition on the same curvature holds.
+  Where a term a statistic needs does not exist, that statistic is now
+  reported at first order over *all* units, so it remains an approximation of
+  one order rather than a mix of two — substituting first-order terms for the
+  failing units alone drops exactly the curvature that made the integral
+  diverge, giving an error that is systematic, one-directional and
+  concentrated on those units. The two conditions are gated separately, so
+  `p_loo` may be reported at first order while `elpd_loo` and `looic` stay at
+  second order. A missing log CPO term now warns, from `loo()` and from
+  `fitmeasures()`, and the order used is stated when a result is printed.
+  This changes `p_loo` for fits with any such unit, and `elpd_loo`/`looic`
+  for fits with any `k_max >= 1`.
 
 * `compare()` computed `se_diff` from pointwise contributions that did not
   match the `elpd_diff` above them: units without a second-order term were

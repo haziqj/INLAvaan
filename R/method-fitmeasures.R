@@ -469,6 +469,17 @@ inlav_fit_measures <- function(
     out["p_loo"] <- res_loo$estimates["p_loo", "Estimate"]
     out["looic"] <- res_loo$estimates["looic", "Estimate"]
     out["se_loo"] <- res_loo$estimates["looic", "SE"]
+    # The order used is a property of the numbers, not of when they were
+    # computed, so say it here too: a stored LOO warned at fit time and would
+    # otherwise hand back first-order measures without a word
+    if (isTRUE(res_loo$second_order) && res_loo$n_ok < res_loo$n_units) {
+      cli_warn(c(
+        "{res_loo$n_units - res_loo$n_ok} of {res_loo$n_units} units have no
+         second-order term ({.field k_max} at or above 1).",
+        "i" = "{.field elpd_loo}, {.field p_loo} and {.field looic} are
+               reported at first order. See {.fun loo}."
+      ))
+    }
   }
 
   # WAIC: free when stored with the fit; otherwise sampling-based, computed

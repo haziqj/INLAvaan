@@ -297,10 +297,14 @@ test_that("conditional flavour scores fixed.x multigroup fits", {
     asem,
     c(list(mod_x, dat_mg_x, group = "school", fixed.x = TRUE), fit_args)
   )
-  res_x <- loo(fit_x)
+  # A few influential rows have no second-order term, which takes every
+  # estimate for this fit down to first order
+  expect_warning(res_x <- loo(fit_x), "No second-order term exists")
   expect_equal(res_x$flavour, "conditional")
-  # a couple of influential rows fall back to first order by design
-  expect_gte(res_x$n_ok, ceiling(0.9 * res_x$n_units))
+  expect_lt(res_x$n_ok, res_x$n_units)
+  expect_false(res_x$use_second)
+  expect_true(is.na(res_x$elpd_2))
+  expect_equal(unname(res_x$estimates["elpd_loo", "Estimate"]), res_x$elpd_1)
   expect_true(all(is.finite(res_x$per_unit$log_cpo_1)))
   expect_true(all(is.finite(res_x$per_unit$log_cpo_2[res_x$per_unit$ok])))
   # the NA grade row is listwise-deleted, so its case id is not a unit

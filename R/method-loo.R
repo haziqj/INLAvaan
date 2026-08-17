@@ -22,11 +22,27 @@
 #' `looic` \eqn{= -2 \, \mathrm{elpd}}. The effective number of parameters is
 #' \eqn{p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)},
 #' where \eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
-#' full-posterior pointwise log predictive density. Units whose second-order
-#' curvature matrix is not positive definite have no second-order term at all
-#' (the underlying integral diverges): `per_unit$log_cpo_2` is `NA` and
-#' `per_unit$ok` is `FALSE` for them, while the reported aggregates substitute
-#' that unit's first-order term, so every scored unit contributes to the total.
+#' full-posterior pointwise log predictive density.
+#'
+#' **Existence, and a single order throughout.** The second-order terms are
+#' Gaussian integrals that need not converge. \eqn{\log \mathrm{CPO}_u^{(2)}}
+#' exists exactly when \eqn{\Sigma^{-1} + H_u} is positive definite, and
+#' \eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Sigma^{-1} - H_u} is; these
+#' are separate conditions on the same \eqn{H_u}, and a unit can satisfy one
+#' and fail the other. A missing term is `NA` in `per_unit`, with
+#' `per_unit$ok` recording the \eqn{\log \mathrm{CPO}} condition.
+#'
+#' When a term any statistic needs does not exist, that statistic is reported
+#' at *first order over every unit* rather than substituting a first-order
+#' term for the failing units alone. Such a substitution drops precisely the
+#' curvature that made the integral diverge, so its error is systematic,
+#' one-directional and concentrated on the units it is applied to, and the
+#' resulting total would be an approximation of no single order. Because the
+#' two conditions are gated separately, `p_loo` can fall to first order while
+#' `elpd_loo` and `looic` remain at second order; each is order-homogeneous in
+#' itself. Failures of the \eqn{\log \mathrm{CPO}} condition warn, since they
+#' say the unit is influential enough that leave-one-out is not identified
+#' from the fit; both cases are noted when the result is printed.
 #'
 #' Two tail-index diagnostics accompany each unit. Writing the importance
 #' ratio between the unit-deleted and full posteriors as
@@ -171,14 +187,19 @@
 #'       `l_star` (unit log-likelihood at the summary), `score_norm`,
 #'       `lpd_1`/`lpd_2` (pointwise log predictive density),
 #'       `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions), `det_term`,
-#'       `k_max`/`k_sum` (tail-index diagnostics, see below), and `ok`
-#'       (second-order success flag).}
+#'       `k_max`/`k_sum` (leverage diagnostics, see below), and `ok`
+#'       (whether the second-order \eqn{\log \mathrm{CPO}} exists).}
 #'     \item{`estimates`}{Matrix with rows `elpd_loo`, `p_loo`, `looic` and
-#'       columns `Estimate`, `SE` (headline second-order values).}
+#'       columns `Estimate`, `SE`, at the highest order available to each.}
 #'     \item{`elpd_1`, `elpd_2`, `se_1`, `se_2`, `p_loo_1`, `p_loo_2`}{
-#'       First- and second-order aggregates.}
-#'     \item{`type`, `flavour`, `n_units`, `n_groups`, `n_ok`,
-#'       `second_order`, `theta_overridden`}{Metadata; `flavour` records
+#'       First- and second-order aggregates; the second-order ones are `NA`
+#'       when any term they need does not exist.}
+#'     \item{`type`, `flavour`, `n_units`, `n_groups`, `n_ok`, `n_lpd_ok`,
+#'       `second_order`, `use_second`, `use_second_p`,
+#'       `theta_overridden`}{Metadata; `n_ok` and `n_lpd_ok` count the units
+#'       whose second-order \eqn{\log \mathrm{CPO}} and \eqn{\mathrm{lpd}}
+#'       exist, `use_second` and `use_second_p` record the order actually
+#'       used for `elpd_loo` and for `p_loo`; `flavour` records
 #'       whether units were scored jointly with their covariates
 #'       (`"joint"`) or conditionally on them (`"conditional"`, for
 #'       `fixed.x` fits).}
@@ -283,11 +304,7 @@ print.inlavaan_loo <- function(x, ...) {
     loco = "leave-one-cluster-out"
   )
   unit_word <- switch(x$type, loso = "subject", loco = "cluster")
-  order_lab <- if (x$second_order && x$n_ok > 0L) {
-    "second-order"
-  } else {
-    "first-order"
-  }
+  order_lab <- if (isTRUE(x$use_second)) "second-order" else "first-order"
   cat("Taylor ", label, " cross-validation (INLAvaan)\n", sep = "")
   cat(
     "Computed from ",
@@ -308,13 +325,27 @@ print.inlavaan_loo <- function(x, ...) {
   }
   cat("\n")
   print(round(x$estimates, 1))
-  if (x$second_order && x$n_ok < x$n_units) {
+  # Which existence condition failed, and hence which estimates dropped an
+  # order. The log CPO condition takes every estimate down with it; a missing
+  # second-order lpd reaches p_loo alone.
+  if (isTRUE(x$second_order) && x$n_ok < x$n_units) {
     cat(
-      "\n",
+      "\nNo second-order term for ",
       x$n_units - x$n_ok,
       " of ",
       x$n_units,
-      " units fell back to first order (non-positive-definite curvature).\n",
+      " units (k_max >= 1);\n",
+      "all estimates are reported at first order.\n",
+      sep = ""
+    )
+  } else if (isTRUE(x$second_order) && x$n_lpd_ok < x$n_units) {
+    cat(
+      "\nNo second-order lpd for ",
+      x$n_units - x$n_lpd_ok,
+      " of ",
+      x$n_units,
+      " units;\n",
+      "p_loo is reported at first order.\n",
       sep = ""
     )
   }

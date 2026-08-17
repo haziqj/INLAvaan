@@ -348,7 +348,7 @@ compare_impl <- function(
     # se_diff is the standard error of the elpd_diff actually reported
     pw <- lapply(seq_along(loo_list), function(k) {
       l <- loo_list[[k]]
-      v <- loo_headline_pointwise(l$per_unit, l$second_order && l$n_ok > 0L)
+      v <- loo_headline_pointwise(l$per_unit, l$use_second)
       v[align[[k]]]
     })
     n_units <- nrow(pu1)

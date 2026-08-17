@@ -38,10 +38,16 @@ test_that("LOSO matches reference values", {
   expect_equal(res$se_1, 14.9606326798, tolerance = 1e-4)
   expect_equal(res$se_2, 16.1424977191, tolerance = 1e-4)
   expect_equal(res$p_loo_1, 28.1110170037, tolerance = 1e-4)
-  # Updated when the aggregates stopped dropping units without a second-order
-  # term: one unit here has lpd_2 void and now contributes its first-order
-  # difference instead of nothing.
-  expect_equal(res$p_loo_2, 35.5963931926, tolerance = 1e-4)
+  # Every log CPO term exists here, but one unit has no second-order lpd. The
+  # two conditions are gated separately, so elpd_loo keeps its second order
+  # while p_loo has no second-order value and reverts to first order.
+  expect_equal(res$n_ok, 40L)
+  expect_equal(res$n_lpd_ok, 39L)
+  expect_true(res$use_second)
+  expect_false(res$use_second_p)
+  expect_true(is.na(res$p_loo_2))
+  expect_equal(unname(res$estimates["elpd_loo", "Estimate"]), res$elpd_2)
+  expect_equal(unname(res$estimates["p_loo", "Estimate"]), res$p_loo_1)
 
   pu <- res$per_unit[c(1L, 20L, 40L), ]
   expect_equal(
@@ -292,7 +298,11 @@ test_that("fitMeasures reports LOO measures on request or when stored", {
   expect_equal(unname(fm["elpd_loo"]), res$elpd_2, tolerance = 1e-10)
   expect_equal(unname(fm["looic"]), -2 * res$elpd_2, tolerance = 1e-10)
   expect_equal(unname(fm["se_loo"]), 2 * res$se_2, tolerance = 1e-10)
-  expect_equal(unname(fm["p_loo"]), res$p_loo_2, tolerance = 1e-10)
+  expect_equal(
+    unname(fm["p_loo"]),
+    unname(res$estimates["p_loo", "Estimate"]),
+    tolerance = 1e-10
+  )
 
   # Stored: included in "all" for free
   fit2 <- fit_with_loo
