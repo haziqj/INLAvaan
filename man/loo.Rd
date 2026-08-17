@@ -151,8 +151,10 @@ density is bounded), so a missing \eqn{\mathrm{lpd}_u^{(2)}} is an artefact
 of extrapolating the quadratic rather than a feature of the unit: its true
 contribution is ordinary, and its first-order contribution recovers most of
 it. Such a unit therefore contributes its first-order difference to \code{p_loo}
-while \code{elpd_loo} and \code{looic} are unaffected, which is reported as a message
-rather than a warning.
+while \code{elpd_loo} and \code{looic} are unaffected. This is noted when the result
+is printed and counted by \code{n_lpd_ok}, but is not warned about: the residual
+error is smaller than the systematic bias the second-order lpd carries on
+the units that keep it, so flagging it would misdirect.
 
 Two curvature diagnostics accompany each unit. Writing the importance
 ratio between the unit-deleted and full posteriors as

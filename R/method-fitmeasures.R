@@ -469,10 +469,9 @@ inlav_fit_measures <- function(
     out["p_loo"] <- res_loo$estimates["p_loo", "Estimate"]
     out["looic"] <- res_loo$estimates["looic", "Estimate"]
     out["se_loo"] <- res_loo$estimates["looic", "SE"]
-    # How these numbers were formed is a property of the numbers, not of when
-    # they were computed. A stored LOO spoke at fit time, so without this a
-    # reloaded fit would hand back first-order or unit-omitting measures
-    # without a word. Each keeps the severity its source in loo() uses.
+    # The order used is a property of the numbers, not of when they were
+    # computed. A stored LOO warned at fit time, so without this a reloaded
+    # fit would hand back first-order measures without a word.
     n_loo <- res_loo$n_units
     if (isTRUE(res_loo$second_order) && res_loo$n_ok < n_loo) {
       n_bad <- n_loo - res_loo$n_ok
@@ -481,15 +480,6 @@ inlav_fit_measures <- function(
          term ({.field k_max} at or above 1).",
         "i" = "{.field elpd_loo}, {.field p_loo} and {.field looic} are
                reported at first order. See {.fun loo}."
-      ))
-    } else if (isTRUE(res_loo$second_order) && res_loo$n_lpd_ok < n_loo) {
-      n_bad <- n_loo - res_loo$n_lpd_ok
-      cli_inform(c(
-        "!" = "{.field p_loo} uses the first-order contribution for {n_bad} of
-               {n_loo} units, which {qty(n_bad)}{?has/have} no second-order
-               lpd.",
-        "i" = "{.field elpd_loo}, {.field looic} and {.field se_loo} are
-               unaffected. See {.fun loo}."
       ))
     }
   }

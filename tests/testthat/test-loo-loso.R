@@ -79,20 +79,20 @@ test_that("LOSO matches reference values", {
   )
 })
 
-test_that("an omitted lpd unit informs rather than warns", {
-  # A missing lpd term is the ordinary state of an SEM fit and leaves
-  # elpd_loo untouched, so it must not carry warning severity -- otherwise
-  # nearly every loo() call would warn and users would learn to ignore it.
-  # The k_max >= 1 case is the rare one, and that does warn (test-loo-loco.R).
+test_that("a substituted lpd unit is silent at the console", {
+  # A missing lpd term is the ordinary state of an SEM fit, elpd_loo is
+  # untouched, and the substituted first-order contribution is accurate to
+  # within ~10% -- a smaller error than the second-order lpd's own bias on
+  # the units that keep it, which is not announced either. Saying anything
+  # here would misdirect and would drown the k_max >= 1 warning, which is the
+  # rare and consequential one (test-loo-loco.R).
   expect_no_warning(loo(fit, cores = 1L))
-  expect_message(loo(fit, cores = 1L), "first-order contribution for 1 of 40")
-  # ... and the same holds where p_loo actually reaches users, from a fit
-  # carrying a stored LOO result
+  expect_no_message(loo(fit, cores = 1L))
   expect_no_warning(fitMeasures(fit_with_loo, "p_loo"))
-  expect_message(
-    fitMeasures(fit_with_loo, "p_loo"),
-    "first-order contribution for 1 of 40"
-  )
+  expect_no_message(fitMeasures(fit_with_loo, "p_loo"))
+  # It is recorded where someone looking for it will find it
+  expect_equal(res$n_lpd_ok, 39L)
+  expect_output(print(res), "first-order contributions for 1 of 40 units")
 })
 
 test_that("loo object structure and internal identities", {

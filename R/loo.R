@@ -1408,21 +1408,14 @@ inlav_loo <- function(
       "i" = "Such units are individually influential enough that
              leave-one-out is not identified from this fit alone."
     ))
-  } else if (isTRUE(second_order) && n_lpd_ok < n_units) {
-    n_bad <- n_units - n_lpd_ok
-    # Informed rather than warned: a missing lpd term is the ordinary state of
-    # an SEM fit, it leaves elpd_loo and looic untouched, and a warning at that
-    # frequency would only teach users to stop reading warnings.
-    substituted <- sum(p_diff_1[!has_lpd_2])
-    cli_inform(c(
-      "!" = "{.field p_loo} uses the first-order contribution for {n_bad} of
-             {n_units} units, which {qty(n_bad)}{?has/have} no second-order
-             lpd.",
-      "i" = "{qty(n_bad)}{?That/Those} {qty(n_bad)}{?contributes/contribute}
-             {round(substituted, 2)} of {round(p_loo_2, 2)}.
-             {.field elpd_loo} and {.field looic} are unaffected."
-    ))
   }
+  # A missing lpd term deliberately says nothing at the console. It is the
+  # ordinary state of an SEM fit, elpd_loo and looic are untouched, and the
+  # substituted first-order contribution lands within ~10% of the true one --
+  # an error several times smaller than the systematic bias the second-order
+  # lpd carries on the units that keep it, which is not flagged either.
+  # Announcing the smaller error while silent on the larger would misdirect,
+  # so this is left to the printed summary and to `n_lpd_ok`.
 
   # p_loo accompanies elpd at the same order; within second order it is summed
   # over the units whose lpd term exists

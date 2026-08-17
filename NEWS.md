@@ -21,8 +21,11 @@
   where dropping the unit recovers none — so such a unit now contributes its
   first-order difference to `p_loo`, leaving `elpd_loo` and `looic` untouched.
   The log CPO case warns, from `loo()` and from `fitmeasures()`; the `lpd`
-  case, being the ordinary state of an SEM fit, is a message. This changes
-  `elpd_loo`/`looic` for fits with any `k_max >= 1`.
+  case is silent at the console, being both the ordinary state of an SEM fit
+  and a smaller error than the second-order `lpd`'s own bias on the units
+  that keep it, and is instead noted when a result is printed and counted by
+  `n_lpd_ok`. This changes `elpd_loo`/`looic` for fits with any
+  `k_max >= 1`.
 
 * `compare()` computed `se_diff` from pointwise contributions that did not
   match the `elpd_diff` above them: units without a second-order term were
