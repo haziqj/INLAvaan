@@ -43,7 +43,7 @@ fit2_ms <- acfa(
   dat,
   meanstructure = TRUE,
   marginal_method = "marggaus",
-  vb_correction = FALSE,  
+  vb_correction = FALSE,
   verbose = FALSE,
   nsamp = 3,
   test = "none"
@@ -220,24 +220,28 @@ test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
     textual =~ x4 + x5 + x6
     visual ~ ageyr
   "
-  suppressWarnings(fitA <- asem(
-    modA,
-    dat,
-    fixed.x = TRUE,
-    meanstructure = TRUE,
-    verbose = FALSE,
-    nsamp = 3,
-    test = "none"
-  ))
-  suppressWarnings(fitB <- asem(
-    modB,
-    dat,
-    fixed.x = TRUE,
-    meanstructure = TRUE,
-    verbose = FALSE,
-    nsamp = 3,
-    test = "none"
-  ))
+  suppressWarnings(
+    fitA <- asem(
+      modA,
+      dat,
+      fixed.x = TRUE,
+      meanstructure = TRUE,
+      verbose = FALSE,
+      nsamp = 3,
+      test = "none"
+    )
+  )
+  suppressWarnings(
+    fitB <- asem(
+      modB,
+      dat,
+      fixed.x = TRUE,
+      meanstructure = TRUE,
+      verbose = FALSE,
+      nsamp = 3,
+      test = "none"
+    )
+  )
   expect_error(
     suppressWarnings(compare(fitA, fitB, loo = TRUE)),
     "outcome variables"
