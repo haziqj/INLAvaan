@@ -5,11 +5,14 @@
 * `loo()` no longer drops units without a second-order term from `elpd_loo`,
   `p_loo` and their standard errors. A unit whose curvature matrix is not
   positive definite has no second-order value, and the aggregates summed over
-  the remaining units only -- scoring a model over fewer units and so flattering
-  it precisely when one of its units was pathological. Such units now contribute
-  their first-order term, as the documentation already described. The pointwise
-  `log_cpo_2` column keeps its `NA`. This changes `p_loo` for fits with any
-  such unit.
+  the remaining units only. Such units now contribute their first-order term, as 
+  the documentation already described. The pointwise `log_cpo_2` column keeps 
+  its `NA`. This changes `p_loo` for fits with any such unit.
+
+* `compare()` computed `se_diff` from pointwise contributions that did not
+  match the `elpd_diff` above them: units without a second-order term were
+  dropped from the paired variance while still counted in the ELPD totals.
+  Both now rest on the same per-unit contributions.
 
 ## New features
 
@@ -23,8 +26,10 @@
 
 ## Bug fixes
 
-* The `timing()` function did not return the correct total time due to a breaking name change in lavaan.
-* Fixed CRAN errors and notes on certain linux builds relating to .Rd usage and convergence checks.
+* The `timing()` function did not return the correct total time due to a
+  breaking name change in lavaan.
+* Fixed CRAN errors and notes on certain linux builds relating to .Rd usage and   
+  convergence checks.
 
 # INLAvaan 0.3.0
 

@@ -343,15 +343,12 @@ compare_impl <- function(
       numeric(1)
     )
     best <- which.max(elpd)
-    # Headline pointwise contributions (second order when available),
-    # aligned to the first model's unit order for pairing
+    # The same pointwise contributions each model's headline ELPD is summed
+    # from, aligned to the first model's unit order for pairing, so that
+    # se_diff is the standard error of the elpd_diff actually reported
     pw <- lapply(seq_along(loo_list), function(k) {
       l <- loo_list[[k]]
-      v <- if (l$second_order && l$n_ok > 0L) {
-        l$per_unit$log_cpo_2
-      } else {
-        l$per_unit$log_cpo_1 # nocov
-      }
+      v <- loo_headline_pointwise(l$per_unit, l$second_order && l$n_ok > 0L)
       v[align[[k]]]
     })
     n_units <- nrow(pu1)
@@ -381,7 +378,7 @@ compare_impl <- function(
           if (k == best) {
             return(0)
           }
-          sqrt(n_units * var(pw[[k]] - pw[[best]], na.rm = TRUE))
+          sqrt(n_units * var(pw[[k]] - pw[[best]]))
         },
         numeric(1)
       ),

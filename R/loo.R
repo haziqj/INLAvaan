@@ -889,6 +889,17 @@ taylor_loo_unit <- function(
   out
 }
 
+# Pointwise log CPO behind the headline ELPD: the second-order term where it
+# exists, that unit's first-order term where it does not. inlav_loo() sums it
+# for the aggregates and compare() pairs it across models, so the reported
+# elpd_diff and its se_diff rest on the same per-unit contributions.
+loo_headline_pointwise <- function(per_unit, use_second) {
+  if (!isTRUE(use_second)) {
+    return(per_unit$log_cpo_1)
+  }
+  ifelse(is.na(per_unit$log_cpo_2), per_unit$log_cpo_1, per_unit$log_cpo_2)
+}
+
 # Insert a group column (labels when available) after `unit` for multigroup
 # fits; single-group tables keep their original shape
 add_loo_group_column <- function(per_unit, unit_group, lavdata) {
@@ -1355,7 +1366,7 @@ inlav_loo <- function(
   p_loo_1 <- sum(per_unit$lpd_1 - per_unit$log_cpo_1)
   n_ok <- sum(per_unit$ok)
   if (isTRUE(second_order)) {
-    cpo_mix <- ifelse(is.na(per_unit$log_cpo_2), per_unit$log_cpo_1, per_unit$log_cpo_2)
+    cpo_mix <- loo_headline_pointwise(per_unit, TRUE)
     elpd_2 <- sum(cpo_mix)
     se_2 <- sqrt(n_units * var(cpo_mix))
     # p_loo differences stay order-consistent within a unit. lpd_2 can be void
