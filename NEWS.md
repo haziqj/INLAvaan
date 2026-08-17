@@ -24,6 +24,13 @@
   dropped from the paired variance while still counted in the ELPD totals.
   Both now rest on the same per-unit contributions.
 
+* `compare(loo = TRUE)` now scores every model at one common Taylor order,
+  the lowest any of them can supply. Previously a model with all its
+  second-order terms was compared at second order against a model reported
+  at first order, so part of `elpd_diff` was a change of estimator rather
+  than a difference between the models. The order used is printed with the
+  table.
+
 ## New features
 
 * `loo()` now reports two tail-index diagnostics per unit, `k_max` and `k_sum`.

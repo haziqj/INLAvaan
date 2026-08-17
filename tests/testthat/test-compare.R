@@ -154,6 +154,34 @@ test_that("compare(loo = TRUE) appends ELPD columns with paired SEs", {
   expect_equal(cmp2$ELPD, cmp$ELPD)
 })
 
+test_that("compare(loo = TRUE) scores every model at one common order", {
+  # Both models clean: second order throughout
+  cmp2 <- compare(fit1_ms, fit2_ms, loo = TRUE)
+  expect_equal(attr(cmp2, "loo_order"), 2L)
+  expect_output(print(cmp2), "second-order")
+
+  # A doctored LOO stored on one model only: inflating Sigma drives some of
+  # its units past k = 1, so it has no second-order total while its rival
+  # still does. compare() reuses stored results, so this reaches the table.
+  S <- get_inlavaan_internal(fit1_ms)$Sigma_theta
+  bad <- suppressWarnings(loo(fit1_ms, Sigma = S * 4, cores = 1L))
+  expect_false(bad$use_second)
+  fit1_bad <- fit1_ms
+  fit1_bad@external$inlavaan_internal$loo <- bad
+
+  good <- loo(fit2_ms)
+  expect_true(good$use_second)
+
+  # The clean model comes down to first order too, rather than meeting a
+  # first-order rival at second order
+  cmp <- compare(fit1_bad, fit2_ms, loo = TRUE)
+  expect_equal(attr(cmp, "loo_order"), 1L)
+  expect_true(any(abs(cmp$ELPD - good$elpd_1) < 1e-3))
+  expect_false(any(abs(cmp$ELPD - good$elpd_2) < 1e-3))
+  expect_output(print(cmp), "first-order")
+  expect_output(print(cmp), "no second-order term")
+})
+
 test_that("compare(loo = TRUE) aborts for models on different data", {
   fit3 <- acfa(
     mod_null,

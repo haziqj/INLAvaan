@@ -23,12 +23,17 @@
 #' Use `fit.measures = "all"` to include every available measure.
 #'
 #' Set `loo = TRUE` to compare models by leave-one-out cross-validation
-#' (see [loo()]). This appends **ELPD** / **SE** (the second-order Taylor
-#' expected log predictive density and its standard error), **p_loo**, and,
+#' (see [loo()]). This appends **ELPD** / **SE** (the Taylor expected log
+#' predictive density and its standard error), **p_loo**, and,
 #' against the best-ELPD model, the difference **elpd_diff** with its
 #' *paired* standard error **se_diff** computed from the pointwise
 #' contributions (the appropriate uncertainty for nested or same-data
-#' comparisons). The table is then sorted by descending ELPD. All models
+#' comparisons). Every model is scored at one common Taylor order, the
+#' lowest any of them can supply: if some unit of some model has no
+#' second-order term, all models are compared at first order, since
+#' otherwise a change of estimator between models would read as a
+#' difference between the models themselves. The order used is stated when
+#' the table is printed. The table is then sorted by descending ELPD. All models
 #' must be fitted to the same data with matching units; units are paired
 #' by id rather than by row order, so fits that stack groups differently
 #' -- a pooled fit against a multigroup fit, or multigroup fits with
@@ -337,18 +342,27 @@ compare_impl <- function(
       ))
     }
 
+    # One approximation order across the whole comparison. A model whose
+    # units all admit a second-order term would be scored at second order on
+    # its own, but pitting that against a model forced to first order would
+    # read the change of estimator as a difference between the models, so the
+    # comparison drops to the lowest order any of them can supply. ELPD and
+    # p_loo carry separate conditions and so are settled separately.
+    order_2 <- all(vapply(loo_list, function(l) isTRUE(l$use_second), TRUE))
+    order_2_p <- all(vapply(loo_list, function(l) isTRUE(l$use_second_p), TRUE))
+    n_forced <- sum(!vapply(loo_list, function(l) isTRUE(l$use_second), TRUE))
+
     elpd <- vapply(
       loo_list,
-      function(l) unname(l$estimates["elpd_loo", "Estimate"]),
+      function(l) if (order_2) l$elpd_2 else l$elpd_1,
       numeric(1)
     )
     best <- which.max(elpd)
-    # The same pointwise contributions each model's headline ELPD is summed
-    # from, aligned to the first model's unit order for pairing, so that
-    # se_diff is the standard error of the elpd_diff actually reported
+    # The same pointwise contributions the reported ELPDs are summed from,
+    # aligned to the first model's unit order for pairing, so that se_diff is
+    # the standard error of the elpd_diff actually reported
     pw <- lapply(seq_along(loo_list), function(k) {
-      l <- loo_list[[k]]
-      v <- loo_headline_pointwise(l$per_unit, l$use_second)
+      v <- loo_headline_pointwise(loo_list[[k]]$per_unit, order_2)
       v[align[[k]]]
     })
     n_units <- nrow(pu1)
@@ -357,7 +371,7 @@ compare_impl <- function(
     out$SE <- round(
       vapply(
         loo_list,
-        function(l) unname(l$estimates["elpd_loo", "SE"]),
+        function(l) if (order_2) l$se_2 else l$se_1,
         numeric(1)
       ),
       3
@@ -365,7 +379,7 @@ compare_impl <- function(
     out$p_loo <- round(
       vapply(
         loo_list,
-        function(l) unname(l$estimates["p_loo", "Estimate"]),
+        function(l) if (order_2_p) l$p_loo_2 else l$p_loo_1,
         numeric(1)
       ),
       3
@@ -396,6 +410,12 @@ compare_impl <- function(
   attr(out, "fit_measures_used") <- !is.null(fit.measures)
   attr(out, "baseline_name") <- modnames[1]
   attr(out, "loo_used") <- isTRUE(loo)
+  if (isTRUE(loo)) {
+    attr(out, "loo_order") <- if (order_2) 2L else 1L
+    attr(out, "loo_order_p") <- if (order_2_p) 2L else 1L
+    attr(out, "loo_n_forced") <- n_forced
+    attr(out, "loo_n_models") <- length(loo_list)
+  }
   class(out) <- c("compare.inlavaan_internal", class(out))
   out
 }
@@ -406,12 +426,33 @@ print.compare.inlavaan_internal <- function(x, ...) {
   if (isTRUE(attr(x, "fit_measures_used"))) {
     cat("Baseline model:", attr(x, "baseline_name"), "\n")
   } else if (isTRUE(attr(x, "loo_used"))) {
-    cat("Models ordered by ELPD (Taylor LOO)\n")
+    ord <- attr(x, "loo_order")
+    cat(
+      "Models ordered by ELPD (Taylor LOO, ",
+      if (identical(ord, 2L)) "second" else "first",
+      "-order)\n",
+      sep = ""
+    )
   } else {
     cat("Models ordered by marginal log-likelihood\n")
   }
   if (isTRUE(attr(x, "loo_used"))) {
     cat("elpd_diff/se_diff are paired differences vs the best model\n")
+    n_forced <- attr(x, "loo_n_forced")
+    if (!is.null(n_forced) && n_forced > 0L) {
+      cat(
+        "Scored at first order throughout: ",
+        n_forced,
+        " of ",
+        attr(x, "loo_n_models"),
+        " models have units with no second-order term\n",
+        sep = ""
+      )
+    } else if (!identical(attr(x, "loo_order_p"), attr(x, "loo_order"))) {
+      cat(
+        "p_loo reported at first order: some units have no second-order lpd\n"
+      )
+    }
   }
   cat("\n")
   print.data.frame(x, row.names = FALSE)

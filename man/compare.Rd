@@ -63,12 +63,17 @@ returned by \link[lavaan:fitMeasures]{fitMeasures()}) to append extra columns.
 Use \code{fit.measures = "all"} to include every available measure.
 
 Set \code{loo = TRUE} to compare models by leave-one-out cross-validation
-(see \code{\link[=loo]{loo()}}). This appends \strong{ELPD} / \strong{SE} (the second-order Taylor
-expected log predictive density and its standard error), \strong{p_loo}, and,
+(see \code{\link[=loo]{loo()}}). This appends \strong{ELPD} / \strong{SE} (the Taylor expected log
+predictive density and its standard error), \strong{p_loo}, and,
 against the best-ELPD model, the difference \strong{elpd_diff} with its
 \emph{paired} standard error \strong{se_diff} computed from the pointwise
 contributions (the appropriate uncertainty for nested or same-data
-comparisons). The table is then sorted by descending ELPD. All models
+comparisons). Every model is scored at one common Taylor order, the
+lowest any of them can supply: if some unit of some model has no
+second-order term, all models are compared at first order, since
+otherwise a change of estimator between models would read as a
+difference between the models themselves. The order used is stated when
+the table is printed. The table is then sorted by descending ELPD. All models
 must be fitted to the same data with matching units; units are paired
 by id rather than by row order, so fits that stack groups differently
 -- a pooled fit against a multigroup fit, or multigroup fits with
