@@ -44,19 +44,20 @@
 #' say the unit is influential enough that leave-one-out is not identified
 #' from the fit; both cases are noted when the result is printed.
 #'
-#' Two tail-index diagnostics accompany each unit. Writing the importance
+#' Two curvature diagnostics accompany each unit. Writing the importance
 #' ratio between the unit-deleted and full posteriors as
 #' \eqn{r(\theta) \propto 1 / p(y_u \mid \theta)}, its moments satisfy
 #' \eqn{E[r^a] < \infty} exactly when \eqn{a < 1 / k_u}, where
-#' \eqn{k_u = \lambda_{\max}(-\Sigma H_u)} is reported as `k_max`. Thus
-#' \eqn{k_u < 1} is equivalent to positive definiteness of the second-order
-#' curvature matrix (so `k_max >= 1` iff `ok` is `FALSE`), and
-#' \eqn{k_u < 1/2} is the finite-variance condition familiar from Pareto
-#' smoothed importance sampling -- but computed exactly from the Laplace
-#' summary rather than estimated from draws. `k_sum` is
-#' \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's total leverage, which sums
-#' across units to the effective number of parameters. Both are `NA` when
-#' the second-order term is not computed. No threshold is applied to either.
+#' \eqn{k_u = \lambda_{\max}(-\Sigma H_u)} is reported as `k_max`. It
+#' measures how much of the posterior precision the unit itself carries, so
+#' \eqn{k_u < 1} is precisely the existence condition above (`k_max >= 1`
+#' iff `ok` is `FALSE`), and \eqn{k_u} approaching 1 is the approach to a
+#' term that diverges. `k_sum` is \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's
+#' total leverage, which sums across units to the effective number of
+#' parameters. Both are obtained in closed form from the Laplace summary
+#' rather than estimated from draws, and are `NA` when the second-order term
+#' is not computed. No threshold is applied to either: existence is the only
+#' condition the package acts on.
 #'
 #' The type is resolved automatically: per-cluster (`"loco"`) when the model
 #' was fitted with a `cluster` argument, per-subject (`"loso"`) otherwise.

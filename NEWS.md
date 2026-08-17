@@ -33,11 +33,12 @@
 
 ## New features
 
-* `loo()` now reports two tail-index diagnostics per unit, `k_max` and `k_sum`.
-  `k_max` is the exact Pareto shape of the importance ratio between the
-  unit-deleted and full posteriors, obtained in closed form from the Laplace
-  summary rather than estimated from posterior draws; `k_sum` is the unit's
-  leverage. No threshold is applied to either.
+* `loo()` now reports two curvature diagnostics per unit, `k_max` and `k_sum`,
+  obtained in closed form from the Laplace summary rather than estimated from
+  posterior draws. `k_max` is the share of the posterior precision the unit
+  carries along its worst direction, and `k_max < 1` is exactly the condition
+  for its second-order term to exist; `k_sum` is the unit's total leverage.
+  No threshold is applied to either: existence is the only condition acted on.
 
 # INLAvaan 0.3.1
 

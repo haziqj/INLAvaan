@@ -94,7 +94,7 @@ test_that("LOCO structure and internal identities", {
   expect_equal(sum(res$per_unit$l_star), ll, tolerance = 1e-6)
 })
 
-test_that("tail-index diagnostics satisfy their defining identities", {
+test_that("curvature diagnostics satisfy their defining identities", {
   pu <- res$per_unit
   # k_u = lambda_max(-Sigma H_u) >= 0 when the unit curvature is n.s.d.
   expect_true(all(pu$k_max >= 0))

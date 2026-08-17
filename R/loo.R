@@ -851,9 +851,11 @@ taylor_loo_unit <- function(
     ok = FALSE
   )
   if (second_order && !is.null(H_u)) {
-    # Tail index of the importance ratio: eigenvalues of -Sigma* H_u, obtained
-    # from the symmetric similarity R (-H_u) R' so the spectrum is real. k_max
-    # is the exact Pareto shape; k_sum = tr(Sigma*(-H_u)) is the unit leverage.
+    # Curvature diagnostics: eigenvalues of -Sigma* H_u, obtained from the
+    # symmetric similarity R (-H_u) R' so the spectrum is real. k_max is the
+    # share of the posterior precision the unit carries along its worst
+    # direction, and k_max < 1 is the existence condition for the unit's
+    # second-order term; k_sum = tr(Sigma*(-H_u)) is its total leverage.
     if (!is.null(R_act)) {
       ev <- eigen(
         -R_act %*% H_u %*% t(R_act),
