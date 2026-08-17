@@ -1351,44 +1351,39 @@ inlav_loo <- function(
   )
   per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
 
-  # loo-style SE of the total ELPD: sqrt(n * var(pointwise)). n is the number
-  # of units scored, known a priori, and every unit contributes a term to both
-  # orders: a unit whose second-order curvature is not positive definite has no
-  # second-order value (its tilted Gaussian integral diverges), so the
-  # aggregates substitute that unit's first-order term. Dropping it instead
-  # would sum the model over fewer units, which flatters a model precisely
-  # because one of its units is pathological. The pointwise columns keep the
-  # honest NA; only the aggregates fall back.
+  # loo-style SE of a total: sqrt(n * var(pointwise)), with n the number of
+  # units scored, known a priori. It stays n even where a variance is taken
+  # over fewer terms, so both orders scale by the same n.
   elpd_1 <- sum(per_unit$log_cpo_1)
   se_1 <- sqrt(n_units * var(per_unit$log_cpo_1))
   p_diff_1 <- per_unit$lpd_1 - per_unit$log_cpo_1
   p_loo_1 <- sum(p_diff_1)
 
-  # Every reported statistic stays at a single approximation order. A unit's
-  # second-order log CPO exists iff Sigma^-1 + H_u is positive definite
-  # (equivalently k_u < 1); its second-order lpd, which only p_loo needs,
-  # exists iff Sigma^-1 - H_u is. These are separate conditions on the same
-  # H_u, so they are gated separately. Where a term does not exist, the
-  # statistic needing it reverts to first order over *all* units rather than
-  # substituting a first-order term for the failing ones alone: that
-  # substitution ignores exactly the curvature that made the term diverge, so
-  # its error is systematic, one-directional and concentrated on the units it
-  # is applied to, and the total would no longer be an approximation of any
-  # single order.
+  # Two existence conditions on the same H_u. A unit's second-order log CPO
+  # exists iff Sigma^-1 + H_u is positive definite (equivalently k_u < 1), its
+  # second-order lpd iff Sigma^-1 - H_u is; the second condition reads the
+  # opposite end of the spectrum of Sigma H_u and only p_loo needs it.
+  #
+  # elpd is a predictive score, so its meaning depends on scoring a fixed set
+  # of units: a missing log CPO term takes every estimate down to first order
+  # over all units rather than dropping the unit (which would score the model
+  # over fewer units, flattering it) or substituting its first-order term
+  # (which would leave the total a mix of two orders, wrong by exactly the
+  # curvature that made the term diverge). p_loo is not a score but a
+  # diagnostic aggregate of per-unit shares of the effective dimension, and is
+  # not used to rank models, so it keeps the order of the elpd it accompanies
+  # and simply sums the units that have both terms.
   n_ok <- sum(per_unit$ok)
-  n_lpd_ok <- sum(!is.na(per_unit$lpd_2))
+  has_lpd_2 <- !is.na(per_unit$lpd_2)
+  n_lpd_ok <- sum(has_lpd_2)
   if (isTRUE(second_order) && n_ok == n_units) {
     elpd_2 <- sum(per_unit$log_cpo_2)
     se_2 <- sqrt(n_units * var(per_unit$log_cpo_2))
-  } else {
-    elpd_2 <- se_2 <- NA_real_
-  }
-  if (isTRUE(second_order) && n_ok == n_units && n_lpd_ok == n_units) {
-    p_diff_2 <- per_unit$lpd_2 - per_unit$log_cpo_2
+    p_diff_2 <- (per_unit$lpd_2 - per_unit$log_cpo_2)[has_lpd_2]
     p_loo_2 <- sum(p_diff_2)
   } else {
+    elpd_2 <- se_2 <- p_loo_2 <- NA_real_
     p_diff_2 <- NULL
-    p_loo_2 <- NA_real_
   }
   if (isTRUE(second_order) && n_ok < n_units) {
     n_bad <- n_units - n_ok
@@ -1403,16 +1398,29 @@ inlav_loo <- function(
       "i" = "Such units are individually influential enough that
              leave-one-out is not identified from this fit alone."
     ))
+  } else if (isTRUE(second_order) && n_lpd_ok < n_units) {
+    n_bad <- n_units - n_lpd_ok
+    # The omitted units' first-order differences are always computable, so the
+    # warning can size the omission instead of just naming it
+    omitted <- sum(p_diff_1[!has_lpd_2])
+    cli_warn(c(
+      "{.field p_loo} omits {n_bad} of {n_units} units, which
+       {qty(n_bad)}{?has/have} no second-order lpd.",
+      "i" = "{qty(n_bad)}{?Its/Their} first-order contribution to
+             {.field p_loo} is {round(omitted, 2)}, so it is understated by
+             roughly that much. {.field elpd_loo} and {.field looic} are
+             unaffected.",
+      "i" = "Use {.code second_order = FALSE} for a p_loo over every unit."
+    ))
   }
 
-  # elpd and p_loo are gated separately, so p_loo can sit at first order while
-  # elpd is at second; each is order-homogeneous in itself
+  # p_loo accompanies elpd at the same order; within second order it is summed
+  # over the units whose lpd term exists
   use_second <- isTRUE(second_order) && is.finite(elpd_2)
-  use_second_p <- isTRUE(second_order) && is.finite(p_loo_2)
   elpd_loo <- if (use_second) elpd_2 else elpd_1
   se_elpd <- if (use_second) se_2 else se_1
-  p_loo <- if (use_second_p) p_loo_2 else p_loo_1
-  p_diff <- if (use_second_p) p_diff_2 else p_diff_1
+  p_loo <- if (use_second) p_loo_2 else p_loo_1
+  p_diff <- if (use_second) p_diff_2 else p_diff_1
   estimates <- cbind(
     Estimate = c(elpd_loo, p_loo, -2 * elpd_loo),
     SE = c(se_elpd, sqrt(n_units * var(p_diff)), 2 * se_elpd)
@@ -1437,7 +1445,6 @@ inlav_loo <- function(
       n_lpd_ok = n_lpd_ok,
       second_order = isTRUE(second_order),
       use_second = use_second,
-      use_second_p = use_second_p,
       theta_overridden = theta_overridden
     ),
     class = "inlavaan_loo"

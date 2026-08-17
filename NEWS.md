@@ -7,16 +7,19 @@
   and so flattered it. A second-order term is a Gaussian integral that need
   not converge: the log CPO term exists only where `k_max < 1`, the `lpd`
   term only where the complementary condition on the same curvature holds.
-  Where a term a statistic needs does not exist, that statistic is now
-  reported at first order over *all* units, so it remains an approximation of
-  one order rather than a mix of two — substituting first-order terms for the
-  failing units alone drops exactly the curvature that made the integral
-  diverge, giving an error that is systematic, one-directional and
-  concentrated on those units. The two conditions are gated separately, so
-  `p_loo` may be reported at first order while `elpd_loo` and `looic` stay at
-  second order. A missing log CPO term now warns, from `loo()` and from
-  `fitmeasures()`, and the order used is stated when a result is printed.
-  This changes `p_loo` for fits with any such unit, and `elpd_loo`/`looic`
+  Where a log CPO term does not exist, every estimate is now reported at
+  first order over *all* units, so it remains an approximation of one order
+  rather than a mix of two — substituting first-order terms for the failing
+  units alone drops exactly the curvature that made the integral diverge,
+  giving an error that is systematic, one-directional and concentrated on
+  those units. `p_loo` is treated differently, being a diagnostic aggregate
+  of per-unit shares rather than a predictive score whose meaning depends on
+  a fixed unit set: it keeps the order of the `elpd_loo` it accompanies and
+  is summed over the units having both second-order terms, so a unit missing
+  only the `lpd` term is omitted from `p_loo` while `elpd_loo` and `looic`
+  are unaffected. Both cases warn — from `loo()` and, for the log CPO case,
+  from `fitmeasures()` — with the omission from `p_loo` quantified by the
+  omitted units' first-order contributions. This changes `elpd_loo`/`looic`
   for fits with any `k_max >= 1`.
 
 * `compare()` computed `se_diff` from pointwise contributions that did not

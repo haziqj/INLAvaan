@@ -83,14 +83,15 @@ fits only), \code{nobs} (1 for LOSO, the cluster size for LOCO),
 \item{\code{estimates}}{Matrix with rows \code{elpd_loo}, \code{p_loo}, \code{looic} and
 columns \code{Estimate}, \code{SE}, at the highest order available to each.}
 \item{\code{elpd_1}, \code{elpd_2}, \code{se_1}, \code{se_2}, \code{p_loo_1}, \code{p_loo_2}}{
-First- and second-order aggregates; the second-order ones are \code{NA}
-when any term they need does not exist.}
+First- and second-order aggregates. \code{p_loo_1} covers every unit;
+\code{p_loo_2} covers those with both second-order terms. All the
+second-order ones are \code{NA} when any
+\eqn{\log \mathrm{CPO}_u^{(2)}} does not exist.}
 \item{\code{type}, \code{flavour}, \code{n_units}, \code{n_groups}, \code{n_ok}, \code{n_lpd_ok},
-\code{second_order}, \code{use_second}, \code{use_second_p},
-\code{theta_overridden}}{Metadata; \code{n_ok} and \code{n_lpd_ok} count the units
-whose second-order \eqn{\log \mathrm{CPO}} and \eqn{\mathrm{lpd}}
-exist, \code{use_second} and \code{use_second_p} record the order actually
-used for \code{elpd_loo} and for \code{p_loo}; \code{flavour} records
+\code{second_order}, \code{use_second}, \code{theta_overridden}}{Metadata; \code{n_ok}
+and \code{n_lpd_ok} count the units whose second-order
+\eqn{\log \mathrm{CPO}} and \eqn{\mathrm{lpd}} exist, \code{use_second}
+records the order actually used; \code{flavour} records
 whether units were scored jointly with their covariates
 (\code{"joint"}) or conditionally on them (\code{"conditional"}, for
 \code{fixed.x} fits).}
@@ -126,25 +127,31 @@ when \code{second_order = FALSE}), with standard error
 where \eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
 full-posterior pointwise log predictive density.
 
-\strong{Existence, and a single order throughout.} The second-order terms are
-Gaussian integrals that need not converge. \eqn{\log \mathrm{CPO}_u^{(2)}}
-exists exactly when \eqn{\Sigma^{-1} + H_u} is positive definite, and
-\eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Sigma^{-1} - H_u} is; these
-are separate conditions on the same \eqn{H_u}, and a unit can satisfy one
-and fail the other. A missing term is \code{NA} in \code{per_unit}, with
-\code{per_unit$ok} recording the \eqn{\log \mathrm{CPO}} condition.
+\strong{Existence.} The second-order terms are Gaussian integrals that need not
+converge. \eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when
+\eqn{\Sigma^{-1} + H_u} is positive definite, and \eqn{\mathrm{lpd}_u^{(2)}}
+exactly when \eqn{\Sigma^{-1} - H_u} is. These are separate conditions on
+the same \eqn{H_u}, reading opposite ends of the spectrum of
+\eqn{\Sigma H_u}, and a unit can satisfy one and fail the other. A missing
+term is \code{NA} in \code{per_unit}, with \code{per_unit$ok} recording the
+\eqn{\log \mathrm{CPO}} condition.
 
-When a term any statistic needs does not exist, that statistic is reported
-at \emph{first order over every unit} rather than substituting a first-order
-term for the failing units alone. Such a substitution drops precisely the
-curvature that made the integral diverge, so its error is systematic,
-one-directional and concentrated on the units it is applied to, and the
-resulting total would be an approximation of no single order. Because the
-two conditions are gated separately, \code{p_loo} can fall to first order while
-\code{elpd_loo} and \code{looic} remain at second order; each is order-homogeneous in
-itself. Failures of the \eqn{\log \mathrm{CPO}} condition warn, since they
-say the unit is influential enough that leave-one-out is not identified
-from the fit; both cases are noted when the result is printed.
+The two failures are handled differently, because the two statistics are
+different kinds of thing. \code{elpd_loo} is a predictive score, so its meaning
+depends on scoring a fixed set of units: if any
+\eqn{\log \mathrm{CPO}_u^{(2)}} is missing, every estimate is reported at
+\emph{first order over all units}, and warns. Dropping the unit instead would
+score the model over fewer units and so flatter it, while substituting its
+first-order term would discard exactly the curvature that made the integral
+diverge, leaving the total an approximation of no single order.
+\code{p_loo} is not a score but a diagnostic aggregate of per-unit shares of the
+effective dimension, and is not used to rank models; it keeps the order of
+the \code{elpd_loo} it accompanies and is summed over the units that have both
+second-order terms. A unit missing only \eqn{\mathrm{lpd}_u^{(2)}} is
+therefore omitted from \code{p_loo}, which understates it, while \code{elpd_loo} and
+\code{looic} are unaffected. That omission warns too, quantified by the omitted
+units' first-order contributions, and \code{second_order = FALSE} gives a
+\code{p_loo} over every unit.
 
 Two curvature diagnostics accompany each unit. Writing the importance
 ratio between the unit-deleted and full posteriors as

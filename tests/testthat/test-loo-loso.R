@@ -38,16 +38,20 @@ test_that("LOSO matches reference values", {
   expect_equal(res$se_1, 14.9606326798, tolerance = 1e-4)
   expect_equal(res$se_2, 16.1424977191, tolerance = 1e-4)
   expect_equal(res$p_loo_1, 28.1110170037, tolerance = 1e-4)
-  # Every log CPO term exists here, but one unit has no second-order lpd. The
-  # two conditions are gated separately, so elpd_loo keeps its second order
-  # while p_loo has no second-order value and reverts to first order.
+  # Every log CPO term exists here, but one unit has no second-order lpd, so
+  # elpd_loo keeps its second order and p_loo simply omits that unit
   expect_equal(res$n_ok, 40L)
   expect_equal(res$n_lpd_ok, 39L)
   expect_true(res$use_second)
-  expect_false(res$use_second_p)
-  expect_true(is.na(res$p_loo_2))
+  expect_equal(res$p_loo_2, 33.8073861249, tolerance = 1e-4)
   expect_equal(unname(res$estimates["elpd_loo", "Estimate"]), res$elpd_2)
-  expect_equal(unname(res$estimates["p_loo", "Estimate"]), res$p_loo_1)
+  expect_equal(unname(res$estimates["p_loo", "Estimate"]), res$p_loo_2)
+  # ... which is the sum over the 39 units that have both terms
+  pu_all <- res$per_unit
+  expect_equal(
+    res$p_loo_2,
+    sum((pu_all$lpd_2 - pu_all$log_cpo_2)[!is.na(pu_all$lpd_2)])
+  )
 
   pu <- res$per_unit[c(1L, 20L, 40L), ]
   expect_equal(

@@ -87,13 +87,13 @@ test_that("conditional LOSO on a fixed.x fit matches reference values", {
   expect_equal(res_c$elpd_2, -1165.6523740521, tolerance = 1e-4)
   expect_equal(res_c$se_1, 21.0799322283, tolerance = 1e-3)
   expect_equal(res_c$se_2, 21.5461686423, tolerance = 1e-3)
-  # Some units here have no second-order lpd, so there is no second-order
-  # p_loo and the headline reverts to first order over all units; elpd_loo
-  # is gated separately and keeps its second order.
+  # Some units here have no second-order lpd and are omitted from p_loo;
+  # elpd_loo keeps its second order
   expect_equal(res_c$n_ok, res_c$n_units)
   expect_lt(res_c$n_lpd_ok, res_c$n_units)
-  expect_true(is.na(res_c$p_loo_2))
-  expect_equal(unname(res_c$estimates["p_loo", "Estimate"]), res_c$p_loo_1)
+  expect_true(res_c$use_second)
+  expect_equal(res_c$p_loo_2, 58.1103250541, tolerance = 1e-2)
+  expect_equal(unname(res_c$estimates["p_loo", "Estimate"]), res_c$p_loo_2)
 
   pu <- res_c$per_unit[c(1L, 45L, 90L), ]
   expect_equal(

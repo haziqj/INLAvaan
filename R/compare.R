@@ -346,10 +346,8 @@ compare_impl <- function(
     # units all admit a second-order term would be scored at second order on
     # its own, but pitting that against a model forced to first order would
     # read the change of estimator as a difference between the models, so the
-    # comparison drops to the lowest order any of them can supply. ELPD and
-    # p_loo carry separate conditions and so are settled separately.
+    # comparison drops to the lowest order any of them can supply.
     order_2 <- all(vapply(loo_list, function(l) isTRUE(l$use_second), TRUE))
-    order_2_p <- all(vapply(loo_list, function(l) isTRUE(l$use_second_p), TRUE))
     n_forced <- sum(!vapply(loo_list, function(l) isTRUE(l$use_second), TRUE))
 
     elpd <- vapply(
@@ -379,7 +377,7 @@ compare_impl <- function(
     out$p_loo <- round(
       vapply(
         loo_list,
-        function(l) if (order_2_p) l$p_loo_2 else l$p_loo_1,
+        function(l) if (order_2) l$p_loo_2 else l$p_loo_1,
         numeric(1)
       ),
       3
@@ -412,7 +410,6 @@ compare_impl <- function(
   attr(out, "loo_used") <- isTRUE(loo)
   if (isTRUE(loo)) {
     attr(out, "loo_order") <- if (order_2) 2L else 1L
-    attr(out, "loo_order_p") <- if (order_2_p) 2L else 1L
     attr(out, "loo_n_forced") <- n_forced
     attr(out, "loo_n_models") <- length(loo_list)
   }
@@ -447,10 +444,6 @@ print.compare.inlavaan_internal <- function(x, ...) {
         attr(x, "loo_n_models"),
         " models have units with no second-order term\n",
         sep = ""
-      )
-    } else if (!identical(attr(x, "loo_order_p"), attr(x, "loo_order"))) {
-      cat(
-        "p_loo reported at first order: some units have no second-order lpd\n"
       )
     }
   }

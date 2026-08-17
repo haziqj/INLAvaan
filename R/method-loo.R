@@ -24,25 +24,31 @@
 #' where \eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
 #' full-posterior pointwise log predictive density.
 #'
-#' **Existence, and a single order throughout.** The second-order terms are
-#' Gaussian integrals that need not converge. \eqn{\log \mathrm{CPO}_u^{(2)}}
-#' exists exactly when \eqn{\Sigma^{-1} + H_u} is positive definite, and
-#' \eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Sigma^{-1} - H_u} is; these
-#' are separate conditions on the same \eqn{H_u}, and a unit can satisfy one
-#' and fail the other. A missing term is `NA` in `per_unit`, with
-#' `per_unit$ok` recording the \eqn{\log \mathrm{CPO}} condition.
+#' **Existence.** The second-order terms are Gaussian integrals that need not
+#' converge. \eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when
+#' \eqn{\Sigma^{-1} + H_u} is positive definite, and \eqn{\mathrm{lpd}_u^{(2)}}
+#' exactly when \eqn{\Sigma^{-1} - H_u} is. These are separate conditions on
+#' the same \eqn{H_u}, reading opposite ends of the spectrum of
+#' \eqn{\Sigma H_u}, and a unit can satisfy one and fail the other. A missing
+#' term is `NA` in `per_unit`, with `per_unit$ok` recording the
+#' \eqn{\log \mathrm{CPO}} condition.
 #'
-#' When a term any statistic needs does not exist, that statistic is reported
-#' at *first order over every unit* rather than substituting a first-order
-#' term for the failing units alone. Such a substitution drops precisely the
-#' curvature that made the integral diverge, so its error is systematic,
-#' one-directional and concentrated on the units it is applied to, and the
-#' resulting total would be an approximation of no single order. Because the
-#' two conditions are gated separately, `p_loo` can fall to first order while
-#' `elpd_loo` and `looic` remain at second order; each is order-homogeneous in
-#' itself. Failures of the \eqn{\log \mathrm{CPO}} condition warn, since they
-#' say the unit is influential enough that leave-one-out is not identified
-#' from the fit; both cases are noted when the result is printed.
+#' The two failures are handled differently, because the two statistics are
+#' different kinds of thing. `elpd_loo` is a predictive score, so its meaning
+#' depends on scoring a fixed set of units: if any
+#' \eqn{\log \mathrm{CPO}_u^{(2)}} is missing, every estimate is reported at
+#' *first order over all units*, and warns. Dropping the unit instead would
+#' score the model over fewer units and so flatter it, while substituting its
+#' first-order term would discard exactly the curvature that made the integral
+#' diverge, leaving the total an approximation of no single order.
+#' `p_loo` is not a score but a diagnostic aggregate of per-unit shares of the
+#' effective dimension, and is not used to rank models; it keeps the order of
+#' the `elpd_loo` it accompanies and is summed over the units that have both
+#' second-order terms. A unit missing only \eqn{\mathrm{lpd}_u^{(2)}} is
+#' therefore omitted from `p_loo`, which understates it, while `elpd_loo` and
+#' `looic` are unaffected. That omission warns too, quantified by the omitted
+#' units' first-order contributions, and `second_order = FALSE` gives a
+#' `p_loo` over every unit.
 #'
 #' Two curvature diagnostics accompany each unit. Writing the importance
 #' ratio between the unit-deleted and full posteriors as
@@ -193,14 +199,15 @@
 #'     \item{`estimates`}{Matrix with rows `elpd_loo`, `p_loo`, `looic` and
 #'       columns `Estimate`, `SE`, at the highest order available to each.}
 #'     \item{`elpd_1`, `elpd_2`, `se_1`, `se_2`, `p_loo_1`, `p_loo_2`}{
-#'       First- and second-order aggregates; the second-order ones are `NA`
-#'       when any term they need does not exist.}
+#'       First- and second-order aggregates. `p_loo_1` covers every unit;
+#'       `p_loo_2` covers those with both second-order terms. All the
+#'       second-order ones are `NA` when any
+#'       \eqn{\log \mathrm{CPO}_u^{(2)}} does not exist.}
 #'     \item{`type`, `flavour`, `n_units`, `n_groups`, `n_ok`, `n_lpd_ok`,
-#'       `second_order`, `use_second`, `use_second_p`,
-#'       `theta_overridden`}{Metadata; `n_ok` and `n_lpd_ok` count the units
-#'       whose second-order \eqn{\log \mathrm{CPO}} and \eqn{\mathrm{lpd}}
-#'       exist, `use_second` and `use_second_p` record the order actually
-#'       used for `elpd_loo` and for `p_loo`; `flavour` records
+#'       `second_order`, `use_second`, `theta_overridden`}{Metadata; `n_ok`
+#'       and `n_lpd_ok` count the units whose second-order
+#'       \eqn{\log \mathrm{CPO}} and \eqn{\mathrm{lpd}} exist, `use_second`
+#'       records the order actually used; `flavour` records
 #'       whether units were scored jointly with their covariates
 #'       (`"joint"`) or conditionally on them (`"conditional"`, for
 #'       `fixed.x` fits).}
@@ -326,9 +333,9 @@ print.inlavaan_loo <- function(x, ...) {
   }
   cat("\n")
   print(round(x$estimates, 1))
-  # Which existence condition failed, and hence which estimates dropped an
-  # order. The log CPO condition takes every estimate down with it; a missing
-  # second-order lpd reaches p_loo alone.
+  # Which existence condition failed, and hence what the estimates did. The
+  # log CPO condition takes every estimate down an order; a missing
+  # second-order lpd only drops that unit from p_loo.
   if (isTRUE(x$second_order) && x$n_ok < x$n_units) {
     n <- x$n_units
     n_bad <- n - x$n_ok
@@ -346,9 +353,9 @@ print.inlavaan_loo <- function(x, ...) {
     cat(
       "\n",
       pluralize(
-        "{n_bad} of {n} units {qty(n_bad)}{?has/have} no second-order lpd"
+        "p_loo omits {n_bad} of {n} units with no second-order lpd"
       ),
-      ";\np_loo is reported at first order.\n",
+      ";\nelpd_loo and looic are unaffected.\n",
       sep = ""
     )
   }
