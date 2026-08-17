@@ -108,22 +108,28 @@ An object of class `inlavaan_loo`: a list with elements
   LOSO, the cluster size for LOCO), `l_star` (unit log-likelihood at the
   summary), `score_norm`, `lpd_1`/`lpd_2` (pointwise log predictive
   density), `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions),
-  `det_term`, and `ok` (second-order success flag).
+  `det_term`, `k_max`/`k_sum` (leverage diagnostics, see below), and
+  `ok` (whether the second-order \\\log \mathrm{CPO}\\ exists).
 
 - `estimates`:
 
   Matrix with rows `elpd_loo`, `p_loo`, `looic` and columns `Estimate`,
-  `SE` (headline second-order values).
+  `SE`, at the highest order available to each.
 
 - `elpd_1`, `elpd_2`, `se_1`, `se_2`, `p_loo_1`, `p_loo_2`:
 
-  First- and second-order aggregates.
+  First- and second-order aggregates, all over every unit; `p_loo_2`
+  takes a unit's first-order difference where its \\\mathrm{lpd}^{(2)}\\
+  does not exist. The second-order ones are `NA` when any \\\log
+  \mathrm{CPO}\_u^{(2)}\\ does not exist.
 
-- `type`, `flavour`, `n_units`, `n_groups`, `n_ok`, `second_order`,
-  `theta_overridden`:
+- `type`, `flavour`, `n_units`, `n_groups`, `n_ok`, `n_lpd_ok`,
+  `second_order`, `use_second`, `theta_overridden`:
 
-  Metadata; `flavour` records whether units were scored jointly with
-  their covariates (`"joint"`) or conditionally on them
+  Metadata; `n_ok` and `n_lpd_ok` count the units whose second-order
+  \\\log \mathrm{CPO}\\ and \\\mathrm{lpd}\\ exist, `use_second` records
+  the order actually used; `flavour` records whether units were scored
+  jointly with their covariates (`"joint"`) or conditionally on them
   (`"conditional"`, for `fixed.x` fits).
 
 `add_loo()` returns a copy of `object` with the LOO result stored
@@ -146,9 +152,53 @@ standard error \\\sqrt{n \\ \mathrm{var}(\log \mathrm{CPO}\_u)}\\ and
 `looic` \\= -2 \\ \mathrm{elpd}\\. The effective number of parameters is
 \\p\_{\mathrm{loo}} = \sum_u (\mathrm{lpd}\_u - \log \mathrm{CPO}\_u)\\,
 where \\\mathrm{lpd}\_u\\ is the analogous Taylor approximation of the
-full-posterior pointwise log predictive density. Units whose
-second-order curvature matrix is not positive definite fall back to
-first order for that unit only (flagged in `per_unit$ok`).
+full-posterior pointwise log predictive density.
+
+**Existence.** The second-order terms are Gaussian integrals that need
+not converge. \\\log \mathrm{CPO}\_u^{(2)}\\ exists exactly when
+\\\Sigma^{-1} + H_u\\ is positive definite, and
+\\\mathrm{lpd}\_u^{(2)}\\ exactly when \\\Sigma^{-1} - H_u\\ is. These
+are separate conditions on the same \\H_u\\, reading opposite ends of
+the spectrum of \\\Sigma H_u\\, and a unit can satisfy one and fail the
+other. A missing term is `NA` in `per_unit`, with `per_unit$ok`
+recording the \\\log \mathrm{CPO}\\ condition.
+
+The two failures get opposite remedies, because the two divergences mean
+opposite things. \\E\[1/p(y_u \mid \theta)\]\\ can genuinely be
+infinite, so a missing \\\log \mathrm{CPO}\_u^{(2)}\\ says the unit's
+true leave-one-out term really is extreme, and a first-order stand-in –
+ignoring exactly the curvature that made the integral diverge – would be
+wrong by an unbounded amount. `elpd_loo` is also a predictive score,
+whose meaning depends on scoring a fixed set of units, so dropping the
+unit would score the model over fewer units and flatter it. Every
+estimate is therefore reported at *first order over all units*, and
+warns.
+
+\\E\[p(y_u \mid \theta)\]\\, by contrast, is always finite in truth (a
+density is bounded), so a missing \\\mathrm{lpd}\_u^{(2)}\\ is an
+artefact of extrapolating the quadratic rather than a feature of the
+unit: its true contribution is ordinary, and its first-order
+contribution recovers most of it. Such a unit therefore contributes its
+first-order difference to `p_loo` while `elpd_loo` and `looic` are
+unaffected. This is noted when the result is printed and counted by
+`n_lpd_ok`, but is not warned about: the residual error is smaller than
+the systematic bias the second-order lpd carries on the units that keep
+it, so flagging it would misdirect.
+
+Two curvature diagnostics accompany each unit. Writing the importance
+ratio between the unit-deleted and full posteriors as \\r(\theta)
+\propto 1 / p(y_u \mid \theta)\\, its moments satisfy \\E\[r^a\] \<
+\infty\\ exactly when \\a \< 1 / k_u\\, where \\k_u =
+\lambda\_{\max}(-\Sigma H_u)\\ is reported as `k_max`. It measures how
+much of the posterior precision the unit itself carries, so \\k_u \< 1\\
+is precisely the existence condition above (`k_max >= 1` iff `ok` is
+`FALSE`), and \\k_u\\ approaching 1 is the approach to a term that
+diverges. `k_sum` is \\\mathrm{tr}(-\Sigma H_u)\\, the unit's total
+leverage, which sums across units to the effective number of parameters.
+Both are obtained in closed form from the Laplace summary rather than
+estimated from draws, and are `NA` when the second-order term is not
+computed. No threshold is applied to either: existence is the only
+condition the package acts on.
 
 The type is resolved automatically: per-cluster (`"loco"`) when the
 model was fitted with a `cluster` argument, per-subject (`"loso"`)
@@ -272,20 +322,19 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [177ms]
+#> ✔ Posterior mode and Hessian. [149ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [126ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [129ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [761ms]
+#> ✔ Fit 30/30 skew-normal marginals. [780ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [107ms]
+#> ✔ Adjust copula correlations (NORTA). [132ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -307,13 +356,13 @@ head(res$per_unit)
 #> 4    4    1 -10.25020   2.575335 -10.23618 -10.28284 -10.26422 -10.31190
 #> 5    5    1 -10.70254   2.975327 -10.68907 -10.73622 -10.71601 -10.76423
 #> 6    6    1 -13.36953   4.983693 -13.30783 -13.39522 -13.43123 -13.52280
-#>      det_term   ok
-#> 1 -0.04901313 TRUE
-#> 2 -0.07241546 TRUE
-#> 3 -0.09242052 TRUE
-#> 4 -0.04760200 TRUE
-#> 5 -0.04816499 TRUE
-#> 6 -0.08964209 TRUE
+#>      det_term      k_max      k_sum   ok
+#> 1 -0.04901313 0.03791128 0.09451823 TRUE
+#> 2 -0.07241546 0.05815582 0.14045868 TRUE
+#> 3 -0.09242052 0.04078153 0.18245465 TRUE
+#> 4 -0.04760200 0.02969115 0.09416514 TRUE
+#> 5 -0.04816499 0.03045524 0.09524358 TRUE
+#> 6 -0.08964209 0.06558472 0.17514510 TRUE
 
 # Score a submodel without refitting: condition the Laplace summary on the
 # visual ~~ speed covariance being zero, then evaluate at that summary
@@ -347,35 +396,37 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [793ms]
+#> ✔ Posterior mode and Hessian. [724ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.094σ. [489ms]
+#> ✔ VB correction; mean |δ| = 0.087σ. [407ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 13/34 skew-normal marginals.
-#> ⠸ Fitting 29/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.4s]
+#> ⠹ Fitting 9/34 skew-normal marginals.
+#> ⠸ Fitting 26/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [5.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [93ms]
+#> ✔ Adjust copula correlations (NORTA). [126ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [31.7s]
+#> ✔ Summarise 1000 posterior draws. [41.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
-#> Warning: Fit diagnostics flagged 1 potential issue:
+#> Warning: Fit diagnostics flagged 2 potential issues:
 #> ✖ The optimiser did not converge: iteration limit reached without convergence
 #>   (10).
+#> ✖ The gradient at the posterior mode is not zero (max |grad| = 0.399): a Newton
+#>   step would move `y1~~y1.l2` by 0.211 posterior SDs.
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 loo(fit2l)
 #> Taylor leave-one-cluster-out cross-validation (INLAvaan)
 #> Computed from 200 clusters (second-order Taylor approximation)
 #> 
 #>          Estimate     SE
-#> elpd_loo -23344.3  731.4
-#> p_loo        34.4    2.1
-#> looic     46688.5 1462.9
+#> elpd_loo -23344.2  731.4
+#> p_loo        34.2    2.0
+#> looic     46688.3 1462.9
 # }
 ```

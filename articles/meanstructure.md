@@ -156,7 +156,7 @@ compare(fit_f, fit_t, loo = TRUE)
 #> ℹ Interpret only the ELPD columns; leave-one-out conditionals are proper under
 #>   both treatments.
 #> Bayesian Model Comparison (INLAvaan)
-#> Models ordered by ELPD (Taylor LOO)
+#> Models ordered by ELPD (Taylor LOO, second-order)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo

@@ -2,6 +2,61 @@
 
 ## INLAvaan (development version)
 
+### Bug fixes
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) no longer drops
+  units without a second-order term from `elpd_loo`, `p_loo` and their
+  standard errors, which summed the model over fewer units and so
+  flattered it. A second-order term is a Gaussian integral that need not
+  converge: the log CPO term exists only where `k_max < 1`, the `lpd`
+  term only where the complementary condition on the same curvature
+  holds. Where a log CPO term does not exist, every estimate is now
+  reported at first order over *all* units, so it remains an
+  approximation of one order rather than a mix of two — substituting
+  first-order terms for the failing units alone drops exactly the
+  curvature that made the integral diverge, giving an error that is
+  systematic, one-directional and concentrated on those units. A missing
+  `lpd` term gets the opposite remedy, because the two divergences mean
+  opposite things: the case-deletion integral can genuinely be infinite,
+  but the `lpd` integral is always finite in truth (a density is
+  bounded), so a missing `lpd` term is an artefact of extrapolating the
+  quadratic rather than a feature of the unit. Its first-order
+  contribution recovers most of the true one — against a sampled
+  reference, roughly 90%, where dropping the unit recovers none — so
+  such a unit now contributes its first-order difference to `p_loo`,
+  leaving `elpd_loo` and `looic` untouched. The log CPO case warns, from
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and from
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md);
+  the `lpd` case is silent at the console, being both the ordinary state
+  of an SEM fit and a smaller error than the second-order `lpd`’s own
+  bias on the units that keep it, and is instead noted when a result is
+  printed and counted by `n_lpd_ok`. This changes `elpd_loo`/`looic` for
+  fits with any `k_max >= 1`.
+
+- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
+  computed `se_diff` from pointwise contributions that did not match the
+  `elpd_diff` above them: units without a second-order term were dropped
+  from the paired variance while still counted in the ELPD totals. Both
+  now rest on the same per-unit contributions.
+
+- `compare(loo = TRUE)` now scores every model at one common Taylor
+  order, the lowest any of them can supply. Previously a model with all
+  its second-order terms was compared at second order against a model
+  reported at first order, so part of `elpd_diff` was a change of
+  estimator rather than a difference between the models. The order used
+  is printed with the table.
+
+### New features
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) now reports two
+  curvature diagnostics per unit, `k_max` and `k_sum`, obtained in
+  closed form from the Laplace summary rather than estimated from
+  posterior draws. `k_max` is the share of the posterior precision the
+  unit carries along its worst direction, and `k_max < 1` is exactly the
+  condition for its second-order term to exist; `k_sum` is the unit’s
+  total leverage. No threshold is applied to either: existence is the
+  only condition acted on.
+
 ## INLAvaan 0.3.1
 
 CRAN release: 2026-07-21
@@ -12,7 +67,8 @@ CRAN release: 2026-07-21
   function did not return the correct total time due to a breaking name
   change in lavaan.
 - Fixed CRAN errors and notes on certain linux builds relating to .Rd
-  usage and convergence checks.
+  usage and  
+  convergence checks.
 
 ## INLAvaan 0.3.0
 

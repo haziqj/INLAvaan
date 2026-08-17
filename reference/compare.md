@@ -85,19 +85,24 @@ available measure.
 
 Set `loo = TRUE` to compare models by leave-one-out cross-validation
 (see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)). This
-appends **ELPD** / **SE** (the second-order Taylor expected log
-predictive density and its standard error), **p_loo**, and, against the
-best-ELPD model, the difference **elpd_diff** with its *paired* standard
-error **se_diff** computed from the pointwise contributions (the
-appropriate uncertainty for nested or same-data comparisons). The table
-is then sorted by descending ELPD. All models must be fitted to the same
-data with matching units; units are paired by id rather than by row
-order, so fits that stack groups differently – a pooled fit against a
-multigroup fit, or multigroup fits with different group orderings –
-still pair up unit by unit. For missing-data (FIML) fits, "the same
-data" also means the same observed entries: each unit is scored on the
-entries it has, so comparisons require identical missingness patterns
-across models. All models must also share the score flavour (see
+appends **ELPD** / **SE** (the Taylor expected log predictive density
+and its standard error), **p_loo**, and, against the best-ELPD model,
+the difference **elpd_diff** with its *paired* standard error
+**se_diff** computed from the pointwise contributions (the appropriate
+uncertainty for nested or same-data comparisons). Every model is scored
+at one common Taylor order, the lowest any of them can supply: if some
+unit of some model has no second-order term, all models are compared at
+first order, since otherwise a change of estimator between models would
+read as a difference between the models themselves. The order used is
+stated when the table is printed. The table is then sorted by descending
+ELPD. All models must be fitted to the same data with matching units;
+units are paired by id rather than by row order, so fits that stack
+groups differently – a pooled fit against a multigroup fit, or
+multigroup fits with different group orderings – still pair up unit by
+unit. For missing-data (FIML) fits, "the same data" also means the same
+observed entries: each unit is scored on the entries it has, so
+comparisons require identical missingness patterns across models. All
+models must also share the score flavour (see
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)): mixing fits
 with modelled covariates (`fixed.x = FALSE`, joint scores) and fixed
 covariates (`fixed.x = TRUE`, conditional scores) is refused. Joint
@@ -135,21 +140,21 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [355ms]
+#> ✔ Posterior mode and Hessian. [415ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [475ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [507ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 28/60 skew-normal marginals.
-#> ⠸ Fitting 57/60 skew-normal marginals.
-#> ✔ Fit 60/60 skew-normal marginals. [6.1s]
+#> ⠹ Fitting 25/60 skew-normal marginals.
+#> ⠸ Fitting 55/60 skew-normal marginals.
+#> ✔ Fit 60/60 skew-normal marginals. [6.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [254ms]
+#> ✔ Adjust copula correlations (NORTA). [324ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [2s]
+#> ✔ Summarise 1000 posterior draws. [2.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -161,21 +166,21 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [332ms]
+#> ✔ Posterior mode and Hessian. [367ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.105σ. [257ms]
+#> ✔ VB correction; mean |δ| = 0.105σ. [539ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 28/54 skew-normal marginals.
-#> ✔ Fit 54/54 skew-normal marginals. [5.2s]
+#> ⠹ Fitting 22/54 skew-normal marginals.
+#> ⠸ Fitting 54/54 skew-normal marginals.
+#> ✔ Fit 54/54 skew-normal marginals. [5.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [359ms]
+#> ✔ Adjust copula correlations (NORTA). [469ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.6s]
+#> ✔ Summarise 1000 posterior draws. [2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -187,21 +192,21 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [322ms]
+#> ✔ Posterior mode and Hessian. [348ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.083σ. [236ms]
+#> ✔ VB correction; mean |δ| = 0.083σ. [244ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 11/48 skew-normal marginals.
-#> ⠸ Fitting 47/48 skew-normal marginals.
-#> ✔ Fit 48/48 skew-normal marginals. [4s]
+#> ⠹ Fitting 32/48 skew-normal marginals.
+#> ✔ Fit 48/48 skew-normal marginals. [4.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [411ms]
+#> ✔ Adjust copula correlations (NORTA). [540ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.6s]
+#> ⠹ Computing WAIC.
+#> ✔ Summarise 1000 posterior draws. [2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
