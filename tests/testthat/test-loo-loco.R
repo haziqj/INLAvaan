@@ -150,10 +150,21 @@ test_that("a missing second-order term takes the whole statistic to first order"
 
   # A missing log CPO term warns; it is the condition that says leave-one-out
   # is not identified for that unit
-  expect_warning(
+  msg <- tryCatch(
     loo(fit, Sigma = S * 4, cores = 1L),
-    "no second-order term"
+    warning = conditionMessage
   )
+  expect_match(msg, "no second-order term")
+  # ... and it names them, since Sigma^-1 + H_u is the deleted posterior
+  # precision, so the finding is about the unit and the user's next move is
+  # to go and look at it
+  bad <- pu$unit[!pu$ok]
+  expect_true(all(vapply(
+    bad,
+    function(u) grepl(paste0("\\b", u, "\\b"), msg),
+    logical(1)
+  )))
+  expect_match(msg, "per_unit", fixed = TRUE)
 })
 
 test_that("LOCO unit subsetting and theta/Sigma override", {

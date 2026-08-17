@@ -1397,16 +1397,24 @@ inlav_loo <- function(
   }
   if (isTRUE(second_order) && n_ok < n_units) {
     n_bad <- n_units - n_ok
+    # Name them. Sigma^-1 + H_u is the *deleted* posterior precision, so this
+    # condition is a statement about the unit rather than about arithmetic,
+    # and the user's next move is to go and look at it.
+    bad_units <- cli_vec(
+      per_unit$unit[!per_unit$ok],
+      style = list("vec-trunc" = 10L)
+    )
     cli_warn(c(
       "{n_bad} of {n_units} units {qty(n_bad)}{?has/have} no second-order
-       term.",
+       term: {.val {bad_units}}.",
       "i" = "{qty(n_bad)}{?Its/Their} case-deletion integral diverges
-             ({.field k_max} at or above 1), which is what leaves the term
-             undefined.",
+             ({.field k_max} at or above 1): deleting {qty(n_bad)}{?it/them}
+             leaves the remaining data and the prior unable to identify some
+             combination of parameters.",
       "i" = "Every estimate is reported at first order instead, so the totals
              remain an approximation of one order throughout.",
-      "i" = "Such units are individually influential enough that
-             leave-one-out is not identified from this fit alone."
+      "i" = "This usually says something about the data or the model rather
+             than the arithmetic; see {.code per_unit[!per_unit$ok, ]}."
     ))
   }
   # A missing lpd term deliberately says nothing at the console. It is the

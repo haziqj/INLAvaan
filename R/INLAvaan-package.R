@@ -41,6 +41,7 @@
 #' @importFrom cli cli_progress_step
 #' @importFrom cli cli_progress_update
 #' @importFrom cli cli_rule
+#' @importFrom cli cli_vec
 #' @importFrom cli cli_warn
 #' @importFrom cli pluralize
 #' @importFrom cli qty
