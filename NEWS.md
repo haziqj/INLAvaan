@@ -52,6 +52,14 @@
   for its second-order term to exist; `k_sum` is the unit's total leverage.
   No threshold is applied to either: existence is the only condition acted on.
 
+## Minor improvements and fixes
+
+* The default `"nlminb"` optimiser now runs with `iter.max = 1000` and
+  `eval.max = 2000` instead of `nlminb()`'s stock 150 and 200, which complex
+  models could exhaust — quietly, since hitting the ceiling surfaces only
+  through `diagnostics()` or the fit-time warning. Values supplied via
+  `control` still take precedence.
+
 # INLAvaan 0.3.1
 
 ## Bug fixes

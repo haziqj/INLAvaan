@@ -103,7 +103,11 @@ temperature is included as an additional optimisation parameter.}
 is fitted to the posterior samples for covariance and defined parameters.
 When \code{FALSE}, these are summarised using kernel density estimation instead.}
 
-\item{control}{A list of control parameters for the optimiser.}
+\item{control}{A list of control parameters for the optimiser. For the
+default \code{"nlminb"}, INLAvaan raises the stock iteration ceilings to
+\code{iter.max = 1000} and \code{eval.max = 2000} (complex models can exhaust
+\code{nlminb()}'s own defaults of 150 and 200); any value supplied here
+overrides these.}
 
 \item{verbose}{Logical indicating whether to print progress messages.}
 

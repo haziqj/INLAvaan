@@ -60,7 +60,11 @@
 #' @param sn_fit_sample Logical. When `TRUE` (default), a parametric skew-normal
 #'   is fitted to the posterior samples for covariance and defined parameters.
 #'   When `FALSE`, these are summarised using kernel density estimation instead.
-#' @param control A list of control parameters for the optimiser.
+#' @param control A list of control parameters for the optimiser. For the
+#'   default `"nlminb"`, INLAvaan raises the stock iteration ceilings to
+#'   `iter.max = 1000` and `eval.max = 2000` (complex models can exhaust
+#'   `nlminb()`'s own defaults of 150 and 200); any value supplied here
+#'   overrides these.
 #' @param verbose Logical indicating whether to print progress messages.
 #' @param debug Logical indicating whether to return debug information.
 #' @param add_priors Logical indicating whether to include prior densities in
@@ -359,11 +363,19 @@ inlavaan <- function(
   }
 
   if (optim_method == "nlminb") {
+    # nlminb()'s own defaults (iter.max = 150, eval.max = 200) are too tight
+    # for complex models, and running out is quiet: convergence = 1 surfaces
+    # only through diagnostics() or the fit-time warning. Raise the ceiling,
+    # letting an explicit user `control` win.
+    ctrl <- utils::modifyList(
+      list(iter.max = 1000L, eval.max = 2000L),
+      control
+    )
     opt <- nlminb(
       start = parstart,
       objective = ob,
       gradient = gr,
-      control = control
+      control = ctrl
     )
     theta_star <- opt$par
     if (isTRUE(verbose)) {
