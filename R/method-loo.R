@@ -53,20 +53,23 @@
 #' error is smaller than the systematic bias the second-order lpd carries on
 #' the units that keep it, so flagging it would misdirect.
 #'
-#' Two curvature diagnostics accompany each unit. Writing the importance
-#' ratio between the unit-deleted and full posteriors as
-#' \eqn{r(\theta) \propto 1 / p(y_u \mid \theta)}, its moments satisfy
-#' \eqn{E[r^a] < \infty} exactly when \eqn{a < 1 / k_u}, where
-#' \eqn{k_u = \lambda_{\max}(-\Sigma H_u)} is reported as `k_max`. It
-#' measures how much of the posterior precision the unit itself carries, so
-#' \eqn{k_u < 1} is precisely the existence condition above (`k_max >= 1`
-#' iff `ok` is `FALSE`), and \eqn{k_u} approaching 1 is the approach to a
-#' term that diverges. `k_sum` is \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's
-#' total leverage, which sums across units to the effective number of
-#' parameters. Both are obtained in closed form from the Laplace summary
-#' rather than estimated from draws, and are `NA` when the second-order term
-#' is not computed. No threshold is applied to either: existence is the only
-#' condition the package acts on.
+#' Two leverage diagnostics accompany each unit, both read from the spectrum
+#' of the same operator \eqn{-\Sigma H_u}, which measures the share of the
+#' posterior precision the unit itself carries. `k_max` is its largest
+#' eigenvalue \eqn{k_u = \lambda_{\max}(-\Sigma H_u)}, the unit's precision
+#' share along its worst direction: \eqn{k_u < 1} is exactly the
+#' positive-definiteness condition above (`k_max >= 1` iff `ok` is `FALSE`),
+#' since \eqn{k_u \ge 1} says the unit carries more information in some
+#' direction than the remaining data and the prior combined, and
+#' \eqn{k_u} approaching 1 is the approach to a term that diverges. `k_sum`
+#' is \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's total leverage, which sums
+#' across units to the effective number of parameters -- as hat-matrix
+#' leverages sum to the parameter count in regression, whose classical
+#' breakdown at leverage 1 reappears here as \eqn{k_u \to 1}. Both are
+#' obtained in closed form from the Laplace summary rather than estimated
+#' from draws, and are `NA` when the second-order term is not computed. No
+#' threshold is applied to either: existence is the only condition the
+#' package acts on.
 #'
 #' The type is resolved automatically: per-cluster (`"loco"`) when the model
 #' was fitted with a `cluster` argument, per-subject (`"loso"`) otherwise.
