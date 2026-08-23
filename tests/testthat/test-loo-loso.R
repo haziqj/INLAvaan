@@ -111,6 +111,7 @@ test_that("loo object structure and internal identities", {
       "det_term",
       "k_max",
       "k_sum",
+      "k_ssq",
       "ok"
     )
   )
@@ -335,9 +336,7 @@ test_that("fitMeasures reports LOO measures on request or when stored", {
 })
 
 test_that("waic() sanity and agreement with loo()", {
-  set.seed(123)
-  # A few units genuinely exceed the p_waic reliability threshold here
-  expect_warning(w <- waic(fit, nsamp = 100), "p_waic")
+  w <- waic(fit)
   expect_s3_class(w, "inlavaan_waic")
   expect_equal(w$n_units, 40L)
   expect_equal(w$type, "loso")
@@ -345,7 +344,22 @@ test_that("waic() sanity and agreement with loo()", {
   expect_true(all(w$per_unit$p_waic > 0))
   expect_output(print(w), "WAIC")
 
-  # WAIC and LOO estimate the same quantity; loose agreement on this model
+  # deterministic: a recomputation reproduces the estimates exactly
+  w_again <- waic(fit)
+  expect_identical(w$estimates, w_again$estimates)
+
+  # the deprecated draws argument is ignored, with a warning
+  expect_warning(waic(fit, nsamp = 100), "nsamp")
+
+  # first-order WAIC is exactly first-order LOO
+  w1 <- waic(fit, second_order = FALSE)
+  expect_equal(
+    unname(w1$estimates["elpd_waic", "Estimate"]),
+    res$elpd_1,
+    tolerance = 1e-10
+  )
+
+  # at second order the two differ only by the penalty gap; loose agreement
   expect_equal(
     unname(w$estimates["elpd_waic", "Estimate"]),
     res$elpd_2,
@@ -356,12 +370,9 @@ test_that("waic() sanity and agreement with loo()", {
     -2 * unname(w$estimates["elpd_waic", "Estimate"])
   )
 
-  # fitMeasures computes WAIC on request by name only (the test fit has
-  # nsamp = 3, so suppress the small-sample p_waic reliability warning)
+  # fitMeasures computes WAIC on request by name only
   expect_false("waic" %in% names(fitMeasures(fit)))
-  suppressWarnings(
-    fm <- fitMeasures(fit, c("waic", "p_waic", "se_waic"))
-  )
+  fm <- fitMeasures(fit, c("waic", "p_waic", "se_waic"))
   expect_true(all(c("waic", "p_waic", "se_waic") %in% names(fm)))
 })
 
@@ -405,12 +416,22 @@ test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
   expect_identical(loo(fit_std), int$loo)
 
   expect_s3_class(int$waic, "inlavaan_waic")
-  expect_equal(int$waic$nsamp, 100L)
   expect_identical(waic(fit_std), int$waic)
+  # the stored WAIC is the fit-time LOO aggregated on the lpd side (a unit
+  # with no second-order lpd contributes its first-order one)
+  pu <- int$loo$per_unit
+  expect_equal(
+    unname(int$waic$estimates["elpd_waic", "Estimate"]),
+    sum(
+      ifelse(is.na(pu$lpd_2), pu$lpd_1, pu$lpd_2) -
+        2 * (pu$lpd_1 - pu$l_star) -
+        0.5 * pu$k_ssq
+    ),
+    tolerance = 1e-10
+  )
   # non-default arguments still trigger a fresh computation
-  set.seed(1)
-  w2 <- suppressWarnings(waic(fit_std, nsamp = 120))
-  expect_equal(w2$nsamp, 120L)
+  w2 <- waic(fit_std, units = 1:10)
+  expect_equal(w2$n_units, 10L)
 
   # stored results appear in fitMeasures' "all" for free
   fm <- fitMeasures(fit_std)
@@ -428,7 +449,7 @@ test_that("the fit-time budget gate aborts with its own condition class", {
   )
 })
 
-test_that("small nsamp skips fit-time WAIC but not LOO", {
+test_that("fit-time WAIC follows the fit-time LOO regardless of nsamp", {
   fit_s3 <- acfa(
     HS_model,
     dat,
@@ -441,6 +462,7 @@ test_that("small nsamp skips fit-time WAIC but not LOO", {
     marginal_correction = "none"
   )
   int <- get_inlavaan_internal(fit_s3)
-  expect_null(int$waic)
+  # derived from the same Taylor pass, so no draws-based nsamp gate remains
   expect_s3_class(int$loo, "inlavaan_loo")
+  expect_s3_class(int$waic, "inlavaan_waic")
 })

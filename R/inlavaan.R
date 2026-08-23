@@ -22,9 +22,9 @@
 #' @param test Character indicating which post-estimation quantities to
 #'   compute. Defaults to "standard": posterior fit indices (PPP and DIC),
 #'   plus -- for models supported by the casewise machinery and fitted with
-#'   a mean structure -- the WAIC (reusing the fit's posterior draws, when
-#'   `nsamp >= 100`) and a full leave-one-out cross-validation whenever its
-#'   predicted serial cost is within a 10-second budget; both are stored
+#'   a mean structure -- a full leave-one-out cross-validation whenever its
+#'   predicted serial cost is within a 10-second budget, with the WAIC
+#'   derived from the same computation at no extra cost; both are stored
 #'   with the fit (see [loo()] and [waic()]). "none" skips all of these.
 #'   Include "loo" (e.g. `test = c("standard", "loo")`, or `test = "loo"`
 #'   alone) to force the full LOO regardless of the budget.
@@ -969,25 +969,13 @@ inlavaan <- function(
     timing <- add_timing(timing, "loo")
   }
 
-  # WAIC from the draws already produced above, so only the casewise pass is
-  # paid; skipped for small nsamp, where p_waic estimates are meaningless.
-  # The reliability warning is left to print/explicit waic() calls.
+  # WAIC comes free from the same Taylor pass as the LOO: identical per-unit
+  # quantities, aggregated on the lpd side instead of the case-deletion side
+  # (see waic_from_taylor). When the LOO was skipped -- unsupported model or
+  # over budget -- the WAIC is skipped with it; waic() computes it post hoc.
   waic_res <- NULL
-  if (test != "none" && casewise_ok && nsamp >= 100L) {
-    if (isTRUE(verbose)) {
-      samp_stage <- "Computing WAIC"
-      cli_progress_update(.envir = samp_env)
-    }
-    waic_res <- tryCatch(
-      suppressWarnings(
-        waic_from_draws(
-          int_fit,
-          x_samp,
-          eff_cores = resolve_loo_cores(cores)
-        )
-      ),
-      error = function(e) NULL
-    )
+  if (test != "none" && !is.null(loo_res)) {
+    waic_res <- waic_from_taylor(loo_res)
     timing <- add_timing(timing, "waic")
   }
 

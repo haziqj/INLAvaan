@@ -479,8 +479,8 @@ inlav_fit_measures <- function(
     }
   }
 
-  # WAIC: free when stored with the fit; otherwise sampling-based, computed
-  # on demand when requested by name
+  # WAIC: free when stored with the fit; otherwise computed on demand (a
+  # full Taylor pass) when requested by name
   waic_measures <- c("elpd_waic", "se_waic", "p_waic", "waic")
   res_waic <- object@external$inlavaan_internal$waic
   if (

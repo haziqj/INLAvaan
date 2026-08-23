@@ -45,9 +45,9 @@ parameters; a named character vector as returned by \code{\link[=priors_for]{pri
 \item{test}{Character indicating which post-estimation quantities to
 compute. Defaults to "standard": posterior fit indices (PPP and DIC),
 plus -- for models supported by the casewise machinery and fitted with
-a mean structure -- the WAIC (reusing the fit's posterior draws, when
-\code{nsamp >= 100}) and a full leave-one-out cross-validation whenever its
-predicted serial cost is within a 10-second budget; both are stored
+a mean structure -- a full leave-one-out cross-validation whenever its
+predicted serial cost is within a 10-second budget, with the WAIC
+derived from the same computation at no extra cost; both are stored
 with the fit (see \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}}). "none" skips all of these.
 Include "loo" (e.g. \code{test = c("standard", "loo")}, or \code{test = "loo"}
 alone) to force the full LOO regardless of the budget.}

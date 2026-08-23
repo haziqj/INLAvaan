@@ -78,7 +78,9 @@ fits only), \code{nobs} (1 for LOSO, the cluster size for LOCO),
 \code{l_star} (unit log-likelihood at the summary), \code{score_norm},
 \code{lpd_1}/\code{lpd_2} (pointwise log predictive density),
 \code{log_cpo_1}/\code{log_cpo_2} (pointwise LOO contributions), \code{det_term},
-\code{k_max}/\code{k_sum} (leverage diagnostics, see below), and \code{ok}
+\code{k_max}/\code{k_sum} (leverage diagnostics, see below), \code{k_ssq}
+(\eqn{\mathrm{tr}[(\Sigma H_u)^2]}, consumed by the closed-form
+\code{\link[=waic]{waic()}} penalty), and \code{ok}
 (whether the second-order \eqn{\log \mathrm{CPO}} exists).}
 \item{\code{estimates}}{Matrix with rows \code{elpd_loo}, \code{p_loo}, \code{looic} and
 columns \code{Estimate}, \code{SE}, at the highest order available to each.}

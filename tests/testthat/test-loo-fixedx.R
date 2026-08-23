@@ -332,11 +332,9 @@ test_that("conditional LOCO with within-level covariates matches reference value
 })
 
 test_that("waic scores fixed.x fits conditionally", {
-  set.seed(1)
-  w <- suppressWarnings(waic(fit_c, nsamp = 100))
+  w <- waic(fit_c)
   expect_equal(w$flavour, "conditional")
   expect_true(all(is.finite(w$per_unit$lpd)))
-  expect_output(print(w), "conditionally on the exogenous covariates")
 })
 
 test_that("compare(loo = TRUE) enforces the flavour rules", {

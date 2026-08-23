@@ -853,6 +853,7 @@ taylor_loo_unit <- function(
     det_term = NA_real_,
     k_max = NA_real_,
     k_sum = NA_real_,
+    k_ssq = NA_real_,
     ok = FALSE
   )
   if (second_order && !is.null(H_u)) {
@@ -860,7 +861,9 @@ taylor_loo_unit <- function(
     # symmetric similarity R (-H_u) R' so the spectrum is real. k_max is the
     # share of the posterior precision the unit carries along its worst
     # direction, and k_max < 1 is the existence condition for the unit's
-    # second-order term; k_sum = tr(Sigma*(-H_u)) is its total leverage.
+    # second-order term; k_sum = tr(Sigma*(-H_u)) is its total leverage, and
+    # k_ssq = tr[(Sigma* H_u)^2] feeds the closed-form p_waic (see
+    # waic_from_taylor).
     if (!is.null(R_act)) {
       ev <- eigen(
         -R_act %*% H_u %*% t(R_act),
@@ -869,6 +872,7 @@ taylor_loo_unit <- function(
       )$values
       out$k_max <- max(ev[1L], 0)
       out$k_sum <- sum(ev)
+      out$k_ssq <- sum(ev^2)
     }
     A_u <- S_inv + H_u
     Ac <- tryCatch(chol(A_u), error = function(e) NULL)
@@ -1352,6 +1356,7 @@ inlav_loo <- function(
     det_term = vapply(raw, `[[`, numeric(1), "det_term"),
     k_max = vapply(raw, `[[`, numeric(1), "k_max"),
     k_sum = vapply(raw, `[[`, numeric(1), "k_sum"),
+    k_ssq = vapply(raw, `[[`, numeric(1), "k_ssq"),
     ok = vapply(raw, `[[`, logical(1), "ok")
   )
   per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
@@ -1409,15 +1414,18 @@ inlav_loo <- function(
       per_unit$unit[!per_unit$ok],
       style = list("vec-trunc" = 10L)
     )
-    cli_warn(c(
-      "Reverting to first-order approximation.",
-      "i" = "{n_bad} of {n_units} units {qty(n_bad)}{?has/have} no second-order term: {.val {bad_units}}. ",
-      "i" = "{qty(n_bad)}{?Its/Their} case-deletion integral diverges
-             ({.field k_max} at or above 1): deleting {qty(n_bad)}{?it/them}
-             leaves the remaining data and the prior unable to identify some
-             combination of parameters.",
-      "i" = "This usually says something about the data or the model; see {.code per_unit[!per_unit$ok, ]}."
-    ))
+    cli_warn(
+      c(
+        "Reverting to first-order approximation.",
+        "i" = "{n_bad} of {n_units} units {qty(n_bad)}{?has/have} no second-order term: {.val {bad_units}}. ",
+        "i" = "{qty(n_bad)}{?Its/Their} case-deletion integral diverges
+               ({.field k_max} at or above 1): deleting {qty(n_bad)}{?it/them}
+               leaves the remaining data and the prior unable to identify some
+               combination of parameters.",
+        "i" = "This usually says something about the data or the model; see {.code per_unit[!per_unit$ok, ]}."
+      ),
+      class = "inlavaan_loo_first_order"
+    )
   }
   # A missing lpd term deliberately says nothing at the console. It is the
   # ordinary state of an SEM fit, elpd_loo and looic are untouched, and the
@@ -1464,187 +1472,68 @@ inlav_loo <- function(
   )
 }
 
-# ---- Sampling-based WAIC -----------------------------------------------------
+# ---- Deterministic WAIC ------------------------------------------------------
 #
-# Unlike the Taylor LOO above, WAIC is computed from an S x n matrix of unit
-# log-likelihoods evaluated over posterior draws (one implied-moment build
-# per draw, reusing the casewise kernels):
-#   lpd_u    = log mean_s p(y_u | theta_s)
-#   p_waic_u = var_s log p(y_u | theta_s)
+# WAIC from the same per-unit Taylor quantities as the LOO above -- no
+# posterior draws. Under the Gaussian posterior N(theta*, Sigma) and the
+# quadratic surrogate l_u(theta) ~= l*_u + s_u'd + d'H_u d / 2,
+#   lpd_u    = lpd_1 or lpd_2 (see taylor_loo_unit)
+#   p_waic_u = Var[l_u(theta)] = s_u' Sigma s_u + tr[(H_u Sigma)^2] / 2
+# (the cross term is a third Gaussian moment, hence zero). Both pieces are
+# already computed: s_u' Sigma s_u = 2 * (lpd_1 - l*), and tr[(H_u Sigma)^2]
+# is per_unit$k_ssq. The variance is a polynomial in Gaussian moments, so
+# unlike the lpd and log CPO integrals it carries no existence condition of
+# its own. At first order, lpd_1 - p_waic_1 = log_cpo_1 exactly: first-order
+# WAIC and first-order LOO are the same number.
 #   elpd_waic = sum_u (lpd_u - p_waic_u),  waic = -2 * elpd_waic
-
-log_mean_exp <- function(v) {
-  v <- v[is.finite(v)]
-  if (length(v) == 0L) {
-    return(NA_real_) # nocov
-  }
-  a <- max(v)
-  a + log(mean(exp(v - a)))
-}
 
 inlav_waic <- function(
   int,
   type = c("auto", "loso", "loco"),
   units = NULL,
-  nsamp = NULL,
+  second_order = TRUE,
   eff_cores = 1L,
   verbose = FALSE
 ) {
   type <- match.arg(type)
   check_loo_model(int, fn = "waic")
-  nsamp <- nsamp %||% int$nsamp %||% 1000L
-  samp <- sample_params(
-    theta_star = int$theta_star,
-    Sigma_theta = int$Sigma_theta,
-    method = int$marginal_method,
-    approx_data = int$approx_data,
-    pt = int$partable,
-    lavmodel = int$lavmodel,
-    nsamp = nsamp,
-    R_star = int$R_star
+  # The consolidated reversion to first order concerns the log CPO side
+  # only; WAIC reads none of those terms, so the warning is muffled here
+  res <- withCallingHandlers(
+    inlav_loo(
+      int,
+      type = type,
+      units = units,
+      second_order = second_order,
+      eff_cores = eff_cores,
+      verbose = verbose
+    ),
+    inlavaan_loo_first_order = function(w) invokeRestart("muffleWarning")
   )
-  waic_from_draws(
-    int,
-    samp$x_samp,
-    type = type,
-    units = units,
-    eff_cores = eff_cores,
-    verbose = verbose
-  )
+  waic_from_taylor(res)
 }
 
-# WAIC from an existing matrix of posterior draws (lavaan-x space). Used by
-# inlav_waic() with fresh draws and by the fit-time path with the draws the
-# fit already produced, so that fit-time WAIC costs only the casewise pass.
-waic_from_draws <- function(
-  int,
-  x_samp,
-  type = c("auto", "loso", "loco"),
-  units = NULL,
-  eff_cores = 1L,
-  verbose = FALSE
-) {
-  type <- match.arg(type)
-  pt <- int$partable
-  lavmodel <- int$lavmodel
-  lavdata <- int$lavdata
-  two_level <- is_multilevel(lavdata)
-  two_level_missing <- two_level && isTRUE(int$lavsamplestats@missing.flag)
-  nsamp <- nrow(x_samp)
-
-  # Resolve unit type (matches loo): conditional WAIC = leave-one-unit-out,
-  # marginal WAIC = leave-one-cluster-out (Merkle, Furr & Rabe-Hesketh 2019)
-  if (type == "auto") {
-    type <- if (two_level) "loco" else "loso"
-  } else if (type == "loco" && !two_level) {
-    cli_abort(
-      "Leave-one-cluster-out requires a two-level model, but this model has
-       no clusters."
-    )
-  } else if (type == "loso" && two_level) {
-    cli_warn(c(
-      "Scoring leave-one-unit-out (the {.emph conditional} WAIC) on a
-       two-level model, not the default leave-one-cluster-out (the
-       {.emph marginal} WAIC).",
-      "i" = "These target different predictions -- a new observation within an
-       observed cluster vs a new cluster -- and are easily conflated
-       (Merkle, Furr & Rabe-Hesketh, 2019)."
-    ))
-  }
-  per_row_2l <- type == "loso" && two_level
-
-  unit_group <- NULL
-  if (per_row_2l) {
-    X <- lavdata@X[[1L]]
-    if (two_level_missing) {
-      minfo <- loco_missing_info(int)
-    } else {
-      css <- loco_suff_stats(lavdata)
-    }
-    units <- check_loo_units(units, nrow(X), "rows")
-    nobs <- rep(1L, length(units))
-  } else if (two_level_missing) {
-    minfo <- loco_missing_info(int)
-    units <- check_loo_units(units, minfo$J, "clusters")
-    nobs <- minfo$n_j[units]
-  } else if (two_level) {
-    css <- loco_suff_stats(lavdata)
-    units <- check_loo_units(units, css$J, "clusters")
-    nobs <- css$n_j[units]
+# Assemble the WAIC object from a fitted inlavaan_loo result. Also used by
+# the fit-time path, where it makes the WAIC free once the LOO has run.
+waic_from_taylor <- function(res) {
+  pu <- res$per_unit
+  n_units <- res$n_units
+  quad <- 2 * (pu$lpd_1 - pu$l_star) # s_u' Sigma s_u
+  use_second <- isTRUE(res$second_order)
+  if (use_second) {
+    p_waic <- quad + 0.5 * pu$k_ssq
+    # A unit with no second-order lpd contributes its first-order lpd: the
+    # lpd integral is finite in truth (a density is bounded), so the missing
+    # term is an artefact of extrapolating the quadratic, and the
+    # first-order term recovers most of the true value (see the loo() docs).
+    # Unlike p_loo in loo(), the substitution lands in elpd_waic itself; it
+    # is noted when the result is printed and counted by n_lpd_ok.
+    lpd <- ifelse(is.na(pu$lpd_2), pu$lpd_1, pu$lpd_2)
   } else {
-    dv <- loso_data_view(lavmodel, lavdata, x_idx = int$lavsamplestats@x.idx)
-    uv <- loso_resolve_units(lavdata, units)
-    units <- uv$ids
-    unit_group <- uv$grp
-    nobs <- rep(1L, uv$n)
+    p_waic <- quad
+    lpd <- pu$lpd_1
   }
-
-  one_draw <- function(s) {
-    lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_samp[s, ])
-    mom <- loo_implied_moments(lavmodel_x, two_level)
-    tryCatch(
-      if (per_row_2l && two_level_missing) {
-        loso2l_missing_loglik_all(units, minfo, mom)
-      } else if (per_row_2l) {
-        loso2l_loglik_all(units, css, X, mom)
-      } else if (two_level_missing) {
-        vapply(
-          units,
-          function(j) loco_missing_loglik_one(j, minfo, mom),
-          numeric(1)
-        )
-      } else if (two_level) {
-        vapply(units, function(j) loco_loglik_one(j, css, mom), numeric(1))
-      } else {
-        # includes the exchangeability constant; 0 with a mean structure
-        loso_loglik_units(uv, dv, mom)
-      },
-      error = function(e) rep(NA_real_, length(units)) # nocov
-    )
-  }
-  ll_list <- run_parallel_or_serial(
-    m = nsamp,
-    FUN = one_draw,
-    cores = eff_cores,
-    verbose = verbose,
-    msg_serial = "Evaluating unit log-likelihoods at draw {j}/{m}.",
-    msg_parallel = "Evaluating unit log-likelihoods at {m} draws ({cores} cores).",
-    msg_done = "Evaluate unit log-likelihoods at {m} draw{?s}."
-  )
-  ll_mat <- do.call(rbind, ll_list) # nsamp x n_units
-
-  # Score a fixed.x fit on its conditional likelihood: subtract the
-  # frozen-covariate marginal, a per-unit constant across draws
-  flavour <- loo_flavour(int)
-  if (flavour == "conditional") {
-    mom0 <- loo_grad_cache(
-      int$theta_star,
-      lavmodel,
-      pt,
-      two_level = two_level
-    )$mom
-    cvec <- if (per_row_2l) {
-      loo_fixedx_rowdiff_loco(int, css, X, units, mom0)
-    } else if (two_level) {
-      loo_fixedx_const_loco(int, css, units, mom0)
-    } else {
-      loso_fixedx_const_units(int, uv, dv, mom0)
-    }
-    ll_mat <- sweep(ll_mat, 2L, cvec, "-")
-  }
-
-  lpd <- apply(ll_mat, 2L, log_mean_exp)
-  p_waic <- apply(ll_mat, 2L, var, na.rm = TRUE)
   elpd_waic_u <- lpd - p_waic
-  n_units <- length(units)
-
-  n_high <- sum(p_waic > 0.4, na.rm = TRUE)
-  if (n_high > 0L) {
-    cli_warn(
-      "{n_high} unit{?s} {?has/have} p_waic > 0.4, so the WAIC may be
-       unreliable. Consider {.fn loo} instead."
-    )
-  }
 
   estimates <- cbind(
     Estimate = c(sum(elpd_waic_u), sum(p_waic), -2 * sum(elpd_waic_u)),
@@ -1657,23 +1546,26 @@ waic_from_draws <- function(
   rownames(estimates) <- c("elpd_waic", "p_waic", "waic")
 
   per_unit <- data.frame(
-    unit = units,
-    nobs = nobs,
+    unit = pu$unit,
+    nobs = pu$nobs,
     lpd = lpd,
     p_waic = p_waic,
     elpd_waic = elpd_waic_u
   )
-  per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
+  if (!is.null(pu$group)) {
+    per_unit <- cbind(per_unit[1L], group = pu$group, per_unit[-1L])
+  }
 
   structure(
     list(
       per_unit = per_unit,
       estimates = estimates,
-      type = type,
-      flavour = flavour,
+      type = res$type,
+      flavour = res$flavour,
       n_units = n_units,
-      n_groups = lavdata@ngroups,
-      nsamp = nsamp
+      n_groups = res$n_groups,
+      n_lpd_ok = res$n_lpd_ok,
+      second_order = use_second
     ),
     class = "inlavaan_waic"
   )

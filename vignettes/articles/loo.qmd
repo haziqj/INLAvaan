@@ -207,12 +207,11 @@ fitMeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
 ## WAIC
 
 The widely applicable information criterion [@watanabe2010asymptotic] is asymptotically equivalent to LOO and is also available.
-Unlike `loo()`, `waic()` is sampling-based: it evaluates unit log-likelihoods over posterior draws, so results carry Monte Carlo error, and units with $p_{\mathrm{waic},u} > 0.4$ trigger a reliability warning -- in which case prefer `loo()` [@vehtari2017practical].
+Like `loo()`, `waic()` is computed in closed form from the Laplace summary -- the penalty is the variance of the unit log-likelihood under the Gaussian posterior, a polynomial in its moments -- so it involves no posterior draws and carries no Monte Carlo error.
+At first order the two are identical ($\mathrm{lpd}^{(1)}_u - p^{(1)}_{\mathrm{waic},u} = \log \mathrm{CPO}^{(1)}_u$ exactly); at second order they differ by a curvature gap, with WAIC weakly optimistic relative to LOO.
 
 ```{r}
 #| label: waic
-#| warning: false
-set.seed(1)
 waic(fit)
 ```
 

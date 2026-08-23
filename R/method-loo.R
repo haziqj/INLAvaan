@@ -200,7 +200,9 @@
 #'       `l_star` (unit log-likelihood at the summary), `score_norm`,
 #'       `lpd_1`/`lpd_2` (pointwise log predictive density),
 #'       `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions), `det_term`,
-#'       `k_max`/`k_sum` (leverage diagnostics, see below), and `ok`
+#'       `k_max`/`k_sum` (leverage diagnostics, see below), `k_ssq`
+#'       (\eqn{\mathrm{tr}[(\Sigma H_u)^2]}, consumed by the closed-form
+#'       [waic()] penalty), and `ok`
 #'       (whether the second-order \eqn{\log \mathrm{CPO}} exists).}
 #'     \item{`estimates`}{Matrix with rows `elpd_loo`, `p_loo`, `looic` and
 #'       columns `Estimate`, `SE`, at the highest order available to each.}

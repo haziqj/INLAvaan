@@ -290,14 +290,14 @@ test_that("fixed.x two-level fits are scored conditionally", {
 
 test_that("waic gains type: conditional (leave-one-unit-out) WAIC", {
   # default is marginal (per-cluster) WAIC
-  set.seed(1)
-  w_marg <- suppressWarnings(waic(fit, nsamp = 120))
+  w_marg <- waic(fit)
   expect_equal(w_marg$type, "loco")
 
-  # type = "loso" warns and scores the conditional (leave-one-unit-out) WAIC,
-  # the same estimand as loo(type = "loso"); the two routes agree loosely
+  # type = "loso" warns and scores the conditional (leave-one-unit-out)
+  # WAIC, the same estimand as loo(type = "loso"): identical lpd terms, so
+  # the two differ only by the p_waic vs p_loo penalty gap
   w_cond <- testthat::capture_warnings(
-    w <- waic(fit, type = "loso", units = 1:5, nsamp = 120)
+    w <- waic(fit, type = "loso", units = 1:5)
   )
   expect_true(any(grepl("leave-one-unit-out", w_cond)))
   expect_equal(w$type, "loso")

@@ -53,6 +53,28 @@
 
 ## New features
 
+* `waic()` is now deterministic: both WAIC terms are computed in closed form
+  from the fit's Laplace summary — the same per-unit Taylor quantities behind
+  `loo()` — instead of being estimated from posterior draws. The penalty is
+  the variance of the unit log-likelihood under the Gaussian posterior,
+  \eqn{p_{waic,u} = s_u' \Sigma s_u + tr[(H_u \Sigma)^2]/2}, a polynomial in
+  Gaussian moments with no existence condition of its own; the lpd term is
+  the one `loo()` already computes, and a unit without a second-order lpd
+  contributes its first-order lpd (noted when printing, counted by
+  `n_lpd_ok`). **This is a change of estimand, not only of computation**:
+  the previous estimator took a variance across draws from the skew-normal
+  copula sampler, so `p_waic` and `waic` change on every existing fit, most
+  visibly at small `N` where the two posteriors' second moments differ most.
+  Consequences: results are exactly reproducible (no seed sensitivity); the
+  `nsamp` argument is gone (passing it warns) along with the
+  `p_waic > 0.4` Monte Carlo reliability warning, which had no Monte Carlo
+  left to police; a `second_order` argument mirrors `loo()`, and at first
+  order WAIC and LOO coincide exactly. At fit time the WAIC is derived from
+  the same computation as the fit-time LOO at no extra cost (previously it
+  needed `nsamp >= 100` and a separate casewise pass over all draws), and is
+  skipped when that LOO is skipped. `loo()`'s `per_unit` gains the
+  `k_ssq` column (\eqn{tr[(\Sigma H_u)^2]}) that feeds the penalty.
+
 * `loo()` now reports two curvature diagnostics per unit, `k_max` and `k_sum`,
   obtained in closed form from the Laplace summary rather than estimated from
   posterior draws. `k_max` is the share of the posterior precision the unit

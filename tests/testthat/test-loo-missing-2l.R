@@ -158,8 +158,7 @@ test_that("loo object structure and unit subsetting", {
 })
 
 test_that("waic() runs on a two-level FIML fit and agrees loosely with loo()", {
-  set.seed(1)
-  w <- suppressWarnings(waic(fit, nsamp = 50))
+  w <- waic(fit)
   expect_s3_class(w, "inlavaan_waic")
   expect_equal(w$n_units, 30L)
   expect_equal(w$type, "loco")
