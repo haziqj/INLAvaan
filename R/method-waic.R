@@ -137,12 +137,14 @@ waic.inlavaan_internal <- function(
     )
   }
   # Reuse the result stored at fit time when no argument deviates from the
-  # defaults
+  # defaults -- but only a result from the current, deterministic
+  # implementation: a fit saved by an older INLAvaan carries a draw-based
+  # object (no second_order field), a different estimand, so recompute
   if (
     type == "auto" &&
       is.null(units) &&
       isTRUE(second_order) &&
-      !is.null(x$waic)
+      isTRUE(x$waic$second_order)
   ) {
     if (isTRUE(verbose)) {
       cli_alert_info("Returning the WAIC stored with the fit.")
@@ -191,6 +193,17 @@ print.inlavaan_waic <- function(x, ...) {
         "lpd uses first-order contributions for {n_bad} of {n} units"
       ),
       "\nwith no second-order term.\n",
+      sep = ""
+    )
+  }
+  n_high <- sum(x$per_unit$p_waic > 0.4, na.rm = TRUE)
+  if (n_high > 0L) {
+    cat(
+      "\n",
+      n_high,
+      " unit",
+      if (n_high != 1L) "s",
+      " with p_waic > 0.4: the WAIC may be unreliable; prefer loo().\n",
       sep = ""
     )
   }
