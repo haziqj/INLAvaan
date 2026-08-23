@@ -160,6 +160,18 @@ test_that("timing rejects unknown segments", {
   expect_error(timing(fit, what = "nonexistent"), "Unknown")
 })
 
+test_that("timing segments are disjoint and sum to the total", {
+  tt <- timing(fit, what = "all")
+  # the lavaan setup is inside "init", not a second set of segments; the
+  # absolute start_time stamp is not a duration and must not be exposed
+  expect_false(any(c("start_time", "ov.names", "SampleStats") %in% names(tt)))
+  expect_equal(
+    unname(tt[["total"]]),
+    sum(tt[setdiff(names(tt), "total")]),
+    tolerance = 1e-8
+  )
+})
+
 test_that("print.timing.INLAvaan works", {
   tt <- timing(fit, what = "all")
   expect_output(print(tt))

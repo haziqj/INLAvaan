@@ -2,6 +2,14 @@
 
 ## Bug fixes
 
+* `timing()` overstated the total: the lavaan-side setup stages were added on
+  top of INLAvaan's own segments even though they already sit inside `init`,
+  double-counting the whole lavaan setup (and silently summing the four
+  segment names both sides share). The reported segments are now INLAvaan's
+  own, disjoint, and sum to a `total` that matches `system.time()` on the
+  call; the absolute `start_time` stamp is no longer exposed as if it were a
+  duration, and the `loo`/`waic` segments are now documented.
+
 * `loo()` no longer drops units without a second-order term from `elpd_loo`,
   `p_loo` and their standard errors, which summed the model over fewer units
   and so flattered it. A second-order term is a Gaussian integral that need

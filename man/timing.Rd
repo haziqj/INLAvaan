@@ -16,10 +16,12 @@ timing(object, ...)
 
 \item{what}{Character vector of timing segment names to return, or
 \code{"all"} to return every segment. Defaults to \code{"total"}.
-Available segments (depending on model options): \code{"init"},
-\code{"optim"}, \code{"vb"}, \code{"loglik"}, \code{"marginals"},
-\code{"norta"}, \code{"sampling"}, \code{"covariances"},
-\code{"definedpars"}, \code{"deltapars"}, \code{"test"}, \code{"total"}.}
+Available segments (depending on model options): \code{"init"} (which
+includes the lavaan model setup), \code{"optim"}, \code{"vb"},
+\code{"loglik"}, \code{"marginals"}, \code{"norta"}, \code{"sampling"},
+\code{"covariances"}, \code{"definedpars"}, \code{"deltapars"},
+\code{"test"}, \code{"loo"}, \code{"waic"}, \code{"total"}. The
+segments are disjoint and \code{"total"} is their sum.}
 }
 \value{
 A named numeric vector (class \code{c("timing.INLAvaan",

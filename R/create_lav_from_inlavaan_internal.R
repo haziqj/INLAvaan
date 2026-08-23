@@ -153,16 +153,15 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@baseline <- list()
 
   ## ----- Change timing slot --------------------------------------------------
-  t0 <- fit0@timing
-  t1 <- fit_inlv$timing
-  nms <- union(names(t0), names(t1))
-  fit0@timing <- lapply(nms, function(n) {
-    (if (n %in% names(t0)) t0[[n]] else 0) +
-      (if (n %in% names(t1)) t1[[n]] else 0)
-  })
-  names(fit0@timing) <- nms
-  fit0@timing$total <- NULL
-  fit0@timing$total <- sum(unlist(fit0@timing)[-1])  # excldue start_time
+  # fit_inlv$timing already spans the whole inlavaan() call: its clock starts
+  # at the top and its "init" segment closes only after the do.fit = FALSE
+  # lavaan setup, so every lavaan-side stage in fit0@timing is contained in
+  # "init". Unioning the two lists here (as done previously) double-counted
+  # the whole lavaan setup and silently summed the names both sides share
+  # (init, optim, loglik, test). Report INLAvaan's own segments only;
+  # as.numeric() drops the "elapsed" name proc.time() attaches.
+  fit0@timing <- lapply(fit_inlv$timing, as.numeric)
+  fit0@timing$total <- sum(unlist(fit0@timing))
 
   ## ----- Return --------------------------------------------------------------
   fit0@external <- list(
