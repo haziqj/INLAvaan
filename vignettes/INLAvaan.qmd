@@ -245,7 +245,7 @@ compare(fit, fit2)
 As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs [@tendeiro2019review; @schad2023workflow].
 Leave-one-out cross-validation [LOO, @vehtari2017practical] and the widely applicable information criterion [WAIC, @watanabe2010asymptotic] are popular alternatives which compare models on out-of-sample predictive accuracy instead; see @merkle2019bayesian for their use with latent variable models.
 Both are implemented in `{INLAvaan}`.
-The function `loo()` requires neither refitting nor sampling, computing the statistic using a Taylor approximation of the case-deletion posterior, while `waic()` reuses the fit's own posterior draws.
+The functions `loo()` and `waic()` require neither refitting nor sampling: both are computed in closed form from the same Taylor expansion around the fit's Laplace summary.
 
 ```{r}
 #| label: results-loo
