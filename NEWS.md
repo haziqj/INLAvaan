@@ -62,6 +62,14 @@
 
 ## Minor improvements and fixes
 
+* INLAvaan now requires lavaan >= 0.7-2. This retires the whole
+  compatibility layer that supported both lavaan generations at once — the
+  load-time resolution of renamed internals and argument spellings, and the
+  positional calls that avoided cross-version argument names — and with it
+  the interim warning about lavaan's slightly inexact two-level FIML
+  gradient for fully-missing-within cases, which lavaan >= 0.7-1.2707 fixed
+  upstream.
+
 * The default `"nlminb"` optimiser now runs with `iter.max = 1000` and
   `eval.max = 2000` instead of `nlminb()`'s stock 150 and 200, which complex
   models could exhaust — quietly, since hitting the ceiling surfaces only

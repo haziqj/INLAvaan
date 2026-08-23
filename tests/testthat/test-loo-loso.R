@@ -145,7 +145,7 @@ test_that("sum of unit logliks equals the model loglik at the mode", {
   lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
   opts <- fit@Options
   opts$estimator <- "ML"
-  ll <- INLAvaan:::lavaan___lav_model_loglik(
+  ll <- lavaan:::lav_model_loglik(
     lavdata = int$lavdata,
     lavsamplestats = int$lavsamplestats,
     lavimplied = lavaan::lav_model_implied(lm_x),
@@ -244,7 +244,7 @@ test_that("equality constraints (ceq.simple) are handled", {
   lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
   opts <- fit_eq@Options
   opts$estimator <- "ML"
-  ll <- INLAvaan:::lavaan___lav_model_loglik(
+  ll <- lavaan:::lav_model_loglik(
     lavdata = int$lavdata,
     lavsamplestats = int$lavsamplestats,
     lavimplied = lavaan::lav_model_implied(lm_x),

@@ -13,12 +13,17 @@ call_next_lavaan_method <- function(object, ...) {
 # INLAvaan object itself, so no amount of faithful fit0 recomposition avoids
 # it: callNextMethod() would dispatch to whichever definition is currently
 # registered for "lavaan", which blavaan can silently replace out from under
-# us. Resolve and call the internal directly instead (positional args only,
-# see lavaan-unexported.R), same as the log-likelihood/gradient call sites.
+# us. Call the lavaan internal directly instead, same as the
+# log-likelihood/gradient call sites.
 coef_inlavaan <- function(object, ...) {
   dots <- list(...)
   type <- dots$type %||% "free"
-  lavaan___lav_inspect_coef(object, type, TRUE, TRUE)
+  lavaan:::lav_inspect_coef(
+    object,
+    type = type,
+    add_labels = TRUE,
+    add_class = TRUE
+  )
 }
 
 #' @name coef

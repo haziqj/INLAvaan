@@ -27,7 +27,7 @@ Depends:
 Imports:
     cli,
     graphics,
-    lavaan (>= 0.6-19),
+    lavaan (>= 0.7-2),
     methods,
     parallel,
     stats,

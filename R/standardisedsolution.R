@@ -81,16 +81,15 @@ standardisedsolution <- function(
       def_names <- pt$names[pt_def_rows]
       esti[pt_def_rows] <- fit_inlv$summary[def_names, "Mean"]
     }
-    xstd_samp[[i]] <- call_lavaan(
-      "standardizedSolution",
+    xstd_samp[[i]] <- lavaan::standardizedSolution(
       object = object,
       est = esti,
-      GLIST = lavmodel@GLIST,
+      glist = lavmodel@GLIST,
       type = type,
-      cov.std = cov.std,
-      remove.eq = remove.eq,
-      remove.ineq = remove.ineq,
-      remove.def = remove.def,
+      cov_std = cov.std,
+      remove_eq = remove.eq,
+      remove_ineq = remove.ineq,
+      remove_def = remove.def,
       ...
     )$est.std
   }
@@ -105,15 +104,14 @@ standardisedsolution <- function(
     mode = apply(xstd_samp, 2, dmode)
   )
 
-  out <- call_lavaan(
-    "standardizedSolution",
+  out <- lavaan::standardizedSolution(
     object = object,
     est = esti,
     type = type,
-    cov.std = cov.std,
-    remove.eq = remove.eq,
-    remove.ineq = remove.ineq,
-    remove.def = remove.def,
+    cov_std = cov.std,
+    remove_eq = remove.eq,
+    remove_ineq = remove.ineq,
+    remove_def = remove.def,
     ...
   )
   out$est.std <- res$mean

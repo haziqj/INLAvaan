@@ -96,18 +96,17 @@ summary_inlavaan <- function(
   # else if (marg_method == "sampling")
   #   marg_method <- "Sampling"
 
-  PE <- call_lavaan(
-    "parameterEstimates",
+  PE <- lavaan::parameterEstimates(
     object,
     se = FALSE, # create our own
     zstat = FALSE,
     ci = TRUE,
     standardized = FALSE,
     rsquare = rsquare,
-    remove.eq = FALSE,
-    remove.system.eq = TRUE,
-    remove.ineq = FALSE,
-    remove.def = FALSE,
+    remove_eq = FALSE,
+    remove_system_eq = TRUE,
+    remove_ineq = FALSE,
+    remove_def = FALSE,
     header = TRUE,
     output = "text"
   )

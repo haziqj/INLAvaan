@@ -104,7 +104,7 @@ test_that("casewise observed-data logliks sum to the fitted FIML loglik", {
   lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
   opts <- fit@Options
   opts$estimator <- "ML"
-  ll <- INLAvaan:::lavaan___lav_model_loglik(
+  ll <- lavaan:::lav_model_loglik(
     lavdata = int$lavdata,
     lavsamplestats = int$lavsamplestats,
     lavimplied = lavaan::lav_model_implied(lm_x),

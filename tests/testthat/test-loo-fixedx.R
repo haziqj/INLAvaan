@@ -70,7 +70,7 @@ ll_at_mode <- function(fit) {
   )
   opts <- fit@Options
   opts$estimator <- "ML"
-  INLAvaan:::lavaan___lav_model_loglik(
+  lavaan:::lav_model_loglik(
     lavdata = int$lavdata,
     lavsamplestats = int$lavsamplestats,
     lavimplied = lavaan::lav_model_implied(lm_x),

@@ -14,9 +14,7 @@ inlav_model_loglik <- function(
   if (!is_bad_cov(Sigma)) {
     if (lavmodel@estimator == "ML") {
       # Multivariate normal log-likelihood
-      # no lavh1 argument: it does not exist in lavaan < 0.6-20 and
-      # defaults to NULL in later versions
-      out <- lavaan___lav_model_loglik(
+      out <- lavaan:::lav_model_loglik(
         lavdata = lavdata,
         lavsamplestats = lavsamplestats,
         lavimplied = lavimplied,
@@ -31,7 +29,7 @@ inlav_model_loglik <- function(
       # Pairwise log-likelihood
       no_ord <- length(lavdata@ordered)
       kappa <- 1 / sqrt(no_ord) # scaling factor for PML
-      fx <- lavaan___lav_model_objective(
+      fx <- lavaan:::lav_model_objective(
         lavmodel = lavmodel_x,
         lavsamplestats = lavsamplestats,
         lavdata = lavdata,
@@ -58,7 +56,7 @@ inlav_model_grad <- function(
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
 
   # Gradient of fit function F_ML (not loglik yet)
-  grad_F <- lavaan___lav_model_gradient(
+  grad_F <- lavaan:::lav_model_grad(
     lavmodel = lavmodel_x,
     lavsamplestats = lavsamplestats,
     lavdata = lavdata,
@@ -113,7 +111,7 @@ marginalised_means_loglik_corr <- function(lavimplied, lavsamplestats) {
 # vech elements are doubled to undo the half-vectorisation.
 marginalised_means_grad_corr <- function(lavmodel_x) {
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-  Delta <- lavaan___lav_model_delta(lavmodel_x, lavmodel_x@GLIST)
+  Delta <- lavaan:::lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST)
   out <- 0
   for (g in seq_along(Delta)) {
     Sigma_inv <- tryCatch(

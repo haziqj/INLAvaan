@@ -52,43 +52,36 @@ test_that("the test dataset has the expected missingness", {
 test_that("two-level FIML LOCO matches reference values", {
   # Reference values cross-checked against (i) lavaan's fitted two-level FIML
   # loglik, (ii) an independent dense marginal-covariance kernel, and (iii)
-  # finite differences (lab graduated/2026-06-loo-missing/05-*.R). This
-  # dataset has fully-missing-within cases, so the fitted mode (and the LOO
-  # values pinned to it) shifts slightly between lavaan versions: lavaan <
-  # 0.7-1.2707 optimises with the inexact gradient (lavaan PR #581), patched
-  # lavaan with the correct one. The values below are pinned on the buggy
-  # gradient; skip them on patched lavaan (the version-invariant identities
-  # and finite-difference checks below still run there).
-  skip_if(
-    utils::packageVersion("lavaan") >= "0.7.1.2707",
-    "fit mode differs once the lavaan gradient is patched"
-  )
+  # finite differences. This dataset has fully-missing-within cases, whose
+  # gradient contribution lavaan < 0.7-1.2707 computed slightly inexactly
+  # (fixed in lavaan PR #581); the values below are pinned at the mode found
+  # with the corrected gradient, i.e. lavaan >= 0.7-1.2707 (required).
   expect_equal(res$type, "loco")
   expect_equal(res$flavour, "joint")
   expect_equal(res$n_units, 30L)
-  expect_equal(res$elpd_1, -1622.0173425091, tolerance = 1e-4)
-  expect_equal(res$elpd_2, -1631.5418961566, tolerance = 1e-4)
-  expect_equal(res$se_1, 146.6123016390, tolerance = 1e-4)
-  expect_equal(res$se_2, 147.4268836230, tolerance = 1e-4)
-  expect_equal(res$p_loo_1, 14.2027032692, tolerance = 1e-2)
-  expect_equal(res$p_loo_2, 16.3011978533, tolerance = 1e-2)
+  expect_equal(res$elpd_1, -1622.0237377723, tolerance = 1e-4)
+  expect_equal(res$elpd_2, -1631.5489111053, tolerance = 1e-4)
+  expect_equal(res$se_1, 146.6170298875, tolerance = 1e-4)
+  expect_equal(res$se_2, 147.4317813658, tolerance = 1e-4)
+  expect_equal(res$p_loo_1, 14.2293264754, tolerance = 1e-2)
+  expect_equal(res$p_loo_2, 16.3265819302, tolerance = 1e-2)
 
   # first, middle, and last of the 30 clusters
   pu <- res$per_unit[c(1L, 15L, 30L), ]
   expect_equal(pu$nobs, c(5L, 15L, 10L))
   expect_equal(
     pu$l_star,
-    c(-16.9345018087, -69.6199644963, -42.7357136336),
+    c(-16.9286021186, -69.6123529442, -42.7294434596),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_1,
-    c(-16.9717923529, -69.7909182029, -42.8737272647),
+    c(-16.9658686731, -69.7831061716, -42.8674693924),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-17.0345397512, -70.1542742739, -43.0387010435),
+    c(-17.0288789994, -70.1463770505, -43.0327244061),
     tolerance = 1e-4
   )
 })
@@ -99,7 +92,7 @@ test_that("per-cluster observed-data logliks sum to the fitted FIML loglik", {
   lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
   opts <- fit@Options
   opts$estimator <- "ML"
-  ll <- INLAvaan:::lavaan___lav_model_loglik(
+  ll <- lavaan:::lav_model_loglik(
     lavdata = int$lavdata,
     lavsamplestats = int$lavsamplestats,
     lavimplied = lavaan::lav_model_implied(lm_x),

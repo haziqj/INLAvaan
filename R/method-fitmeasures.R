@@ -9,32 +9,27 @@ compute_loglik_sat <- function(lavsamplestats, lavdata) {
   for (g in seq_len(ngroups)) {
     if (lavsamplestats@missing.flag) {
       # nocov start
-      # positional: argument names changed in lavaan >= 0.7
-      # (Yp/Mu/Sigma/x.idx/x.mean/x.cov -> yp/mu/sigma_1/x_idx/x_mean/x_cov)
       logl_sat <- logl_sat +
-        lavaan___lav_mvnorm_missing_loglik_samplestats(
-          lavsamplestats@missing[[g]], # Yp
-          lavsamplestats@mean[[g]], # Mu
-          lavsamplestats@cov[[g]], # Sigma
-          lavsamplestats@x.idx[[g]], # x.idx
-          lavsamplestats@mean.x[[g]], # x.mean
-          lavsamplestats@cov.x[[g]] # x.cov
+        lavaan:::lav_mvn_mi_loglik_samp(
+          yp = lavsamplestats@missing[[g]],
+          mu = lavsamplestats@mean[[g]],
+          sigma_1 = lavsamplestats@cov[[g]],
+          x_idx = lavsamplestats@x.idx[[g]],
+          x_mean = lavsamplestats@mean.x[[g]],
+          x_cov = lavsamplestats@cov.x[[g]]
         )
     } else {
       # nocov end
-      # positional: argument names changed in lavaan >= 0.7
-      # (sample.mean/sample.cov/sample.nobs/Mu/Sigma/x.idx/x.mean/x.cov ->
-      #  sample_mean/sample_cov/sample_nobs/mu/sigma_1/x_idx/x_mean/x_cov)
       logl_sat <- logl_sat +
-        lavaan___lav_mvnorm_loglik_samplestats(
-          lavsamplestats@mean[[g]], # sample.mean
-          lavsamplestats@cov[[g]], # sample.cov
-          lavsamplestats@nobs[[g]], # sample.nobs
-          lavsamplestats@mean[[g]], # Mu
-          lavsamplestats@cov[[g]], # Sigma
-          lavsamplestats@x.idx[[g]], # x.idx
-          lavsamplestats@mean.x[[g]], # x.mean
-          lavsamplestats@cov.x[[g]] # x.cov
+        lavaan:::lav_mvn_loglik_samp(
+          sample_mean = lavsamplestats@mean[[g]],
+          sample_cov = lavsamplestats@cov[[g]],
+          sample_nobs = lavsamplestats@nobs[[g]],
+          mu = lavsamplestats@mean[[g]],
+          sigma_1 = lavsamplestats@cov[[g]],
+          x_idx = lavsamplestats@x.idx[[g]],
+          x_mean = lavsamplestats@mean.x[[g]],
+          x_cov = lavsamplestats@cov.x[[g]]
         )
     }
   }
@@ -624,63 +619,54 @@ NULL
 #' @rawNamespace exportMethods(fitmeasures)
 NULL
 
-# lavaan >= 0.7 renamed the fitMeasures()/fitmeasures() generics' arguments
-# (fit.measures/baseline.model -> fit_measures/baseline_model). Unlike a
-# plain rename, registering setMethod() against the WRONG argument names
-# doesn't just fail loudly: S4 dispatch silently drops any value bound to a
-# generic-level formal the method doesn't also declare (verified empirically
-# -- positional and named calls both default silently), and if the method
-# was compiled against a lavaan present at a *different* time than the one
-# later loaded, dispatch can also error outright ("could not find symbol").
-# So -- like the lavaan___-prefixed internals in lavaan-unexported.R -- these
-# methods must be (re)built from whichever lavaan generic is actually active
-# in the current session, in .onLoad(), not baked in at build/install time.
-# The resolved installed spellings come from the shared lavaan_argnames map
-# (see lavaan-argnames.R, resolved earlier in the same .onLoad()), the one
-# mechanism INLAvaan uses for every renamed lavaan argument.
+# With lavaan >= 0.7 required, the generics' argument spellings are fixed
+# (fit_measures, baseline_model), so the methods can be registered the
+# ordinary way at build time; the load-time re-registration this replaced
+# existed only to serve both lavaan generations at once.
 #
-# INLAvaan's own documented/stable parameter names are fit.measures and
-# baseline.model (used internally, e.g. by compare()), regardless of which
-# lavaan is loaded. Under lavaan >= 0.7 those don't match the active
-# generic's own (renamed) formals, so a caller using our documented names
-# falls through into "..." unmatched rather than being dropped; recover it
-# from there instead of re-forwarding "..." verbatim (which would otherwise
-# also duplicate whatever the generic's own formal already bound).
-register_fitmeasures_methods <- function(ns) {
-  fm_map <- lavaan_argnames[["fitMeasures"]]
-  fit_measures_arg <- fm_map[["fit.measures"]]
-  baseline_model_arg <- fm_map[["baseline.model"]]
-
-  for (generic_name in c("fitMeasures", "fitmeasures")) {
-    gf <- formals(methods::getGeneric(generic_name))
-
-    method_fn <- function(object, ...) NULL
-    formals(method_fn) <- gf
-    body(method_fn) <- bquote({
-      dots <- list(...)
-      fit.measures <- .(as.name(fit_measures_arg))
-      baseline.model <- .(as.name(baseline_model_arg))
-      if ("fit.measures" %in% names(dots)) {
-        fit.measures <- dots[["fit.measures"]]
-        dots[["fit.measures"]] <- NULL
-      }
-      if ("baseline.model" %in% names(dots)) {
-        baseline.model <- dots[["baseline.model"]]
-        dots[["baseline.model"]] <- NULL
-      }
-      do.call(
-        inlav_fit_measures,
-        c(
-          list(
-            object,
-            fit.measures = fit.measures,
-            baseline.model = baseline.model
-          ),
-          dots
-        )
-      )
-    })
-    environment(method_fn) <- ns
-    methods::setMethod(generic_name, "INLAvaan", method_fn, where = ns)
+# INLAvaan's own documented/stable parameter names remain fit.measures and
+# baseline.model (used internally, e.g. by compare()). Those don't match the
+# generic's formals, so a caller using them falls through into "..."
+# unmatched rather than being silently dropped; recover them from there.
+inlav_fitmeasures_method <- function(
+  object,
+  fit_measures = "all",
+  baseline_model = NULL,
+  h1_model = NULL,
+  fm_args = list(
+    standard.test = "default",
+    scaled.test = "default",
+    rmsea.ci.level = 0.90,
+    rmsea.close.h0 = 0.05,
+    rmsea.notclose.h0 = 0.08,
+    robust = TRUE,
+    cat.nonpd = "na"
+  ),
+  output = "vector",
+  level = NULL,
+  ...
+) {
+  dots <- list(...)
+  if ("fit.measures" %in% names(dots)) {
+    fit_measures <- dots[["fit.measures"]]
+    dots[["fit.measures"]] <- NULL
   }
+  if ("baseline.model" %in% names(dots)) {
+    baseline_model <- dots[["baseline.model"]]
+    dots[["baseline.model"]] <- NULL
+  }
+  do.call(
+    inlav_fit_measures,
+    c(
+      list(
+        object,
+        fit.measures = fit_measures,
+        baseline.model = baseline_model
+      ),
+      dots
+    )
+  )
 }
+
+setMethod("fitMeasures", "INLAvaan", inlav_fitmeasures_method)
+setMethod("fitmeasures", "INLAvaan", inlav_fitmeasures_method)

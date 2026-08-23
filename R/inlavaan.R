@@ -200,39 +200,6 @@ inlavaan <- function(
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
 
-  # lavaan < 0.7-1.2707 computes a slightly inexact two-level FIML gradient
-  # for cases fully missing on the within-level variables: it keeps such
-  # cases but its gradient kernel mishandles the zero-observed pattern, so
-  # the optimiser uses a slightly wrong gradient (fixed upstream in lavaan
-  # PR #581). loo()/waic() are unaffected (the cluster kernels drop these
-  # rows), but the fitted estimates may be mildly off, so warn on affected
-  # lavaan versions only. Drop the version gate and this block once the
-  # minimum supported lavaan carries the fix.
-  if (
-    is_multilevel(lavdata) &&
-      isTRUE(lavsamplestats@missing.flag) &&
-      utils::packageVersion("lavaan") < "0.7.1.2707"
-  ) {
-    Xw <- lavdata@X[[1L]]
-    bidx <- lavdata@Lp[[1L]]$between.idx[[2L]]
-    wcols <- if (length(bidx) > 0L) {
-      seq_len(ncol(Xw))[-bidx]
-    } else {
-      seq_len(ncol(Xw))
-    }
-    n_fm <- sum(rowSums(!is.na(Xw[, wcols, drop = FALSE])) == 0L)
-    if (n_fm > 0L) {
-      cli_warn(c(
-        "{n_fm} case{?s} {?is/are} fully missing on the within-level
-         variables.",
-        "i" = "This version of lavaan computes a slightly inexact two-level
-         FIML gradient for such cases, so the estimates may be mildly
-         affected; update lavaan or remove these cases. {.fn loo} and
-         {.fn waic} handle them correctly."
-      ))
-    }
-  }
-
   # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
   PTFREEIDX <- which(pt$free > 0L)

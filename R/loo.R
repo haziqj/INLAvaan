@@ -74,7 +74,7 @@ loo_grad_cache <- function(theta, lavmodel, pt, two_level = FALSE) {
   list(
     x = x,
     mom = loo_implied_moments(lavmodel_x, two_level),
-    Delta = lavaan___lav_model_delta(lavmodel_x, lavmodel_x@GLIST),
+    Delta = lavaan:::lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST),
     jcb_vec = as.numeric(mapply(
       function(f, th) f(th),
       pt$ginv_prime[pt$free > 0],
@@ -251,7 +251,7 @@ loso_loglik_all <- function(Y, mom) {
 mvn_scores_rows <- function(Y, mu, Sigma) {
   n <- nrow(Y)
   Yc <- if (n == 1L) rbind(Y, Y) else Y
-  sc <- lavaan___lav_mvnorm_scores_mu_vech_sigma(Yc, NULL, mu, Sigma)
+  sc <- lavaan:::lav_mvn_sc_mu_sigma(y = Yc, wt = NULL, mu = mu, sigma_1 = Sigma)
   if (n == 1L) sc[1L, , drop = FALSE] else sc
 }
 
@@ -406,16 +406,16 @@ loco_unit_stats <- function(j, css) {
 }
 
 loco_loglik_us <- function(us, mom) {
-  as.numeric(lavaan___lav_mvnorm_cluster_loglik_samplestats_2l(
-    us$YLp,
-    us$Lp,
-    mom$mu_w,
-    mom$Sigma_w,
-    mom$mu_b,
-    mom$Sigma_b,
-    "eigen",
-    TRUE, # log2pi
-    FALSE # minus.two
+  as.numeric(lavaan:::lav_mvn_cl_loglik_samp_2l(
+    ylp = us$YLp,
+    lp = us$Lp,
+    mu_w = mom$mu_w,
+    sigma_w = mom$Sigma_w,
+    mu_b = mom$mu_b,
+    sigma_b = mom$Sigma_b,
+    sinv_method = "eigen",
+    log2pi = TRUE,
+    minus_two = FALSE
   ))
 }
 
@@ -424,13 +424,13 @@ loco_loglik_one <- function(j, css, mom) {
 }
 
 loco_grad_x_us <- function(us, mom, Delta) {
-  DX <- lavaan___lav_mvnorm_cluster_dlogl_2l_samplestats(
-    us$YLp,
-    us$Lp,
-    mom$mu_w,
-    mom$Sigma_w,
-    mom$mu_b,
-    mom$Sigma_b
+  DX <- lavaan:::lav_mvn_cl_dlogl_2l_samp(
+    ylp = us$YLp,
+    lp = us$Lp,
+    mu_w = mom$mu_w,
+    sigma_w = mom$Sigma_w,
+    mu_b = mom$mu_b,
+    sigma_b = mom$Sigma_b
   )
   # dlogl is the derivative of -2 * loglik w.r.t. the stacked moments
   -0.5 * as.numeric(DX %*% Delta[[1L]])
@@ -502,7 +502,12 @@ loco_missing_build_cj <- function(Y1j, Y2j, Lp, between_idx) {
   } else {
     Y1j
   }
-  Mpj <- lavaan___lav_data_missing_patterns(Ywj, FALSE, FALSE, Lpj)
+  Mpj <- lavaan:::lav_data_mi_patterns(
+    y = Ywj,
+    sort_freq = FALSE,
+    coverage = FALSE,
+    lp = Lpj
+  )
   list(Y1 = Y1j, Y2 = Y2j, Lp = Lpj, Mp = Mpj)
 }
 
@@ -553,19 +558,19 @@ loco_missing_info <- function(int) {
 }
 
 loco_missing_loglik_cj <- function(cj, mom) {
-  as.numeric(lavaan___lav_mvnorm_cluster_missing_loglik_samplestats_2l(
-    cj$Y1,
-    cj$Y2,
-    cj$Lp,
-    cj$Mp,
-    mom$mu_w,
-    mom$Sigma_w,
-    mom$mu_b,
-    mom$Sigma_b,
-    "eigen", # Sinv.method
-    TRUE, # log2pi
-    0, # loglik.x
-    FALSE # minus.two
+  as.numeric(lavaan:::lav_mvn_cl_mi_loglik_samp_2l(
+    y1 = cj$Y1,
+    y2 = cj$Y2,
+    lp = cj$Lp,
+    mp = cj$Mp,
+    mu_w = mom$mu_w,
+    sigma_w = mom$Sigma_w,
+    mu_b = mom$mu_b,
+    sigma_b = mom$Sigma_b,
+    sinv_method = "eigen",
+    log2pi = TRUE,
+    loglik_x = 0,
+    minus_two = FALSE
   ))
 }
 
@@ -574,15 +579,15 @@ loco_missing_loglik_one <- function(j, minfo, mom) {
 }
 
 loco_missing_grad_cj <- function(cj, mom, Delta) {
-  DX <- lavaan___lav_mvnorm_cluster_missing_dlogl_2l_samplestats(
-    cj$Y1,
-    cj$Y2,
-    cj$Lp,
-    cj$Mp,
-    mom$mu_w,
-    mom$Sigma_w,
-    mom$mu_b,
-    mom$Sigma_b
+  DX <- lavaan:::lav_mvn_cl_mi_dlogl_2l_samp(
+    y1 = cj$Y1,
+    y2 = cj$Y2,
+    lp = cj$Lp,
+    mp = cj$Mp,
+    mu_w = mom$mu_w,
+    sigma_w = mom$Sigma_w,
+    mu_b = mom$mu_b,
+    sigma_b = mom$Sigma_b
   )
   # dlogl is the derivative of -2 * loglik w.r.t. the stacked moments
   -0.5 * as.numeric(DX %*% Delta[[1L]])
