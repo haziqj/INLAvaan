@@ -336,7 +336,11 @@ test_that("fitMeasures reports LOO measures on request or when stored", {
 })
 
 test_that("waic() sanity and agreement with loo()", {
-  w <- waic(fit)
+  # a few units genuinely exceed the p_waic > 0.4 threshold on this fit, so
+  # a fresh computation warns: the rule diagnoses the variance-based
+  # penalty's own reliability, not Monte Carlo error, so it survives the
+  # closed-form computation
+  expect_warning(w <- waic(fit), "p_waic > 0.4")
   expect_s3_class(w, "inlavaan_waic")
   expect_equal(w$n_units, 40L)
   expect_equal(w$type, "loso")
@@ -345,14 +349,15 @@ test_that("waic() sanity and agreement with loo()", {
   expect_output(print(w), "WAIC")
 
   # deterministic: a recomputation reproduces the estimates exactly
-  w_again <- waic(fit)
+  w_again <- suppressWarnings(waic(fit))
   expect_identical(w$estimates, w_again$estimates)
 
   # the deprecated draws argument is ignored, with a warning
-  expect_warning(waic(fit, nsamp = 100), "nsamp")
+  msgs <- testthat::capture_warnings(waic(fit, nsamp = 100))
+  expect_true(any(grepl("nsamp", msgs)))
 
   # first-order WAIC is exactly first-order LOO
-  w1 <- waic(fit, second_order = FALSE)
+  w1 <- suppressWarnings(waic(fit, second_order = FALSE))
   expect_equal(
     unname(w1$estimates["elpd_waic", "Estimate"]),
     res$elpd_1,
@@ -372,7 +377,7 @@ test_that("waic() sanity and agreement with loo()", {
 
   # fitMeasures computes WAIC on request by name only
   expect_false("waic" %in% names(fitMeasures(fit)))
-  fm <- fitMeasures(fit, c("waic", "p_waic", "se_waic"))
+  fm <- suppressWarnings(fitMeasures(fit, c("waic", "p_waic", "se_waic")))
   expect_true(all(c("waic", "p_waic", "se_waic") %in% names(fm)))
 })
 
@@ -430,7 +435,7 @@ test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
     tolerance = 1e-10
   )
   # non-default arguments still trigger a fresh computation
-  w2 <- waic(fit_std, units = 1:10)
+  w2 <- suppressWarnings(waic(fit_std, units = 1:10))
   expect_equal(w2$n_units, 10L)
 
   # stored results appear in fitMeasures' "all" for free

@@ -1510,7 +1510,23 @@ inlav_waic <- function(
     ),
     inlavaan_loo_first_order = function(w) invokeRestart("muffleWarning")
   )
-  waic_from_taylor(res)
+  out <- waic_from_taylor(res)
+  # Vehtari, Gelman & Gabry's (2017) reliability rule: a unit with
+  # p_waic > 0.4 has a log-likelihood so variable over the posterior that
+  # the variance-based penalty underlying the WAIC is itself suspect. This
+  # diagnoses the estimand's own approximation, not Monte Carlo error, so it
+  # survives the closed-form computation. The fit-time path (which calls
+  # waic_from_taylor() directly) stays silent, as before; printing the
+  # result annotates it either way.
+  n_high <- sum(out$per_unit$p_waic > 0.4, na.rm = TRUE)
+  if (n_high > 0L) {
+    cli_warn(
+      "{n_high} unit{?s} {?has/have} p_waic > 0.4, so the WAIC's
+       variance-based penalty may be unreliable there. Consider {.fn loo}
+       instead."
+    )
+  }
+  out
 }
 
 # Assemble the WAIC object from a fitted inlavaan_loo result. Also used by

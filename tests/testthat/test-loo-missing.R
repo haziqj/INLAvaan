@@ -200,7 +200,7 @@ test_that("loo object structure and internal identities", {
 })
 
 test_that("waic() runs on a FIML fit and agrees loosely with loo()", {
-  w <- waic(fit)
+  w <- suppressWarnings(waic(fit))
   expect_s3_class(w, "inlavaan_waic")
   expect_equal(w$n_units, 70L)
   expect_equal(w$type, "loso")

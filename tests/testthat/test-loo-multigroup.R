@@ -318,7 +318,7 @@ test_that("conditional flavour scores fixed.x multigroup fits", {
 })
 
 test_that("waic() supports multigroup fits and agrees with loo()", {
-  w <- waic(fit_conf)
+  w <- suppressWarnings(waic(fit_conf))
   expect_s3_class(w, "inlavaan_waic")
   expect_equal(w$n_units, 120L)
   expect_equal(w$n_groups, 2L)

@@ -290,7 +290,7 @@ test_that("fixed.x two-level fits are scored conditionally", {
 
 test_that("waic gains type: conditional (leave-one-unit-out) WAIC", {
   # default is marginal (per-cluster) WAIC
-  w_marg <- waic(fit)
+  w_marg <- suppressWarnings(waic(fit))
   expect_equal(w_marg$type, "loco")
 
   # type = "loso" warns and scores the conditional (leave-one-unit-out)

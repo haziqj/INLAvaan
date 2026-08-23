@@ -66,10 +66,11 @@
   copula sampler, so `p_waic` and `waic` change on every existing fit, most
   visibly at small `N` where the two posteriors' second moments differ most.
   Consequences: results are exactly reproducible (no seed sensitivity); the
-  `nsamp` argument is gone (passing it warns) along with the
-  `p_waic > 0.4` Monte Carlo reliability warning, which had no Monte Carlo
-  left to police; a `second_order` argument mirrors `loo()`, and at first
-  order WAIC and LOO coincide exactly. At fit time the WAIC is derived from
+  `nsamp` argument is gone (passing it warns); a `second_order` argument
+  mirrors `loo()`, and at first order WAIC and LOO coincide exactly. The
+  `p_waic > 0.4` reliability rule stays — it diagnoses the breakdown of
+  WAIC's variance-based penalty itself (Vehtari, Gelman & Gabry, 2017), not
+  Monte Carlo error, so the closed form does not retire it. At fit time the WAIC is derived from
   the same computation as the fit-time LOO at no extra cost (previously it
   needed `nsamp >= 100` and a separate casewise pass over all draws), and is
   skipped when that LOO is skipped. `loo()`'s `per_unit` gains the
