@@ -15,6 +15,7 @@ inlavaan(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
@@ -86,6 +87,25 @@ and \code{"none"} (or \code{FALSE}) applies no correction.}
 drawn using the copula method with the fitted marginals (e.g. skew-normal
 or asymmetric Gaussian), with NORTA correlation adjustment. When \code{FALSE},
 samples are drawn from the Gaussian (Laplace) approximation. Only re}
+
+\item{cov_as_cor}{Logical. Residual and latent-disturbance covariance
+parameters (\verb{~~} between two observed or two latent variables) are
+always estimated on the correlation scale internally (an \code{atanh} link,
+the same as for \code{std.ov}/\code{std.lv}-standardised parameters); by default
+their reported marginal is then re-derived on the covariance scale
+\eqn{\sigma_i \sigma_j \rho} from a posterior sample (see
+\code{samp_copula}), because that is the scale lavaan/blavaan report by
+default. When \code{TRUE}, that re-derivation is skipped and each such
+parameter's own directly profiled correlation-scale marginal
+\eqn{\rho \in (-1, 1)} is reported instead -- useful for comparing the
+profiling machinery (skew-normal fit, VB, ...) against a
+correlation-scale reference without the sampling/copula step in
+between. Model estimation is identical either way; only what is
+reported for these parameters changes (and, correspondingly, their
+\code{mat} classification in the returned partable, \code{theta_cov}/\code{psi_cov}
+vs. \code{theta_cor}/\code{psi_cor}). Not the same as lavaan's \code{std.ov}/\code{std.lv},
+which re-parameterises the whole model on a standardised scale.
+Defaults to \code{FALSE}.}
 
 \item{sn_fit_ngrid}{Number of grid points to lay out per dimension when
 fitting the skew-normal marginals. A finer grid gives a better fit at the

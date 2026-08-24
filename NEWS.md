@@ -53,6 +53,18 @@
 
 ## New features
 
+* `inlavaan()` gains `cov_as_cor`. Residual and latent-disturbance covariance
+  parameters (`theta_cov`/`psi_cov`) are always estimated on the correlation
+  scale internally (an `atanh` link); by default the reported marginal is
+  then re-derived on the covariance scale from a posterior sample, because
+  that is what lavaan/blavaan report natively. `cov_as_cor = TRUE` skips that
+  re-derivation and reports each parameter's own directly profiled
+  correlation-scale marginal instead (relabelling it `theta_cor`/`psi_cor`
+  in the returned partable to match) — useful for comparing the profiling
+  machinery itself against a correlation-scale reference without the
+  sampling/copula step in between. Model estimation (mode, Hessian, all
+  other parameters) is identical either way.
+
 * `waic()` is now deterministic: both WAIC terms are computed in closed form
   from the fit's Laplace summary — the same per-unit Taylor quantities behind
   `loo()` — instead of being estimated from posterior draws. The penalty is

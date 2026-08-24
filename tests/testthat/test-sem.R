@@ -100,6 +100,53 @@ test_that("Method: sampling", {
   expect_s4_class(fit, "INLAvaan")
 })
 
+test_that("cov_as_cor reports correlations without changing the fit", {
+  fit_off <- asem(
+    mod,
+    dat,
+    debug = TRUE,
+    test = "none",
+    verbose = FALSE,
+    nsamp = NSAMP,
+    cov_as_cor = FALSE
+  )
+  fit_on <- asem(
+    mod,
+    dat,
+    debug = TRUE,
+    test = "none",
+    verbose = FALSE,
+    nsamp = NSAMP,
+    cov_as_cor = TRUE
+  )
+
+  # Estimation is unaffected: same posterior mode and Hessian either way.
+  expect_equal(fit_off$theta_star, fit_on$theta_star)
+  expect_equal(fit_off$Sigma_theta, fit_on$Sigma_theta)
+
+  covpars <- grep("~~", rownames(fit_off$summary), value = TRUE)
+  covpars <- covpars[
+    vapply(
+      strsplit(covpars, "~~", fixed = TRUE),
+      function(p) p[1] != p[2],
+      logical(1)
+    )
+  ]
+  expect_true(length(covpars) > 0)
+
+  # mat relabelled to _cor, reporting scale switches to (-1, 1); everything
+  # else in the summary is untouched.
+  pt_on <- fit_on$partable
+  expect_true(all(pt_on$mat[match(covpars, pt_on$names)] == "theta_cor"))
+  expect_true(all(abs(fit_on$summary[covpars, "Mean"]) <= 1))
+
+  noncov <- setdiff(rownames(fit_off$summary), covpars)
+  expect_equal(
+    fit_off$summary[noncov, "Mean"],
+    fit_on$summary[noncov, "Mean"]
+  )
+})
+
 test_that("Gradients are correct (Finite Difference Check)", {
   # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
   # differences across CRAN check flavours -- too fragile to assert there.

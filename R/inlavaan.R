@@ -48,6 +48,24 @@
 #'   drawn using the copula method with the fitted marginals (e.g. skew-normal
 #'   or asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
 #'   samples are drawn from the Gaussian (Laplace) approximation. Only re
+#' @param cov_as_cor Logical. Residual and latent-disturbance covariance
+#'   parameters (`~~` between two observed or two latent variables) are
+#'   always estimated on the correlation scale internally (an `atanh` link,
+#'   the same as for `std.ov`/`std.lv`-standardised parameters); by default
+#'   their reported marginal is then re-derived on the covariance scale
+#'   \eqn{\sigma_i \sigma_j \rho} from a posterior sample (see
+#'   `samp_copula`), because that is the scale lavaan/blavaan report by
+#'   default. When `TRUE`, that re-derivation is skipped and each such
+#'   parameter's own directly profiled correlation-scale marginal
+#'   \eqn{\rho \in (-1, 1)} is reported instead -- useful for comparing the
+#'   profiling machinery (skew-normal fit, VB, ...) against a
+#'   correlation-scale reference without the sampling/copula step in
+#'   between. Model estimation is identical either way; only what is
+#'   reported for these parameters changes (and, correspondingly, their
+#'   `mat` classification in the returned partable, `theta_cov`/`psi_cov`
+#'   vs. `theta_cor`/`psi_cor`). Not the same as lavaan's `std.ov`/`std.lv`,
+#'   which re-parameterises the whole model on a standardised scale.
+#'   Defaults to `FALSE`.
 #' @param sn_fit_ngrid Number of grid points to lay out per dimension when
 #'   fitting the skew-normal marginals. A finer grid gives a better fit at the
 #'   cost of more joint-log-posterior evaluations. Defaults to `21`.
@@ -108,6 +126,7 @@ inlavaan <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
@@ -815,7 +834,13 @@ inlavaan <- function(
   summ$Prior <- pt$prior[PTFREEIDX]
 
   ## ----- Sampling for covariances and defined params -------------------------
-  if (sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
+  # cov_as_cor skips this re-derivation entirely: the per-axis marginal
+  # already computed above (postmargres) is left as the final reported
+  # value for these rows, which -- since g/ginv is atanh/tanh for
+  # theta_cov/psi_cov exactly as for theta_cor/psi_cor -- is already the
+  # correlation, not the covariance. Nothing upstream (pars_to_x(), priors,
+  # gradients) reads cov_as_cor, so estimation is unaffected either way.
+  if (!isTRUE(cov_as_cor) && sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
     if (marginal_method == "sampling") {
       # Already covered by post_marg_sampling above
     } else {
@@ -1001,6 +1026,14 @@ inlavaan <- function(
   }
 
   ## ----- Output --------------------------------------------------------------
+  # Cosmetic only, applied last: relabel theta_cov/psi_cov as theta_cor/
+  # psi_cor in the RETURNED partable so it honestly reflects what was
+  # reported above. Nothing upstream reads pt$mat again after this point.
+  if (isTRUE(cov_as_cor)) {
+    pt$mat[pt$mat == "theta_cov"] <- "theta_cor"
+    pt$mat[pt$mat == "psi_cov"] <- "psi_cor"
+  }
+
   out <- list(
     coefficients = coefs,
     mloglik = mloglik,
@@ -1078,6 +1111,7 @@ acfa <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
@@ -1130,6 +1164,7 @@ asem <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
@@ -1180,6 +1215,7 @@ agrowth <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
