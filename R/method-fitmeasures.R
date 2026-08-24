@@ -2,7 +2,7 @@
 
 # Saturated log-likelihood (constant for ML; sum across groups)
 # Under FIML, uses the pattern-based formula to stay on the same scale as
-# inlav_model_loglik (which delegates to lavaan:::lav_model_loglik).
+# inlav_model_loglik (which delegates to lavaan___lav_model_loglik).
 compute_loglik_sat <- function(lavsamplestats, lavdata) {
   ngroups <- lavdata@ngroups
   logl_sat <- 0
@@ -10,7 +10,7 @@ compute_loglik_sat <- function(lavsamplestats, lavdata) {
     if (lavsamplestats@missing.flag) {
       # nocov start
       logl_sat <- logl_sat +
-        lavaan:::lav_mvn_mi_loglik_samp(
+        lavaan___lav_mvn_mi_loglik_samp(
           yp = lavsamplestats@missing[[g]],
           mu = lavsamplestats@mean[[g]],
           sigma_1 = lavsamplestats@cov[[g]],
@@ -21,7 +21,7 @@ compute_loglik_sat <- function(lavsamplestats, lavdata) {
     } else {
       # nocov end
       logl_sat <- logl_sat +
-        lavaan:::lav_mvn_loglik_samp(
+        lavaan___lav_mvn_loglik_samp(
           sample_mean = lavsamplestats@mean[[g]],
           sample_cov = lavsamplestats@cov[[g]],
           sample_nobs = lavsamplestats@nobs[[g]],

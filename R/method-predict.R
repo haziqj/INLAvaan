@@ -366,13 +366,13 @@ predict.inlavaan_internal <- function(
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
-        LAMBDA <- lavaan:::lav_model_lambda(lavmodel = lavmodel_x)
-        VETA <- lavaan:::lav_model_veta(lavmodel = lavmodel_x)
-        EETA <- lavaan:::lav_model_eeta(
+        LAMBDA <- lavaan___lav_model_lambda(lavmodel = lavmodel_x)
+        VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
+        EETA <- lavaan___lav_model_eeta(
           lavmodel = lavmodel_x,
           lavsamplestats = lavsamplestats
         )
-        EY <- lavaan:::lav_model_ey(
+        EY <- lavaan___lav_model_ey(
           lavmodel = lavmodel_x,
           lavsamplestats = lavsamplestats
         )
@@ -399,7 +399,7 @@ predict.inlavaan_internal <- function(
           group.idx <- (g - 1) * nlevels + seq_len(nlevels)
           implied.group <- lapply(lavimplied, function(x) x[group.idx])
 
-          decomp <- lavaan:::lav_mvn_cl_implied22l(
+          decomp <- lavaan___lav_mvn_cl_implied22l(
             lp = Lp,
             implied = implied.group
           )
@@ -590,13 +590,13 @@ predict.inlavaan_internal <- function(
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
-        LAMBDA <- lavaan:::lav_model_lambda(lavmodel = lavmodel_x)
-        VETA <- lavaan:::lav_model_veta(lavmodel = lavmodel_x)
-        EETA <- lavaan:::lav_model_eeta(
+        LAMBDA <- lavaan___lav_model_lambda(lavmodel = lavmodel_x)
+        VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
+        EETA <- lavaan___lav_model_eeta(
           lavmodel = lavmodel_x,
           lavsamplestats = lavsamplestats
         )
-        EY <- lavaan:::lav_model_ey(
+        EY <- lavaan___lav_model_ey(
           lavmodel = lavmodel_x,
           lavsamplestats = lavsamplestats
         )
@@ -626,7 +626,7 @@ predict.inlavaan_internal <- function(
           group.idx <- (g - 1) * nlevels + seq_len(nlevels)
           implied.group <- lapply(lavimplied, function(x) x[group.idx])
 
-          decomp <- lavaan:::lav_mvn_cl_implied22l(
+          decomp <- lavaan___lav_mvn_cl_implied22l(
             lp = Lp,
             implied = implied.group
           )

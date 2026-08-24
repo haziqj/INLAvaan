@@ -18,7 +18,7 @@ call_next_lavaan_method <- function(object, ...) {
 coef_inlavaan <- function(object, ...) {
   dots <- list(...)
   type <- dots$type %||% "free"
-  lavaan:::lav_inspect_coef(
+  lavaan___lav_inspect_coef(
     object,
     type = type,
     add_labels = TRUE,

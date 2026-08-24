@@ -74,7 +74,7 @@ loo_grad_cache <- function(theta, lavmodel, pt, two_level = FALSE) {
   list(
     x = x,
     mom = loo_implied_moments(lavmodel_x, two_level),
-    Delta = lavaan:::lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST),
+    Delta = lavaan___lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST),
     jcb_vec = as.numeric(mapply(
       function(f, th) f(th),
       pt$ginv_prime[pt$free > 0],
@@ -251,7 +251,7 @@ loso_loglik_all <- function(Y, mom) {
 mvn_scores_rows <- function(Y, mu, Sigma) {
   n <- nrow(Y)
   Yc <- if (n == 1L) rbind(Y, Y) else Y
-  sc <- lavaan:::lav_mvn_sc_mu_sigma(y = Yc, wt = NULL, mu = mu, sigma_1 = Sigma)
+  sc <- lavaan___lav_mvn_sc_mu_sigma(y = Yc, wt = NULL, mu = mu, sigma_1 = Sigma)
   if (n == 1L) sc[1L, , drop = FALSE] else sc
 }
 
@@ -406,7 +406,7 @@ loco_unit_stats <- function(j, css) {
 }
 
 loco_loglik_us <- function(us, mom) {
-  as.numeric(lavaan:::lav_mvn_cl_loglik_samp_2l(
+  as.numeric(lavaan___lav_mvn_cl_loglik_samp_2l(
     ylp = us$YLp,
     lp = us$Lp,
     mu_w = mom$mu_w,
@@ -424,7 +424,7 @@ loco_loglik_one <- function(j, css, mom) {
 }
 
 loco_grad_x_us <- function(us, mom, Delta) {
-  DX <- lavaan:::lav_mvn_cl_dlogl_2l_samp(
+  DX <- lavaan___lav_mvn_cl_dlogl_2l_samp(
     ylp = us$YLp,
     lp = us$Lp,
     mu_w = mom$mu_w,
@@ -502,7 +502,7 @@ loco_missing_build_cj <- function(Y1j, Y2j, Lp, between_idx) {
   } else {
     Y1j
   }
-  Mpj <- lavaan:::lav_data_mi_patterns(
+  Mpj <- lavaan___lav_data_mi_patterns(
     y = Ywj,
     sort_freq = FALSE,
     coverage = FALSE,
@@ -558,7 +558,7 @@ loco_missing_info <- function(int) {
 }
 
 loco_missing_loglik_cj <- function(cj, mom) {
-  as.numeric(lavaan:::lav_mvn_cl_mi_loglik_samp_2l(
+  as.numeric(lavaan___lav_mvn_cl_mi_loglik_samp_2l(
     y1 = cj$Y1,
     y2 = cj$Y2,
     lp = cj$Lp,
@@ -579,7 +579,7 @@ loco_missing_loglik_one <- function(j, minfo, mom) {
 }
 
 loco_missing_grad_cj <- function(cj, mom, Delta) {
-  DX <- lavaan:::lav_mvn_cl_mi_dlogl_2l_samp(
+  DX <- lavaan___lav_mvn_cl_mi_dlogl_2l_samp(
     y1 = cj$Y1,
     y2 = cj$Y2,
     lp = cj$Lp,
