@@ -57,7 +57,9 @@ An object of class \code{inlavaan_waic}: a list with \code{per_unit}
 (pointwise \code{lpd}, \code{p_waic}, \code{elpd_waic}, with the same \code{unit}/\code{group}
 identification as \code{\link[=loo]{loo()}}), \code{estimates} (matrix with rows
 \code{elpd_waic}, \code{p_waic}, \code{waic} and columns \code{Estimate}, \code{SE}), \code{type},
-\code{flavour}, \code{n_units}, \code{n_groups}, \code{n_lpd_ok}, and \code{second_order}.
+\code{flavour}, \code{n_units}, \code{n_groups}, \code{n_lpd_ok} (units whose second-order
+lpd exists), \code{second_order} (whether it was requested) and
+\code{use_second} (whether it was used).
 }
 \description{
 Computes the WAIC of a fitted \link{INLAvaan} model in closed form from the
@@ -80,16 +82,27 @@ Gaussian integral \code{\link[=loo]{loo()}} computes, and the penalty is the pol
 with \eqn{s_u} and \eqn{H_u} the unit's score and Hessian. Then
 \eqn{\mathrm{elpd}_{\mathrm{waic}} = \sum_u (\mathrm{lpd}_u -
 p_{\mathrm{waic},u})} and \eqn{\mathrm{WAIC} = -2\,
-\mathrm{elpd}_{\mathrm{waic}}}. Unlike the lpd and log CPO integrals, the
-penalty is a variance -- a polynomial in Gaussian moments -- so it exists
-for every unit. A unit whose second-order \eqn{\mathrm{lpd}_u} does not
-exist (see the existence discussion in \code{\link[=loo]{loo()}}) contributes its
-first-order lpd instead; this substitution lands in
-\eqn{\mathrm{elpd}_{\mathrm{waic}}} itself, so it is noted when the
-result is printed and counted by \code{n_lpd_ok}. At first order the identity
+\mathrm{elpd}_{\mathrm{waic}}}.
+
+\strong{Existence.} \eqn{p_{\mathrm{waic},u}} is a polynomial in the posterior
+moments, so unlike the lpd and log CPO integrals of \code{\link[=loo]{loo()}} it is finite
+for every unit and carries no condition of its own. The second-order WAIC
+therefore exists exactly where its lpd term does: where
+\eqn{\Sigma^{-1} - H_u} is positive definite, equivalently
+\eqn{k_{\min} > -1} for the spectrum \eqn{k} of \eqn{-\Sigma H_u}. The
+log CPO condition \eqn{k_{\max} < 1} is irrelevant here, since the WAIC
+reads no case-deletion term: a unit whose deleted posterior is improper
+can still carry an exact second-order WAIC. Where the lpd term fails,
+every estimate is reported at \emph{first order over all units} and warns --
+\eqn{\mathrm{elpd}_{\mathrm{waic}}} is a headline predictive score, and
+mixing two Taylor orders within one reported number is exactly what
+\code{\link[=loo]{loo()}} refuses for \eqn{\mathrm{elpd}_{\mathrm{loo}}} (the mixed
+alternative is reserved for \code{p_loo}, a secondary diagnostic). That
+fallback is exact rather than merely lower-order: the identity
 \eqn{\mathrm{lpd}^{(1)}_u - p^{(1)}_{\mathrm{waic},u} = \log
-\mathrm{CPO}^{(1)}_u} holds exactly: first-order WAIC and first-order
-LOO are the same number.
+\mathrm{CPO}^{(1)}_u} holds pointwise, so the first-order WAIC \emph{is} the
+first-order LOO score. No other threshold is applied: as in \code{\link[=loo]{loo()}},
+existence is the only condition the package acts on.
 
 The same model restrictions as \code{\link[=loo]{loo()}} apply, and so does the flavour
 rule: fits with \code{fixed.x = TRUE} are scored conditionally on the

@@ -110,6 +110,7 @@ test_that("loo object structure and internal identities", {
       "log_cpo_2",
       "det_term",
       "k_max",
+      "k_min",
       "k_sum",
       "k_ssq",
       "ok"
@@ -335,18 +336,41 @@ test_that("fitMeasures reports LOO measures on request or when stored", {
   expect_equal(unname(fm2["elpd_loo"]), res$elpd_2, tolerance = 1e-10)
 })
 
-test_that("waic() sanity and agreement with loo()", {
-  # a few units genuinely exceed the p_waic > 0.4 threshold on this fit, so
-  # a fresh computation warns: the rule diagnoses the variance-based
-  # penalty's own reliability, not Monte Carlo error, so it survives the
-  # closed-form computation
-  expect_warning(w <- waic(fit), "p_waic > 0.4")
+test_that("waic() sanity and structure", {
+  # This fit has one unit whose second-order lpd does not exist (k_min <=
+  # -1), which is the WAIC's only existence condition, so the whole result
+  # falls to first order and warns
+  expect_warning(w <- waic(fit), class = "inlavaan_waic_first_order")
   expect_s3_class(w, "inlavaan_waic")
   expect_equal(w$n_units, 40L)
   expect_equal(w$type, "loso")
+  expect_false(w$use_second)
+  expect_equal(w$n_lpd_ok, 39L)
   expect_true(all(is.finite(w$per_unit$lpd)))
   expect_true(all(w$per_unit$p_waic > 0))
-  expect_output(print(w), "WAIC")
+  expect_output(print(w), "first-order approximation")
+
+  # the fallback is exact, not merely lower-order: first-order WAIC IS the
+  # first-order LOO score (lpd_1 - p_waic_1 = log_cpo_1 pointwise)
+  expect_equal(
+    unname(w$estimates["elpd_waic", "Estimate"]),
+    res$elpd_1,
+    tolerance = 1e-10
+  )
+  expect_equal(
+    w$per_unit$elpd_waic,
+    res$per_unit$log_cpo_1,
+    tolerance = 1e-10
+  )
+  expect_equal(
+    unname(w$estimates["waic", "Estimate"]),
+    -2 * unname(w$estimates["elpd_waic", "Estimate"])
+  )
+
+  # requesting first order explicitly gives the same number, without a
+  # warning: nothing had to be abandoned
+  w1 <- waic(fit, second_order = FALSE)
+  expect_equal(w1$estimates, w$estimates, tolerance = 1e-12)
 
   # deterministic: a recomputation reproduces the estimates exactly
   w_again <- suppressWarnings(waic(fit))
@@ -356,24 +380,9 @@ test_that("waic() sanity and agreement with loo()", {
   msgs <- testthat::capture_warnings(waic(fit, nsamp = 100))
   expect_true(any(grepl("nsamp", msgs)))
 
-  # first-order WAIC is exactly first-order LOO
-  w1 <- suppressWarnings(waic(fit, second_order = FALSE))
-  expect_equal(
-    unname(w1$estimates["elpd_waic", "Estimate"]),
-    res$elpd_1,
-    tolerance = 1e-10
-  )
-
-  # at second order the two differ only by the penalty gap; loose agreement
-  expect_equal(
-    unname(w$estimates["elpd_waic", "Estimate"]),
-    res$elpd_2,
-    tolerance = 0.005
-  )
-  expect_equal(
-    unname(w$estimates["waic", "Estimate"]),
-    -2 * unname(w$estimates["elpd_waic", "Estimate"])
-  )
+  # no p_waic threshold is applied any more: a large pointwise p_waic is
+  # not itself a reason to warn
+  expect_true(max(w$per_unit$p_waic) > 0.4)
 
   # fitMeasures computes WAIC on request by name only
   expect_false("waic" %in% names(fitMeasures(fit)))
@@ -402,7 +411,9 @@ test_that("single-level FIML is supported (see test-loo-missing.R)", {
 })
 
 test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
-  fit_std <- acfa(
+  # the stored WAIC falls to first order here (unit 5 has no second-order
+  # lpd), which warns at fit time
+  fit_std <- suppressWarnings(acfa(
     HS_model,
     dat,
     meanstructure = TRUE,
@@ -412,7 +423,7 @@ test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
     vb_correction = FALSE,
     marginal_method = "marggaus",
     marginal_correction = "none"
-  )
+  ))
   int <- get_inlavaan_internal(fit_std)
 
   expect_s3_class(int$loo, "inlavaan_loo")
@@ -422,16 +433,18 @@ test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
 
   expect_s3_class(int$waic, "inlavaan_waic")
   expect_identical(waic(fit_std), int$waic)
-  # the stored WAIC is the fit-time LOO aggregated on the lpd side (a unit
-  # with no second-order lpd contributes its first-order one)
+  # the stored WAIC is the fit-time LOO aggregated on the lpd side, at
+  # whichever order every unit's lpd term supports
   pu <- int$loo$per_unit
+  quad <- 2 * (pu$lpd_1 - pu$l_star)
+  expected <- if (isTRUE(int$waic$use_second)) {
+    sum(pu$lpd_2 - quad - 0.5 * pu$k_ssq)
+  } else {
+    sum(pu$lpd_1 - quad)
+  }
   expect_equal(
     unname(int$waic$estimates["elpd_waic", "Estimate"]),
-    sum(
-      ifelse(is.na(pu$lpd_2), pu$lpd_1, pu$lpd_2) -
-        2 * (pu$lpd_1 - pu$l_star) -
-        0.5 * pu$k_ssq
-    ),
+    expected,
     tolerance = 1e-10
   )
   # non-default arguments still trigger a fresh computation
@@ -455,7 +468,7 @@ test_that("the fit-time budget gate aborts with its own condition class", {
 })
 
 test_that("fit-time WAIC follows the fit-time LOO regardless of nsamp", {
-  fit_s3 <- acfa(
+  fit_s3 <- suppressWarnings(acfa(
     HS_model,
     dat,
     meanstructure = TRUE,
@@ -465,7 +478,7 @@ test_that("fit-time WAIC follows the fit-time LOO regardless of nsamp", {
     vb_correction = FALSE,
     marginal_method = "marggaus",
     marginal_correction = "none"
-  )
+  ))
   int <- get_inlavaan_internal(fit_s3)
   # derived from the same Taylor pass, so no draws-based nsamp gate remains
   expect_s3_class(int$loo, "inlavaan_loo")

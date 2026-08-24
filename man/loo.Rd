@@ -78,7 +78,7 @@ fits only), \code{nobs} (1 for LOSO, the cluster size for LOCO),
 \code{l_star} (unit log-likelihood at the summary), \code{score_norm},
 \code{lpd_1}/\code{lpd_2} (pointwise log predictive density),
 \code{log_cpo_1}/\code{log_cpo_2} (pointwise LOO contributions), \code{det_term},
-\code{k_max}/\code{k_sum} (leverage diagnostics, see below), \code{k_ssq}
+\code{k_max}/\code{k_min}/\code{k_sum} (leverage diagnostics, see below), \code{k_ssq}
 (\eqn{\mathrm{tr}[(\Sigma H_u)^2]}, consumed by the closed-form
 \code{\link[=waic]{waic()}} penalty), and \code{ok}
 (whether the second-order \eqn{\log \mathrm{CPO}} exists).}
@@ -170,11 +170,13 @@ direction than the remaining data and the prior combined, and
 is \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's total leverage, which sums
 across units to the effective number of parameters -- as hat-matrix
 leverages sum to the parameter count in regression, whose classical
-breakdown at leverage 1 reappears here as \eqn{k_u \to 1}. Both are
-obtained in closed form from the Laplace summary rather than estimated
-from draws, and are \code{NA} when the second-order term is not computed. No
-threshold is applied to either: existence is the only condition the
-package acts on.
+breakdown at leverage 1 reappears here as \eqn{k_u \to 1}. \code{k_min} is the
+other end of the same spectrum, and \code{k_min > -1} is the existence
+condition for the second-order \eqn{\mathrm{lpd}} (it is also the only
+condition \code{\link[=waic]{waic()}} carries). All are obtained in closed form from the
+Laplace summary rather than estimated from draws, and are \code{NA} when the
+second-order term is not computed. No threshold is applied to any of
+them: existence is the only condition the package acts on.
 
 The type is resolved automatically: per-cluster (\code{"loco"}) when the model
 was fitted with a \code{cluster} argument, per-subject (\code{"loso"}) otherwise.

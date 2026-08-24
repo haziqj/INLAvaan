@@ -20,16 +20,27 @@
 #' with \eqn{s_u} and \eqn{H_u} the unit's score and Hessian. Then
 #' \eqn{\mathrm{elpd}_{\mathrm{waic}} = \sum_u (\mathrm{lpd}_u -
 #' p_{\mathrm{waic},u})} and \eqn{\mathrm{WAIC} = -2\,
-#' \mathrm{elpd}_{\mathrm{waic}}}. Unlike the lpd and log CPO integrals, the
-#' penalty is a variance -- a polynomial in Gaussian moments -- so it exists
-#' for every unit. A unit whose second-order \eqn{\mathrm{lpd}_u} does not
-#' exist (see the existence discussion in [loo()]) contributes its
-#' first-order lpd instead; this substitution lands in
-#' \eqn{\mathrm{elpd}_{\mathrm{waic}}} itself, so it is noted when the
-#' result is printed and counted by `n_lpd_ok`. At first order the identity
+#' \mathrm{elpd}_{\mathrm{waic}}}.
+#'
+#' **Existence.** \eqn{p_{\mathrm{waic},u}} is a polynomial in the posterior
+#' moments, so unlike the lpd and log CPO integrals of [loo()] it is finite
+#' for every unit and carries no condition of its own. The second-order WAIC
+#' therefore exists exactly where its lpd term does: where
+#' \eqn{\Sigma^{-1} - H_u} is positive definite, equivalently
+#' \eqn{k_{\min} > -1} for the spectrum \eqn{k} of \eqn{-\Sigma H_u}. The
+#' log CPO condition \eqn{k_{\max} < 1} is irrelevant here, since the WAIC
+#' reads no case-deletion term: a unit whose deleted posterior is improper
+#' can still carry an exact second-order WAIC. Where the lpd term fails,
+#' every estimate is reported at *first order over all units* and warns --
+#' \eqn{\mathrm{elpd}_{\mathrm{waic}}} is a headline predictive score, and
+#' mixing two Taylor orders within one reported number is exactly what
+#' [loo()] refuses for \eqn{\mathrm{elpd}_{\mathrm{loo}}} (the mixed
+#' alternative is reserved for `p_loo`, a secondary diagnostic). That
+#' fallback is exact rather than merely lower-order: the identity
 #' \eqn{\mathrm{lpd}^{(1)}_u - p^{(1)}_{\mathrm{waic},u} = \log
-#' \mathrm{CPO}^{(1)}_u} holds exactly: first-order WAIC and first-order
-#' LOO are the same number.
+#' \mathrm{CPO}^{(1)}_u} holds pointwise, so the first-order WAIC *is* the
+#' first-order LOO score. No other threshold is applied: as in [loo()],
+#' existence is the only condition the package acts on.
 #'
 #' The same model restrictions as [loo()] apply, and so does the flavour
 #' rule: fits with `fixed.x = TRUE` are scored conditionally on the
@@ -75,7 +86,9 @@
 #'   (pointwise `lpd`, `p_waic`, `elpd_waic`, with the same `unit`/`group`
 #'   identification as [loo()]), `estimates` (matrix with rows
 #'   `elpd_waic`, `p_waic`, `waic` and columns `Estimate`, `SE`), `type`,
-#'   `flavour`, `n_units`, `n_groups`, `n_lpd_ok`, and `second_order`.
+#'   `flavour`, `n_units`, `n_groups`, `n_lpd_ok` (units whose second-order
+#'   lpd exists), `second_order` (whether it was requested) and
+#'   `use_second` (whether it was used).
 #'
 #' @seealso [loo()], [fitmeasures()]
 #'
@@ -164,7 +177,7 @@ waic.inlavaan_internal <- function(
 #' @exportS3Method print inlavaan_waic
 print.inlavaan_waic <- function(x, ...) {
   unit_word <- switch(x$type, loso = "subject", loco = "cluster")
-  order_lab <- if (isTRUE(x$second_order)) "second-order" else "first-order"
+  order_lab <- if (isTRUE(x$use_second)) "second-order" else "first-order"
   cat("WAIC (INLAvaan)\n")
   cat(
     "Computed from the Laplace summary over ",
@@ -182,30 +195,7 @@ print.inlavaan_waic <- function(x, ...) {
   )
   cat("\n")
   print(round(x$estimates, 1))
-  # The lpd substitution changes elpd_waic itself (unlike p_loo in loo()),
-  # and this is the only place it is said
-  if (isTRUE(x$second_order) && x$n_lpd_ok < x$n_units) {
-    n <- x$n_units
-    n_bad <- n - x$n_lpd_ok
-    cat(
-      "\n",
-      pluralize(
-        "lpd uses first-order contributions for {n_bad} of {n} units"
-      ),
-      "\nwith no second-order term.\n",
-      sep = ""
-    )
-  }
-  n_high <- sum(x$per_unit$p_waic > 0.4, na.rm = TRUE)
-  if (n_high > 0L) {
-    cat(
-      "\n",
-      n_high,
-      " unit",
-      if (n_high != 1L) "s",
-      " with p_waic > 0.4: the WAIC may be unreliable; prefer loo().\n",
-      sep = ""
-    )
-  }
+  # A failed lpd term already warned at computation time and the header
+  # above records the order actually used, so nothing is repeated here.
   invisible(x)
 }

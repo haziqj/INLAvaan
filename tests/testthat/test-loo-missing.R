@@ -173,6 +173,7 @@ test_that("loo object structure and internal identities", {
       "log_cpo_2",
       "det_term",
       "k_max",
+      "k_min",
       "k_sum",
       "k_ssq",
       "ok"
@@ -206,12 +207,21 @@ test_that("waic() runs on a FIML fit and agrees loosely with loo()", {
   expect_equal(w$type, "loso")
   expect_equal(w$flavour, "joint")
   expect_true(all(is.finite(w$per_unit$lpd)))
-  # WAIC and LOO estimate the same quantity; loose agreement on this model
-  expect_equal(
-    unname(w$estimates["elpd_waic", "Estimate"]),
-    res$elpd_2,
-    tolerance = 0.01
-  )
+  # WAIC and LOO score the same expansion: exact agreement at first order,
+  # loose at second (where they differ by the penalty gap)
+  if (isTRUE(w$use_second)) {
+    expect_equal(
+      unname(w$estimates["elpd_waic", "Estimate"]),
+      res$elpd_2,
+      tolerance = 0.01
+    )
+  } else {
+    expect_equal(
+      unname(w$estimates["elpd_waic", "Estimate"]),
+      res$elpd_1,
+      tolerance = 1e-10
+    )
+  }
 })
 
 # Two-level FIML (per-cluster LOCO) is supported; see test-loo-missing-2l.R

@@ -852,6 +852,7 @@ taylor_loo_unit <- function(
     lpd_2 = NA_real_,
     det_term = NA_real_,
     k_max = NA_real_,
+    k_min = NA_real_,
     k_sum = NA_real_,
     k_ssq = NA_real_,
     ok = FALSE
@@ -861,9 +862,10 @@ taylor_loo_unit <- function(
     # symmetric similarity R (-H_u) R' so the spectrum is real. k_max is the
     # share of the posterior precision the unit carries along its worst
     # direction, and k_max < 1 is the existence condition for the unit's
-    # second-order term; k_sum = tr(Sigma*(-H_u)) is its total leverage, and
-    # k_ssq = tr[(Sigma* H_u)^2] feeds the closed-form p_waic (see
-    # waic_from_taylor).
+    # second-order log CPO; k_min > -1 is the condition for its second-order
+    # lpd, reading the opposite end of the same spectrum; k_sum =
+    # tr(Sigma*(-H_u)) is its total leverage, and k_ssq = tr[(Sigma* H_u)^2]
+    # feeds the closed-form p_waic (see waic_from_taylor).
     if (!is.null(R_act)) {
       ev <- eigen(
         -R_act %*% H_u %*% t(R_act),
@@ -871,6 +873,9 @@ taylor_loo_unit <- function(
         only.values = TRUE
       )$values
       out$k_max <- max(ev[1L], 0)
+      # not clamped, unlike k_max: the informative values are the negative
+      # ones, and k_min <= -1 is exactly where the lpd integral fails
+      out$k_min <- ev[length(ev)]
       out$k_sum <- sum(ev)
       out$k_ssq <- sum(ev^2)
     }
@@ -1355,6 +1360,7 @@ inlav_loo <- function(
     log_cpo_2 = vapply(raw, `[[`, numeric(1), "log_cpo_2"),
     det_term = vapply(raw, `[[`, numeric(1), "det_term"),
     k_max = vapply(raw, `[[`, numeric(1), "k_max"),
+    k_min = vapply(raw, `[[`, numeric(1), "k_min"),
     k_sum = vapply(raw, `[[`, numeric(1), "k_sum"),
     k_ssq = vapply(raw, `[[`, numeric(1), "k_ssq"),
     ok = vapply(raw, `[[`, logical(1), "ok")
@@ -1510,41 +1516,62 @@ inlav_waic <- function(
     ),
     inlavaan_loo_first_order = function(w) invokeRestart("muffleWarning")
   )
-  out <- waic_from_taylor(res)
-  # Vehtari, Gelman & Gabry's (2017) reliability rule: a unit with
-  # p_waic > 0.4 has a log-likelihood so variable over the posterior that
-  # the variance-based penalty underlying the WAIC is itself suspect. This
-  # diagnoses the estimand's own approximation, not Monte Carlo error, so it
-  # survives the closed-form computation. The fit-time path (which calls
-  # waic_from_taylor() directly) stays silent, as before; printing the
-  # result annotates it either way.
-  n_high <- sum(out$per_unit$p_waic > 0.4, na.rm = TRUE)
-  if (n_high > 0L) {
-    cli_warn(
-      "{n_high} unit{?s} {?has/have} p_waic > 0.4, so the WAIC's
-       variance-based penalty may be unreliable there. Consider {.fn loo}
-       instead."
-    )
-  }
-  out
+  waic_from_taylor(res)
 }
 
 # Assemble the WAIC object from a fitted inlavaan_loo result. Also used by
 # the fit-time path, where it makes the WAIC free once the LOO has run.
+#
+# Existence. p_waic is a polynomial in the posterior moments -- s_u' Sigma
+# s_u from the score, tr[(H_u Sigma)^2] from the curvature -- so it is
+# finite for every unit and carries no condition of its own. The second-
+# order WAIC therefore exists exactly where its lpd term does, i.e. where
+# Sigma^-1 - H_u is positive definite (equivalently k_min > -1). The log CPO
+# condition k_max < 1 is irrelevant here: WAIC reads no case-deletion term,
+# so a unit whose deleted posterior is improper can still carry an exact
+# second-order WAIC.
+#
+# When the lpd term fails, every estimate falls to first order over all
+# units rather than substituting first-order terms for the failing units
+# alone. elpd_waic is a headline predictive score, and mixing two Taylor
+# orders inside one reported number is what the package refuses to do (the
+# same discipline loo() applies to elpd_loo); the mixed alternative is
+# reserved for p_loo, a secondary diagnostic. The fallback is exact rather
+# than merely lower-order: at first order lpd_1 - p_waic_1 = log_cpo_1
+# identically, so the first-order WAIC *is* the first-order LOO score.
 waic_from_taylor <- function(res) {
   pu <- res$per_unit
   n_units <- res$n_units
   quad <- 2 * (pu$lpd_1 - pu$l_star) # s_u' Sigma s_u
-  use_second <- isTRUE(res$second_order)
+
+  has_lpd_2 <- !is.na(pu$lpd_2)
+  n_lpd_ok <- sum(has_lpd_2)
+  use_second <- isTRUE(res$second_order) && n_lpd_ok == n_units
+
+  if (isTRUE(res$second_order) && n_lpd_ok < n_units) {
+    n_bad <- n_units - n_lpd_ok
+    bad_units <- cli_vec(
+      pu$unit[!has_lpd_2],
+      style = list("vec-trunc" = 10L)
+    )
+    cli_warn(
+      c(
+        "Reverting to first-order approximation.",
+        "i" = "{n_bad} of {n_units} units {qty(n_bad)}{?has/have} no
+               second-order {.field lpd}: {.val {bad_units}}.",
+        "i" = "{qty(n_bad)}{?Its/Their} lpd integral does not converge
+               ({.field k_min} at or below -1), so the second-order
+               {.field elpd_waic} does not exist over the scored units.",
+        "i" = "The first-order WAIC reported instead equals the first-order
+               {.fn loo} score exactly."
+      ),
+      class = "inlavaan_waic_first_order"
+    )
+  }
+
   if (use_second) {
     p_waic <- quad + 0.5 * pu$k_ssq
-    # A unit with no second-order lpd contributes its first-order lpd: the
-    # lpd integral is finite in truth (a density is bounded), so the missing
-    # term is an artefact of extrapolating the quadratic, and the
-    # first-order term recovers most of the true value (see the loo() docs).
-    # Unlike p_loo in loo(), the substitution lands in elpd_waic itself; it
-    # is noted when the result is printed and counted by n_lpd_ok.
-    lpd <- ifelse(is.na(pu$lpd_2), pu$lpd_1, pu$lpd_2)
+    lpd <- pu$lpd_2
   } else {
     p_waic <- quad
     lpd <- pu$lpd_1
@@ -1580,8 +1607,9 @@ waic_from_taylor <- function(res) {
       flavour = res$flavour,
       n_units = n_units,
       n_groups = res$n_groups,
-      n_lpd_ok = res$n_lpd_ok,
-      second_order = use_second
+      n_lpd_ok = n_lpd_ok,
+      second_order = isTRUE(res$second_order),
+      use_second = use_second
     ),
     class = "inlavaan_waic"
   )

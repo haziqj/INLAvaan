@@ -87,6 +87,7 @@ test_that("multigroup LOSO structure: case ids, groups, and identities", {
       "log_cpo_2",
       "det_term",
       "k_max",
+      "k_min",
       "k_sum",
       "k_ssq",
       "ok"
@@ -325,9 +326,17 @@ test_that("waic() supports multigroup fits and agrees with loo()", {
   expect_true("group" %in% names(w$per_unit))
   expect_true(all(is.finite(w$per_unit$lpd)))
   expect_output(print(w), "in 2 groups")
-  expect_equal(
-    unname(w$estimates["elpd_waic", "Estimate"]),
-    res_conf$elpd_2,
-    tolerance = 0.005
-  )
+  if (isTRUE(w$use_second)) {
+    expect_equal(
+      unname(w$estimates["elpd_waic", "Estimate"]),
+      res_conf$elpd_2,
+      tolerance = 0.005
+    )
+  } else {
+    expect_equal(
+      unname(w$estimates["elpd_waic", "Estimate"]),
+      res_conf$elpd_1,
+      tolerance = 1e-10
+    )
+  }
 })

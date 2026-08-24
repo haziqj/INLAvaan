@@ -66,15 +66,25 @@
   copula sampler, so `p_waic` and `waic` change on every existing fit, most
   visibly at small `N` where the two posteriors' second moments differ most.
   Consequences: results are exactly reproducible (no seed sensitivity); the
-  `nsamp` argument is gone (passing it warns); a `second_order` argument
-  mirrors `loo()`, and at first order WAIC and LOO coincide exactly. The
-  `p_waic > 0.4` reliability rule stays — it diagnoses the breakdown of
-  WAIC's variance-based penalty itself (Vehtari, Gelman & Gabry, 2017), not
-  Monte Carlo error, so the closed form does not retire it. At fit time the WAIC is derived from
-  the same computation as the fit-time LOO at no extra cost (previously it
-  needed `nsamp >= 100` and a separate casewise pass over all draws), and is
-  skipped when that LOO is skipped. `loo()`'s `per_unit` gains the
-  `k_ssq` column (\eqn{tr[(\Sigma H_u)^2]}) that feeds the penalty.
+  `nsamp` argument is gone (passing it warns); and a `second_order` argument
+  mirrors `loo()`, at which order WAIC and LOO coincide exactly. The
+  `p_waic > 0.4` reliability rule is **removed** rather than carried over:
+  it is an empirical threshold calibrated on simulations (Vehtari, Gelman &
+  Gabry, 2017, state plainly that no theory backs it) and it was there to
+  police an estimator's variability across draws. What replaces it is the
+  estimand's own existence condition — `p_waic` is a polynomial in the
+  posterior moments and always finite, so the second-order WAIC exists
+  exactly where its `lpd` term does, namely where `Sigma^-1 - H_u` is
+  positive definite (`k_min > -1`); where it does not, every estimate is
+  reported at first order over all units and warns, and that fallback is
+  exact rather than approximate because first-order WAIC *is* the
+  first-order LOO score. The log CPO condition `k_max < 1` is irrelevant to
+  the WAIC, which reads no case-deletion term. At fit time the WAIC is
+  derived from the same computation as the fit-time LOO at no extra cost
+  (previously it needed `nsamp >= 100` and a separate casewise pass over all
+  draws), and is skipped when that LOO is skipped. `loo()`'s `per_unit`
+  gains the `k_ssq` column (\eqn{tr[(\Sigma H_u)^2]}, which feeds the
+  penalty) and `k_min`, the existence diagnostic for the `lpd` term.
 
 * `loo()` now reports two curvature diagnostics per unit, `k_max` and `k_sum`,
   obtained in closed form from the Laplace summary rather than estimated from

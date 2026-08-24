@@ -65,11 +65,13 @@
 #' is \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's total leverage, which sums
 #' across units to the effective number of parameters -- as hat-matrix
 #' leverages sum to the parameter count in regression, whose classical
-#' breakdown at leverage 1 reappears here as \eqn{k_u \to 1}. Both are
-#' obtained in closed form from the Laplace summary rather than estimated
-#' from draws, and are `NA` when the second-order term is not computed. No
-#' threshold is applied to either: existence is the only condition the
-#' package acts on.
+#' breakdown at leverage 1 reappears here as \eqn{k_u \to 1}. `k_min` is the
+#' other end of the same spectrum, and `k_min > -1` is the existence
+#' condition for the second-order \eqn{\mathrm{lpd}} (it is also the only
+#' condition [waic()] carries). All are obtained in closed form from the
+#' Laplace summary rather than estimated from draws, and are `NA` when the
+#' second-order term is not computed. No threshold is applied to any of
+#' them: existence is the only condition the package acts on.
 #'
 #' The type is resolved automatically: per-cluster (`"loco"`) when the model
 #' was fitted with a `cluster` argument, per-subject (`"loso"`) otherwise.
@@ -200,7 +202,7 @@
 #'       `l_star` (unit log-likelihood at the summary), `score_norm`,
 #'       `lpd_1`/`lpd_2` (pointwise log predictive density),
 #'       `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions), `det_term`,
-#'       `k_max`/`k_sum` (leverage diagnostics, see below), `k_ssq`
+#'       `k_max`/`k_min`/`k_sum` (leverage diagnostics, see below), `k_ssq`
 #'       (\eqn{\mathrm{tr}[(\Sigma H_u)^2]}, consumed by the closed-form
 #'       [waic()] penalty), and `ok`
 #'       (whether the second-order \eqn{\log \mathrm{CPO}} exists).}

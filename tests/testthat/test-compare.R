@@ -75,8 +75,10 @@ test_that("compare() with fit.measures appends extra columns", {
 })
 
 test_that("compare() includes DIC/pD when test != 'none'", {
-  fit1_std <- acfa(mod_null, dat, verbose = FALSE, nsamp = 3)
-  fit2_std <- acfa(mod_full, dat, verbose = FALSE, nsamp = 3)
+  # the stored WAIC falls to first order on this data (one unit has no
+  # second-order lpd), which warns at fit time
+  fit1_std <- suppressWarnings(acfa(mod_null, dat, verbose = FALSE, nsamp = 3))
+  fit2_std <- suppressWarnings(acfa(mod_full, dat, verbose = FALSE, nsamp = 3))
   cmp <- compare(fit1_std, fit2_std)
   expect_true("DIC" %in% names(cmp))
   expect_true("pD" %in% names(cmp))
