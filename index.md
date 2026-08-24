@@ -159,8 +159,8 @@ summary(fit)
 Computation speed is valuable only when accuracy is preserved. Our
 method yields posterior distributions that are visually and numerically
 comparable to those obtained via MCMC (e.g., via
-[blavaan](https://ecmerkle.github.io/blavaan/)/Stan), but at a fraction
-of the computational cost.
+[blavaan](https://blavaan.org)/Stan), but at a fraction of the
+computational cost.
 
 The figure below illustrates the posterior density overlap for the
 example above. The percentages refer to the one minus the

@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -210,20 +210,19 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [282ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [287ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [147ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.055σ. [132ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [468ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [405ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [76ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [71ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Computing WAIC.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.3s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [808ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span></code></pre></div>
 </div>
@@ -239,7 +238,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots</span></span>
 <span><span class="va">fit</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.1.9004 ended normally after 64 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1.9005 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -264,7 +263,7 @@
 <span></span>
 <span><span class="co"># Summary of results</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.1.9004 ended normally after 64 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1.9005 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -400,7 +399,7 @@
 <span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc     elpd_loo        p_loo        looic </span></span>
 <span><span class="co">#&gt;        0.989        0.970        0.983    -8021.957       13.040    16043.915 </span></span>
 <span><span class="co">#&gt;       se_loo    elpd_waic       p_waic         waic      se_waic </span></span>
-<span><span class="co">#&gt;      107.965    -8022.060       13.087    16044.120      108.055</span></span></code></pre></div>
+<span><span class="co">#&gt;      107.965    -8021.956       13.039    16043.913      107.965</span></span></code></pre></div>
 </div>
 <p>Definitions and worked examples are in the <a href="https://inlavaan.haziqj.ml/articles/fit-indices.html">Bayesian fit indices article</a>.</p>
 </section><section class="level3"><h3 id="diagnostics">Diagnostics<a class="anchor" aria-label="anchor" href="#diagnostics"></a>
@@ -421,7 +420,7 @@
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 2.38 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.77 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -449,19 +448,19 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [130ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [133ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [129ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.036σ. [106ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [380ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [329ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [48ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [47ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.4s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [787ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
@@ -472,7 +471,7 @@
 <span><span class="co">#&gt;    fit   13   -8084.532   0.000 16063.43 13.080</span></span>
 <span><span class="co">#&gt;   fit2   12   -8104.369 -19.837 16113.72 12.187</span></span></code></pre></div>
 </div>
-<p>As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs <span class="citation" data-cites="tendeiro2019review schad2023workflow">(<a href="#ref-tendeiro2019review" role="doc-biblioref">Tendeiro and Kiers 2019</a>; <a href="#ref-schad2023workflow" role="doc-biblioref">Schad et al. 2023</a>)</span>. Leave-one-out cross-validation <span class="citation" data-cites="vehtari2017practical">(LOO, <a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span> and the widely applicable information criterion <span class="citation" data-cites="watanabe2010asymptotic">(WAIC, <a href="#ref-watanabe2010asymptotic" role="doc-biblioref">Watanabe 2010</a>)</span> are popular alternatives which compare models on out-of-sample predictive accuracy instead; see <span class="citation" data-cites="merkle2019bayesian">Merkle et al. (<a href="#ref-merkle2019bayesian" role="doc-biblioref">2019</a>)</span> for their use with latent variable models. Both are implemented in <a href="https://inlavaan.haziqj.ml/">INLAvaan</a>. The function <code><a href="../reference/loo.html">loo()</a></code> requires neither refitting nor sampling, computing the statistic using a Taylor approximation of the case-deletion posterior, while <code><a href="../reference/waic.html">waic()</a></code> reuses the fit’s own posterior draws.</p>
+<p>As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs <span class="citation" data-cites="tendeiro2019review schad2023workflow">(<a href="#ref-tendeiro2019review" role="doc-biblioref">Tendeiro and Kiers 2019</a>; <a href="#ref-schad2023workflow" role="doc-biblioref">Schad et al. 2023</a>)</span>. Leave-one-out cross-validation <span class="citation" data-cites="vehtari2017practical">(LOO, <a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span> and the widely applicable information criterion <span class="citation" data-cites="watanabe2010asymptotic">(WAIC, <a href="#ref-watanabe2010asymptotic" role="doc-biblioref">Watanabe 2010</a>)</span> are popular alternatives which compare models on out-of-sample predictive accuracy instead; see <span class="citation" data-cites="merkle2019bayesian">Merkle et al. (<a href="#ref-merkle2019bayesian" role="doc-biblioref">2019</a>)</span> for their use with latent variable models. Both are implemented in <a href="https://inlavaan.haziqj.ml/">INLAvaan</a>. The functions <code><a href="../reference/loo.html">loo()</a></code> and <code><a href="../reference/waic.html">waic()</a></code> require neither refitting nor sampling: both are computed in closed form from the same Taylor expansion around the fit’s Laplace summary.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
@@ -502,8 +501,8 @@
 <p>See the <a href="https://inlavaan.haziqj.ml/articles/loo.html">cross-validation article</a> for the methodology and more advanced usage, including multigroup and two-level models, missing data, and scoring submodels without refitting.</p>
 </section><section class="level2"><h2 id="setting-priors">Setting priors<a class="anchor" aria-label="anchor" href="#setting-priors"></a>
 </h2>
-<p>The <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> package uses the same prior specification syntax as <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> <span class="citation" data-cites="merkle2018blavaan merkle2021efficient">(<a href="#ref-merkle2018blavaan" role="doc-biblioref">Merkle and Rosseel 2018</a>; <a href="#ref-merkle2021efficient" role="doc-biblioref">Merkle et al. 2021</a>)</span>, as detailed <a href="https://blavaan.org/articles/prior.html" class="external-link">here</a>. Essentially, there are two ways to set priors for model parameters: 1) Globally for all parameters of a certain type (e.g., all factor loadings, all regression coefficients, etc.); and 2) Individually for specific parameters in the model syntax.</p>
-<p>The default global priors are similar to those from <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a>:</p>
+<p>The <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> package uses the same prior specification syntax as <a href="https://blavaan.org" class="external-link">blavaan</a> <span class="citation" data-cites="merkle2018blavaan merkle2021efficient">(<a href="#ref-merkle2018blavaan" role="doc-biblioref">Merkle and Rosseel 2018</a>; <a href="#ref-merkle2021efficient" role="doc-biblioref">Merkle et al. 2021</a>)</span>, as detailed <a href="https://blavaan.org/articles/prior.html" class="external-link">here</a>. Essentially, there are two ways to set priors for model parameters: 1) Globally for all parameters of a certain type (e.g., all factor loadings, all regression coefficients, etc.); and 2) Individually for specific parameters in the model syntax.</p>
+<p>The default global priors are similar to those from <a href="https://blavaan.org" class="external-link">blavaan</a>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/priors_for.html">priors_for</a></span><span class="op">(</span><span class="op">)</span>  <span class="co"># similar to blavaan::dpriors()</span></span>

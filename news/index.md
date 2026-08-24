@@ -4,6 +4,16 @@
 
 ### Bug fixes
 
+- [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)
+  overstated the total: the lavaan-side setup stages were added on top
+  of INLAvaan’s own segments even though they already sit inside `init`,
+  double-counting the whole lavaan setup (and silently summing the four
+  segment names both sides share). The reported segments are now
+  INLAvaan’s own, disjoint, and sum to a `total` that matches
+  [`system.time()`](https://rdrr.io/r/base/system.time.html) on the
+  call; the absolute `start_time` stamp is no longer exposed as if it
+  were a duration, and the `loo`/`waic` segments are now documented.
+
 - [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) no longer drops
   units without a second-order term from `elpd_loo`, `p_loo` and their
   standard errors, which summed the model over fewer units and so
@@ -52,6 +62,44 @@
 
 ### New features
 
+- [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) is now
+  deterministic: both WAIC terms are computed in closed form from the
+  fit’s Laplace summary — the same per-unit Taylor quantities behind
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) — instead of
+  being estimated from posterior draws. The penalty is the variance of
+  the unit log-likelihood under the Gaussian posterior, , a polynomial
+  in Gaussian moments with no existence condition of its own; the lpd
+  term is the one [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)
+  already computes, and a unit without a second-order lpd contributes
+  its first-order lpd (noted when printing, counted by `n_lpd_ok`).
+  **This is a change of estimand, not only of computation**: the
+  previous estimator took a variance across draws from the skew-normal
+  copula sampler, so `p_waic` and `waic` change on every existing fit,
+  most visibly at small `N` where the two posteriors’ second moments
+  differ most. Consequences: results are exactly reproducible (no seed
+  sensitivity); the `nsamp` argument is gone (passing it warns); and a
+  `second_order` argument mirrors
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md), at which order
+  WAIC and LOO coincide exactly. The `p_waic > 0.4` reliability rule is
+  **removed** rather than carried over: it is an empirical threshold
+  calibrated on simulations (Vehtari, Gelman & Gabry, 2017, state
+  plainly that no theory backs it) and it was there to police an
+  estimator’s variability across draws. What replaces it is the
+  estimand’s own existence condition — `p_waic` is a polynomial in the
+  posterior moments and always finite, so the second-order WAIC exists
+  exactly where its `lpd` term does, namely where `Sigma^-1 - H_u` is
+  positive definite (`k_min > -1`); where it does not, every estimate is
+  reported at first order over all units and warns, and that fallback is
+  exact rather than approximate because first-order WAIC *is* the
+  first-order LOO score. The log CPO condition `k_max < 1` is irrelevant
+  to the WAIC, which reads no case-deletion term. At fit time the WAIC
+  is derived from the same computation as the fit-time LOO at no extra
+  cost (previously it needed `nsamp >= 100` and a separate casewise pass
+  over all draws), and is skipped when that LOO is skipped.
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)’s `per_unit`
+  gains the `k_ssq` column (, which feeds the penalty) and `k_min`, the
+  existence diagnostic for the `lpd` term.
+
 - [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) now reports two
   curvature diagnostics per unit, `k_max` and `k_sum`, obtained in
   closed form from the Laplace summary rather than estimated from
@@ -60,6 +108,28 @@
   condition for its second-order term to exist; `k_sum` is the unit’s
   total leverage. No threshold is applied to either: existence is the
   only condition acted on.
+
+### Minor improvements and fixes
+
+- INLAvaan now requires lavaan \>= 0.7-2. This retires the compatibility
+  layer that supported both lavaan generations at once — the dual-name
+  alias probing for renamed internals, the per-session resolution of
+  renamed argument spellings, and the positional calls that avoided
+  cross-version argument names — and with it the interim warning about
+  lavaan’s slightly inexact two-level FIML gradient for
+  fully-missing-within cases, which lavaan \>= 0.7-1.2707 fixed
+  upstream. The unexported lavaan internals INLAvaan relies on are still
+  bound once per session at load time (now under their 0.7 names only),
+  keeping the package correct when lavaan is upgraded in place.
+
+- The default `"nlminb"` optimiser now runs with `iter.max = 1000` and
+  `eval.max = 2000` instead of
+  [`nlminb()`](https://rdrr.io/r/stats/nlminb.html)’s stock 150 and 200,
+  which complex models could exhaust — quietly, since hitting the
+  ceiling surfaces only through
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  or the fit-time warning. Values supplied via `control` still take
+  precedence.
 
 ## INLAvaan 0.3.1
 

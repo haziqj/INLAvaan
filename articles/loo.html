@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -98,7 +98,7 @@
 <p>How well would my model predict <em>new</em> data? Leave-one-out (LOO) cross-validation answers this by holding out one unit at a time, refitting the model to the remaining data, and scoring the held-out unit under the refitted posterior. The total score is the expected log predictive density, <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>u</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>u</mi></msub><mo>∣</mo><msub><mi>y</mi><mrow><mi>−</mi><mi>u</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
   \mathrm{elpd}_{\mathrm{loo}} = \sum_{u=1}^n \log p(y_u \mid y_{-u}),
 </annotation></semantics></math> which rewards models that predict well and automatically penalises overfitting – making it a natural criterion for comparing models.</p>
-<p>Computed naively, LOO needs <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> refits. MCMC-based packages such as <a href="https://ecmerkle.github.io/blavaan/" class="external-link">blavaan</a> avoid this by importance-sampling over posterior draws <span class="citation" data-cites="vehtari2017practical">(<a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span>, but this still requires the full set of MCMC draws. INLAvaan instead exploits its Laplace machinery: <code><a href="../reference/loo.html">loo()</a></code> approximates each case-deletion posterior by a Taylor expansion around the full-data posterior summary, so <strong>the entire LOO is computed from a single fit</strong> – no refitting and no sampling. On the Holzinger–Swineford example below this takes a fraction of a second.</p>
+<p>Computed naively, LOO needs <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> refits. MCMC-based packages such as <a href="https://blavaan.org" class="external-link">blavaan</a> avoid this by importance-sampling over posterior draws <span class="citation" data-cites="vehtari2017practical">(<a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span>, but this still requires the full set of MCMC draws. INLAvaan instead exploits its Laplace machinery: <code><a href="../reference/loo.html">loo()</a></code> approximates each case-deletion posterior by a Taylor expansion around the full-data posterior summary, so <strong>the entire LOO is computed from a single fit</strong> – no refitting and no sampling. On the Holzinger–Swineford example below this takes a fraction of a second.</p>
 <p>Two unit types are scored, resolved automatically from the model:</p>
 <ul>
 <li>
@@ -148,13 +148,13 @@
 <span><span class="co">#&gt; 4    4    1 -10.25806   2.576577 -10.24387 -10.29030 -10.27225 -10.31970</span></span>
 <span><span class="co">#&gt; 5    5    1 -10.70333   2.968563 -10.68998 -10.73711 -10.71669 -10.76489</span></span>
 <span><span class="co">#&gt; 6    6    1 -13.41261   5.032849 -13.34949 -13.43705 -13.47572 -13.56755</span></span>
-<span><span class="co">#&gt;      det_term      k_max      k_sum   ok</span></span>
-<span><span class="co">#&gt; 1 -0.04818982 0.03748386 0.09285935 TRUE</span></span>
-<span><span class="co">#&gt; 2 -0.07305219 0.06026365 0.14150088 TRUE</span></span>
-<span><span class="co">#&gt; 3 -0.09161483 0.04104328 0.18085586 TRUE</span></span>
-<span><span class="co">#&gt; 4 -0.04736834 0.02929356 0.09371195 TRUE</span></span>
-<span><span class="co">#&gt; 5 -0.04815107 0.03046489 0.09521453 TRUE</span></span>
-<span><span class="co">#&gt; 6 -0.08981841 0.06652019 0.17540943 TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt;      det_term      k_max        k_min      k_sum       k_ssq   ok</span></span>
+<span><span class="co">#&gt; 1 -0.04818982 0.03748386 -0.041628485 0.09285935 0.007023244 TRUE</span></span>
+<span><span class="co">#&gt; 2 -0.07305219 0.06026365 -0.050175220 0.14150088 0.009081819 TRUE</span></span>
+<span><span class="co">#&gt; 3 -0.09161483 0.04104328 -0.009914234 0.18085586 0.004662021 TRUE</span></span>
+<span><span class="co">#&gt; 4 -0.04736834 0.02929356 -0.010315107 0.09371195 0.002023999 TRUE</span></span>
+<span><span class="co">#&gt; 5 -0.04815107 0.03046489 -0.011201348 0.09521453 0.002146654 TRUE</span></span>
+<span><span class="co">#&gt; 6 -0.08981841 0.06652019 -0.023561030 0.17540943 0.008207320 TRUE</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="comparing-models">Comparing models<a class="anchor" aria-label="anchor" href="#comparing-models"></a>
 </h2>
@@ -171,8 +171,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7535.006 29.495 -3769.109 42.945 32.433</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7756.447 26.621 -3878.134 46.800 27.516</span></span>
+<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7534.466 29.225 -3769.109 42.945 32.433</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7756.739 26.767 -3878.134 46.800 27.516</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;   -109.025  17.072</span></span></code></pre></div>
@@ -193,12 +193,6 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2l</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model2l</span>, <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span>,</span>
 <span>              meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, fixed.x <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: Fit diagnostics flagged 2 potential issues:</span></span>
-<span><span class="co">#&gt; ✖ The optimiser did not converge: iteration limit reached without convergence</span></span>
-<span><span class="co">#&gt;   (10).</span></span>
-<span><span class="co">#&gt; ✖ The gradient at the posterior mode is not zero (max |grad| = 0.399): a Newton</span></span>
-<span><span class="co">#&gt;   step would move `y1~~y1.l2` by 0.211 posterior SDs.</span></span>
-<span><span class="co">#&gt; ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit2l</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Leave-one-cluster-out cross-validation</span></span>
@@ -206,8 +200,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate     SE</span></span>
 <span><span class="co">#&gt; elpd_loo -23344.2  731.4</span></span>
-<span><span class="co">#&gt; p_loo        34.3    2.0</span></span>
-<span><span class="co">#&gt; looic     46688.3 1462.9</span></span></code></pre></div>
+<span><span class="co">#&gt; p_loo        34.5    2.1</span></span>
+<span><span class="co">#&gt; looic     46688.4 1462.9</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="exogenous-covariates-joint-and-conditional-scores">Exogenous covariates: joint and conditional scores<a class="anchor" aria-label="anchor" href="#exogenous-covariates-joint-and-conditional-scores"></a>
 </h2>
@@ -257,8 +251,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7543.431 62.066 -3748.090 44.737 45.076</span></span>
-<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7568.213 30.061 -3787.678 43.881 38.271</span></span>
+<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7540.764 60.732 -3748.090 44.737 45.076</span></span>
+<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7569.269 30.588 -3787.678 43.881 38.271</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;    -39.587  10.261</span></span></code></pre></div>
@@ -287,20 +281,17 @@
 </div>
 </section><section class="level2"><h2 id="waic">WAIC<a class="anchor" aria-label="anchor" href="#waic"></a>
 </h2>
-<p>The widely applicable information criterion <span class="citation" data-cites="watanabe2010asymptotic">(<a href="#ref-watanabe2010asymptotic" role="doc-biblioref">Watanabe 2010</a>)</span> is asymptotically equivalent to LOO and is also available. Unlike <code><a href="../reference/loo.html">loo()</a></code>, <code><a href="../reference/waic.html">waic()</a></code> is sampling-based: it evaluates unit log-likelihoods over posterior draws, so results carry Monte Carlo error, and units with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mrow><mrow><mi mathvariant="normal">w</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi></mrow><mo>,</mo><mi>u</mi></mrow></msub><mo>&gt;</mo><mn>0.4</mn></mrow><annotation encoding="application/x-tex">p_{\mathrm{waic},u} &gt; 0.4</annotation></semantics></math> trigger a reliability warning – in which case prefer <code><a href="../reference/loo.html">loo()</a></code> <span class="citation" data-cites="vehtari2017practical">(<a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span>.</p>
+<p>The widely applicable information criterion <span class="citation" data-cites="watanabe2010asymptotic">(<a href="#ref-watanabe2010asymptotic" role="doc-biblioref">Watanabe 2010</a>)</span> is asymptotically equivalent to LOO and is also available. Like <code><a href="../reference/loo.html">loo()</a></code>, <code><a href="../reference/waic.html">waic()</a></code> is computed in closed form from the Laplace summary – the penalty is the variance of the unit log-likelihood under the Gaussian posterior, a polynomial in its moments – so it involves no posterior draws and carries no Monte Carlo error. At first order the two are identical (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><mi>u</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msubsup><mi>p</mi><mrow><mrow><mi mathvariant="normal">w</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi></mrow><mo>,</mo><mi>u</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><msubsup><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">O</mi></mrow><mi>u</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\mathrm{lpd}^{(1)}_u - p^{(1)}_{\mathrm{waic},u} = \log \mathrm{CPO}^{(1)}_u</annotation></semantics></math> exactly); at second order they differ by a curvature gap, with WAIC weakly optimistic relative to LOO. No reliability threshold is applied to <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mrow><mi mathvariant="normal">w</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi></mrow></msub><annotation encoding="application/x-tex">p_{\mathrm{waic}}</annotation></semantics></math>: being a polynomial in the posterior moments it is always finite, so the only condition the WAIC carries is the one its <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><annotation encoding="application/x-tex">\mathrm{lpd}</annotation></semantics></math> term inherits – <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="normal">Σ</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo>−</mo><msub><mi>H</mi><mi>u</mi></msub><mo>≻</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\Sigma^{-1} - H_u \succ 0</annotation></semantics></math>, equivalently <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi mathvariant="normal">min</mi></msub><mo>&gt;</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">k_{\min} &gt; -1</annotation></semantics></math> – and a unit failing it sends every estimate to first order, with a warning.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/waic.html">waic</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/waic.html">waic</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; WAIC (INLAvaan)</span></span>
-<span><span class="co">#&gt; Computed from 1000 posterior draws and 301 subjects</span></span>
+<span><span class="co">#&gt; Computed from the Laplace summary over 301 subjects (second-order approximation)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_waic  -3769.2 43.0</span></span>
-<span><span class="co">#&gt; p_waic        32.2  2.1</span></span>
-<span><span class="co">#&gt; waic        7538.5 86.0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; 9 units with p_waic &gt; 0.4: the WAIC may be unreliable; prefer loo().</span></span></code></pre></div>
+<span><span class="co">#&gt; elpd_waic  -3769.0 42.9</span></span>
+<span><span class="co">#&gt; p_waic        32.4  2.1</span></span>
+<span><span class="co">#&gt; waic        7538.1 85.9</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="scoring-submodels-without-refitting">Scoring submodels without refitting<a class="anchor" aria-label="anchor" href="#scoring-submodels-without-refitting"></a>
 </h2>

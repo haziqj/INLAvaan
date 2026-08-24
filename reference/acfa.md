@@ -57,9 +57,9 @@ acfa(
   Character indicating which post-estimation quantities to compute.
   Defaults to "standard": posterior fit indices (PPP and DIC), plus –
   for models supported by the casewise machinery and fitted with a mean
-  structure – the WAIC (reusing the fit's posterior draws, when
-  `nsamp >= 100`) and a full leave-one-out cross-validation whenever its
-  predicted serial cost is within a 10-second budget; both are stored
+  structure – a full leave-one-out cross-validation whenever its
+  predicted serial cost is within a 10-second budget, with the WAIC
+  derived from the same computation at no extra cost; both are stored
   with the fit (see
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
   [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). "none"
@@ -128,7 +128,11 @@ acfa(
 
 - control:
 
-  A list of control parameters for the optimiser.
+  A list of control parameters for the optimiser. For the default
+  `"nlminb"`, INLAvaan raises the stock iteration ceilings to
+  `iter.max = 1000` and `eval.max = 2000` (complex models can exhaust
+  [`nlminb()`](https://rdrr.io/r/stats/nlminb.html)'s own defaults of
+  150 and 200); any value supplied here overrides these.
 
 - verbose:
 
@@ -226,23 +230,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [154ms]
+#> ✔ Posterior mode and Hessian. [132ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [149ms]
+#> ✔ VB correction; mean |δ| = 0.081σ. [128ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1.1s]
+#> ⠹ Fitting 20/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [942ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [153ms]
+#> ✔ Adjust copula correlations (NORTA). [134ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [571ms]
+#> ✔ Summarise 100 posterior draws. [523ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.3.1.9004 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9005 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

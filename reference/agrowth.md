@@ -57,9 +57,9 @@ agrowth(
   Character indicating which post-estimation quantities to compute.
   Defaults to "standard": posterior fit indices (PPP and DIC), plus –
   for models supported by the casewise machinery and fitted with a mean
-  structure – the WAIC (reusing the fit's posterior draws, when
-  `nsamp >= 100`) and a full leave-one-out cross-validation whenever its
-  predicted serial cost is within a 10-second budget; both are stored
+  structure – a full leave-one-out cross-validation whenever its
+  predicted serial cost is within a 10-second budget, with the WAIC
+  derived from the same computation at no extra cost; both are stored
   with the fit (see
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
   [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). "none"
@@ -128,7 +128,11 @@ agrowth(
 
 - control:
 
-  A list of control parameters for the optimiser.
+  A list of control parameters for the optimiser. For the default
+  `"nlminb"`, INLAvaan raises the stock iteration ceilings to
+  `iter.max = 1000` and `eval.max = 2000` (complex models can exhaust
+  [`nlminb()`](https://rdrr.io/r/stats/nlminb.html)'s own defaults of
+  150 and 200); any value supplied here overrides these.
 
 - verbose:
 
@@ -247,23 +251,23 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [289ms]
+#> ✔ Posterior mode and Hessian. [257ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.045σ. [230ms]
+#> ✔ VB correction; mean |δ| = 0.045σ. [187ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.1s]
+#> ✔ Fit 17/17 skew-normal marginals. [1.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [88ms]
+#> ✔ Adjust copula correlations (NORTA). [65ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [748ms]
+#> ✔ Summarise 100 posterior draws. [637ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.3.1.9004 ended normally after 83 iterations
+#> INLAvaan 0.3.1.9005 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

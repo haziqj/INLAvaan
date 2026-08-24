@@ -9,7 +9,7 @@ chi-square value and, therefore, a different set of fit indices.
 INLAvaan provides Bayesian analogues of the most common indices,
 following the framework of Garnier-Villarreal and Jorgensen
 ([2020](#ref-garnier2021bayesian)) (as implemented in
-[blavaan](https://ecmerkle.github.io/blavaan/)).
+[blavaan](https://blavaan.org)).
 
 This vignette covers:
 
@@ -142,11 +142,11 @@ diagnostics.
 
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3841.139        0.000     7553.295       20.924        0.116 
+#>           21    -3841.139        0.000     7552.520       20.537        0.115 
 #>    BGammaHat adjBGammaHat          BMc     elpd_loo        p_loo        looic 
-#>        0.933        0.875        0.851    -3769.087       23.658     7538.174 
+#>        0.933        0.877        0.852    -3769.087       23.658     7538.174 
 #>       se_loo    elpd_waic       p_waic         waic      se_waic 
-#>       85.999    -3769.553       23.575     7539.106       85.875
+#>       85.999    -3769.024       23.595     7538.049       85.981
 ```
 
 ### Posterior distributions of fit indices
@@ -162,7 +162,7 @@ bfi
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc 
-#>        0.116        0.933        0.875        0.851
+#>        0.115        0.933        0.877        0.852
 ```
 
 Calling
@@ -177,10 +177,10 @@ summary(bfi)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.116 0.004 0.109 0.113 0.115 0.118  0.124 0.116
-#> BGammaHat    0.933 0.004 0.924 0.931 0.933 0.936  0.940 0.933
-#> adjBGammaHat 0.875 0.008 0.858 0.870 0.876 0.881  0.888 0.875
-#> BMc          0.851 0.010 0.831 0.845 0.852 0.858  0.867 0.851
+#> BRMSEA       0.115 0.004 0.108 0.112 0.114 0.117  0.123 0.114
+#> BGammaHat    0.933 0.004 0.924 0.931 0.934 0.936  0.940 0.934
+#> adjBGammaHat 0.877 0.007 0.860 0.873 0.878 0.883  0.890 0.878
+#> BMc          0.852 0.009 0.831 0.846 0.852 0.858  0.866 0.853
 ```
 
 You can also access the raw per-sample vectors for custom analysis:
@@ -224,13 +224,13 @@ Now pass the baseline model to `fitMeasures()` or
 
 fitMeasures(fit, baseline.model = fit_null)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3841.139        0.000     7553.295       20.924        0.115 
+#>           21    -3841.139        0.000     7552.520       20.537        0.115 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.933        0.875        0.852        0.894        0.842        0.873 
+#>        0.933        0.877        0.851        0.894        0.845        0.872 
 #>     elpd_loo        p_loo        looic       se_loo    elpd_waic       p_waic 
-#>    -3769.087       23.658     7538.174       85.999    -3769.553       23.575 
+#>    -3769.087       23.658     7538.174       85.999    -3769.024       23.595 
 #>         waic      se_waic 
-#>     7539.106       85.875
+#>     7538.049       85.981
 ```
 
 ``` r
@@ -241,13 +241,13 @@ summary(bfi_inc)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.116 0.004 0.109 0.113 0.115 0.118  0.124 0.114
-#> BGammaHat    0.933 0.004 0.924 0.931 0.934 0.936  0.940 0.935
-#> adjBGammaHat 0.875 0.008 0.857 0.870 0.876 0.881  0.888 0.878
-#> BMc          0.851 0.009 0.830 0.846 0.852 0.858  0.867 0.855
-#> BCFI         0.894 0.007 0.878 0.890 0.895 0.899  0.906 0.897
-#> BTLI         0.841 0.011 0.817 0.835 0.843 0.849  0.859 0.845
-#> BNFI         0.873 0.007 0.857 0.869 0.874 0.878  0.884 0.875
+#> BRMSEA       0.115 0.004 0.108 0.112 0.114 0.117  0.124 0.114
+#> BGammaHat    0.933 0.004 0.923 0.931 0.934 0.936  0.940 0.934
+#> adjBGammaHat 0.877 0.008 0.859 0.873 0.878 0.883  0.890 0.879
+#> BMc          0.851 0.009 0.830 0.846 0.853 0.858  0.867 0.854
+#> BCFI         0.894 0.007 0.877 0.890 0.895 0.899  0.906 0.896
+#> BTLI         0.845 0.011 0.820 0.839 0.846 0.852  0.862 0.847
+#> BNFI         0.872 0.007 0.856 0.869 0.874 0.877  0.884 0.874
 ```
 
 ## Rescaling: `"devM"` vs `"MCMC"`
@@ -265,10 +265,10 @@ summary(bfi_mcmc)
 #> Posterior summary of MCMC-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.128 0.004 0.122 0.125 0.127 0.130  0.136 0.126
-#> BGammaHat    0.920 0.004 0.910 0.918 0.921 0.923  0.927 0.922
-#> adjBGammaHat 0.850 0.008 0.832 0.845 0.851 0.856  0.863 0.853
-#> BMc          0.822 0.009 0.801 0.817 0.824 0.829  0.837 0.826
+#> BRMSEA       0.128 0.003 0.122 0.125 0.127 0.130  0.135 0.127
+#> BGammaHat    0.920 0.004 0.911 0.918 0.920 0.923  0.927 0.920
+#> adjBGammaHat 0.850 0.008 0.833 0.845 0.851 0.856  0.863 0.851
+#> BMc          0.823 0.009 0.803 0.817 0.823 0.829  0.837 0.823
 ```
 
 The two methods will generally produce different results, especially
@@ -278,7 +278,7 @@ $`q`$.
 ## Differences from blavaan
 
 INLAvaan’s Bayesian fit indices follow the same mathematical framework
-as [blavaan](https://ecmerkle.github.io/blavaan/) ([Merkle et al.
+as [blavaan](https://blavaan.org) ([Merkle et al.
 2021](#ref-merkle2021blavaan)), with a few implementation differences:
 
 | Feature | INLAvaan | blavaan |

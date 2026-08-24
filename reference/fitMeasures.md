@@ -109,7 +109,7 @@ fitMeasures(fit)
 #>    BGammaHat adjBGammaHat          BMc     elpd_loo        p_loo        looic 
 #>        0.933        0.876        0.852    -3769.452       24.047     7538.905 
 #>       se_loo    elpd_waic       p_waic         waic      se_waic 
-#>       85.970    -3768.924       22.516     7537.847       85.555 
+#>       85.970    -3769.389       23.984     7538.778       85.953 
 
 # Specific measures
 fitMeasures(fit, c("npar", "DIC", "pD", "ppp"))

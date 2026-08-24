@@ -35,7 +35,7 @@ in [INLAvaan](https://inlavaan.haziqj.ml/).
 library(INLAvaan)
 library(blavaan)
 #> Loading required package: Rcpp
-#> This is blavaan 0.5-10
+#> This is blavaan 0.6-1
 #> On multicore systems, we suggest use of future::plan("multicore") or
 #>   future::plan("multisession") for faster post-MCMC computations.
 set.seed(161)
@@ -66,24 +66,24 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [216ms]
+#> ✔ Posterior mode and Hessian. [191ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.378σ. [445ms]
+#> ✔ VB correction; mean |δ| = 0.378σ. [383ms]
 #> 
 #> ⠙ Fitting 0/10 skew-normal marginals.
-#> ✔ Fit 10/10 skew-normal marginals. [737ms]
+#> ✔ Fit 10/10 skew-normal marginals. [632ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [51ms]
+#> ✔ Adjust copula correlations (NORTA). [49ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.3s]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.1.9004 ended normally after 34 iterations
+#> INLAvaan 0.3.1.9005 ended normally after 34 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

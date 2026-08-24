@@ -108,8 +108,11 @@ An object of class `inlavaan_loo`: a list with elements
   LOSO, the cluster size for LOCO), `l_star` (unit log-likelihood at the
   summary), `score_norm`, `lpd_1`/`lpd_2` (pointwise log predictive
   density), `log_cpo_1`/`log_cpo_2` (pointwise LOO contributions),
-  `det_term`, `k_max`/`k_sum` (leverage diagnostics, see below), and
-  `ok` (whether the second-order \\\log \mathrm{CPO}\\ exists).
+  `det_term`, `k_max`/`k_min`/`k_sum` (leverage diagnostics, see below),
+  `k_ssq` (\\\mathrm{tr}\[(\Sigma H_u)^2\]\\, consumed by the
+  closed-form [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)
+  penalty), and `ok` (whether the second-order \\\log \mathrm{CPO}\\
+  exists).
 
 - `estimates`:
 
@@ -185,20 +188,26 @@ unaffected. This is noted when the result is printed and counted by
 the systematic bias the second-order lpd carries on the units that keep
 it, so flagging it would misdirect.
 
-Two curvature diagnostics accompany each unit. Writing the importance
-ratio between the unit-deleted and full posteriors as \\r(\theta)
-\propto 1 / p(y_u \mid \theta)\\, its moments satisfy \\E\[r^a\] \<
-\infty\\ exactly when \\a \< 1 / k_u\\, where \\k_u =
-\lambda\_{\max}(-\Sigma H_u)\\ is reported as `k_max`. It measures how
-much of the posterior precision the unit itself carries, so \\k_u \< 1\\
-is precisely the existence condition above (`k_max >= 1` iff `ok` is
-`FALSE`), and \\k_u\\ approaching 1 is the approach to a term that
-diverges. `k_sum` is \\\mathrm{tr}(-\Sigma H_u)\\, the unit's total
-leverage, which sums across units to the effective number of parameters.
-Both are obtained in closed form from the Laplace summary rather than
-estimated from draws, and are `NA` when the second-order term is not
-computed. No threshold is applied to either: existence is the only
-condition the package acts on.
+Two leverage diagnostics accompany each unit, both read from the
+spectrum of the same operator \\-\Sigma H_u\\, which measures the share
+of the posterior precision the unit itself carries. `k_max` is its
+largest eigenvalue \\k_u = \lambda\_{\max}(-\Sigma H_u)\\, the unit's
+precision share along its worst direction: \\k_u \< 1\\ is exactly the
+positive-definiteness condition above (`k_max >= 1` iff `ok` is
+`FALSE`), since \\k_u \ge 1\\ says the unit carries more information in
+some direction than the remaining data and the prior combined, and
+\\k_u\\ approaching 1 is the approach to a term that diverges. `k_sum`
+is \\\mathrm{tr}(-\Sigma H_u)\\, the unit's total leverage, which sums
+across units to the effective number of parameters – as hat-matrix
+leverages sum to the parameter count in regression, whose classical
+breakdown at leverage 1 reappears here as \\k_u \to 1\\. `k_min` is the
+other end of the same spectrum, and `k_min > -1` is the existence
+condition for the second-order \\\mathrm{lpd}\\ (it is also the only
+condition [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)
+carries). All are obtained in closed form from the Laplace summary
+rather than estimated from draws, and are `NA` when the second-order
+term is not computed. No threshold is applied to any of them: existence
+is the only condition the package acts on.
 
 The type is resolved automatically: per-cluster (`"loco"`) when the
 model was fitted with a `cluster` argument, per-subject (`"loso"`)
@@ -322,20 +331,20 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [183ms]
+#> ✔ Posterior mode and Hessian. [154ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [131ms]
+#> ✔ VB correction; mean |δ| = 0.146σ. [114ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [922ms]
+#> ✔ Fit 30/30 skew-normal marginals. [774ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [145ms]
+#> ✔ Adjust copula correlations (NORTA). [123ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.5s]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -357,13 +366,13 @@ head(res$per_unit)
 #> 4    4    1 -10.25020   2.575335 -10.23618 -10.28284 -10.26422 -10.31190
 #> 5    5    1 -10.70254   2.975327 -10.68907 -10.73622 -10.71601 -10.76423
 #> 6    6    1 -13.36953   4.983693 -13.30783 -13.39522 -13.43123 -13.52280
-#>      det_term      k_max      k_sum   ok
-#> 1 -0.04901313 0.03791128 0.09451823 TRUE
-#> 2 -0.07241546 0.05815582 0.14045868 TRUE
-#> 3 -0.09242052 0.04078153 0.18245465 TRUE
-#> 4 -0.04760200 0.02969115 0.09416514 TRUE
-#> 5 -0.04816499 0.03045524 0.09524358 TRUE
-#> 6 -0.08964209 0.06558472 0.17514510 TRUE
+#>      det_term      k_max        k_min      k_sum       k_ssq   ok
+#> 1 -0.04901313 0.03791128 -0.041054350 0.09451823 0.006994920 TRUE
+#> 2 -0.07241546 0.05815582 -0.048440777 0.14045868 0.008627710 TRUE
+#> 3 -0.09242052 0.04078153 -0.009471612 0.18245465 0.004686952 TRUE
+#> 4 -0.04760200 0.02969115 -0.010288753 0.09416514 0.002051371 TRUE
+#> 5 -0.04816499 0.03045524 -0.011195906 0.09524358 0.002144321 TRUE
+#> 6 -0.08964209 0.06558472 -0.022976720 0.17514510 0.008039260 TRUE
 
 # Score a submodel without refitting: condition the Laplace summary on the
 # visual ~~ speed covariance being zero, then evaluate at that summary
@@ -397,38 +406,31 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [874ms]
+#> ✔ Posterior mode and Hessian. [927ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.087σ. [458ms]
+#> ✔ VB correction; mean |δ| = 0.096σ. [406ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 1/34 skew-normal marginals.
-#> ⠸ Fitting 16/34 skew-normal marginals.
-#> ⠼ Fitting 31/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.8s]
+#> ⠹ Fitting 2/34 skew-normal marginals.
+#> ⠸ Fitting 19/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [135ms]
+#> ✔ Adjust copula correlations (NORTA). [133ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [54.2s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [7.9s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
-#> Warning: Fit diagnostics flagged 2 potential issues:
-#> ✖ The optimiser did not converge: iteration limit reached without convergence
-#>   (10).
-#> ✖ The gradient at the posterior mode is not zero (max |grad| = 0.399): a Newton
-#>   step would move `y1~~y1.l2` by 0.211 posterior SDs.
-#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 loo(fit2l)
 #> Leave-one-cluster-out cross-validation
 #> Computed from 200 clusters (second-order approximation)
 #> 
 #>          Estimate     SE
-#> elpd_loo -23344.2  731.4
-#> p_loo        34.2    2.0
-#> looic     46688.3 1462.9
+#> elpd_loo -23344.3  731.4
+#> p_loo        34.4    2.1
+#> looic     46688.5 1462.9
 # }
 ```

@@ -14,10 +14,10 @@ which rewards models that predict well and automatically penalises
 overfitting – making it a natural criterion for comparing models.
 
 Computed naively, LOO needs $`n`$ refits. MCMC-based packages such as
-[blavaan](https://ecmerkle.github.io/blavaan/) avoid this by
-importance-sampling over posterior draws ([Vehtari et al.
-2017](#ref-vehtari2017practical)), but this still requires the full set
-of MCMC draws. INLAvaan instead exploits its Laplace machinery:
+[blavaan](https://blavaan.org) avoid this by importance-sampling over
+posterior draws ([Vehtari et al. 2017](#ref-vehtari2017practical)), but
+this still requires the full set of MCMC draws. INLAvaan instead
+exploits its Laplace machinery:
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) approximates each
 case-deletion posterior by a Taylor expansion around the full-data
 posterior summary, so **the entire LOO is computed from a single fit** –
@@ -102,13 +102,13 @@ head(res$per_unit)
 #> 4    4    1 -10.25806   2.576577 -10.24387 -10.29030 -10.27225 -10.31970
 #> 5    5    1 -10.70333   2.968563 -10.68998 -10.73711 -10.71669 -10.76489
 #> 6    6    1 -13.41261   5.032849 -13.34949 -13.43705 -13.47572 -13.56755
-#>      det_term      k_max      k_sum   ok
-#> 1 -0.04818982 0.03748386 0.09285935 TRUE
-#> 2 -0.07305219 0.06026365 0.14150088 TRUE
-#> 3 -0.09161483 0.04104328 0.18085586 TRUE
-#> 4 -0.04736834 0.02929356 0.09371195 TRUE
-#> 5 -0.04815107 0.03046489 0.09521453 TRUE
-#> 6 -0.08981841 0.06652019 0.17540943 TRUE
+#>      det_term      k_max        k_min      k_sum       k_ssq   ok
+#> 1 -0.04818982 0.03748386 -0.041628485 0.09285935 0.007023244 TRUE
+#> 2 -0.07305219 0.06026365 -0.050175220 0.14150088 0.009081819 TRUE
+#> 3 -0.09161483 0.04104328 -0.009914234 0.18085586 0.004662021 TRUE
+#> 4 -0.04736834 0.02929356 -0.010315107 0.09371195 0.002023999 TRUE
+#> 5 -0.04815107 0.03046489 -0.011201348 0.09521453 0.002146654 TRUE
+#> 6 -0.08981841 0.06652019 -0.023561030 0.17540943 0.008207320 TRUE
 ```
 
 ## Comparing models
@@ -130,8 +130,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7535.006 29.495 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7756.447 26.621 -3878.134 46.800 27.516
+#>    fit   30   -3885.211    0.000 7534.466 29.225 -3769.109 42.945 32.433
+#>  fit1f   27   -3990.563 -105.352 7756.739 26.767 -3878.134 46.800 27.516
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -109.025  17.072
@@ -163,12 +163,6 @@ model2l <- "
 "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE, verbose = FALSE)
-#> Warning: Fit diagnostics flagged 2 potential issues:
-#> ✖ The optimiser did not converge: iteration limit reached without convergence
-#>   (10).
-#> ✖ The gradient at the posterior mode is not zero (max |grad| = 0.399): a Newton
-#>   step would move `y1~~y1.l2` by 0.211 posterior SDs.
-#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 
 loo(fit2l)
 #> Leave-one-cluster-out cross-validation
@@ -176,8 +170,8 @@ loo(fit2l)
 #> 
 #>          Estimate     SE
 #> elpd_loo -23344.2  731.4
-#> p_loo        34.3    2.0
-#> looic     46688.3 1462.9
+#> p_loo        34.5    2.1
+#> looic     46688.4 1462.9
 ```
 
 ## Exogenous covariates: joint and conditional scores
@@ -249,8 +243,8 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.892   0.000 7543.431 62.066 -3748.090 44.737 45.076
-#>  fit_cond1   29   -3903.093 -27.201 7568.213 30.061 -3787.678 43.881 38.271
+#>   fit_cond   32   -3875.892   0.000 7540.764 60.732 -3748.090 44.737 45.076
+#>  fit_cond1   29   -3903.093 -27.201 7569.269 30.588 -3787.678 43.881 38.271
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>    -39.587  10.261
@@ -305,28 +299,32 @@ fitMeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
 
 The widely applicable information criterion ([Watanabe
 2010](#ref-watanabe2010asymptotic)) is asymptotically equivalent to LOO
-and is also available. Unlike
+and is also available. Like
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
-[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) is
-sampling-based: it evaluates unit log-likelihoods over posterior draws,
-so results carry Monte Carlo error, and units with
-$`p_{\mathrm{waic},u} > 0.4`$ trigger a reliability warning – in which
-case prefer [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)
-([Vehtari et al. 2017](#ref-vehtari2017practical)).
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) is computed in
+closed form from the Laplace summary – the penalty is the variance of
+the unit log-likelihood under the Gaussian posterior, a polynomial in
+its moments – so it involves no posterior draws and carries no Monte
+Carlo error. At first order the two are identical
+($`\mathrm{lpd}^{(1)}_u - p^{(1)}_{\mathrm{waic},u} = \log \mathrm{CPO}^{(1)}_u`$
+exactly); at second order they differ by a curvature gap, with WAIC
+weakly optimistic relative to LOO. No reliability threshold is applied
+to $`p_{\mathrm{waic}}`$: being a polynomial in the posterior moments it
+is always finite, so the only condition the WAIC carries is the one its
+$`\mathrm{lpd}`$ term inherits – $`\Sigma^{-1} - H_u \succ 0`$,
+equivalently $`k_{\min} > -1`$ – and a unit failing it sends every
+estimate to first order, with a warning.
 
 ``` r
 
-set.seed(1)
 waic(fit)
 #> WAIC (INLAvaan)
-#> Computed from 1000 posterior draws and 301 subjects
+#> Computed from the Laplace summary over 301 subjects (second-order approximation)
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3769.2 43.0
-#> p_waic        32.2  2.1
-#> waic        7538.5 86.0
-#> 
-#> 9 units with p_waic > 0.4: the WAIC may be unreliable; prefer loo().
+#> elpd_waic  -3769.0 42.9
+#> p_waic        32.4  2.1
+#> waic        7538.1 85.9
 ```
 
 ## Scoring submodels without refitting

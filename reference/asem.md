@@ -57,9 +57,9 @@ asem(
   Character indicating which post-estimation quantities to compute.
   Defaults to "standard": posterior fit indices (PPP and DIC), plus –
   for models supported by the casewise machinery and fitted with a mean
-  structure – the WAIC (reusing the fit's posterior draws, when
-  `nsamp >= 100`) and a full leave-one-out cross-validation whenever its
-  predicted serial cost is within a 10-second budget; both are stored
+  structure – a full leave-one-out cross-validation whenever its
+  predicted serial cost is within a 10-second budget, with the WAIC
+  derived from the same computation at no extra cost; both are stored
   with the fit (see
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
   [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). "none"
@@ -128,7 +128,11 @@ asem(
 
 - control:
 
-  A list of control parameters for the optimiser.
+  A list of control parameters for the optimiser. For the default
+  `"nlminb"`, INLAvaan raises the stock iteration ceilings to
+  `iter.max = 1000` and `eval.max = 2000` (complex models can exhaust
+  [`nlminb()`](https://rdrr.io/r/stats/nlminb.html)'s own defaults of
+  150 and 200); any value supplied here overrides these.
 
 - verbose:
 
@@ -238,23 +242,23 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [260ms]
+#> ✔ Posterior mode and Hessian. [227ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.159σ. [304ms]
+#> ✔ VB correction; mean |δ| = 0.159σ. [263ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 26/28 skew-normal marginals.
+#> ⠹ Fitting 16/28 skew-normal marginals.
 #> ✔ Fit 28/28 skew-normal marginals. [2.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [249ms]
+#> ✔ Adjust copula correlations (NORTA). [212ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [355ms]
+#> ✔ Summarise 1000 posterior draws. [305ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.1.9004 ended normally after 82 iterations
+#> INLAvaan 0.3.1.9005 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

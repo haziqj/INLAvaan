@@ -118,20 +118,19 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [282ms]
+#> ✔ Posterior mode and Hessian. [287ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.055σ. [147ms]
+#> ✔ VB correction; mean |δ| = 0.055σ. [132ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [468ms]
+#> ✔ Fit 13/13 skew-normal marginals. [405ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [76ms]
+#> ✔ Adjust copula correlations (NORTA). [71ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing WAIC.
-#> ✔ Summarise 1000 posterior draws. [1.3s]
+#> ✔ Summarise 1000 posterior draws. [808ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 ```
@@ -193,7 +192,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.1.9004 ended normally after 64 iterations
+#> INLAvaan 0.3.1.9005 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -223,7 +222,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.1.9004 ended normally after 64 iterations
+#> INLAvaan 0.3.1.9005 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -396,7 +395,7 @@ fitmeasures(fit)
 #>    BGammaHat adjBGammaHat          BMc     elpd_loo        p_loo        looic 
 #>        0.989        0.970        0.983    -8021.957       13.040    16043.915 
 #>       se_loo    elpd_waic       p_waic         waic      se_waic 
-#>      107.965    -8022.060       13.087    16044.120      108.055
+#>      107.965    -8021.956       13.039    16043.913      107.965
 ```
 
 Definitions and worked examples are in the [Bayesian fit indices
@@ -433,7 +432,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 2.38 s
+#> 1.77 s
 ```
 
 ### Plot
@@ -467,19 +466,19 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [130ms]
+#> ✔ Posterior mode and Hessian. [133ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.036σ. [129ms]
+#> ✔ VB correction; mean |δ| = 0.036σ. [106ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [380ms]
+#> ✔ Fit 12/12 skew-normal marginals. [329ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [48ms]
+#> ✔ Adjust copula correlations (NORTA). [47ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.4s]
+#> ✔ Summarise 1000 posterior draws. [787ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 compare(fit, fit2)
@@ -501,12 +500,11 @@ applicable information criterion (WAIC, [Watanabe
 compare models on out-of-sample predictive accuracy instead; see Merkle
 et al. ([2019](#ref-merkle2019bayesian)) for their use with latent
 variable models. Both are implemented in
-[INLAvaan](https://inlavaan.haziqj.ml/). The function
-[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) requires neither
-refitting nor sampling, computing the statistic using a Taylor
-approximation of the case-deletion posterior, while
-[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) reuses the
-fit’s own posterior draws.
+[INLAvaan](https://inlavaan.haziqj.ml/). The functions
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) require neither
+refitting nor sampling: both are computed in closed form from the same
+Taylor expansion around the fit’s Laplace summary.
 
 ``` r
 
@@ -548,8 +546,8 @@ models, missing data, and scoring submodels without refitting.
 ## Setting priors
 
 The [INLAvaan](https://inlavaan.haziqj.ml/) package uses the same prior
-specification syntax as [blavaan](https://ecmerkle.github.io/blavaan/)
-([Merkle and Rosseel 2018](#ref-merkle2018blavaan); [Merkle et al.
+specification syntax as [blavaan](https://blavaan.org) ([Merkle and
+Rosseel 2018](#ref-merkle2018blavaan); [Merkle et al.
 2021](#ref-merkle2021efficient)), as detailed
 [here](https://blavaan.org/articles/prior.html). Essentially, there are
 two ways to set priors for model parameters: 1) Globally for all
@@ -558,7 +556,7 @@ coefficients, etc.); and 2) Individually for specific parameters in the
 model syntax.
 
 The default global priors are similar to those from
-[blavaan](https://ecmerkle.github.io/blavaan/):
+[blavaan](https://blavaan.org):
 
 ``` r
 

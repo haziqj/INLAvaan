@@ -41,26 +41,32 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [425ms]
+#> ✔ Posterior mode and Hessian. [400ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.223σ. [489ms]
+#> ✔ VB correction; mean |δ| = 0.223σ. [432ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 19/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.4s]
+#> ⠹ Fitting 23/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [303ms]
+#> ✔ Adjust copula correlations (NORTA). [270ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.5s]
+#> Warning: Reverting to first-order approximation.
+#> ℹ 1 of 35 units has no second-order lpd: 67.
+#> ℹ Its lpd integral does not converge (k_min at or below -1), so the
+#>   second-order elpd_waic does not exist over the scored units.
+#> ℹ The first-order WAIC reported instead equals the first-order `loo()` score
+#>   exactly.
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.1.9004 ended normally after 71 iterations
+#> INLAvaan 0.3.1.9005 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -96,15 +102,14 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [556ms]
+#> ✔ Posterior mode and Hessian. [479ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.194σ. [633ms]
+#> ✔ VB correction; mean |δ| = 0.194σ. [544ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 11/42 skew-normal marginals.
-#> ⠸ Fitting 29/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [5.1s]
+#> ⠹ Fitting 20/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [4.4s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -135,14 +140,14 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [311ms]
+#> ✔ Adjust copula correlations (NORTA). [266ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [2s]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 print(fit2)
-#> INLAvaan 0.3.1.9004 ended normally after 91 iterations
+#> INLAvaan 0.3.1.9005 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
