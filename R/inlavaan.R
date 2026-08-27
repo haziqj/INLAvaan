@@ -543,6 +543,7 @@ inlavaan <- function(
         break
       }
       vb_step <- as.numeric(Sigma_theta %*% vb_sc)
+      vb_step[fp_idx] <- 0
       vb_move <- max(abs(vb_step) / vb_sd)
       if (vb_move > vb_maxstep) {
         vb_fallback <- TRUE
@@ -569,6 +570,9 @@ inlavaan <- function(
         control = list(rel.tol = 1e-8)
       )
       vb_shift <- as.numeric(L %*% vb_nl$par)
+      # Under the fast path this block is independent of the rest, so imposing
+      # its known-zero optimum after the fact is exact.
+      vb_shift[fp_idx] <- 0
       vb_iter <- vb_nl$iterations
     }
 
