@@ -278,7 +278,6 @@ predict.inlavaan_internal <- function(
 
   theta_star <- object$theta_star
   Sigma_theta <- object$Sigma_theta
-  marginal_method <- object$marginal_method
   approx_data <- object$approx_data
   pt <- object$partable
   lavmodel <- object$lavmodel
@@ -321,14 +320,13 @@ predict.inlavaan_internal <- function(
   # the saturated means the fit conditions on), also for newdata.
   ybar_fit <- lapply(lavdata@X, colMeans)
 
-  samp <- sample_params(
-    theta_star = theta_star,
-    Sigma_theta = Sigma_theta,
-    method = marginal_method,
-    approx_data = approx_data,
-    pt = pt,
-    lavmodel = lavmodel,
-    nsamp = nsamp
+  # Draw exactly as the fit itself does: inherit the recorded `samp_copula`
+  # choice and pass the NORTA-adjusted correlation matrix, so the factor
+  # scores share a dependence structure with the fit's own draws.
+  samp <- sample_params_posterior(
+    object,
+    nsamp = nsamp,
+    samp_copula = object$samp_copula %||% TRUE
   )
   x_samp <- samp$x_samp
 

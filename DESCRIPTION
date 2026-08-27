@@ -41,7 +41,7 @@ Suggests:
     qrng,
     quarto,
     sn,
-    testthat (>= 3.0.0),
+    testthat (>= 3.2.0),
     ucminf
 VignetteBuilder: 
     quarto

@@ -2,6 +2,14 @@
 
 ## Bug fixes
 
+* `predict()` drew its parameter sample without the NORTA correlation
+  adjustment and ignored the `samp_copula` setting the model was fitted
+  with, so factor scores and predicted values came from a copula with a
+  different dependence structure than the fit's own posterior draws. It now
+  draws exactly as every other part of the package does: the stored
+  NORTA-adjusted correlation matrix is passed to the copula, and a fit made
+  with `samp_copula = FALSE` gets non-copula draws in `predict()` too.
+
 * `timing()` overstated the total: the lavaan-side setup stages were added on
   top of INLAvaan's own segments even though they already sit inside `init`,
   double-counting the whole lavaan setup (and silently summing the four

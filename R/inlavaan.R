@@ -1160,6 +1160,7 @@ inlavaan <- function(
     waic = waic_res,
     optim_method = optim_method,
     marginal_method = marginal_method,
+    samp_copula = samp_copula,
     theta_star_novbc = as.numeric(theta_star),
     theta_star = as.numeric(theta_star_vbc),
     Sigma_theta = Sigma_theta,
