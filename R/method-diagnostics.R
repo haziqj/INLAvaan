@@ -34,6 +34,11 @@
 #'   \item{\code{vb_applied}}{1 if VB correction was applied, 0 otherwise.}
 #'   \item{\code{kld_max}}{Maximum per-parameter KL divergence from the VB correction.}
 #'   \item{\code{kld_mean}}{Mean per-parameter KL divergence.}
+#'   \item{\code{vb_mcse_max}}{Maximum, across parameters, of the estimated
+#'     quadrature error of the VB shift, in posterior-SD units. See
+#'     \code{vb_mcse_sigma} below.}
+#'   \item{\code{vb_mcse_mean}}{Mean estimated quadrature error of the VB
+#'     shift, in posterior-SD units.}
 #'   \item{\code{nmad_max}}{Maximum normalised max-absolute-deviation across
 #'     marginals (skew-normal method only; NA otherwise).}
 #'   \item{\code{nmad_mean}}{Mean NMAD across marginals.}
@@ -56,6 +61,18 @@
 #'   \item{\code{kld}}{Per-parameter KL divergence from the VB correction.}
 #'   \item{\code{vb_shift}}{VB correction shift (in original scale).}
 #'   \item{\code{vb_shift_sigma}}{VB shift in units of posterior SD.}
+#'   \item{\code{vb_mcse_sigma}}{Estimated quadrature error of the VB shift, in
+#'     posterior-SD units. The shift is the solution of an integral evaluated by
+#'     quasi-Monte Carlo over a finite node set, so it carries an integration
+#'     error of its own. This estimates that error by splitting the node set in
+#'     half and taking half the disagreement between the two half-set solutions.
+#'     Read it as an error bar on \code{vb_shift_sigma}: a value of 0.05 means
+#'     the reported posterior mean of that parameter could move by roughly that
+#'     much, in SD units, purely from the choice of node set. It runs
+#'     conservative, because the two halves are negatively correlated and
+#'     quasi-Monte Carlo error falls faster than root-n. It is exactly zero for
+#'     parameters whose shift is pinned by the saturated-means fast path, since
+#'     no quadrature is used there.}
 #'   \item{\code{nmad}}{Normalised max-absolute-deviation of the skew-normal fit
 #'     (NA when not using the skewnorm method).}
 #' }
@@ -161,6 +178,9 @@ diagnostics_internal <- function(int) {
   vb_shift <- if (vb_applied) vb$correction else rep(NA_real_, m)
   vb_kld <- if (vb_applied) vb$kld else rep(NA_real_, m)
   vb_shift_sigma <- vb_shift / se_laplace
+  # Quadrature (Monte Carlo) error of the VB shift, in posterior-SD units.
+  vb_mcse <- if (vb_applied && !is.null(vb$mcse)) vb$mcse else rep(NA_real_, m)
+  vb_mcse_sigma <- vb_mcse / se_laplace
 
   # NMAD (skewnorm method only); approx_data may carry extra rows for
   # covariance/defined parameters, so keep the first m (marginal-scan) rows
@@ -190,6 +210,16 @@ diagnostics_internal <- function(int) {
     vb_kld_global = if (vb_applied) vb$kld_global else NA_real_,
     kld_max = if (all(is.na(vb_kld))) NA_real_ else max(vb_kld, na.rm = TRUE),
     kld_mean = if (all(is.na(vb_kld))) NA_real_ else mean(vb_kld, na.rm = TRUE),
+    vb_mcse_max = if (all(is.na(vb_mcse_sigma))) {
+      NA_real_
+    } else {
+      max(vb_mcse_sigma, na.rm = TRUE)
+    },
+    vb_mcse_mean = if (all(is.na(vb_mcse_sigma))) {
+      NA_real_
+    } else {
+      mean(vb_mcse_sigma, na.rm = TRUE)
+    },
     nmad_max = if (all(is.na(nmad))) NA_real_ else max(nmad, na.rm = TRUE),
     nmad_mean = if (all(is.na(nmad))) NA_real_ else mean(nmad, na.rm = TRUE)
   )
@@ -206,6 +236,7 @@ diagnostics_internal <- function(int) {
     kld = vb_kld,
     vb_shift = vb_shift,
     vb_shift_sigma = vb_shift_sigma,
+    vb_mcse_sigma = vb_mcse_sigma,
     nmad = nmad,
     row.names = NULL,
     stringsAsFactors = FALSE

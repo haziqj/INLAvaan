@@ -52,6 +52,11 @@ computed from \eqn{\Sigma_\theta}. Large values indicate near-singularity.}
 \item{\code{vb_applied}}{1 if VB correction was applied, 0 otherwise.}
 \item{\code{kld_max}}{Maximum per-parameter KL divergence from the VB correction.}
 \item{\code{kld_mean}}{Mean per-parameter KL divergence.}
+\item{\code{vb_mcse_max}}{Maximum, across parameters, of the estimated
+quadrature error of the VB shift, in posterior-SD units. See
+\code{vb_mcse_sigma} below.}
+\item{\code{vb_mcse_mean}}{Mean estimated quadrature error of the VB
+shift, in posterior-SD units.}
 \item{\code{nmad_max}}{Maximum normalised max-absolute-deviation across
 marginals (skew-normal method only; NA otherwise).}
 \item{\code{nmad_mean}}{Mean NMAD across marginals.}
@@ -74,6 +79,18 @@ posterior-SD units. Should be ~0 at convergence.}
 \item{\code{kld}}{Per-parameter KL divergence from the VB correction.}
 \item{\code{vb_shift}}{VB correction shift (in original scale).}
 \item{\code{vb_shift_sigma}}{VB shift in units of posterior SD.}
+\item{\code{vb_mcse_sigma}}{Estimated quadrature error of the VB shift, in
+posterior-SD units. The shift is the solution of an integral evaluated by
+quasi-Monte Carlo over a finite node set, so it carries an integration
+error of its own. This estimates that error by splitting the node set in
+half and taking half the disagreement between the two half-set solutions.
+Read it as an error bar on \code{vb_shift_sigma}: a value of 0.05 means
+the reported posterior mean of that parameter could move by roughly that
+much, in SD units, purely from the choice of node set. It runs
+conservative, because the two halves are negatively correlated and
+quasi-Monte Carlo error falls faster than root-n. It is exactly zero for
+parameters whose shift is pinned by the saturated-means fast path, since
+no quadrature is used there.}
 \item{\code{nmad}}{Normalised max-absolute-deviation of the skew-normal fit
 (NA when not using the skewnorm method).}
 }

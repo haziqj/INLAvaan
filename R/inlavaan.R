@@ -458,7 +458,7 @@ inlavaan <- function(
   timing <- add_timing(timing, "optim")
 
   ## ----- VB correction -------------------------------------------------------
-  vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- n_qmc <- NA
+  vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- n_qmc <- vb_mcse <- NA
   if (isTRUE(vb_correction)) {
     if (isTRUE(verbose)) {
       cli_progress_step(
@@ -502,16 +502,28 @@ inlavaan <- function(
       vb_ob_shift(as.numeric(L %*% delta), mu0, Z)
     }
 
-    # Mean score over the nodes, in the original parameter scale.
+    # Mean score over the nodes, in the original parameter scale. The two
+    # half-set means are kept as a side effect: their disagreement at the
+    # solution measures the quadrature error in the shift, and both halves are
+    # already computed here, so the estimate is free. Sobol points are nested,
+    # so the two halves are each a valid node set in their own right.
+    vb_nhalf <- floor(nrow(zs) / 2)
+    vb_gA <- vb_gB <- numeric(m)
     vb_score <- function(shift, mu0, Z) {
       mu_new <- mu0 + shift
       ns <- nrow(Z)
-      lpgrad_total <- numeric(length(mu0))
+      gA <- gB <- numeric(length(mu0))
       for (b in seq_len(ns)) {
         thetab <- mu_new + Z[b, , drop = TRUE]
-        lpgrad_total <- lpgrad_total + joint_lp_grad(thetab)
+        if (b <= vb_nhalf) {
+          gA <- gA + joint_lp_grad(thetab)
+        } else {
+          gB <- gB + joint_lp_grad(thetab)
+        }
       }
-      lpgrad_total / ns
+      vb_gA <<- gA / vb_nhalf
+      vb_gB <<- gB / (ns - vb_nhalf)
+      (gA + gB) / ns
     }
 
     vb_gr <- function(delta, mu0, Z) {
@@ -576,6 +588,13 @@ inlavaan <- function(
       vb_iter <- vb_nl$iterations
     }
 
+    # Quadrature error in the shift. With two half-sets the standard error of
+    # their mean is half their difference; a Newton step maps a score error
+    # into a shift error. QMC halves are negatively correlated and QMC error
+    # falls faster than root-n, so this errs on the conservative side.
+    vb_mcse <- abs(as.numeric(Sigma_theta %*% (vb_gA - vb_gB))) / 2
+    vb_mcse[fp_idx] <- 0
+
     vb_opt <- list(
       par = vb_shift,
       objective = vb_ob_shift(vb_shift, theta_star, zs),
@@ -591,6 +610,7 @@ inlavaan <- function(
     opt = vb_opt,
     n_qmc = n_qmc,
     correction = vb_shift,
+    mcse = vb_mcse,
     kld = vb_kld,
     kld_global = vb_kld_global
   )

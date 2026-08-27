@@ -33,6 +33,8 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
     "vb_kld_global",
     "kld_max",
     "kld_mean",
+    "vb_mcse_max",
+    "vb_mcse_mean",
     "nmad_max",
     "nmad_mean"
   )
