@@ -30,6 +30,14 @@
 #'   alone) to force the full LOO regardless of the budget.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
+#' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
+#'   correction. Defaults to `128`, which is the size of the stored Sobol
+#'   table; larger values require the \pkg{qrng} package. The correction solves
+#'   an integral over these nodes, so it carries an integration error that falls
+#'   as `n_qmc` rises. `diagnostics()` reports that error as `vb_mcse_sigma`
+#'   per parameter and `vb_mcse_max` globally, both in posterior-SD units, so
+#'   the setting can be checked rather than guessed. Ignored when
+#'   `vb_correction = FALSE`.
 #' @param marginal_method The method for approximating the marginal posterior
 #'   distributions. Options include `"skewnorm"` (skew-normal), `"asymgaus"`
 #'   (two-piece asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
@@ -122,6 +130,7 @@ inlavaan <- function(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
+  n_qmc = 128L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -458,7 +467,8 @@ inlavaan <- function(
   timing <- add_timing(timing, "optim")
 
   ## ----- VB correction -------------------------------------------------------
-  vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- n_qmc <- vb_mcse <- NA
+  vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- vb_mcse <- NA
+  vb_n_qmc <- NA_integer_
   if (isTRUE(vb_correction)) {
     if (isTRUE(verbose)) {
       cli_progress_step(
@@ -468,9 +478,18 @@ inlavaan <- function(
       )
     }
 
-    # QMC noise (scrambled Sobol); scale n with dimension
-    n_qmc <- min(100L, max(30L, m + 20L))
-    zs <- vb_nodes(n_qmc, L)
+    # QMC nodes (scrambled Sobol). The count is deliberately flat rather than
+    # scaled with m: the quadrature error is governed by the effective
+    # dimension and the smoothness of the integrand, not by m directly, and
+    # scaling down for small models simply starves them.
+    if (length(n_qmc) != 1L) {
+      cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
+    }
+    vb_n_qmc <- suppressWarnings(as.integer(n_qmc))
+    if (is.na(vb_n_qmc) || vb_n_qmc < 2L) {
+      cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
+    }
+    zs <- vb_nodes(vb_n_qmc, L)
 
     # Fixed-point solver settings; see the iteration below. Convergence is
     # judged on the step measured in the units the shift is reported in --
@@ -608,7 +627,7 @@ inlavaan <- function(
 
   vb <- list(
     opt = vb_opt,
-    n_qmc = n_qmc,
+    n_qmc = vb_n_qmc,
     correction = vb_shift,
     mcse = vb_mcse,
     kld = vb_kld,
@@ -1204,6 +1223,7 @@ acfa <- function(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
+  n_qmc = 128L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -1257,6 +1277,7 @@ asem <- function(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
+  n_qmc = 128L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -1308,6 +1329,7 @@ agrowth <- function(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
+  n_qmc = 128L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,

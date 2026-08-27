@@ -78,3 +78,36 @@ test_that("no VB correction means no quadrature error to report", {
   expect_true(is.na(diagnostics(fit, type = "global")[["vb_mcse_max"]]))
   expect_true(all(is.na(diagnostics(fit, type = "param")$vb_mcse_sigma)))
 })
+
+test_that("n_qmc sets the VB node count and is validated", {
+  mod <- "visual =~ x1 + x2 + x3"
+  fit_at <- function(n) {
+    invisible(capture.output(suppressMessages(
+      f <- inlavaan(
+        mod,
+        data = lavaan::HolzingerSwineford1939,
+        model.type = "cfa",
+        n_qmc = n,
+        marginal_method = "marggaus",
+        verbose = FALSE,
+        nsamp = 3,
+        test = "none",
+        debug = TRUE
+      )
+    )))
+    f
+  }
+
+  expect_equal(fit_at(128L)$vb$n_qmc, 128L)
+  expect_equal(fit_at(40L)$vb$n_qmc, 40L)
+
+  # More nodes must not make the quadrature error worse.
+  se <- sqrt(diag(fit_at(40L)$Sigma_theta))
+  expect_lt(
+    mean(fit_at(128L)$vb$mcse / se),
+    mean(fit_at(40L)$vb$mcse / se)
+  )
+
+  expect_error(fit_at(1L), "at least 2")
+  expect_error(fit_at(c(10L, 20L)), "single integer")
+})
