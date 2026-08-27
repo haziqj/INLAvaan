@@ -1,34 +1,24 @@
-test_that("sobol_owen returns correct dimensions from stored table", {
-  res <- sobol_owen(10, 5)
-  expect_true(is.matrix(res))
-  expect_equal(dim(res), c(10, 5))
+test_that("vb_nodes centres the QMC node set exactly", {
+  set.seed(123)
+  m <- 12
+  A <- matrix(rnorm(m * m), m)
+  L <- t(chol(crossprod(A) / m + diag(m)))
+
+  zs <- vb_nodes(40, L)
+
+  expect_equal(nrow(zs), 41)
+  expect_equal(ncol(zs), m)
+  expect_equal(zs[1, ], rep(0, m))
+  expect_equal(colMeans(zs), rep(0, m))
 })
 
-test_that("sobol_owen returns values in [0, 1]", {
-  res <- sobol_owen(50, 10)
-  expect_true(all(res >= 0 & res <= 1))
-})
+test_that("vb_nodes reproduces the target covariance up to node error", {
+  set.seed(123)
+  m <- 5
+  Sigma <- crossprod(matrix(rnorm(m * m), m)) / m + diag(m)
+  L <- t(chol(Sigma))
 
-test_that("sobol_owen with d = 1 returns a matrix (not a vector)", {
-  res <- sobol_owen(5, 1)
-  expect_true(is.matrix(res))
-  expect_equal(ncol(res), 1)
-})
+  zs <- vb_nodes(100, L)
 
-test_that("sobol_owen boundary: full stored table dimensions work", {
-  res <- sobol_owen(100, 300)
-  expect_equal(dim(res), c(100, 300))
+  expect_equal(crossprod(zs) / nrow(zs), Sigma, tolerance = 0.2)
 })
-
-# test_that("sobol_owen errors when exceeding stored table and qrng unavailable", {
-#   skip_if(requireNamespace("qrng", quietly = TRUE),
-#           "qrng is installed; cannot test the error path")
-#   expect_error(sobol_owen(200, 5))
-# })
-#
-# test_that("sobol_owen falls back to qrng for large requests", {
-#   skip_if_not_installed("qrng")
-#   res <- sobol_owen(200, 5)
-#   expect_true(is.matrix(res))
-#   expect_equal(dim(res), c(200, 5))
-# })

@@ -470,8 +470,7 @@ inlavaan <- function(
 
     # QMC noise (scrambled Sobol); scale n with dimension
     n_qmc <- min(100L, max(30L, m + 20L))
-    us <- sobol_owen(n = n_qmc, d = m)
-    zs <- rbind(0, qnorm(us) %*% t(L)) # Add 0 to "lock at" mode
+    zs <- vb_nodes(n_qmc, L)
 
     vb_ob <- function(delta, mu0, Z) {
       mu_new <- mu0 + as.numeric(L %*% delta)
