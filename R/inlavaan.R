@@ -472,8 +472,23 @@ inlavaan <- function(
     n_qmc <- min(100L, max(30L, m + 20L))
     zs <- vb_nodes(n_qmc, L)
 
-    vb_ob <- function(delta, mu0, Z) {
-      mu_new <- mu0 + as.numeric(L %*% delta)
+    # Fixed-point solver settings; see the iteration below. Convergence is
+    # judged on the step measured in the units the shift is reported in --
+    # posterior SDs -- rather than on the whitened step, so the tolerance is
+    # directly comparable to the size of correction that matters downstream.
+    vb_maxit <- 25L
+    vb_tol <- 1e-3
+    vb_sd <- sqrt(diag(Sigma_theta))
+    # Cap on how far a single step may travel, in posterior SDs. The step is a
+    # Newton step for a curvature of -H, which is only valid while the
+    # third-order remainder is small; on strongly skewed posteriors the first
+    # step can otherwise land outside the region where Sigma(theta) stays
+    # positive definite. Genuine shifts are a fraction of an SD, so this never
+    # binds on a well-behaved fit.
+    vb_maxstep <- 1
+
+    vb_ob_shift <- function(shift, mu0, Z) {
+      mu_new <- mu0 + shift
       ns <- nrow(Z)
       lp_total <- 0
       for (b in seq_len(ns)) {
@@ -483,28 +498,87 @@ inlavaan <- function(
       -1 * (lp_total / ns)
     }
 
-    vb_gr <- function(eta, mu0, Z) {
-      mu_new <- mu0 + as.numeric(L %*% eta)
+    vb_ob <- function(delta, mu0, Z) {
+      vb_ob_shift(as.numeric(L %*% delta), mu0, Z)
+    }
+
+    # Mean score over the nodes, in the original parameter scale.
+    vb_score <- function(shift, mu0, Z) {
+      mu_new <- mu0 + shift
       ns <- nrow(Z)
       lpgrad_total <- numeric(length(mu0))
       for (b in seq_len(ns)) {
         thetab <- mu_new + Z[b, , drop = TRUE]
         lpgrad_total <- lpgrad_total + joint_lp_grad(thetab)
       }
-      lpgrad_avg <- -1 * lpgrad_total / ns
-      as.numeric(t(L) %*% lpgrad_avg)
+      lpgrad_total / ns
     }
 
-    vb_opt <- nlminb(
-      start = rep(0, m),
-      objective = vb_ob,
-      gradient = vb_gr,
-      mu0 = theta_star,
-      Z = zs,
-      control = list(rel.tol = 1e-4)
+    vb_gr <- function(delta, mu0, Z) {
+      score <- vb_score(as.numeric(L %*% delta), mu0, Z)
+      as.numeric(t(L) %*% (-1 * score))
+    }
+
+    # Fast path: fixed-point iteration. Splitting the objective into its
+    # quadratic part and a remainder r, and using t(L) %*% H %*% L = I with
+    # centred nodes, stationarity reduces to
+    # shift = shift + Sigma_theta %*% E[grad log pi] -- the Newton step for a
+    # curvature of -H is one multiplication by Sigma_theta. Where r really is
+    # third-order small this contracts in a few iterations and needs no
+    # objective evaluations, which is where nlminb spent half its node sweeps
+    # while still stopping short of convergence at its default tolerance.
+    #
+    # That premise fails on strongly skewed posteriors, where the first step can
+    # overshoot the region in which Sigma(theta) stays positive definite. An
+    # oversized step or a non-finite score is taken as the signal, and the solve
+    # falls back to nlminb, whose line search handles those cases.
+    vb_shift <- numeric(m)
+    vb_iter <- 0L
+    vb_move <- Inf
+    vb_fallback <- FALSE
+    for (it in seq_len(vb_maxit)) {
+      vb_sc <- vb_score(vb_shift, theta_star, zs)
+      if (!all(is.finite(vb_sc))) {
+        vb_fallback <- TRUE
+        break
+      }
+      vb_step <- as.numeric(Sigma_theta %*% vb_sc)
+      vb_move <- max(abs(vb_step) / vb_sd)
+      if (vb_move > vb_maxstep) {
+        vb_fallback <- TRUE
+        break
+      }
+      vb_shift <- vb_shift + vb_step
+      vb_iter <- it
+      if (vb_move < vb_tol) {
+        break
+      }
+    }
+    if (vb_move >= vb_tol) {
+      vb_fallback <- TRUE
+    }
+
+    if (isTRUE(vb_fallback)) {
+      # Optimise in whitened coordinates, where the problem is well conditioned.
+      vb_nl <- nlminb(
+        start = numeric(m),
+        objective = vb_ob,
+        gradient = vb_gr,
+        mu0 = theta_star,
+        Z = zs,
+        control = list(rel.tol = 1e-8)
+      )
+      vb_shift <- as.numeric(L %*% vb_nl$par)
+      vb_iter <- vb_nl$iterations
+    }
+
+    vb_opt <- list(
+      par = vb_shift,
+      objective = vb_ob_shift(vb_shift, theta_star, zs),
+      iterations = vb_iter,
+      fallback = vb_fallback
     )
 
-    vb_shift <- as.numeric(L %*% vb_opt$par)
     vb_kld <- (vb_shift)^2 / (2 * diag(Sigma_theta))
     vb_kld_global <- lp_max + vb_opt$objective
   }
