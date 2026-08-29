@@ -59,8 +59,26 @@ $$
 \end{aligned}
 $$
 The headline `elpd_loo` is the sum of the second-order terms, with standard error $\sqrt{n \, \widehat{\mathrm{var}}(\log \mathrm{CPO}_u)}$, and `looic` $= -2\,\mathrm{elpd}_{\mathrm{loo}}$ on the familiar information-criterion scale.
-The effective number of parameters $p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)$ uses the analogous expansion of the full-posterior pointwise predictive density $\mathrm{lpd}_u$.
+`p_loo` $= \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)$ uses the analogous expansion of the full-posterior pointwise predictive density $\mathrm{lpd}_u$; this is the **loo** package's effective number of parameters, so it lines up with `loo::loo()`.
 The rare unit whose second-order curvature matrix is not positive definite falls back to first order (flagged in the output); a warning is raised if this happens for many units, since it suggests the Gaussian posterior summary itself is poor.
+
+### The curvature check
+
+"Effective number of parameters" names two different quantities, and it is worth keeping them apart.
+`p_loo` is the cross-product form of the information, $\operatorname{tr}(\Sigma \sum_u s_u s_u^\top)$ at first order; $p_D$, the effective number of parameters of the DIC, is the second-derivative form $\operatorname{tr}(-\Sigma \sum_u H_u)$.
+They agree at the true parameter by the information equality, so they share a limit, but that equality needs the model to be correct: in a finite sample the two differ, and `p_loo` typically runs the smaller of the two.
+
+The distinction earns its keep because the first- and second-order scores of a converged expansion differ by exactly $\tfrac12 p_D$.
+That gives a check on the Taylor truncation for free, and printing a LOO result reports it: the summed first-to-second-order gap, the reference $p_D/2$, and the signed excess of one over the other.
+The gap approaches $p_D/2$ *from above*, so a large positive excess says the second-order expansion has not settled over the sample as a whole.
+No threshold is applied --- the number is reported and the reading is left to you.
+
+The reference is the trace $p_D$ (`pd_trace`, the sum of the per-unit `k_sum`), not the sampled `pD` that `summary()` of a fit prints from the DIC.
+Both sides of the comparison are then read off the same Laplace summary, so they carry the same Laplace error and much of it cancels, leaving the truncation error the check is actually after.
+The trace route also survives `test = "none"`, carries no Monte Carlo error, and works on a `units` subset.
+
+For the same reason, keep `second_order = TRUE` (the default) whenever you intend to *compare* models.
+A first-order score overstates the elpd by $\tfrac12 p_D$ in the limit --- that is what the gap measures --- so the bias grows with the dimension of the model, and candidates of different size are not comparable on first-order scores.
 
 
 ## A first example

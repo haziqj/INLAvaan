@@ -232,7 +232,7 @@ INLAvaan's Bayesian fit indices follow the same mathematical framework as `{blav
 |:--------|:---------|:--------|
 | Posterior samples | INLA-based (Sobol/NORTA) | MCMC draws from Stan/JAGS |
 | Rescaling methods | `"devM"`, `"MCMC"` | `"devM"`, `"MCMC"`, `"ppmc"` |
-| Effective parameters ($p_D$) | DIC-based $p_D$ only | DIC-based $p_D$, LOOIC-based $p_{\text{loo}}$, or WAIC-based $p_{\text{waic}}$ |
+| Effective parameters ($p_D$)^[The three are not interchangeable. $p_D$ and $p_{\text{waic}}$ estimate the second-derivative form of the information, $p_{\text{loo}}$ the cross-product form; they share a limit but differ in a finite sample, and agree only if the model is correct. See `?loo`.] | DIC-based $p_D$ only | DIC-based $p_D$, LOOIC-based $p_{\text{loo}}$, or WAIC-based $p_{\text{waic}}$ |
 | HPD intervals | Not currently computed | Computed via `{coda}` |
 | Summary statistics | Mean, SD, 2.5%, 50%, 97.5%, Mode | EAP, Median, MAP, SD, HPD |
 | Return class | S3 `"bfit_indices"` | S4 `"blavFitIndices"` |

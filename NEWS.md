@@ -115,6 +115,28 @@
 
 ## Minor improvements and fixes
 
+* `loo()` no longer uses the name "effective number of parameters" for two
+  different quantities. `p_loo` keeps the **loo** package's definition and
+  stays in the `estimates` table; the sum of the per-unit `k_sum` is now named
+  for what it is, the trace form of the DIC's `p_D`, and is returned as
+  `pd_trace`. The two are the cross-product and second-derivative forms of the
+  same information matrix: they share a limit but differ in a finite sample,
+  and agree only if the model is correct. Printing a LOO result now also
+  reports the curvature check the two make possible — the summed
+  first-to-second-order gap (returned as `elpd_gap`), the reference `pD/2`,
+  and the signed excess between them, the gap approaching `pD/2` from above so
+  that a large excess says the second-order expansion has not settled. Nothing
+  is thresholded, as elsewhere in `loo()`. The documentation now also states
+  plainly that `second_order = FALSE` is for diagnostics and cost only: a
+  first-order score overstates the elpd by `pD/2` in the limit, a bias that
+  grows with model dimension, so candidates of different size are not
+  comparable on it.
+
+* `loo()` and `waic()` results print under a `cli` rule carrying the unit
+  count, the group count and the Taylor order, replacing the separate
+  "Computed from ..." line, and their notes now reflow to the console width.
+  `summary()` on either result is an alias for `print()`.
+
 * INLAvaan now requires lavaan >= 0.7-2. This retires the compatibility
   layer that supported both lavaan generations at once — the dual-name
   alias probing for renamed internals, the per-session resolution of
