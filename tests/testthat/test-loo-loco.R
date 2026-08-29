@@ -77,6 +77,37 @@ test_that("LOCO structure and internal identities", {
     2 * res$per_unit$l_star
   )
   expect_output(print(res), "Leave-one-cluster-out")
+})
+
+test_that("the curvature check is reported and printed", {
+  # The check compares the summed first-to-second-order gap against pD/2, both
+  # read off the same Laplace summary
+  expect_equal(res$pd_trace, sum(res$per_unit$k_sum))
+  expect_equal(res$elpd_gap, res$elpd_1 - res$elpd_2)
+
+  # Pin the width so the cli rules and the reflowed note render the same way
+  # whatever console the tests run on
+  old_opt <- options(cli.width = 100)
+  on.exit(options(old_opt), add = TRUE)
+
+  expect_output(print(res), "Curvature check")
+  expect_output(print(res), "pD/2 \\(trace\\)")
+  expect_output(print(res), "excess over pD/2")
+  # summary() is an alias for print(), not a different view
+  expect_identical(capture.output(print(res)), capture.output(summary(res)))
+
+  # At first order there is no second-order score to take a gap against, so
+  # both scalars are NA and the block is skipped entirely
+  res_fo <- loo(fit, second_order = FALSE)
+  expect_true(is.na(res_fo$pd_trace))
+  expect_true(is.na(res_fo$elpd_gap))
+  expect_false(any(grepl("Curvature check", capture.output(print(res_fo)))))
+
+  # A units subset sums both sides over the same units, so the check still
+  # holds while the totals are partial
+  res_sub <- loo(fit, units = 1:2)
+  expect_equal(res_sub$pd_trace, sum(res_sub$per_unit$k_sum))
+  expect_lt(res_sub$pd_trace, res$pd_trace)
 
   # Sum of cluster logliks equals the model loglik at the mode
   int <- get_inlavaan_internal(fit)

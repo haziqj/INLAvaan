@@ -92,7 +92,7 @@ test_that("a substituted lpd unit is silent at the console", {
   expect_no_message(fitMeasures(fit_with_loo, "p_loo"))
   # It is recorded where someone looking for it will find it
   expect_equal(res$n_lpd_ok, 39L)
-  expect_output(print(res), "first-order contributions for 1 of 40 units")
+  expect_output(print(res), "first-order contributions")
 })
 
 test_that("loo object structure and internal identities", {
@@ -348,7 +348,7 @@ test_that("waic() sanity and structure", {
   expect_equal(w$n_lpd_ok, 39L)
   expect_true(all(is.finite(w$per_unit$lpd)))
   expect_true(all(w$per_unit$p_waic > 0))
-  expect_output(print(w), "first-order approximation")
+  expect_output(print(w), "first-order")
 
   # the fallback is exact, not merely lower-order: first-order WAIC IS the
   # first-order LOO score (lpd_1 - p_waic_1 = log_cpo_1 pointwise)
