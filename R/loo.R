@@ -251,7 +251,12 @@ loso_loglik_all <- function(Y, mom) {
 mvn_scores_rows <- function(Y, mu, Sigma) {
   n <- nrow(Y)
   Yc <- if (n == 1L) rbind(Y, Y) else Y
-  sc <- lavaan___lav_mvn_sc_mu_sigma(y = Yc, wt = NULL, mu = mu, sigma_1 = Sigma)
+  sc <- lavaan___lav_mvn_sc_mu_sigma(
+    y = Yc,
+    wt = NULL,
+    mu = mu,
+    sigma_1 = Sigma
+  )
   if (n == 1L) sc[1L, , drop = FALSE] else sc
 }
 
@@ -1454,6 +1459,14 @@ inlav_loo <- function(
   )
   rownames(estimates) <- c("elpd_loo", "p_loo", "looic")
 
+  # The summed first-to-second-order gap, and the trace form of p_D against
+  # which it is checked: sum_u (log CPO_u^(1) - log CPO_u^(2)) = tr(Omega* I)/2
+  # + O(J^-1), the curvature correction the expansion makes over the sample.
+  # Both are NA when the Hessian stage is skipped, since k_sum is then NA for
+  # every unit and elpd_2 does not exist.
+  pd_trace <- sum(per_unit$k_sum)
+  elpd_gap <- elpd_1 - elpd_2
+
   structure(
     list(
       per_unit = per_unit,
@@ -1464,6 +1477,8 @@ inlav_loo <- function(
       se_2 = se_2,
       p_loo_1 = p_loo_1,
       p_loo_2 = p_loo_2,
+      pd_trace = pd_trace,
+      elpd_gap = elpd_gap,
       type = type,
       flavour = flavour,
       n_units = n_units,
