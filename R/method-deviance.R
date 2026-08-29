@@ -25,6 +25,12 @@
 #' [compare()] to compare models by DIC (or Bayes factors, or LOO/WAIC)
 #' rather than comparing raw deviances directly.
 #'
+#' This \eqn{p_D} is estimated from the posterior draws. [loo()] reaches the
+#' same quantity in closed form as `pd_trace`, the trace
+#' \eqn{\mathrm{tr}(\Sigma \mathcal{I})}; the two routes estimate one target
+#' but do not agree exactly in a finite sample. Neither is `p_loo`, which
+#' estimates something else entirely (see [loo()]).
+#'
 #' @seealso [logLik()], [compare()]
 #'
 #' @examples
@@ -67,9 +73,13 @@ deviance.INLAvaan <- function(object, type = c("mean", "plugin"), ...) {
 print.inlavaan_deviance <- function(x, digits = 3L, ...) {
   cat(sprintf("Deviance: %s\n", format(round(unclass(x), digits))))
   cat(col_grey(paste0(
-    "# ", symbol$info,
-    " pD = ", format(round(attr(x, "pD"), digits)),
-    ", DIC = ", format(round(attr(x, "DIC"), digits)), "\n"
+    "# ",
+    symbol$info,
+    " pD = ",
+    format(round(attr(x, "pD"), digits)),
+    ", DIC = ",
+    format(round(attr(x, "DIC"), digits)),
+    "\n"
   )))
   invisible(x)
 }

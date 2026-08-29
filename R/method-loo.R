@@ -19,10 +19,13 @@
 #' The reported `elpd_loo` is the sum of the second-order terms (first-order
 #' when `second_order = FALSE`), with standard error
 #' \eqn{\sqrt{n \, \mathrm{var}(\log \mathrm{CPO}_u)}} and
-#' `looic` \eqn{= -2 \, \mathrm{elpd}}. The effective number of parameters is
+#' `looic` \eqn{= -2 \, \mathrm{elpd}}. `p_loo` is the **loo** package's
+#' effective number of parameters,
 #' \eqn{p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)},
 #' where \eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
-#' full-posterior pointwise log predictive density.
+#' full-posterior pointwise log predictive density; the same definition
+#' `loo::loo()` reports, so the two are directly comparable. It is *not* the
+#' \eqn{p_D} of the DIC -- see *Two effective parameter counts* below.
 #'
 #' **Existence.** The second-order terms are Gaussian integrals that need not
 #' converge. \eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when
@@ -63,15 +66,54 @@
 #' direction than the remaining data and the prior combined, and
 #' \eqn{k_u} approaching 1 is the approach to a term that diverges. `k_sum`
 #' is \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's total leverage, which sums
-#' across units to the effective number of parameters -- as hat-matrix
-#' leverages sum to the parameter count in regression, whose classical
-#' breakdown at leverage 1 reappears here as \eqn{k_u \to 1}. `k_min` is the
+#' across units to \eqn{\mathrm{tr}(\Sigma \mathcal{I})} with
+#' \eqn{\mathcal{I} = \sum_u (-H_u)}, the trace form
+#' of \eqn{p_D} (the closed-form counterpart of the `pD` that [summary()]
+#' prints from the DIC) -- as hat-matrix leverages sum to the parameter count
+#' in regression, whose classical breakdown at leverage 1 reappears here as
+#' \eqn{k_u \to 1}. `k_min` is the
 #' other end of the same spectrum, and `k_min > -1` is the existence
 #' condition for the second-order \eqn{\mathrm{lpd}} (it is also the only
 #' condition [waic()] carries). All are obtained in closed form from the
 #' Laplace summary rather than estimated from draws, and are `NA` when the
 #' second-order term is not computed. No threshold is applied to any of
 #' them: existence is the only condition the package acts on.
+#'
+#' **Two effective parameter counts.** `p_loo` and \eqn{p_D} are two different
+#' quantities, and the name "effective number of parameters" belongs to both.
+#' They are the two usual forms of the information matrix: at first order
+#' `p_loo` is \eqn{\mathrm{tr}(\Sigma \sum_u s_u s_u^\top)}, the
+#' cross-product form, while \eqn{p_D = \mathrm{tr}(-\Sigma \sum_u H_u)} is
+#' the second-derivative form -- lavaan draws the same line with
+#' `information = "first.order"` versus `"observed"`. The information equality
+#' makes them agree at the true parameter, so they share a limit, but it holds
+#' only under correct specification: in a finite sample, or under
+#' misspecification, they differ.
+#'
+#' This matters because the first- and second-order scores of a *correct*
+#' expansion differ by \eqn{\tfrac12 p_D}, which gives a check on the
+#' truncation at no extra cost. Printing a LOO result reports it: the summed
+#' first-to-second-order gap (`elpd_gap`), the reference \eqn{p_D/2}, and the
+#' signed excess of the first over the second. The gap approaches
+#' \eqn{p_D / 2} from above, so a large excess says the second-order expansion
+#' has not settled over the sample. Nothing is thresholded; as with the
+#' leverages, the number is reported and the reading is left to the user.
+#'
+#' The check uses the *trace* route to \eqn{p_D} (`pd_trace`, the sum of
+#' `k_sum`) rather than the sampled `pD` of the DIC. Both sides of the
+#' comparison are then read off the same Laplace summary, so they carry the
+#' same Laplace error and much of it cancels, leaving the truncation error the
+#' check is after; the trace is also available under `test = "none"`, carries
+#' no Monte Carlo error, and survives a `units` subset. The two routes to
+#' \eqn{p_D} do not agree exactly in a finite sample, which is why the printed
+#' label says `pD/2 (trace)`.
+#'
+#' **Keep `second_order = TRUE` for model comparison.** The first-order elpd
+#' overstates the true elpd by \eqn{\tfrac12 p_D} in the limit -- that is the
+#' content of the gap above -- so a first-order score carries a bias that grows
+#' with the dimension of the model. Candidates of different size are therefore
+#' *not* comparable on first-order scores, and `second_order = FALSE` is for
+#' diagnostics and for cost, never for choosing between models.
 #'
 #' The type is resolved automatically: per-cluster (`"loco"`) when the model
 #' was fitted with a `cluster` argument, per-subject (`"loso"`) otherwise.
@@ -184,7 +226,10 @@
 #'   its case number); for LOCO, cluster positions.
 #' @param second_order Logical; compute the second-order correction
 #'   (default `TRUE`). `FALSE` skips the Hessian stage entirely and reports
-#'   first-order estimates.
+#'   first-order estimates, which overstate the elpd by \eqn{\tfrac12 p_D} in
+#'   the limit and so cannot be compared across models of different dimension
+#'   (see Details). Use it for diagnostics or to save the Hessian stage, not
+#'   for model comparison.
 #' @param theta,Sigma Optional posterior mean vector and covariance matrix
 #'   (in the unconstrained parameter space, as stored in `theta_star` and
 #'   `Sigma_theta`) at which to evaluate the LOO instead of the fit's own
@@ -213,6 +258,13 @@
 #'       takes a unit's first-order difference where its
 #'       \eqn{\mathrm{lpd}^{(2)}} does not exist. The second-order ones are
 #'       `NA` when any \eqn{\log \mathrm{CPO}_u^{(2)}} does not exist.}
+#'     \item{`elpd_gap`, `pd_trace`}{The two sides of the curvature check:
+#'       the summed first-to-second-order gap \eqn{\mathrm{elpd}_1 -
+#'       \mathrm{elpd}_2}, and \eqn{p_D = \mathrm{tr}(\Sigma \mathcal{I})},
+#'       the sum of `k_sum`, against which it is compared as \eqn{p_D / 2}
+#'       (see Details). Both are `NA` at first order. Both sum over the units
+#'       actually scored, so a `units` subset gives partial totals -- their
+#'       ratio still holds, but neither value is then the model's.}
 #'     \item{`type`, `flavour`, `n_units`, `n_groups`, `n_ok`, `n_lpd_ok`,
 #'       `second_order`, `use_second`, `theta_overridden`}{Metadata; `n_ok`
 #'       and `n_lpd_ok` count the units whose second-order
@@ -299,7 +351,10 @@ loo.inlavaan_internal <- function(
 }
 
 #' @rdname loo
-#' @param object A fitted [INLAvaan] object.
+#' @param object A fitted [INLAvaan] object, or an `inlavaan_loo` result for
+#'   `summary()`.
+#' @returns `summary()` is an alias for `print()`: it prints the same output
+#'   and returns the result invisibly.
 #' @returns `add_loo()` returns a copy of `object` with the LOO result
 #'   stored alongside the fit (the input object is unchanged); reassign it,
 #'   e.g. `fit <- add_loo(fit)`. Only the default LOO is stored, so the
@@ -314,6 +369,7 @@ add_loo <- function(object, cores = NULL, verbose = FALSE) {
   object
 }
 
+#' @rdname loo
 #' @exportS3Method print inlavaan_loo
 print.inlavaan_loo <- function(x, ...) {
   label <- switch(
@@ -322,41 +378,97 @@ print.inlavaan_loo <- function(x, ...) {
     loco = "Leave-one-cluster-out"
   )
   unit_word <- switch(x$type, loso = "subject", loco = "cluster")
-  order_lab <- if (isTRUE(x$use_second)) "second-order" else "first-order"
-  cat(label, " cross-validation\n", sep = "")
-  cat(
-    "Computed from ",
-    x$n_units,
-    " ",
-    unit_word,
-    if (x$n_units != 1L) "s",
-    if (!is.null(x$n_groups) && x$n_groups > 1L) {
-      paste0(" in ", x$n_groups, " groups")
-    },
-    " (",
-    order_lab,
-    " approximation)\n",
-    sep = ""
-  )
+  loo_cat_rule(label, loo_rule_label(x, unit_word))
   cat("\n")
   print(round(x$estimates, 1))
-  # A missing log CPO term already warned at computation time, and the header
+  # A missing log CPO term already warned at computation time, and the rule
   # above records the order, so repeating it here would only duplicate. The
   # lpd substitution has no warning, so this is the only place it is said.
   if (isTRUE(x$use_second) && x$n_lpd_ok < x$n_units) {
     n <- x$n_units
     n_bad <- n - x$n_lpd_ok
-    cat(
-      "\n",
-      pluralize(
-        "p_loo uses first-order contributions for {n_bad} of {n} units"
-      ),
-      "\nwith no second-order lpd; elpd_loo and looic are unaffected.\n",
-      sep = ""
-    )
+    cat("\n")
+    loo_cat_note(pluralize(
+      "p_loo uses first-order contributions for {n_bad} of {n} units with no
+       second-order lpd; elpd_loo and looic are unaffected."
+    ))
   }
   if (isTRUE(x$theta_overridden)) {
-    cat("\nEvaluated at a user-supplied (theta, Sigma) summary.\n")
+    cat("\n")
+    loo_cat_note("Evaluated at a user-supplied (theta, Sigma) summary.")
   }
+  loo_print_curvature(x, unit_word)
   invisible(x)
+}
+
+#' @rdname loo
+#' @method summary inlavaan_loo
+#' @exportS3Method summary inlavaan_loo
+summary.inlavaan_loo <- function(object, ...) {
+  print(object, ...)
+}
+
+# Rule header and grey note, on stdout. cli's cli_rule()/cli_alert_info()
+# signal a condition that the default handler writes to stderr, which a print
+# method must not do (and which capture.output()/expect_output() would miss),
+# so the string-returning rule() and format_message() are used and cat() picks
+# the connection. format_message() still reflows to the console width.
+loo_cat_rule <- function(left, right) {
+  cat(rule(left = left, right = right), "\n", sep = "")
+}
+
+loo_cat_note <- function(text) {
+  writeLines(col_grey(format_message(c("i" = text))))
+}
+
+# Right-hand label of a rule header: how many units the result covers, in how
+# many groups, and at which Taylor order. Shared by the LOO and WAIC prints.
+# qty(n) is needed because the length-1 unit_word would otherwise set the
+# quantity that {?s} reads.
+loo_rule_label <- function(x, unit_word) {
+  n <- x$n_units
+  paste0(
+    pluralize("{n} {unit_word}{qty(n)}{?s}"),
+    if (!is.null(x$n_groups) && x$n_groups > 1L) {
+      paste0(" in ", x$n_groups, " groups")
+    },
+    ", ",
+    if (isTRUE(x$use_second)) "second-order" else "first-order"
+  )
+}
+
+# The curvature check: the summed first-to-second-order gap against pD/2, the
+# limit it approaches from above. Both sides are read off the same Laplace
+# summary, so they carry the same Laplace error and much of it cancels, leaving
+# the truncation error the check is after -- which is why the trace route to
+# p_D is used here rather than the sampled pD that summary() prints. Nothing is
+# thresholded: as everywhere else in loo(), existence is the only condition the
+# package acts on, so the excess is reported and the reading is left to the
+# user.
+loo_print_curvature <- function(x, unit_word) {
+  gap <- x$elpd_gap %||% NA_real_
+  pd_trace <- x$pd_trace %||% NA_real_
+  if (!isTRUE(x$use_second) || !is.finite(gap) || !is.finite(pd_trace)) {
+    return(invisible(NULL))
+  }
+  n <- x$n_units
+  cat("\n")
+  loo_cat_rule("Curvature check", pluralize("{n} {unit_word}{qty(n)}{?s}"))
+  row <- function(lab, val) cat(sprintf("  %-27s %9s\n", lab, val))
+  row("first-to-second-order gap", sprintf("%.1f", gap))
+  row("pD/2 (trace)", sprintf("%.1f", pd_trace / 2))
+  # A non-positive trace has no scale to take an excess against; the two totals
+  # still say what they say.
+  if (pd_trace > 0) {
+    row(
+      "excess over pD/2 (trace)",
+      sprintf("%+.1f%%", 100 * (gap / (pd_trace / 2) - 1))
+    )
+    cat("\n")
+    loo_cat_note(
+      "The gap approaches pD/2 (trace) from above. A large excess says the
+       second-order expansion has not settled over the sample."
+    )
+  }
+  invisible(NULL)
 }

@@ -36,6 +36,12 @@ Information Criterion, \eqn{DIC = \bar{D} + p_D} where
 \eqn{p_D = \bar{D} - \hat{D}} is the effective number of parameters. Use
 \code{\link[=compare]{compare()}} to compare models by DIC (or Bayes factors, or LOO/WAIC)
 rather than comparing raw deviances directly.
+
+This \eqn{p_D} is estimated from the posterior draws. \code{\link[=loo]{loo()}} reaches the
+same quantity in closed form as \code{pd_trace}, the trace
+\eqn{\mathrm{tr}(\Sigma \mathcal{I})}; the two routes estimate one target
+but do not agree exactly in a finite sample. Neither is \code{p_loo}, which
+estimates something else entirely (see \code{\link[=loo]{loo()}}).
 }
 \examples{
 \donttest{

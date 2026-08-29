@@ -4,6 +4,8 @@
 \alias{waic}
 \alias{waic.INLAvaan}
 \alias{waic.inlavaan_internal}
+\alias{print.inlavaan_waic}
+\alias{summary.inlavaan_waic}
 \title{Widely Applicable Information Criterion for INLAvaan Models}
 \usage{
 waic(x, ...)
@@ -27,6 +29,10 @@ waic(x, ...)
   verbose = FALSE,
   ...
 )
+
+\method{print}{inlavaan_waic}(x, ...)
+
+\method{summary}{inlavaan_waic}(object, ...)
 }
 \arguments{
 \item{x}{A fitted \link{INLAvaan} object (or its \code{inlavaan_internal} list).}
@@ -44,13 +50,17 @@ to all units.}
 
 \item{second_order}{Logical; include the second-order (Hessian) terms
 (default \code{TRUE}). \code{FALSE} gives the first-order WAIC, which equals the
-first-order LOO exactly.}
+first-order LOO exactly -- and inherits its bias: a first-order score
+overstates the elpd by \eqn{\tfrac12 p_D} in the limit, so candidates of
+different dimension cannot be compared on it (see \code{\link[=loo]{loo()}}).}
 
 \item{cores}{Number of cores for differentiating the unit scores. The
 default \code{NULL} runs serially; parallelism must be requested
 explicitly.}
 
 \item{verbose}{Logical; print progress (default \code{FALSE}).}
+
+\item{object}{A fitted \link{INLAvaan} object, or an \code{inlavaan_waic} result.}
 }
 \value{
 An object of class \code{inlavaan_waic}: a list with \code{per_unit}
@@ -59,7 +69,8 @@ identification as \code{\link[=loo]{loo()}}), \code{estimates} (matrix with rows
 \code{elpd_waic}, \code{p_waic}, \code{waic} and columns \code{Estimate}, \code{SE}), \code{type},
 \code{flavour}, \code{n_units}, \code{n_groups}, \code{n_lpd_ok} (units whose second-order
 lpd exists), \code{second_order} (whether it was requested) and
-\code{use_second} (whether it was used).
+\code{use_second} (whether it was used). \code{summary()} is an alias for
+\code{print()}: it prints the same output and returns the result invisibly.
 }
 \description{
 Computes the WAIC of a fitted \link{INLAvaan} model in closed form from the

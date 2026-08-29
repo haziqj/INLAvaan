@@ -75,7 +75,9 @@
 #'   to all units.
 #' @param second_order Logical; include the second-order (Hessian) terms
 #'   (default `TRUE`). `FALSE` gives the first-order WAIC, which equals the
-#'   first-order LOO exactly.
+#'   first-order LOO exactly -- and inherits its bias: a first-order score
+#'   overstates the elpd by \eqn{\tfrac12 p_D} in the limit, so candidates of
+#'   different dimension cannot be compared on it (see [loo()]).
 #' @param cores Number of cores for differentiating the unit scores. The
 #'   default `NULL` runs serially; parallelism must be requested
 #'   explicitly.
@@ -88,7 +90,8 @@
 #'   `elpd_waic`, `p_waic`, `waic` and columns `Estimate`, `SE`), `type`,
 #'   `flavour`, `n_units`, `n_groups`, `n_lpd_ok` (units whose second-order
 #'   lpd exists), `second_order` (whether it was requested) and
-#'   `use_second` (whether it was used).
+#'   `use_second` (whether it was used). `summary()` is an alias for
+#'   `print()`: it prints the same output and returns the result invisibly.
 #'
 #' @seealso [loo()], [fitmeasures()]
 #'
@@ -174,28 +177,22 @@ waic.inlavaan_internal <- function(
   )
 }
 
+#' @rdname waic
 #' @exportS3Method print inlavaan_waic
 print.inlavaan_waic <- function(x, ...) {
   unit_word <- switch(x$type, loso = "subject", loco = "cluster")
-  order_lab <- if (isTRUE(x$use_second)) "second-order" else "first-order"
-  cat("WAIC (INLAvaan)\n")
-  cat(
-    "Computed from the Laplace summary over ",
-    x$n_units,
-    " ",
-    unit_word,
-    if (x$n_units != 1L) "s",
-    if (!is.null(x$n_groups) && x$n_groups > 1L) {
-      paste0(" in ", x$n_groups, " groups")
-    },
-    " (",
-    order_lab,
-    " approximation)\n",
-    sep = ""
-  )
+  loo_cat_rule("WAIC from the Laplace summary", loo_rule_label(x, unit_word))
   cat("\n")
   print(round(x$estimates, 1))
-  # A failed lpd term already warned at computation time and the header
-  # above records the order actually used, so nothing is repeated here.
+  # A failed lpd term already warned at computation time and the rule above
+  # records the order actually used, so nothing is repeated here.
   invisible(x)
+}
+
+#' @rdname waic
+#' @param object A fitted [INLAvaan] object, or an `inlavaan_waic` result.
+#' @method summary inlavaan_waic
+#' @exportS3Method summary inlavaan_waic
+summary.inlavaan_waic <- function(object, ...) {
+  print(object, ...)
 }
