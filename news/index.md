@@ -4,6 +4,16 @@
 
 ### Bug fixes
 
+- [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) drew
+  its parameter sample without the NORTA correlation adjustment and
+  ignored the `samp_copula` setting the model was fitted with, so factor
+  scores and predicted values came from a copula with a different
+  dependence structure than the fit’s own posterior draws. It now draws
+  exactly as every other part of the package does: the stored
+  NORTA-adjusted correlation matrix is passed to the copula, and a fit
+  made with `samp_copula = FALSE` gets non-copula draws in
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) too.
+
 - [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)
   overstated the total: the lavaan-side setup stages were added on top
   of INLAvaan’s own segments even though they already sit inside `init`,
@@ -62,6 +72,20 @@
 
 ### New features
 
+- [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) gains
+  `cov_as_cor`. Residual and latent-disturbance covariance parameters
+  (`theta_cov`/`psi_cov`) are always estimated on the correlation scale
+  internally (an `atanh` link); by default the reported marginal is then
+  re-derived on the covariance scale from a posterior sample, because
+  that is what lavaan/blavaan report natively. `cov_as_cor = TRUE` skips
+  that re-derivation and reports each parameter’s own directly profiled
+  correlation-scale marginal instead (relabelling it
+  `theta_cor`/`psi_cor` in the returned partable to match) — useful for
+  comparing the profiling machinery itself against a correlation-scale
+  reference without the sampling/copula step in between. Model
+  estimation (mode, Hessian, all other parameters) is identical either
+  way.
+
 - [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) is now
   deterministic: both WAIC terms are computed in closed form from the
   fit’s Laplace summary — the same per-unit Taylor quantities behind
@@ -110,6 +134,34 @@
   only condition acted on.
 
 ### Minor improvements and fixes
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) no longer uses
+  the name “effective number of parameters” for two different
+  quantities. `p_loo` keeps the **loo** package’s definition and stays
+  in the `estimates` table; the sum of the per-unit `k_sum` is now named
+  for what it is, the trace form of the DIC’s `p_D`, and is returned as
+  `pd_trace`. The two are the cross-product and second-derivative forms
+  of the same information matrix: they share a limit but differ in a
+  finite sample, and agree only if the model is correct. Printing a LOO
+  result now also reports the curvature check the two make possible —
+  the summed first-to-second-order gap (returned as `elpd_gap`), the
+  reference `pD/2`, and the signed excess between them, the gap
+  approaching `pD/2` from above so that a large excess says the
+  second-order expansion has not settled. Nothing is thresholded, as
+  elsewhere in [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md).
+  The documentation now also states plainly that `second_order = FALSE`
+  is for diagnostics and cost only: a first-order score overstates the
+  elpd by `pD/2` in the limit, a bias that grows with model dimension,
+  so candidates of different size are not comparable on it.
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) results print
+  under a `cli` rule carrying the unit count, the group count and the
+  Taylor order, replacing the separate “Computed from …” line, and their
+  notes now reflow to the console width.
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  on either result is an alias for
+  [`print()`](https://rdrr.io/r/base/print.html).
 
 - INLAvaan now requires lavaan \>= 0.7-2. This retires the compatibility
   layer that supported both lavaan generations at once — the dual-name

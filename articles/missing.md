@@ -41,32 +41,33 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [400ms]
+#> ✔ Posterior mode and Hessian. [250ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.223σ. [432ms]
+#> ✔ VB correction; mean |δ| = 0.199σ. [1.7s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 23/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.1s]
+#> ⠹ Fitting 7/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [270ms]
+#> ✔ Adjust copula correlations (NORTA). [218ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
+#> ⠹ Computing fit indices (PPP/DIC).
 #> Warning: Reverting to first-order approximation.
 #> ℹ 1 of 35 units has no second-order lpd: 67.
 #> ℹ Its lpd integral does not converge (k_min at or below -1), so the
 #>   second-order elpd_waic does not exist over the scored units.
 #> ℹ The first-order WAIC reported instead equals the first-order `loo()` score
 #>   exactly.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.1.9005 ended normally after 71 iterations
+#> INLAvaan 0.3.1.9008 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -77,7 +78,7 @@ print(fit1)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -818.479 
+#>    Marginal log-likelihood                    -818.756 
 #>    PPP (Chi-square)                              0.506
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
@@ -102,14 +103,15 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [479ms]
+#> ✔ Posterior mode and Hessian. [515ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.194σ. [544ms]
+#> ✔ VB correction; mean |δ| = 0.150σ. [3.2s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 20/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [4.4s]
+#> ⠹ Fitting 12/42 skew-normal marginals.
+#> ⠸ Fitting 30/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [5s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -140,14 +142,14 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [266ms]
+#> ✔ Adjust copula correlations (NORTA). [220ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [895ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 print(fit2)
-#> INLAvaan 0.3.1.9005 ended normally after 91 iterations
+#> INLAvaan 0.3.1.9008 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -158,7 +160,7 @@ print(fit2)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1415.513 
+#>    Marginal log-likelihood                   -1415.891 
 #>    PPP (Chi-square)                              1.000
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
@@ -205,13 +207,20 @@ justifies this predictive score.
 ``` r
 
 loo(fit2)
-#> Leave-one-subject-out cross-validation
-#> Computed from 75 subjects (second-order approximation)
+#> ── Leave-one-subject-out ────────────────────────── 75 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -1285.5 36.5
-#> p_loo        37.1  3.1
-#> looic      2571.0 73.0
+#> elpd_loo  -1285.6 36.7
+#> p_loo        37.3  3.2
+#> looic      2571.2 73.4
+#> 
+#> ── Curvature check ────────────────────────────────────────────── 75 subjects ──
+#>   first-to-second-order gap        22.5
+#>   pD/2 (trace)                     18.5
+#>   excess over pD/2 (trace)       +21.6%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 ```
 
 Comparing two FIML fits with `compare(..., loo = TRUE)` is valid only

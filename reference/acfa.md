@@ -11,10 +11,12 @@ acfa(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
+  n_qmc = 128L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
@@ -72,6 +74,18 @@ acfa(
   Logical indicating whether to apply a variational Bayes correction for
   the posterior mean vector of estimates. Defaults to `TRUE`.
 
+- n_qmc:
+
+  Number of quasi-Monte Carlo nodes used by the VB mean correction.
+  Defaults to `128`, which is the size of the stored Sobol table; larger
+  values require the qrng package. The correction solves an integral
+  over these nodes, so it carries an integration error that falls as
+  `n_qmc` rises.
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  reports that error as `vb_mcse_sigma` per parameter and `vb_mcse_max`
+  globally, both in posterior-SD units, so the setting can be checked
+  rather than guessed. Ignored when `vb_correction = FALSE`.
+
 - marginal_method:
 
   The method for approximating the marginal posterior distributions.
@@ -101,6 +115,26 @@ acfa(
   copula method with the fitted marginals (e.g. skew-normal or
   asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
   samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- cov_as_cor:
+
+  Logical. Residual and latent-disturbance covariance parameters (`~~`
+  between two observed or two latent variables) are always estimated on
+  the correlation scale internally (an `atanh` link, the same as for
+  `std.ov`/`std.lv`-standardised parameters); by default their reported
+  marginal is then re-derived on the covariance scale \\\sigma_i
+  \sigma_j \rho\\ from a posterior sample (see `samp_copula`), because
+  that is the scale lavaan/blavaan report by default. When `TRUE`, that
+  re-derivation is skipped and each such parameter's own directly
+  profiled correlation-scale marginal \\\rho \in (-1, 1)\\ is reported
+  instead – useful for comparing the profiling machinery (skew-normal
+  fit, VB, ...) against a correlation-scale reference without the
+  sampling/copula step in between. Model estimation is identical either
+  way; only what is reported for these parameters changes (and,
+  correspondingly, their `mat` classification in the returned partable,
+  `theta_cov`/`psi_cov` vs. `theta_cor`/`psi_cor`). Not the same as
+  lavaan's `std.ov`/`std.lv`, which re-parameterises the whole model on
+  a standardised scale. Defaults to `FALSE`.
 
 - sn_fit_ngrid:
 
@@ -230,24 +264,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [132ms]
+#> ✔ Posterior mode and Hessian. [160ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.081σ. [128ms]
+#> ✔ VB correction; mean |δ| = 0.090σ. [590ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 20/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [942ms]
+#> ⠹ Fitting 15/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [1.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [134ms]
+#> ✔ Adjust copula correlations (NORTA). [127ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [523ms]
+#> ✔ Summarise 100 posterior draws. [436ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.3.1.9005 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9008 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -257,13 +291,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3848.435 
+#>    Marginal log-likelihood                   -3848.734 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.681 
-#>    Effective parameters (pD)                    20.767 
+#>    Deviance (DIC)                             7552.658 
+#>    Effective parameters (pD)                    20.744 
 #> 
 #> Parameter Estimates:
 #> 

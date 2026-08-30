@@ -40,6 +40,12 @@ loo(
 )
 
 add_loo(object, cores = NULL, verbose = FALSE)
+
+# S3 method for class 'inlavaan_loo'
+print(x, ...)
+
+# S3 method for class 'inlavaan_loo'
+summary(object, ...)
 ```
 
 ## Arguments
@@ -73,7 +79,11 @@ add_loo(object, cores = NULL, verbose = FALSE)
 - second_order:
 
   Logical; compute the second-order correction (default `TRUE`). `FALSE`
-  skips the Hessian stage entirely and reports first-order estimates.
+  skips the Hessian stage entirely and reports first-order estimates,
+  which overstate the elpd by \\\tfrac12 p_D\\ in the limit and so
+  cannot be compared across models of different dimension (see Details).
+  Use it for diagnostics or to save the Hessian stage, not for model
+  comparison.
 
 - theta, Sigma:
 
@@ -95,7 +105,8 @@ add_loo(object, cores = NULL, verbose = FALSE)
 
   A fitted
   [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md)
-  object.
+  object, or an `inlavaan_loo` result for
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md).
 
 ## Value
 
@@ -126,6 +137,16 @@ An object of class `inlavaan_loo`: a list with elements
   does not exist. The second-order ones are `NA` when any \\\log
   \mathrm{CPO}\_u^{(2)}\\ does not exist.
 
+- `elpd_gap`, `pd_trace`:
+
+  The two sides of the curvature check: the summed first-to-second-order
+  gap \\\mathrm{elpd}\_1 - \mathrm{elpd}\_2\\, and \\p_D =
+  \mathrm{tr}(\Sigma \mathcal{I})\\, the sum of `k_sum`, against which
+  it is compared as \\p_D / 2\\ (see Details). Both are `NA` at first
+  order. Both sum over the units actually scored, so a `units` subset
+  gives partial totals – their ratio still holds, but neither value is
+  then the model's.
+
 - `type`, `flavour`, `n_units`, `n_groups`, `n_ok`, `n_lpd_ok`,
   `second_order`, `use_second`, `theta_overridden`:
 
@@ -134,6 +155,10 @@ An object of class `inlavaan_loo`: a list with elements
   the order actually used; `flavour` records whether units were scored
   jointly with their covariates (`"joint"`) or conditionally on them
   (`"conditional"`, for `fixed.x` fits).
+
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) is
+an alias for [`print()`](https://rdrr.io/r/base/print.html): it prints
+the same output and returns the result invisibly.
 
 `add_loo()` returns a copy of `object` with the LOO result stored
 alongside the fit (the input object is unchanged); reassign it, e.g.
@@ -152,10 +177,14 @@ first and second order by \$\$\log \mathrm{CPO}\_u^{(1)} = \ell_u -
 \log \|I + \Sigma H_u\|.\$\$ The reported `elpd_loo` is the sum of the
 second-order terms (first-order when `second_order = FALSE`), with
 standard error \\\sqrt{n \\ \mathrm{var}(\log \mathrm{CPO}\_u)}\\ and
-`looic` \\= -2 \\ \mathrm{elpd}\\. The effective number of parameters is
-\\p\_{\mathrm{loo}} = \sum_u (\mathrm{lpd}\_u - \log \mathrm{CPO}\_u)\\,
-where \\\mathrm{lpd}\_u\\ is the analogous Taylor approximation of the
-full-posterior pointwise log predictive density.
+`looic` \\= -2 \\ \mathrm{elpd}\\. `p_loo` is the **loo** package's
+effective number of parameters, \\p\_{\mathrm{loo}} = \sum_u
+(\mathrm{lpd}\_u - \log \mathrm{CPO}\_u)\\, where \\\mathrm{lpd}\_u\\ is
+the analogous Taylor approximation of the full-posterior pointwise log
+predictive density; the same definition
+[`loo::loo()`](https://mc-stan.org/loo/reference/loo.html) reports, so
+the two are directly comparable. It is *not* the \\p_D\\ of the DIC –
+see *Two effective parameter counts* below.
 
 **Existence.** The second-order terms are Gaussian integrals that need
 not converge. \\\log \mathrm{CPO}\_u^{(2)}\\ exists exactly when
@@ -198,16 +227,58 @@ positive-definiteness condition above (`k_max >= 1` iff `ok` is
 some direction than the remaining data and the prior combined, and
 \\k_u\\ approaching 1 is the approach to a term that diverges. `k_sum`
 is \\\mathrm{tr}(-\Sigma H_u)\\, the unit's total leverage, which sums
-across units to the effective number of parameters – as hat-matrix
-leverages sum to the parameter count in regression, whose classical
-breakdown at leverage 1 reappears here as \\k_u \to 1\\. `k_min` is the
-other end of the same spectrum, and `k_min > -1` is the existence
-condition for the second-order \\\mathrm{lpd}\\ (it is also the only
-condition [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)
-carries). All are obtained in closed form from the Laplace summary
-rather than estimated from draws, and are `NA` when the second-order
-term is not computed. No threshold is applied to any of them: existence
-is the only condition the package acts on.
+across units to \\\mathrm{tr}(\Sigma \mathcal{I})\\ with \\\mathcal{I} =
+\sum_u (-H_u)\\, the trace form of \\p_D\\ (the closed-form counterpart
+of the `pD` that
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+prints from the DIC) – as hat-matrix leverages sum to the parameter
+count in regression, whose classical breakdown at leverage 1 reappears
+here as \\k_u \to 1\\. `k_min` is the other end of the same spectrum,
+and `k_min > -1` is the existence condition for the second-order
+\\\mathrm{lpd}\\ (it is also the only condition
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) carries). All
+are obtained in closed form from the Laplace summary rather than
+estimated from draws, and are `NA` when the second-order term is not
+computed. No threshold is applied to any of them: existence is the only
+condition the package acts on.
+
+**Two effective parameter counts.** `p_loo` and \\p_D\\ are two
+different quantities, and the name "effective number of parameters"
+belongs to both. They are the two usual forms of the information matrix:
+at first order `p_loo` is \\\mathrm{tr}(\Sigma \sum_u s_u s_u^\top)\\,
+the cross-product form, while \\p_D = \mathrm{tr}(-\Sigma \sum_u H_u)\\
+is the second-derivative form – lavaan draws the same line with
+`information = "first.order"` versus `"observed"`. The information
+equality makes them agree at the true parameter, so they share a limit,
+but it holds only under correct specification: in a finite sample, or
+under misspecification, they differ.
+
+This matters because the first- and second-order scores of a *correct*
+expansion differ by \\\tfrac12 p_D\\, which gives a check on the
+truncation at no extra cost. Printing a LOO result reports it: the
+summed first-to-second-order gap (`elpd_gap`), the reference \\p_D/2\\,
+and the signed excess of the first over the second. The gap approaches
+\\p_D / 2\\ from above, so a large excess says the second-order
+expansion has not settled over the sample. Nothing is thresholded; as
+with the leverages, the number is reported and the reading is left to
+the user.
+
+The check uses the *trace* route to \\p_D\\ (`pd_trace`, the sum of
+`k_sum`) rather than the sampled `pD` of the DIC. Both sides of the
+comparison are then read off the same Laplace summary, so they carry the
+same Laplace error and much of it cancels, leaving the truncation error
+the check is after; the trace is also available under `test = "none"`,
+carries no Monte Carlo error, and survives a `units` subset. The two
+routes to \\p_D\\ do not agree exactly in a finite sample, which is why
+the printed label says `pD/2 (trace)`.
+
+**Keep `second_order = TRUE` for model comparison.** The first-order
+elpd overstates the true elpd by \\\tfrac12 p_D\\ in the limit – that is
+the content of the gap above – so a first-order score carries a bias
+that grows with the dimension of the model. Candidates of different size
+are therefore *not* comparable on first-order scores, and
+`second_order = FALSE` is for diagnostics and for cost, never for
+choosing between models.
 
 The type is resolved automatically: per-cluster (`"loco"`) when the
 model was fitted with a `cluster` argument, per-subject (`"loso"`)
@@ -331,48 +402,55 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [154ms]
+#> ✔ Posterior mode and Hessian. [179ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [114ms]
+#> ✔ VB correction; mean |δ| = 0.122σ. [436ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [774ms]
+#> ✔ Fit 30/30 skew-normal marginals. [895ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [123ms]
+#> ✔ Adjust copula correlations (NORTA). [117ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [939ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
 # Leave-one-subject-out (LOSO) from the single fit -- no refitting
 res <- loo(fit)
 res
-#> Leave-one-subject-out cross-validation
-#> Computed from 301 subjects (second-order approximation)
+#> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
 #> elpd_loo  -3769.1 43.0
-#> p_loo        32.5  2.2
+#> p_loo        32.6  2.2
 #> looic      7538.2 86.0
+#> 
+#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#>   first-to-second-order gap        15.4
+#>   pD/2 (trace)                     14.6
+#>   excess over pD/2 (trace)        +6.1%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 head(res$per_unit)
 #>   unit nobs    l_star score_norm     lpd_1     lpd_2 log_cpo_1 log_cpo_2
-#> 1    1    1 -17.30842   6.635871 -17.19447 -17.24144 -17.42237 -17.47301
-#> 2    2    1 -13.76823   5.418304 -13.68502 -13.75552 -13.85143 -13.92648
-#> 3    3    1 -11.10669   3.789637 -11.07093 -11.16168 -11.14245 -11.23559
-#> 4    4    1 -10.25020   2.575335 -10.23618 -10.28284 -10.26422 -10.31190
-#> 5    5    1 -10.70254   2.975327 -10.68907 -10.73622 -10.71601 -10.76423
-#> 6    6    1 -13.36953   4.983693 -13.30783 -13.39522 -13.43123 -13.52280
+#> 1    1    1 -17.29878   6.642905 -17.18444 -17.23120 -17.41312 -17.46355
+#> 2    2    1 -13.78088   5.435079 -13.69812 -13.76860 -13.86363 -13.93871
+#> 3    3    1 -11.11478   3.795329 -11.07874 -11.16959 -11.15082 -11.24408
+#> 4    4    1 -10.24922   2.578469 -10.23523 -10.28197 -10.26322 -10.31100
+#> 5    5    1 -10.70102   2.974019 -10.68755 -10.73446 -10.71448 -10.76245
+#> 6    6    1 -13.38300   5.004647 -13.32107 -13.40858 -13.44494 -13.53666
 #>      det_term      k_max        k_min      k_sum       k_ssq   ok
-#> 1 -0.04901313 0.03791128 -0.041054350 0.09451823 0.006994920 TRUE
-#> 2 -0.07241546 0.05815582 -0.048440777 0.14045868 0.008627710 TRUE
-#> 3 -0.09242052 0.04078153 -0.009471612 0.18245465 0.004686952 TRUE
-#> 4 -0.04760200 0.02969115 -0.010288753 0.09416514 0.002051371 TRUE
-#> 5 -0.04816499 0.03045524 -0.011195906 0.09524358 0.002144321 TRUE
-#> 6 -0.08964209 0.06558472 -0.022976720 0.17514510 0.008039260 TRUE
+#> 1 -0.04879691 0.03778257 -0.041218274 0.09409140 0.006984889 TRUE
+#> 2 -0.07249428 0.05849323 -0.049136970 0.14055113 0.008758419 TRUE
+#> 3 -0.09253323 0.04156549 -0.009685544 0.18264834 0.004747795 TRUE
+#> 4 -0.04769973 0.02983925 -0.010322641 0.09435139 0.002069376 TRUE
+#> 5 -0.04791534 0.03021165 -0.011349021 0.09475356 0.002126413 TRUE
+#> 6 -0.08980337 0.06573090 -0.023136735 0.17543416 0.008104099 TRUE
 
 # Score a submodel without refitting: condition the Laplace summary on the
 # visual ~~ speed covariance being zero, then evaluate at that summary
@@ -383,15 +461,22 @@ p <- which(names(coef(fit)) == "visual~~speed")
 theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
 Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
 loo(fit, theta = theta_c, Sigma = Sigma_c)
-#> Leave-one-subject-out cross-validation
-#> Computed from 301 subjects (second-order approximation)
+#> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3786.3 45.0
-#> p_loo        34.0  2.5
-#> looic      7572.5 90.0
+#> elpd_loo  -3786.2 45.0
+#> p_loo        34.1  2.5
+#> looic      7572.4 90.1
 #> 
-#> Evaluated at a user-supplied (theta, Sigma) summary.
+#> ℹ Evaluated at a user-supplied (theta, Sigma) summary.
+#> 
+#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#>   first-to-second-order gap        16.3
+#>   pD/2 (trace)                     15.3
+#>   excess over pD/2 (trace)        +6.6%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 
 # Two-level models are scored per cluster (LOCO) automatically
 utils::data("Demo.twolevel", package = "lavaan")
@@ -406,31 +491,37 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [927ms]
+#> ✔ Posterior mode and Hessian. [869ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.096σ. [406ms]
+#> ✔ VB correction; mean |δ| = 0.049σ. [2.2s]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 2/34 skew-normal marginals.
-#> ⠸ Fitting 19/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6s]
+#> ⠹ Fitting 11/34 skew-normal marginals.
+#> ⠸ Fitting 26/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [133ms]
+#> ✔ Adjust copula correlations (NORTA). [98ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [7.9s]
+#> ✔ Summarise 1000 posterior draws. [6.6s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 loo(fit2l)
-#> Leave-one-cluster-out cross-validation
-#> Computed from 200 clusters (second-order approximation)
+#> ── Leave-one-cluster-out ───────────────────────── 200 clusters, second-order ──
 #> 
 #>          Estimate     SE
-#> elpd_loo -23344.3  731.4
-#> p_loo        34.4    2.1
-#> looic     46688.5 1462.9
+#> elpd_loo -23344.2  731.4
+#> p_loo        34.5    2.1
+#> looic     46688.4 1462.9
+#> 
+#> ── Curvature check ───────────────────────────────────────────── 200 clusters ──
+#>   first-to-second-order gap        17.4
+#>   pD/2 (trace)                     16.7
+#>   excess over pD/2 (trace)        +4.3%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 # }
 ```

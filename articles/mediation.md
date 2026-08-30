@@ -101,19 +101,19 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [49ms]
+#> ✔ Posterior mode and Hessian. [61ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.084σ. [284ms]
+#> ✔ VB correction; mean |δ| = 0.073σ. [256ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [151ms]
+#> ✔ Fit 7/7 skew-normal marginals. [112ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [20ms]
+#> ✔ Adjust copula correlations (NORTA). [13ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [707ms]
+#> ✔ Summarise 1000 posterior draws. [572ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 ```
@@ -131,7 +131,7 @@ The summary output provides the posterior mean, standard deviation, and
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.1.9005 ended normally after 5 iterations
+#> INLAvaan 0.3.1.9008 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -141,13 +141,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -312.053 
+#>    Marginal log-likelihood                    -311.980 
 #>    PPP (Chi-square)                              0.613 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              568.327 
-#>    Effective parameters (pD)                     6.717 
+#>    Deviance (DIC)                              568.329 
+#>    Effective parameters (pD)                     6.718 
 #> 
 #> Parameter Estimates:
 #> 

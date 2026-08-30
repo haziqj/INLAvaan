@@ -99,6 +99,16 @@ For `type = "global"`, a named numeric vector (class
 
   Mean per-parameter KL divergence.
 
+- `vb_mcse_max`:
+
+  Maximum, across parameters, of the estimated quadrature error of the
+  VB shift, in posterior-SD units. See `vb_mcse_sigma` below.
+
+- `vb_mcse_mean`:
+
+  Mean estimated quadrature error of the VB shift, in posterior-SD
+  units.
+
 - `nmad_max`:
 
   Maximum normalised max-absolute-deviation across marginals
@@ -154,6 +164,21 @@ columns:
 
   VB shift in units of posterior SD.
 
+- `vb_mcse_sigma`:
+
+  Estimated quadrature error of the VB shift, in posterior-SD units. The
+  shift is the solution of an integral evaluated by quasi-Monte Carlo
+  over a finite node set, so it carries an integration error of its own.
+  This estimates that error by splitting the node set in half and taking
+  half the disagreement between the two half-set solutions. Read it as
+  an error bar on `vb_shift_sigma`: a value of 0.05 means the reported
+  posterior mean of that parameter could move by roughly that much, in
+  SD units, purely from the choice of node set. It runs conservative,
+  because the two halves are negatively correlated and quasi-Monte Carlo
+  error falls faster than root-n. It is exactly zero for parameters
+  whose shift is pinned by the saturated-means fast path, since no
+  quadrature is used there.
+
 - `nmad`:
 
   Normalised max-absolute-deviation of the skew-normal fit (NA when not
@@ -195,9 +220,11 @@ diagnostics(fit)
 #>           npar          nsamp      converged     iterations       grad_inf 
 #>             21            100              1             66       2.02e-03 
 #>   grad_inf_rel        grad_l2 mode_shift_max      hess_cond     vb_applied 
-#>       4.54e-03       3.01e-03       1.80e-04       4.51e+01              1 
-#>  vb_kld_global        kld_max       kld_mean       nmad_max      nmad_mean 
-#>        10.2552         0.0198         0.0049         0.0229         0.0060 
+#>       4.49e-03       3.01e-03       1.80e-04       4.51e+01              1 
+#>  vb_kld_global        kld_max       kld_mean    vb_mcse_max   vb_mcse_mean 
+#>        10.5540         0.0178         0.0058         0.0340         0.0117 
+#>       nmad_max      nmad_mean 
+#>         0.0229         0.0060 
 
 # Per-parameter table
 diagnostics(fit, type = "param")
@@ -213,7 +240,7 @@ diagnostics(fit, type = "param")
 #> 9        speed=~x9  1e-04    1e-04         0    1e-04   0.0001            0e+00
 #> 10          x1~~x1  6e-04    6e-04         0    6e-04   0.0011            2e-04
 #> 11          x2~~x2  1e-04    1e-04         0    1e-04   0.0010            0e+00
-#> 12          x3~~x3 -7e-04   -7e-04         0    7e-04   0.0043            1e-04
+#> 12          x3~~x3 -7e-04   -7e-04         0    7e-04   0.0042            1e-04
 #> 13          x4~~x4  4e-04    4e-04         0    4e-04   0.0004            0e+00
 #> 14          x5~~x5  0e+00    0e+00         0    0e+00   0.0000            0e+00
 #> 15          x6~~x6  5e-04    5e-04         0    5e-04   0.0005            0e+00
@@ -223,27 +250,27 @@ diagnostics(fit, type = "param")
 #> 19 visual~~textual -2e-04   -2e-04         0    2e-04   0.0004            0e+00
 #> 20   visual~~speed  7e-04    7e-04         0    7e-04   0.0014            1e-04
 #> 21  textual~~speed  2e-04    2e-04         0    2e-04   0.0009            0e+00
-#>       kld vb_shift vb_shift_sigma   nmad
-#> 1  0.0049   0.0083         0.0994 0.0094
-#> 2  0.0002  -0.0017        -0.0207 0.0004
-#> 3  0.0000  -0.0003        -0.0041 0.0024
-#> 4  0.0126   0.0090         0.1586 0.0032
-#> 5  0.0064   0.0071         0.1132 0.0033
-#> 6  0.0063   0.0060         0.1119 0.0032
-#> 7  0.0070  -0.0088        -0.1185 0.0027
-#> 8  0.0000  -0.0004        -0.0059 0.0141
-#> 9  0.0150   0.0133         0.1732 0.0160
-#> 10 0.0032  -0.0173        -0.0804 0.0112
-#> 11 0.0018   0.0055         0.0592 0.0014
-#> 12 0.0019   0.0070         0.0617 0.0026
-#> 13 0.0001   0.0015         0.0119 0.0033
-#> 14 0.0011   0.0061         0.0471 0.0031
-#> 15 0.0032   0.0097         0.0798 0.0023
-#> 16 0.0198   0.0217         0.1989 0.0036
-#> 17 0.0039   0.0165         0.0883 0.0229
-#> 18 0.0106  -0.0228        -0.1457 0.0067
-#> 19 0.0000  -0.0003        -0.0037 0.0010
-#> 20 0.0037   0.0094         0.0863 0.0111
-#> 21 0.0005   0.0023         0.0304 0.0026
+#>       kld vb_shift vb_shift_sigma vb_mcse_sigma   nmad
+#> 1  0.0053   0.0085         0.1025        0.0186 0.0094
+#> 2  0.0009   0.0035         0.0432        0.0056 0.0004
+#> 3  0.0034   0.0064         0.0822        0.0031 0.0024
+#> 4  0.0174   0.0106         0.1867        0.0052 0.0032
+#> 5  0.0174   0.0117         0.1864        0.0063 0.0033
+#> 6  0.0151   0.0093         0.1736        0.0163 0.0032
+#> 7  0.0025  -0.0053        -0.0711        0.0190 0.0027
+#> 8  0.0001  -0.0008        -0.0107        0.0164 0.0141
+#> 9  0.0178   0.0145         0.1888        0.0038 0.0160
+#> 10 0.0015  -0.0117        -0.0545        0.0220 0.0112
+#> 11 0.0020   0.0058         0.0628        0.0039 0.0014
+#> 12 0.0003   0.0029         0.0257        0.0019 0.0026
+#> 13 0.0005   0.0042         0.0324        0.0125 0.0033
+#> 14 0.0004   0.0035         0.0272        0.0104 0.0031
+#> 15 0.0014   0.0064         0.0526        0.0214 0.0023
+#> 16 0.0164   0.0198         0.1813        0.0002 0.0036
+#> 17 0.0032   0.0149         0.0798        0.0182 0.0229
+#> 18 0.0097  -0.0218        -0.1393        0.0007 0.0067
+#> 19 0.0006  -0.0028        -0.0349        0.0121 0.0010
+#> 20 0.0047   0.0106         0.0972        0.0152 0.0111
+#> 21 0.0020   0.0049         0.0637        0.0340 0.0026
 # }
 ```

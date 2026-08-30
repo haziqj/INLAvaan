@@ -38,6 +38,12 @@ waic(
   verbose = FALSE,
   ...
 )
+
+# S3 method for class 'inlavaan_waic'
+print(x, ...)
+
+# S3 method for class 'inlavaan_waic'
+summary(object, ...)
 ```
 
 ## Arguments
@@ -69,7 +75,10 @@ waic(
 
   Logical; include the second-order (Hessian) terms (default `TRUE`).
   `FALSE` gives the first-order WAIC, which equals the first-order LOO
-  exactly.
+  exactly – and inherits its bias: a first-order score overstates the
+  elpd by \\\tfrac12 p_D\\ in the limit, so candidates of different
+  dimension cannot be compared on it (see
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)).
 
 - cores:
 
@@ -79,6 +88,12 @@ waic(
 - verbose:
 
   Logical; print progress (default `FALSE`).
+
+- object:
+
+  A fitted
+  [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md)
+  object, or an `inlavaan_waic` result.
 
 ## Value
 
@@ -90,6 +105,9 @@ identification as
 `SE`), `type`, `flavour`, `n_units`, `n_groups`, `n_lpd_ok` (units whose
 second-order lpd exists), `second_order` (whether it was requested) and
 `use_second` (whether it was used).
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) is
+an alias for [`print()`](https://rdrr.io/r/base/print.html): it prints
+the same output and returns the result invisibly.
 
 ## Details
 
@@ -173,24 +191,23 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [158ms]
+#> ✔ Posterior mode and Hessian. [175ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.146σ. [116ms]
+#> ✔ VB correction; mean |δ| = 0.122σ. [435ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [796ms]
+#> ✔ Fit 30/30 skew-normal marginals. [890ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [113ms]
+#> ✔ Adjust copula correlations (NORTA). [122ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [927ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 waic(fit)
-#> WAIC (INLAvaan)
-#> Computed from the Laplace summary over 301 subjects (second-order approximation)
+#> ── WAIC from the Laplace summary ───────────────── 301 subjects, second-order ──
 #> 
 #>           Estimate   SE
 #> elpd_waic  -3769.0 43.0

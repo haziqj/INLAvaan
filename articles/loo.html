@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,8 +114,14 @@
     - \tfrac12 s_u^\top (\Sigma^{-1} + H_u)^{-1} s_u
     + \tfrac12 \log \lvert I + \Sigma H_u \rvert .
 \end{aligned}
-</annotation></semantics></math> The headline <code>elpd_loo</code> is the sum of the second-order terms, with standard error <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mi>n</mi><mspace width="0.167em"></mspace><mover><mrow><mi mathvariant="normal">v</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">O</mi></mrow><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{n \, \widehat{\mathrm{var}}(\log \mathrm{CPO}_u)}</annotation></semantics></math>, and <code>looic</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mi>−</mi><mn>2</mn><mspace width="0.167em"></mspace><msub><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">= -2\,\mathrm{elpd}_{\mathrm{loo}}</annotation></semantics></math> on the familiar information-criterion scale. The effective number of parameters <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>=</mo><msub><mo>∑</mo><mi>u</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><mi>u</mi></msub><mo>−</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">O</mi></mrow><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)</annotation></semantics></math> uses the analogous expansion of the full-posterior pointwise predictive density <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><mi>u</mi></msub><annotation encoding="application/x-tex">\mathrm{lpd}_u</annotation></semantics></math>. The rare unit whose second-order curvature matrix is not positive definite falls back to first order (flagged in the output); a warning is raised if this happens for many units, since it suggests the Gaussian posterior summary itself is poor.</p>
-</section><section class="level2"><h2 id="a-first-example">A first example<a class="anchor" aria-label="anchor" href="#a-first-example"></a>
+</annotation></semantics></math> The headline <code>elpd_loo</code> is the sum of the second-order terms, with standard error <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mi>n</mi><mspace width="0.167em"></mspace><mover><mrow><mi mathvariant="normal">v</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">O</mi></mrow><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{n \, \widehat{\mathrm{var}}(\log \mathrm{CPO}_u)}</annotation></semantics></math>, and <code>looic</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mi>−</mi><mn>2</mn><mspace width="0.167em"></mspace><msub><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">= -2\,\mathrm{elpd}_{\mathrm{loo}}</annotation></semantics></math> on the familiar information-criterion scale. <code>p_loo</code> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msub><mo>∑</mo><mi>u</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><mi>u</mi></msub><mo>−</mo><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><msub><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">O</mi></mrow><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">= \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)</annotation></semantics></math> uses the analogous expansion of the full-posterior pointwise predictive density <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mrow><mi mathvariant="normal">l</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">d</mi></mrow><mi>u</mi></msub><annotation encoding="application/x-tex">\mathrm{lpd}_u</annotation></semantics></math>; this is the <strong>loo</strong> package’s effective number of parameters, so it lines up with <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo::loo()</a></code>. The rare unit whose second-order curvature matrix is not positive definite falls back to first order (flagged in the output); a warning is raised if this happens for many units, since it suggests the Gaussian posterior summary itself is poor.</p>
+<section class="level3"><h3 id="the-curvature-check">The curvature check<a class="anchor" aria-label="anchor" href="#the-curvature-check"></a>
+</h3>
+<p>“Effective number of parameters” names two different quantities, and it is worth keeping them apart. <code>p_loo</code> is the cross-product form of the information, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">tr</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Σ</mi><msub><mo>∑</mo><mi>u</mi></msub><msub><mi>s</mi><mi>u</mi></msub><msubsup><mi>s</mi><mi>u</mi><mi>⊤</mi></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\operatorname{tr}(\Sigma \sum_u s_u s_u^\top)</annotation></semantics></math> at first order; <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math>, the effective number of parameters of the DIC, is the second-derivative form <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">tr</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi mathvariant="normal">Σ</mi><msub><mo>∑</mo><mi>u</mi></msub><msub><mi>H</mi><mi>u</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\operatorname{tr}(-\Sigma \sum_u H_u)</annotation></semantics></math>. They agree at the true parameter by the information equality, so they share a limit, but that equality needs the model to be correct: in a finite sample the two differ, and <code>p_loo</code> typically runs the smaller of the two.</p>
+<p>The distinction earns its keep because the first- and second-order scores of a converged expansion differ by exactly <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><msub><mi>p</mi><mi>D</mi></msub></mrow><annotation encoding="application/x-tex">\tfrac12 p_D</annotation></semantics></math>. That gives a check on the Taylor truncation for free, and printing a LOO result reports it: the summed first-to-second-order gap, the reference <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>D</mi></msub><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">p_D/2</annotation></semantics></math>, and the signed excess of one over the other. The gap approaches <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>D</mi></msub><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">p_D/2</annotation></semantics></math><em>from above</em>, so a large positive excess says the second-order expansion has not settled over the sample as a whole. No threshold is applied — the number is reported and the reading is left to you.</p>
+<p>The reference is the trace <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math> (<code>pd_trace</code>, the sum of the per-unit <code>k_sum</code>), not the sampled <code>pD</code> that <code><a href="../reference/INLAvaan-class.html">summary()</a></code> of a fit prints from the DIC. Both sides of the comparison are then read off the same Laplace summary, so they carry the same Laplace error and much of it cancels, leaving the truncation error the check is actually after. The trace route also survives <code>test = "none"</code>, carries no Monte Carlo error, and works on a <code>units</code> subset.</p>
+<p>For the same reason, keep <code>second_order = TRUE</code> (the default) whenever you intend to <em>compare</em> models. A first-order score overstates the elpd by <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><msub><mi>p</mi><mi>D</mi></msub></mrow><annotation encoding="application/x-tex">\tfrac12 p_D</annotation></semantics></math> in the limit — that is what the gap measures — so the bias grows with the dimension of the model, and candidates of different size are not comparable on first-order scores.</p>
+</section></section><section class="level2"><h2 id="a-first-example">A first example<a class="anchor" aria-label="anchor" href="#a-first-example"></a>
 </h2>
 <p>We fit the classic three-factor CFA to the Holzinger–Swineford data. Fitting with <code>meanstructure = TRUE</code> is recommended for LOO: otherwise unit log-likelihoods are evaluated at zero means and absolute ELPD values are biased (comparisons between models on the same data remain valid either way).</p>
 <div class="cell">
@@ -129,32 +135,39 @@
 <span>            verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="op">(</span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Leave-one-subject-out cross-validation</span></span>
-<span><span class="co">#&gt; Computed from 301 subjects (second-order approximation)</span></span>
+<span><span class="co">#&gt; ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_loo  -3769.1 42.9</span></span>
-<span><span class="co">#&gt; p_loo        32.4  2.2</span></span>
-<span><span class="co">#&gt; looic      7538.2 85.9</span></span></code></pre></div>
+<span><span class="co">#&gt; elpd_loo  -3769.2 43.1</span></span>
+<span><span class="co">#&gt; p_loo        32.6  2.2</span></span>
+<span><span class="co">#&gt; looic      7538.3 86.1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 301 subjects ──</span></span>
+<span><span class="co">#&gt;   first-to-second-order gap        15.4</span></span>
+<span><span class="co">#&gt;   pD/2 (trace)                     14.6</span></span>
+<span><span class="co">#&gt;   excess over pD/2 (trace)        +6.1%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ The gap approaches pD/2 (trace) from above. A large excess says the</span></span>
+<span><span class="co">#&gt;   second-order expansion has not settled over the sample.</span></span></code></pre></div>
 </div>
 <p>The pointwise contributions are available for inspection – useful for spotting influential observations (a large <code>score_norm</code> or unusually low <code>log_cpo_2</code> flags a unit the model predicts poorly):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">per_unit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   unit nobs    l_star score_norm     lpd_1     lpd_2 log_cpo_1 log_cpo_2</span></span>
-<span><span class="co">#&gt; 1    1    1 -17.35080   6.660341 -17.23618 -17.28232 -17.46543 -17.51525</span></span>
-<span><span class="co">#&gt; 2    2    1 -13.81769   5.472756 -13.73389 -13.80482 -13.90148 -13.97719</span></span>
-<span><span class="co">#&gt; 3    3    1 -11.11048   3.763302 -11.07508 -11.16502 -11.14589 -11.23819</span></span>
-<span><span class="co">#&gt; 4    4    1 -10.25806   2.576577 -10.24387 -10.29030 -10.27225 -10.31970</span></span>
-<span><span class="co">#&gt; 5    5    1 -10.70333   2.968563 -10.68998 -10.73711 -10.71669 -10.76489</span></span>
-<span><span class="co">#&gt; 6    6    1 -13.41261   5.032849 -13.34949 -13.43705 -13.47572 -13.56755</span></span>
+<span><span class="co">#&gt; 1    1    1 -17.29545   6.643288 -17.18112 -17.22792 -17.40978 -17.46025</span></span>
+<span><span class="co">#&gt; 2    2    1 -13.76705   5.418940 -13.68460 -13.75483 -13.84949 -13.92427</span></span>
+<span><span class="co">#&gt; 3    3    1 -11.11688   3.805357 -11.08068 -11.17193 -11.15309 -11.24677</span></span>
+<span><span class="co">#&gt; 4    4    1 -10.24659   2.579647 -10.23261 -10.27940 -10.26057 -10.30841</span></span>
+<span><span class="co">#&gt; 5    5    1 -10.70151   2.978081 -10.68800 -10.73493 -10.71501 -10.76301</span></span>
+<span><span class="co">#&gt; 6    6    1 -13.37033   4.986879 -13.30898 -13.39645 -13.43168 -13.52332</span></span>
 <span><span class="co">#&gt;      det_term      k_max        k_min      k_sum       k_ssq   ok</span></span>
-<span><span class="co">#&gt; 1 -0.04818982 0.03748386 -0.041628485 0.09285935 0.007023244 TRUE</span></span>
-<span><span class="co">#&gt; 2 -0.07305219 0.06026365 -0.050175220 0.14150088 0.009081819 TRUE</span></span>
-<span><span class="co">#&gt; 3 -0.09161483 0.04104328 -0.009914234 0.18085586 0.004662021 TRUE</span></span>
-<span><span class="co">#&gt; 4 -0.04736834 0.02929356 -0.010315107 0.09371195 0.002023999 TRUE</span></span>
-<span><span class="co">#&gt; 5 -0.04815107 0.03046489 -0.011201348 0.09521453 0.002146654 TRUE</span></span>
-<span><span class="co">#&gt; 6 -0.08981841 0.06652019 -0.023561030 0.17540943 0.008207320 TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 -0.04883400 0.03782106 -0.041183096 0.09416414 0.006987381 TRUE</span></span>
+<span><span class="co">#&gt; 2 -0.07220261 0.05775388 -0.048851942 0.14002600 0.008645817 TRUE</span></span>
+<span><span class="co">#&gt; 3 -0.09294757 0.04152821 -0.009600199 0.18346371 0.004773908 TRUE</span></span>
+<span><span class="co">#&gt; 4 -0.04776182 0.02997023 -0.010393028 0.09446928 0.002081667 TRUE</span></span>
+<span><span class="co">#&gt; 5 -0.04794142 0.03024131 -0.011323798 0.09480388 0.002129967 TRUE</span></span>
+<span><span class="co">#&gt; 6 -0.08977455 0.06542428 -0.023020501 0.17539799 0.008063705 TRUE</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="comparing-models">Comparing models<a class="anchor" aria-label="anchor" href="#comparing-models"></a>
 </h2>
@@ -164,6 +177,10 @@
 <code class="sourceCode R"><span><span class="va">one.factor</span> <span class="op">&lt;-</span> <span class="st">"g =~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9"</span></span>
 <span><span class="va">fit1f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">one.factor</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>              verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Fit diagnostics flagged 1 potential issue:</span></span>
+<span><span class="co">#&gt; ✖ The VB correction shifted `g=~x5` by 1.07 posterior SDs; the Gaussian</span></span>
+<span><span class="co">#&gt;   approximation at the mode may be inaccurate.</span></span>
+<span><span class="co">#&gt; ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit1f</span>, loo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
@@ -171,11 +188,11 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3885.211    0.000 7534.466 29.225 -3769.109 42.945 32.433</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3990.563 -105.352 7756.739 26.767 -3878.134 46.800 27.516</span></span>
+<span><span class="co">#&gt;    fit   30   -3885.276    0.000 7534.418 29.276 -3769.155 43.055 32.642</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3990.547 -105.271 7756.858 26.753 -3877.990 46.723 27.287</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
-<span><span class="co">#&gt;      0.000   0.000</span></span>
-<span><span class="co">#&gt;   -109.025  17.072</span></span></code></pre></div>
+<span><span class="co">#&gt;      0.000    0.00</span></span>
+<span><span class="co">#&gt;   -108.835   17.04</span></span></code></pre></div>
 </div>
 <p>Models are sorted by descending ELPD; <code>elpd_diff</code> and <code>se_diff</code> are relative to the best model. A common heuristic is that a difference smaller than a couple of <code>se_diff</code> units is not practically meaningful <span class="citation" data-cites="vehtari2017practical">(<a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span> – here the three-factor model is preferred by a wide margin.</p>
 </section><section class="level2"><h2 id="two-level-models">Two-level models<a class="anchor" aria-label="anchor" href="#two-level-models"></a>
@@ -195,13 +212,20 @@
 <span>              meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, fixed.x <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit2l</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Leave-one-cluster-out cross-validation</span></span>
-<span><span class="co">#&gt; Computed from 200 clusters (second-order approximation)</span></span>
+<span><span class="co">#&gt; ── Leave-one-cluster-out ───────────────────────── 200 clusters, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate     SE</span></span>
 <span><span class="co">#&gt; elpd_loo -23344.2  731.4</span></span>
 <span><span class="co">#&gt; p_loo        34.5    2.1</span></span>
-<span><span class="co">#&gt; looic     46688.4 1462.9</span></span></code></pre></div>
+<span><span class="co">#&gt; looic     46688.4 1462.9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 200 clusters ──</span></span>
+<span><span class="co">#&gt;   first-to-second-order gap        17.4</span></span>
+<span><span class="co">#&gt;   pD/2 (trace)                     16.7</span></span>
+<span><span class="co">#&gt;   excess over pD/2 (trace)        +4.3%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ The gap approaches pD/2 (trace) from above. A large excess says the</span></span>
+<span><span class="co">#&gt;   second-order expansion has not settled over the sample.</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="exogenous-covariates-joint-and-conditional-scores">Exogenous covariates: joint and conditional scores<a class="anchor" aria-label="anchor" href="#exogenous-covariates-joint-and-conditional-scores"></a>
 </h2>
@@ -226,13 +250,20 @@
 <span><span class="co">#&gt;   `x2~1` (0.11), `x3~1` (0.10).</span></span>
 <span><span class="co">#&gt; ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.</span></span>
 <span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit_cond</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Leave-one-subject-out cross-validation</span></span>
-<span><span class="co">#&gt; Computed from 300 subjects (second-order approximation)</span></span>
+<span><span class="co">#&gt; ── Leave-one-subject-out ───────────────────────── 300 subjects, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_loo  -3748.1 44.7</span></span>
-<span><span class="co">#&gt; p_loo        45.1  2.7</span></span>
-<span><span class="co">#&gt; looic      7496.2 89.5</span></span></code></pre></div>
+<span><span class="co">#&gt; elpd_loo  -3748.0 44.8</span></span>
+<span><span class="co">#&gt; p_loo        45.0  2.7</span></span>
+<span><span class="co">#&gt; looic      7496.1 89.6</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 300 subjects ──</span></span>
+<span><span class="co">#&gt;   first-to-second-order gap        21.8</span></span>
+<span><span class="co">#&gt;   pD/2 (trace)                     15.7</span></span>
+<span><span class="co">#&gt;   excess over pD/2 (trace)       +38.8%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ The gap approaches pD/2 (trace) from above. A large excess says the</span></span>
+<span><span class="co">#&gt;   second-order expansion has not settled over the sample.</span></span></code></pre></div>
 </div>
 <p>The two flavours estimate different quantities whose scales differ by the covariate predictive density, so <strong>a joint and a conditional elpd must never appear in the same comparison</strong> – <code>compare(..., loo = TRUE)</code> refuses mixed-flavour comparisons outright. Within the conditional flavour, however, models conditioning on <em>different</em> covariate sets are directly comparable as long as the outcome variables match, which makes covariate selection straightforward:</p>
 <div class="cell">
@@ -251,11 +282,11 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;   fit_cond   32   -3875.892   0.000 7540.764 60.732 -3748.090 44.737 45.076</span></span>
-<span><span class="co">#&gt;  fit_cond1   29   -3903.093 -27.201 7569.269 30.588 -3787.678 43.881 38.271</span></span>
+<span><span class="co">#&gt;   fit_cond   32   -3875.885   0.000 7540.349 60.486 -3748.027 44.781 45.034</span></span>
+<span><span class="co">#&gt;  fit_cond1   29   -3904.563 -28.678 7568.499 30.024 -3787.512 43.787 38.018</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
-<span><span class="co">#&gt;    -39.587  10.261</span></span></code></pre></div>
+<span><span class="co">#&gt;    -39.485  10.236</span></span></code></pre></div>
 </div>
 <p>(Under the joint flavour the same comparison would require retaining <code>grade</code> in both models, since joint scores of models spanning different variable sets live on different sample spaces.) Both flavours support any covariate placement, including cluster-level and within-level covariates in two-level models.</p>
 </section><section class="level2"><h2 id="storing-the-result-with-the-fit">Storing the result with the fit<a class="anchor" aria-label="anchor" href="#storing-the-result-with-the-fit"></a>
@@ -277,7 +308,7 @@
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">fitMeasures</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elpd_loo"</span>, <span class="st">"se_loo"</span>, <span class="st">"p_loo"</span>, <span class="st">"looic"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  elpd_loo     p_loo     looic    se_loo </span></span>
-<span><span class="co">#&gt; -3769.109    32.433  7538.217    85.890</span></span></code></pre></div>
+<span><span class="co">#&gt; -3769.155    32.642  7538.310    86.110</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="waic">WAIC<a class="anchor" aria-label="anchor" href="#waic"></a>
 </h2>
@@ -285,13 +316,12 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/waic.html">waic</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; WAIC (INLAvaan)</span></span>
-<span><span class="co">#&gt; Computed from the Laplace summary over 301 subjects (second-order approximation)</span></span>
+<span><span class="co">#&gt; ── WAIC from the Laplace summary ───────────────── 301 subjects, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_waic  -3769.0 42.9</span></span>
-<span><span class="co">#&gt; p_waic        32.4  2.1</span></span>
-<span><span class="co">#&gt; waic        7538.1 85.9</span></span></code></pre></div>
+<span><span class="co">#&gt; elpd_waic  -3769.1 43.0</span></span>
+<span><span class="co">#&gt; p_waic        32.6  2.1</span></span>
+<span><span class="co">#&gt; waic        7538.2 86.1</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="scoring-submodels-without-refitting">Scoring submodels without refitting<a class="anchor" aria-label="anchor" href="#scoring-submodels-without-refitting"></a>
 </h2>
@@ -307,15 +337,22 @@
 <span><span class="va">Sigma_c</span> <span class="op">&lt;-</span> <span class="va">Sigma</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">Sigma</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="va">Sigma</span><span class="op">[</span><span class="va">p</span>, <span class="va">p</span><span class="op">]</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit</span>, theta <span class="op">=</span> <span class="va">theta_c</span>, Sigma <span class="op">=</span> <span class="va">Sigma_c</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Leave-one-subject-out cross-validation</span></span>
-<span><span class="co">#&gt; Computed from 301 subjects (second-order approximation)</span></span>
+<span><span class="co">#&gt; ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_loo  -3785.9 45.0</span></span>
-<span><span class="co">#&gt; p_loo        34.0  2.5</span></span>
-<span><span class="co">#&gt; looic      7571.9 90.1</span></span>
+<span><span class="co">#&gt; elpd_loo  -3786.3 45.1</span></span>
+<span><span class="co">#&gt; p_loo        34.2  2.5</span></span>
+<span><span class="co">#&gt; looic      7572.7 90.1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Evaluated at a user-supplied (theta, Sigma) summary.</span></span></code></pre></div>
+<span><span class="co">#&gt; ℹ Evaluated at a user-supplied (theta, Sigma) summary.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 301 subjects ──</span></span>
+<span><span class="co">#&gt;   first-to-second-order gap        16.4</span></span>
+<span><span class="co">#&gt;   pD/2 (trace)                     15.3</span></span>
+<span><span class="co">#&gt;   excess over pD/2 (trace)        +6.6%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ The gap approaches pD/2 (trace) from above. A large excess says the</span></span>
+<span><span class="co">#&gt;   second-order expansion has not settled over the sample.</span></span></code></pre></div>
 </div>
 <p>No refit took place: the conditioned summary has the covariance locked at zero (its row and column of <code>Sigma_c</code> vanish), and the LOO machinery automatically restricts to the remaining parameters. This pair of arguments is the building block for custom model-search strategies – screen many candidate restrictions by conditioning, score each with <code><a href="../reference/loo.html">loo()</a></code>, and only refit the winners. INLAvaan deliberately provides just this evaluation API; the search logic is yours to design.</p>
 </section><section class="level2"><h2 id="practical-notes">Practical notes<a class="anchor" aria-label="anchor" href="#practical-notes"></a>

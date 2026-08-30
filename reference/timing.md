@@ -60,18 +60,18 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 # Total elapsed time
 timing(fit)
 #>  total 
-#> 1.23 s 
+#> 1.74 s 
 
 # All stages
 timing(fit, what = "all")
 #>        init       optim          vb      loglik   marginals       norta 
-#>      0.03 s      0.12 s      0.10 s      0.00 s      0.87 s      0.10 s 
+#>      0.02 s      0.13 s      0.53 s      0.00 s      0.94 s      0.11 s 
 #>    sampling covariances definedpars   deltapars        test       total 
-#>      0.01 s      0.00 s      0.00 s      0.00 s      0.00 s      1.23 s 
+#>      0.01 s      0.00 s      0.00 s      0.00 s      0.00 s      1.74 s 
 
 # Specific stages
 timing(fit, what = c("optim", "marginals"))
 #>     optim marginals 
-#>    0.12 s    0.87 s 
+#>    0.13 s    0.94 s 
 # }
 ```

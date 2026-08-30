@@ -52,13 +52,53 @@ The headline `elpd_loo` is the sum of the second-order terms, with
 standard error
 $`\sqrt{n \, \widehat{\mathrm{var}}(\log \mathrm{CPO}_u)}`$, and `looic`
 $`= -2\,\mathrm{elpd}_{\mathrm{loo}}`$ on the familiar
-information-criterion scale. The effective number of parameters
-$`p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)`$
-uses the analogous expansion of the full-posterior pointwise predictive
-density $`\mathrm{lpd}_u`$. The rare unit whose second-order curvature
-matrix is not positive definite falls back to first order (flagged in
-the output); a warning is raised if this happens for many units, since
-it suggests the Gaussian posterior summary itself is poor.
+information-criterion scale. `p_loo`
+$`= \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)`$ uses the analogous
+expansion of the full-posterior pointwise predictive density
+$`\mathrm{lpd}_u`$; this is the **loo** package’s effective number of
+parameters, so it lines up with
+[`loo::loo()`](https://mc-stan.org/loo/reference/loo.html). The rare
+unit whose second-order curvature matrix is not positive definite falls
+back to first order (flagged in the output); a warning is raised if this
+happens for many units, since it suggests the Gaussian posterior summary
+itself is poor.
+
+### The curvature check
+
+“Effective number of parameters” names two different quantities, and it
+is worth keeping them apart. `p_loo` is the cross-product form of the
+information, $`\operatorname{tr}(\Sigma \sum_u s_u s_u^\top)`$ at first
+order; $`p_D`$, the effective number of parameters of the DIC, is the
+second-derivative form $`\operatorname{tr}(-\Sigma \sum_u H_u)`$. They
+agree at the true parameter by the information equality, so they share a
+limit, but that equality needs the model to be correct: in a finite
+sample the two differ, and `p_loo` typically runs the smaller of the
+two.
+
+The distinction earns its keep because the first- and second-order
+scores of a converged expansion differ by exactly $`\tfrac12 p_D`$. That
+gives a check on the Taylor truncation for free, and printing a LOO
+result reports it: the summed first-to-second-order gap, the reference
+$`p_D/2`$, and the signed excess of one over the other. The gap
+approaches $`p_D/2`$*from above*, so a large positive excess says the
+second-order expansion has not settled over the sample as a whole. No
+threshold is applied — the number is reported and the reading is left to
+you.
+
+The reference is the trace $`p_D`$ (`pd_trace`, the sum of the per-unit
+`k_sum`), not the sampled `pD` that
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) of
+a fit prints from the DIC. Both sides of the comparison are then read
+off the same Laplace summary, so they carry the same Laplace error and
+much of it cancels, leaving the truncation error the check is actually
+after. The trace route also survives `test = "none"`, carries no Monte
+Carlo error, and works on a `units` subset.
+
+For the same reason, keep `second_order = TRUE` (the default) whenever
+you intend to *compare* models. A first-order score overstates the elpd
+by $`\tfrac12 p_D`$ in the limit — that is what the gap measures — so
+the bias grows with the dimension of the model, and candidates of
+different size are not comparable on first-order scores.
 
 ## A first example
 
@@ -79,13 +119,20 @@ fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE,
             verbose = FALSE)
 
 (res <- loo(fit))
-#> Leave-one-subject-out cross-validation
-#> Computed from 301 subjects (second-order approximation)
+#> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3769.1 42.9
-#> p_loo        32.4  2.2
-#> looic      7538.2 85.9
+#> elpd_loo  -3769.2 43.1
+#> p_loo        32.6  2.2
+#> looic      7538.3 86.1
+#> 
+#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#>   first-to-second-order gap        15.4
+#>   pD/2 (trace)                     14.6
+#>   excess over pD/2 (trace)        +6.1%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 ```
 
 The pointwise contributions are available for inspection – useful for
@@ -96,19 +143,19 @@ spotting influential observations (a large `score_norm` or unusually low
 
 head(res$per_unit)
 #>   unit nobs    l_star score_norm     lpd_1     lpd_2 log_cpo_1 log_cpo_2
-#> 1    1    1 -17.35080   6.660341 -17.23618 -17.28232 -17.46543 -17.51525
-#> 2    2    1 -13.81769   5.472756 -13.73389 -13.80482 -13.90148 -13.97719
-#> 3    3    1 -11.11048   3.763302 -11.07508 -11.16502 -11.14589 -11.23819
-#> 4    4    1 -10.25806   2.576577 -10.24387 -10.29030 -10.27225 -10.31970
-#> 5    5    1 -10.70333   2.968563 -10.68998 -10.73711 -10.71669 -10.76489
-#> 6    6    1 -13.41261   5.032849 -13.34949 -13.43705 -13.47572 -13.56755
+#> 1    1    1 -17.29545   6.643288 -17.18112 -17.22792 -17.40978 -17.46025
+#> 2    2    1 -13.76705   5.418940 -13.68460 -13.75483 -13.84949 -13.92427
+#> 3    3    1 -11.11688   3.805357 -11.08068 -11.17193 -11.15309 -11.24677
+#> 4    4    1 -10.24659   2.579647 -10.23261 -10.27940 -10.26057 -10.30841
+#> 5    5    1 -10.70151   2.978081 -10.68800 -10.73493 -10.71501 -10.76301
+#> 6    6    1 -13.37033   4.986879 -13.30898 -13.39645 -13.43168 -13.52332
 #>      det_term      k_max        k_min      k_sum       k_ssq   ok
-#> 1 -0.04818982 0.03748386 -0.041628485 0.09285935 0.007023244 TRUE
-#> 2 -0.07305219 0.06026365 -0.050175220 0.14150088 0.009081819 TRUE
-#> 3 -0.09161483 0.04104328 -0.009914234 0.18085586 0.004662021 TRUE
-#> 4 -0.04736834 0.02929356 -0.010315107 0.09371195 0.002023999 TRUE
-#> 5 -0.04815107 0.03046489 -0.011201348 0.09521453 0.002146654 TRUE
-#> 6 -0.08981841 0.06652019 -0.023561030 0.17540943 0.008207320 TRUE
+#> 1 -0.04883400 0.03782106 -0.041183096 0.09416414 0.006987381 TRUE
+#> 2 -0.07220261 0.05775388 -0.048851942 0.14002600 0.008645817 TRUE
+#> 3 -0.09294757 0.04152821 -0.009600199 0.18346371 0.004773908 TRUE
+#> 4 -0.04776182 0.02997023 -0.010393028 0.09446928 0.002081667 TRUE
+#> 5 -0.04794142 0.03024131 -0.011323798 0.09480388 0.002129967 TRUE
+#> 6 -0.08977455 0.06542428 -0.023020501 0.17539799 0.008063705 TRUE
 ```
 
 ## Comparing models
@@ -123,6 +170,10 @@ does this automatically:
 one.factor <- "g =~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9"
 fit1f <- acfa(one.factor, HolzingerSwineford1939, meanstructure = TRUE,
               verbose = FALSE)
+#> Warning: Fit diagnostics flagged 1 potential issue:
+#> ✖ The VB correction shifted `g=~x5` by 1.07 posterior SDs; the Gaussian
+#>   approximation at the mode may be inaccurate.
+#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 
 compare(fit, fit1f, loo = TRUE)
 #> Bayesian Model Comparison (INLAvaan)
@@ -130,11 +181,11 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.211    0.000 7534.466 29.225 -3769.109 42.945 32.433
-#>  fit1f   27   -3990.563 -105.352 7756.739 26.767 -3878.134 46.800 27.516
+#>    fit   30   -3885.276    0.000 7534.418 29.276 -3769.155 43.055 32.642
+#>  fit1f   27   -3990.547 -105.271 7756.858 26.753 -3877.990 46.723 27.287
 #>  elpd_diff se_diff
-#>      0.000   0.000
-#>   -109.025  17.072
+#>      0.000    0.00
+#>   -108.835   17.04
 ```
 
 Models are sorted by descending ELPD; `elpd_diff` and `se_diff` are
@@ -165,13 +216,20 @@ fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE, verbose = FALSE)
 
 loo(fit2l)
-#> Leave-one-cluster-out cross-validation
-#> Computed from 200 clusters (second-order approximation)
+#> ── Leave-one-cluster-out ───────────────────────── 200 clusters, second-order ──
 #> 
 #>          Estimate     SE
 #> elpd_loo -23344.2  731.4
 #> p_loo        34.5    2.1
 #> looic     46688.4 1462.9
+#> 
+#> ── Curvature check ───────────────────────────────────────────── 200 clusters ──
+#>   first-to-second-order gap        17.4
+#>   pD/2 (trace)                     16.7
+#>   excess over pD/2 (trace)        +4.3%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 ```
 
 ## Exogenous covariates: joint and conditional scores
@@ -210,13 +268,20 @@ fit_cond <- asem(model_x, dat_x, meanstructure = TRUE, verbose = FALSE)
 #>   `x2~1` (0.11), `x3~1` (0.10).
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 loo(fit_cond)
-#> Leave-one-subject-out cross-validation
-#> Computed from 300 subjects (second-order approximation)
+#> ── Leave-one-subject-out ───────────────────────── 300 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3748.1 44.7
-#> p_loo        45.1  2.7
-#> looic      7496.2 89.5
+#> elpd_loo  -3748.0 44.8
+#> p_loo        45.0  2.7
+#> looic      7496.1 89.6
+#> 
+#> ── Curvature check ───────────────────────────────────────────── 300 subjects ──
+#>   first-to-second-order gap        21.8
+#>   pD/2 (trace)                     15.7
+#>   excess over pD/2 (trace)       +38.8%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 ```
 
 The two flavours estimate different quantities whose scales differ by
@@ -243,11 +308,11 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.892   0.000 7540.764 60.732 -3748.090 44.737 45.076
-#>  fit_cond1   29   -3903.093 -27.201 7569.269 30.588 -3787.678 43.881 38.271
+#>   fit_cond   32   -3875.885   0.000 7540.349 60.486 -3748.027 44.781 45.034
+#>  fit_cond1   29   -3904.563 -28.678 7568.499 30.024 -3787.512 43.787 38.018
 #>  elpd_diff se_diff
 #>      0.000   0.000
-#>    -39.587  10.261
+#>    -39.485  10.236
 ```
 
 (Under the joint flavour the same comparison would require retaining
@@ -292,7 +357,7 @@ A stored result is returned instantly by `loo(fit)` and reused by
 
 fitMeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
 #>  elpd_loo     p_loo     looic    se_loo 
-#> -3769.109    32.433  7538.217    85.890
+#> -3769.155    32.642  7538.310    86.110
 ```
 
 ## WAIC
@@ -318,13 +383,12 @@ estimate to first order, with a warning.
 ``` r
 
 waic(fit)
-#> WAIC (INLAvaan)
-#> Computed from the Laplace summary over 301 subjects (second-order approximation)
+#> ── WAIC from the Laplace summary ───────────────── 301 subjects, second-order ──
 #> 
 #>           Estimate   SE
-#> elpd_waic  -3769.0 42.9
-#> p_waic        32.4  2.1
-#> waic        7538.1 85.9
+#> elpd_waic  -3769.1 43.0
+#> p_waic        32.6  2.1
+#> waic        7538.2 86.1
 ```
 
 ## Scoring submodels without refitting
@@ -347,15 +411,22 @@ theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
 Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
 
 loo(fit, theta = theta_c, Sigma = Sigma_c)
-#> Leave-one-subject-out cross-validation
-#> Computed from 301 subjects (second-order approximation)
+#> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3785.9 45.0
-#> p_loo        34.0  2.5
-#> looic      7571.9 90.1
+#> elpd_loo  -3786.3 45.1
+#> p_loo        34.2  2.5
+#> looic      7572.7 90.1
 #> 
-#> Evaluated at a user-supplied (theta, Sigma) summary.
+#> ℹ Evaluated at a user-supplied (theta, Sigma) summary.
+#> 
+#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#>   first-to-second-order gap        16.4
+#>   pD/2 (trace)                     15.3
+#>   excess over pD/2 (trace)        +6.6%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 ```
 
 No refit took place: the conditioned summary has the covariance locked

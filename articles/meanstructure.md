@@ -118,8 +118,8 @@ compare(fit_configural, fit_metric)
 #> Models ordered by marginal log-likelihood
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD
-#>      fit_metric   36   -3846.370   0.000 7504.664 36.177
-#>  fit_configural   42   -3870.567 -24.198 7507.469 41.490
+#>      fit_metric   36   -3846.660   0.000 7504.642 36.154
+#>  fit_configural   42   -3870.306 -23.646 7506.973 40.995
 ```
 
 Across the metric–scalar boundary they are **not**: an improper flat
@@ -160,11 +160,11 @@ compare(fit_f, fit_t, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>  fit_f   21   -3841.139   0.000 7552.612 20.583 -3769.087 42.999 23.658
-#>  fit_t   30   -3885.211 -44.072 7535.527 29.756 -3769.109 42.945 32.433
+#>  fit_f   21   -3841.212   0.000 7552.734 20.705 -3769.128 43.034 23.806
+#>  fit_t   30   -3885.276 -44.064 7535.677 29.906 -3769.155 43.055 32.642
 #>  elpd_diff se_diff
 #>      0.000   0.000
-#>     -0.022   0.301
+#>     -0.027   0.058
 ```
 
 The two ELPDs agree closely: both estimate

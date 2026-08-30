@@ -11,10 +11,12 @@ asem(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
+  n_qmc = 128L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
   sn_fit_temp = 1,
@@ -72,6 +74,18 @@ asem(
   Logical indicating whether to apply a variational Bayes correction for
   the posterior mean vector of estimates. Defaults to `TRUE`.
 
+- n_qmc:
+
+  Number of quasi-Monte Carlo nodes used by the VB mean correction.
+  Defaults to `128`, which is the size of the stored Sobol table; larger
+  values require the qrng package. The correction solves an integral
+  over these nodes, so it carries an integration error that falls as
+  `n_qmc` rises.
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  reports that error as `vb_mcse_sigma` per parameter and `vb_mcse_max`
+  globally, both in posterior-SD units, so the setting can be checked
+  rather than guessed. Ignored when `vb_correction = FALSE`.
+
 - marginal_method:
 
   The method for approximating the marginal posterior distributions.
@@ -101,6 +115,26 @@ asem(
   copula method with the fitted marginals (e.g. skew-normal or
   asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
   samples are drawn from the Gaussian (Laplace) approximation. Only re
+
+- cov_as_cor:
+
+  Logical. Residual and latent-disturbance covariance parameters (`~~`
+  between two observed or two latent variables) are always estimated on
+  the correlation scale internally (an `atanh` link, the same as for
+  `std.ov`/`std.lv`-standardised parameters); by default their reported
+  marginal is then re-derived on the covariance scale \\\sigma_i
+  \sigma_j \rho\\ from a posterior sample (see `samp_copula`), because
+  that is the scale lavaan/blavaan report by default. When `TRUE`, that
+  re-derivation is skipped and each such parameter's own directly
+  profiled correlation-scale marginal \\\rho \in (-1, 1)\\ is reported
+  instead – useful for comparing the profiling machinery (skew-normal
+  fit, VB, ...) against a correlation-scale reference without the
+  sampling/copula step in between. Model estimation is identical either
+  way; only what is reported for these parameters changes (and,
+  correspondingly, their `mat` classification in the returned partable,
+  `theta_cov`/`psi_cov` vs. `theta_cor`/`psi_cor`). Not the same as
+  lavaan's `std.ov`/`std.lv`, which re-parameterises the whole model on
+  a standardised scale. Defaults to `FALSE`.
 
 - sn_fit_ngrid:
 
@@ -242,23 +276,23 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [227ms]
+#> ✔ Posterior mode and Hessian. [247ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.159σ. [263ms]
+#> ✔ VB correction; mean |δ| = 0.173σ. [794ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 16/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.3s]
+#> ⠹ Fitting 11/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [2.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [212ms]
+#> ✔ Adjust copula correlations (NORTA). [170ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [305ms]
+#> ✔ Summarise 1000 posterior draws. [217ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.1.9005 ended normally after 82 iterations
+#> INLAvaan 0.3.1.9008 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -268,7 +302,7 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1652.868 
+#>    Marginal log-likelihood                   -1653.131 
 #> 
 #> Parameter Estimates:
 #> 

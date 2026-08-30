@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,10 +65,12 @@
 <span>  dp <span class="op">=</span> <span class="fu"><a href="priors_for.html">priors_for</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  test <span class="op">=</span> <span class="st">"standard"</span>,</span>
 <span>  vb_correction <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_qmc <span class="op">=</span> <span class="fl">128L</span>,</span>
 <span>  marginal_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skewnorm"</span>, <span class="st">"asymgaus"</span>, <span class="st">"marggaus"</span>, <span class="st">"sampling"</span><span class="op">)</span>,</span>
 <span>  marginal_correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shortcut"</span>, <span class="st">"shortcut_fd"</span>, <span class="st">"hessian"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  samp_copula <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cov_as_cor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sn_fit_ngrid <span class="op">=</span> <span class="fl">21</span>,</span>
 <span>  sn_fit_logthresh <span class="op">=</span> <span class="op">-</span><span class="fl">6</span>,</span>
 <span>  sn_fit_temp <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -124,6 +126,17 @@ alone) to force the full LOO regardless of the budget.</p></dd>
 correction for the posterior mean vector of estimates. Defaults to <code>TRUE</code>.</p></dd>
 
 
+<dt id="arg-n-qmc">n_qmc<a class="anchor" aria-label="anchor" href="#arg-n-qmc"></a></dt>
+<dd><p>Number of quasi-Monte Carlo nodes used by the VB mean
+correction. Defaults to <code>128</code>, which is the size of the stored Sobol
+table; larger values require the <span class="pkg">qrng</span> package. The correction solves
+an integral over these nodes, so it carries an integration error that falls
+as <code>n_qmc</code> rises. <code><a href="diagnostics.html">diagnostics()</a></code> reports that error as <code>vb_mcse_sigma</code>
+per parameter and <code>vb_mcse_max</code> globally, both in posterior-SD units, so
+the setting can be checked rather than guessed. Ignored when
+<code>vb_correction = FALSE</code>.</p></dd>
+
+
 <dt id="arg-marginal-method">marginal_method<a class="anchor" aria-label="anchor" href="#arg-marginal-method"></a></dt>
 <dd><p>The method for approximating the marginal posterior
 distributions. Options include <code>"skewnorm"</code> (skew-normal), <code>"asymgaus"</code>
@@ -152,6 +165,27 @@ and <code>"none"</code> (or <code>FALSE</code>) applies no correction.</p></dd>
 drawn using the copula method with the fitted marginals (e.g. skew-normal
 or asymmetric Gaussian), with NORTA correlation adjustment. When <code>FALSE</code>,
 samples are drawn from the Gaussian (Laplace) approximation. Only re</p></dd>
+
+
+<dt id="arg-cov-as-cor">cov_as_cor<a class="anchor" aria-label="anchor" href="#arg-cov-as-cor"></a></dt>
+<dd><p>Logical. Residual and latent-disturbance covariance
+parameters (<code>~~</code> between two observed or two latent variables) are
+always estimated on the correlation scale internally (an <code>atanh</code> link,
+the same as for <code>std.ov</code>/<code>std.lv</code>-standardised parameters); by default
+their reported marginal is then re-derived on the covariance scale
+\(\sigma_i \sigma_j \rho\) from a posterior sample (see
+<code>samp_copula</code>), because that is the scale lavaan/blavaan report by
+default. When <code>TRUE</code>, that re-derivation is skipped and each such
+parameter's own directly profiled correlation-scale marginal
+\(\rho \in (-1, 1)\) is reported instead – useful for comparing the
+profiling machinery (skew-normal fit, VB, ...) against a
+correlation-scale reference without the sampling/copula step in
+between. Model estimation is identical either way; only what is
+reported for these parameters changes (and, correspondingly, their
+<code>mat</code> classification in the returned partable, <code>theta_cov</code>/<code>psi_cov</code>
+vs. <code>theta_cor</code>/<code>psi_cor</code>). Not the same as lavaan's <code>std.ov</code>/<code>std.lv</code>,
+which re-parameterises the whole model on a standardised scale.
+Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-sn-fit-ngrid">sn_fit_ngrid<a class="anchor" aria-label="anchor" href="#arg-sn-fit-ngrid"></a></dt>
@@ -264,24 +298,24 @@ model functions instead, including <code>acfa()</code>, <code><a href="asem.html
 <span class="r-in"><span><span class="co"># Fit a CFA model with standardised latent variables</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">acfa</span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[132ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[160ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.081σ. <span style="color: #B2B2B2;">[128ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.090σ. <span style="color: #B2B2B2;">[590ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/21 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 20/21 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 21/21 skew-normal marginals. <span style="color: #B2B2B2;">[942ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 15/21 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 21/21 skew-normal marginals. <span style="color: #B2B2B2;">[1.2s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Adjusting copula correlations (NORTA).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjust copula correlations (NORTA). <span style="color: #B2B2B2;">[134ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjust copula correlations (NORTA). <span style="color: #B2B2B2;">[127ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 100 posterior draws. <span style="color: #B2B2B2;">[523ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 100 posterior draws. <span style="color: #B2B2B2;">[436ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC, LOO, WAIC.</span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.1.9005 ended normally after 66 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.1.9008 ended normally after 66 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                      BAYES</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
@@ -291,13 +325,13 @@ model functions instead, including <code>acfa()</code>, <code><a href="asem.html
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Test (User Model):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Marginal log-likelihood                   -3848.435 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Marginal log-likelihood                   -3848.734 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    PPP (Chi-square)                              0.000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Information Criteria:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Deviance (DIC)                             7552.681 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Effective parameters (pD)                    20.767 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Deviance (DIC)                             7552.658 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Effective parameters (pD)                    20.744 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Estimates:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

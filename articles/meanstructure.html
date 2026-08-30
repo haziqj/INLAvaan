@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -176,8 +176,8 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;      fit_metric   36   -3846.370   0.000 7504.664 36.177</span></span>
-<span><span class="co">#&gt;  fit_configural   42   -3870.567 -24.198 7507.469 41.490</span></span></code></pre></div>
+<span><span class="co">#&gt;      fit_metric   36   -3846.660   0.000 7504.642 36.154</span></span>
+<span><span class="co">#&gt;  fit_configural   42   -3870.306 -23.646 7506.973 40.995</span></span></code></pre></div>
 </div>
 <p>Across the metric–scalar boundary they are <strong>not</strong>: an improper flat prior is only defined up to a constant <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>, the marginal likelihood scales with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>c</mi><mrow><mspace width="0.167em"></mspace><mi>p</mi></mrow></msup><annotation encoding="application/x-tex">c^{\,p}</annotation></semantics></math> per group, and against a model with proper-prior means that constant is orphaned — the “Bayes factor” becomes an artefact of a normalisation convention (and even proper-but-vague intercept priors leave it hostage to the prior width, the Lindley–Bartlett phenomenon). <code><a href="../reference/compare.html">compare()</a></code> warns when fits mix the two mean treatments.</p>
 <p>The leave-one-out conditionals, by contrast, are proper under both treatments — <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒚</mi><mi>i</mi></msub><mo>∣</mo><msub><mi mathvariant="bold-italic">𝒀</mi><mrow><mi>−</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒀</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒀</mi><mrow><mi>−</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(\mathbf{y}_i \mid \mathbf{Y}_{-i}) =
@@ -197,11 +197,11 @@ p(\mathbf{Y})/p(\mathbf{Y}_{-i})</annotation></semantics></math> cancels the fla
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;  fit_f   21   -3841.139   0.000 7552.612 20.583 -3769.087 42.999 23.658</span></span>
-<span><span class="co">#&gt;  fit_t   30   -3885.211 -44.072 7535.527 29.756 -3769.109 42.945 32.433</span></span>
+<span><span class="co">#&gt;  fit_f   21   -3841.212   0.000 7552.734 20.705 -3769.128 43.034 23.806</span></span>
+<span><span class="co">#&gt;  fit_t   30   -3885.276 -44.064 7535.677 29.906 -3769.155 43.055 32.642</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
-<span><span class="co">#&gt;     -0.022   0.301</span></span></code></pre></div>
+<span><span class="co">#&gt;     -0.027   0.058</span></span></code></pre></div>
 </div>
 <p>The two ELPDs agree closely: both estimate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mi>i</mi></msub><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo></mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi mathvariant="bold-italic">𝒚</mi><mi>i</mi></msub><mo>∣</mo><msub><mi mathvariant="bold-italic">𝒀</mi><mrow><mi>−</mi><mi>i</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_i \log p(\mathbf{y}_i \mid \mathbf{Y}_{-i})</annotation></semantics></math>, and the models differ only in whether the means are estimated under proper priors or marginalised under flat ones.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">

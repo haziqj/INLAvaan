@@ -46,6 +46,14 @@ Information Criterion, \\DIC = \bar{D} + p_D\\ where \\p_D = \bar{D} -
 compare models by DIC (or Bayes factors, or LOO/WAIC) rather than
 comparing raw deviances directly.
 
+This \\p_D\\ is estimated from the posterior draws.
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) reaches the same
+quantity in closed form as `pd_trace`, the trace \\\mathrm{tr}(\Sigma
+\mathcal{I})\\; the two routes estimate one target but do not agree
+exactly in a finite sample. Neither is `p_loo`, which estimates
+something else entirely (see
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)).
+
 ## See also
 
 [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md),
@@ -66,9 +74,9 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 
 deviance(fit)
 #> Deviance: 7531.83
-#> # ℹ pD = 20.683, DIC = 7552.512
+#> # ℹ pD = 20.66, DIC = 7552.489
 #> 
 attr(deviance(fit), "DIC")
-#> [1] 7552.512
+#> [1] 7552.489
 # }
 ```

@@ -58,9 +58,9 @@ compare(fit_configural, fit_metric, fit_scalar)
 #> Models ordered by marginal log-likelihood
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD
-#>      fit_scalar   48   -3914.104   0.000 7508.902 47.786
-#>      fit_metric   54   -3934.608 -20.504 7480.496 53.505
-#>  fit_configural   60   -3958.319 -44.215 7484.562 59.643
+#>      fit_scalar   48   -3914.034   0.000 7509.639 48.154
+#>      fit_metric   54   -3934.804 -20.770 7480.435 53.522
+#>  fit_configural   60   -3958.310 -44.277 7483.366 58.701
 ```
 
 These are within-flavour comparisons (all three fits model the means
@@ -87,13 +87,13 @@ compare(fit_configural, fit_metric, fit_scalar, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>      fit_metric   54   -3934.608 -20.504 7480.496 53.505 -3743.245 44.422
-#>  fit_configural   60   -3958.319 -44.215 7484.562 59.643 -3746.600 44.744
-#>      fit_scalar   48   -3914.104   0.000 7508.902 47.786 -3757.569 43.901
+#>      fit_metric   54   -3934.804 -20.770 7480.435 53.522 -3743.263 44.441
+#>  fit_configural   60   -3958.310 -44.277 7483.366 58.701 -3746.093 44.548
+#>      fit_scalar   48   -3914.034   0.000 7509.639 48.154 -3757.537 43.781
 #>   p_loo elpd_diff se_diff
-#>  57.588     0.000   0.000
-#>  68.560    -3.356   3.647
-#>  52.341   -14.324   5.954
+#>  57.671     0.000   0.000
+#>  68.476    -2.830   3.519
+#>  52.271   -14.274   5.942
 ```
 
 The textbook Holzinger–Swineford story appears: metric invariance is
@@ -125,11 +125,11 @@ compare(fit_pooled, fit_configural, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>  fit_configural   60   -3958.319 -73.108 7484.562 59.643 -3746.600 44.744
-#>      fit_pooled   30   -3885.211   0.000 7534.854 29.419 -3769.109 42.945
+#>  fit_configural   60   -3958.310 -73.035 7483.366 58.701 -3746.093 44.548
+#>      fit_pooled   30   -3885.276   0.000 7535.463 29.799 -3769.155 43.055
 #>   p_loo elpd_diff se_diff
-#>  68.560     0.000   0.000
-#>  32.433   -22.508  11.743
+#>  68.476     0.000   0.000
+#>  32.642   -23.061  11.537
 ```
 
 Allowing the two schools their own parameters clearly improves
@@ -147,25 +147,32 @@ school contributes to the scalar rung’s loss:
 loo_metric <- loo(fit_metric)
 loo_scalar <- loo(fit_scalar)
 loo_metric
-#> Leave-one-subject-out cross-validation
-#> Computed from 301 subjects in 2 groups (second-order approximation)
+#> ── Leave-one-subject-out ───────────── 301 subjects in 2 groups, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3743.2 44.4
-#> p_loo        57.6  4.1
-#> looic      7486.5 88.8
+#> elpd_loo  -3743.3 44.4
+#> p_loo        57.7  4.1
+#> looic      7486.5 88.9
+#> 
+#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#>   first-to-second-order gap        28.9
+#>   pD/2 (trace)                     26.3
+#>   excess over pD/2 (trace)        +9.9%
+#> 
+#> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
+#>   second-order expansion has not settled over the sample.
 
 head(loo_metric$per_unit[, 1:6], 3)
 #>   unit   group nobs    l_star score_norm     lpd_1
-#> 1    1 Pasteur    1 -17.73269   6.687311 -17.52278
-#> 2    2 Pasteur    1 -13.45079   4.855904 -13.33124
-#> 3    3 Pasteur    1 -10.90879   3.170204 -10.84994
+#> 1    1 Pasteur    1 -17.70338   6.676914 -17.49387
+#> 2    2 Pasteur    1 -13.43718   4.843123 -13.31820
+#> 3    3 Pasteur    1 -10.90093   3.166166 -10.84189
 
 # Where does scalar invariance lose predictive density?
 d <- loo_scalar$per_unit$log_cpo_2 - loo_metric$per_unit$log_cpo_2
 tapply(d, loo_scalar$per_unit$group, sum)
 #> Grant-White     Pasteur 
-#>   -6.622903   -7.701313
+#>   -6.792034   -7.481925
 ```
 
 Both schools pay for the intercept constraints, confirming the misfit is

@@ -138,7 +138,7 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 
 # Print basic info
 fit
-#> INLAvaan 0.3.1.9005 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9008 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -148,11 +148,11 @@ fit
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3848.435 
+#>    Marginal log-likelihood                   -3848.734 
 
 # Detailed summary
 summary(fit)
-#> INLAvaan 0.3.1.9005 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9008 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -162,7 +162,7 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3848.435 
+#>    Marginal log-likelihood                   -3848.734 
 #> 
 #> Parameter Estimates:
 #> 
