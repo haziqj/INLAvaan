@@ -280,8 +280,10 @@ evaluation API; search strategies are left to the user. A conditioned
 non-degenerate block, which is exact.
 
 Parallelism is strictly opt-in: the default \code{cores = NULL} runs serially,
-and \code{cores > 1} parallelises the Hessian stage via forking (not available
-on Windows).
+and \code{cores > 1} parallelises the Hessian stage -- via forking where that
+is safe, or over a PSOCK cluster (separate R processes) inside IDE R
+sessions (RStudio, Positron) and on Windows, so it behaves the same in
+every front end.
 
 Calling \code{loo()} never modifies the fitted object. Under the default
 \code{test = "standard"}, \code{\link[=inlavaan]{inlavaan()}} already computes and stores the full

@@ -162,7 +162,9 @@ fitting. When \code{NULL} (default), serial execution is used unless the number
 of free parameters exceeds 120, in which case parallelisation is enabled
 automatically using all available physical cores. Set to \code{1L} to force
 serial execution. If \code{cores > 1}, marginal fits are distributed across
-cores using \code{\link[parallel:mclapply]{parallel::mclapply()}} (fork-based; no parallelism on Windows).}
+cores -- forked via \code{\link[parallel:mclapply]{parallel::mclapply()}} where that is safe, or over a
+PSOCK cluster (separate R processes) inside IDE R sessions (RStudio,
+Positron) and on Windows.}
 
 \item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan} model fitting
 function.}

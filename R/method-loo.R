@@ -155,8 +155,10 @@
 #' non-degenerate block, which is exact.
 #'
 #' Parallelism is strictly opt-in: the default `cores = NULL` runs serially,
-#' and `cores > 1` parallelises the Hessian stage via forking (not available
-#' on Windows).
+#' and `cores > 1` parallelises the Hessian stage -- via forking where that
+#' is safe, or over a PSOCK cluster (separate R processes) inside IDE R
+#' sessions (RStudio, Positron) and on Windows, so it behaves the same in
+#' every front end.
 #'
 #' Calling `loo()` never modifies the fitted object. Under the default
 #' `test = "standard"`, [inlavaan()] already computes and stores the full

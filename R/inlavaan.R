@@ -108,7 +108,9 @@
 #'   of free parameters exceeds 120, in which case parallelisation is enabled
 #'   automatically using all available physical cores. Set to `1L` to force
 #'   serial execution. If `cores > 1`, marginal fits are distributed across
-#'   cores using [parallel::mclapply()] (fork-based; no parallelism on Windows).
+#'   cores -- forked via [parallel::mclapply()] where that is safe, or over a
+#'   PSOCK cluster (separate R processes) inside IDE R sessions (RStudio,
+#'   Positron) and on Windows.
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
 #'   function.
 #'

@@ -942,14 +942,6 @@ resolve_loo_cores <- function(cores) {
   if (is.na(cores) || cores < 1L) {
     cores <- 1L
   }
-  if (cores > 1L && .Platform$OS.type == "windows") {
-    # nocov start
-    cli_alert_warning(
-      "Parallel LOO uses forking, which is not available on Windows.
-       Continuing serially."
-    )
-    cores <- 1L
-  } # nocov end
   cores
 }
 
