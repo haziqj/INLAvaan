@@ -31,12 +31,16 @@
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
-#'   correction. Defaults to `128`, which is the size of the stored Sobol
-#'   table; larger values require the \pkg{qrng} package. The correction solves
-#'   an integral over these nodes, so it carries an integration error that falls
-#'   as `n_qmc` rises. `diagnostics()` reports that error as `vb_mcse_sigma`
-#'   per parameter and `vb_mcse_max` globally, both in posterior-SD units, so
-#'   the setting can be checked rather than guessed. Ignored when
+#'   correction. The correction solves an integral over these nodes, so it
+#'   carries an integration error that falls as `n_qmc` rises. The default of
+#'   `64` keeps that error at roughly 0.05 posterior SDs or less -- on par
+#'   with the Monte Carlo error of a routine MCMC run and well below the size
+#'   of the shifts being corrected; `128` (the size of the stored Sobol
+#'   table; larger values require the \pkg{qrng} package) roughly halves it
+#'   again for models where the correction itself is of particular interest.
+#'   `diagnostics()` reports the realised error as `vb_mcse_sigma` per
+#'   parameter and `vb_mcse_max` globally, both in posterior-SD units, so the
+#'   setting can be checked rather than guessed. Ignored when
 #'   `vb_correction = FALSE`.
 #' @param marginal_method The method for approximating the marginal posterior
 #'   distributions. Options include `"skewnorm"` (skew-normal), `"asymgaus"`
@@ -130,7 +134,7 @@ inlavaan <- function(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
-  n_qmc = 128L,
+  n_qmc = 64L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -1268,7 +1272,7 @@ acfa <- function(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
-  n_qmc = 128L,
+  n_qmc = 64L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -1322,7 +1326,7 @@ asem <- function(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
-  n_qmc = 128L,
+  n_qmc = 64L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -1374,7 +1378,7 @@ agrowth <- function(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
-  n_qmc = 128L,
+  n_qmc = 64L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
