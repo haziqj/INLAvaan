@@ -521,33 +521,37 @@ inlavaan <- function(
       vb_ob_shift(as.numeric(L %*% delta), mu0, Z)
     }
 
-    # Mean score over the nodes, in the original parameter scale. The two
-    # half-set means are kept as a side effect: their disagreement at the
-    # solution measures the quadrature error in the shift, and both halves are
-    # already computed here, so the estimate is free. Sobol points are nested,
-    # so the two halves are each a valid node set in their own right.
-    vb_nhalf <- floor(nrow(zs) / 2)
-    vb_gA <- vb_gB <- numeric(m)
-    vb_score <- function(shift, mu0, Z) {
+    # One sweep over the nodes: the mean score in the original parameter
+    # scale, plus its two half-set means. The halves come along free -- both
+    # are already computed here -- and their disagreement at the solution
+    # measures the quadrature error in the shift. Sobol points are nested, so
+    # the two halves are each a valid node set in their own right.
+    vb_sweep <- function(shift, mu0, Z) {
       mu_new <- mu0 + shift
       ns <- nrow(Z)
+      nhalf <- floor(ns / 2)
       gA <- gB <- numeric(length(mu0))
       for (b in seq_len(ns)) {
-        thetab <- mu_new + Z[b, , drop = TRUE]
-        if (b <= vb_nhalf) {
-          gA <- gA + joint_lp_grad(thetab)
+        g <- joint_lp_grad(mu_new + Z[b, , drop = TRUE])
+        if (b <= nhalf) {
+          gA <- gA + g
         } else {
-          gB <- gB + joint_lp_grad(thetab)
+          gB <- gB + g
         }
       }
-      vb_gA <<- gA / vb_nhalf
-      vb_gB <<- gB / (ns - vb_nhalf)
-      (gA + gB) / ns
+      list(
+        score = (gA + gB) / ns,
+        gA = gA / nhalf,
+        gB = gB / (ns - nhalf)
+      )
     }
 
+    vb_gA <- vb_gB <- numeric(m)
     vb_gr <- function(delta, mu0, Z) {
-      score <- vb_score(as.numeric(L %*% delta), mu0, Z)
-      as.numeric(t(L) %*% (-1 * score))
+      sw <- vb_sweep(as.numeric(L %*% delta), mu0, Z)
+      vb_gA <<- sw$gA
+      vb_gB <<- sw$gB
+      as.numeric(t(L) %*% (-1 * sw$score))
     }
 
     # Fast path: fixed-point iteration. Splitting the objective into its
@@ -563,28 +567,68 @@ inlavaan <- function(
     # overshoot the region in which Sigma(theta) stays positive definite. An
     # oversized step or a non-finite score is taken as the signal, and the solve
     # falls back to nlminb, whose line search handles those cases.
+    # Anderson(1) acceleration on top of the fixed-point iteration. The plain
+    # map contracts at the spectral radius of I - Sigma_theta %*% Hbar, where
+    # Hbar is the curvature averaged over the node cloud rather than at the
+    # mode; that mismatch costs a near-constant factor per sweep, a sweep is
+    # a full pass of the gradient over the nodes, and on flat problems (the
+    # two-group models are the known case) the factor approaches 1 and the
+    # plain map stalls into the nlminb fallback. A secant estimate from
+    # consecutive steps removes the dominant error mode, roughly halving the
+    # sweep count and un-stalling the flat case. Convergence is still
+    # declared on the size of the raw Newton step -- the fixed-point
+    # residual -- so the accelerated solve stops at exactly the same
+    # criterion, and the same solution, as the plain one; acceleration only
+    # changes how fast it gets there. The extrapolation is skipped (plain
+    # step taken) whenever the secant is degenerate or would move further
+    # than the plain step allows.
     vb_shift <- numeric(m)
     vb_iter <- 0L
     vb_move <- Inf
     vb_fallback <- FALSE
+    vb_step_prev <- NULL
+    vb_shift_prev <- NULL
     for (it in seq_len(vb_maxit)) {
-      vb_sc <- vb_score(vb_shift, theta_star, zs)
-      if (!all(is.finite(vb_sc))) {
+      vb_sw <- vb_sweep(vb_shift, theta_star, zs)
+      if (!all(is.finite(vb_sw$score))) {
         vb_fallback <- TRUE
         break
       }
-      vb_step <- as.numeric(Sigma_theta %*% vb_sc)
+      vb_gA <- vb_sw$gA
+      vb_gB <- vb_sw$gB
+      vb_step <- as.numeric(Sigma_theta %*% vb_sw$score)
       vb_step[fp_idx] <- 0
       vb_move <- max(abs(vb_step) / vb_sd)
       if (vb_move > vb_maxstep) {
         vb_fallback <- TRUE
         break
       }
-      vb_shift <- vb_shift + vb_step
-      vb_iter <- it
       if (vb_move < vb_tol) {
+        vb_shift <- vb_shift + vb_step
+        vb_iter <- it
         break
       }
+      vb_update <- vb_step
+      if (!is.null(vb_step_prev)) {
+        df <- vb_step - vb_step_prev
+        dx <- vb_shift - vb_shift_prev
+        denom <- sum(df^2)
+        if (denom > 0) {
+          gam <- sum(vb_step * df) / denom
+          cand <- vb_step - gam * (dx + df)
+          cand[fp_idx] <- 0
+          if (
+            all(is.finite(cand)) &&
+              max(abs(cand) / vb_sd) <= min(vb_maxstep, 2 * vb_move)
+          ) {
+            vb_update <- cand
+          }
+        }
+      }
+      vb_step_prev <- vb_step
+      vb_shift_prev <- vb_shift
+      vb_shift <- vb_shift + vb_update
+      vb_iter <- it
     }
     if (vb_move >= vb_tol) {
       vb_fallback <- TRUE
