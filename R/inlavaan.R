@@ -295,23 +295,23 @@ inlavaan <- function(
     }
     gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
 
-    # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ
-    jcb <- diag(jcb, length(jcb))
-
-    # This is the extra jacobian adjustment for covariances, since dx/dθ affects
-    # more than one place if covariance exists
-    sd1sd2 <- attr(x, "sd1sd2")
-    jcb <- jcb * sd1sd2 # this adjusts the correlation parameters (diagonals)
+    # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ.
+    # The chain-rule Jacobian is a diagonal (per-parameter ginv_prime, times
+    # sd1sd2 for the correlation parameters) plus a handful of off-diagonal
+    # variance-into-covariance terms listed in jcb_mat, so the product is
+    # applied as vector work plus a short loop over those terms rather than
+    # ever forming the dense m x m matrix -- this sits inside every gradient
+    # call (optimiser, Hessian columns, VB node sweeps, marginal scans).
+    gll_th <- jcb * attr(x, "sd1sd2") * gll
     jcb_mat <- attr(x, "jcb_mat")
 
     if (!is.null(jcb_mat)) {
       for (k in seq_len(nrow(jcb_mat))) {
         i <- jcb_mat[k, 1]
         j <- jcb_mat[k, 2]
-        jcb[i, j] <- jcb_mat[k, 3]
+        gll_th[i] <- gll_th[i] + jcb_mat[k, 3] * gll[j]
       }
     }
-    gll_th <- as.numeric(jcb %*% gll) # this adjusts the cov parameters, if any
     if (isTRUE(ceq.simple)) {
       gll_th <- as.numeric(gll_th %*% ceq.K)
     } # Repack
