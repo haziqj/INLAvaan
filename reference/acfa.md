@@ -11,7 +11,7 @@ acfa(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
-  n_qmc = 128L,
+  n_qmc = 64L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -77,14 +77,10 @@ acfa(
 - n_qmc:
 
   Number of quasi-Monte Carlo nodes used by the VB mean correction.
-  Defaults to `128`, which is the size of the stored Sobol table; larger
-  values require the qrng package. The correction solves an integral
-  over these nodes, so it carries an integration error that falls as
-  `n_qmc` rises.
-  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
-  reports that error as `vb_mcse_sigma` per parameter and `vb_mcse_max`
-  globally, both in posterior-SD units, so the setting can be checked
-  rather than guessed. Ignored when `vb_correction = FALSE`.
+  Defaults to `64`; see the Details section of
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
+  Values above `128` (the size of the stored Sobol table) require the
+  qrng package. Ignored when `vb_correction = FALSE`.
 
 - marginal_method:
 
@@ -264,24 +260,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [160ms]
+#> ✔ Posterior mode and Hessian. [151ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.090σ. [590ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [243ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 15/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1.2s]
+#> ⠹ Fitting 9/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [970ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [127ms]
+#> ✔ Adjust copula correlations (NORTA). [140ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [436ms]
+#> ✔ Summarise 100 posterior draws. [475ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.3.1.9008 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9009 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -291,13 +287,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3848.734 
+#>    Marginal log-likelihood                   -3848.489 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.658 
-#>    Effective parameters (pD)                    20.744 
+#>    Deviance (DIC)                             7552.662 
+#>    Effective parameters (pD)                    20.748 
 #> 
 #> Parameter Estimates:
 #> 

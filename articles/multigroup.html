@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,9 +134,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;      fit_scalar   48   -3914.034   0.000 7509.639 48.154</span></span>
-<span><span class="co">#&gt;      fit_metric   54   -3934.804 -20.770 7480.435 53.522</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3958.310 -44.277 7483.366 58.701</span></span></code></pre></div>
+<span><span class="co">#&gt;      fit_scalar   48   -3913.717   0.000 7508.386 47.527</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3934.330 -20.614 7481.546 54.101</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3957.851 -44.135 7484.716 59.371</span></span></code></pre></div>
 </div>
 <p>These are within-flavour comparisons (all three fits model the means with proper priors), so the Bayes factors are meaningful here. But marginal likelihoods answer a prior-sensitive question – “which model gave these data the highest prior predictive density?” – and for invariance testing we usually want the predictive one: <em>which rung of the ladder predicts new children best?</em></p>
 <p><code>compare(..., loo = TRUE)</code> answers that with leave-one-out cross-validation computed from each single fit – no refitting, no sampling (see the <a href="loo.html">LOO article</a> for the machinery). Groups are independent, so every child is scored against their own school’s implied moments, and the expected log predictive density (ELPD) sums over both schools. Differences come with <em>paired</em> standard errors, since the same children are scored under every model:</p>
@@ -148,13 +148,13 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
-<span><span class="co">#&gt;      fit_metric   54   -3934.804 -20.770 7480.435 53.522 -3743.263 44.441</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3958.310 -44.277 7483.366 58.701 -3746.093 44.548</span></span>
-<span><span class="co">#&gt;      fit_scalar   48   -3914.034   0.000 7509.639 48.154 -3757.537 43.781</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3934.330 -20.614 7481.546 54.101 -3743.342 44.489</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3957.851 -44.135 7484.716 59.371 -3746.122 44.544</span></span>
+<span><span class="co">#&gt;      fit_scalar   48   -3913.717   0.000 7508.386 47.527 -3757.531 43.779</span></span>
 <span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
-<span><span class="co">#&gt;  57.671     0.000   0.000</span></span>
-<span><span class="co">#&gt;  68.476    -2.830   3.519</span></span>
-<span><span class="co">#&gt;  52.271   -14.274   5.942</span></span></code></pre></div>
+<span><span class="co">#&gt;  57.802     0.000   0.000</span></span>
+<span><span class="co">#&gt;  68.479    -2.780   3.512</span></span>
+<span><span class="co">#&gt;  52.267   -14.188   5.976</span></span></code></pre></div>
 </div>
 <p>The textbook Holzinger–Swineford story appears: metric invariance is indistinguishable from configural (the paired difference is well within one standard error, so the equal-loadings model – simpler, with the same predictive reach – is preferred), while scalar invariance costs over two standard errors of ELPD: the intercepts genuinely differ between schools. Note the instructive disagreement with the Bayes factors, which reward prior-predictive parsimony and pick the scalar model; on predictive grounds the ladder stops at metric.</p>
 </section><section class="level2"><h2 id="step-zero-is-there-any-group-difference-at-all">Step zero: is there any group difference at all?<a class="anchor" aria-label="anchor" href="#step-zero-is-there-any-group-difference-at-all"></a>
@@ -170,11 +170,11 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3958.310 -73.035 7483.366 58.701 -3746.093 44.548</span></span>
-<span><span class="co">#&gt;      fit_pooled   30   -3885.276   0.000 7535.463 29.799 -3769.155 43.055</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3957.851 -72.739 7484.716 59.371 -3746.122 44.544</span></span>
+<span><span class="co">#&gt;      fit_pooled   30   -3885.112   0.000 7535.195 29.671 -3769.163 42.996</span></span>
 <span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
-<span><span class="co">#&gt;  68.476     0.000   0.000</span></span>
-<span><span class="co">#&gt;  32.642   -23.061  11.537</span></span></code></pre></div>
+<span><span class="co">#&gt;  68.479     0.000   0.000</span></span>
+<span><span class="co">#&gt;  32.597   -23.041  11.558</span></span></code></pre></div>
 </div>
 <p>Allowing the two schools their own parameters clearly improves prediction, so the multigroup analysis is warranted.</p>
 </section><section class="level2"><h2 id="pointwise-diagnostics-by-group">Pointwise diagnostics by group<a class="anchor" aria-label="anchor" href="#pointwise-diagnostics-by-group"></a>
@@ -188,9 +188,9 @@
 <span><span class="co">#&gt; ── Leave-one-subject-out ───────────── 301 subjects in 2 groups, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_loo  -3743.3 44.4</span></span>
-<span><span class="co">#&gt; p_loo        57.7  4.1</span></span>
-<span><span class="co">#&gt; looic      7486.5 88.9</span></span>
+<span><span class="co">#&gt; elpd_loo  -3743.3 44.5</span></span>
+<span><span class="co">#&gt; p_loo        57.8  4.1</span></span>
+<span><span class="co">#&gt; looic      7486.7 89.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 301 subjects ──</span></span>
 <span><span class="co">#&gt;   first-to-second-order gap        28.9</span></span>
@@ -202,15 +202,15 @@
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">loo_metric</span><span class="op">$</span><span class="va">per_unit</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   unit   group nobs    l_star score_norm     lpd_1</span></span>
-<span><span class="co">#&gt; 1    1 Pasteur    1 -17.70338   6.676914 -17.49387</span></span>
-<span><span class="co">#&gt; 2    2 Pasteur    1 -13.43718   4.843123 -13.31820</span></span>
-<span><span class="co">#&gt; 3    3 Pasteur    1 -10.90093   3.166166 -10.84189</span></span>
+<span><span class="co">#&gt; 1    1 Pasteur    1 -17.73264   6.698259 -17.52204</span></span>
+<span><span class="co">#&gt; 2    2 Pasteur    1 -13.45279   4.858706 -13.33301</span></span>
+<span><span class="co">#&gt; 3    3 Pasteur    1 -10.89661   3.166017 -10.83771</span></span>
 <span></span>
 <span><span class="co"># Where does scalar invariance lose predictive density?</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="va">loo_scalar</span><span class="op">$</span><span class="va">per_unit</span><span class="op">$</span><span class="va">log_cpo_2</span> <span class="op">-</span> <span class="va">loo_metric</span><span class="op">$</span><span class="va">per_unit</span><span class="op">$</span><span class="va">log_cpo_2</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html" class="external-link">tapply</a></span><span class="op">(</span><span class="va">d</span>, <span class="va">loo_scalar</span><span class="op">$</span><span class="va">per_unit</span><span class="op">$</span><span class="va">group</span>, <span class="va">sum</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Grant-White     Pasteur </span></span>
-<span><span class="co">#&gt;   -6.792034   -7.481925</span></span></code></pre></div>
+<span><span class="co">#&gt;   -6.662481   -7.525896</span></span></code></pre></div>
 </div>
 <p>Both schools pay for the intercept constraints, confirming the misfit is not driven by a handful of cases in one school.</p>
 <p><code><a href="../reference/waic.html">waic()</a></code> works the same way for multigroup fits, with the same <code>group</code> column in its pointwise table.</p>

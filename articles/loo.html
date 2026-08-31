@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,12 +138,12 @@
 <span><span class="co">#&gt; ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_loo  -3769.2 43.1</span></span>
+<span><span class="co">#&gt; elpd_loo  -3769.2 43.0</span></span>
 <span><span class="co">#&gt; p_loo        32.6  2.2</span></span>
-<span><span class="co">#&gt; looic      7538.3 86.1</span></span>
+<span><span class="co">#&gt; looic      7538.3 86.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 301 subjects ──</span></span>
-<span><span class="co">#&gt;   first-to-second-order gap        15.4</span></span>
+<span><span class="co">#&gt;   first-to-second-order gap        15.5</span></span>
 <span><span class="co">#&gt;   pD/2 (trace)                     14.6</span></span>
 <span><span class="co">#&gt;   excess over pD/2 (trace)        +6.1%</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -155,19 +155,19 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">per_unit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   unit nobs    l_star score_norm     lpd_1     lpd_2 log_cpo_1 log_cpo_2</span></span>
-<span><span class="co">#&gt; 1    1    1 -17.29545   6.643288 -17.18112 -17.22792 -17.40978 -17.46025</span></span>
-<span><span class="co">#&gt; 2    2    1 -13.76705   5.418940 -13.68460 -13.75483 -13.84949 -13.92427</span></span>
-<span><span class="co">#&gt; 3    3    1 -11.11688   3.805357 -11.08068 -11.17193 -11.15309 -11.24677</span></span>
-<span><span class="co">#&gt; 4    4    1 -10.24659   2.579647 -10.23261 -10.27940 -10.26057 -10.30841</span></span>
-<span><span class="co">#&gt; 5    5    1 -10.70151   2.978081 -10.68800 -10.73493 -10.71501 -10.76301</span></span>
-<span><span class="co">#&gt; 6    6    1 -13.37033   4.986879 -13.30898 -13.39645 -13.43168 -13.52332</span></span>
+<span><span class="co">#&gt; 1    1    1 -17.28684   6.635476 -17.17217 -17.21893 -17.40151 -17.45192</span></span>
+<span><span class="co">#&gt; 2    2    1 -13.78478   5.434572 -13.70197 -13.77222 -13.86760 -13.94246</span></span>
+<span><span class="co">#&gt; 3    3    1 -11.11607   3.794352 -11.08014 -11.17135 -11.15201 -11.24565</span></span>
+<span><span class="co">#&gt; 4    4    1 -10.25394   2.583283 -10.23987 -10.28655 -10.26801 -10.31573</span></span>
+<span><span class="co">#&gt; 5    5    1 -10.70222   2.973350 -10.68877 -10.73572 -10.71567 -10.76369</span></span>
+<span><span class="co">#&gt; 6    6    1 -13.38440   5.003680 -13.32254 -13.41005 -13.44627 -13.53799</span></span>
 <span><span class="co">#&gt;      det_term      k_max        k_min      k_sum       k_ssq   ok</span></span>
-<span><span class="co">#&gt; 1 -0.04883400 0.03782106 -0.041183096 0.09416414 0.006987381 TRUE</span></span>
-<span><span class="co">#&gt; 2 -0.07220261 0.05775388 -0.048851942 0.14002600 0.008645817 TRUE</span></span>
-<span><span class="co">#&gt; 3 -0.09294757 0.04152821 -0.009600199 0.18346371 0.004773908 TRUE</span></span>
-<span><span class="co">#&gt; 4 -0.04776182 0.02997023 -0.010393028 0.09446928 0.002081667 TRUE</span></span>
-<span><span class="co">#&gt; 5 -0.04794142 0.03024131 -0.011323798 0.09480388 0.002129967 TRUE</span></span>
-<span><span class="co">#&gt; 6 -0.08977455 0.06542428 -0.023020501 0.17539799 0.008063705 TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 -0.04877800 0.03771003 -0.041158433 0.09406725 0.006957204 TRUE</span></span>
+<span><span class="co">#&gt; 2 -0.07227935 0.05815722 -0.049561144 0.14011057 0.008783305 TRUE</span></span>
+<span><span class="co">#&gt; 3 -0.09292559 0.04160895 -0.009708889 0.18341460 0.004783929 TRUE</span></span>
+<span><span class="co">#&gt; 4 -0.04763963 0.02980145 -0.010455924 0.09422994 0.002071943 TRUE</span></span>
+<span><span class="co">#&gt; 5 -0.04796120 0.03028302 -0.011319956 0.09484053 0.002135644 TRUE</span></span>
+<span><span class="co">#&gt; 6 -0.08983577 0.06559532 -0.023306856 0.17549082 0.008120885 TRUE</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="comparing-models">Comparing models<a class="anchor" aria-label="anchor" href="#comparing-models"></a>
 </h2>
@@ -178,7 +178,7 @@
 <span><span class="va">fit1f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">one.factor</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>              verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Fit diagnostics flagged 1 potential issue:</span></span>
-<span><span class="co">#&gt; ✖ The VB correction shifted `g=~x5` by 1.07 posterior SDs; the Gaussian</span></span>
+<span><span class="co">#&gt; ✖ The VB correction shifted `g=~x5` by 1.02 posterior SDs; the Gaussian</span></span>
 <span><span class="co">#&gt;   approximation at the mode may be inaccurate.</span></span>
 <span><span class="co">#&gt; ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.</span></span>
 <span></span>
@@ -187,12 +187,12 @@
 <span><span class="co">#&gt; Models ordered by ELPD (Taylor LOO, second-order)</span></span>
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3885.276    0.000 7534.418 29.276 -3769.155 43.055 32.642</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3990.547 -105.271 7756.858 26.753 -3877.990 46.723 27.287</span></span>
+<span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
+<span><span class="co">#&gt;    fit   30   -3885.112    0.00 7534.429 29.288 -3769.163 42.996 32.597</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3990.302 -105.19 7757.519 27.119 -3878.041 46.738 27.377</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
-<span><span class="co">#&gt;      0.000    0.00</span></span>
-<span><span class="co">#&gt;   -108.835   17.04</span></span></code></pre></div>
+<span><span class="co">#&gt;      0.000   0.000</span></span>
+<span><span class="co">#&gt;   -108.878  17.009</span></span></code></pre></div>
 </div>
 <p>Models are sorted by descending ELPD; <code>elpd_diff</code> and <code>se_diff</code> are relative to the best model. A common heuristic is that a difference smaller than a couple of <code>se_diff</code> units is not practically meaningful <span class="citation" data-cites="vehtari2017practical">(<a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span> – here the three-factor model is preferred by a wide margin.</p>
 </section><section class="level2"><h2 id="two-level-models">Two-level models<a class="anchor" aria-label="anchor" href="#two-level-models"></a>
@@ -216,11 +216,11 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate     SE</span></span>
 <span><span class="co">#&gt; elpd_loo -23344.2  731.4</span></span>
-<span><span class="co">#&gt; p_loo        34.5    2.1</span></span>
+<span><span class="co">#&gt; p_loo        34.6    2.1</span></span>
 <span><span class="co">#&gt; looic     46688.4 1462.9</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 200 clusters ──</span></span>
-<span><span class="co">#&gt;   first-to-second-order gap        17.4</span></span>
+<span><span class="co">#&gt;   first-to-second-order gap        17.5</span></span>
 <span><span class="co">#&gt;   pD/2 (trace)                     16.7</span></span>
 <span><span class="co">#&gt;   excess over pD/2 (trace)        +4.3%</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -253,14 +253,14 @@
 <span><span class="co">#&gt; ── Leave-one-subject-out ───────────────────────── 300 subjects, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_loo  -3748.0 44.8</span></span>
-<span><span class="co">#&gt; p_loo        45.0  2.7</span></span>
-<span><span class="co">#&gt; looic      7496.1 89.6</span></span>
+<span><span class="co">#&gt; elpd_loo  -3748.2 44.7</span></span>
+<span><span class="co">#&gt; p_loo        45.1  2.7</span></span>
+<span><span class="co">#&gt; looic      7496.4 89.4</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 300 subjects ──</span></span>
 <span><span class="co">#&gt;   first-to-second-order gap        21.8</span></span>
-<span><span class="co">#&gt;   pD/2 (trace)                     15.7</span></span>
-<span><span class="co">#&gt;   excess over pD/2 (trace)       +38.8%</span></span>
+<span><span class="co">#&gt;   pD/2 (trace)                     15.8</span></span>
+<span><span class="co">#&gt;   excess over pD/2 (trace)       +38.5%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ The gap approaches pD/2 (trace) from above. A large excess says the</span></span>
 <span><span class="co">#&gt;   second-order expansion has not settled over the sample.</span></span></code></pre></div>
@@ -282,11 +282,11 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;   fit_cond   32   -3875.885   0.000 7540.349 60.486 -3748.027 44.781 45.034</span></span>
-<span><span class="co">#&gt;  fit_cond1   29   -3904.563 -28.678 7568.499 30.024 -3787.512 43.787 38.018</span></span>
+<span><span class="co">#&gt;   fit_cond   32   -3875.808   0.000 7541.017 60.753 -3748.201 44.714 45.083</span></span>
+<span><span class="co">#&gt;  fit_cond1   29   -3905.370 -29.562 7568.632 30.015 -3787.788 43.764 38.144</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
-<span><span class="co">#&gt;      0.000   0.000</span></span>
-<span><span class="co">#&gt;    -39.485  10.236</span></span></code></pre></div>
+<span><span class="co">#&gt;      0.000    0.00</span></span>
+<span><span class="co">#&gt;    -39.587   10.21</span></span></code></pre></div>
 </div>
 <p>(Under the joint flavour the same comparison would require retaining <code>grade</code> in both models, since joint scores of models spanning different variable sets live on different sample spaces.) Both flavours support any covariate placement, including cluster-level and within-level covariates in two-level models.</p>
 </section><section class="level2"><h2 id="storing-the-result-with-the-fit">Storing the result with the fit<a class="anchor" aria-label="anchor" href="#storing-the-result-with-the-fit"></a>
@@ -308,7 +308,7 @@
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">fitMeasures</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elpd_loo"</span>, <span class="st">"se_loo"</span>, <span class="st">"p_loo"</span>, <span class="st">"looic"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  elpd_loo     p_loo     looic    se_loo </span></span>
-<span><span class="co">#&gt; -3769.155    32.642  7538.310    86.110</span></span></code></pre></div>
+<span><span class="co">#&gt; -3769.163    32.597  7538.327    85.992</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="waic">WAIC<a class="anchor" aria-label="anchor" href="#waic"></a>
 </h2>
@@ -320,8 +320,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Estimate   SE</span></span>
 <span><span class="co">#&gt; elpd_waic  -3769.1 43.0</span></span>
-<span><span class="co">#&gt; p_waic        32.6  2.1</span></span>
-<span><span class="co">#&gt; waic        7538.2 86.1</span></span></code></pre></div>
+<span><span class="co">#&gt; p_waic        32.5  2.1</span></span>
+<span><span class="co">#&gt; waic        7538.2 86.0</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="scoring-submodels-without-refitting">Scoring submodels without refitting<a class="anchor" aria-label="anchor" href="#scoring-submodels-without-refitting"></a>
 </h2>
@@ -340,15 +340,15 @@
 <span><span class="co">#&gt; ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;          Estimate   SE</span></span>
-<span><span class="co">#&gt; elpd_loo  -3786.3 45.1</span></span>
+<span><span class="co">#&gt; elpd_loo  -3786.3 45.0</span></span>
 <span><span class="co">#&gt; p_loo        34.2  2.5</span></span>
-<span><span class="co">#&gt; looic      7572.7 90.1</span></span>
+<span><span class="co">#&gt; looic      7572.6 90.1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Evaluated at a user-supplied (theta, Sigma) summary.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Curvature check ───────────────────────────────────────────── 301 subjects ──</span></span>
 <span><span class="co">#&gt;   first-to-second-order gap        16.4</span></span>
-<span><span class="co">#&gt;   pD/2 (trace)                     15.3</span></span>
+<span><span class="co">#&gt;   pD/2 (trace)                     15.4</span></span>
 <span><span class="co">#&gt;   excess over pD/2 (trace)        +6.6%</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ The gap approaches pD/2 (trace) from above. A large excess says the</span></span>

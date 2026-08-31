@@ -11,7 +11,7 @@ agrowth(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
-  n_qmc = 128L,
+  n_qmc = 64L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -77,14 +77,10 @@ agrowth(
 - n_qmc:
 
   Number of quasi-Monte Carlo nodes used by the VB mean correction.
-  Defaults to `128`, which is the size of the stored Sobol table; larger
-  values require the qrng package. The correction solves an integral
-  over these nodes, so it carries an integration error that falls as
-  `n_qmc` rises.
-  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
-  reports that error as `vb_mcse_sigma` per parameter and `vb_mcse_max`
-  globally, both in posterior-SD units, so the setting can be checked
-  rather than guessed. Ignored when `vb_correction = FALSE`.
+  Defaults to `64`; see the Details section of
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
+  Values above `128` (the size of the stored Sobol table) require the
+  qrng package. Ignored when `vb_correction = FALSE`.
 
 - marginal_method:
 
@@ -285,24 +281,24 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [280ms]
+#> ✔ Posterior mode and Hessian. [270ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [575ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [285ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 15/17 skew-normal marginals.
+#> ⠹ Fitting 13/17 skew-normal marginals.
 #> ✔ Fit 17/17 skew-normal marginals. [1.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [76ms]
+#> ✔ Adjust copula correlations (NORTA). [82ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [533ms]
+#> ✔ Summarise 100 posterior draws. [628ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.3.1.9008 ended normally after 83 iterations
+#> INLAvaan 0.3.1.9009 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -312,13 +308,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -2566.076 
+#>    Marginal log-likelihood                   -2565.893 
 #>    PPP (Chi-square)                              0.940 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4997.470 
-#>    Effective parameters (pD)                    17.566 
+#>    Deviance (DIC)                             4997.474 
+#>    Effective parameters (pD)                    17.570 
 #> 
 #> Parameter Estimates:
 #> 

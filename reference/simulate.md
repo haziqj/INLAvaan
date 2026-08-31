@@ -110,20 +110,19 @@ single-observation draws from the predictive distribution
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [38ms]
+#> ✔ Posterior mode and Hessian. [49ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.267σ. [382ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [251ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [77ms]
+#> ✔ Fit 6/6 skew-normal marginals. [115ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjust copula correlations (NORTA). [20ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [626ms]
+#> ✔ Summarise 1000 posterior draws. [747ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -144,7 +143,7 @@ attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
 #>      0.7572526 
 attr(sims[[1]], "truth_theta")     # corresponding unconstrained (theta-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>     0.63734494     0.71325538    -0.51736634    -0.10048167    -0.07803498 
+#>     0.63734493     0.71325538    -0.51736634    -0.10048167    -0.07803498 
 #> visual~~visual 
 #>    -0.27805834 
 

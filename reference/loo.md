@@ -402,20 +402,19 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [179ms]
+#> ✔ Posterior mode and Hessian. [170ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.122σ. [436ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [184ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [895ms]
+#> ✔ Fit 30/30 skew-normal marginals. [841ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [117ms]
+#> ✔ Adjust copula correlations (NORTA). [135ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [939ms]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 
@@ -426,31 +425,31 @@ res
 #> 
 #>          Estimate   SE
 #> elpd_loo  -3769.1 43.0
-#> p_loo        32.6  2.2
+#> p_loo        32.5  2.2
 #> looic      7538.2 86.0
 #> 
 #> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
 #>   first-to-second-order gap        15.4
-#>   pD/2 (trace)                     14.6
+#>   pD/2 (trace)                     14.5
 #>   excess over pD/2 (trace)        +6.1%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
 #>   second-order expansion has not settled over the sample.
 head(res$per_unit)
 #>   unit nobs    l_star score_norm     lpd_1     lpd_2 log_cpo_1 log_cpo_2
-#> 1    1    1 -17.29878   6.642905 -17.18444 -17.23120 -17.41312 -17.46355
-#> 2    2    1 -13.78088   5.435079 -13.69812 -13.76860 -13.86363 -13.93871
-#> 3    3    1 -11.11478   3.795329 -11.07874 -11.16959 -11.15082 -11.24408
-#> 4    4    1 -10.24922   2.578469 -10.23523 -10.28197 -10.26322 -10.31100
-#> 5    5    1 -10.70102   2.974019 -10.68755 -10.73446 -10.71448 -10.76245
-#> 6    6    1 -13.38300   5.004647 -13.32107 -13.40858 -13.44494 -13.53666
+#> 1    1    1 -17.30919   6.646703 -17.19476 -17.24151 -17.42362 -17.47403
+#> 2    2    1 -13.78169   5.442203 -13.69904 -13.76970 -13.86434 -13.93963
+#> 3    3    1 -11.11040   3.789743 -11.07449 -11.16498 -11.14631 -11.23920
+#> 4    4    1 -10.25262   2.580054 -10.23857 -10.28526 -10.26667 -10.31439
+#> 5    5    1 -10.70128   2.974402 -10.68783 -10.73479 -10.71473 -10.76276
+#> 6    6    1 -13.37858   5.008821 -13.31650 -13.40400 -13.44066 -13.53238
 #>      det_term      k_max        k_min      k_sum       k_ssq   ok
-#> 1 -0.04879691 0.03778257 -0.041218274 0.09409140 0.006984889 TRUE
-#> 2 -0.07249428 0.05849323 -0.049136970 0.14055113 0.008758419 TRUE
-#> 3 -0.09253323 0.04156549 -0.009685544 0.18264834 0.004747795 TRUE
-#> 4 -0.04769973 0.02983925 -0.010322641 0.09435139 0.002069376 TRUE
-#> 5 -0.04791534 0.03021165 -0.011349021 0.09475356 0.002126413 TRUE
-#> 6 -0.08980337 0.06573090 -0.023136735 0.17543416 0.008104099 TRUE
+#> 1 -0.04877732 0.03773964 -0.041266991 0.09404961 0.006990423 TRUE
+#> 2 -0.07270997 0.05910469 -0.049278162 0.14094433 0.008831504 TRUE
+#> 3 -0.09217179 0.04153084 -0.009791359 0.18193722 0.004724893 TRUE
+#> 4 -0.04763225 0.02969695 -0.010269099 0.09422303 0.002056503 TRUE
+#> 5 -0.04796440 0.03026567 -0.011352189 0.09484979 0.002130082 TRUE
+#> 6 -0.08977773 0.06593768 -0.023150767 0.17537797 0.008112617 TRUE
 
 # Score a submodel without refitting: condition the Laplace summary on the
 # visual ~~ speed covariance being zero, then evaluate at that summary
@@ -464,16 +463,16 @@ loo(fit, theta = theta_c, Sigma = Sigma_c)
 #> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3786.2 45.0
+#> elpd_loo  -3786.1 45.0
 #> p_loo        34.1  2.5
-#> looic      7572.4 90.1
+#> looic      7572.1 90.0
 #> 
 #> ℹ Evaluated at a user-supplied (theta, Sigma) summary.
 #> 
 #> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
 #>   first-to-second-order gap        16.3
 #>   pD/2 (trace)                     15.3
-#>   excess over pD/2 (trace)        +6.6%
+#>   excess over pD/2 (trace)        +6.5%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
 #>   second-order expansion has not settled over the sample.
@@ -491,21 +490,23 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [869ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.049σ. [2.2s]
+#> ✔ VB correction; mean |δ| = 0.050σ. [832ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 11/34 skew-normal marginals.
-#> ⠸ Fitting 26/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.5s]
+#> ⠹ Fitting 7/34 skew-normal marginals.
+#> ⠸ Fitting 23/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6.6s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [98ms]
+#> ✔ Adjust copula correlations (NORTA). [130ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [6.6s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [9.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 loo(fit2l)

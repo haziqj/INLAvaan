@@ -11,7 +11,7 @@ asem(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
-  n_qmc = 128L,
+  n_qmc = 64L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -77,14 +77,10 @@ asem(
 - n_qmc:
 
   Number of quasi-Monte Carlo nodes used by the VB mean correction.
-  Defaults to `128`, which is the size of the stored Sobol table; larger
-  values require the qrng package. The correction solves an integral
-  over these nodes, so it carries an integration error that falls as
-  `n_qmc` rises.
-  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
-  reports that error as `vb_mcse_sigma` per parameter and `vb_mcse_max`
-  globally, both in posterior-SD units, so the setting can be checked
-  rather than guessed. Ignored when `vb_correction = FALSE`.
+  Defaults to `64`; see the Details section of
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
+  Values above `128` (the size of the stored Sobol table) require the
+  qrng package. Ignored when `vb_correction = FALSE`.
 
 - marginal_method:
 
@@ -276,23 +272,23 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [247ms]
+#> ✔ Posterior mode and Hessian. [245ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.173σ. [794ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [411ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 11/28 skew-normal marginals.
+#> ⠹ Fitting 12/28 skew-normal marginals.
 #> ✔ Fit 28/28 skew-normal marginals. [2.2s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [170ms]
+#> ✔ Adjust copula correlations (NORTA). [242ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [217ms]
+#> ✔ Summarise 1000 posterior draws. [334ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.1.9008 ended normally after 82 iterations
+#> INLAvaan 0.3.1.9009 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -302,7 +298,7 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1653.131 
+#>    Marginal log-likelihood                   -1652.924 
 #> 
 #> Parameter Estimates:
 #> 

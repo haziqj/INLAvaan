@@ -16,7 +16,7 @@ inlavaan(
   dp = priors_for(),
   test = "standard",
   vb_correction = TRUE,
-  n_qmc = 128L,
+  n_qmc = 64L,
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -95,14 +95,9 @@ inlavaan(
 - n_qmc:
 
   Number of quasi-Monte Carlo nodes used by the VB mean correction.
-  Defaults to `128`, which is the size of the stored Sobol table; larger
-  values require the qrng package. The correction solves an integral
-  over these nodes, so it carries an integration error that falls as
-  `n_qmc` rises.
-  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
-  reports that error as `vb_mcse_sigma` per parameter and `vb_mcse_max`
-  globally, both in posterior-SD units, so the setting can be checked
-  rather than guessed. Ignored when `vb_correction = FALSE`.
+  Defaults to `64`; see the Details section of `inlavaan()`. Values
+  above `128` (the size of the stored Sobol table) require the qrng
+  package. Ignored when `vb_correction = FALSE`.
 
 - marginal_method:
 
@@ -242,6 +237,18 @@ inlavaan(
 An S4 object of class `INLAvaan` which is a subclass of the
 [lavaan](https://rdrr.io/pkg/lavaan/man/lavaan-class.html) class.
 
+## Details
+
+The VB mean correction integrates over `n_qmc` quasi-Monte Carlo nodes,
+so it carries a quadrature error that falls as `n_qmc` rises. The
+default of `64` keeps this error at roughly 0.05 posterior SDs – on par
+with the Monte Carlo error of a routine MCMC run, and small against the
+shifts being corrected. Users may increase `n_qmc` to reduce the error
+further, at a proportional cost in computation time;
+[`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+reports the realised error per fit as `vb_mcse_sigma` per parameter and
+`vb_mcse_max` globally, both in posterior-SD units.
+
 ## See also
 
 Typically, users will interact with the specific latent variable model
@@ -269,24 +276,23 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [167ms]
+#> ✔ Posterior mode and Hessian. [164ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.164σ. [727ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [311ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 14/21 skew-normal marginals.
 #> ✔ Fit 21/21 skew-normal marginals. [1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [115ms]
+#> ✔ Adjust copula correlations (NORTA). [136ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [859ms]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)
-#> INLAvaan 0.3.1.9008 ended normally after 65 iterations
+#> INLAvaan 0.3.1.9009 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -296,13 +302,13 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3841.212 
+#>    Marginal log-likelihood                   -3841.076 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.661 
-#>    Effective parameters (pD)                    20.668 
+#>    Deviance (DIC)                             7552.665 
+#>    Effective parameters (pD)                    20.672 
 #> 
 #> Parameter Estimates:
 #> 

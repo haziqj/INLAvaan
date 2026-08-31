@@ -122,12 +122,12 @@ fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE,
 #> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3769.2 43.1
+#> elpd_loo  -3769.2 43.0
 #> p_loo        32.6  2.2
-#> looic      7538.3 86.1
+#> looic      7538.3 86.0
 #> 
 #> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
-#>   first-to-second-order gap        15.4
+#>   first-to-second-order gap        15.5
 #>   pD/2 (trace)                     14.6
 #>   excess over pD/2 (trace)        +6.1%
 #> 
@@ -143,19 +143,19 @@ spotting influential observations (a large `score_norm` or unusually low
 
 head(res$per_unit)
 #>   unit nobs    l_star score_norm     lpd_1     lpd_2 log_cpo_1 log_cpo_2
-#> 1    1    1 -17.29545   6.643288 -17.18112 -17.22792 -17.40978 -17.46025
-#> 2    2    1 -13.76705   5.418940 -13.68460 -13.75483 -13.84949 -13.92427
-#> 3    3    1 -11.11688   3.805357 -11.08068 -11.17193 -11.15309 -11.24677
-#> 4    4    1 -10.24659   2.579647 -10.23261 -10.27940 -10.26057 -10.30841
-#> 5    5    1 -10.70151   2.978081 -10.68800 -10.73493 -10.71501 -10.76301
-#> 6    6    1 -13.37033   4.986879 -13.30898 -13.39645 -13.43168 -13.52332
+#> 1    1    1 -17.28684   6.635476 -17.17217 -17.21893 -17.40151 -17.45192
+#> 2    2    1 -13.78478   5.434572 -13.70197 -13.77222 -13.86760 -13.94246
+#> 3    3    1 -11.11607   3.794352 -11.08014 -11.17135 -11.15201 -11.24565
+#> 4    4    1 -10.25394   2.583283 -10.23987 -10.28655 -10.26801 -10.31573
+#> 5    5    1 -10.70222   2.973350 -10.68877 -10.73572 -10.71567 -10.76369
+#> 6    6    1 -13.38440   5.003680 -13.32254 -13.41005 -13.44627 -13.53799
 #>      det_term      k_max        k_min      k_sum       k_ssq   ok
-#> 1 -0.04883400 0.03782106 -0.041183096 0.09416414 0.006987381 TRUE
-#> 2 -0.07220261 0.05775388 -0.048851942 0.14002600 0.008645817 TRUE
-#> 3 -0.09294757 0.04152821 -0.009600199 0.18346371 0.004773908 TRUE
-#> 4 -0.04776182 0.02997023 -0.010393028 0.09446928 0.002081667 TRUE
-#> 5 -0.04794142 0.03024131 -0.011323798 0.09480388 0.002129967 TRUE
-#> 6 -0.08977455 0.06542428 -0.023020501 0.17539799 0.008063705 TRUE
+#> 1 -0.04877800 0.03771003 -0.041158433 0.09406725 0.006957204 TRUE
+#> 2 -0.07227935 0.05815722 -0.049561144 0.14011057 0.008783305 TRUE
+#> 3 -0.09292559 0.04160895 -0.009708889 0.18341460 0.004783929 TRUE
+#> 4 -0.04763963 0.02980145 -0.010455924 0.09422994 0.002071943 TRUE
+#> 5 -0.04796120 0.03028302 -0.011319956 0.09484053 0.002135644 TRUE
+#> 6 -0.08983577 0.06559532 -0.023306856 0.17549082 0.008120885 TRUE
 ```
 
 ## Comparing models
@@ -171,7 +171,7 @@ one.factor <- "g =~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9"
 fit1f <- acfa(one.factor, HolzingerSwineford1939, meanstructure = TRUE,
               verbose = FALSE)
 #> Warning: Fit diagnostics flagged 1 potential issue:
-#> ✖ The VB correction shifted `g=~x5` by 1.07 posterior SDs; the Gaussian
+#> ✖ The VB correction shifted `g=~x5` by 1.02 posterior SDs; the Gaussian
 #>   approximation at the mode may be inaccurate.
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 
@@ -180,12 +180,12 @@ compare(fit, fit1f, loo = TRUE)
 #> Models ordered by ELPD (Taylor LOO, second-order)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
-#>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.276    0.000 7534.418 29.276 -3769.155 43.055 32.642
-#>  fit1f   27   -3990.547 -105.271 7756.858 26.753 -3877.990 46.723 27.287
+#>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
+#>    fit   30   -3885.112    0.00 7534.429 29.288 -3769.163 42.996 32.597
+#>  fit1f   27   -3990.302 -105.19 7757.519 27.119 -3878.041 46.738 27.377
 #>  elpd_diff se_diff
-#>      0.000    0.00
-#>   -108.835   17.04
+#>      0.000   0.000
+#>   -108.878  17.009
 ```
 
 Models are sorted by descending ELPD; `elpd_diff` and `se_diff` are
@@ -220,11 +220,11 @@ loo(fit2l)
 #> 
 #>          Estimate     SE
 #> elpd_loo -23344.2  731.4
-#> p_loo        34.5    2.1
+#> p_loo        34.6    2.1
 #> looic     46688.4 1462.9
 #> 
 #> ── Curvature check ───────────────────────────────────────────── 200 clusters ──
-#>   first-to-second-order gap        17.4
+#>   first-to-second-order gap        17.5
 #>   pD/2 (trace)                     16.7
 #>   excess over pD/2 (trace)        +4.3%
 #> 
@@ -271,14 +271,14 @@ loo(fit_cond)
 #> ── Leave-one-subject-out ───────────────────────── 300 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3748.0 44.8
-#> p_loo        45.0  2.7
-#> looic      7496.1 89.6
+#> elpd_loo  -3748.2 44.7
+#> p_loo        45.1  2.7
+#> looic      7496.4 89.4
 #> 
 #> ── Curvature check ───────────────────────────────────────────── 300 subjects ──
 #>   first-to-second-order gap        21.8
-#>   pD/2 (trace)                     15.7
-#>   excess over pD/2 (trace)       +38.8%
+#>   pD/2 (trace)                     15.8
+#>   excess over pD/2 (trace)       +38.5%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
 #>   second-order expansion has not settled over the sample.
@@ -308,11 +308,11 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.885   0.000 7540.349 60.486 -3748.027 44.781 45.034
-#>  fit_cond1   29   -3904.563 -28.678 7568.499 30.024 -3787.512 43.787 38.018
+#>   fit_cond   32   -3875.808   0.000 7541.017 60.753 -3748.201 44.714 45.083
+#>  fit_cond1   29   -3905.370 -29.562 7568.632 30.015 -3787.788 43.764 38.144
 #>  elpd_diff se_diff
-#>      0.000   0.000
-#>    -39.485  10.236
+#>      0.000    0.00
+#>    -39.587   10.21
 ```
 
 (Under the joint flavour the same comparison would require retaining
@@ -357,7 +357,7 @@ A stored result is returned instantly by `loo(fit)` and reused by
 
 fitMeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
 #>  elpd_loo     p_loo     looic    se_loo 
-#> -3769.155    32.642  7538.310    86.110
+#> -3769.163    32.597  7538.327    85.992
 ```
 
 ## WAIC
@@ -387,8 +387,8 @@ waic(fit)
 #> 
 #>           Estimate   SE
 #> elpd_waic  -3769.1 43.0
-#> p_waic        32.6  2.1
-#> waic        7538.2 86.1
+#> p_waic        32.5  2.1
+#> waic        7538.2 86.0
 ```
 
 ## Scoring submodels without refitting
@@ -414,15 +414,15 @@ loo(fit, theta = theta_c, Sigma = Sigma_c)
 #> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3786.3 45.1
+#> elpd_loo  -3786.3 45.0
 #> p_loo        34.2  2.5
-#> looic      7572.7 90.1
+#> looic      7572.6 90.1
 #> 
 #> ℹ Evaluated at a user-supplied (theta, Sigma) summary.
 #> 
 #> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
 #>   first-to-second-order gap        16.4
-#>   pD/2 (trace)                     15.3
+#>   pD/2 (trace)                     15.4
 #>   excess over pD/2 (trace)        +6.6%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
