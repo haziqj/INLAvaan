@@ -31,16 +31,9 @@
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
-#'   correction. The correction solves an integral over these nodes, so it
-#'   carries an integration error that falls as `n_qmc` rises. The default of
-#'   `64` keeps that error at roughly 0.05 posterior SDs or less -- on par
-#'   with the Monte Carlo error of a routine MCMC run and well below the size
-#'   of the shifts being corrected; `128` (the size of the stored Sobol
-#'   table; larger values require the \pkg{qrng} package) roughly halves it
-#'   again for models where the correction itself is of particular interest.
-#'   `diagnostics()` reports the realised error as `vb_mcse_sigma` per
-#'   parameter and `vb_mcse_max` globally, both in posterior-SD units, so the
-#'   setting can be checked rather than guessed. Ignored when
+#'   correction. Defaults to `64`; see the Details section of [inlavaan()].
+#'   Values above `128` (the size
+#'   of the stored Sobol table) require the \pkg{qrng} package. Ignored when
 #'   `vb_correction = FALSE`.
 #' @param marginal_method The method for approximating the marginal posterior
 #'   distributions. Options include `"skewnorm"` (skew-normal), `"asymgaus"`
@@ -118,6 +111,15 @@
 #'   cores using [parallel::mclapply()] (fork-based; no parallelism on Windows).
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
 #'   function.
+#'
+#' @details The VB mean correction integrates over `n_qmc` quasi-Monte Carlo
+#'   nodes, so it carries a quadrature error that falls as `n_qmc` rises. The
+#'   default of `64` keeps this error at roughly 0.05 posterior SDs -- on par
+#'   with the Monte Carlo error of a routine MCMC run, and small against the
+#'   shifts being corrected. Users may increase `n_qmc` to reduce the error
+#'   further, at a proportional cost in computation time; `diagnostics()`
+#'   reports the realised error per fit as `vb_mcse_sigma` per parameter and
+#'   `vb_mcse_max` globally, both in posterior-SD units.
 #'
 #' @seealso Typically, users will interact with the specific latent variable
 #'   model functions instead, including [acfa()], [asem()], and [agrowth()].

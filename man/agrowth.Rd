@@ -58,16 +58,9 @@ alone) to force the full LOO regardless of the budget.}
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 
 \item{n_qmc}{Number of quasi-Monte Carlo nodes used by the VB mean
-correction. The correction solves an integral over these nodes, so it
-carries an integration error that falls as \code{n_qmc} rises. The default of
-\code{64} keeps that error at roughly 0.05 posterior SDs or less -- on par
-with the Monte Carlo error of a routine MCMC run and well below the size
-of the shifts being corrected; \code{128} (the size of the stored Sobol
-table; larger values require the \pkg{qrng} package) roughly halves it
-again for models where the correction itself is of particular interest.
-\code{diagnostics()} reports the realised error as \code{vb_mcse_sigma} per
-parameter and \code{vb_mcse_max} globally, both in posterior-SD units, so the
-setting can be checked rather than guessed. Ignored when
+correction. Defaults to \code{64}; see the Details section of \code{\link[=inlavaan]{inlavaan()}}.
+Values above \code{128} (the size
+of the stored Sobol table) require the \pkg{qrng} package. Ignored when
 \code{vb_correction = FALSE}.}
 
 \item{marginal_method}{The method for approximating the marginal posterior
