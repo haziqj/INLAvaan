@@ -399,7 +399,7 @@ print.inlavaan_loo <- function(x, ...) {
     cat("\n")
     loo_cat_note("Evaluated at a user-supplied (theta, Sigma) summary.")
   }
-  loo_print_curvature(x, unit_word)
+  loo_print_curvature(x)
   invisible(x)
 }
 
@@ -447,15 +447,15 @@ loo_rule_label <- function(x, unit_word) {
 # thresholded: as everywhere else in loo(), existence is the only condition the
 # package acts on, so the excess is reported and the reading is left to the
 # user.
-loo_print_curvature <- function(x, unit_word) {
+loo_print_curvature <- function(x) {
   gap <- x$elpd_gap %||% NA_real_
   pd_trace <- x$pd_trace %||% NA_real_
   if (!isTRUE(x$use_second) || !is.finite(gap) || !is.finite(pd_trace)) {
     return(invisible(NULL))
   }
-  n <- x$n_units
   cat("\n")
-  loo_cat_rule("Curvature check", pluralize("{n} {unit_word}{qty(n)}{?s}"))
+  loo_cat_rule("Curvature check", "")
+  cat("\n")
   row <- function(lab, val) cat(sprintf("  %-27s %9s\n", lab, val))
   row("first-to-second-order gap", sprintf("%.1f", gap))
   row("pD/2 (trace)", sprintf("%.1f", pd_trace / 2))
