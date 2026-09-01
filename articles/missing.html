@@ -130,17 +130,17 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [248ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [250ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.190σ. [759ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.190σ. [770ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 19/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 18/42 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [388ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [383ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; Warning: Reverting to first-order approximation.</span></span>
@@ -191,13 +191,14 @@
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [491ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [503ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
 <span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.154σ. [1.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 11/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 9/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 31/42 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [4.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
@@ -229,10 +230,10 @@
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [274ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [286ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.1s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>

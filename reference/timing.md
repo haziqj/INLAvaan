@@ -69,13 +69,13 @@ timing(fit)
 # All stages
 timing(fit, what = "all")
 #>        init       optim          vb      loglik   marginals       norta 
-#>      0.02 s      0.13 s      0.19 s      0.00 s      0.84 s      0.12 s 
+#>      0.02 s      0.12 s      0.19 s      0.00 s      0.85 s      0.12 s 
 #>    sampling covariances definedpars   deltapars        test       total 
 #>      0.01 s      0.00 s      0.00 s      0.00 s      0.00 s      1.31 s 
 
 # Specific stages
 timing(fit, what = c("optim", "marginals"))
 #>     optim marginals 
-#>    0.13 s    0.84 s 
+#>    0.12 s    0.85 s 
 # }
 ```
