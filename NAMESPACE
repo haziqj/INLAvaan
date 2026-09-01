@@ -79,69 +79,79 @@ exportMethods(update)
 exportMethods(vcov)
 import(methods)
 importClassesFrom(lavaan,lavaan)
-importFrom(cli,cli_abort)
-importFrom(cli,cli_alert_info)
-importFrom(cli,cli_alert_warning)
-importFrom(cli,cli_inform)
-importFrom(cli,cli_progress_bar)
-importFrom(cli,cli_progress_done)
-importFrom(cli,cli_progress_step)
-importFrom(cli,cli_progress_update)
-importFrom(cli,cli_rule)
-importFrom(cli,cli_vec)
-importFrom(cli,cli_warn)
-importFrom(cli,col_grey)
-importFrom(cli,format_message)
-importFrom(cli,pluralize)
-importFrom(cli,qty)
-importFrom(cli,rule)
-importFrom(cli,symbol)
-importFrom(grDevices,adjustcolor)
-importFrom(grDevices,recordPlot)
-importFrom(graphics,abline)
-importFrom(graphics,barplot)
-importFrom(graphics,grid)
-importFrom(graphics,layout)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,mtext)
-importFrom(graphics,par)
-importFrom(graphics,plot.new)
-importFrom(graphics,polygon)
-importFrom(stats,aggregate)
-importFrom(stats,anova)
-importFrom(stats,approx)
-importFrom(stats,cov)
-importFrom(stats,cov2cor)
-importFrom(stats,dbeta)
-importFrom(stats,density)
-importFrom(stats,deviance)
-importFrom(stats,dgamma)
-importFrom(stats,dnorm)
-importFrom(stats,fitted)
-importFrom(stats,fitted.values)
-importFrom(stats,logLik)
-importFrom(stats,median)
-importFrom(stats,nlminb)
-importFrom(stats,optimize)
-importFrom(stats,pnorm)
-importFrom(stats,qnorm)
-importFrom(stats,quantile)
-importFrom(stats,reshape)
-importFrom(stats,resid)
-importFrom(stats,residuals)
-importFrom(stats,rgamma)
-importFrom(stats,rnorm)
-importFrom(stats,sd)
-importFrom(stats,setNames)
-importFrom(stats,simulate)
-importFrom(stats,splinefun)
-importFrom(stats,uniroot)
-importFrom(stats,update)
-importFrom(stats,var)
-importFrom(utils,capture.output)
-importFrom(utils,head)
-importFrom(utils,packageVersion)
-importFrom(utils,tail)
+importFrom(cli,
+  cli_abort,
+  cli_alert_info,
+  cli_alert_warning,
+  cli_inform,
+  cli_progress_bar,
+  cli_progress_done,
+  cli_progress_step,
+  cli_progress_update,
+  cli_rule,
+  cli_vec,
+  cli_warn,
+  col_grey,
+  format_message,
+  pluralize,
+  qty,
+  rule,
+  symbol
+)
+importFrom(grDevices,
+  adjustcolor,
+  recordPlot
+)
+importFrom(graphics,
+  abline,
+  barplot,
+  grid,
+  layout,
+  legend,
+  lines,
+  mtext,
+  par,
+  plot.new,
+  polygon
+)
+importFrom(stats,
+  aggregate,
+  anova,
+  approx,
+  cov,
+  cov2cor,
+  dbeta,
+  density,
+  deviance,
+  dgamma,
+  dnorm,
+  fitted,
+  fitted.values,
+  logLik,
+  median,
+  nlminb,
+  optimize,
+  pnorm,
+  qnorm,
+  quantile,
+  reshape,
+  resid,
+  residuals,
+  rgamma,
+  rnorm,
+  sd,
+  setNames,
+  simulate,
+  splinefun,
+  uniroot,
+  update,
+  var
+)
+importFrom(utils,
+  capture.output,
+  head,
+  packageVersion,
+  tail
+)
 importMethodsFrom(lavaan,fitMeasures)
 importMethodsFrom(lavaan,fitmeasures)
