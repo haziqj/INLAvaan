@@ -23,20 +23,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          # Minimal CRAN coverage. R-devel goes on Windows (CRAN's incoming
-          # checks run win-devel, and CRAN ships r-devel Windows binaries so
-          # blavaan/rstan need no compilation; Linux devel would build them
-          # from source).
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'devel'}
           - {os: ubuntu-latest,  r: 'release'}
-          # lavaan development version from GitHub (the 0.6 -> 0.7 transition
-          # broke many internals, so track upstream). blavaan is removed in
-          # this job (see the install step below): its binary is built against
-          # CRAN's current lavaan and carries stale copies of lavaan S4
-          # methods that break under any other lavaan version. Suggests are
-          # therefore not forced and vignettes (which use blavaan) are
-          # skipped.
           - {
               os: ubuntu-latest,
               r: 'release',
@@ -60,8 +49,6 @@ jobs:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
 
-      # Quarto (needed for the vignettes, which bundles its own pandoc) is
-      # installed automatically because the repository contains .qmd files.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
