@@ -9,6 +9,10 @@ name: R-CMD-check
 
 permissions: read-all
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
@@ -19,25 +23,20 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          # Minimal CRAN coverage. R-devel goes on Windows (CRAN's incoming
+          # checks run win-devel, and CRAN ships r-devel Windows binaries so
+          # blavaan/rstan need no compilation; Linux devel would build them
+          # from source).
           - {os: macos-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
           - {os: windows-latest, r: 'devel'}
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
-          # Alternative lavaan versions: oldest supported (must match the
-          # floor in DESCRIPTION) and the development version on GitHub.
-          # blavaan is removed in these jobs (see the install step below),
-          # so suggests are not forced and vignettes (which use blavaan)
-          # are skipped.
-          # - {
-          #     os: ubuntu-latest,
-          #     r: 'release',
-          #     label: '(lavaan 0.6-19)',
-          #     lavaan: '0.6-19',
-          #     force_suggests: 'false',
-          #     build_args: 'c("--no-manual", "--no-build-vignettes")',
-          #     check_args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'
-          #   }
+          - {os: ubuntu-latest,  r: 'release'}
+          # lavaan development version from GitHub (the 0.6 -> 0.7 transition
+          # broke many internals, so track upstream). blavaan is removed in
+          # this job (see the install step below): its binary is built against
+          # CRAN's current lavaan and carries stale copies of lavaan S4
+          # methods that break under any other lavaan version. Suggests are
+          # therefore not forced and vignettes (which use blavaan) are
+          # skipped.
           - {
               os: ubuntu-latest,
               r: 'release',
@@ -47,97 +46,37 @@ jobs:
               build_args: 'c("--no-manual", "--no-build-vignettes")',
               check_args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'
             }
-          # - {
-          #     os: ubuntu-latest, 
-          #     r: 'release', 
-          #     label: '(No Suggests)', 
-          #     dependencies: '"hard"', 
-          #     force_suggests: 'false', 
-          #     error_on: '"error"',              
-          #     check_args: 'c("--no-manual", "--no-build-vignettes")'
-          #   }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-      # DYNAMIC ENV VAR: Defaults to 'true' (standard), but 'false' for our special case
       _R_CHECK_FORCE_SUGGESTS_: ${{ matrix.config.force_suggests || 'true' }}
 
     steps:
       - uses: actions/checkout@v5
 
-      - uses: quarto-dev/quarto-actions/setup@v2
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tinytex: true
-
-      - uses: r-lib/actions/setup-pandoc@v2
-
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-          extra-repositories: "https://inla.r-inla-download.org/R/testing"
 
-      # - name: Install Rcpp from GitHub (R-devel only)
-      #   if: matrix.config.r == 'devel'
-      #   run: |
-      #     install.packages("remotes")
-      #     remotes::install_github("RcppCore/Rcpp")
-      #   shell: Rscript {0}
-
-      # ----- FORCE SYSTEM DEPENDENCIES -----
-      - name: Install system dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglpk-dev
-      # -------------------------------------
-
+      # Quarto (needed for the vignettes, which bundles its own pandoc) is
+      # installed automatically because the repository contains .qmd files.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, any::quarto
+          extra-packages: any::rcmdcheck
           needs: check
-          upgrade: 'TRUE'
-          # DYNAMIC DEPENDENCIES: 
-          # If matrix has 'dependencies' (the special case), use it.
-          # Otherwise, use "all" (the action default) to resolve all dep types.
-          dependencies: ${{ matrix.config.dependencies || '"all"' }}
 
-      # ----- ALTERNATIVE LAVAAN VERSIONS -----
-      # Overwrites the CRAN lavaan installed by setup-r-dependencies with a
-      # pinned archive version or the GitHub development version. blavaan
-      # must go in these jobs: its binary is built against CRAN's current
-      # lavaan and carries stale copies of lavaan S4 methods that break
-      # under any other lavaan version (tests skip blavaan when absent).
-      - name: Install alternative lavaan (${{ matrix.config.lavaan }})
-        if: matrix.config.lavaan
+      - name: Install lavaan devel from GitHub
+        if: matrix.config.lavaan == 'devel'
         run: |
           try(remove.packages("blavaan"), silent = TRUE)
-          if (identical("${{ matrix.config.lavaan }}", "devel")) {
-            install.packages("remotes")
-            remotes::install_github("yrosseel/lavaan")
-          } else {
-            install.packages(
-              "https://cran.r-project.org/src/contrib/Archive/lavaan/lavaan_${{ matrix.config.lavaan }}.tar.gz",
-              repos = NULL, type = "source"
-            )
-          }
+          pak::pak("yrosseel/lavaan")
         shell: Rscript {0}
-      # ---------------------------------------
-
-      - name: Install package on Windows
-        if: matrix.config.os == 'windows-latest'
-        run: Rscript -e "install.packages(c('blavaan', 'ggplot2', 'knitr', 'lavaan', 'lme4', 'qrng', 'quarto', 'testthat', 'ucminf')); install.packages('.', repos = NULL, type = 'source')"
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          # DYNAMIC ARGS:
-          # Use special build/check args when the matrix provides them,
-          # otherwise default to standard.
-          build_args: ${{ matrix.config.build_args || 'c("--no-manual","--compact-vignettes=gs+qpdf")' }}
+          build_args: ${{ matrix.config.build_args || 'c("--no-manual")' }}
           args: ${{ matrix.config.check_args || 'c("--no-manual", "--as-cran")' }}
-          error-on: ${{ matrix.config.error_on || '"warning"' }}          
+          error-on: '"warning"'
