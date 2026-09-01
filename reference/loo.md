@@ -20,7 +20,7 @@ loo(
   units = NULL,
   second_order = TRUE,
   theta = NULL,
-  Sigma = NULL,
+  Omega = NULL,
   cores = NULL,
   verbose = FALSE,
   ...
@@ -33,7 +33,7 @@ loo(
   units = NULL,
   second_order = TRUE,
   theta = NULL,
-  Sigma = NULL,
+  Omega = NULL,
   cores = NULL,
   verbose = FALSE,
   ...
@@ -58,7 +58,8 @@ summary(object, ...)
 
 - ...:
 
-  Not used.
+  Not used, beyond catching the deprecated argument name `Sigma` (see
+  `Omega`).
 
 - type:
 
@@ -80,7 +81,7 @@ summary(object, ...)
   skips the Hessian stage and reports first-order estimates, which
   cannot be compared across models of different dimension (see Details).
 
-- theta, Sigma:
+- theta, Omega:
 
   Optional posterior mean vector and covariance matrix (in the
   unconstrained parameter space, as stored in `theta_star` and
@@ -141,7 +142,7 @@ An object of class `inlavaan_loo`: a list with elements
 
   `det_term`
 
-  :   \\\tfrac12 \log \|I + \Sigma H_u\|\\, the determinant term of the
+  :   \\\tfrac12 \log \|I + \Omega H_u\|\\, the determinant term of the
       second-order score.
 
   `k_max`, `k_min`, `k_sum`
@@ -150,7 +151,7 @@ An object of class `inlavaan_loo`: a list with elements
 
   `k_ssq`
 
-  :   \\\mathrm{tr}\[(\Sigma H_u)^2\]\\, consumed by the closed-form
+  :   \\\mathrm{tr}\[(\Omega H_u)^2\]\\, consumed by the closed-form
       [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) penalty.
 
   `ok`
@@ -191,11 +192,11 @@ result always matches `loo(fit)`.
 For a unit \\u\\ (a subject for LOSO, a cluster for LOCO) with
 log-likelihood contribution \\\ell_u(\theta)\\, score \\s_u\\ and
 Hessian \\H_u\\ evaluated at the posterior summary \\(\theta^\*,
-\Sigma)\\, the log conditional predictive ordinate is approximated to
+\Omega)\\, the log conditional predictive ordinate is approximated to
 first and second order by \$\$\log \mathrm{CPO}\_u^{(1)} = \ell_u -
-\tfrac{1}{2} s_u' \Sigma s_u,\$\$ \$\$\log \mathrm{CPO}\_u^{(2)} =
-\ell_u - \tfrac{1}{2} s_u' (\Sigma^{-1} + H_u)^{-1} s_u + \tfrac{1}{2}
-\log \|I + \Sigma H_u\|.\$\$ The reported `elpd_loo` is the sum of the
+\tfrac{1}{2} s_u' \Omega s_u,\$\$ \$\$\log \mathrm{CPO}\_u^{(2)} =
+\ell_u - \tfrac{1}{2} s_u' (\Omega^{-1} + H_u)^{-1} s_u + \tfrac{1}{2}
+\log \|I + \Omega H_u\|.\$\$ The reported `elpd_loo` is the sum of the
 second-order terms (first-order when `second_order = FALSE`), with
 standard error \\\sqrt{n \\ \mathrm{var}(\log \mathrm{CPO}\_u)}\\ and
 `looic` \\= -2 \\ \mathrm{elpd}\\. `p_loo` is the **loo** package's
@@ -206,15 +207,15 @@ predictive density – the same definition
 [`loo::loo()`](https://mc-stan.org/loo/reference/loo.html) reports, and
 *not* the \\p_D\\ of the DIC.
 
-\\\log \mathrm{CPO}\_u^{(2)}\\ exists exactly when \\\Sigma^{-1} + H_u\\
+\\\log \mathrm{CPO}\_u^{(2)}\\ exists exactly when \\\Omega^{-1} + H_u\\
 is positive definite (recorded in `per_unit$ok`) and
-\\\mathrm{lpd}\_u^{(2)}\\ exactly when \\\Sigma^{-1} - H_u\\ is. A unit
+\\\mathrm{lpd}\_u^{(2)}\\ exactly when \\\Omega^{-1} - H_u\\ is. A unit
 failing the former drops every estimate to first order over all units
 (with a warning), while one failing only the latter contributes its
 first-order difference to `p_loo`.
 
 The leverages `k_max`, `k_min`, and `k_sum` read these conditions off
-the spectrum of \\-\Sigma H_u\\ (`k_max < 1`, `k_min > -1`), with
+the spectrum of \\-\Omega H_u\\ (`k_max < 1`, `k_min > -1`), with
 `k_sum` summing across units to the trace form of \\p_D\\. `p_loo`
 (cross-product form) and \\p_D\\ (second-derivative form) agree only in
 the correct-specification limit, and printing a result reports the
@@ -238,10 +239,11 @@ result's `flavour` field), and the two flavours are never comparable
 ([`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) refuses
 to mix them).
 
-Supplying `theta`/`Sigma` evaluates the LOO at an arbitrary Gaussian
-posterior summary (a singular `Sigma` is restricted to its
+Supplying `theta`/`Omega` evaluates the LOO at an arbitrary Gaussian
+posterior summary (a singular `Omega` is restricted to its
 non-degenerate block), the building block for refit-free submodel
-scoring.
+scoring. `Sigma` is the deprecated former name of `Omega`, still
+accepted through `...` with a warning.
 
 Under the default `test = "standard"` the LOO is computed and stored at
 fit time when the model is supported and the predicted cost fits a
@@ -282,17 +284,17 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [157ms]
+#> ✔ Posterior mode and Hessian. [171ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [166ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [187ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 10/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [774ms]
+#> ⠹ Fitting 14/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [871ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [135ms]
+#> ✔ Adjust copula correlations (NORTA). [132ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.1s]
@@ -337,11 +339,11 @@ head(res$per_unit)
 # visual ~~ speed covariance being zero, then evaluate at that summary
 int <- get_inlavaan_internal(fit)
 theta <- int$theta_star
-Sigma <- int$Sigma_theta
+Omega <- int$Sigma_theta
 p <- which(names(coef(fit)) == "visual~~speed")
-theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
-Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
-loo(fit, theta = theta_c, Sigma = Sigma_c)
+theta_c <- theta - Omega[, p] * (theta[p] / Omega[p, p])
+Omega_c <- Omega - tcrossprod(Omega[, p]) / Omega[p, p]
+loo(fit, theta = theta_c, Omega = Omega_c)
 #> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
@@ -373,22 +375,22 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [1s]
+#> ✔ Posterior mode and Hessian. [989ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.050σ. [773ms]
+#> ✔ VB correction; mean |δ| = 0.050σ. [838ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 11/34 skew-normal marginals.
+#> ⠹ Fitting 12/34 skew-normal marginals.
 #> ⠸ Fitting 28/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6s]
+#> ✔ Fit 34/34 skew-normal marginals. [6.7s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [128ms]
+#> ✔ Adjust copula correlations (NORTA). [138ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [8.1s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [9.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 loo(fit2l)

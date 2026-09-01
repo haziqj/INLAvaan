@@ -2,6 +2,15 @@
 
 ## INLAvaan (development version)
 
+### Deprecations
+
+- The `Sigma` argument of
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) is renamed
+  `Omega`, the notation used for the Laplace summary’s posterior
+  covariance in the accompanying manuscript and documentation. A legacy
+  `Sigma =` is still accepted, with a deprecation warning, so existing
+  scripts keep running; supplying both names is an error.
+
 ### Bug fixes
 
 - [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) drew

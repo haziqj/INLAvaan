@@ -80,7 +80,7 @@ two-level models are scored per cluster (leave-one-cluster-out, LOCO).</p>
 <span>  units <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  second_order <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  theta <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  Sigma <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  Omega <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -93,7 +93,7 @@ two-level models are scored per cluster (leave-one-cluster-out, LOCO).</p>
 <span>  units <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  second_order <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  theta <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  Sigma <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  Omega <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -117,7 +117,8 @@ two-level models are scored per cluster (leave-one-cluster-out, LOCO).</p>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Not used.</p></dd>
+<dd><p>Not used, beyond catching the deprecated argument name
+<code>Sigma</code> (see <code>Omega</code>).</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
@@ -142,7 +143,7 @@ first-order estimates, which cannot be compared across models of
 different dimension (see Details).</p></dd>
 
 
-<dt id="arg-theta-sigma">theta, Sigma<a class="anchor" aria-label="anchor" href="#arg-theta-sigma"></a></dt>
+<dt id="arg-theta-omega">theta, Omega<a class="anchor" aria-label="anchor" href="#arg-theta-omega"></a></dt>
 <dd><p>Optional posterior mean vector and covariance matrix
 (in the unconstrained parameter space, as stored in <code>theta_star</code> and
 <code>Sigma_theta</code>) at which to evaluate the LOO instead of the fit's own
@@ -191,7 +192,7 @@ first and second order.</p></dd>
 at first and second order.</p></dd>
 
 <dt><code>det_term</code></dt>
-<dd><p>\(\tfrac12 \log |I + \Sigma H_u|\), the
+<dd><p>\(\tfrac12 \log |I + \Omega H_u|\), the
 determinant term of the second-order score.</p></dd>
 
 <dt><code>k_max</code>, <code>k_min</code>, <code>k_sum</code></dt>
@@ -199,7 +200,7 @@ determinant term of the second-order score.</p></dd>
 Details).</p></dd>
 
 <dt><code>k_ssq</code></dt>
-<dd><p>\(\mathrm{tr}[(\Sigma H_u)^2]\), consumed by
+<dd><p>\(\mathrm{tr}[(\Omega H_u)^2]\), consumed by
 the closed-form <code><a href="waic.html">waic()</a></code> penalty.</p></dd>
 
 <dt><code>ok</code></dt>
@@ -238,13 +239,13 @@ stored result always matches <code>loo(fit)</code>.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>For a unit \(u\) (a subject for LOSO, a cluster for LOCO) with
 log-likelihood contribution \(\ell_u(\theta)\), score \(s_u\) and Hessian
-\(H_u\) evaluated at the posterior summary \((\theta^*, \Sigma)\), the
+\(H_u\) evaluated at the posterior summary \((\theta^*, \Omega)\), the
 log conditional predictive ordinate is approximated to first and second order
 by
-$$\log \mathrm{CPO}_u^{(1)} = \ell_u - \tfrac{1}{2} s_u' \Sigma s_u,$$
+$$\log \mathrm{CPO}_u^{(1)} = \ell_u - \tfrac{1}{2} s_u' \Omega s_u,$$
 $$\log \mathrm{CPO}_u^{(2)} = \ell_u
-  - \tfrac{1}{2} s_u' (\Sigma^{-1} + H_u)^{-1} s_u
-  + \tfrac{1}{2} \log |I + \Sigma H_u|.$$
+  - \tfrac{1}{2} s_u' (\Omega^{-1} + H_u)^{-1} s_u
+  + \tfrac{1}{2} \log |I + \Omega H_u|.$$
 The reported <code>elpd_loo</code> is the sum of the second-order terms (first-order
 when <code>second_order = FALSE</code>), with standard error
 \(\sqrt{n \, \mathrm{var}(\log \mathrm{CPO}_u)}\) and <code>looic</code>
@@ -254,14 +255,14 @@ number of parameters,
 \(\mathrm{lpd}_u\) is the analogous Taylor approximation of the
 full-posterior pointwise log predictive density – the same definition
 <code><a href="https://mc-stan.org/loo/reference/loo.html" class="external-link">loo::loo()</a></code> reports, and <em>not</em> the \(p_D\) of the DIC.</p>
-<p>\(\log \mathrm{CPO}_u^{(2)}\) exists exactly when \(\Sigma^{-1} + H_u\)
+<p>\(\log \mathrm{CPO}_u^{(2)}\) exists exactly when \(\Omega^{-1} + H_u\)
 is positive definite (recorded in <code>per_unit$ok</code>) and
-\(\mathrm{lpd}_u^{(2)}\) exactly when \(\Sigma^{-1} - H_u\) is. A unit
+\(\mathrm{lpd}_u^{(2)}\) exactly when \(\Omega^{-1} - H_u\) is. A unit
 failing the former drops every estimate to first order over all units (with a
 warning), while one failing only the latter contributes its first-order
 difference to <code>p_loo</code>.</p>
 <p>The leverages <code>k_max</code>, <code>k_min</code>, and <code>k_sum</code> read these conditions off the
-spectrum of \(-\Sigma H_u\) (<code>k_max &lt; 1</code>, <code>k_min &gt; -1</code>), with <code>k_sum</code>
+spectrum of \(-\Omega H_u\) (<code>k_max &lt; 1</code>, <code>k_min &gt; -1</code>), with <code>k_sum</code>
 summing across units to the trace form of \(p_D\). <code>p_loo</code> (cross-product
 form) and \(p_D\) (second-derivative form) agree only in the
 correct-specification limit, and printing a result reports the
@@ -280,9 +281,11 @@ covariates, i.e. joint under <code>fixed.x = FALSE</code>, conditional under
 <code>fixed.x = TRUE</code> (recorded as <code>"joint"</code> or <code>"conditional"</code> in the result's
 <code>flavour</code> field), and the two flavours are never comparable (<code><a href="compare.html">compare()</a></code>
 refuses to mix them).</p>
-<p>Supplying <code>theta</code>/<code>Sigma</code> evaluates the LOO at an arbitrary Gaussian
-posterior summary (a singular <code>Sigma</code> is restricted to its non-degenerate
-block), the building block for refit-free submodel scoring.</p>
+<p>Supplying <code>theta</code>/<code>Omega</code> evaluates the LOO at an arbitrary Gaussian
+posterior summary (a singular <code>Omega</code> is restricted to its non-degenerate
+block), the building block for refit-free submodel scoring. <code>Sigma</code> is
+the deprecated former name of <code>Omega</code>, still accepted through <code>...</code> with
+a warning.</p>
 <p>Under the default <code>test = "standard"</code> the LOO is computed and stored at fit
 time when the model is supported and the predicted cost fits a 10-second
 budget (<code>test = "loo"</code> forces it, <code>add_loo()</code> stores it post hoc), and
@@ -318,17 +321,17 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[157ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[171ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.133σ. <span style="color: #B2B2B2;">[166ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.133σ. <span style="color: #B2B2B2;">[187ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/30 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 10/30 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 30/30 skew-normal marginals. <span style="color: #B2B2B2;">[774ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 14/30 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 30/30 skew-normal marginals. <span style="color: #B2B2B2;">[871ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Adjusting copula correlations (NORTA).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjust copula correlations (NORTA). <span style="color: #B2B2B2;">[135ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjust copula correlations (NORTA). <span style="color: #B2B2B2;">[132ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.1s]</span></span>
@@ -373,11 +376,11 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="co"># visual ~~ speed covariance being zero, then evaluate at that summary</span></span></span>
 <span class="r-in"><span><span class="va">int</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_inlavaan_internal.html">get_inlavaan_internal</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">int</span><span class="op">$</span><span class="va">theta_star</span></span></span>
-<span class="r-in"><span><span class="va">Sigma</span> <span class="op">&lt;-</span> <span class="va">int</span><span class="op">$</span><span class="va">Sigma_theta</span></span></span>
+<span class="r-in"><span><span class="va">Omega</span> <span class="op">&lt;-</span> <span class="va">int</span><span class="op">$</span><span class="va">Sigma_theta</span></span></span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="st">"visual~~speed"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">theta_c</span> <span class="op">&lt;-</span> <span class="va">theta</span> <span class="op">-</span> <span class="va">Sigma</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span> <span class="op">*</span> <span class="op">(</span><span class="va">theta</span><span class="op">[</span><span class="va">p</span><span class="op">]</span> <span class="op">/</span> <span class="va">Sigma</span><span class="op">[</span><span class="va">p</span>, <span class="va">p</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">Sigma_c</span> <span class="op">&lt;-</span> <span class="va">Sigma</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">Sigma</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="va">Sigma</span><span class="op">[</span><span class="va">p</span>, <span class="va">p</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="fu">loo</span><span class="op">(</span><span class="va">fit</span>, theta <span class="op">=</span> <span class="va">theta_c</span>, Sigma <span class="op">=</span> <span class="va">Sigma_c</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">theta_c</span> <span class="op">&lt;-</span> <span class="va">theta</span> <span class="op">-</span> <span class="va">Omega</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span> <span class="op">*</span> <span class="op">(</span><span class="va">theta</span><span class="op">[</span><span class="va">p</span><span class="op">]</span> <span class="op">/</span> <span class="va">Omega</span><span class="op">[</span><span class="va">p</span>, <span class="va">p</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Omega_c</span> <span class="op">&lt;-</span> <span class="va">Omega</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">Omega</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="va">Omega</span><span class="op">[</span><span class="va">p</span>, <span class="va">p</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu">loo</span><span class="op">(</span><span class="va">fit</span>, theta <span class="op">=</span> <span class="va">theta_c</span>, Omega <span class="op">=</span> <span class="va">Omega_c</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate   SE</span>
@@ -409,22 +412,22 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="va">fit2l</span> <span class="op">&lt;-</span> <span class="fu"><a href="asem.html">asem</a></span><span class="op">(</span><span class="va">model2l</span>, <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span>,</span></span>
 <span class="r-in"><span>              meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, fixed.x <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[989ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.050σ. <span style="color: #B2B2B2;">[773ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.050σ. <span style="color: #B2B2B2;">[838ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 11/34 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 12/34 skew-normal marginals.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 28/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 34/34 skew-normal marginals. <span style="color: #B2B2B2;">[6s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 34/34 skew-normal marginals. <span style="color: #B2B2B2;">[6.7s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Adjusting copula correlations (NORTA).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjust copula correlations (NORTA). <span style="color: #B2B2B2;">[128ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Adjust copula correlations (NORTA). <span style="color: #B2B2B2;">[138ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[8.1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[9.2s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC, LOO, WAIC.</span>
 <span class="r-in"><span><span class="fu">loo</span><span class="op">(</span><span class="va">fit2l</span><span class="op">)</span></span></span>

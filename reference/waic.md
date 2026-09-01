@@ -113,12 +113,12 @@ the same output and returns the result invisibly.
 
 Writing \\\ell_u(\theta) = \log p(y_u \mid \theta)\\ and expanding it to
 second order about the posterior mode, with the posterior taken as
-\\N(\theta^\*, \Sigma)\\, both WAIC terms are available in closed form:
+\\N(\theta^\*, \Omega)\\, both WAIC terms are available in closed form:
 the pointwise log predictive density \\\mathrm{lpd}\_u\\ is the same
 Gaussian integral [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)
 computes, and the penalty is the polynomial \$\$p\_{\mathrm{waic},u} =
-\mathrm{Var}\[\ell_u(\theta)\] = s_u^\top \Sigma\\ s_u + \tfrac12
-\mathrm{tr}\\\left\[(H_u \Sigma)^2\right\],\$\$ with \\s_u\\ and \\H_u\\
+\mathrm{Var}\[\ell_u(\theta)\] = s_u^\top \Omega\\ s_u + \tfrac12
+\mathrm{tr}\\\left\[(H_u \Omega)^2\right\],\$\$ with \\s_u\\ and \\H_u\\
 the unit's score and Hessian. Then \\\mathrm{elpd}\_{\mathrm{waic}} =
 \sum_u (\mathrm{lpd}\_u - p\_{\mathrm{waic},u})\\ and \\\mathrm{WAIC} =
 -2\\ \mathrm{elpd}\_{\mathrm{waic}}\\.
@@ -127,9 +127,9 @@ the unit's score and Hessian. Then \\\mathrm{elpd}\_{\mathrm{waic}} =
 moments, so unlike the lpd and log CPO integrals of
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) it is finite for
 every unit and carries no condition of its own. The second-order WAIC
-therefore exists exactly where its lpd term does: where \\\Sigma^{-1} -
+therefore exists exactly where its lpd term does: where \\\Omega^{-1} -
 H_u\\ is positive definite, equivalently \\k\_{\min} \> -1\\ for the
-spectrum \\k\\ of \\-\Sigma H_u\\. The log CPO condition \\k\_{\max} \<
+spectrum \\k\\ of \\-\Omega H_u\\. The log CPO condition \\k\_{\max} \<
 1\\ is irrelevant here, since the WAIC reads no case-deletion term: a
 unit whose deleted posterior is improper can still carry an exact
 second-order WAIC. Where the lpd term fails, every estimate is reported
@@ -191,20 +191,20 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [144ms]
+#> ✔ Posterior mode and Hessian. [172ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [177ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [200ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [768ms]
+#> ✔ Fit 30/30 skew-normal marginals. [867ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [126ms]
+#> ✔ Adjust copula correlations (NORTA). [142ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 waic(fit)

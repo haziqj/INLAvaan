@@ -11,7 +11,7 @@ predictive density,
   \mathrm{elpd}_{\mathrm{loo}} = \sum_{u=1}^n \log p(y_u \mid y_{-u}),
 ```
 which rewards models that predict well and automatically penalises
-overfitting – making it a natural criterion for comparing models.
+overfitting, making it a natural criterion for comparing models.
 
 Computed naively, LOO needs $`n`$ refits. MCMC-based packages such as
 [blavaan](https://blavaan.org) avoid this by importance-sampling over
@@ -20,9 +20,8 @@ this still requires the full set of MCMC draws. INLAvaan instead
 exploits its Laplace machinery:
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) approximates each
 case-deletion posterior by a Taylor expansion around the full-data
-posterior summary, so **the entire LOO is computed from a single fit** –
-no refitting and no sampling. On the Holzinger–Swineford example below
-this takes a fraction of a second.
+posterior summary, so **the entire LOO is computed from a single fit**,
+with no refitting and no sampling.
 
 Two unit types are scored, resolved automatically from the model:
 
@@ -32,81 +31,56 @@ Two unit types are scored, resolved automatically from the model:
   cluster – the relevant predictive question is “how well would the
   model predict a new cluster?”.
 
-## How it works
+## Technical details in brief
 
-Write $`\ell_u(\theta) = \log p(y_u \mid \theta)`$ for unit $`u`$’s
-log-likelihood contribution, with score $`s_u`$ and Hessian $`H_u`$
-evaluated at the posterior summary $`(\theta^*, \Sigma)`$ from the fit.
-[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) reports first-
-and second-order Taylor approximations of the log conditional predictive
-ordinate:
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) computes
+everything from the fit’s Laplace summary
+$`\mathcal{N}(\theta^*, \Omega)`$. An exact identity turns each held-out
+predictive density into an expectation under the *full-data* posterior,
+evaluated in closed form by Taylor-expanding the unit’s log-likelihood
+$`\ell_u(\theta) = \log p(y_u \mid \theta)`$ about $`\theta^*`$. With
+$`s_u`$ and $`H_u`$ the gradient and Hessian of $`\ell_u`$ there, the
+two orders are
 ``` math
 \begin{aligned}
-  \log \mathrm{CPO}_u^{(1)} &= \ell_u - \tfrac12 s_u^\top \Sigma\, s_u, \\
+  \log \mathrm{CPO}_u^{(1)} &= \ell_u - \tfrac12 s_u^\top \Omega\, s_u, \\
   \log \mathrm{CPO}_u^{(2)} &= \ell_u
-    - \tfrac12 s_u^\top (\Sigma^{-1} + H_u)^{-1} s_u
-    + \tfrac12 \log \lvert I + \Sigma H_u \rvert .
+    - \tfrac12 s_u^\top (\Omega^{-1} + H_u)^{-1} s_u
+    + \tfrac12 \log \lvert I + \Omega H_u \rvert ,
 \end{aligned}
 ```
-The headline `elpd_loo` is the sum of the second-order terms, with
-standard error
-$`\sqrt{n \, \widehat{\mathrm{var}}(\log \mathrm{CPO}_u)}`$, and `looic`
-$`= -2\,\mathrm{elpd}_{\mathrm{loo}}`$ on the familiar
-information-criterion scale. `p_loo`
-$`= \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)`$ uses the analogous
-expansion of the full-posterior pointwise predictive density
-$`\mathrm{lpd}_u`$; this is the **loo** package’s effective number of
-parameters, so it lines up with
-[`loo::loo()`](https://mc-stan.org/loo/reference/loo.html). The rare
-unit whose second-order curvature matrix is not positive definite falls
-back to first order (flagged in the output); a warning is raised if this
-happens for many units, since it suggests the Gaussian posterior summary
-itself is poor.
+the second order additionally handing back the information the unit
+itself lent to the posterior. The headline `elpd_loo` is the sum of the
+second-order terms, with standard error
+$`\sqrt{n \, \widehat{\mathrm{var}}(\log \mathrm{CPO}_u)}`$; `looic`
+$`= -2\,\mathrm{elpd}_{\mathrm{loo}}`$, and `p_loo` (the **loo**
+package’s effective number of parameters, matching
+[`loo::loo()`](https://mc-stan.org/loo/reference/loo.html)) comes from
+the analogous expansion of the pointwise predictive density.
 
-### The curvature check
+Two checks, both free with the result, tell you whether to trust the
+expansion. The first is an existence condition and is enforced
+automatically: $`\log \mathrm{CPO}_u^{(2)}`$ exists exactly when
+$`\Omega^{-1} + H_u \succ 0`$, equivalently when the unit’s *leverage*
+`k_max` (the largest eigenvalue of $`-\Omega H_u`$, reported in
+`per_unit`) stays below 1. A unit at or above 1 carries as much
+curvature as the whole posterior in some direction, so its true LOO term
+genuinely is extreme. In such cases, the whole result then reverts to
+first order, with a warning naming the units to inspect.
 
-“Effective number of parameters” names two different quantities, and it
-is worth keeping them apart. `p_loo` is the cross-product form of the
-information, $`\operatorname{tr}(\Sigma \sum_u s_u s_u^\top)`$ at first
-order; $`p_D`$, the effective number of parameters of the DIC, is the
-second-derivative form $`\operatorname{tr}(-\Sigma \sum_u H_u)`$. They
-agree at the true parameter by the information equality, so they share a
-limit, but that equality needs the model to be correct: in a finite
-sample the two differ, and `p_loo` typically runs the smaller of the
-two.
-
-The distinction earns its keep because the first- and second-order
-scores of a converged expansion differ by exactly $`\tfrac12 p_D`$. That
-gives a check on the Taylor truncation for free, and printing a LOO
-result reports it: the summed first-to-second-order gap, the reference
-$`p_D/2`$, and the signed excess of one over the other. The gap
-approaches $`p_D/2`$*from above*, so a large positive excess says the
-second-order expansion has not settled over the sample as a whole. No
-threshold is applied — the number is reported and the reading is left to
-you.
-
-The reference is the trace $`p_D`$ (`pd_trace`, the sum of the per-unit
-`k_sum`), not the sampled `pD` that
-[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) of
-a fit prints from the DIC. Both sides of the comparison are then read
-off the same Laplace summary, so they carry the same Laplace error and
-much of it cancels, leaving the truncation error the check is actually
-after. The trace route also survives `test = "none"`, carries no Monte
-Carlo error, and works on a `units` subset.
-
-For the same reason, keep `second_order = TRUE` (the default) whenever
-you intend to *compare* models. A first-order score overstates the elpd
-by $`\tfrac12 p_D`$ in the limit — that is what the gap measures — so
-the bias grows with the dimension of the model, and candidates of
-different size are not comparable on first-order scores.
+The second is a gap check, printed with every second-order result. The
+first- and second-order totals of a settled expansion differ by
+$`p_D/2`$, approached *from above*, so the printout reports the gap, the
+reference $`p_D/2`$ (`pd_trace`, the trace form
+$`\operatorname{tr}(-\Omega \sum_u H_u)`$), and the excess of one over
+the other. A large positive excess says the expansion has not settled
+over the sample. No threshold is applied, and the reading is left to the
+user, but in our validation the gap was always within a few elpd units
+of zero for well-behaved models.
 
 ## A first example
 
 We fit the classic three-factor CFA to the Holzinger–Swineford data.
-Fitting with `meanstructure = TRUE` is recommended for LOO: otherwise
-unit log-likelihoods are evaluated at zero means and absolute ELPD
-values are biased (comparisons between models on the same data remain
-valid either way).
 
 ``` r
 
@@ -136,9 +110,10 @@ fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE,
 #>   second-order expansion has not settled over the sample.
 ```
 
-The pointwise contributions are available for inspection – useful for
-spotting influential observations (a large `score_norm` or unusually low
-`log_cpo_2` flags a unit the model predicts poorly):
+The printout ends with the gap check described above. The pointwise
+contributions are available for inspection as well. E.g. a large
+`score_norm` or an unusually low `log_cpo_2` flags a unit the model
+predicts poorly, and `k_max` is the unit’s leverage:
 
 ``` r
 
@@ -159,9 +134,7 @@ head(res$per_unit)
 #> 6 -0.08983577 0.06559532 -0.023306856 0.17549082 0.008120885 TRUE
 ```
 
-## Comparing models
-
-Because ELPD differences between models fitted to the *same* data are
+Because elpd differences between models fitted to the *same* data are
 paired, their standard errors should be computed from the pointwise
 differences rather than the marginal SEs. `compare(..., loo = TRUE)`
 does this automatically:
@@ -182,17 +155,17 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.112    0.00 7534.293 29.220 -3769.163 42.996 32.597
-#>  fit1f   27   -3990.302 -105.19 7757.335 27.028 -3878.041 46.738 27.377
+#>    fit   30   -3885.112    0.00 7534.429 29.288 -3769.163 42.996 32.597
+#>  fit1f   27   -3990.302 -105.19 7757.135 26.927 -3878.041 46.738 27.377
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -108.878  17.009
 ```
 
-Models are sorted by descending ELPD; `elpd_diff` and `se_diff` are
+Models are sorted by descending elpd, and `elpd_diff` and `se_diff` are
 relative to the best model. A common heuristic is that a difference
 smaller than a couple of `se_diff` units is not practically meaningful
-([Vehtari et al. 2017](#ref-vehtari2017practical)) – here the
+([Vehtari et al. 2017](#ref-vehtari2017practical)). Here the
 three-factor model is preferred by a wide margin.
 
 ## Two-level models
@@ -200,8 +173,9 @@ three-factor model is preferred by a wide margin.
 For models fitted with a `cluster` argument,
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) automatically
 switches to per-cluster scoring (LOCO). Here the covariates are modelled
-jointly (`fixed.x = FALSE`); the next section explains what happens
-under lavaan’s default covariate treatment.
+jointly (`fixed.x = FALSE`) though the default `fixed.x = TRUE` is also
+supported. See the practical considerations below for a discussion of
+the two flavours.
 
 ``` r
 
@@ -215,8 +189,7 @@ model2l <- "
 "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE, verbose = FALSE)
-
-loo(fit2l)
+(loco <- loo(fit2l))  # type = "loco" is automatic
 #> ── Leave-one-cluster-out ───────────────────────── 200 clusters, second-order ──
 #> 
 #>          Estimate     SE
@@ -234,95 +207,47 @@ loo(fit2l)
 #>   second-order expansion has not settled over the sample.
 ```
 
-## Exogenous covariates: joint and conditional scores
-
-When a model contains exogenous covariates, the *flavour* of the LOO
-score follows the likelihood the model was fitted with. Under
-`fixed.x = FALSE` the covariates receive a saturated Gaussian block and
-each unit is scored by the joint predictive density of its outcomes
-*and* covariates (“how surprised is the model by a brand-new unit,
-characteristics included?”). Under `fixed.x = TRUE` – lavaan’s default –
-the fitted likelihood is the conditional one, and each unit is scored by
-the predictive density of its outcomes *given* its covariates (“given a
-new unit with known characteristics, how well do we predict its
-outcomes?”), the familiar regression cross-validation convention. No
-refitting trickery is involved: the conditional likelihood is exactly
-invariant to the fixed covariate moments, so the conditional score
-carries no additional approximation.
+With the per unit dataframe stored, we can perform additional
+diagnostics, such as to query the relationship between the second-order
+log predictive density and the second-order log CPO. A unit sitting
+above the diagonal in the plot below is one the full-data posterior
+flatters, since its in-sample density exceeds its held-out one. The
+vertical gap is exactly its contribution to `p_loo`.
 
 ``` r
 
-model_x <- "
-  visual  =~ x1 + x2 + x3
-  textual =~ x4 + x5 + x6
-  speed   =~ x7 + x8 + x9
-  visual ~ ageyr + grade
-  textual ~ ageyr + grade
-"
-dat_x <- na.omit(
-  HolzingerSwineford1939[, c(paste0("x", 1:9), "ageyr", "grade")]
-)
+plot(lpd_2 ~ log_cpo_2, loco$per_unit)
+```
 
-# lavaan's default fixed.x = TRUE: scored conditionally on the covariates
-fit_cond <- asem(model_x, dat_x, meanstructure = TRUE, verbose = FALSE)
-#> Warning: Fit diagnostics flagged 1 potential issue:
-#> ✖ The fitted marginal deviates from the scanned posterior (NMAD > 0.1) for
-#>   `x2~1` (0.11), `x3~1` (0.10).
-#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
-loo(fit_cond)
-#> ── Leave-one-subject-out ───────────────────────── 300 subjects, second-order ──
+![](loo_files/figure-html/loco-perunit-1.png)
+
+There is no need to score every unit each time. The `units` argument
+restricts the pass to a chosen subset, given as cluster positions for
+LOCO and case numbers for LOSO, and the reported totals then cover that
+subset alone. This is useful when a full pass is expensive, or to
+revisit the units the diagnostics above single out. Here we rescore the
+three worst-predicted clusters:
+
+``` r
+
+worst <- with(loco$per_unit, unit[order(log_cpo_2)][1:3])
+loo(fit2l, units = worst)
+#> ── Leave-one-cluster-out ─────────────────────────── 3 clusters, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3748.2 44.7
-#> p_loo        45.1  2.7
-#> looic      7496.4 89.4
+#> elpd_loo   -607.9  6.4
+#> p_loo         1.9  0.4
+#> looic      1215.8 12.9
 #> 
 #> ── Curvature check ─────────────────────────────────────────────────────────────
 #> 
-#>   first-to-second-order gap        21.8
-#>   pD/2 (trace)                     15.8
-#>   excess over pD/2 (trace)       +38.5%
+#>   first-to-second-order gap         0.5
+#>   pD/2 (trace)                      0.5
+#>   excess over pD/2 (trace)       +11.9%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
 #>   second-order expansion has not settled over the sample.
 ```
-
-The two flavours estimate different quantities whose scales differ by
-the covariate predictive density, so **a joint and a conditional elpd
-must never appear in the same comparison** – `compare(..., loo = TRUE)`
-refuses mixed-flavour comparisons outright. Within the conditional
-flavour, however, models conditioning on *different* covariate sets are
-directly comparable as long as the outcome variables match, which makes
-covariate selection straightforward:
-
-``` r
-
-model_x1 <- "
-  visual  =~ x1 + x2 + x3
-  textual =~ x4 + x5 + x6
-  speed   =~ x7 + x8 + x9
-  visual ~ ageyr
-"
-fit_cond1 <- asem(model_x1, dat_x, meanstructure = TRUE, verbose = FALSE)
-
-compare(fit_cond, fit_cond1, loo = TRUE)
-#> Bayesian Model Comparison (INLAvaan)
-#> Models ordered by ELPD (Taylor LOO, second-order)
-#> elpd_diff/se_diff are paired differences vs the best model
-#> 
-#>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.808   0.000 7538.426 59.457 -3748.201 44.714 45.083
-#>  fit_cond1   29   -3905.370 -29.562 7568.297 29.848 -3787.788 43.764 38.144
-#>  elpd_diff se_diff
-#>      0.000    0.00
-#>    -39.587   10.21
-```
-
-(Under the joint flavour the same comparison would require retaining
-`grade` in both models, since joint scores of models spanning different
-variable sets live on different sample spaces.) Both flavours support
-any covariate placement, including cluster-level and within-level
-covariates in two-level models.
 
 ## Storing the result with the fit
 
@@ -353,67 +278,36 @@ fit <- add_loo(fit)
 ```
 
 A stored result is returned instantly by `loo(fit)` and reused by
-[`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
 (where the blavaan-style names appear) and `compare(..., loo = TRUE)`:
 
 ``` r
 
-fitMeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
+fitmeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
 #>  elpd_loo     p_loo     looic    se_loo 
 #> -3769.163    32.597  7538.327    85.992
 ```
 
-## WAIC
-
-The widely applicable information criterion ([Watanabe
-2010](#ref-watanabe2010asymptotic)) is asymptotically equivalent to LOO
-and is also available. Like
-[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
-[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) is computed in
-closed form from the Laplace summary – the penalty is the variance of
-the unit log-likelihood under the Gaussian posterior, a polynomial in
-its moments – so it involves no posterior draws and carries no Monte
-Carlo error. At first order the two are identical
-($`\mathrm{lpd}^{(1)}_u - p^{(1)}_{\mathrm{waic},u} = \log \mathrm{CPO}^{(1)}_u`$
-exactly); at second order they differ by a curvature gap, with WAIC
-weakly optimistic relative to LOO. No reliability threshold is applied
-to $`p_{\mathrm{waic}}`$: being a polynomial in the posterior moments it
-is always finite, so the only condition the WAIC carries is the one its
-$`\mathrm{lpd}`$ term inherits – $`\Sigma^{-1} - H_u \succ 0`$,
-equivalently $`k_{\min} > -1`$ – and a unit failing it sends every
-estimate to first order, with a warning.
-
-``` r
-
-waic(fit)
-#> ── WAIC from the Laplace summary ───────────────── 301 subjects, second-order ──
-#> 
-#>           Estimate   SE
-#> elpd_waic  -3769.1 43.0
-#> p_waic        32.5  2.1
-#> waic        7538.2 86.0
-```
-
 ## Scoring submodels without refitting
 
-The `theta` and `Sigma` arguments evaluate the LOO at an *arbitrary*
-Gaussian posterior summary instead of the fit’s own. Combined with
-Gaussian conditioning, this scores a constrained submodel from the
-encompassing fit alone. For example, to score the submodel with the
-`visual ~~ speed` covariance fixed to zero, condition the summary on
-that parameter and re-evaluate:
+The `theta` and `Omega` arguments evaluate the LOO at an *arbitrary*
+Gaussian posterior summary $`(\theta^*, \Omega)`$ instead of the fit’s
+own. Combined with Gaussian conditioning, this scores a constrained
+submodel from the encompassing fit alone. For example, to score the
+submodel with the `visual ~~ speed` covariance fixed to zero, condition
+the summary on that parameter and re-evaluate:
 
 ``` r
 
 int <- get_inlavaan_internal(fit)
 theta <- int$theta_star
-Sigma <- int$Sigma_theta
+Omega <- int$Sigma_theta
 
 p <- which(names(coef(fit)) == "visual~~speed")
-theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
-Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
+theta_c <- theta - Omega[, p] * (theta[p] / Omega[p, p])
+Omega_c <- Omega - tcrossprod(Omega[, p]) / Omega[p, p]
 
-loo(fit, theta = theta_c, Sigma = Sigma_c)
+loo(fit, theta = theta_c, Omega = Omega_c)
 #> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──
 #> 
 #>          Estimate   SE
@@ -434,7 +328,7 @@ loo(fit, theta = theta_c, Sigma = Sigma_c)
 ```
 
 No refit took place: the conditioned summary has the covariance locked
-at zero (its row and column of `Sigma_c` vanish), and the LOO machinery
+at zero (its row and column of `Omega_c` vanish), and the LOO machinery
 automatically restricts to the remaining parameters. This pair of
 arguments is the building block for custom model-search strategies –
 screen many candidate restrictions by conditioning, score each with
@@ -442,51 +336,40 @@ screen many candidate restrictions by conditioning, score each with
 the winners. INLAvaan deliberately provides just this evaluation API;
 the search logic is yours to design.
 
-## Practical notes
+## Practical considerations
 
-- **Supported models.** Continuous-indicator models fitted with the `ML`
-  estimator, single-group or multigroup – groups are independent, so
-  each unit is scored against its own group’s moments, with a `group`
-  column in the pointwise table (see the [multigroup
-  article](https://inlavaan.haziqj.ml/articles/multigroup.md) for the
-  measurement-invariance workflow). Fits with missing data are scored
-  under full-information maximum likelihood (`missing = "ml"`), single-
-  or two-level; see the [missing-data
-  article](https://inlavaan.haziqj.ml/articles/missing.md). Ordinal
-  (PML) and multigroup two-level models are not supported yet. Models
-  with exogenous covariates are scored jointly (`fixed.x = FALSE`) or
-  conditionally (`fixed.x = TRUE`), following the fitted likelihood, for
-  any covariate placement.
-- **Missing data.** Under FIML each unit is scored on the entries it
-  actually has – the observed-data predictive, with the full row
-  (single-level) or whole cluster (two-level LOCO) deleted from the
-  conditioning set – carrying the same missing-at-random assumption as
-  the fit. A single-level unit with fewer observed entries self-weights,
-  contributing a smaller score; a two-level cluster contributes its
-  observed-data marginal likelihood. Two missing-data fits are
-  comparable with
-  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) only
-  when they share the same observed entries (the same data *and* the
-  same holes). The two-level conditional predictive (`type = "loso"`) is
-  available under missing data too.
-- **Parallelism is opt-in.** The default runs serially; pass
-  `loo(fit, cores = 2)` to parallelise the Hessian stage via forking
-  (not available on Windows).
-- **First order vs second order.** The second-order correction matters:
-  in our validation it tracks brute-force refits to within about one
-  ELPD unit, while the first-order score can be off by tens of units.
-  Use `second_order = FALSE` only for quick screening.
-- **Marginal vs conditional predictive on two-level models.** The
-  default `type = "loco"` is the *marginal* predictive
-  (leave-one-cluster-out: prediction for a *new* cluster).
-  `loo(fit2l, type = "loso")` – and `waic(fit2l, type = "loso")` –
-  instead score the *conditional* predictive (leave-one-unit-out: a new
-  observation within an *observed* cluster, each contribution the
-  conditional density of a row given the rest of its cluster). These
-  answer different questions and are easily conflated ([Merkle et al.
-  2019](#ref-merkle2019bayesian)), so the marginal is the default and
-  the conditional warns. It is available with and without missing data
-  and is expensive for large datasets – subset with `units`.
+- **Compare models at second order only** (the default). The first-order
+  score overstates the elpd by $`p_D/2`$, which grows with model
+  dimension; in our validation the second-order score tracks brute-force
+  refits to within about one elpd unit, while first order can be off by
+  tens. [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
+  scores every model at one common order and states it.
+- **Joint and conditional scores never mix.** With exogenous covariates
+  the score follows the fitted likelihood: under `fixed.x = FALSE` a
+  unit is scored by the joint predictive density of its outcomes *and*
+  covariates, while under `fixed.x = TRUE` (lavaan’s default) it is
+  scored by the density of its outcomes *given* its covariates, the
+  familiar regression cross-validation convention. The two estimate
+  different quantities, so `compare(..., loo = TRUE)` refuses to put
+  them in one table. Within the conditional flavour, models with
+  *different* covariate sets are directly comparable as long as the
+  outcomes match (the covariate-selection setting); joint scores require
+  identical variable sets across models.
+- **Fit with `meanstructure = TRUE`**, otherwise absolute elpd values
+  are biased (same-data comparisons remain valid either way).
+- **LOCO and LOSO answer different questions.** On two-level fits the
+  default `type = "loco"` is the marginal predictive (a *new* cluster);
+  `type = "loso"` scores the conditional one (a new row in an *observed*
+  cluster) and warns, since the two are easily conflated ([Merkle et al.
+  2019](#ref-merkle2019bayesian)).
+- **Missing data.** FIML fits are scored on the observed entries, so two
+  such fits are comparable only when they share the same data *and* the
+  same holes; see the [missing-data
+  article](https://inlavaan.haziqj.ml/articles/missing.md).
+- **Scope and cost.** Supported are continuous-indicator `ML` fits,
+  single- or two-level, single-group or multigroup (not ordinal PML, not
+  multigroup two-level). Parallelism is opt-in via `cores`, and `units`
+  scores a subset.
 
 ## References
 
@@ -499,7 +382,3 @@ Vehtari, Aki, Andrew Gelman, and Jonah Gabry. 2017. “Practical Bayesian
 Model Evaluation Using Leave-One-Out Cross-Validation and WAIC.”
 *Statistics and Computing* 27 (5): 1413–32.
 <https://doi.org/10.1007/s11222-016-9696-4>.
-
-Watanabe, Sumio. 2010. “Asymptotic Equivalence of Bayes Cross Validation
-and Widely Applicable Information Criterion in Singular Learning
-Theory.” *Journal of Machine Learning Research* 11: 3571–94.

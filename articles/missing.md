@@ -41,17 +41,17 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [250ms]
+#> ✔ Posterior mode and Hessian. [271ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [770ms]
+#> ✔ VB correction; mean |δ| = 0.190σ. [821ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 18/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.3s]
+#> ⠹ Fitting 16/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [383ms]
+#> ✔ Adjust copula correlations (NORTA). [391ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> Warning: Reverting to first-order approximation.
@@ -60,7 +60,7 @@ fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #>   second-order elpd_waic does not exist over the scored units.
 #> ℹ The first-order WAIC reported instead equals the first-order `loo()` score
 #>   exactly.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
@@ -102,16 +102,15 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [503ms]
+#> ✔ Posterior mode and Hessian. [544ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.154σ. [1.4s]
+#> ✔ VB correction; mean |δ| = 0.154σ. [1.5s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 9/42 skew-normal marginals.
-#> ⠸ Fitting 31/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [4.3s]
+#> ⠹ Fitting 5/42 skew-normal marginals.
+#> ⠸ Fitting 25/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [4.7s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -142,10 +141,10 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [286ms]
+#> ✔ Adjust copula correlations (NORTA). [309ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 print(fit2)
