@@ -79,7 +79,6 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
-          extra-repositories: "https://inla.r-inla-download.org/R/testing"
 
       # - name: Install Rcpp from GitHub (R-devel only)
       #   if: matrix.config.r == 'devel'
