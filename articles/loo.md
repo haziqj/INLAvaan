@@ -126,7 +126,8 @@ fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE,
 #> p_loo        32.6  2.2
 #> looic      7538.3 86.0
 #> 
-#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        15.5
 #>   pD/2 (trace)                     14.6
 #>   excess over pD/2 (trace)        +6.1%
@@ -181,8 +182,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.112    0.00 7534.429 29.288 -3769.163 42.996 32.597
-#>  fit1f   27   -3990.302 -105.19 7757.519 27.119 -3878.041 46.738 27.377
+#>    fit   30   -3885.112    0.00 7534.861 29.504 -3769.163 42.996 32.597
+#>  fit1f   27   -3990.302 -105.19 7757.530 27.125 -3878.041 46.738 27.377
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -108.878  17.009
@@ -223,7 +224,8 @@ loo(fit2l)
 #> p_loo        34.6    2.1
 #> looic     46688.4 1462.9
 #> 
-#> ── Curvature check ───────────────────────────────────────────── 200 clusters ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        17.5
 #>   pD/2 (trace)                     16.7
 #>   excess over pD/2 (trace)        +4.3%
@@ -275,7 +277,8 @@ loo(fit_cond)
 #> p_loo        45.1  2.7
 #> looic      7496.4 89.4
 #> 
-#> ── Curvature check ───────────────────────────────────────────── 300 subjects ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        21.8
 #>   pD/2 (trace)                     15.8
 #>   excess over pD/2 (trace)       +38.5%
@@ -308,8 +311,8 @@ compare(fit_cond, fit_cond1, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>      Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>   fit_cond   32   -3875.808   0.000 7541.017 60.753 -3748.201 44.714 45.083
-#>  fit_cond1   29   -3905.370 -29.562 7568.632 30.015 -3787.788 43.764 38.144
+#>   fit_cond   32   -3875.808   0.000 7535.639 58.064 -3748.201 44.714 45.083
+#>  fit_cond1   29   -3905.370 -29.562 7567.258 29.328 -3787.788 43.764 38.144
 #>  elpd_diff se_diff
 #>      0.000    0.00
 #>    -39.587   10.21
@@ -420,7 +423,8 @@ loo(fit, theta = theta_c, Sigma = Sigma_c)
 #> 
 #> ℹ Evaluated at a user-supplied (theta, Sigma) summary.
 #> 
-#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        16.4
 #>   pD/2 (trace)                     15.4
 #>   excess over pD/2 (trace)        +6.6%

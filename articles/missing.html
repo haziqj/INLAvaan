@@ -130,17 +130,17 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [274ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [268ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.190σ. [818ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.190σ. [805ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 16/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.6s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 17/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [292ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [380ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; Warning: Reverting to first-order approximation.</span></span>
@@ -190,15 +190,15 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [537ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [539ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
 <span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.154σ. [1.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠹ Fitting 6/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 25/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [4.8s]</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 26/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [4.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
@@ -229,7 +229,7 @@
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [313ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [311ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.3s]</span></span>
@@ -294,7 +294,8 @@
 <span><span class="co">#&gt; p_loo        37.4  3.2</span></span>
 <span><span class="co">#&gt; looic      2571.3 73.4</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Curvature check ────────────────────────────────────────────── 75 subjects ──</span></span>
+<span><span class="co">#&gt; ── Curvature check ─────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   first-to-second-order gap        22.6</span></span>
 <span><span class="co">#&gt;   pD/2 (trace)                     18.5</span></span>
 <span><span class="co">#&gt;   excess over pD/2 (trace)       +21.7%</span></span>

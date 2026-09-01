@@ -194,9 +194,10 @@ asem(
   parameters exceeds 120, in which case parallelisation is enabled
   automatically using all available physical cores. Set to `1L` to force
   serial execution. If `cores > 1`, marginal fits are distributed across
-  cores using
+  cores – forked via
   [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
-  (fork-based; no parallelism on Windows).
+  where that is safe, or over a PSOCK cluster (separate R processes)
+  inside IDE R sessions (RStudio, Positron) and on Windows.
 
 - ...:
 
@@ -272,17 +273,17 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [245ms]
+#> ✔ Posterior mode and Hessian. [255ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [411ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [409ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 12/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.2s]
+#> ⠹ Fitting 8/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [2.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [242ms]
+#> ✔ Adjust copula correlations (NORTA). [227ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [334ms]

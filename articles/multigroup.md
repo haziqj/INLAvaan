@@ -58,9 +58,9 @@ compare(fit_configural, fit_metric, fit_scalar)
 #> Models ordered by marginal log-likelihood
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD
-#>      fit_scalar   48   -3913.717   0.000 7508.386 47.527
-#>      fit_metric   54   -3934.330 -20.614 7481.546 54.101
-#>  fit_configural   60   -3957.851 -44.135 7484.716 59.371
+#>      fit_scalar   48   -3913.717   0.000 7510.238 48.453
+#>      fit_metric   54   -3934.330 -20.614 7482.032 54.344
+#>  fit_configural   60   -3957.851 -44.135 7482.645 58.336
 ```
 
 These are within-flavour comparisons (all three fits model the means
@@ -87,9 +87,9 @@ compare(fit_configural, fit_metric, fit_scalar, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>      fit_metric   54   -3934.330 -20.614 7481.546 54.101 -3743.342 44.489
-#>  fit_configural   60   -3957.851 -44.135 7484.716 59.371 -3746.122 44.544
-#>      fit_scalar   48   -3913.717   0.000 7508.386 47.527 -3757.531 43.779
+#>      fit_metric   54   -3934.330 -20.614 7482.032 54.344 -3743.342 44.489
+#>  fit_configural   60   -3957.851 -44.135 7482.645 58.336 -3746.122 44.544
+#>      fit_scalar   48   -3913.717   0.000 7510.238 48.453 -3757.531 43.779
 #>   p_loo elpd_diff se_diff
 #>  57.802     0.000   0.000
 #>  68.479    -2.780   3.512
@@ -125,8 +125,8 @@ compare(fit_pooled, fit_configural, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>  fit_configural   60   -3957.851 -72.739 7484.716 59.371 -3746.122 44.544
-#>      fit_pooled   30   -3885.112   0.000 7535.195 29.671 -3769.163 42.996
+#>  fit_configural   60   -3957.851 -72.739 7482.645 58.336 -3746.122 44.544
+#>      fit_pooled   30   -3885.112   0.000 7534.572 29.359 -3769.163 42.996
 #>   p_loo elpd_diff se_diff
 #>  68.479     0.000   0.000
 #>  32.597   -23.041  11.558
@@ -154,7 +154,8 @@ loo_metric
 #> p_loo        57.8  4.1
 #> looic      7486.7 89.0
 #> 
-#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        28.9
 #>   pD/2 (trace)                     26.3
 #>   excess over pD/2 (trace)        +9.9%

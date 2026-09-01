@@ -222,9 +222,10 @@ inlavaan(
   parameters exceeds 120, in which case parallelisation is enabled
   automatically using all available physical cores. Set to `1L` to force
   serial execution. If `cores > 1`, marginal fits are distributed across
-  cores using
+  cores – forked via
   [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
-  (fork-based; no parallelism on Windows).
+  where that is safe, or over a PSOCK cluster (separate R processes)
+  inside IDE R sessions (RStudio, Positron) and on Windows.
 
 - ...:
 
@@ -276,19 +277,20 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [164ms]
+#> ✔ Posterior mode and Hessian. [168ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [311ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [317ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
+#> ⠹ Fitting 21/21 skew-normal marginals.
 #> ✔ Fit 21/21 skew-normal marginals. [1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjust copula correlations (NORTA). [136ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)

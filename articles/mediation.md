@@ -107,13 +107,13 @@ fit <- asem(mod, dat, meanstructure = TRUE)
 #> ✔ VB correction; mean |δ| = 0.074σ. [241ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [166ms]
+#> ✔ Fit 7/7 skew-normal marginals. [163ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [19ms]
+#> ✔ Adjust copula correlations (NORTA). [18ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [805ms]
+#> ✔ Summarise 1000 posterior draws. [795ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 ```

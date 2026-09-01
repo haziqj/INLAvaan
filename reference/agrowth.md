@@ -194,9 +194,10 @@ agrowth(
   parameters exceeds 120, in which case parallelisation is enabled
   automatically using all available physical cores. Set to `1L` to force
   serial execution. If `cores > 1`, marginal fits are distributed across
-  cores using
+  cores – forked via
   [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
-  (fork-based; no parallelism on Windows).
+  where that is safe, or over a PSOCK cluster (separate R processes)
+  inside IDE R sessions (RStudio, Positron) and on Windows.
 
 - ...:
 
@@ -281,20 +282,20 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [270ms]
+#> ✔ Posterior mode and Hessian. [269ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [285ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [301ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 13/17 skew-normal marginals.
+#> ⠹ Fitting 8/17 skew-normal marginals.
 #> ✔ Fit 17/17 skew-normal marginals. [1.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
 #> ✔ Adjust copula correlations (NORTA). [82ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [628ms]
+#> ✔ Summarise 100 posterior draws. [604ms]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 summary(fit)

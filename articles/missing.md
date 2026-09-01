@@ -41,17 +41,17 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [274ms]
+#> ✔ Posterior mode and Hessian. [268ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [818ms]
+#> ✔ VB correction; mean |δ| = 0.190σ. [805ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 16/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.6s]
+#> ⠹ Fitting 17/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.4s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [292ms]
+#> ✔ Adjust copula correlations (NORTA). [380ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> Warning: Reverting to first-order approximation.
@@ -102,15 +102,15 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [537ms]
+#> ✔ Posterior mode and Hessian. [539ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.154σ. [1.5s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
 #> ⠹ Fitting 6/42 skew-normal marginals.
-#> ⠸ Fitting 25/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [4.8s]
+#> ⠸ Fitting 26/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [4.7s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -141,7 +141,7 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [313ms]
+#> ✔ Adjust copula correlations (NORTA). [311ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.3s]
@@ -213,7 +213,8 @@ loo(fit2)
 #> p_loo        37.4  3.2
 #> looic      2571.3 73.4
 #> 
-#> ── Curvature check ────────────────────────────────────────────── 75 subjects ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        22.6
 #>   pD/2 (trace)                     18.5
 #>   excess over pD/2 (trace)       +21.7%

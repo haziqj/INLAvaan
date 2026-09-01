@@ -321,8 +321,10 @@ user. A conditioned `Sigma` may be singular; the computation
 automatically restricts to the non-degenerate block, which is exact.
 
 Parallelism is strictly opt-in: the default `cores = NULL` runs
-serially, and `cores > 1` parallelises the Hessian stage via forking
-(not available on Windows).
+serially, and `cores > 1` parallelises the Hessian stage – via forking
+where that is safe, or over a PSOCK cluster (separate R processes)
+inside IDE R sessions (RStudio, Positron) and on Windows, so it behaves
+the same in every front end.
 
 Calling `loo()` never modifies the fitted object. Under the default
 `test = "standard"`,
@@ -402,16 +404,16 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [170ms]
+#> ✔ Posterior mode and Hessian. [163ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [184ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [198ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [841ms]
+#> ✔ Fit 30/30 skew-normal marginals. [864ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [135ms]
+#> ✔ Adjust copula correlations (NORTA). [137ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.1s]
@@ -428,7 +430,8 @@ res
 #> p_loo        32.5  2.2
 #> looic      7538.2 86.0
 #> 
-#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        15.4
 #>   pD/2 (trace)                     14.5
 #>   excess over pD/2 (trace)        +6.1%
@@ -469,7 +472,8 @@ loo(fit, theta = theta_c, Sigma = Sigma_c)
 #> 
 #> ℹ Evaluated at a user-supplied (theta, Sigma) summary.
 #> 
-#> ── Curvature check ───────────────────────────────────────────── 301 subjects ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        16.3
 #>   pD/2 (trace)                     15.3
 #>   excess over pD/2 (trace)        +6.5%
@@ -490,23 +494,22 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [1s]
+#> ✔ Posterior mode and Hessian. [990ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.050σ. [832ms]
+#> ✔ VB correction; mean |δ| = 0.050σ. [838ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 7/34 skew-normal marginals.
-#> ⠸ Fitting 23/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.6s]
+#> ⠹ Fitting 2/34 skew-normal marginals.
+#> ⠸ Fitting 18/34 skew-normal marginals.
+#> ⠼ Fitting 34/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [130ms]
+#> ✔ Adjust copula correlations (NORTA). [134ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [9.1s]
+#> ✔ Summarise 1000 posterior draws. [9.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC, LOO, WAIC.
 loo(fit2l)
@@ -517,7 +520,8 @@ loo(fit2l)
 #> p_loo        34.5    2.1
 #> looic     46688.4 1462.9
 #> 
-#> ── Curvature check ───────────────────────────────────────────── 200 clusters ──
+#> ── Curvature check ─────────────────────────────────────────────────────────────
+#> 
 #>   first-to-second-order gap        17.4
 #>   pD/2 (trace)                     16.7
 #>   excess over pD/2 (trace)        +4.3%

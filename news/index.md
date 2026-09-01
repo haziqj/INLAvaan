@@ -72,6 +72,16 @@
 
 ### New features
 
+- `cores > 1` now works the same in every front end. Parallel stages
+  ([`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) forked worker
+  processes via `mclapply`, which is unavailable on Windows and unsafe
+  inside threaded IDE R sessions — RStudio’s console and Positron’s ark
+  kernel — where forked children can die silently. INLAvaan now falls
+  back to a PSOCK cluster (separate R processes) wherever forking is
+  unsafe, detected from the embedding program rather than IDE
+  environment variables.
+
 - [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) gains
   `cov_as_cor`. Residual and latent-disturbance covariance parameters
   (`theta_cov`/`psi_cov`) are always estimated on the correlation scale
