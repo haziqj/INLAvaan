@@ -55,16 +55,12 @@ see Details).}
 
 \item{units}{Optional integer vector of unit indices to score; defaults
 to all units. For LOSO these are case numbers (row numbers of the
-analysed dataset, as recorded in the fit -- for multigroup fits the
-full results are stacked by group, but a unit is always addressed by
-its case number); for LOCO, cluster positions.}
+analysed dataset); for LOCO, cluster positions.}
 
 \item{second_order}{Logical; compute the second-order correction
-(default \code{TRUE}). \code{FALSE} skips the Hessian stage entirely and reports
-first-order estimates, which overstate the elpd by \eqn{\tfrac12 p_D} in
-the limit and so cannot be compared across models of different dimension
-(see Details). Use it for diagnostics or to save the Hessian stage, not
-for model comparison.}
+(default \code{TRUE}). \code{FALSE} skips the Hessian stage and reports
+first-order estimates, which cannot be compared across models of
+different dimension (see Details).}
 
 \item{theta, Sigma}{Optional posterior mean vector and covariance matrix
 (in the unconstrained parameter space, as stored in \code{theta_star} and
@@ -82,38 +78,37 @@ runs serially; parallelism must be requested explicitly.}
 \value{
 An object of class \code{inlavaan_loo}: a list with elements
 \describe{
-\item{\code{per_unit}}{Data frame of pointwise results: \code{unit} (case
-number for LOSO, cluster position for LOCO), \code{group} (multigroup
-fits only), \code{nobs} (1 for LOSO, the cluster size for LOCO),
-\code{l_star} (unit log-likelihood at the summary), \code{score_norm},
-\code{lpd_1}/\code{lpd_2} (pointwise log predictive density),
-\code{log_cpo_1}/\code{log_cpo_2} (pointwise LOO contributions), \code{det_term},
-\code{k_max}/\code{k_min}/\code{k_sum} (leverage diagnostics, see below), \code{k_ssq}
-(\eqn{\mathrm{tr}[(\Sigma H_u)^2]}, consumed by the closed-form
-\code{\link[=waic]{waic()}} penalty), and \code{ok}
-(whether the second-order \eqn{\log \mathrm{CPO}} exists).}
+\item{\code{per_unit}}{Data frame of pointwise results, one row per
+unit:
+\describe{
+\item{\code{unit}}{Case number for LOSO, cluster position for LOCO.}
+\item{\code{group}}{Group membership (multigroup fits only).}
+\item{\code{nobs}}{1 for LOSO, the cluster size for LOCO.}
+\item{\code{l_star}}{Unit log-likelihood at the summary.}
+\item{\code{score_norm}}{Norm of the unit score \eqn{s_u}.}
+\item{\code{lpd_1}, \code{lpd_2}}{Pointwise log predictive density, at
+first and second order.}
+\item{\code{log_cpo_1}, \code{log_cpo_2}}{Pointwise LOO contributions,
+at first and second order.}
+\item{\code{det_term}}{\eqn{\tfrac12 \log |I + \Sigma H_u|}, the
+determinant term of the second-order score.}
+\item{\code{k_max}, \code{k_min}, \code{k_sum}}{Leverage diagnostics (see
+Details).}
+\item{\code{k_ssq}}{\eqn{\mathrm{tr}[(\Sigma H_u)^2]}, consumed by
+the closed-form \code{\link[=waic]{waic()}} penalty.}
+\item{\code{ok}}{Whether the second-order \eqn{\log \mathrm{CPO}}
+exists.}
+}}
 \item{\code{estimates}}{Matrix with rows \code{elpd_loo}, \code{p_loo}, \code{looic} and
 columns \code{Estimate}, \code{SE}, at the highest order available to each.}
 \item{\code{elpd_1}, \code{elpd_2}, \code{se_1}, \code{se_2}, \code{p_loo_1}, \code{p_loo_2}}{
-First- and second-order aggregates, all over every unit; \code{p_loo_2}
-takes a unit's first-order difference where its
-\eqn{\mathrm{lpd}^{(2)}} does not exist. The second-order ones are
-\code{NA} when any \eqn{\log \mathrm{CPO}_u^{(2)}} does not exist.}
-\item{\code{elpd_gap}, \code{pd_trace}}{The two sides of the curvature check:
-the summed first-to-second-order gap \eqn{\mathrm{elpd}_1 -
-      \mathrm{elpd}_2}, and \eqn{p_D = \mathrm{tr}(\Sigma \mathcal{I})},
-the sum of \code{k_sum}, against which it is compared as \eqn{p_D / 2}
-(see Details). Both are \code{NA} at first order. Both sum over the units
-actually scored, so a \code{units} subset gives partial totals -- their
-ratio still holds, but neither value is then the model's.}
+First- and second-order aggregates; the second-order ones are \code{NA}
+when any \eqn{\log \mathrm{CPO}_u^{(2)}} does not exist.}
+\item{\code{elpd_gap}, \code{pd_trace}}{The two sides of the curvature check
+(see Details); both are \code{NA} at first order and partial totals
+under a \code{units} subset.}
 \item{\code{type}, \code{flavour}, \code{n_units}, \code{n_groups}, \code{n_ok}, \code{n_lpd_ok},
-\code{second_order}, \code{use_second}, \code{theta_overridden}}{Metadata; \code{n_ok}
-and \code{n_lpd_ok} count the units whose second-order
-\eqn{\log \mathrm{CPO}} and \eqn{\mathrm{lpd}} exist, \code{use_second}
-records the order actually used; \code{flavour} records
-whether units were scored jointly with their covariates
-(\code{"joint"}) or conditionally on them (\code{"conditional"}, for
-\code{fixed.x} fits).}
+\code{second_order}, \code{use_second}, \code{theta_overridden}}{Metadata.}
 }
 
 \code{summary()} is an alias for \code{print()}: it prints the same output
@@ -133,211 +128,67 @@ two-level models are scored per cluster (leave-one-cluster-out, LOCO).
 }
 \details{
 For a unit \eqn{u} (a subject for LOSO, a cluster for LOCO) with
-log-likelihood contribution \eqn{\ell_u(\theta)}, score \eqn{s_u} and
-Hessian \eqn{H_u} evaluated at the posterior summary
-\eqn{(\theta^*, \Sigma)}, the log conditional predictive ordinate is
-approximated to first and second order by
+log-likelihood contribution \eqn{\ell_u(\theta)}, score \eqn{s_u} and Hessian
+\eqn{H_u} evaluated at the posterior summary \eqn{(\theta^*, \Sigma)}, the
+log conditional predictive ordinate is approximated to first and second order
+by
 \deqn{\log \mathrm{CPO}_u^{(1)} = \ell_u - \tfrac{1}{2} s_u' \Sigma s_u,}
 \deqn{\log \mathrm{CPO}_u^{(2)} = \ell_u
   - \tfrac{1}{2} s_u' (\Sigma^{-1} + H_u)^{-1} s_u
   + \tfrac{1}{2} \log |I + \Sigma H_u|.}
 The reported \code{elpd_loo} is the sum of the second-order terms (first-order
 when \code{second_order = FALSE}), with standard error
-\eqn{\sqrt{n \, \mathrm{var}(\log \mathrm{CPO}_u)}} and
-\code{looic} \eqn{= -2 \, \mathrm{elpd}}. \code{p_loo} is the \strong{loo} package's
-effective number of parameters,
-\eqn{p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)},
-where \eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
-full-posterior pointwise log predictive density; the same definition
-\code{loo::loo()} reports, so the two are directly comparable. It is \emph{not} the
-\eqn{p_D} of the DIC -- see \emph{Two effective parameter counts} below.
+\eqn{\sqrt{n \, \mathrm{var}(\log \mathrm{CPO}_u)}} and \code{looic}
+\eqn{= -2 \, \mathrm{elpd}}. \code{p_loo} is the \strong{loo} package's effective
+number of parameters,
+\eqn{p_{\mathrm{loo}} = \sum_u (\mathrm{lpd}_u - \log \mathrm{CPO}_u)}, where
+\eqn{\mathrm{lpd}_u} is the analogous Taylor approximation of the
+full-posterior pointwise log predictive density -- the same definition
+\code{loo::loo()} reports, and \emph{not} the \eqn{p_D} of the DIC.
 
-\strong{Existence.} The second-order terms are Gaussian integrals that need not
-converge. \eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when
-\eqn{\Sigma^{-1} + H_u} is positive definite, and \eqn{\mathrm{lpd}_u^{(2)}}
-exactly when \eqn{\Sigma^{-1} - H_u} is. These are separate conditions on
-the same \eqn{H_u}, reading opposite ends of the spectrum of
-\eqn{\Sigma H_u}, and a unit can satisfy one and fail the other. A missing
-term is \code{NA} in \code{per_unit}, with \code{per_unit$ok} recording the
-\eqn{\log \mathrm{CPO}} condition.
+\eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when \eqn{\Sigma^{-1} + H_u}
+is positive definite (recorded in \code{per_unit$ok}) and
+\eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Sigma^{-1} - H_u} is. A unit
+failing the former drops every estimate to first order over all units (with a
+warning), while one failing only the latter contributes its first-order
+difference to \code{p_loo}.
 
-The two failures get opposite remedies, because the two divergences mean
-opposite things. \eqn{E[1/p(y_u \mid \theta)]} can genuinely be infinite,
-so a missing \eqn{\log \mathrm{CPO}_u^{(2)}} says the unit's true
-leave-one-out term really is extreme, and a first-order stand-in --
-ignoring exactly the curvature that made the integral diverge -- would be
-wrong by an unbounded amount. \code{elpd_loo} is also a predictive score, whose
-meaning depends on scoring a fixed set of units, so dropping the unit would
-score the model over fewer units and flatter it. Every estimate is
-therefore reported at \emph{first order over all units}, and warns.
+The leverages \code{k_max}, \code{k_min}, and \code{k_sum} read these conditions off the
+spectrum of \eqn{-\Sigma H_u} (\code{k_max < 1}, \code{k_min > -1}), with \code{k_sum}
+summing across units to the trace form of \eqn{p_D}. \code{p_loo} (cross-product
+form) and \eqn{p_D} (second-derivative form) agree only in the
+correct-specification limit, and printing a result reports the
+first-to-second-order gap against its limit \eqn{p_D/2} as a free check on
+the Taylor truncation. Because the first-order elpd overstates the truth by
+\eqn{\tfrac12 p_D} in the limit, keep \code{second_order = TRUE} whenever models
+of different dimension are compared.
 
-\eqn{E[p(y_u \mid \theta)]}, by contrast, is always finite in truth (a
-density is bounded), so a missing \eqn{\mathrm{lpd}_u^{(2)}} is an artefact
-of extrapolating the quadratic rather than a feature of the unit: its true
-contribution is ordinary, and its first-order contribution recovers most of
-it. Such a unit therefore contributes its first-order difference to \code{p_loo}
-while \code{elpd_loo} and \code{looic} are unaffected. This is noted when the result
-is printed and counted by \code{n_lpd_ok}, but is not warned about: the residual
-error is smaller than the systematic bias the second-order lpd carries on
-the units that keep it, so flagging it would misdirect.
+\code{type = "auto"} resolves to the marginal per-cluster \code{"loco"} for two-level
+fits and per-subject \code{"loso"} otherwise. Forcing \code{"loso"} on a two-level
+model scores the \emph{conditional} predictive of Merkle, Furr & Rabe-Hesketh
+(2019) instead, and warns. Multigroup units are scored against their own
+group's implied moments and identified by case number, so \code{\link[=compare]{compare()}} pairs
+them across fits.
 
-Two leverage diagnostics accompany each unit, both read from the spectrum
-of the same operator \eqn{-\Sigma H_u}, which measures the share of the
-posterior precision the unit itself carries. \code{k_max} is its largest
-eigenvalue \eqn{k_u = \lambda_{\max}(-\Sigma H_u)}, the unit's precision
-share along its worst direction: \eqn{k_u < 1} is exactly the
-positive-definiteness condition above (\code{k_max >= 1} iff \code{ok} is \code{FALSE}),
-since \eqn{k_u \ge 1} says the unit carries more information in some
-direction than the remaining data and the prior combined, and
-\eqn{k_u} approaching 1 is the approach to a term that diverges. \code{k_sum}
-is \eqn{\mathrm{tr}(-\Sigma H_u)}, the unit's total leverage, which sums
-across units to \eqn{\mathrm{tr}(\Sigma \mathcal{I})} with
-\eqn{\mathcal{I} = \sum_u (-H_u)}, the trace form
-of \eqn{p_D} (the closed-form counterpart of the \code{pD} that \code{\link[=summary]{summary()}}
-prints from the DIC) -- as hat-matrix leverages sum to the parameter count
-in regression, whose classical breakdown at leverage 1 reappears here as
-\eqn{k_u \to 1}. \code{k_min} is the
-other end of the same spectrum, and \code{k_min > -1} is the existence
-condition for the second-order \eqn{\mathrm{lpd}} (it is also the only
-condition \code{\link[=waic]{waic()}} carries). All are obtained in closed form from the
-Laplace summary rather than estimated from draws, and are \code{NA} when the
-second-order term is not computed. No threshold is applied to any of
-them: existence is the only condition the package acts on.
+The score follows the fitted likelihood's treatment of exogenous
+covariates, i.e. joint under \code{fixed.x = FALSE}, conditional under
+\code{fixed.x = TRUE} (recorded as \code{"joint"} or \code{"conditional"} in the result's
+\code{flavour} field), and the two flavours are never comparable (\code{\link[=compare]{compare()}}
+refuses to mix them).
 
-\strong{Two effective parameter counts.} \code{p_loo} and \eqn{p_D} are two different
-quantities, and the name "effective number of parameters" belongs to both.
-They are the two usual forms of the information matrix: at first order
-\code{p_loo} is \eqn{\mathrm{tr}(\Sigma \sum_u s_u s_u^\top)}, the
-cross-product form, while \eqn{p_D = \mathrm{tr}(-\Sigma \sum_u H_u)} is
-the second-derivative form -- lavaan draws the same line with
-\code{information = "first.order"} versus \code{"observed"}. The information equality
-makes them agree at the true parameter, so they share a limit, but it holds
-only under correct specification: in a finite sample, or under
-misspecification, they differ.
+Supplying \code{theta}/\code{Sigma} evaluates the LOO at an arbitrary Gaussian
+posterior summary (a singular \code{Sigma} is restricted to its non-degenerate
+block), the building block for refit-free submodel scoring.
 
-This matters because the first- and second-order scores of a \emph{correct}
-expansion differ by \eqn{\tfrac12 p_D}, which gives a check on the
-truncation at no extra cost. Printing a LOO result reports it: the summed
-first-to-second-order gap (\code{elpd_gap}), the reference \eqn{p_D/2}, and the
-signed excess of the first over the second. The gap approaches
-\eqn{p_D / 2} from above, so a large excess says the second-order expansion
-has not settled over the sample. Nothing is thresholded; as with the
-leverages, the number is reported and the reading is left to the user.
+Under the default \code{test = "standard"} the LOO is computed and stored at fit
+time when the model is supported and the predicted cost fits a 10-second
+budget (\code{test = "loo"} forces it, \code{add_loo()} stores it post hoc), and
+\code{loo(fit)} with default arguments returns the stored result.
 
-The check uses the \emph{trace} route to \eqn{p_D} (\code{pd_trace}, the sum of
-\code{k_sum}) rather than the sampled \code{pD} of the DIC. Both sides of the
-comparison are then read off the same Laplace summary, so they carry the
-same Laplace error and much of it cancels, leaving the truncation error the
-check is after; the trace is also available under \code{test = "none"}, carries
-no Monte Carlo error, and survives a \code{units} subset. The two routes to
-\eqn{p_D} do not agree exactly in a finite sample, which is why the printed
-label says \code{pD/2 (trace)}.
-
-\strong{Keep \code{second_order = TRUE} for model comparison.} The first-order elpd
-overstates the true elpd by \eqn{\tfrac12 p_D} in the limit -- that is the
-content of the gap above -- so a first-order score carries a bias that grows
-with the dimension of the model. Candidates of different size are therefore
-\emph{not} comparable on first-order scores, and \code{second_order = FALSE} is for
-diagnostics and for cost, never for choosing between models.
-
-The type is resolved automatically: per-cluster (\code{"loco"}) when the model
-was fitted with a \code{cluster} argument, per-subject (\code{"loso"}) otherwise.
-For a two-level model these are the two estimands of Merkle, Furr &
-Rabe-Hesketh (2019): the default per-cluster \code{"loco"} is the \emph{marginal}
-predictive (leave-one-cluster-out -- prediction for a \emph{new} cluster),
-while \code{type = "loso"} forces the \emph{conditional} predictive
-(leave-one-unit-out -- prediction for a new observation within an
-\emph{observed} cluster), where row \eqn{i} of cluster \eqn{j} contributes
-\eqn{\ell_i = \ell_j(\mathrm{full}) - \ell_j(\mathrm{minus\ row\ } i)},
-the conditional density of the row given the rest of its cluster. The two
-answer different questions and are easily conflated, so the per-cluster
-marginal is the default and \code{type = "loso"} warns. It works with and
-without missing data, costs one cluster evaluation per row per Hessian
-direction, and is best subset with \code{units}.
-
-\strong{Multigroup models.} Groups are independent, so each unit is scored
-against its own group's implied moments; without a mean structure the
-exchangeability transformation applies per group, and cross-group
-equality constraints (\code{group.equal}) flow through the packed parameter
-space automatically. The per-unit results are stacked by group (a
-\code{group} column records the membership), and units are identified by
-\emph{case number} -- the row number of the analysed dataset -- so a unit
-keeps its identity across fits that assign or order groups differently
-(e.g. a pooled fit versus a grouped fit of the same data, which
-\code{\link[=compare]{compare()}} pairs unit by unit). This makes
-\code{compare(..., loo = TRUE)} the instrument of choice for the
-measurement-invariance ladder: configural, metric, and scalar fits are
-compared on a proper predictive scale with paired standard errors.
-
-Supplying \code{theta} and/or \code{Sigma} scores the model at an \emph{arbitrary}
-Gaussian posterior summary instead of the fit's own, without refitting.
-This is the building block for refit-free model exploration: for example,
-conditioning the encompassing model's summary on a parameter being zero
-(a rank-one update of \code{theta} and \code{Sigma}) and scoring the result gives
-the LOO of that submodel from a single fit. INLAvaan provides only this
-evaluation API; search strategies are left to the user. A conditioned
-\code{Sigma} may be singular; the computation automatically restricts to the
-non-degenerate block, which is exact.
-
-Parallelism is strictly opt-in: the default \code{cores = NULL} runs serially,
-and \code{cores > 1} parallelises the Hessian stage -- via forking where that
-is safe, or over a PSOCK cluster (separate R processes) inside IDE R
-sessions (RStudio, Positron) and on Windows, so it behaves the same in
-every front end.
-
-Calling \code{loo()} never modifies the fitted object. Under the default
-\code{test = "standard"}, \code{\link[=inlavaan]{inlavaan()}} already computes and stores the full
-LOO at fit time whenever the model is supported, has a mean structure,
-and the predicted serial cost is within a 10-second budget (measured by
-timing one score evaluation); \code{test = "loo"} forces the computation
-regardless of the budget, and \code{fit <- add_loo(fit)} stores it post hoc.
-A stored result is returned directly by \code{loo(fit)} when called with
-default arguments, and is reused by \code{\link[=fitmeasures]{fitmeasures()}} and \code{\link[=compare]{compare()}}
-without recomputation.
-
-\strong{Exogenous covariates.} The flavour of the score follows the fitted
-likelihood. Under \code{fixed.x = FALSE} the covariates are modelled jointly
-and each unit is scored by the joint predictive density of its outcomes
-\emph{and} covariates (\code{flavour = "joint"}). Under \code{fixed.x = TRUE} (the
-lavaan default) the fitted likelihood is the conditional one, and each
-unit is scored by the predictive density of its outcomes \emph{given} its
-covariates (\code{flavour = "conditional"}); since the conditional likelihood
-is exactly invariant to the frozen covariate moments, this involves no
-additional approximation. The two flavours estimate different quantities
-whose scales differ by the covariate predictive density, so a joint and a
-conditional elpd must never be compared (\code{\link[=compare]{compare()}} refuses
-mixed-flavour comparisons). Conditional scores of models conditioning on
-\emph{different} covariate sets are comparable provided the outcome variables
-match -- the natural setting for covariate selection. Both flavours
-support any covariate placement: single-level covariates, and
-cluster-level (between) and/or within-level covariates in two-level
-models.
-
-\strong{Missing data.} Fits estimated by full-information maximum likelihood
-(\code{missing = "ml"}) are scored on the \emph{observed-data} predictive: each
-unit contributes the density of the entries it actually has, with its
-full row (single-level) or whole cluster (two-level) removed from the
-conditioning set. For single-level fits the casewise kernels operate on
-each unit's observed subset, grouping rows by missing pattern, so a unit
-with fewer observed entries contributes a smaller log-likelihood term
-\emph{and} a smaller score and thus self-weights in the elpd. Two-level fits
-are scored per cluster (\code{"loco"}): each cluster contributes its
-observed-data marginal likelihood, evaluated by lavaan's raw-data
-cluster kernels (no per-cluster sufficient statistics are needed, since
-leave-one-cluster-out deletes the whole cluster). All carry the same
-missing-at-random assumption as the FIML fit itself. Because the score
-is the observed-entry predictive, a \code{\link[=compare]{compare()}} of two missing-data fits
-is meaningful only when they share the same observed entries (the same
-data \emph{and} the same holes). The two-level conditional predictive
-(\code{type = "loso"}) is available under missing data too, on the same
-kernels.
-
-Supported models: continuous-indicator models fitted with the \code{ML}
-estimator (including FIML, \code{missing = "ml"}, single- and two-level),
-single-group or multigroup (multigroup two-level models are not
-supported yet). If the \code{loo} package is attached it masks this generic,
-but \code{loo(fit)} continues to dispatch correctly because the method is
-registered by generic name.
+The default \code{cores = NULL} runs serially, and \code{cores > 1} parallelises the
+Hessian stage. Supported models are continuous-indicator models fitted with
+the \code{ML} estimator, single- or two-level, single-group or multigroup
+(multigroup two-level models are not supported yet).
 }
 \examples{
 \donttest{
@@ -378,6 +229,16 @@ fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 loo(fit2l)
 }
+}
+\references{
+Alhyari, M., Jamil, H., Montcho, H., & Rue, H. (2026). \emph{Deterministic
+leave-one-cluster-out cross-validation for multilevel Bayesian structural
+equation models}. arXiv. (Preprint forthcoming; placeholder.)
+
+Merkle, E. C., Furr, D., & Rabe-Hesketh, S. (2019). Bayesian comparison of
+latent variable models: Conditional versus marginal likelihoods.
+\emph{Psychometrika}, \emph{84}(3), 802--829.
+\url{https://doi.org/10.1007/s11336-019-09679-0}
 }
 \seealso{
 \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}, \code{\link[=inlavaan]{inlavaan()}}
