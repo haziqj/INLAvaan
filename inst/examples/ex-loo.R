@@ -16,11 +16,11 @@ head(res$per_unit)
 # visual ~~ speed covariance being zero, then evaluate at that summary
 int <- get_inlavaan_internal(fit)
 theta <- int$theta_star
-Sigma <- int$Sigma_theta
+Omega <- int$Sigma_theta
 p <- which(names(coef(fit)) == "visual~~speed")
-theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
-Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
-loo(fit, theta = theta_c, Sigma = Sigma_c)
+theta_c <- theta - Omega[, p] * (theta[p] / Omega[p, p])
+Omega_c <- Omega - tcrossprod(Omega[, p]) / Omega[p, p]
+loo(fit, theta = theta_c, Omega = Omega_c)
 
 # Two-level models are scored per cluster (LOCO) automatically
 utils::data("Demo.twolevel", package = "lavaan")

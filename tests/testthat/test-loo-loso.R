@@ -178,27 +178,42 @@ test_that("first-order only and unit subsetting", {
   expect_error(loo(fit, units = 0L), "distinct")
 })
 
-test_that("theta/Sigma override scores arbitrary summaries", {
+test_that("theta/Omega override scores arbitrary summaries", {
   int <- get_inlavaan_internal(fit)
-  res_same <- loo(fit, theta = int$theta_star, Sigma = int$Sigma_theta)
+  res_same <- loo(fit, theta = int$theta_star, Omega = int$Sigma_theta)
   expect_true(res_same$theta_overridden)
   expect_equal(res_same$elpd_2, res$elpd_2)
 
   res_pert <- loo(fit, theta = int$theta_star * 1.01)
   expect_false(isTRUE(all.equal(res_pert$elpd_2, res$elpd_2)))
 
-  # Conditioning a parameter to zero gives a singular Sigma; the active
+  # Conditioning a parameter to zero gives a singular Omega; the active
   # block restriction handles it
   p <- 1L
   theta_c <- int$theta_star -
     int$Sigma_theta[, p] * (int$theta_star[p] / int$Sigma_theta[p, p])
-  Sigma_c <- int$Sigma_theta -
+  Omega_c <- int$Sigma_theta -
     tcrossprod(int$Sigma_theta[, p]) / int$Sigma_theta[p, p]
-  res_cond <- loo(fit, theta = theta_c, Sigma = Sigma_c, units = 1:10)
+  res_cond <- loo(fit, theta = theta_c, Omega = Omega_c, units = 1:10)
   expect_true(all(is.finite(res_cond$per_unit$log_cpo_1)))
 
   expect_error(loo(fit, theta = 1:3), "length")
-  expect_error(loo(fit, Sigma = diag(3)), "covariance")
+  expect_error(loo(fit, Omega = diag(3)), "covariance")
+})
+
+test_that("deprecated Sigma argument is honoured with a warning", {
+  int <- get_inlavaan_internal(fit)
+  expect_warning(
+    res_dep <- loo(fit, Sigma = int$Sigma_theta, units = 1:10),
+    class = "inlavaan_deprecated_sigma"
+  )
+  res_new <- loo(fit, Omega = int$Sigma_theta, units = 1:10)
+  expect_equal(res_dep$estimates, res_new$estimates)
+
+  expect_error(
+    loo(fit, Omega = int$Sigma_theta, Sigma = int$Sigma_theta),
+    "deprecated former name"
+  )
 })
 
 test_that("type override and parallel agree with serial", {

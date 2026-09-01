@@ -1,5 +1,13 @@
 # INLAvaan (development version)
 
+## Deprecations
+
+* The `Sigma` argument of `loo()` is renamed `Omega`, the notation used for
+  the Laplace summary's posterior covariance in the accompanying manuscript
+  and documentation. A legacy `Sigma =` is still accepted, with a
+  deprecation warning, so existing scripts keep running; supplying both
+  names is an error.
+
 ## Bug fixes
 
 * `predict()` drew its parameter sample without the NORTA correlation

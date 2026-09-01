@@ -9,13 +9,13 @@
 #' @details
 #' For a unit \eqn{u} (a subject for LOSO, a cluster for LOCO) with
 #' log-likelihood contribution \eqn{\ell_u(\theta)}, score \eqn{s_u} and Hessian
-#' \eqn{H_u} evaluated at the posterior summary \eqn{(\theta^*, \Sigma)}, the
+#' \eqn{H_u} evaluated at the posterior summary \eqn{(\theta^*, \Omega)}, the
 #' log conditional predictive ordinate is approximated to first and second order
 #' by
-#' \deqn{\log \mathrm{CPO}_u^{(1)} = \ell_u - \tfrac{1}{2} s_u' \Sigma s_u,}
+#' \deqn{\log \mathrm{CPO}_u^{(1)} = \ell_u - \tfrac{1}{2} s_u' \Omega s_u,}
 #' \deqn{\log \mathrm{CPO}_u^{(2)} = \ell_u
-#'   - \tfrac{1}{2} s_u' (\Sigma^{-1} + H_u)^{-1} s_u
-#'   + \tfrac{1}{2} \log |I + \Sigma H_u|.}
+#'   - \tfrac{1}{2} s_u' (\Omega^{-1} + H_u)^{-1} s_u
+#'   + \tfrac{1}{2} \log |I + \Omega H_u|.}
 #' The reported `elpd_loo` is the sum of the second-order terms (first-order
 #' when `second_order = FALSE`), with standard error
 #' \eqn{\sqrt{n \, \mathrm{var}(\log \mathrm{CPO}_u)}} and `looic`
@@ -26,15 +26,15 @@
 #' full-posterior pointwise log predictive density -- the same definition
 #' `loo::loo()` reports, and *not* the \eqn{p_D} of the DIC.
 #'
-#' \eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when \eqn{\Sigma^{-1} + H_u}
+#' \eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when \eqn{\Omega^{-1} + H_u}
 #' is positive definite (recorded in `per_unit$ok`) and
-#' \eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Sigma^{-1} - H_u} is. A unit
+#' \eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Omega^{-1} - H_u} is. A unit
 #' failing the former drops every estimate to first order over all units (with a
 #' warning), while one failing only the latter contributes its first-order
 #' difference to `p_loo`.
 #'
 #' The leverages `k_max`, `k_min`, and `k_sum` read these conditions off the
-#' spectrum of \eqn{-\Sigma H_u} (`k_max < 1`, `k_min > -1`), with `k_sum`
+#' spectrum of \eqn{-\Omega H_u} (`k_max < 1`, `k_min > -1`), with `k_sum`
 #' summing across units to the trace form of \eqn{p_D}. `p_loo` (cross-product
 #' form) and \eqn{p_D} (second-derivative form) agree only in the
 #' correct-specification limit, and printing a result reports the
@@ -56,9 +56,11 @@
 #' `flavour` field), and the two flavours are never comparable ([compare()]
 #' refuses to mix them).
 #'
-#' Supplying `theta`/`Sigma` evaluates the LOO at an arbitrary Gaussian
-#' posterior summary (a singular `Sigma` is restricted to its non-degenerate
-#' block), the building block for refit-free submodel scoring.
+#' Supplying `theta`/`Omega` evaluates the LOO at an arbitrary Gaussian
+#' posterior summary (a singular `Omega` is restricted to its non-degenerate
+#' block), the building block for refit-free submodel scoring. `Sigma` is
+#' the deprecated former name of `Omega`, still accepted through `...` with
+#' a warning.
 #'
 #' Under the default `test = "standard"` the LOO is computed and stored at fit
 #' time when the model is supported and the predicted cost fits a 10-second
@@ -84,14 +86,15 @@
 #'   (default `TRUE`). `FALSE` skips the Hessian stage and reports
 #'   first-order estimates, which cannot be compared across models of
 #'   different dimension (see Details).
-#' @param theta,Sigma Optional posterior mean vector and covariance matrix
+#' @param theta,Omega Optional posterior mean vector and covariance matrix
 #'   (in the unconstrained parameter space, as stored in `theta_star` and
 #'   `Sigma_theta`) at which to evaluate the LOO instead of the fit's own
 #'   Laplace summary. See Details.
 #' @param cores Number of cores for the Hessian stage. The default `NULL`
 #'   runs serially; parallelism must be requested explicitly.
 #' @param verbose Logical; print progress (default `FALSE`).
-#' @param ... Not used.
+#' @param ... Not used, beyond catching the deprecated argument name
+#'   `Sigma` (see `Omega`).
 #'
 #' @returns An object of class `inlavaan_loo`: a list with elements
 #'   \describe{
@@ -107,11 +110,11 @@
 #'           first and second order.}
 #'         \item{`log_cpo_1`, `log_cpo_2`}{Pointwise LOO contributions,
 #'           at first and second order.}
-#'         \item{`det_term`}{\eqn{\tfrac12 \log |I + \Sigma H_u|}, the
+#'         \item{`det_term`}{\eqn{\tfrac12 \log |I + \Omega H_u|}, the
 #'           determinant term of the second-order score.}
 #'         \item{`k_max`, `k_min`, `k_sum`}{Leverage diagnostics (see
 #'           Details).}
-#'         \item{`k_ssq`}{\eqn{\mathrm{tr}[(\Sigma H_u)^2]}, consumed by
+#'         \item{`k_ssq`}{\eqn{\mathrm{tr}[(\Omega H_u)^2]}, consumed by
 #'           the closed-form [waic()] penalty.}
 #'         \item{`ok`}{Whether the second-order \eqn{\log \mathrm{CPO}}
 #'           exists.}
@@ -155,7 +158,7 @@ loo.INLAvaan <- function(
   units = NULL,
   second_order = TRUE,
   theta = NULL,
-  Sigma = NULL,
+  Omega = NULL,
   cores = NULL,
   verbose = FALSE,
   ...
@@ -166,9 +169,10 @@ loo.INLAvaan <- function(
     units = units,
     second_order = second_order,
     theta = theta,
-    Sigma = Sigma,
+    Omega = Omega,
     cores = cores,
-    verbose = verbose
+    verbose = verbose,
+    ...
   )
 }
 
@@ -180,12 +184,13 @@ loo.inlavaan_internal <- function(
   units = NULL,
   second_order = TRUE,
   theta = NULL,
-  Sigma = NULL,
+  Omega = NULL,
   cores = NULL,
   verbose = FALSE,
   ...
 ) {
   type <- match.arg(type)
+  Omega <- resolve_deprecated_Sigma(Omega, ...)
 
   # Reuse a stored result (computed at fit time via test = "loo", or with
   # add_loo()) when no argument deviates from the defaults
@@ -193,7 +198,7 @@ loo.inlavaan_internal <- function(
     is.null(units) &&
     isTRUE(second_order) &&
     is.null(theta) &&
-    is.null(Sigma)
+    is.null(Omega)
   if (all_defaults && !is.null(x$loo)) {
     if (isTRUE(verbose)) {
       cli_alert_info("Returning the LOO result stored with the fit.")
@@ -207,10 +212,32 @@ loo.inlavaan_internal <- function(
     units = units,
     second_order = second_order,
     theta = theta,
-    Sigma = Sigma,
+    Sigma = Omega,
     eff_cores = resolve_loo_cores(cores),
     verbose = verbose
   )
+}
+
+# The covariance argument was renamed from Sigma to Omega, the notation of the
+# accompanying manuscript. A legacy `Sigma =` no longer matches a formal and
+# lands in ..., where it is honoured so existing scripts keep running, with a
+# deprecation warning.
+resolve_deprecated_Sigma <- function(Omega, ...) {
+  dots <- list(...)
+  if (!"Sigma" %in% names(dots)) {
+    return(Omega)
+  }
+  if (!is.null(Omega)) {
+    cli_abort(
+      "Supply only {.arg Omega}; {.arg Sigma} is its deprecated former name."
+    )
+  }
+  cli_warn(
+    "The {.arg Sigma} argument of {.fn loo} is deprecated; use {.arg Omega}
+     instead.",
+    class = "inlavaan_deprecated_sigma"
+  )
+  dots$Sigma
 }
 
 #' @rdname loo

@@ -127,7 +127,7 @@ test_that("the curvature check is reported and printed", {
 
 test_that("curvature diagnostics satisfy their defining identities", {
   pu <- res$per_unit
-  # k_u = lambda_max(-Sigma H_u) >= 0 when the unit curvature is n.s.d.
+  # k_u = lambda_max(-Omega H_u) >= 0 when the unit curvature is n.s.d.
   expect_true(all(pu$k_max >= 0))
   # Finite mean of the importance ratio <=> A_u positive definite <=> ok
   expect_identical(pu$ok, pu$k_max < 1)
@@ -144,7 +144,7 @@ test_that("curvature diagnostics satisfy their defining identities", {
 
 test_that("a missing second-order term takes the whole statistic to first order", {
   S <- get_inlavaan_internal(fit)$Sigma_theta
-  # Inflating Sigma scales every k_u linearly, driving A_u = Sigma^-1 + H_u
+  # Inflating Omega scales every k_u linearly, driving A_u = Omega^-1 + H_u
   # toward the negative-definite H_u, so units lose their second-order term
   # deterministically rather than by a lucky data seed.
 
@@ -155,7 +155,7 @@ test_that("a missing second-order term takes the whole statistic to first order"
   expect_no_warning(loo(fit, cores = 1L))
 
   # Every unit fails: there is no second-order total to report at all.
-  r_all <- suppressWarnings(loo(fit, Sigma = S * 1e6, cores = 1L))
+  r_all <- suppressWarnings(loo(fit, Omega = S * 1e6, cores = 1L))
   expect_equal(r_all$n_ok, 0L)
   expect_true(all(is.na(r_all$per_unit$log_cpo_2)))
   expect_true(is.na(r_all$elpd_2))
@@ -166,7 +166,7 @@ test_that("a missing second-order term takes the whole statistic to first order"
   # over all n units. It is neither a blend of the two orders nor the
   # second-order sum over the surviving units, which would score the model
   # over fewer units and so flatter it.
-  r_mix <- suppressWarnings(loo(fit, Sigma = S * 4, cores = 1L))
+  r_mix <- suppressWarnings(loo(fit, Omega = S * 4, cores = 1L))
   pu <- r_mix$per_unit
   expect_true(any(is.na(pu$log_cpo_2)))
   expect_false(all(is.na(pu$log_cpo_2)))
@@ -182,11 +182,11 @@ test_that("a missing second-order term takes the whole statistic to first order"
   # A missing log CPO term warns; it is the condition that says leave-one-out
   # is not identified for that unit
   msg <- tryCatch(
-    loo(fit, Sigma = S * 4, cores = 1L),
+    loo(fit, Omega = S * 4, cores = 1L),
     warning = conditionMessage
   )
   expect_match(msg, "no second-order term")
-  # ... and it names them, since Sigma^-1 + H_u is the deleted posterior
+  # ... and it names them, since Omega^-1 + H_u is the deleted posterior
   # precision, so the finding is about the unit and the user's next move is
   # to go and look at it
   bad <- pu$unit[!pu$ok]
@@ -198,7 +198,7 @@ test_that("a missing second-order term takes the whole statistic to first order"
   expect_match(msg, "per_unit", fixed = TRUE)
 })
 
-test_that("LOCO unit subsetting and theta/Sigma override", {
+test_that("LOCO unit subsetting and theta/Omega override", {
   sub <- c(3L, 7L, 11L)
   res_sub <- loo(fit, units = sub)
   expect_equal(res_sub$per_unit$unit, sub)
@@ -212,7 +212,7 @@ test_that("LOCO unit subsetting and theta/Sigma override", {
   res_same <- loo(
     fit,
     theta = int$theta_star,
-    Sigma = int$Sigma_theta,
+    Omega = int$Sigma_theta,
     units = sub
   )
   expect_true(res_same$theta_overridden)

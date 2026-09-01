@@ -17,7 +17,7 @@ loo(x, ...)
   units = NULL,
   second_order = TRUE,
   theta = NULL,
-  Sigma = NULL,
+  Omega = NULL,
   cores = NULL,
   verbose = FALSE,
   ...
@@ -29,7 +29,7 @@ loo(x, ...)
   units = NULL,
   second_order = TRUE,
   theta = NULL,
-  Sigma = NULL,
+  Omega = NULL,
   cores = NULL,
   verbose = FALSE,
   ...
@@ -44,7 +44,8 @@ add_loo(object, cores = NULL, verbose = FALSE)
 \arguments{
 \item{x}{A fitted \link{INLAvaan} object (or its \code{inlavaan_internal} list).}
 
-\item{...}{Not used.}
+\item{...}{Not used, beyond catching the deprecated argument name
+\code{Sigma} (see \code{Omega}).}
 
 \item{type}{Unit type: \code{"auto"} (default) resolves to \code{"loso"}
 (per-subject) for single-level models and \code{"loco"} (per-cluster,
@@ -62,7 +63,7 @@ analysed dataset); for LOCO, cluster positions.}
 first-order estimates, which cannot be compared across models of
 different dimension (see Details).}
 
-\item{theta, Sigma}{Optional posterior mean vector and covariance matrix
+\item{theta, Omega}{Optional posterior mean vector and covariance matrix
 (in the unconstrained parameter space, as stored in \code{theta_star} and
 \code{Sigma_theta}) at which to evaluate the LOO instead of the fit's own
 Laplace summary. See Details.}
@@ -90,11 +91,11 @@ unit:
 first and second order.}
 \item{\code{log_cpo_1}, \code{log_cpo_2}}{Pointwise LOO contributions,
 at first and second order.}
-\item{\code{det_term}}{\eqn{\tfrac12 \log |I + \Sigma H_u|}, the
+\item{\code{det_term}}{\eqn{\tfrac12 \log |I + \Omega H_u|}, the
 determinant term of the second-order score.}
 \item{\code{k_max}, \code{k_min}, \code{k_sum}}{Leverage diagnostics (see
 Details).}
-\item{\code{k_ssq}}{\eqn{\mathrm{tr}[(\Sigma H_u)^2]}, consumed by
+\item{\code{k_ssq}}{\eqn{\mathrm{tr}[(\Omega H_u)^2]}, consumed by
 the closed-form \code{\link[=waic]{waic()}} penalty.}
 \item{\code{ok}}{Whether the second-order \eqn{\log \mathrm{CPO}}
 exists.}
@@ -129,13 +130,13 @@ two-level models are scored per cluster (leave-one-cluster-out, LOCO).
 \details{
 For a unit \eqn{u} (a subject for LOSO, a cluster for LOCO) with
 log-likelihood contribution \eqn{\ell_u(\theta)}, score \eqn{s_u} and Hessian
-\eqn{H_u} evaluated at the posterior summary \eqn{(\theta^*, \Sigma)}, the
+\eqn{H_u} evaluated at the posterior summary \eqn{(\theta^*, \Omega)}, the
 log conditional predictive ordinate is approximated to first and second order
 by
-\deqn{\log \mathrm{CPO}_u^{(1)} = \ell_u - \tfrac{1}{2} s_u' \Sigma s_u,}
+\deqn{\log \mathrm{CPO}_u^{(1)} = \ell_u - \tfrac{1}{2} s_u' \Omega s_u,}
 \deqn{\log \mathrm{CPO}_u^{(2)} = \ell_u
-  - \tfrac{1}{2} s_u' (\Sigma^{-1} + H_u)^{-1} s_u
-  + \tfrac{1}{2} \log |I + \Sigma H_u|.}
+  - \tfrac{1}{2} s_u' (\Omega^{-1} + H_u)^{-1} s_u
+  + \tfrac{1}{2} \log |I + \Omega H_u|.}
 The reported \code{elpd_loo} is the sum of the second-order terms (first-order
 when \code{second_order = FALSE}), with standard error
 \eqn{\sqrt{n \, \mathrm{var}(\log \mathrm{CPO}_u)}} and \code{looic}
@@ -146,15 +147,15 @@ number of parameters,
 full-posterior pointwise log predictive density -- the same definition
 \code{loo::loo()} reports, and \emph{not} the \eqn{p_D} of the DIC.
 
-\eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when \eqn{\Sigma^{-1} + H_u}
+\eqn{\log \mathrm{CPO}_u^{(2)}} exists exactly when \eqn{\Omega^{-1} + H_u}
 is positive definite (recorded in \code{per_unit$ok}) and
-\eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Sigma^{-1} - H_u} is. A unit
+\eqn{\mathrm{lpd}_u^{(2)}} exactly when \eqn{\Omega^{-1} - H_u} is. A unit
 failing the former drops every estimate to first order over all units (with a
 warning), while one failing only the latter contributes its first-order
 difference to \code{p_loo}.
 
 The leverages \code{k_max}, \code{k_min}, and \code{k_sum} read these conditions off the
-spectrum of \eqn{-\Sigma H_u} (\code{k_max < 1}, \code{k_min > -1}), with \code{k_sum}
+spectrum of \eqn{-\Omega H_u} (\code{k_max < 1}, \code{k_min > -1}), with \code{k_sum}
 summing across units to the trace form of \eqn{p_D}. \code{p_loo} (cross-product
 form) and \eqn{p_D} (second-derivative form) agree only in the
 correct-specification limit, and printing a result reports the
@@ -176,9 +177,11 @@ covariates, i.e. joint under \code{fixed.x = FALSE}, conditional under
 \code{flavour} field), and the two flavours are never comparable (\code{\link[=compare]{compare()}}
 refuses to mix them).
 
-Supplying \code{theta}/\code{Sigma} evaluates the LOO at an arbitrary Gaussian
-posterior summary (a singular \code{Sigma} is restricted to its non-degenerate
-block), the building block for refit-free submodel scoring.
+Supplying \code{theta}/\code{Omega} evaluates the LOO at an arbitrary Gaussian
+posterior summary (a singular \code{Omega} is restricted to its non-degenerate
+block), the building block for refit-free submodel scoring. \code{Sigma} is
+the deprecated former name of \code{Omega}, still accepted through \code{...} with
+a warning.
 
 Under the default \code{test = "standard"} the LOO is computed and stored at fit
 time when the model is supported and the predicted cost fits a 10-second
@@ -209,11 +212,11 @@ head(res$per_unit)
 # visual ~~ speed covariance being zero, then evaluate at that summary
 int <- get_inlavaan_internal(fit)
 theta <- int$theta_star
-Sigma <- int$Sigma_theta
+Omega <- int$Sigma_theta
 p <- which(names(coef(fit)) == "visual~~speed")
-theta_c <- theta - Sigma[, p] * (theta[p] / Sigma[p, p])
-Sigma_c <- Sigma - tcrossprod(Sigma[, p]) / Sigma[p, p]
-loo(fit, theta = theta_c, Sigma = Sigma_c)
+theta_c <- theta - Omega[, p] * (theta[p] / Omega[p, p])
+Omega_c <- Omega - tcrossprod(Omega[, p]) / Omega[p, p]
+loo(fit, theta = theta_c, Omega = Omega_c)
 
 # Two-level models are scored per cluster (LOCO) automatically
 utils::data("Demo.twolevel", package = "lavaan")

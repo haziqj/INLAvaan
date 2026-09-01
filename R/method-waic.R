@@ -11,12 +11,12 @@
 #' @details
 #' Writing \eqn{\ell_u(\theta) = \log p(y_u \mid \theta)} and expanding it
 #' to second order about the posterior mode, with the posterior taken as
-#' \eqn{N(\theta^*, \Sigma)}, both WAIC terms are available in closed form:
+#' \eqn{N(\theta^*, \Omega)}, both WAIC terms are available in closed form:
 #' the pointwise log predictive density \eqn{\mathrm{lpd}_u} is the same
 #' Gaussian integral [loo()] computes, and the penalty is the polynomial
 #' \deqn{p_{\mathrm{waic},u} = \mathrm{Var}[\ell_u(\theta)]
-#'   = s_u^\top \Sigma\, s_u
-#'   + \tfrac12 \mathrm{tr}\!\left[(H_u \Sigma)^2\right],}
+#'   = s_u^\top \Omega\, s_u
+#'   + \tfrac12 \mathrm{tr}\!\left[(H_u \Omega)^2\right],}
 #' with \eqn{s_u} and \eqn{H_u} the unit's score and Hessian. Then
 #' \eqn{\mathrm{elpd}_{\mathrm{waic}} = \sum_u (\mathrm{lpd}_u -
 #' p_{\mathrm{waic},u})} and \eqn{\mathrm{WAIC} = -2\,
@@ -26,8 +26,8 @@
 #' moments, so unlike the lpd and log CPO integrals of [loo()] it is finite
 #' for every unit and carries no condition of its own. The second-order WAIC
 #' therefore exists exactly where its lpd term does: where
-#' \eqn{\Sigma^{-1} - H_u} is positive definite, equivalently
-#' \eqn{k_{\min} > -1} for the spectrum \eqn{k} of \eqn{-\Sigma H_u}. The
+#' \eqn{\Omega^{-1} - H_u} is positive definite, equivalently
+#' \eqn{k_{\min} > -1} for the spectrum \eqn{k} of \eqn{-\Omega H_u}. The
 #' log CPO condition \eqn{k_{\max} < 1} is irrelevant here, since the WAIC
 #' reads no case-deletion term: a unit whose deleted posterior is improper
 #' can still carry an exact second-order WAIC. Where the lpd term fails,
