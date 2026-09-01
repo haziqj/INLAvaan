@@ -21,7 +21,10 @@ includes the lavaan model setup), \code{"optim"}, \code{"vb"},
 \code{"loglik"}, \code{"marginals"}, \code{"norta"}, \code{"sampling"},
 \code{"covariances"}, \code{"definedpars"}, \code{"deltapars"},
 \code{"test"}, \code{"loo"}, \code{"waic"}, \code{"total"}. The
-segments are disjoint and \code{"total"} is their sum.}
+segments are disjoint and \code{"total"} is their sum. \code{"loo"} and
+\code{"waic"} are only recorded when the fit-time LOO actually ran (see
+\code{\link[=loo]{loo()}}); requesting either when it did not gives an error explaining
+why, distinct from requesting a misspelled segment name.}
 }
 \value{
 A named numeric vector (class \code{c("timing.INLAvaan",

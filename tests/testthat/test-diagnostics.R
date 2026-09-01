@@ -162,6 +162,15 @@ test_that("timing rejects unknown segments", {
   expect_error(timing(fit, what = "nonexistent"), "Unknown")
 })
 
+test_that("timing distinguishes a not-run loo/waic from an unknown segment", {
+  # fit above uses test = "none", so "loo"/"waic" are valid segment names
+  # that simply were not computed for this fit
+  expect_error(timing(fit, what = "loo"), "not computed", fixed = TRUE)
+  expect_error(timing(fit, what = "waic"), "not computed", fixed = TRUE)
+  expect_error(timing(fit, what = c("loo", "nonexistent")), "Unknown")
+  expect_error(timing(fit, what = c("loo", "nonexistent")), "not computed", fixed = TRUE)
+})
+
 test_that("timing segments are disjoint and sum to the total", {
   tt <- timing(fit, what = "all")
   # the lavaan setup is inside "init", not a second set of segments; the

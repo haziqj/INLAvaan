@@ -11,7 +11,10 @@
 #'   \code{"loglik"}, \code{"marginals"}, \code{"norta"}, \code{"sampling"},
 #'   \code{"covariances"}, \code{"definedpars"}, \code{"deltapars"},
 #'   \code{"test"}, \code{"loo"}, \code{"waic"}, \code{"total"}. The
-#'   segments are disjoint and \code{"total"} is their sum.
+#'   segments are disjoint and \code{"total"} is their sum. \code{"loo"} and
+#'   \code{"waic"} are only recorded when the fit-time LOO actually ran (see
+#'   [loo()]); requesting either when it did not gives an error explaining
+#'   why, distinct from requesting a misspelled segment name.
 #' @param ... Currently unused.
 #'
 #' @returns A named numeric vector (class \code{c("timing.INLAvaan",
@@ -44,6 +47,13 @@
 #' @export
 setGeneric("timing", function(object, ...) standardGeneric("timing"))
 
+# "loo" and "waic" are the only segments not always recorded: they are timed
+# only when the fit-time LOO actually runs (test != "none", a casewise-
+# supported model, and the predicted cost within budget -- see inlavaan.R).
+# Requesting one that is absent therefore needs a message distinct from a
+# genuinely unknown/misspelled segment name.
+timing_conditional_segments <- c("loo", "waic")
+
 #' @name timing
 #' @rdname timing
 #' @aliases timing,INLAvaan-method
@@ -60,10 +70,27 @@ setMethod(
     } else {
       unknown <- setdiff(what, available)
       if (length(unknown) > 0L) {
-        cli_abort(c(
-          "Unknown timing segment{?s}: {.val {unknown}}.",
+        not_run <- intersect(unknown, timing_conditional_segments)
+        misspelled <- setdiff(unknown, not_run)
+        msg <- c(
+          if (length(misspelled) > 0L) {
+            c(
+              "x" = "Unknown timing segment{qty(length(misspelled))}{?s}: {.val {misspelled}}."
+            )
+          },
+          if (length(not_run) > 0L) {
+            c(
+              "x" = "{.val {not_run}} {qty(length(not_run))}{?was/were} not
+                     computed for this fit.",
+              "i" = "LOO/WAIC only run at fit time when {.code test != \"none\"},
+                     the model supports casewise LOO, and the predicted cost
+                     fits the time budget; compute {qty(length(not_run))}{?it/them}
+                     post hoc with {.fn loo}/{.fn waic} or {.fn add_loo}."
+            )
+          },
           "i" = "Available: {.val {available}}."
-        ))
+        )
+        cli_abort(msg)
       }
     }
 
