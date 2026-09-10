@@ -155,8 +155,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.112    0.00 7534.429 29.288 -3769.163 42.996 32.597
-#>  fit1f   27   -3990.302 -105.19 7757.135 26.927 -3878.041 46.738 27.377
+#>    fit   30   -3885.112    0.00 7535.045 29.596 -3769.163 42.996 32.597
+#>  fit1f   27   -3990.302 -105.19 7757.553 27.136 -3878.041 46.738 27.377
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -108.878  17.009
@@ -251,18 +251,12 @@ loo(fit2l, units = worst)
 
 ## Storing the result with the fit
 
-`loo(fit)` never modifies the fitted object – but under the default
-`test = "standard"`, the fit itself already computes and stores both the
-full LOO and the WAIC whenever the model is supported, has a mean
-structure, and (for LOO) the predicted serial cost is within a 10-second
-budget. The prediction is calibrated at run time by timing a single
-score evaluation, so on typical single-level models – where the full LOO
-costs a fraction of the fit itself – you simply get `loo(fit)` and
-`waic(fit)` for free. The WAIC reuses the very draws the fit produced
-for its posterior summaries, so it costs only one casewise pass.
-
-For expensive cases you can force the LOO regardless of the budget at
-fit time,
+`loo(fit)` never modifies the fitted object – and under the default
+`test = "standard"`, nothing is computed at fit time either: `loo(fit)`
+and `waic(fit)` compute their results on demand. To compute and store
+both at fit time instead, include `"loo"` (or `"waic"`) in `test` – the
+WAIC comes from the same Taylor pass as the LOO, so either name stores
+both, with no time budget:
 
 ``` r
 
@@ -270,7 +264,12 @@ fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE,
             test = c("standard", "loo"))
 ```
 
-or store it afterwards with an explicit reassignment:
+or ask for everything with `test = "full"`. On a model the casewise
+machinery does not support, this warns and skips them, leaving the rest
+of the fit unaffected; see
+[`?inlavaan`](https://inlavaan.haziqj.ml/reference/inlavaan.md) for
+which models qualify. Alternatively, store it afterwards with an
+explicit reassignment:
 
 ``` r
 
@@ -278,7 +277,7 @@ fit <- add_loo(fit)
 ```
 
 A stored result is returned instantly by `loo(fit)` and reused by
-[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md)
 (where the blavaan-style names appear) and `compare(..., loo = TRUE)`:
 
 ``` r

@@ -53,7 +53,10 @@ summary(
 
 - fit.measures:
 
-  Logical; if TRUE, print fit measures (DIC and PPP).
+  Logical; if TRUE, print fit measures (DIC and pD; PPP is printed by
+  the header regardless). Both require the fit to have computed them,
+  see the `test` argument of
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
 
 - estimates:
 
@@ -138,7 +141,7 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 
 # Print basic info
 fit
-#> INLAvaan 0.3.1.9010 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9011 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -152,7 +155,7 @@ fit
 
 # Detailed summary
 summary(fit)
-#> INLAvaan 0.3.1.9010 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9011 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -9,7 +9,7 @@ object, optionally extracting a single named element."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,8 +78,8 @@ object, optionally extracting a single named element.</p>
 list. If missing, the entire list is returned. Common elements include
 <code>"coefficients"</code>, <code>"summary"</code>, <code>"Sigma_theta"</code>, <code>"vcov_x"</code>,
 <code>"theta_star"</code>, <code>"approx_data"</code>, <code>"pdf_data"</code>, <code>"partable"</code>,
-<code>"marginal_method"</code>, <code>"nsamp"</code>, <code>"mloglik"</code>, <code>"DIC"</code>, <code>"ppp"</code>,
-<code>"vb"</code>, <code>"opt"</code>, <code>"timing"</code>, <code>"visual_debug"</code>.</p></dd>
+<code>"marginal_method"</code>, <code>"nsamp"</code>, <code>"mloglik"</code>, <code>"DIC"</code>, <code>"ppp"</code>, <code>"loo"</code>,
+<code>"waic"</code>, <code>"test"</code>, <code>"vb"</code>, <code>"opt"</code>, <code>"timing"</code>, <code>"visual_debug"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -108,13 +108,13 @@ list. If missing, the entire list is returned. Common elements include
 <span class="r-in"><span><span class="va">int</span> <span class="op">&lt;-</span> <span class="fu">get_inlavaan_internal</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">int</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"     "mloglik"          "DIC"              "summary"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "ppp"              "loo"              "waic"             "optim_method"    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "marginal_method"  "samp_copula"      "theta_star_novbc" "theta_star"      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "Sigma_theta"      "R_star"           "vcov_x"           "theta_star_trans"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "approx_data"      "nsamp"            "pdf_data"         "partable"        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "lavmodel"         "lavsamplestats"   "lavdata"          "opt"             </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [25] "timing"           "visual_debug"     "vb"               "call"            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [29] "version"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "ppp"              "loo"              "waic"             "test"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "optim_method"     "marginal_method"  "samp_copula"      "theta_star_novbc"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "theta_star"       "Sigma_theta"      "R_star"           "vcov_x"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "theta_star_trans" "approx_data"      "nsamp"            "pdf_data"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [21] "partable"         "lavmodel"         "lavsamplestats"   "lavdata"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] "opt"              "timing"           "visual_debug"     "vb"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [29] "call"             "version"         </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Extract a specific element</span></span></span>
 <span class="r-in"><span><span class="fu">get_inlavaan_internal</span><span class="op">(</span><span class="va">fit</span>, <span class="st">"coefficients"</span><span class="op">)</span></span></span>

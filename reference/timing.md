@@ -31,10 +31,12 @@ timing(object, what = "total", ...)
   model setup), `"optim"`, `"vb"`, `"loglik"`, `"marginals"`, `"norta"`,
   `"sampling"`, `"covariances"`, `"definedpars"`, `"deltapars"`,
   `"test"`, `"loo"`, `"waic"`, `"total"`. The segments are disjoint and
-  `"total"` is their sum. `"loo"` and `"waic"` are only recorded when
-  the fit-time LOO actually ran (see
+  `"total"` is their sum. `"loo"` and `"waic"` are recorded only when
+  the fit computed them, i.e. `test` (see
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md))
+  included `"loo"`, `"waic"` or `"full"` and the model is supported (see
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)); requesting
-  either when it did not gives an error explaining why, distinct from
+  either otherwise gives an error explaining why, distinct from
   requesting a misspelled segment name.
 
 ## Value
@@ -64,18 +66,18 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 # Total elapsed time
 timing(fit)
 #>  total 
-#> 1.45 s 
+#> 1.54 s 
 
 # All stages
 timing(fit, what = "all")
 #>        init       optim          vb      loglik   marginals       norta 
-#>      0.02 s      0.13 s      0.22 s      0.00 s      0.94 s      0.13 s 
+#>      0.04 s      0.14 s      0.24 s      0.00 s      0.98 s      0.13 s 
 #>    sampling covariances definedpars   deltapars        test       total 
-#>      0.01 s      0.00 s      0.00 s      0.00 s      0.00 s      1.45 s 
+#>      0.01 s      0.00 s      0.00 s      0.00 s      0.00 s      1.54 s 
 
 # Specific stages
 timing(fit, what = c("optim", "marginals"))
 #>     optim marginals 
-#>    0.13 s    0.94 s 
+#>    0.14 s    0.98 s 
 # }
 ```

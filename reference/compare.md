@@ -75,7 +75,8 @@ The default table always includes:
 - **logBF**: Natural-log Bayes factor relative to the best model.
 
 - **DIC** / **pD**: Deviance Information Criterion and effective number
-  of parameters (when `test != "none"` was used during fitting).
+  of parameters (when the fit computed the DIC, i.e. `test` included
+  `"dic"` during fitting; the default `"standard"` does).
 
 Set `fit.measures` to a character vector of measure names (anything
 returned by
@@ -109,7 +110,7 @@ covariates (`fixed.x = TRUE`, conditional scores) is refused. Joint
 scores additionally require identical variable sets across models, while
 conditional scores require only matching outcome variables – covariate
 sets may differ, which is the covariate-selection setting. Stored LOO
-results (`test = "loo"` or
+results (`test` including `"loo"` or `"full"`, or
 [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) are reused.
 
 `anova()` is disabled for `INLAvaan` fits – there is no direct Bayesian
@@ -122,7 +123,7 @@ instead.
 
 ## See also
 
-[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
 [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
 
 ## Examples
@@ -140,23 +141,24 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [443ms]
+#> ✔ Posterior mode and Hessian. [439ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.125σ. [854ms]
+#> ✔ VB correction; mean |δ| = 0.125σ. [847ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 6/60 skew-normal marginals.
-#> ⠸ Fitting 33/60 skew-normal marginals.
-#> ✔ Fit 60/60 skew-normal marginals. [6.5s]
+#> ⠹ Fitting 7/60 skew-normal marginals.
+#> ⠸ Fitting 35/60 skew-normal marginals.
+#> ⠼ Fitting 59/60 skew-normal marginals.
+#> ✔ Fit 60/60 skew-normal marginals. [6.9s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [368ms]
+#> ✔ Adjust copula correlations (NORTA). [384ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.9s]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 
 # Weak invariance
 fit2 <- acfa(
@@ -166,22 +168,24 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [637ms]
+#> ✔ Posterior mode and Hessian. [397ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [257ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [261ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 28/54 skew-normal marginals.
-#> ✔ Fit 54/54 skew-normal marginals. [5.5s]
+#> ⠹ Fitting 7/54 skew-normal marginals.
+#> ⠸ Fitting 36/54 skew-normal marginals.
+#> ✔ Fit 54/54 skew-normal marginals. [5.7s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [528ms]
+#> ✔ Adjust copula correlations (NORTA). [562ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.8s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 
 # Strong invariance
 fit3 <- acfa(
@@ -191,23 +195,22 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [376ms]
+#> ✔ Posterior mode and Hessian. [395ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.077σ. [304ms]
+#> ✔ VB correction; mean |δ| = 0.077σ. [313ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 2/48 skew-normal marginals.
-#> ⠸ Fitting 34/48 skew-normal marginals.
-#> ✔ Fit 48/48 skew-normal marginals. [4.4s]
+#> ⠹ Fitting 17/48 skew-normal marginals.
+#> ✔ Fit 48/48 skew-normal marginals. [4.5s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [609ms]
+#> ✔ Adjust copula correlations (NORTA). [641ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.8s]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 
 # Compare models (fit1 = configural = baseline, always first argument)
 compare(fit1, fit2, fit3)

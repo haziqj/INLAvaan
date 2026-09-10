@@ -23,8 +23,9 @@ get_inlavaan_internal(object, what)
   missing, the entire list is returned. Common elements include
   `"coefficients"`, `"summary"`, `"Sigma_theta"`, `"vcov_x"`,
   `"theta_star"`, `"approx_data"`, `"pdf_data"`, `"partable"`,
-  `"marginal_method"`, `"nsamp"`, `"mloglik"`, `"DIC"`, `"ppp"`, `"vb"`,
-  `"opt"`, `"timing"`, `"visual_debug"`.
+  `"marginal_method"`, `"nsamp"`, `"mloglik"`, `"DIC"`, `"ppp"`,
+  `"loo"`, `"waic"`, `"test"`, `"vb"`, `"opt"`, `"timing"`,
+  `"visual_debug"`.
 
 ## Value
 
@@ -54,13 +55,13 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 int <- get_inlavaan_internal(fit)
 names(int)
 #>  [1] "coefficients"     "mloglik"          "DIC"              "summary"         
-#>  [5] "ppp"              "loo"              "waic"             "optim_method"    
-#>  [9] "marginal_method"  "samp_copula"      "theta_star_novbc" "theta_star"      
-#> [13] "Sigma_theta"      "R_star"           "vcov_x"           "theta_star_trans"
-#> [17] "approx_data"      "nsamp"            "pdf_data"         "partable"        
-#> [21] "lavmodel"         "lavsamplestats"   "lavdata"          "opt"             
-#> [25] "timing"           "visual_debug"     "vb"               "call"            
-#> [29] "version"         
+#>  [5] "ppp"              "loo"              "waic"             "test"            
+#>  [9] "optim_method"     "marginal_method"  "samp_copula"      "theta_star_novbc"
+#> [13] "theta_star"       "Sigma_theta"      "R_star"           "vcov_x"          
+#> [17] "theta_star_trans" "approx_data"      "nsamp"            "pdf_data"        
+#> [21] "partable"         "lavmodel"         "lavsamplestats"   "lavdata"         
+#> [25] "opt"              "timing"           "visual_debug"     "vb"              
+#> [29] "call"             "version"         
 
 # Extract a specific element
 get_inlavaan_internal(fit, "coefficients")

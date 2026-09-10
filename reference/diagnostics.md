@@ -199,7 +199,7 @@ selectively by handling the condition class.
 ## See also
 
 [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md),
-[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
 [`plot()`](https://inlavaan.haziqj.ml/reference/plot.md)
 
 ## Examples

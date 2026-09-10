@@ -182,10 +182,10 @@ An object of class `inlavaan_loo`: a list with elements
 an alias for [`print()`](https://rdrr.io/r/base/print.html): it prints
 the same output and returns the result invisibly.
 
-`add_loo()` returns a copy of `object` with the LOO result stored
-alongside the fit (the input object is unchanged); reassign it, e.g.
-`fit <- add_loo(fit)`. Only the default LOO is stored, so the stored
-result always matches `loo(fit)`.
+`add_loo()` returns a copy of `object` with the LOO and WAIC results
+stored alongside the fit (the input object is unchanged); reassign it,
+e.g. `fit <- add_loo(fit)`. Only the default LOO is stored, so the
+stored results always match `loo(fit)` and `waic(fit)`.
 
 ## Details
 
@@ -245,10 +245,15 @@ non-degenerate block), the building block for refit-free submodel
 scoring. `Sigma` is the deprecated former name of `Omega`, still
 accepted through `...` with a warning.
 
-Under the default `test = "standard"` the LOO is computed and stored at
-fit time when the model is supported and the predicted cost fits a
-10-second budget (`test = "loo"` forces it, `add_loo()` stores it post
-hoc), and `loo(fit)` with default arguments returns the stored result.
+The LOO is stored with the fit when
+[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)'s
+`test` includes `"loo"` or `"waic"` (e.g. `test = "full"`), which also
+stores the WAIC (see
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)) from the same
+Taylor pass, or afterwards with `add_loo()`; `loo(fit)` with default
+arguments then returns the stored result. Under the default
+`test = "standard"` nothing is stored and `loo(fit)` computes it on
+demand.
 
 The default `cores = NULL` runs serially, and `cores > 1` parallelises
 the Hessian stage. Supported models are continuous-indicator models
@@ -268,7 +273,7 @@ of latent variable models: Conditional versus marginal likelihoods.
 
 ## See also
 
-[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
 [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md),
 [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)
 
@@ -284,22 +289,22 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [171ms]
+#> ✔ Posterior mode and Hessian. [164ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [187ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [203ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 14/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [871ms]
+#> ⠹ Fitting 2/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [893ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [132ms]
+#> ✔ Adjust copula correlations (NORTA). [135ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [696ms]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 
 # Leave-one-subject-out (LOSO) from the single fit -- no refitting
 res <- loo(fit)
@@ -375,24 +380,25 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [989ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.050σ. [838ms]
+#> ✔ VB correction; mean |δ| = 0.050σ. [861ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 12/34 skew-normal marginals.
-#> ⠸ Fitting 28/34 skew-normal marginals.
+#> ⠹ Fitting 10/34 skew-normal marginals.
+#> ⠸ Fitting 25/34 skew-normal marginals.
 #> ✔ Fit 34/34 skew-normal marginals. [6.7s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [138ms]
+#> ✔ Adjust copula correlations (NORTA). [156ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [9.2s]
+#> ✔ Summarise 1000 posterior draws. [1.6s]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 loo(fit2l)
 #> ── Leave-one-cluster-out ───────────────────────── 200 clusters, second-order ──
 #> 

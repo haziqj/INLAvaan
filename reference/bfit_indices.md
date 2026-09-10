@@ -85,7 +85,7 @@ each index.
 
 [`lavaan::fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html),
 [`blavaan::blavFitIndices()`](https://blavaan.org/reference/blavFitIndices.html),
-[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
 [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
 
 ## Examples

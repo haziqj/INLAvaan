@@ -56,18 +56,34 @@ asem(
 
 - test:
 
-  Character indicating which post-estimation quantities to compute.
-  Defaults to "standard": posterior fit indices (PPP and DIC), plus –
-  for models supported by the casewise machinery and fitted with a mean
-  structure – a full leave-one-out cross-validation whenever its
-  predicted serial cost is within a 10-second budget, with the WAIC
-  derived from the same computation at no extra cost; both are stored
-  with the fit (see
+  Character vector naming the post-estimation quantities to compute and
+  store with the fit. The atoms are `"ppp"` (posterior predictive
+  p-value), `"dic"` (deviance information criterion and its `pD`),
+  `"loo"` (leave-one-out cross-validation, see
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) and `"waic"`
+  (see [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). Three
+  aliases stand for sets of atoms: `"standard"` (the default) and its
+  synonym `"default"` give `c("ppp", "dic")`; `"full"` gives all four;
+  `"none"` gives nothing. Aliases and atoms may be mixed and are
+  unioned, so `test = c("standard", "loo")` adds the LOO to the default
+  set. The LOO and the WAIC come from one Taylor pass, so asking for
+  either stores both. They run only when asked for, with no time budget.
+  On a model the casewise machinery does not support (PML or ordinal
+  data, `conditional.x = TRUE`, multigroup two-level) they are skipped
+  with a warning and the rest of the fit proceeds. The fit records what
+  was requested and what was computed
+  (`get_inlavaan_internal(fit, "test")`);
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
+  [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md),
+  [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md) and
+  [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md) report
+  only what was computed.
+  [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md) stores the
+  LOO and WAIC post hoc;
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
-  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). "none"
-  skips all of these. Include "loo" (e.g. `test = c("standard", "loo")`,
-  or `test = "loo"` alone) to force the full LOO regardless of the
-  budget.
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) compute on
+  demand.
 
 - vb_correction:
 
@@ -273,23 +289,23 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [239ms]
+#> ✔ Posterior mode and Hessian. [273ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [396ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [436ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 13/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.1s]
+#> ⠹ Fitting 18/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [2.3s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [217ms]
+#> ✔ Adjust copula correlations (NORTA). [265ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [328ms]
+#> ✔ Summarise 1000 posterior draws. [354ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.1.9010 ended normally after 82 iterations
+#> INLAvaan 0.3.1.9011 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

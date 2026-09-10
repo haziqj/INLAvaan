@@ -118,21 +118,21 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [262ms]
+#> ✔ Posterior mode and Hessian. [268ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.037σ. [191ms]
+#> ✔ VB correction; mean |δ| = 0.037σ. [187ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [455ms]
+#> ✔ Fit 13/13 skew-normal marginals. [453ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [76ms]
+#> ✔ Adjust copula correlations (NORTA). [85ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [926ms]
+#> ✔ Summarise 1000 posterior draws. [601ms]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 ```
 
 As with [`lavaan::sem()`](https://rdrr.io/pkg/lavaan/man/sem.html), this
@@ -173,14 +173,14 @@ further use these to compute any derived quantities of interest via
 copula sampling. The posterior predictive p-values ([Gelman et al.
 1996](#ref-gelman1996posterior)) and Deviance Information Criterion
 (DIC, [Spiegelhalter et al. 2002](#ref-spiegelhalter2002bayesian)) are
-computed this way. Under the default `test = "standard"`, leave-one-out
+computed this way. The `test` argument names which of these
+post-estimation quantities to compute: the default `test = "standard"`
+computes the PPP and the DIC, `test = "full"` adds the leave-one-out
 cross-validation and WAIC results (see the model comparison section
-below) are also computed at fit time and stored with the fit, whenever
-the model supports them and the additional cost is small. Often, the
-posterior sampling takes longer than the model fitting itself, so the
-number of samples can be controlled via the `nsamp` argument (default is
-`nsamp = 1000`), or the post-fitting computations can be skipped
-altogether (`test = "none"`).
+below) and stores them with the fit, and `test = "none"` skips them all.
+Often, the posterior sampling takes longer than the model fitting
+itself, so the number of samples can be controlled via the `nsamp`
+argument (default is `nsamp = 1000`).
 
 ## Methods
 
@@ -192,7 +192,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.1.9010 ended normally after 64 iterations
+#> INLAvaan 0.3.1.9011 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -222,7 +222,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.1.9010 ended normally after 64 iterations
+#> INLAvaan 0.3.1.9011 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -381,7 +381,7 @@ machinery behind it.
 ### Fit measures
 
 Global fit measures are collected by
-[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md):
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md):
 the PPP and DIC mentioned earlier, Bayesian analogues of the classical
 fit indices (BRMSEA, BGammaHat, and related indices), and the LOO and
 WAIC measures of the model comparison section below when these are
@@ -392,10 +392,8 @@ stored with the fit.
 fitmeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
 #>           13    -8084.553        0.316    16063.448       13.093        0.066 
-#>    BGammaHat adjBGammaHat          BMc     elpd_loo        p_loo        looic 
-#>        0.989        0.970        0.983    -8021.947       13.039    16043.895 
-#>       se_loo    elpd_waic       p_waic         waic      se_waic 
-#>      107.981    -8021.946       13.038    16043.893      107.981
+#>    BGammaHat adjBGammaHat          BMc 
+#>        0.989        0.970        0.983
 ```
 
 Definitions and worked examples are in the [Bayesian fit indices
@@ -434,7 +432,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.98 s
+#> 1.66 s
 ```
 
 ### Plot
@@ -468,21 +466,21 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [138ms]
+#> ✔ Posterior mode and Hessian. [140ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [191ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [200ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [361ms]
+#> ✔ Fit 12/12 skew-normal marginals. [371ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [48ms]
+#> ✔ Adjust copula correlations (NORTA). [51ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ✔ Summarise 1000 posterior draws. [544ms]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood

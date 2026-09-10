@@ -55,7 +55,7 @@
   such a unit now contributes its first-order difference to `p_loo`,
   leaving `elpd_loo` and `looic` untouched. The log CPO case warns, from
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and from
-  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md);
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md);
   the `lpd` case is silent at the console, being both the ordinary state
   of an SEM fit and a smaller error than the second-order `lpd`’s own
   bias on the units that keep it, and is instead noted when a result is
@@ -79,7 +79,55 @@
   estimator rather than a difference between the models. The order used
   is printed with the table.
 
+- `test = "loo"` stored the LOO without the WAIC, although the WAIC
+  comes from the same Taylor pass and the documentation promised both.
+  The INLAvaan-only token was stripped before `test` reached lavaan,
+  which left `test` empty and so switched the WAIC off. Asking for
+  either now stores both (see the `test` entry under New features).
+
 ### New features
+
+- The `test` argument of
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),
+  [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),
+  [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md) and
+  [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md) now
+  names the post-estimation quantities to compute, as a set. The atoms
+  are `"ppp"`, `"dic"`, `"loo"` and `"waic"`; `"standard"` (and its
+  synonym `"default"`) stands for `c("ppp", "dic")`, `"full"` for all
+  four, and `"none"` for nothing. Aliases and atoms can be mixed and are
+  unioned, so `test = c("standard", "loo")` keeps working, and the PPP
+  and DIC are now separately selectable: `test = "dic"` reports the DIC
+  in
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
+  [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md) and
+  `logLik(type = "plugin")` without computing a PPP. An unknown value is
+  an error listing the valid ones; this includes lavaan’s own
+  test-statistic names (`"satorra.bentler"`, `"browne.residual.adf"`,
+  …), which were previously forwarded to lavaan and silently ignored,
+  since no lavaan test statistic is ever computed. **The default no
+  longer computes the LOO and WAIC.** Previously `test = "standard"`
+  also ran the full leave-one-out on any supported model whose predicted
+  cost fitted a 10-second budget, a gate that made fit times hard to
+  predict and skipped silently on unsupported models. The LOO and WAIC
+  now run only when asked for (`"loo"`, `"waic"` or `"full"`), with no
+  time budget, and a fit that asks for them on an unsupported model (PML
+  or ordinal data, `conditional.x = TRUE`, multigroup two-level) warns
+  and skips them rather than failing. `loo(fit)` and `waic(fit)` still
+  compute on demand, and `add_loo(fit)` now stores both the LOO and the
+  WAIC (previously the LOO only), so a script that relied on
+  `fitmeasures(fit)` listing `elpd_loo` under the old default should now
+  pass `test = "full"` or call
+  [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md). The fit
+  records what was requested and what was computed
+  (`get_inlavaan_internal(fit, "test")`), and
+  [`show()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md)
+  and [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md) read
+  that record instead of inferring it from which results happen to be
+  present.
 
 - `cores > 1` now works the same in every front end. Parallel stages
   ([`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),
@@ -276,7 +324,7 @@ CRAN release: 2026-07-11
   with and without missing data.
   ([`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) previously
   had no `type`.)
-- [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+- [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md)
   gains `elpd_loo`, `se_loo`, `p_loo`, `looic` and `elpd_waic`,
   `se_waic`, `p_waic`, `waic`: included in `"all"` when stored with the
   fit, computed on demand when requested by name.
@@ -296,7 +344,7 @@ CRAN release: 2026-07-11
   `fit <- add_loo(fit)` stores it post hoc. Stored results are reused by
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
   [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md),
-  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
   and [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md).
 - [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md) (and
   [`fitted.values()`](https://rdrr.io/r/stats/fitted.values.html))
@@ -486,12 +534,12 @@ CRAN release: 2026-04-03
   [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   and [`print()`](https://rdrr.io/r/base/print.html) methods. Summary
   statistics are also available via
-  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md).
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md).
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
   compares two or more fitted models side by side, reporting marginal
   log-likelihood, Bayes factors, and DIC, with optional fit measures
   from
-  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md).
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md).
 - [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
   computes global and per-parameter convergence and
   approximation-quality diagnostics for fitted models.

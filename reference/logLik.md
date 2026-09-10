@@ -34,8 +34,8 @@ BIC(object, ...)
   evaluated at the posterior mean point estimate, with `df`/`nobs`
   attributes and class `"logLik"` so it supports
   [`AIC`](https://rdrr.io/r/stats/AIC.html)/[`BIC`](https://rdrr.io/r/stats/AIC.html)
-  at the point estimate. Requires the model to have been fitted with
-  `test != "none"`.
+  at the point estimate. Requires the model to have been fitted with a
+  `test` that includes `"dic"` (the default `"standard"` does).
 
 - ...:
 

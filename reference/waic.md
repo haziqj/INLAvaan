@@ -163,21 +163,21 @@ is the usual model-comparison target, so it is the default, and
 `type = "loso"` warns. This matches `loo(type = "loso")` – the two read
 the same estimand off the same expansion.
 
-Under the default `test = "standard"`,
-[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) derives
-the WAIC at fit time from the same computation as the fit-time LOO (at
-no extra cost, whenever that LOO runs) and stores it with the fit:
-`waic(fit)` then returns the stored result when called with default
-arguments, and
-[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
-reports `waic`, `p_waic`, `se_waic` as part of `"all"` for free. If the
-`loo` package is attached it masks this generic, but dispatch on
-INLAvaan objects continues to work.
+When [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)'s
+`test` includes `"loo"` or `"waic"` (e.g. `test = "full"`), the WAIC is
+derived at fit time from the same Taylor pass as the LOO at no extra
+cost and stored with the fit: `waic(fit)` then returns the stored result
+when called with default arguments, and
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md)
+reports `waic`, `p_waic`, `se_waic` as part of `"all"` for free. Under
+the default `test = "standard"` nothing is stored and `waic(fit)`
+computes it on demand. If the `loo` package is attached it masks this
+generic, but dispatch on INLAvaan objects continues to work.
 
 ## See also
 
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
-[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md)
+[`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md)
 
 ## Examples
 
@@ -191,22 +191,21 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [172ms]
+#> ✔ Posterior mode and Hessian. [182ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [200ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [209ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [867ms]
+#> ✔ Fit 30/30 skew-normal marginals. [893ms]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [142ms]
+#> ✔ Adjust copula correlations (NORTA). [447ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [705ms]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 waic(fit)
 #> ── WAIC from the Laplace summary ───────────────── 301 subjects, second-order ──
 #> 

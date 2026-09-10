@@ -142,11 +142,9 @@ diagnostics.
 
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3841.076        0.000     7552.339       20.509        0.114 
-#>    BGammaHat adjBGammaHat          BMc     elpd_loo        p_loo        looic 
-#>        0.933        0.878        0.852    -3769.129       23.803     7538.259 
-#>       se_loo    elpd_waic       p_waic         waic      se_waic 
-#>       86.058    -3769.065       23.739     7538.130       86.040
+#>           21    -3841.076        0.000     7551.913       20.296        0.114 
+#>    BGammaHat adjBGammaHat          BMc 
+#>        0.933        0.878        0.851
 ```
 
 ### Posterior distributions of fit indices
@@ -162,7 +160,7 @@ bfi
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc 
-#>        0.115        0.933        0.877        0.851
+#>        0.114        0.933        0.879        0.852
 ```
 
 Calling
@@ -177,10 +175,10 @@ summary(bfi)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.115 0.004 0.108 0.112 0.114 0.117  0.124 0.114
-#> BGammaHat    0.933 0.004 0.923 0.931 0.934 0.936  0.940 0.934
-#> adjBGammaHat 0.877 0.008 0.859 0.873 0.878 0.883  0.890 0.878
-#> BMc          0.851 0.009 0.829 0.846 0.852 0.858  0.867 0.853
+#> BRMSEA       0.114 0.004 0.108 0.111 0.114 0.116  0.123 0.113
+#> BGammaHat    0.933 0.004 0.924 0.931 0.934 0.936  0.940 0.934
+#> adjBGammaHat 0.879 0.008 0.861 0.874 0.879 0.884  0.891 0.880
+#> BMc          0.852 0.009 0.831 0.846 0.852 0.858  0.867 0.854
 ```
 
 You can also access the raw per-sample vectors for custom analysis:
@@ -224,13 +222,9 @@ Now pass the baseline model to `fitMeasures()` or
 
 fitMeasures(fit, baseline.model = fit_null)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3841.076        0.000     7552.339       20.509        0.115 
+#>           21    -3841.076        0.000     7551.913       20.296        0.114 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.933        0.878        0.852        0.894        0.846        0.873 
-#>     elpd_loo        p_loo        looic       se_loo    elpd_waic       p_waic 
-#>    -3769.129       23.803     7538.259       86.058    -3769.065       23.739 
-#>         waic      se_waic 
-#>     7538.130       86.040
+#>        0.933        0.879        0.851        0.894        0.847        0.872
 ```
 
 ``` r
@@ -241,13 +235,13 @@ summary(bfi_inc)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.115 0.004 0.108 0.112 0.114 0.117  0.124 0.114
-#> BGammaHat    0.933 0.004 0.922 0.931 0.934 0.937  0.940 0.934
-#> adjBGammaHat 0.877 0.008 0.857 0.872 0.878 0.883  0.891 0.879
-#> BMc          0.851 0.010 0.827 0.845 0.852 0.859  0.867 0.853
-#> BCFI         0.894 0.008 0.875 0.890 0.895 0.900  0.906 0.896
-#> BTLI         0.845 0.011 0.818 0.839 0.847 0.854  0.864 0.848
-#> BNFI         0.872 0.007 0.854 0.868 0.873 0.878  0.884 0.874
+#> BRMSEA       0.114 0.004 0.108 0.111 0.113 0.116  0.123 0.113
+#> BGammaHat    0.933 0.004 0.924 0.931 0.934 0.936  0.940 0.935
+#> adjBGammaHat 0.879 0.008 0.861 0.874 0.880 0.884  0.891 0.882
+#> BMc          0.852 0.009 0.830 0.846 0.853 0.858  0.867 0.855
+#> BCFI         0.894 0.007 0.877 0.890 0.896 0.900  0.906 0.897
+#> BTLI         0.847 0.011 0.822 0.841 0.848 0.854  0.864 0.850
+#> BNFI         0.872 0.007 0.856 0.868 0.873 0.877  0.884 0.875
 ```
 
 ## Rescaling: `"devM"` vs `"MCMC"`
@@ -265,10 +259,10 @@ summary(bfi_mcmc)
 #> Posterior summary of MCMC-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.128 0.004 0.121 0.125 0.127 0.130  0.136 0.128
-#> BGammaHat    0.920 0.004 0.910 0.917 0.920 0.923  0.927 0.920
-#> adjBGammaHat 0.850 0.008 0.831 0.845 0.850 0.856  0.863 0.850
-#> BMc          0.822 0.009 0.800 0.816 0.823 0.829  0.838 0.822
+#> BRMSEA       0.128 0.004 0.121 0.125 0.127 0.130  0.136 0.127
+#> BGammaHat    0.920 0.004 0.911 0.918 0.920 0.923  0.927 0.920
+#> adjBGammaHat 0.850 0.008 0.833 0.846 0.851 0.856  0.864 0.851
+#> BMc          0.822 0.009 0.802 0.817 0.823 0.829  0.838 0.823
 ```
 
 The two methods will generally produce different results, especially

@@ -26,7 +26,8 @@ deviance(object, type = c("mean", "plugin"), ...)
   draws. `"plugin"` returns the deviance evaluated at the posterior mean
   point estimate, \\\hat{D} = -2\log p(y \mid \hat\theta)\\ (matching
   `-2 * logLik(object, type = "plugin")`). Both require the model to
-  have been fitted with `test != "none"`.
+  have been fitted with a `test` that includes `"dic"` (the default
+  `"standard"` does).
 
 - ...:
 

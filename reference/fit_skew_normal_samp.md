@@ -43,5 +43,5 @@ the provided numeric vector `x`.
 x <- rnorm(100, mean = 5, sd = 1)
 unlist(fit_skew_normal_samp(x))
 #>        xi     omega     alpha 
-#> 4.5204133 1.0878500 0.6626296 
+#> 4.4516963 1.0692310 0.9326979 
 ```

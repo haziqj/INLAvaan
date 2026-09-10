@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -183,8 +183,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3885.112    0.00 7534.429 29.288 -3769.163 42.996 32.597</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3990.302 -105.19 7757.135 26.927 -3878.041 46.738 27.377</span></span>
+<span><span class="co">#&gt;    fit   30   -3885.112    0.00 7535.045 29.596 -3769.163 42.996 32.597</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3990.302 -105.19 7757.553 27.136 -3878.041 46.738 27.377</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;   -108.878  17.009</span></span></code></pre></div>
@@ -256,22 +256,21 @@
 </div>
 </section><section class="level2"><h2 id="storing-the-result-with-the-fit">Storing the result with the fit<a class="anchor" aria-label="anchor" href="#storing-the-result-with-the-fit"></a>
 </h2>
-<p><code>loo(fit)</code> never modifies the fitted object – but under the default <code>test = "standard"</code>, the fit itself already computes and stores both the full LOO and the WAIC whenever the model is supported, has a mean structure, and (for LOO) the predicted serial cost is within a 10-second budget. The prediction is calibrated at run time by timing a single score evaluation, so on typical single-level models – where the full LOO costs a fraction of the fit itself – you simply get <code>loo(fit)</code> and <code>waic(fit)</code> for free. The WAIC reuses the very draws the fit produced for its posterior summaries, so it costs only one casewise pass.</p>
-<p>For expensive cases you can force the LOO regardless of the budget at fit time,</p>
+<p><code>loo(fit)</code> never modifies the fitted object – and under the default <code>test = "standard"</code>, nothing is computed at fit time either: <code>loo(fit)</code> and <code>waic(fit)</code> compute their results on demand. To compute and store both at fit time instead, include <code>"loo"</code> (or <code>"waic"</code>) in <code>test</code> – the WAIC comes from the same Taylor pass as the LOO, so either name stores both, with no time budget:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>            test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"standard"</span>, <span class="st">"loo"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>or store it afterwards with an explicit reassignment:</p>
+<p>or ask for everything with <code>test = "full"</code>. On a model the casewise machinery does not support, this warns and skips them, leaving the rest of the fit unaffected; see <code><a href="../reference/inlavaan.html">?inlavaan</a></code> for which models qualify. Alternatively, store it afterwards with an explicit reassignment:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loo.html">add_loo</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>A stored result is returned instantly by <code>loo(fit)</code> and reused by <code><a href="../reference/fitMeasures.html">fitmeasures()</a></code> (where the blavaan-style names appear) and <code>compare(..., loo = TRUE)</code>:</p>
+<p>A stored result is returned instantly by <code>loo(fit)</code> and reused by <code><a href="../reference/fitmeasures.html">fitmeasures()</a></code> (where the blavaan-style names appear) and <code>compare(..., loo = TRUE)</code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/fitMeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elpd_loo"</span>, <span class="st">"se_loo"</span>, <span class="st">"p_loo"</span>, <span class="st">"looic"</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fitmeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"elpd_loo"</span>, <span class="st">"se_loo"</span>, <span class="st">"p_loo"</span>, <span class="st">"looic"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  elpd_loo     p_loo     looic    se_loo </span></span>
 <span><span class="co">#&gt; -3769.163    32.597  7538.327    85.992</span></span></code></pre></div>
 </div>

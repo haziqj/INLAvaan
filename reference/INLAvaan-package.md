@@ -48,7 +48,7 @@ the class definition.
   [`standardisedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
 
 - Fit assessment and model comparison:
-  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitMeasures.md),
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
   [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md),
   [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md),
   [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md),

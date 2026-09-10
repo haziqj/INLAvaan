@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -210,26 +210,26 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [262ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [268ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.037σ. [191ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.037σ. [187ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [455ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [453ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [76ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [85ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [926ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [601ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span></code></pre></div>
+<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
 </div>
 <p>As with <code><a href="https://rdrr.io/pkg/lavaan/man/sem.html" class="external-link">lavaan::sem()</a></code>, this model is fitted without a mean structure by default (<code>meanstructure = FALSE</code>). Rather than profiling the means out as lavaan does, <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> assigns the saturated means flat priors and marginalises them analytically, which keeps the likelihood a proper Bayesian object. Intercepts can instead be modelled explicitly with <code>meanstructure = TRUE</code>. See the <a href="https://inlavaan.haziqj.ml/articles/meanstructure.html">mean structures article</a> for how the two treatments relate and when model comparisons across them are meaningful.</p>
 <p><a href="https://inlavaan.haziqj.ml/">INLAvaan</a> computes an approximation to the posterior density by way of a Laplace approximation <span class="citation" data-cites="tierney1989fully jamil2026approximate">(<a href="#ref-tierney1989fully" role="doc-biblioref">Tierney et al. 1989</a>; <a href="#ref-jamil2026approximate" role="doc-biblioref">Jamil and Rue 2026a</a>)</span>. The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters. The default method for optimisation is <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, but other optimisers can be used by specifying <code>optim_method = "ucminf"</code> for the <a href="https://github.com/hdakpo/ucminf" class="external-link">ucminf</a> package or <code>optim_method = "optim"</code> to call the <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">stats::optim()</a></code> function with method <code>"BFGS"</code>.</p>
 <p>From this, marginal posterior distributions for each parameter can be obtained by one of several ways, including 1) Skew normal fitting <span class="citation" data-cites="chiuchiolo2023joint">(<code>marginal_method = "skewnorm"</code>, the default method, see <a href="#ref-chiuchiolo2023joint" role="doc-biblioref">Chiuchiolo et al. 2023</a>)</span>; 2) Two-piece asymmetric Gaussian fitting <span class="citation" data-cites="martins2013bayesian">(<code>marginal_method = "asymgaus"</code>, see <a href="#ref-martins2013bayesian" role="doc-biblioref">Martins et al. 2013</a>)</span>; 3) Direct marginalisation of the joint Gaussian posterior (<code>marginal_method = "marggaus"</code>); and 4) Sampling from the joint Gaussian posterior (<code>marginal_method = "sampling"</code>).</p>
-<p>Once the marginal posterior distributions have been obtained, we can further use these to compute any derived quantities of interest via copula sampling. The posterior predictive p-values <span class="citation" data-cites="gelman1996posterior">(<a href="#ref-gelman1996posterior" role="doc-biblioref">Gelman et al. 1996</a>)</span> and Deviance Information Criterion <span class="citation" data-cites="spiegelhalter2002bayesian">(DIC, <a href="#ref-spiegelhalter2002bayesian" role="doc-biblioref">Spiegelhalter et al. 2002</a>)</span> are computed this way. Under the default <code>test = "standard"</code>, leave-one-out cross-validation and WAIC results (see the model comparison section below) are also computed at fit time and stored with the fit, whenever the model supports them and the additional cost is small. Often, the posterior sampling takes longer than the model fitting itself, so the number of samples can be controlled via the <code>nsamp</code> argument (default is <code>nsamp = 1000</code>), or the post-fitting computations can be skipped altogether (<code>test = "none"</code>).</p>
+<p>Once the marginal posterior distributions have been obtained, we can further use these to compute any derived quantities of interest via copula sampling. The posterior predictive p-values <span class="citation" data-cites="gelman1996posterior">(<a href="#ref-gelman1996posterior" role="doc-biblioref">Gelman et al. 1996</a>)</span> and Deviance Information Criterion <span class="citation" data-cites="spiegelhalter2002bayesian">(DIC, <a href="#ref-spiegelhalter2002bayesian" role="doc-biblioref">Spiegelhalter et al. 2002</a>)</span> are computed this way. The <code>test</code> argument names which of these post-estimation quantities to compute: the default <code>test = "standard"</code> computes the PPP and the DIC, <code>test = "full"</code> adds the leave-one-out cross-validation and WAIC results (see the model comparison section below) and stores them with the fit, and <code>test = "none"</code> skips them all. Often, the posterior sampling takes longer than the model fitting itself, so the number of samples can be controlled via the <code>nsamp</code> argument (default is <code>nsamp = 1000</code>).</p>
 </section><section class="level2"><h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a>
 </h2>
 <p>The resulting object is of class <code>INLAvaan</code>, a subclass of <code>lavaan</code> objects.</p>
@@ -238,7 +238,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots</span></span>
 <span><span class="va">fit</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.1.9010 ended normally after 64 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1.9011 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -263,7 +263,7 @@
 <span></span>
 <span><span class="co"># Summary of results</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.1.9010 ended normally after 64 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1.9011 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -390,16 +390,14 @@
 <p>Comparing such replicates with the observed data is the basis of prior and posterior predictive checking. The <a href="https://inlavaan.haziqj.ml/articles/predictive-checks.html">predictive checks article</a> walks through that workflow, and the <a href="https://inlavaan.haziqj.ml/articles/sampling.html">sampling article</a> explains the machinery behind it.</p>
 </section><section class="level3"><h3 id="fit-measures">Fit measures<a class="anchor" aria-label="anchor" href="#fit-measures"></a>
 </h3>
-<p>Global fit measures are collected by <code><a href="../reference/fitMeasures.html">fitmeasures()</a></code>: the PPP and DIC mentioned earlier, Bayesian analogues of the classical fit indices (BRMSEA, BGammaHat, and related indices), and the LOO and WAIC measures of the model comparison section below when these are stored with the fit.</p>
+<p>Global fit measures are collected by <code><a href="../reference/fitmeasures.html">fitmeasures()</a></code>: the PPP and DIC mentioned earlier, Bayesian analogues of the classical fit indices (BRMSEA, BGammaHat, and related indices), and the LOO and WAIC measures of the model comparison section below when these are stored with the fit.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/fitMeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fitmeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         npar   margloglik          ppp          dic        p_dic       BRMSEA </span></span>
 <span><span class="co">#&gt;           13    -8084.553        0.316    16063.448       13.093        0.066 </span></span>
-<span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc     elpd_loo        p_loo        looic </span></span>
-<span><span class="co">#&gt;        0.989        0.970        0.983    -8021.947       13.039    16043.895 </span></span>
-<span><span class="co">#&gt;       se_loo    elpd_waic       p_waic         waic      se_waic </span></span>
-<span><span class="co">#&gt;      107.981    -8021.946       13.038    16043.893      107.981</span></span></code></pre></div>
+<span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc </span></span>
+<span><span class="co">#&gt;        0.989        0.970        0.983</span></span></code></pre></div>
 </div>
 <p>Definitions and worked examples are in the <a href="https://inlavaan.haziqj.ml/articles/fit-indices.html">Bayesian fit indices article</a>.</p>
 </section><section class="level3"><h3 id="diagnostics">Diagnostics<a class="anchor" aria-label="anchor" href="#diagnostics"></a>
@@ -422,7 +420,7 @@
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 1.98 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.66 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -450,21 +448,21 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [138ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [140ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.041σ. [191ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.041σ. [200ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [361ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [371ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [48ms]</span></span>
+<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [51ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [544ms]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC, LOO, WAIC.</span></span>
+<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>

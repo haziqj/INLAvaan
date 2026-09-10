@@ -13,7 +13,7 @@ summarised over the posterior.'><meta property="og:image" content="https://inlav
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,7 +86,8 @@ deviance \(\bar{D} = E[-2\log p(y \mid \theta)]\), averaged over
 posterior draws. <code>"plugin"</code> returns the deviance evaluated at the
 posterior mean point estimate, \(\hat{D} = -2\log p(y \mid \hat\theta)\)
 (matching <code>-2 * logLik(object, type = "plugin")</code>). Both require the
-model to have been fitted with <code>test != "none"</code>.</p></dd>
+model to have been fitted with a <code>test</code> that includes
+<code>"dic"</code> (the default <code>"standard"</code> does).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

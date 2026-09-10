@@ -74,18 +74,34 @@ inlavaan(
 
 - test:
 
-  Character indicating which post-estimation quantities to compute.
-  Defaults to "standard": posterior fit indices (PPP and DIC), plus –
-  for models supported by the casewise machinery and fitted with a mean
-  structure – a full leave-one-out cross-validation whenever its
-  predicted serial cost is within a 10-second budget, with the WAIC
-  derived from the same computation at no extra cost; both are stored
-  with the fit (see
+  Character vector naming the post-estimation quantities to compute and
+  store with the fit. The atoms are `"ppp"` (posterior predictive
+  p-value), `"dic"` (deviance information criterion and its `pD`),
+  `"loo"` (leave-one-out cross-validation, see
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) and `"waic"`
+  (see [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). Three
+  aliases stand for sets of atoms: `"standard"` (the default) and its
+  synonym `"default"` give `c("ppp", "dic")`; `"full"` gives all four;
+  `"none"` gives nothing. Aliases and atoms may be mixed and are
+  unioned, so `test = c("standard", "loo")` adds the LOO to the default
+  set. The LOO and the WAIC come from one Taylor pass, so asking for
+  either stores both. They run only when asked for, with no time budget.
+  On a model the casewise machinery does not support (PML or ordinal
+  data, `conditional.x = TRUE`, multigroup two-level) they are skipped
+  with a warning and the rest of the fit proceeds. The fit records what
+  was requested and what was computed
+  (`get_inlavaan_internal(fit, "test")`);
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
+  [`deviance()`](https://inlavaan.haziqj.ml/reference/deviance.md),
+  [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md) and
+  [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md) report
+  only what was computed.
+  [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md) stores the
+  LOO and WAIC post hoc;
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
-  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)). "none"
-  skips all of these. Include "loo" (e.g. `test = c("standard", "loo")`,
-  or `test = "loo"` alone) to force the full LOO regardless of the
-  budget.
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) compute on
+  demand.
 
 - vb_correction:
 
@@ -277,23 +293,24 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [159ms]
+#> ✔ Posterior mode and Hessian. [161ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [305ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [325ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1s]
+#> ✔ Fit 21/21 skew-normal marginals. [1.1s]
 #> 
 #> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [142ms]
+#> ✔ Adjust copula correlations (NORTA). [152ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [677ms]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.1.9010 ended normally after 65 iterations
+#> INLAvaan 0.3.1.9011 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -308,8 +325,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.665 
-#>    Effective parameters (pD)                    20.672 
+#>    Deviance (DIC)                             7552.348 
+#>    Effective parameters (pD)                    20.514 
 #> 
 #> Parameter Estimates:
 #> 
@@ -334,10 +351,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.396    0.077    0.245    0.548    0.001       beta(1,1)
-#>     speed             0.249    0.053    0.146    0.353    0.011       beta(1,1)
+#>     textual           0.394    0.079    0.240    0.549    0.001       beta(1,1)
+#>     speed             0.248    0.053    0.143    0.352    0.011       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.167    0.046    0.076    0.258    0.003       beta(1,1)
+#>     speed             0.168    0.049    0.072    0.264    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
