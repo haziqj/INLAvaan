@@ -25,8 +25,10 @@ fit <- acfa(
 res <- loo(fit)
 # Shared across two test_that() blocks that both need a copy of `fit` with
 # LOO stored via add_loo() -- historically each block called add_loo(fit)
-# separately, but the call is deterministic so it is computed once here
-fit_with_loo <- add_loo(fit)
+# separately, but the call is deterministic so it is computed once here.
+# add_loo() also stores the WAIC (same Taylor pass); on this fixture unit 5
+# has no second-order lpd, so waic_from_taylor() warns
+fit_with_loo <- suppressWarnings(add_loo(fit))
 
 test_that("LOSO matches reference values", {
   # Reference values computed with an independent implementation of the same
@@ -297,7 +299,9 @@ test_that("equality constraints (ceq.simple) are handled", {
 })
 
 test_that("fit-time LOO via test = 'loo' and add_loo()", {
-  fit_loo <- acfa(
+  # unit 5 has no second-order lpd, so the fit-time WAIC (test = "loo" now
+  # stores both, see the bug fix below) warns and falls back to first order
+  fit_loo <- suppressWarnings(acfa(
     HS_model,
     dat,
     meanstructure = TRUE,
@@ -307,7 +311,7 @@ test_that("fit-time LOO via test = 'loo' and add_loo()", {
     vb_correction = FALSE,
     marginal_method = "marggaus",
     marginal_correction = "none"
-  )
+  ))
   stored <- get_inlavaan_internal(fit_loo, "loo")
   expect_s3_class(stored, "inlavaan_loo")
   expect_equal(stored$elpd_2, res$elpd_2, tolerance = 1e-10)
@@ -316,6 +320,19 @@ test_that("fit-time LOO via test = 'loo' and add_loo()", {
   expect_identical(loo(fit_loo), stored)
   res_sub <- loo(fit_loo, units = 1:5)
   expect_equal(nrow(res_sub$per_unit), 5L)
+
+  # bug fix: test = "loo" stores the WAIC too (both come from one Taylor
+  # pass), and the `test` record reflects the request and the by-product
+  rec_loo <- get_inlavaan_internal(fit_loo, "test")
+  expect_equal(rec_loo$requested, "loo")
+  expect_equal(rec_loo$computed, c("loo", "waic"))
+  expect_s3_class(get_inlavaan_internal(fit_loo, "waic"), "inlavaan_waic")
+  expect_identical(waic(fit_loo), get_inlavaan_internal(fit_loo, "waic"))
+  expect_null(get_inlavaan_internal(fit_loo, "ppp"))
+  expect_null(get_inlavaan_internal(fit_loo, "DIC"))
+  fm_loo <- fitMeasures(fit_loo)
+  expect_true("waic" %in% names(fm_loo))
+  expect_false(any(c("ppp", "dic") %in% names(fm_loo)))
 
   # add_loo() returns an updated copy; the original fit is unchanged
   fit2 <- fit_with_loo
@@ -425,7 +442,7 @@ test_that("single-level FIML is supported (see test-loo-missing.R)", {
   expect_equal(res_miss$flavour, "joint")
 })
 
-test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
+test_that("test = 'full' stores PPP, DIC, LOO and WAIC", {
   # the stored WAIC falls to first order here (unit 5 has no second-order
   # lpd), which warns at fit time
   fit_std <- suppressWarnings(acfa(
@@ -434,12 +451,16 @@ test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
     meanstructure = TRUE,
     verbose = FALSE,
     nsamp = 100,
-    test = "standard",
+    test = "full",
     vb_correction = FALSE,
     marginal_method = "marggaus",
     marginal_correction = "none"
   ))
   int <- get_inlavaan_internal(fit_std)
+
+  expect_equal(int$test$requested, c("ppp", "dic", "loo", "waic"))
+  expect_equal(int$test$computed, c("ppp", "dic", "loo", "waic"))
+  expect_equal(int$test$skipped, character(0))
 
   expect_s3_class(int$loo, "inlavaan_loo")
   expect_equal(int$loo$n_units, 40L)
@@ -472,6 +493,29 @@ test_that("test = 'standard' stores LOO and WAIC when supported and cheap", {
     c("elpd_loo", "looic", "waic", "p_waic", "se_waic") %in% names(fm)
   ))
   expect_true(all(c("ppp", "dic", "p_dic") %in% names(fm)))
+  expect_named(timing(fit_std, what = c("loo", "waic")), c("loo", "waic"))
+})
+
+test_that("the default test = 'standard' stores neither LOO nor WAIC", {
+  fit_def <- acfa(
+    HS_model,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  )
+  int <- get_inlavaan_internal(fit_def)
+  expect_equal(int$test$computed, c("ppp", "dic"))
+  expect_null(int$loo)
+  expect_null(int$waic)
+  fm <- fitMeasures(fit_def)
+  expect_false(any(c("elpd_loo", "waic") %in% names(fm)))
+  expect_error(timing(fit_def, what = "loo"), "not computed", fixed = TRUE)
+  # loo()/waic() still compute on demand
+  expect_s3_class(loo(fit_def), "inlavaan_loo")
 })
 
 test_that("the fit-time budget gate aborts with its own condition class", {
@@ -482,20 +526,22 @@ test_that("the fit-time budget gate aborts with its own condition class", {
   )
 })
 
-test_that("fit-time WAIC follows the fit-time LOO regardless of nsamp", {
+test_that("test = 'waic' alone also stores both, regardless of nsamp", {
   fit_s3 <- suppressWarnings(acfa(
     HS_model,
     dat,
     meanstructure = TRUE,
     verbose = FALSE,
     nsamp = 3,
-    test = "standard",
+    test = "waic",
     vb_correction = FALSE,
     marginal_method = "marggaus",
     marginal_correction = "none"
   ))
   int <- get_inlavaan_internal(fit_s3)
   # derived from the same Taylor pass, so no draws-based nsamp gate remains
+  expect_equal(int$test$requested, "waic")
+  expect_equal(int$test$computed, c("loo", "waic"))
   expect_s3_class(int$loo, "inlavaan_loo")
   expect_s3_class(int$waic, "inlavaan_waic")
 })

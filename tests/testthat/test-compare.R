@@ -74,11 +74,11 @@ test_that("compare() with fit.measures appends extra columns", {
   expect_output(print(cmp), "Baseline model")
 })
 
-test_that("compare() includes DIC/pD when test != 'none'", {
-  # the stored WAIC falls to first order on this data (one unit has no
-  # second-order lpd), which warns at fit time
-  fit1_std <- suppressWarnings(acfa(mod_null, dat, verbose = FALSE, nsamp = 3))
-  fit2_std <- suppressWarnings(acfa(mod_full, dat, verbose = FALSE, nsamp = 3))
+test_that("compare() includes DIC/pD when the fit computed the DIC", {
+  # the default test = "standard" computes the DIC but no fit-time LOO/WAIC,
+  # so nothing here warns
+  fit1_std <- acfa(mod_null, dat, verbose = FALSE, nsamp = 3)
+  fit2_std <- acfa(mod_full, dat, verbose = FALSE, nsamp = 3)
   cmp <- compare(fit1_std, fit2_std)
   expect_true("DIC" %in% names(cmp))
   expect_true("pD" %in% names(cmp))
@@ -151,8 +151,14 @@ test_that("compare(loo = TRUE) appends ELPD columns with paired SEs", {
   )
   expect_output(print(cmp), "paired differences")
 
-  # Stored LOO results are reused
-  cmp2 <- compare(add_loo(fit1_ms), add_loo(fit2_ms), loo = TRUE)
+  # Stored LOO results are reused; add_loo() also stores the WAIC (same
+  # Taylor pass), which warns on this fixture (a unit with no second-order
+  # lpd)
+  cmp2 <- compare(
+    suppressWarnings(add_loo(fit1_ms)),
+    suppressWarnings(add_loo(fit2_ms)),
+    loo = TRUE
+  )
   expect_equal(cmp2$ELPD, cmp$ELPD)
 })
 

@@ -52,7 +52,14 @@ test_that("warm start reaches the same posterior mode as a cold fit", {
   fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
   dp2 <- priors_for(lambda = "normal(0,0.3)")
   fit_warm <- update(fit, dp = dp2, verbose = FALSE)
-  fit_cold <- acfa(mod, dat, dp = dp2, verbose = FALSE, nsamp = 3, test = "none")
+  fit_cold <- acfa(
+    mod,
+    dat,
+    dp = dp2,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
   # Compare the deterministic optimiser target (the mode), not sample-based
   # summaries which carry Monte Carlo noise at nsamp = 3
   expect_equal(
@@ -73,4 +80,18 @@ test_that("start of wrong length is rejected", {
     acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none", start = 1:3),
     "free parameter"
   )
+})
+
+test_that("update() re-parses a recorded test = c('standard', 'loo') call", {
+  fit <- suppressWarnings(acfa(
+    mod,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = c("standard", "loo")
+  ))
+  fit2 <- suppressWarnings(update(fit, nsamp = 5, verbose = FALSE))
+  computed <- get_inlavaan_internal(fit2, "test")$computed
+  expect_true(all(c("loo", "waic") %in% computed))
 })
