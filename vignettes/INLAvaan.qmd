@@ -124,8 +124,8 @@ From this, marginal posterior distributions for each parameter can be obtained b
 
 Once the marginal posterior distributions have been obtained, we can further use these to compute any derived quantities of interest via copula sampling.
 The posterior predictive p-values [@gelman1996posterior] and Deviance Information Criterion [DIC, @spiegelhalter2002bayesian] are computed this way.
-Under the default `test = "standard"`, leave-one-out cross-validation and WAIC results (see the model comparison section below) are also computed at fit time and stored with the fit, whenever the model supports them and the additional cost is small.
-Often, the posterior sampling takes longer than the model fitting itself, so the number of samples can be controlled via the `nsamp` argument (default is `nsamp = 1000`), or the post-fitting computations can be skipped altogether (`test = "none"`).
+The `test` argument names which of these post-estimation quantities to compute: the default `test = "standard"` computes the PPP and the DIC, `test = "full"` adds the leave-one-out cross-validation and WAIC results (see the model comparison section below) and stores them with the fit, and `test = "none"` skips them all.
+Often, the posterior sampling takes longer than the model fitting itself, so the number of samples can be controlled via the `nsamp` argument (default is `nsamp = 1000`).
 
 ## Methods
 
