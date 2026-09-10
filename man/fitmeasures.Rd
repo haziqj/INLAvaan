@@ -20,17 +20,20 @@
 \item{fit_measures}{If \code{"all"}, all fit measures available will be returned. If
 only a single or a few fit measures are specified by name, only those are
 computed and returned. The LOO measures \code{"elpd_loo"}, \code{"se_loo"},
-\code{"p_loo"} and \code{"looic"} (see \code{\link[=loo]{loo()}}) are included in \code{"all"} only when
-a LOO result is stored with the fit (\code{test = "loo"} in \code{\link[=inlavaan]{inlavaan()}} or
-\code{\link[=add_loo]{add_loo()}}); otherwise they are computed on demand when requested by
-name, and recomputed on every call -- store the result with
-\code{fit <- add_loo(fit)} (or call \code{\link[=loo]{loo()}} directly) for repeated access.
-INLAvaan's stable spelling \code{fit.measures} is also accepted.}
+\code{"p_loo"} and \code{"looic"} (see \code{\link[=loo]{loo()}}), and the WAIC measures
+\code{"elpd_waic"}, \code{"se_waic"}, \code{"p_waic"} and \code{"waic"} (see \code{\link[=waic]{waic()}}), are
+included in \code{"all"} only when stored with the fit (\code{test} including
+\code{"loo"}, \code{"waic"} or \code{"full"} in \code{\link[=inlavaan]{inlavaan()}}, or \code{\link[=add_loo]{add_loo()}});
+otherwise they are computed on demand when requested by name, and
+recomputed on every call -- store the result with \code{fit <- add_loo(fit)}
+(or call \code{\link[=loo]{loo()}}/\code{\link[=waic]{waic()}} directly) for repeated access. INLAvaan's
+stable spelling \code{fit.measures} is also accepted.}
 
 \item{baseline_model}{An optional \link{INLAvaan} object representing the
 baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-BNFI). Must have been fitted with \code{test != "none"}. INLAvaan's stable
-spelling \code{baseline.model} is also accepted.}
+BNFI). Must have been fitted with a \code{test} that includes \code{"dic"} (the
+default \code{"standard"} does). INLAvaan's stable spelling \code{baseline.model}
+is also accepted.}
 
 \item{h1_model}{Ignored (included for compatibility with the lavaan
 generic).}
@@ -74,7 +77,7 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 fitMeasures(fit)
 
 # Specific measures
-fitMeasures(fit, c("npar", "DIC", "pD", "ppp"))
+fitMeasures(fit, c("npar", "dic", "p_dic", "ppp"))
 }
 
 }

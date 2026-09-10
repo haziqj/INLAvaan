@@ -19,15 +19,24 @@
 #'
 #' @param dp Default prior distributions for the different types of model
 #'   parameters; a named character vector as returned by [priors_for()].
-#' @param test Character indicating which post-estimation quantities to
-#'   compute. Defaults to "standard": posterior fit indices (PPP and DIC),
-#'   plus -- for models supported by the casewise machinery and fitted with
-#'   a mean structure -- a full leave-one-out cross-validation whenever its
-#'   predicted serial cost is within a 10-second budget, with the WAIC
-#'   derived from the same computation at no extra cost; both are stored
-#'   with the fit (see [loo()] and [waic()]). "none" skips all of these.
-#'   Include "loo" (e.g. `test = c("standard", "loo")`, or `test = "loo"`
-#'   alone) to force the full LOO regardless of the budget.
+#' @param test Character vector naming the post-estimation quantities to
+#'   compute and store with the fit. The atoms are `"ppp"` (posterior
+#'   predictive p-value), `"dic"` (deviance information criterion and its
+#'   `pD`), `"loo"` (leave-one-out cross-validation, see [loo()]) and
+#'   `"waic"` (see [waic()]). Three aliases stand for sets of atoms:
+#'   `"standard"` (the default) and its synonym `"default"` give
+#'   `c("ppp", "dic")`; `"full"` gives all four; `"none"` gives nothing.
+#'   Aliases and atoms may be mixed and are unioned, so
+#'   `test = c("standard", "loo")` adds the LOO to the default set. The LOO
+#'   and the WAIC come from one Taylor pass, so asking for either stores
+#'   both. They run only when asked for, with no time budget. On a model
+#'   the casewise machinery does not support (PML or ordinal data,
+#'   `conditional.x = TRUE`, multigroup two-level) they are skipped with a
+#'   warning and the rest of the fit proceeds. The fit records what was
+#'   requested and what was computed (`get_inlavaan_internal(fit, "test")`);
+#'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
+#'   report only what was computed. [add_loo()] stores the LOO and WAIC
+#'   post hoc; [loo()] and [waic()] compute on demand.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
@@ -179,12 +188,9 @@ inlavaan <- function(
   if (isTRUE(debug)) {
     verbose <- TRUE
   }
-  # "loo" is INLAvaan-specific: strip it before `test` reaches lavaan
-  do_loo <- "loo" %in% test
-  test <- setdiff(test, "loo")
-  if (length(test) == 0L) {
-    test <- "none"
-  }
+  # `test` is an INLAvaan-only selection of post-estimation quantities (see
+  # resolve_test() in R/utils.R); it never reaches lavaan as typed
+  test_req <- resolve_test(test)
 
   lavargs <- list(...)
   lavargs$model <- model
@@ -193,7 +199,10 @@ inlavaan <- function(
   lavargs$verbose <- FALSE # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
   lavargs$parser <- "old" # To get priors parsed
-  lavargs$test <- test
+  # lavaan only ever sees "standard" or "none": its own test statistics are
+  # never computed under do.fit = FALSE, and INLAvaan's atoms ("loo", ...)
+  # are not lavaan-legal values
+  lavargs$test <- if (length(test_req) > 0L) "standard" else "none"
 
   if ("estimator" %in% names(lavargs)) {
     if (!(lavargs$estimator %in% c("ML", "PML"))) {
@@ -935,7 +944,8 @@ inlavaan <- function(
     sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 ||
     any(pt$op == ":=") ||
     any(pt$op == "~*~")
-  has_extra_samp_work <- needs_draw_summaries || test != "none"
+  has_extra_samp_work <- needs_draw_summaries ||
+    any(c("ppp", "dic") %in% test_req)
   samp_env <- NULL
   if (isTRUE(verbose)) {
     samp_stage <- if (has_extra_samp_work) {
@@ -1066,38 +1076,45 @@ inlavaan <- function(
   timing <- add_timing(timing, "deltapars")
 
   ## ----- Compute ppp and dic -------------------------------------------------
-  if (test != "none") {
+  ppp <- dic_list <- NULL
+  if (any(c("ppp", "dic") %in% test_req)) {
     if (isTRUE(verbose)) {
-      samp_stage <- "Computing fit indices (PPP/DIC)"
+      samp_stage <- paste0(
+        "Computing fit indices (",
+        paste(toupper(intersect(c("ppp", "dic"), test_req)), collapse = "/"),
+        ")"
+      )
       cli_progress_update(.envir = samp_env)
     }
-    ppp <- get_ppp(
-      x_samp = x_samp,
-      lavmodel = lavmodel,
-      lavsamplestats = lavsamplestats,
-      lavdata = lavdata,
-      lavpartable = lavpartable,
-      cli_env = samp_env
-    )
-    dic_list <- get_dic(
-      x_samp = x_samp,
-      theta_star = theta_star_vbc,
-      pt = pt,
-      lavmodel = lavmodel,
-      loglik = function(x) {
-        inlav_model_loglik(
-          x,
-          lavmodel,
-          lavsamplestats,
-          lavdata,
-          lavoptions,
-          lavcache
-        )
-      },
-      cli_env = samp_env
-    )
-  } else {
-    ppp <- dic_list <- NULL
+    if ("ppp" %in% test_req) {
+      ppp <- get_ppp(
+        x_samp = x_samp,
+        lavmodel = lavmodel,
+        lavsamplestats = lavsamplestats,
+        lavdata = lavdata,
+        lavpartable = lavpartable,
+        cli_env = samp_env
+      )
+    }
+    if ("dic" %in% test_req) {
+      dic_list <- get_dic(
+        x_samp = x_samp,
+        theta_star = theta_star_vbc,
+        pt = pt,
+        lavmodel = lavmodel,
+        loglik = function(x) {
+          inlav_model_loglik(
+            x,
+            lavmodel,
+            lavsamplestats,
+            lavdata,
+            lavoptions,
+            lavcache
+          )
+        },
+        cli_env = samp_env
+      )
+    }
   }
   timing <- add_timing(timing, "test")
 
@@ -1115,72 +1132,59 @@ inlavaan <- function(
     nsamp = nsamp,
     R_star = R_star
   )
-  # The default path (test = "standard") computes LOO/WAIC only for models
-  # the casewise kernels support, quietly, and (for LOO) only when the
-  # predicted serial cost fits a 10 s budget. An explicit "loo" in `test`
-  # always computes the full LOO.
-  casewise_ok <- tryCatch(
-    {
-      suppressWarnings(check_loo_model(int_fit))
-      TRUE
-    },
-    error = function(e) FALSE
-  )
-
-  loo_res <- NULL
-  if (isTRUE(do_loo) || (test != "none" && casewise_ok)) {
+  # LOO and WAIC are one Taylor pass (waic_from_taylor() reads the per-unit
+  # quantities inlav_loo() already computed), so asking for either atom
+  # computes and stores both, with no time budget. A model the casewise
+  # machinery rejects (check_loo_model(), called inside inlav_loo()) warns
+  # and skips them rather than failing the whole fit; the reason is kept in
+  # the `test` record below rather than only in the transient warning.
+  loo_res <- waic_res <- NULL
+  skipped <- character(0)
+  if (any(c("loo", "waic") %in% test_req)) {
     if (isTRUE(verbose)) {
-      samp_stage <- "Computing Taylor LOO"
+      samp_stage <- "Computing Taylor LOO and WAIC"
       cli_progress_update(.envir = samp_env)
     }
-    loo_res <- tryCatch(
+    loo_try <- tryCatch(
       inlav_loo(
         int = int_fit,
         eff_cores = resolve_loo_cores(cores),
-        verbose = FALSE,
-        max_seconds = if (isTRUE(do_loo)) Inf else 10
+        verbose = FALSE
       ),
-      inlavaan_loo_budget = function(e) {
-        if (isTRUE(verbose)) {
-          cli_alert_info(
-            "Skipping fit-time LOO (predicted cost exceeds 10 s); compute it
-             post hoc with {.fn loo} or {.fn add_loo}."
-          )
-        }
-        NULL
-      },
-      error = function(e) {
-        if (isTRUE(do_loo)) {
-          cli_warn(c(
-            "Skipping the fit-time LOO computation.",
-            "x" = conditionMessage(e)
-          ))
-        }
-        NULL
-      }
+      error = function(e) e
     )
-    timing <- add_timing(timing, "loo")
+    if (inherits(loo_try, "error")) {
+      msg <- conditionMessage(loo_try)
+      cli_warn(c(
+        "Skipping the LOO and WAIC requested through {.arg test}.",
+        "x" = msg,
+        "i" = "The rest of the fit is unaffected; the reason is stored in
+               {.code get_inlavaan_internal(fit, \"test\")$skipped}."
+      ))
+      skipped <- c(loo = msg, waic = msg)
+    } else {
+      loo_res <- loo_try
+      timing <- add_timing(timing, "loo")
+      waic_res <- waic_from_taylor(loo_res)
+      timing <- add_timing(timing, "waic")
+    }
   }
 
-  # WAIC comes free from the same Taylor pass as the LOO: identical per-unit
-  # quantities, aggregated on the lpd side instead of the case-deletion side
-  # (see waic_from_taylor). When the LOO was skipped -- unsupported model or
-  # over budget -- the WAIC is skipped with it; waic() computes it post hoc.
-  waic_res <- NULL
-  if (test != "none" && !is.null(loo_res)) {
-    waic_res <- waic_from_taylor(loo_res)
-    timing <- add_timing(timing, "waic")
-  }
+  computed <- test_atoms[c(
+    !is.null(ppp),
+    !is.null(dic_list),
+    !is.null(loo_res),
+    !is.null(waic_res)
+  )]
+  test_rec <- list(requested = test_req, computed = computed, skipped = skipped)
 
   if (isTRUE(verbose)) {
     # Close the sampling step with an overview; the specific fit measures
     # computed are listed on a separate info line below
-    fit_measures <- c(
-      if (!is.null(ppp)) c("PPP", "DIC"),
-      if (!is.null(loo_res)) "LOO",
-      if (!is.null(waic_res)) "WAIC"
-    )
-    samp_done <- if (needs_draw_summaries || length(fit_measures)) {
+    fit_measures <- toupper(computed)
+    samp_done <- if (
+      needs_draw_summaries || any(c("ppp", "dic") %in% computed)
+    ) {
       paste0("Summarise ", nsamp, " posterior draws.")
     } else {
       paste0("Draw ", nsamp, " posterior samples.")
@@ -1210,6 +1214,7 @@ inlavaan <- function(
     ppp = ppp,
     loo = loo_res,
     waic = waic_res,
+    test = test_rec,
     optim_method = optim_method,
     marginal_method = marginal_method,
     samp_copula = samp_copula,

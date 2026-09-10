@@ -83,8 +83,8 @@ make_pd <- function(X, tol = 1e-8) {
 #'   list. If missing, the entire list is returned. Common elements include
 #'   `"coefficients"`, `"summary"`, `"Sigma_theta"`, `"vcov_x"`,
 #'   `"theta_star"`, `"approx_data"`, `"pdf_data"`, `"partable"`,
-#'   `"marginal_method"`, `"nsamp"`, `"mloglik"`, `"DIC"`, `"ppp"`,
-#'   `"vb"`, `"opt"`, `"timing"`, `"visual_debug"`.
+#'   `"marginal_method"`, `"nsamp"`, `"mloglik"`, `"DIC"`, `"ppp"`, `"loo"`,
+#'   `"waic"`, `"test"`, `"vb"`, `"opt"`, `"timing"`, `"visual_debug"`.
 #'
 #' @returns The full `inlavaan_internal` list, or the named element when
 #'   `what` is supplied.
@@ -127,6 +127,67 @@ get_inlavaan_internal <- function(object, what) {
     ))
   } # nocov end
   int[[what]]
+}
+
+# The post-estimation quantities `test` can name, in reporting order, and
+# the aliases that stand for sets of them.
+test_atoms <- c("ppp", "dic", "loo", "waic")
+test_aliases <- list(
+  none = character(0),
+  standard = c("ppp", "dic"),
+  default = c("ppp", "dic"),
+  full = test_atoms
+)
+
+# Expand `test` (atoms and aliases, freely mixed) into the atoms it names,
+# in canonical order and without duplicates. Unknown values are an error.
+resolve_test <- function(test) {
+  valid <- c(names(test_aliases), test_atoms)
+  if (!is.character(test) || length(test) == 0L || anyNA(test)) {
+    cli_abort(c(
+      "{.arg test} must be a character vector.",
+      "i" = "Valid values: {.val {valid}}."
+    ))
+  }
+  bad <- setdiff(test, valid)
+  if (length(bad) > 0L) {
+    cli_abort(c(
+      "Unknown value{?s} in {.arg test}: {.val {bad}}.",
+      "i" = "Valid values: {.val {valid}}."
+    ))
+  }
+  atoms <- c(
+    unlist(
+      test_aliases[intersect(test, names(test_aliases))],
+      use.names = FALSE
+    ),
+    intersect(test, test_atoms)
+  )
+  test_atoms[test_atoms %in% atoms]
+}
+
+# The record of what `test` asked for and what the fit holds. Fits saved
+# before the record existed are read off the stored objects instead.
+test_record <- function(int) {
+  rec <- int[["test"]]
+  if (is.null(rec)) {
+    computed <- test_atoms[c(
+      !is.null(int$ppp),
+      !is.null(int$DIC),
+      !is.null(int$loo),
+      !is.null(int$waic)
+    )]
+    rec <- list(
+      requested = computed,
+      computed = computed,
+      skipped = character(0)
+    )
+  }
+  rec
+}
+
+has_test <- function(int, what) {
+  what %in% test_record(int)$computed
 }
 
 # Helper function to add timing information. Adapted by Haziq Jamil. Original

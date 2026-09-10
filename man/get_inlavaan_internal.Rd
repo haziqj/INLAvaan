@@ -13,8 +13,8 @@ get_inlavaan_internal(object, what)
 list. If missing, the entire list is returned. Common elements include
 \code{"coefficients"}, \code{"summary"}, \code{"Sigma_theta"}, \code{"vcov_x"},
 \code{"theta_star"}, \code{"approx_data"}, \code{"pdf_data"}, \code{"partable"},
-\code{"marginal_method"}, \code{"nsamp"}, \code{"mloglik"}, \code{"DIC"}, \code{"ppp"},
-\code{"vb"}, \code{"opt"}, \code{"timing"}, \code{"visual_debug"}.}
+\code{"marginal_method"}, \code{"nsamp"}, \code{"mloglik"}, \code{"DIC"}, \code{"ppp"}, \code{"loo"},
+\code{"waic"}, \code{"test"}, \code{"vb"}, \code{"opt"}, \code{"timing"}, \code{"visual_debug"}.}
 }
 \value{
 The full \code{inlavaan_internal} list, or the named element when

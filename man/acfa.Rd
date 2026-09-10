@@ -44,15 +44,24 @@ acfa(
 \item{dp}{Default prior distributions for the different types of model
 parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}.}
 
-\item{test}{Character indicating which post-estimation quantities to
-compute. Defaults to "standard": posterior fit indices (PPP and DIC),
-plus -- for models supported by the casewise machinery and fitted with
-a mean structure -- a full leave-one-out cross-validation whenever its
-predicted serial cost is within a 10-second budget, with the WAIC
-derived from the same computation at no extra cost; both are stored
-with the fit (see \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}}). "none" skips all of these.
-Include "loo" (e.g. \code{test = c("standard", "loo")}, or \code{test = "loo"}
-alone) to force the full LOO regardless of the budget.}
+\item{test}{Character vector naming the post-estimation quantities to
+compute and store with the fit. The atoms are \code{"ppp"} (posterior
+predictive p-value), \code{"dic"} (deviance information criterion and its
+\code{pD}), \code{"loo"} (leave-one-out cross-validation, see \code{\link[=loo]{loo()}}) and
+\code{"waic"} (see \code{\link[=waic]{waic()}}). Three aliases stand for sets of atoms:
+\code{"standard"} (the default) and its synonym \code{"default"} give
+\code{c("ppp", "dic")}; \code{"full"} gives all four; \code{"none"} gives nothing.
+Aliases and atoms may be mixed and are unioned, so
+\code{test = c("standard", "loo")} adds the LOO to the default set. The LOO
+and the WAIC come from one Taylor pass, so asking for either stores
+both. They run only when asked for, with no time budget. On a model
+the casewise machinery does not support (PML or ordinal data,
+\code{conditional.x = TRUE}, multigroup two-level) they are skipped with a
+warning and the rest of the fit proceeds. The fit records what was
+requested and what was computed (\code{get_inlavaan_internal(fit, "test")});
+\code{\link[=summary]{summary()}}, \code{\link[lavaan:fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
+report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO and WAIC
+post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
