@@ -17,7 +17,7 @@ show_inlavaan <- function(object) {
   cat("\n\n")
 
   ## ----- Print marginal log-likelihood and ppp -------------------------------
-  show_ppp <- if (length(object@Fit@test$ppp) == 0) FALSE else TRUE
+  show_ppp <- has_test(object@external$inlavaan_internal, "ppp")
 
   cat(
     "Model Test (User Model):\n\n",

@@ -12,9 +12,11 @@
 #'   \code{"covariances"}, \code{"definedpars"}, \code{"deltapars"},
 #'   \code{"test"}, \code{"loo"}, \code{"waic"}, \code{"total"}. The
 #'   segments are disjoint and \code{"total"} is their sum. \code{"loo"} and
-#'   \code{"waic"} are only recorded when the fit-time LOO actually ran (see
-#'   [loo()]); requesting either when it did not gives an error explaining
-#'   why, distinct from requesting a misspelled segment name.
+#'   \code{"waic"} are recorded only when the fit computed them, i.e.
+#'   \code{test} (see [inlavaan()]) included \code{"loo"}, \code{"waic"} or
+#'   \code{"full"} and the model is supported (see [loo()]); requesting
+#'   either otherwise gives an error explaining why, distinct from
+#'   requesting a misspelled segment name.
 #' @param ... Currently unused.
 #'
 #' @returns A named numeric vector (class \code{c("timing.INLAvaan",
@@ -48,10 +50,10 @@
 setGeneric("timing", function(object, ...) standardGeneric("timing"))
 
 # "loo" and "waic" are the only segments not always recorded: they are timed
-# only when the fit-time LOO actually runs (test != "none", a casewise-
-# supported model, and the predicted cost within budget -- see inlavaan.R).
-# Requesting one that is absent therefore needs a message distinct from a
-# genuinely unknown/misspelled segment name.
+# only when `test` asked for "loo"/"waic"/"full" and the model is one the
+# casewise machinery supports (see inlavaan.R). Requesting one that is
+# absent therefore needs a message distinct from a genuinely
+# unknown/misspelled segment name.
 timing_conditional_segments <- c("loo", "waic")
 
 #' @name timing
@@ -72,6 +74,9 @@ setMethod(
       if (length(unknown) > 0L) {
         not_run <- intersect(unknown, timing_conditional_segments)
         misspelled <- setdiff(unknown, not_run)
+        rec <- test_record(object@external$inlavaan_internal)
+        asked <- not_run[not_run %in% rec$requested]
+        not_asked <- setdiff(not_run, asked)
         msg <- c(
           if (length(misspelled) > 0L) {
             c(
@@ -82,10 +87,21 @@ setMethod(
             c(
               "x" = "{.val {not_run}} {qty(length(not_run))}{?was/were} not
                      computed for this fit.",
-              "i" = "LOO/WAIC only run at fit time when {.code test != \"none\"},
-                     the model supports casewise LOO, and the predicted cost
-                     fits the time budget; compute {qty(length(not_run))}{?it/them}
-                     post hoc with {.fn loo}/{.fn waic} or {.fn add_loo}."
+              if (length(asked) > 0L) {
+                c(
+                  "i" = "{.val {asked}} {qty(length(asked))}{?was/were}
+                         requested through {.arg test} but skipped:
+                         {rec$skipped[[asked[[1L]]]]}"
+                )
+              },
+              if (length(not_asked) > 0L) {
+                c(
+                  "i" = "The LOO and WAIC run at fit time only when
+                         {.arg test} includes {.val loo}, {.val waic} or
+                         {.val full}; compute {qty(length(not_asked))}{?it/them}
+                         post hoc with {.fn loo}/{.fn waic} or {.fn add_loo}."
+                )
+              }
             )
           },
           "i" = "Available: {.val {available}}."
@@ -110,7 +126,8 @@ print.timing.INLAvaan <- function(x, ...) {
     if (s < 60) {
       return(sprintf("%.2f s", s))
     }
-    if (s < 3600) { # nocov start
+    if (s < 3600) {
+      # nocov start
       return(sprintf("%.1f min", s / 60))
     }
     sprintf("%.2f hr", s / 3600) # nocov end

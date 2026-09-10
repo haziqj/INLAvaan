@@ -22,8 +22,8 @@ quantity \code{\link[=compare]{compare()}} uses for Bayes factors. \code{"plugin
 classical log-likelihood evaluated at the posterior mean point estimate,
 with \code{df}/\code{nobs} attributes and class \code{"logLik"} so it
 supports \code{\link[stats]{AIC}}/\code{\link[stats]{BIC}} at the point
-estimate. Requires the model to have been fitted with
-\code{test != "none"}.}
+estimate. Requires the model to have been fitted with a \code{test}
+that includes \code{"dic"} (the default \code{"standard"} does).}
 
 \item{...}{Currently unused.}
 

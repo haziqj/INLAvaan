@@ -57,13 +57,14 @@
 #' `type = "loso"` warns. This matches `loo(type = "loso")` -- the two read
 #' the same estimand off the same expansion.
 #'
-#' Under the default `test = "standard"`, [inlavaan()] derives the WAIC at
-#' fit time from the same computation as the fit-time LOO (at no extra
-#' cost, whenever that LOO runs) and stores it with the fit: `waic(fit)`
+#' When [inlavaan()]'s `test` includes `"loo"` or `"waic"` (e.g.
+#' `test = "full"`), the WAIC is derived at fit time from the same Taylor
+#' pass as the LOO at no extra cost and stored with the fit: `waic(fit)`
 #' then returns the stored result when called with default arguments, and
 #' [fitmeasures()] reports `waic`, `p_waic`, `se_waic` as part of `"all"`
-#' for free. If the `loo` package is attached it masks this generic, but
-#' dispatch on INLAvaan objects continues to work.
+#' for free. Under the default `test = "standard"` nothing is stored and
+#' `waic(fit)` computes it on demand. If the `loo` package is attached it
+#' masks this generic, but dispatch on INLAvaan objects continues to work.
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
 #' @param type Unit type: `"auto"` (default) resolves to per-subject for

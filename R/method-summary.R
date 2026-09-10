@@ -67,7 +67,9 @@ summary_inlavaan <- function(
   }
 
   ## ----- Fit measures --------------------------------------------------------
-  if (isTRUE(fit.measures) & length(object@Fit@test$ppp) > 0) {
+  if (
+    isTRUE(fit.measures) && has_test(object@external$inlavaan_internal, "dic")
+  ) {
     # DIC
     dic_list <- object@external$inlavaan_internal$DIC
     cat(
@@ -278,7 +280,9 @@ summary_inlavaan <- function(
 }
 
 #' @param header Logical; if TRUE, print model fit information header.
-#' @param fit.measures Logical; if TRUE, print fit measures (DIC and PPP).
+#' @param fit.measures Logical; if TRUE, print fit measures (DIC and pD;
+#'   PPP is printed by the header regardless). Both require the fit to
+#'   have computed them, see the `test` argument of [inlavaan()].
 #' @param estimates Logical; if TRUE, print parameter estimates table.
 #' @param ci Logical; if TRUE (default), include 95% credible intervals
 #'   (2.5% and 97.5% posterior quantiles) in the estimates table.

@@ -1310,9 +1310,11 @@ inlav_loo <- function(
 
   H_arr <- NULL
   if (isTRUE(second_order)) {
-    # Budget gate (used by the fit-time default path): the Hessian stage
-    # costs 2 * m_free score-matrix evaluations, so timing a single
-    # evaluation predicts the total before committing to it
+    # Budget gate (reached only when a caller passes a finite max_seconds;
+    # inlavaan() itself no longer does, since the fit-time LOO now runs
+    # without a budget whenever "loo"/"waic" is requested through `test`):
+    # the Hessian stage costs 2 * m_free score-matrix evaluations, so timing
+    # a single evaluation predicts the total before committing to it
     if (is.finite(max_seconds)) {
       t_one <- as.numeric(system.time(score_fn(theta[free]))["elapsed"])
       # floor at clock resolution so a fast evaluation never predicts zero

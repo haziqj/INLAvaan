@@ -130,13 +130,14 @@ is the usual model-comparison target, so it is the default, and
 \code{type = "loso"} warns. This matches \code{loo(type = "loso")} -- the two read
 the same estimand off the same expansion.
 
-Under the default \code{test = "standard"}, \code{\link[=inlavaan]{inlavaan()}} derives the WAIC at
-fit time from the same computation as the fit-time LOO (at no extra
-cost, whenever that LOO runs) and stores it with the fit: \code{waic(fit)}
+When \code{\link[=inlavaan]{inlavaan()}}'s \code{test} includes \code{"loo"} or \code{"waic"} (e.g.
+\code{test = "full"}), the WAIC is derived at fit time from the same Taylor
+pass as the LOO at no extra cost and stored with the fit: \code{waic(fit)}
 then returns the stored result when called with default arguments, and
-\code{\link[=fitmeasures]{fitmeasures()}} reports \code{waic}, \code{p_waic}, \code{se_waic} as part of \code{"all"}
-for free. If the \code{loo} package is attached it masks this generic, but
-dispatch on INLAvaan objects continues to work.
+\code{\link[lavaan:fitmeasures]{fitmeasures()}} reports \code{waic}, \code{p_waic}, \code{se_waic} as part of \code{"all"}
+for free. Under the default \code{test = "standard"} nothing is stored and
+\code{waic(fit)} computes it on demand. If the \code{loo} package is attached it
+masks this generic, but dispatch on INLAvaan objects continues to work.
 }
 \examples{
 \donttest{
@@ -152,5 +153,5 @@ waic(fit)
 
 }
 \seealso{
-\code{\link[=loo]{loo()}}, \code{\link[=fitmeasures]{fitmeasures()}}
+\code{\link[=loo]{loo()}}, \code{\link[lavaan:fitmeasures]{fitmeasures()}}
 }

@@ -12,8 +12,8 @@
 #'   classical log-likelihood evaluated at the posterior mean point estimate,
 #'   with \code{df}/\code{nobs} attributes and class \code{"logLik"} so it
 #'   supports \code{\link[stats]{AIC}}/\code{\link[stats]{BIC}} at the point
-#'   estimate. Requires the model to have been fitted with
-#'   \code{test != "none"}.
+#'   estimate. Requires the model to have been fitted with a \code{test}
+#'   that includes \code{"dic"} (the default \code{"standard"} does).
 #' @param ... Currently unused.
 #' @param k Numeric penalty per parameter passed to the (disabled) `AIC()`
 #'   method; see [stats::AIC()]. Defaults to 2.
@@ -67,26 +67,30 @@
 #' @name logLik
 #' @aliases logLik,INLAvaan-method
 #' @export
-setMethod("logLik", "INLAvaan", function(object, type = c("marginal", "plugin"), ...) {
-  type <- match.arg(type)
-  int <- get_inlavaan_internal(object)
+setMethod(
+  "logLik",
+  "INLAvaan",
+  function(object, type = c("marginal", "plugin"), ...) {
+    type <- match.arg(type)
+    int <- get_inlavaan_internal(object)
 
-  if (type == "marginal") {
-    return(structure(int$mloglik, class = "inlavaan_logLik"))
-  }
+    if (type == "marginal") {
+      return(structure(int$mloglik, class = "inlavaan_logLik"))
+    }
 
-  if (is.null(int$DIC)) {
-    cli_abort(
-      "{.code type = \"plugin\"} requires DIC components. Refit with
-       {.code test != \"none\"}."
-    )
+    if (!has_test(int, "dic")) {
+      cli_abort(
+        "{.code type = \"plugin\"} requires DIC components. Refit with
+       {.arg test} including {.val dic} (the default {.val standard} does)."
+      )
+    }
+    val <- -int$DIC$Dhat / 2
+    attr(val, "df") <- length(coef(object))
+    attr(val, "nobs") <- nobs(object)
+    class(val) <- "logLik"
+    val
   }
-  val <- -int$DIC$Dhat / 2
-  attr(val, "df") <- length(coef(object))
-  attr(val, "nobs") <- nobs(object)
-  class(val) <- "logLik"
-  val
-})
+)
 
 #' @rdname logLik
 #' @aliases AIC,INLAvaan-method
@@ -118,11 +122,13 @@ setMethod("BIC", "INLAvaan", function(object, ...) {
 print.inlavaan_logLik <- function(x, digits = 3L, ...) {
   cat(sprintf("'log Lik.' %s (marginal)\n", format(round(unclass(x), digits))))
   cat(col_grey(paste0(
-    "# ", symbol$info,
+    "# ",
+    symbol$info,
     " Laplace-approximated log evidence -- not comparable to classical\n"
   )))
   cat(col_grey(paste0(
-    "# ", symbol$info,
+    "# ",
+    symbol$info,
     " logLik()/AIC()/BIC(). See `compare()` for Bayes-factor comparison.\n"
   )))
   invisible(x)

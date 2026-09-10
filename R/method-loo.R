@@ -62,14 +62,16 @@
 #' the deprecated former name of `Omega`, still accepted through `...` with
 #' a warning.
 #'
-#' Under the default `test = "standard"` the LOO is computed and stored at fit
-#' time when the model is supported and the predicted cost fits a 10-second
-#' budget (`test = "loo"` forces it, `add_loo()` stores it post hoc), and
-#' `loo(fit)` with default arguments returns the stored result. 
-#' 
-#' The default `cores = NULL` runs serially, and `cores > 1` parallelises the 
-#' Hessian stage. Supported models are continuous-indicator models fitted with 
-#' the `ML` estimator, single- or two-level, single-group or multigroup 
+#' The LOO is stored with the fit when [inlavaan()]'s `test` includes
+#' `"loo"` or `"waic"` (e.g. `test = "full"`), which also stores the WAIC
+#' (see [waic()]) from the same Taylor pass, or afterwards with
+#' [add_loo()]; `loo(fit)` with default arguments then returns the stored
+#' result. Under the default `test = "standard"` nothing is stored and
+#' `loo(fit)` computes it on demand.
+#'
+#' The default `cores = NULL` runs serially, and `cores > 1` parallelises the
+#' Hessian stage. Supported models are continuous-indicator models fitted with
+#' the `ML` estimator, single- or two-level, single-group or multigroup
 #' (multigroup two-level models are not supported yet).
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
@@ -245,10 +247,10 @@ resolve_deprecated_Sigma <- function(Omega, ...) {
 #'   `summary()`.
 #' @returns `summary()` is an alias for `print()`: it prints the same output
 #'   and returns the result invisibly.
-#' @returns `add_loo()` returns a copy of `object` with the LOO result
-#'   stored alongside the fit (the input object is unchanged); reassign it,
-#'   e.g. `fit <- add_loo(fit)`. Only the default LOO is stored, so the
-#'   stored result always matches `loo(fit)`.
+#' @returns `add_loo()` returns a copy of `object` with the LOO and WAIC
+#'   results stored alongside the fit (the input object is unchanged);
+#'   reassign it, e.g. `fit <- add_loo(fit)`. Only the default LOO is
+#'   stored, so the stored results always match `loo(fit)` and `waic(fit)`.
 #' @export
 add_loo <- function(object, cores = NULL, verbose = FALSE) {
   if (!is_INLAvaan(object)) {
@@ -256,6 +258,15 @@ add_loo <- function(object, cores = NULL, verbose = FALSE) {
   }
   res <- loo(object, cores = cores, verbose = verbose)
   object@external$inlavaan_internal$loo <- res
+  # LOO and WAIC come from the same Taylor pass, so storing one stores both
+  object@external$inlavaan_internal$waic <- waic_from_taylor(res)
+  int <- object@external$inlavaan_internal
+  rec <- test_record(int)
+  rec$computed <- test_atoms[
+    test_atoms %in% union(rec$computed, c("loo", "waic"))
+  ]
+  rec$skipped <- rec$skipped[!names(rec$skipped) %in% c("loo", "waic")]
+  object@external$inlavaan_internal$test <- rec
   object
 }
 

@@ -55,7 +55,8 @@ The default table always includes:
 \item \strong{Marg.Loglik}: Approximated marginal log-likelihood.
 \item \strong{logBF}: Natural-log Bayes factor relative to the best model.
 \item \strong{DIC} / \strong{pD}: Deviance Information Criterion and effective number
-of parameters (when \code{test != "none"} was used during fitting).
+of parameters (when the fit computed the DIC, i.e. \code{test} included
+\code{"dic"} during fitting; the default \code{"standard"} does).
 }
 
 Set \code{fit.measures} to a character vector of measure names (anything
@@ -88,7 +89,8 @@ score flavour (see \code{\link[=loo]{loo()}}): mixing fits with modelled covaria
 additionally require identical variable sets across models, while
 conditional scores require only matching outcome variables -- covariate
 sets may differ, which is the covariate-selection setting. Stored LOO
-results (\code{test = "loo"} or \code{\link[=add_loo]{add_loo()}}) are reused.
+results (\code{test} including \code{"loo"} or \code{"full"}, or \code{\link[=add_loo]{add_loo()}}) are
+reused.
 
 \code{anova()} is disabled for \code{INLAvaan} fits -- there is no direct Bayesian
 analogue of the classical likelihood-ratio test -- and points here instead.
@@ -136,5 +138,5 @@ compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
 \url{https://lavaan.ugent.be/tutorial/groups.html}
 }
 \seealso{
-\code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}
+\code{\link[lavaan:fitmeasures]{fitmeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}
 }

@@ -46,7 +46,9 @@
 
 \item{header}{Logical; if TRUE, print model fit information header.}
 
-\item{fit.measures}{Logical; if TRUE, print fit measures (DIC and PPP).}
+\item{fit.measures}{Logical; if TRUE, print fit measures (DIC and pD;
+PPP is printed by the header regardless). Both require the fit to
+have computed them, see the \code{test} argument of \code{\link[=inlavaan]{inlavaan()}}.}
 
 \item{estimates}{Logical; if TRUE, print parameter estimates table.}
 

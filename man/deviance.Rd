@@ -15,7 +15,8 @@ deviance \eqn{\bar{D} = E[-2\log p(y \mid \theta)]}, averaged over
 posterior draws. \code{"plugin"} returns the deviance evaluated at the
 posterior mean point estimate, \eqn{\hat{D} = -2\log p(y \mid \hat\theta)}
 (matching \code{-2 * logLik(object, type = "plugin")}). Both require the
-model to have been fitted with \code{test != "none"}.}
+model to have been fitted with a \code{test} that includes
+\code{"dic"} (the default \code{"standard"} does).}
 
 \item{...}{Currently unused.}
 }

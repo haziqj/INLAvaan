@@ -16,7 +16,8 @@
 #'   - **Marg.Loglik**: Approximated marginal log-likelihood.
 #'   - **logBF**: Natural-log Bayes factor relative to the best model.
 #'   - **DIC** / **pD**: Deviance Information Criterion and effective number
-#'     of parameters (when `test != "none"` was used during fitting).
+#'     of parameters (when the fit computed the DIC, i.e. `test` included
+#'     `"dic"` during fitting; the default `"standard"` does).
 #'
 #' Set `fit.measures` to a character vector of measure names (anything
 #' returned by [fitMeasures()][lavaan::fitMeasures]) to append extra columns.
@@ -48,7 +49,8 @@
 #' additionally require identical variable sets across models, while
 #' conditional scores require only matching outcome variables -- covariate
 #' sets may differ, which is the covariate-selection setting. Stored LOO
-#' results (`test = "loo"` or [add_loo()]) are reused.
+#' results (`test` including `"loo"` or `"full"`, or [add_loo()]) are
+#' reused.
 #'
 #' `anova()` is disabled for `INLAvaan` fits -- there is no direct Bayesian
 #' analogue of the classical likelihood-ratio test -- and points here instead.

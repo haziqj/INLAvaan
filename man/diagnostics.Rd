@@ -124,5 +124,5 @@ diagnostics(fit, type = "param")
 
 }
 \seealso{
-\code{\link[=timing]{timing()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=plot]{plot()}}
+\code{\link[=timing]{timing()}}, \code{\link[lavaan:fitmeasures]{fitmeasures()}}, \code{\link[=plot]{plot()}}
 }

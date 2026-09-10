@@ -115,10 +115,10 @@ under a \code{units} subset.}
 \code{summary()} is an alias for \code{print()}: it prints the same output
 and returns the result invisibly.
 
-\code{add_loo()} returns a copy of \code{object} with the LOO result
-stored alongside the fit (the input object is unchanged); reassign it,
-e.g. \code{fit <- add_loo(fit)}. Only the default LOO is stored, so the
-stored result always matches \code{loo(fit)}.
+\code{add_loo()} returns a copy of \code{object} with the LOO and WAIC
+results stored alongside the fit (the input object is unchanged);
+reassign it, e.g. \code{fit <- add_loo(fit)}. Only the default LOO is
+stored, so the stored results always match \code{loo(fit)} and \code{waic(fit)}.
 }
 \description{
 Computes leave-one-out (LOO) cross-validation for a fitted \link{INLAvaan}
@@ -183,10 +183,12 @@ block), the building block for refit-free submodel scoring. \code{Sigma} is
 the deprecated former name of \code{Omega}, still accepted through \code{...} with
 a warning.
 
-Under the default \code{test = "standard"} the LOO is computed and stored at fit
-time when the model is supported and the predicted cost fits a 10-second
-budget (\code{test = "loo"} forces it, \code{add_loo()} stores it post hoc), and
-\code{loo(fit)} with default arguments returns the stored result.
+The LOO is stored with the fit when \code{\link[=inlavaan]{inlavaan()}}'s \code{test} includes
+\code{"loo"} or \code{"waic"} (e.g. \code{test = "full"}), which also stores the WAIC
+(see \code{\link[=waic]{waic()}}) from the same Taylor pass, or afterwards with
+\code{\link[=add_loo]{add_loo()}}; \code{loo(fit)} with default arguments then returns the stored
+result. Under the default \code{test = "standard"} nothing is stored and
+\code{loo(fit)} computes it on demand.
 
 The default \code{cores = NULL} runs serially, and \code{cores > 1} parallelises the
 Hessian stage. Supported models are continuous-indicator models fitted with
@@ -244,5 +246,5 @@ latent variable models: Conditional versus marginal likelihoods.
 \url{https://doi.org/10.1007/s11336-019-09679-0}
 }
 \seealso{
-\code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}, \code{\link[=inlavaan]{inlavaan()}}
+\code{\link[lavaan:fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}, \code{\link[=inlavaan]{inlavaan()}}
 }

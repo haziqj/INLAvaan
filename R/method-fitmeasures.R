@@ -258,9 +258,11 @@ bfit_indices <- function(
     # nocov
     cli_abort("Bayesian fit indices are only supported for the ML estimator.")
   }
-  if (rescale == "devM" && is.null(int$DIC)) {
+  if (rescale == "devM" && !has_test(int, "dic")) {
     cli_abort(
-      "DIC not available. Refit with {.code test != \"none\"}, or use {.code rescale = \"MCMC\"}."
+      "DIC not available. Refit with {.arg test} including {.val dic}
+       (part of the default {.val standard}), or use
+       {.code rescale = \"MCMC\"}."
     )
   }
 
@@ -423,11 +425,13 @@ inlav_fit_measures <- function(
   out["npar"] <- object@Fit@npar
   out["margloglik"] <- object@external$inlavaan_internal$mloglik
 
-  # If test != "none"
-  if (length(object@Fit@test$ppp) > 0) {
-    out["ppp"] <- object@external$inlavaan_internal$ppp
-    out["dic"] <- object@external$inlavaan_internal$DIC$dic
-    out["p_dic"] <- object@external$inlavaan_internal$DIC$pD
+  int <- object@external$inlavaan_internal
+  if (has_test(int, "ppp")) {
+    out["ppp"] <- int$ppp
+  }
+  if (has_test(int, "dic")) {
+    out["dic"] <- int$DIC$dic
+    out["p_dic"] <- int$DIC$pD
   }
 
   # Validate baseline.model early (before tryCatch)
@@ -446,8 +450,9 @@ inlav_fit_measures <- function(
     }
   }
 
-  # LOO measures: free when stored with the fit (test = "loo" or add_loo());
-  # otherwise computed on demand, and only when requested by name -- the LOO
+  # LOO measures: free when stored with the fit (test = "loo"/"waic"/"full",
+  # or add_loo()); otherwise computed on demand, and only when requested by
+  # name -- the LOO
   # computation is fresh work and cannot be cached into `object` (S4 copy
   # semantics), so it never silently inflates a bare fitMeasures() call
   loo_measures <- c("elpd_loo", "se_loo", "p_loo", "looic")
@@ -547,16 +552,19 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' @param fit_measures If `"all"`, all fit measures available will be returned. If
 #'   only a single or a few fit measures are specified by name, only those are
 #'   computed and returned. The LOO measures `"elpd_loo"`, `"se_loo"`,
-#'   `"p_loo"` and `"looic"` (see [loo()]) are included in `"all"` only when
-#'   a LOO result is stored with the fit (`test = "loo"` in [inlavaan()] or
-#'   [add_loo()]); otherwise they are computed on demand when requested by
-#'   name, and recomputed on every call -- store the result with
-#'   `fit <- add_loo(fit)` (or call [loo()] directly) for repeated access.
-#'   INLAvaan's stable spelling `fit.measures` is also accepted.
+#'   `"p_loo"` and `"looic"` (see [loo()]), and the WAIC measures
+#'   `"elpd_waic"`, `"se_waic"`, `"p_waic"` and `"waic"` (see [waic()]), are
+#'   included in `"all"` only when stored with the fit (`test` including
+#'   `"loo"`, `"waic"` or `"full"` in [inlavaan()], or [add_loo()]);
+#'   otherwise they are computed on demand when requested by name, and
+#'   recomputed on every call -- store the result with `fit <- add_loo(fit)`
+#'   (or call [loo()]/[waic()] directly) for repeated access. INLAvaan's
+#'   stable spelling `fit.measures` is also accepted.
 #' @param baseline_model An optional [INLAvaan] object representing the
 #'   baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-#'   BNFI). Must have been fitted with `test != "none"`. INLAvaan's stable
-#'   spelling `baseline.model` is also accepted.
+#'   BNFI). Must have been fitted with a `test` that includes `"dic"` (the
+#'   default `"standard"` does). INLAvaan's stable spelling `baseline.model`
+#'   is also accepted.
 #' @param h1_model Ignored (included for compatibility with the lavaan
 #'   generic).
 #' @param fm_args Ignored (included for compatibility with the lavaan
@@ -593,7 +601,7 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' fitMeasures(fit)
 #'
 #' # Specific measures
-#' fitMeasures(fit, c("npar", "DIC", "pD", "ppp"))
+#' fitMeasures(fit, c("npar", "dic", "p_dic", "ppp"))
 #' }
 #'
 #' @usage
