@@ -138,5 +138,5 @@ compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
 \url{https://lavaan.ugent.be/tutorial/groups.html}
 }
 \seealso{
-\code{\link[lavaan:fitmeasures]{fitmeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}
+\code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=bfit_indices]{bfit_indices()}}
 }

@@ -76,5 +76,5 @@ summary(bf)
 }
 \seealso{
 \code{\link[lavaan:fitMeasures]{lavaan::fitMeasures()}}, \code{\link[blavaan:blavFitIndices]{blavaan::blavFitIndices()}},
-\code{\link[lavaan:fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}
+\code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}
 }

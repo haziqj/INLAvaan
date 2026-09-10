@@ -69,7 +69,7 @@ the casewise machinery does not support (PML or ordinal data,
 \code{conditional.x = TRUE}, multigroup two-level) they are skipped with a
 warning and the rest of the fit proceeds. The fit records what was
 requested and what was computed (\code{get_inlavaan_internal(fit, "test")});
-\code{\link[=summary]{summary()}}, \code{\link[lavaan:fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
+\code{\link[=summary]{summary()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
 report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO and WAIC
 post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand.}
 

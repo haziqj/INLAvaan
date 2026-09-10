@@ -246,5 +246,5 @@ latent variable models: Conditional versus marginal likelihoods.
 \url{https://doi.org/10.1007/s11336-019-09679-0}
 }
 \seealso{
-\code{\link[lavaan:fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}, \code{\link[=inlavaan]{inlavaan()}}
+\code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}, \code{\link[=inlavaan]{inlavaan()}}
 }

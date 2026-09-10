@@ -67,7 +67,42 @@
   than a difference between the models. The order used is printed with the
   table.
 
+* `test = "loo"` stored the LOO without the WAIC, although the WAIC comes
+  from the same Taylor pass and the documentation promised both. The
+  INLAvaan-only token was stripped before `test` reached lavaan, which left
+  `test` empty and so switched the WAIC off. Asking for either now stores
+  both (see the `test` entry under New features).
+
 ## New features
+
+* The `test` argument of `inlavaan()`, `acfa()`, `asem()` and `agrowth()`
+  now names the post-estimation quantities to compute, as a set. The atoms
+  are `"ppp"`, `"dic"`, `"loo"` and `"waic"`; `"standard"` (and its synonym
+  `"default"`) stands for `c("ppp", "dic")`, `"full"` for all four, and
+  `"none"` for nothing. Aliases and atoms can be mixed and are unioned, so
+  `test = c("standard", "loo")` keeps working, and the PPP and DIC are now
+  separately selectable: `test = "dic"` reports the DIC in `summary()`,
+  `fitmeasures()`, `deviance()` and `logLik(type = "plugin")` without
+  computing a PPP. An unknown value is an error listing the valid ones;
+  this includes lavaan's own test-statistic names (`"satorra.bentler"`,
+  `"browne.residual.adf"`, ...), which were previously forwarded to lavaan
+  and silently ignored, since no lavaan test statistic is ever computed.
+  **The default no longer computes the LOO and WAIC.** Previously
+  `test = "standard"` also ran the full leave-one-out on any supported
+  model whose predicted cost fitted a 10-second budget, a gate that made
+  fit times hard to predict and skipped silently on unsupported models.
+  The LOO and WAIC now run only when asked for (`"loo"`, `"waic"` or
+  `"full"`), with no time budget, and a fit that asks for them on an
+  unsupported model (PML or ordinal data, `conditional.x = TRUE`,
+  multigroup two-level) warns and skips them rather than failing.
+  `loo(fit)` and `waic(fit)` still compute on demand, and `add_loo(fit)`
+  now stores both the LOO and the WAIC (previously the LOO only), so a
+  script that relied on `fitmeasures(fit)` listing `elpd_loo` under the
+  old default should now pass `test = "full"` or call `add_loo()`. The fit
+  records what was requested and what was computed
+  (`get_inlavaan_internal(fit, "test")`), and `show()`, `summary()`,
+  `fitmeasures()` and `timing()` read that record instead of inferring it
+  from which results happen to be present.
 
 * `cores > 1` now works the same in every front end. Parallel stages
   (`inlavaan()`, `loo()`) forked worker processes via `mclapply`, which is

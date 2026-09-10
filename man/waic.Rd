@@ -134,7 +134,7 @@ When \code{\link[=inlavaan]{inlavaan()}}'s \code{test} includes \code{"loo"} or 
 \code{test = "full"}), the WAIC is derived at fit time from the same Taylor
 pass as the LOO at no extra cost and stored with the fit: \code{waic(fit)}
 then returns the stored result when called with default arguments, and
-\code{\link[lavaan:fitmeasures]{fitmeasures()}} reports \code{waic}, \code{p_waic}, \code{se_waic} as part of \code{"all"}
+\code{\link[=fitmeasures]{fitmeasures()}} reports \code{waic}, \code{p_waic}, \code{se_waic} as part of \code{"all"}
 for free. Under the default \code{test = "standard"} nothing is stored and
 \code{waic(fit)} computes it on demand. If the \code{loo} package is attached it
 masks this generic, but dispatch on INLAvaan objects continues to work.
@@ -153,5 +153,5 @@ waic(fit)
 
 }
 \seealso{
-\code{\link[=loo]{loo()}}, \code{\link[lavaan:fitmeasures]{fitmeasures()}}
+\code{\link[=loo]{loo()}}, \code{\link[=fitmeasures]{fitmeasures()}}
 }
