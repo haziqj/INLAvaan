@@ -10,6 +10,13 @@
 
 ## Bug fixes
 
+* With `marginal_method = "marggaus"`, the `Mean` and `SD` reported for a
+  parameter estimated on a transformed scale (variances, correlations) were
+  the back-transformed Gaussian centre and a delta-method SD, so `Mean` was
+  in fact the posterior median. Both are now the moments of the transformed
+  Gaussian marginal, computed by Gauss-Hermite quadrature as for the
+  skew-normal marginals. Quantiles, modes and densities are unchanged.
+
 * `predict()` drew its parameter sample without the NORTA correlation
   adjustment and ignored the `samp_copula` setting the model was fitted
   with, so factor scores and predicted values came from a copula with a

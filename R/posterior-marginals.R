@@ -177,9 +177,14 @@ post_marg_marggaus <- function(
   thetaj_mean <- theta_star[j]
   thetaj_sd <- sqrt(Sigma_theta[j, j])
 
-  # Transform to original space
-  x_mean <- ginv(thetaj_mean)
-  x_sd <- abs(ginv_prime(thetaj_mean)) * thetaj_sd
+  # Mean and SD in original space by GH quadrature, since ginv(thetaj_mean) is
+  # the median of x, not its mean, whenever ginv is nonlinear
+  quad <- .gauss_hermite(61)
+  nodes <- quad$nodes * sqrt(2)
+  weights <- quad$weights / sqrt(pi)
+  ginvz <- ginv(thetaj_mean + thetaj_sd * nodes)
+  x_mean <- sum(weights * ginvz)
+  x_sd <- sqrt(max(sum(weights * ginvz^2) - x_mean^2, 0))
 
   # Compute quantiles
   qq <- ginv(qnorm(c(0.025, 0.25, 0.5, 0.75, 0.975), mean = thetaj_mean, sd = thetaj_sd))
