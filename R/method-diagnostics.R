@@ -29,9 +29,20 @@
 #'     be ~0 at convergence.}
 #'   \item{\code{hess_cond}}{Condition number of the Hessian (precision matrix)
 #'     computed from \eqn{\Sigma_\theta}. Large values indicate near-singularity.}
+#'   \item{\code{hess_min_eig}}{Smallest eigenvalue of the Hessian, that is
+#'     \eqn{1 / \max \mathrm{eig}(\Sigma_\theta)}. Companion to
+#'     \code{hess_cond}: the condition number is relative, so a
+#'     well-conditioned Hessian can still be flat in every direction. This is
+#'     the absolute curvature of the log-posterior along its flattest
+#'     direction, and it carries the scale of the parameters. Reported, not
+#'     checked.}
 #'   \item{\code{vb_kld_global}}{Global KL divergence from the VB mean correction
 #'     (NA if VB correction was not applied).}
 #'   \item{\code{vb_applied}}{1 if VB correction was applied, 0 otherwise.}
+#'   \item{\code{vb_shift_max}}{Maximum, across parameters, of the absolute
+#'     VB correction in posterior-SD units (max |\code{vb_shift_sigma}|). This
+#'     is the quantity the fit-time check tests. NA if the VB correction was
+#'     not applied.}
 #'   \item{\code{kld_max}}{Maximum per-parameter KL divergence from the VB correction.}
 #'   \item{\code{kld_mean}}{Mean per-parameter KL divergence.}
 #'   \item{\code{vb_mcse_max}}{Maximum, across parameters, of the estimated
@@ -42,6 +53,9 @@
 #'   \item{\code{nmad_max}}{Maximum normalised max-absolute-deviation across
 #'     marginals (skew-normal method only; NA otherwise).}
 #'   \item{\code{nmad_mean}}{Mean NMAD across marginals.}
+#'   \item{\code{scan_end_mass_max}}{Maximum, across parameters, of
+#'     \code{scan_end_mass} (see below). NA unless the skew-normal marginal
+#'     method was used.}
 #' }
 #'
 #' \strong{Per-parameter diagnostics} (\code{type = "param"}):
@@ -75,6 +89,20 @@
 #'     no quadrature is used there.}
 #'   \item{\code{nmad}}{Normalised max-absolute-deviation of the skew-normal fit
 #'     (NA when not using the skewnorm method).}
+#'   \item{\code{alpha}}{Shape parameter of the fitted skew-normal marginal,
+#'     on the unconstrained scale. Zero is a Gaussian marginal, and the sign
+#'     gives the direction of the skew (NA when not using the skewnorm
+#'     method).}
+#'   \item{\code{scan_end_mass}}{Mass the fitted marginal puts outside the
+#'     window that was scanned to fit it,
+#'     \eqn{F(\hat\theta_j - 4 s_j) + 1 - F(\hat\theta_j + 4 s_j)}, where
+#'     \eqn{F} is the fitted skew-normal distribution function,
+#'     \eqn{\hat\theta_j} the posterior mode and \eqn{s_j} the Laplace
+#'     posterior SD. The marginal is fitted inside that window only, so mass
+#'     outside it is extrapolation, and when this is large the 2.5\% and
+#'     97.5\% credible limits are the numbers to distrust. A Gaussian marginal
+#'     gives \eqn{2\Phi(-4)} = 6.3e-05, and healthy fits sit between 1e-03 and
+#'     1e-02 (NA when not using the skewnorm method).}
 #' }
 #'
 #' \strong{Fit-time warnings}: [inlavaan()] runs these checks once at the end
@@ -182,19 +210,40 @@ diagnostics_internal <- function(int) {
   vb_mcse <- if (vb_applied && !is.null(vb$mcse)) vb$mcse else rep(NA_real_, m)
   vb_mcse_sigma <- vb_mcse / se_laplace
 
-  # NMAD (skewnorm method only); approx_data may carry extra rows for
-  # covariance/defined parameters, so keep the first m (marginal-scan) rows
-  nmad <- tryCatch(
-    int$approx_data[seq_len(m), "nmad"],
-    error = function(e) rep(NA_real_, m)
-  )
-  if (is.null(nmad) || length(nmad) == 0) {
-    nmad <- rep(NA_real_, m)
+  # Skew-normal fit of each marginal (skewnorm method only). approx_data may
+  # carry extra rows for covariance and defined parameters, so keep the first
+  # m (marginal-scan) rows. Read one column at a time, because a fit may
+  # record some of these columns and not others.
+  sn_col <- function(nm) {
+    val <- tryCatch(int$approx_data[seq_len(m), nm], error = function(e) NULL)
+    if (is.null(val) || length(val) != m) rep(NA_real_, m) else as.numeric(val)
   }
+  nmad <- sn_col("nmad")
+  sn_alpha <- sn_col("alpha")
+  sn_xi <- sn_col("xi")
+  sn_omega <- sn_col("omega")
 
   # Hessian condition number: kappa(H) = kappa(Sigma_theta)
   eig <- eigen(Sigma_theta, symmetric = TRUE, only.values = TRUE)$values
   hess_cond <- if (length(eig) > 0) max(eig) / min(eig) else NA_real_
+  # Smallest eigenvalue of the Hessian, the reciprocal of the largest
+  # eigenvalue of Sigma_theta. The condition number is relative, so it says
+  # nothing on its own about how flat the posterior is. This is the absolute
+  # curvature along the flattest direction.
+  hess_min_eig <- if (length(eig) > 0) 1 / max(eig) else NA_real_
+
+  # Mass the fitted marginal puts outside the window that was scanned to fit
+  # it, four posterior SDs either side of the raw mode. Fits saved before the
+  # raw mode was recorded fall back to the reported mode, which moves the
+  # window by the VB shift.
+  theta_scan <- int$theta_star_novbc
+  if (is.null(theta_scan)) {
+    theta_scan <- pars
+  }
+  scan_lo <- theta_scan - 4 * se_laplace
+  scan_hi <- theta_scan + 4 * se_laplace
+  scan_end_mass <- psnorm(scan_lo, sn_xi, sn_omega, sn_alpha) +
+    psnorm(scan_hi, sn_xi, sn_omega, sn_alpha, lower_tail = FALSE)
 
   global <- c(
     npar = m,
@@ -206,7 +255,13 @@ diagnostics_internal <- function(int) {
     grad_l2 = sqrt(sum(grad_analytic^2)),
     mode_shift_max = max(mode_shift_sigma),
     hess_cond = hess_cond,
+    hess_min_eig = hess_min_eig,
     vb_applied = as.numeric(vb_applied),
+    vb_shift_max = if (all(is.na(vb_shift_sigma))) {
+      NA_real_
+    } else {
+      max(abs(vb_shift_sigma), na.rm = TRUE)
+    },
     vb_kld_global = if (vb_applied) vb$kld_global else NA_real_,
     kld_max = if (all(is.na(vb_kld))) NA_real_ else max(vb_kld, na.rm = TRUE),
     kld_mean = if (all(is.na(vb_kld))) NA_real_ else mean(vb_kld, na.rm = TRUE),
@@ -221,7 +276,12 @@ diagnostics_internal <- function(int) {
       mean(vb_mcse_sigma, na.rm = TRUE)
     },
     nmad_max = if (all(is.na(nmad))) NA_real_ else max(nmad, na.rm = TRUE),
-    nmad_mean = if (all(is.na(nmad))) NA_real_ else mean(nmad, na.rm = TRUE)
+    nmad_mean = if (all(is.na(nmad))) NA_real_ else mean(nmad, na.rm = TRUE),
+    scan_end_mass_max = if (all(is.na(scan_end_mass))) {
+      NA_real_
+    } else {
+      max(scan_end_mass, na.rm = TRUE)
+    }
   )
   class(global) <- c("diagnostics.INLAvaan", "numeric")
 
@@ -238,6 +298,8 @@ diagnostics_internal <- function(int) {
     vb_shift_sigma = vb_shift_sigma,
     vb_mcse_sigma = vb_mcse_sigma,
     nmad = nmad,
+    alpha = sn_alpha,
+    scan_end_mass = scan_end_mass,
     row.names = NULL,
     stringsAsFactors = FALSE
   )
@@ -363,23 +425,27 @@ warn_fit_diagnostics <- function(
 #' @exportS3Method print diagnostics.INLAvaan
 print.diagnostics.INLAvaan <- function(x, ...) {
   nm <- names(x)
+  int_names <- c("npar", "nsamp", "converged", "iterations", "vb_applied")
+  # Quantities that span orders of magnitude, or sit far below the four
+  # decimals of the fixed format, are printed in scientific notation.
+  sci_names <- c(
+    "hess_cond",
+    "hess_min_eig",
+    "mode_shift_max",
+    "scan_end_mass_max"
+  )
   formatted <- vapply(
     seq_along(x),
     function(i) {
       val <- x[i]
       name <- nm[i]
 
-      if (
-        name %in% c("npar", "nsamp", "converged", "iterations", "vb_applied")
-      ) {
-        as.character(as.integer(round(val)))
-      } else if (
-        startsWith(name, "grad_") ||
-          name %in% c("hess_cond", "mode_shift_max")
-      ) {
-        formatC(val, digits = 2, format = "e")
-      } else if (is.na(val)) {
+      if (is.na(val)) {
         "NA"
+      } else if (name %in% int_names) {
+        as.character(as.integer(round(val)))
+      } else if (startsWith(name, "grad_") || name %in% sci_names) {
+        formatC(val, digits = 2, format = "e")
       } else {
         formatC(val, digits = 4, format = "f", drop0trailing = FALSE)
       }
@@ -393,8 +459,16 @@ print.diagnostics.INLAvaan <- function(x, ...) {
 
 #' @exportS3Method print diagnostics.INLAvaan.param
 print.diagnostics.INLAvaan.param <- function(x, digits = 4, ...) {
-  num_cols <- sapply(x, is.numeric)
-  x[, num_cols] <- round(x[, num_cols], digits)
+  num_cols <- names(x)[vapply(x, is.numeric, logical(1))]
+  for (nm in num_cols) {
+    # A healthy scan-endpoint mass is smaller than the last of the four
+    # decimals, so round() would print it as zero.
+    x[[nm]] <- if (nm == "scan_end_mass") {
+      signif(x[[nm]], 3)
+    } else {
+      round(x[[nm]], digits)
+    }
+  }
   print.data.frame(x, ...)
   invisible(x)
 }

@@ -47,9 +47,20 @@ the true posterior mode relative to the posterior uncertainty. Should
 be ~0 at convergence.}
 \item{\code{hess_cond}}{Condition number of the Hessian (precision matrix)
 computed from \eqn{\Sigma_\theta}. Large values indicate near-singularity.}
+\item{\code{hess_min_eig}}{Smallest eigenvalue of the Hessian, that is
+\eqn{1 / \max \mathrm{eig}(\Sigma_\theta)}. Companion to
+\code{hess_cond}: the condition number is relative, so a
+well-conditioned Hessian can still be flat in every direction. This is
+the absolute curvature of the log-posterior along its flattest
+direction, and it carries the scale of the parameters. Reported, not
+checked.}
 \item{\code{vb_kld_global}}{Global KL divergence from the VB mean correction
 (NA if VB correction was not applied).}
 \item{\code{vb_applied}}{1 if VB correction was applied, 0 otherwise.}
+\item{\code{vb_shift_max}}{Maximum, across parameters, of the absolute
+VB correction in posterior-SD units (max |\code{vb_shift_sigma}|). This
+is the quantity the fit-time check tests. NA if the VB correction was
+not applied.}
 \item{\code{kld_max}}{Maximum per-parameter KL divergence from the VB correction.}
 \item{\code{kld_mean}}{Mean per-parameter KL divergence.}
 \item{\code{vb_mcse_max}}{Maximum, across parameters, of the estimated
@@ -60,6 +71,9 @@ shift, in posterior-SD units.}
 \item{\code{nmad_max}}{Maximum normalised max-absolute-deviation across
 marginals (skew-normal method only; NA otherwise).}
 \item{\code{nmad_mean}}{Mean NMAD across marginals.}
+\item{\code{scan_end_mass_max}}{Maximum, across parameters, of
+\code{scan_end_mass} (see below). NA unless the skew-normal marginal
+method was used.}
 }
 
 \strong{Per-parameter diagnostics} (\code{type = "param"}):
@@ -93,6 +107,20 @@ parameters whose shift is pinned by the saturated-means fast path, since
 no quadrature is used there.}
 \item{\code{nmad}}{Normalised max-absolute-deviation of the skew-normal fit
 (NA when not using the skewnorm method).}
+\item{\code{alpha}}{Shape parameter of the fitted skew-normal marginal,
+on the unconstrained scale. Zero is a Gaussian marginal, and the sign
+gives the direction of the skew (NA when not using the skewnorm
+method).}
+\item{\code{scan_end_mass}}{Mass the fitted marginal puts outside the
+window that was scanned to fit it,
+\eqn{F(\hat\theta_j - 4 s_j) + 1 - F(\hat\theta_j + 4 s_j)}, where
+\eqn{F} is the fitted skew-normal distribution function,
+\eqn{\hat\theta_j} the posterior mode and \eqn{s_j} the Laplace
+posterior SD. The marginal is fitted inside that window only, so mass
+outside it is extrapolation, and when this is large the 2.5\\% and
+97.5\\% credible limits are the numbers to distrust. A Gaussian marginal
+gives \eqn{2\Phi(-4)} = 6.3e-05, and healthy fits sit between 1e-03 and
+1e-02 (NA when not using the skewnorm method).}
 }
 
 \strong{Fit-time warnings}: \code{\link[=inlavaan]{inlavaan()}} runs these checks once at the end

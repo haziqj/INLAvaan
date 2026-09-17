@@ -12,6 +12,15 @@ fit <- acfa(
   vb_correction = FALSE,
   marginal_method = "marggaus"
 )
+# The default marginal method, so the skew-normal columns are populated.
+fit_sn <- acfa(
+  mod,
+  dat,
+  verbose = FALSE,
+  nsamp = 3,
+  test = "none",
+  vb_correction = FALSE
+)
 
 # ---- diagnostics() ----
 
@@ -29,14 +38,17 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
     "grad_l2",
     "mode_shift_max",
     "hess_cond",
+    "hess_min_eig",
     "vb_applied",
+    "vb_shift_max",
     "vb_kld_global",
     "kld_max",
     "kld_mean",
     "vb_mcse_max",
     "vb_mcse_mean",
     "nmad_max",
-    "nmad_mean"
+    "nmad_mean",
+    "scan_end_mass_max"
   )
   expect_named(dg, expected_names)
   expect_equal(unname(dg["npar"]), length(coef(fit)))
@@ -52,6 +64,35 @@ test_that("diagnostics(type = 'param') returns data frame", {
     c("names", "grad", "grad_num", "grad_diff", "mode_shift_sigma") %in%
       names(dp)
   ))
+})
+
+test_that("diagnostics() reports the skew-normal marginal fit", {
+  glob <- diagnostics(fit_sn)
+  dp <- diagnostics(fit_sn, type = "param")
+  expect_true(all(c("alpha", "scan_end_mass") %in% names(dp)))
+  expect_true(all(is.finite(dp$alpha)))
+  expect_true(all(is.finite(dp$scan_end_mass)))
+  expect_true(all(dp$scan_end_mass > 0 & dp$scan_end_mass < 1))
+  # A healthy fit leaves next to nothing outside the scanned window: the
+  # Gaussian reference is 6.3e-05 and this model sits near 2.5e-04.
+  expect_lt(max(dp$scan_end_mass), 0.05)
+  expect_equal(glob[["scan_end_mass_max"]], max(dp$scan_end_mass))
+})
+
+test_that("the skew-normal diagnostics are NA for another method", {
+  glob <- diagnostics(fit)
+  dp <- diagnostics(fit, type = "param")
+  expect_true(is.na(glob[["scan_end_mass_max"]]))
+  expect_true(all(is.na(dp$alpha)))
+  expect_true(all(is.na(dp$scan_end_mass)))
+})
+
+test_that("hess_min_eig is the smallest eigenvalue of the Hessian", {
+  int <- INLAvaan:::get_inlavaan_internal(fit)
+  expect_equal(
+    diagnostics(fit)[["hess_min_eig"]],
+    1 / max(eigen(int$Sigma_theta, symmetric = TRUE)$values)
+  )
 })
 
 # ---- fit-time diagnostics warnings ----

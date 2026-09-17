@@ -54,6 +54,7 @@ test_that("diagnostics() reports the VB shift's own quadrature error", {
   expect_true(all(par$vb_mcse_sigma >= 0))
   expect_equal(glob[["vb_mcse_max"]], max(par$vb_mcse_sigma))
   expect_equal(glob[["vb_mcse_mean"]], mean(par$vb_mcse_sigma))
+  expect_equal(glob[["vb_shift_max"]], max(abs(par$vb_shift_sigma)))
 
   # Pinned coordinates use no quadrature, so they carry no quadrature error.
   int <- get_inlavaan_internal(fit)
@@ -75,6 +76,7 @@ test_that("no VB correction means no quadrature error to report", {
     )
   )))
 
+  expect_true(is.na(diagnostics(fit, type = "global")[["vb_shift_max"]]))
   expect_true(is.na(diagnostics(fit, type = "global")[["vb_mcse_max"]]))
   expect_true(all(is.na(diagnostics(fit, type = "param")$vb_mcse_sigma)))
 })
