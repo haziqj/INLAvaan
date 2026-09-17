@@ -259,3 +259,14 @@ test_that("add_loo() updates the record and stores the WAIC too", {
   expect_false(any(c("loo", "waic") %in% rec(fit)$computed))
   expect_identical(waic(fit2), get_inlavaan_internal(fit2, "waic"))
 })
+
+test_that("show() falls back to the installed version when a fit records none", {
+  fit <- fit_with("none")
+  fit_no_version <- fit
+  fit_no_version@external$inlavaan_internal$version <- NULL
+  expect_output(
+    show(fit_no_version),
+    as.character(utils::packageVersion("INLAvaan")),
+    fixed = TRUE
+  )
+})
