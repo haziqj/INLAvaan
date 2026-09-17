@@ -191,13 +191,19 @@ test_that("compare(loo = TRUE) scores every model at one common order", {
 })
 
 test_that("compare(loo = TRUE) aborts for models on different data", {
-  fit3 <- acfa(
-    mod_null,
-    dat[1:20, ],
-    meanstructure = TRUE,
-    verbose = FALSE,
-    nsamp = 3,
-    test = "none"
+  # Twenty rows are too few to keep the skew-normal tails inside the scanned
+  # window, so the fit-time endpoint-mass check fires. That is the expected
+  # small-sample behaviour of the diagnostic, not a fault in this fixture.
+  fit3 <- suppressWarnings(
+    acfa(
+      mod_null,
+      dat[1:20, ],
+      meanstructure = TRUE,
+      verbose = FALSE,
+      nsamp = 3,
+      test = "none"
+    ),
+    classes = "inlavaan_diagnostics_warning"
   )
   expect_error(compare(fit1_ms, fit3, loo = TRUE), "same data")
 })
