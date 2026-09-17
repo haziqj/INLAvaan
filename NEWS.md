@@ -82,6 +82,20 @@
 
 ## New features
 
+* New `vb_method` argument to `inlavaan()`, `acfa()`, `asem()` and
+  `agrowth()` chooses the integration rule for the VB mean correction.
+  `"sobol"` (the default) keeps the scrambled Sobol rule over `n_qmc` nodes.
+  `"gauss_hermite"` replaces it with a deterministic rule: a three-point
+  Gauss-Hermite rule along each principal axis of the Laplace covariance,
+  `2m + 1` nodes in all for `m` free parameters. In whitened coordinates
+  every cross moment of the Gaussian vanishes, so the expected gradient
+  splits into one-dimensional integrals, and the rule is exact whenever the
+  log-posterior is quartic in those coordinates. It gives the same shift on
+  every run, and on the benchmark models it was more accurate than the
+  default 64-node rule. It reports no quadrature error, so `vb_mcse_sigma`
+  is `NA`, and its cost grows with `m`: it is cheaper than the default below
+  about 30 free parameters and dearer above. Experimental.
+
 * `diagnostics()` reports three more global quantities and two more
   per-parameter ones. `hess_min_eig` is the smallest eigenvalue of the
   Hessian at the mode, the companion to `hess_cond` that carries the scale
