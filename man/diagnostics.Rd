@@ -65,7 +65,8 @@ not applied.}
 \item{\code{kld_mean}}{Mean per-parameter KL divergence.}
 \item{\code{vb_mcse_max}}{Maximum, across parameters, of the estimated
 quadrature error of the VB shift, in posterior-SD units. See
-\code{vb_mcse_sigma} below.}
+\code{vb_mcse_sigma} below. NA under
+\code{vb_method = "gauss_hermite"}.}
 \item{\code{vb_mcse_mean}}{Mean estimated quadrature error of the VB
 shift, in posterior-SD units.}
 \item{\code{nmad_max}}{Maximum normalised max-absolute-deviation across
@@ -104,7 +105,8 @@ much, in SD units, purely from the choice of node set. It runs
 conservative, because the two halves are negatively correlated and
 quasi-Monte Carlo error falls faster than root-n. It is exactly zero for
 parameters whose shift is pinned by the saturated-means fast path, since
-no quadrature is used there.}
+no quadrature is used there. It is NA for every parameter under
+\code{vb_method = "gauss_hermite"}, whose rule is deterministic.}
 \item{\code{nmad}}{Normalised max-absolute-deviation of the skew-normal fit
 (NA when not using the skewnorm method).}
 \item{\code{alpha}}{Shape parameter of the fitted skew-normal marginal,

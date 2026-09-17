@@ -43,7 +43,16 @@
 #'   correction. Defaults to `64`; see the Details section of [inlavaan()].
 #'   Values above `128` (the size
 #'   of the stored Sobol table) require the \pkg{qrng} package. Ignored when
-#'   `vb_correction = FALSE`.
+#'   `vb_correction = FALSE` or `vb_method = "gauss_hermite"`.
+#' @param vb_method Integration rule for the VB mean correction. `"sobol"`
+#'   (default) averages over `n_qmc` scrambled Sobol nodes. `"gauss_hermite"`
+#'   uses a deterministic rule instead: a three-point Gauss-Hermite rule along
+#'   each principal axis of the Laplace covariance, `2m + 1` nodes in all for
+#'   `m` free parameters. It is exact whenever the log-posterior is quartic in
+#'   whitened coordinates, and it gives the same shift on every run. Having no
+#'   node sets to compare, it reports no quadrature error, so `vb_mcse_sigma`
+#'   in [diagnostics()] is `NA`. Its cost grows with `m`: it is cheaper than
+#'   the default below about 30 free parameters and dearer above. Experimental.
 #' @param marginal_method The method for approximating the marginal posterior
 #'   distributions. Options include `"skewnorm"` (skew-normal), `"asymgaus"`
 #'   (two-piece asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
@@ -138,7 +147,9 @@
 #'   shifts being corrected. Users may increase `n_qmc` to reduce the error
 #'   further, at a proportional cost in computation time; `diagnostics()`
 #'   reports the realised error per fit as `vb_mcse_sigma` per parameter and
-#'   `vb_mcse_max` globally, both in posterior-SD units.
+#'   `vb_mcse_max` globally, both in posterior-SD units. Setting
+#'   `vb_method = "gauss_hermite"` removes the random node set altogether; see
+#'   the `vb_method` argument.
 #'
 #' @seealso Typically, users will interact with the specific latent variable
 #'   model functions instead, including [acfa()], [asem()], and [agrowth()].
@@ -156,6 +167,7 @@ inlavaan <- function(
   test = "standard",
   vb_correction = TRUE,
   n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -194,6 +206,7 @@ inlavaan <- function(
     marginal_correction <- match.arg(marginal_correction)
   }
   optim_method <- match.arg(optim_method)
+  vb_method <- match.arg(vb_method)
   if (isTRUE(debug)) {
     verbose <- TRUE
   }
@@ -498,24 +511,39 @@ inlavaan <- function(
   if (isTRUE(vb_correction)) {
     if (isTRUE(verbose)) {
       cli_progress_step(
-        "Performing VB correction.",
+        if (vb_method == "sobol") {
+          "Performing VB correction."
+        } else {
+          "Performing VB correction (Gauss-Hermite rule)."
+        },
         msg_done = "VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift) / sqrt(diag(Sigma_theta))),
                     format = 'f', digits = 3)}\U03C3."
       )
     }
 
-    # QMC nodes (scrambled Sobol). The count is deliberately flat rather than
-    # scaled with m: the quadrature error is governed by the effective
-    # dimension and the smoothness of the integrand, not by m directly, and
-    # scaling down for small models simply starves them.
-    if (length(n_qmc) != 1L) {
-      cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
+    # Node weights stay NULL for the equal-weight Sobol rule. The Gauss-Hermite
+    # rule carries a weight per node, with the centre in the first row.
+    vb_w <- NULL
+    if (vb_method == "sobol") {
+      # QMC nodes (scrambled Sobol). The count is deliberately flat rather
+      # than scaled with m: the quadrature error is governed by the effective
+      # dimension and the smoothness of the integrand, not by m directly, and
+      # scaling down for small models simply starves them.
+      if (length(n_qmc) != 1L) {
+        cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
+      }
+      vb_n_qmc <- suppressWarnings(as.integer(n_qmc))
+      if (is.na(vb_n_qmc) || vb_n_qmc < 2L) {
+        cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
+      }
+      zs <- vb_nodes(vb_n_qmc, L)
+    } else {
+      # Deterministic rule on the principal axes of Sigma_theta. See
+      # vb_nodes_gauss_hermite() for why 2m + 1 nodes suffice.
+      vb_rule <- vb_nodes_gauss_hermite(Sigma_theta)
+      zs <- vb_rule$nodes
+      vb_w <- vb_rule$weights
     }
-    vb_n_qmc <- suppressWarnings(as.integer(n_qmc))
-    if (is.na(vb_n_qmc) || vb_n_qmc < 2L) {
-      cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
-    }
-    zs <- vb_nodes(vb_n_qmc, L)
 
     # Fixed-point solver settings; see the iteration below. Convergence is
     # judged on the step measured in the units the shift is reported in --
@@ -535,6 +563,21 @@ inlavaan <- function(
     vb_ob_shift <- function(shift, mu0, Z) {
       mu_new <- mu0 + shift
       ns <- nrow(Z)
+      if (!is.null(vb_w)) {
+        lp <- vapply(
+          seq_len(ns),
+          function(b) joint_lp(mu_new + Z[b, , drop = TRUE]),
+          numeric(1)
+        )
+        # The centre weight is negative once m > 3, so a failed log-likelihood
+        # (-1e40) at the centre would lower the objective. Treat any failed
+        # node as a failed objective instead.
+        if (any(!is.finite(lp) | lp <= -1e39)) {
+          return(1e40)
+        }
+        # Differences from the centre avoid cancelling large terms.
+        return(-1 * (lp[1] + sum(vb_w[-1] * (lp[-1] - lp[1]))))
+      }
       lp_total <- 0
       for (b in seq_len(ns)) {
         thetab <- mu_new + Z[b, , drop = TRUE]
@@ -555,6 +598,18 @@ inlavaan <- function(
     vb_sweep <- function(shift, mu0, Z) {
       mu_new <- mu0 + shift
       ns <- nrow(Z)
+      if (!is.null(vb_w)) {
+        # Weighted mean written as differences from the centre gradient, so
+        # the negative centre weight does not cancel large terms. The rule is
+        # deterministic, so there are no half-sets.
+        g0 <- joint_lp_grad(mu_new + Z[1, , drop = TRUE])
+        score <- g0
+        for (b in seq_len(ns)[-1]) {
+          g <- joint_lp_grad(mu_new + Z[b, , drop = TRUE])
+          score <- score + vb_w[b] * (g - g0)
+        }
+        return(list(score = score, gA = NULL, gB = NULL))
+      }
       nhalf <- floor(ns / 2)
       gA <- gB <- numeric(length(mu0))
       for (b in seq_len(ns)) {
@@ -681,8 +736,14 @@ inlavaan <- function(
     # their mean is half their difference; a Newton step maps a score error
     # into a shift error. QMC halves are negatively correlated and QMC error
     # falls faster than root-n, so this errs on the conservative side.
-    vb_mcse <- abs(as.numeric(Sigma_theta %*% (vb_gA - vb_gB))) / 2
-    vb_mcse[fp_idx] <- 0
+    if (is.null(vb_w)) {
+      vb_mcse <- abs(as.numeric(Sigma_theta %*% (vb_gA - vb_gB))) / 2
+      vb_mcse[fp_idx] <- 0
+    } else {
+      # The Gauss-Hermite rule has no node sets to compare, so it reports no
+      # error estimate.
+      vb_mcse <- rep(NA_real_, m)
+    }
 
     vb_opt <- list(
       par = vb_shift,
@@ -698,6 +759,7 @@ inlavaan <- function(
   vb <- list(
     opt = vb_opt,
     n_qmc = vb_n_qmc,
+    method = if (isTRUE(vb_correction)) vb_method else NA_character_,
     correction = vb_shift,
     mcse = vb_mcse,
     kld = vb_kld,
@@ -1294,6 +1356,7 @@ acfa <- function(
   test = "standard",
   vb_correction = TRUE,
   n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -1349,6 +1412,7 @@ asem <- function(
   test = "standard",
   vb_correction = TRUE,
   n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -1402,6 +1466,7 @@ agrowth <- function(
   test = "standard",
   vb_correction = TRUE,
   n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,

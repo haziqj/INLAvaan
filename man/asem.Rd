@@ -11,6 +11,7 @@ asem(
   test = "standard",
   vb_correction = TRUE,
   n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -71,7 +72,17 @@ correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 correction. Defaults to \code{64}; see the Details section of \code{\link[=inlavaan]{inlavaan()}}.
 Values above \code{128} (the size
 of the stored Sobol table) require the \pkg{qrng} package. Ignored when
-\code{vb_correction = FALSE}.}
+\code{vb_correction = FALSE} or \code{vb_method = "gauss_hermite"}.}
+
+\item{vb_method}{Integration rule for the VB mean correction. \code{"sobol"}
+(default) averages over \code{n_qmc} scrambled Sobol nodes. \code{"gauss_hermite"}
+uses a deterministic rule instead: a three-point Gauss-Hermite rule along
+each principal axis of the Laplace covariance, \verb{2m + 1} nodes in all for
+\code{m} free parameters. It is exact whenever the log-posterior is quartic in
+whitened coordinates, and it gives the same shift on every run. Having no
+node sets to compare, it reports no quadrature error, so \code{vb_mcse_sigma}
+in \code{\link[=diagnostics]{diagnostics()}} is \code{NA}. Its cost grows with \code{m}: it is cheaper than
+the default below about 30 free parameters and dearer above. Experimental.}
 
 \item{marginal_method}{The method for approximating the marginal posterior
 distributions. Options include \code{"skewnorm"} (skew-normal), \code{"asymgaus"}
