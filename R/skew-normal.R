@@ -325,6 +325,67 @@ dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {
   }
 }
 
+# Gauss-Legendre nodes and weights on [0, 1] (Golub-Welsch). Evaluated once
+# when the namespace is built, so Owen's T below costs one small matrix
+# product per call.
+gauss_legendre_01 <- function(n) {
+  i <- seq_len(n - 1)
+  b <- i / sqrt(4 * i^2 - 1)
+  J <- matrix(0, n, n)
+  J[cbind(i, i + 1)] <- b
+  J[cbind(i + 1, i)] <- b
+  e <- eigen(J, symmetric = TRUE)
+  list(x = (e$values + 1) / 2, w = e$vectors[1, ]^2)
+}
+gl_owen <- gauss_legendre_01(48L)
+
+# Owen's T(h, a) = (2 pi)^-1 int_0^a exp(-h^2 (1 + x^2) / 2) / (1 + x^2) dx,
+# vectorised over h and a. It is reduced to h >= 0 and 0 <= a <= 1 by the
+# symmetries T(-h, a) = T(h, a), T(h, -a) = -T(h, a) and, for a > 1,
+# T(h, a) = Phi(h)/2 + Phi(ah)/2 - Phi(h) Phi(ah) - T(ah, 1/a). On the
+# reduced range 48 Gauss-Legendre nodes give about 1e-15 absolute accuracy.
+owen_t <- function(h, a) {
+  n <- max(length(h), length(a))
+  h <- abs(rep_len(h, n))
+  a <- rep_len(a, n)
+  sgn <- sign(a)
+  a <- abs(a)
+  big <- a > 1
+  ah <- a * h
+  aa <- ifelse(big, 1 / a, a)
+  hh <- ifelse(big, ah, h)
+  X <- outer(aa, gl_owen$x)
+  G <- exp(-0.5 * hh^2 * (1 + X^2)) / (1 + X^2)
+  t_red <- as.numeric(G %*% gl_owen$w) * aa / (2 * pi)
+  ph <- stats::pnorm(h)
+  pah <- stats::pnorm(ah)
+  sgn * ifelse(big, 0.5 * ph + 0.5 * pah - ph * pah - t_red, t_red)
+}
+
+# Skew-normal distribution function F(q) = Phi(z) - 2 T(z, alpha), with
+# z = (q - xi) / omega. The upper tail is computed by reflection,
+# 1 - F(z; alpha) = F(-z; -alpha), so a small tail probability never comes
+# out as the difference of two numbers close to one. Absolute accuracy is
+# about 1e-15. The value is NA for a non-finite argument or a non-positive
+# scale.
+psnorm <- function(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE) {
+  n <- max(length(q), length(xi), length(omega), length(alpha))
+  q <- rep_len(q, n)
+  xi <- rep_len(xi, n)
+  omega <- rep_len(omega, n)
+  alpha <- rep_len(alpha, n)
+  z <- (q - xi) / omega
+  if (!isTRUE(lower_tail)) {
+    z <- -z
+    alpha <- -alpha
+  }
+  ok <- is.finite(z) & is.finite(alpha) & omega > 0
+  out <- rep(NA_real_, n)
+  out[ok] <- stats::pnorm(z[ok]) - 2 * owen_t(z[ok], alpha[ok])
+  out[ok] <- pmin(pmax(out[ok], 0), 1)
+  out
+}
+
 # snorm_EX_VarX <- function(xi, omega, alpha) {
 #   delta <- alpha / sqrt(1 + alpha^2)
 #   EX <- xi + omega * delta * sqrt(2 / pi)
