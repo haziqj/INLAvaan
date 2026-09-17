@@ -45,3 +45,27 @@ test_that("Plot with use_ggplot = FALSE uses base graphics", {
   res_truth <- plot(fit, truth = coef(fit), use_ggplot = FALSE)
   expect_null(res_truth)
 })
+
+test_that("the skew-normal fit plots differ between the two scales", {
+  skip_if_not_installed("ggplot2")
+  dat <- lavaan::HolzingerSwineford1939
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dat,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  pdf(file = NULL)
+  on.exit(dev.off(), add = TRUE)
+
+  p_raw <- plot(fit, type = "sn_fit")
+  p_log <- plot(fit, type = "sn_fit_log")
+  expect_s3_class(p_raw, "ggplot")
+  expect_s3_class(p_log, "ggplot")
+
+  # The log panel plots log10 of the density, so the two panels must carry
+  # different values, and the log one must reach further down.
+  expect_false(identical(p_raw$data$value, p_log$data$value))
+  expect_lt(min(p_log$data$value), min(p_raw$data$value))
+})
