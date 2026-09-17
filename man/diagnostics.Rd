@@ -125,12 +125,25 @@ gives \eqn{2\Phi(-4)} = 6.3e-05, and healthy fits sit between 1e-03 and
 
 \strong{Fit-time warnings}: \code{\link[=inlavaan]{inlavaan()}} runs these checks once at the end
 of every fit and emits a single consolidated warning (condition class
-\code{"inlavaan_diagnostics_warning"}) when any of them look off: the
-optimiser did not converge, \code{mode_shift_max} exceeds 0.1,
-any marginal has NMAD above 0.1, the VB correction shifted a posterior
-mean by more than 1 posterior SD, or the Hessian condition number exceeds
-1e8. A healthy fit stays silent. Silence the check with
-\code{suppressWarnings()}, or selectively by handling the condition class.
+\code{"inlavaan_diagnostics_warning"}) when any of them looks off:
+\itemize{
+\item the optimiser did not converge;
+\item \code{mode_shift_max} above 0.1 posterior SDs;
+\item any marginal with \code{nmad} above 0.1;
+\item any marginal with \code{scan_end_mass} above 0.05;
+\item \code{vb_shift_max} above 1 posterior SD;
+\item \code{hess_cond} above 1e8.
+}
+Three of these checks have calibration behind them. Over 1,046 simulated
+fits with MCMC references, the Spearman correlation with the worst-case
+posterior-mean discrepancy was 0.64 for the VB shift in SD units, 0.59 for
+the scan-endpoint mass and 0.48 for the NMAD. The convergence, mode-shift
+and condition-number checks, and \code{hess_min_eig} (reported, not
+checked), are rules of thumb. Every number above is a package default,
+chosen so that a healthy fit stays silent, and not a calibrated cut-off: a
+tripped check is a prompt to look again, and silence is not a certificate
+of accuracy. Silence the check with \code{suppressWarnings()}, or
+selectively by handling the condition class.
 }
 \examples{
 \donttest{

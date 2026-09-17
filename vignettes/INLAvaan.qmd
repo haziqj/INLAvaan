@@ -201,7 +201,7 @@ Definitions and worked examples are in the [Bayesian fit indices article](https:
 ### Diagnostics
 
 The `diagnostics()` function reports convergence and approximation-quality metrics for the fitted model.
-Global diagnostics (`type = "global"`) check whether the optimiser converged, and quantify how well the skew-normal marginals match the joint posterior (via KL divergence and NMAD).
+Global diagnostics (`type = "global"`) check whether the optimiser converged, and quantify how well the skew-normal marginals match the joint posterior (via KL divergence and NMAD), including how much mass a fitted marginal leaves beyond the window that was scanned to fit it (`scan_end_mass_max`).
 Per-parameter diagnostics (`type = "param"`) provide gradient norms and KL contributions for each free parameter, which is useful for identifying any problematic parameters.
 
 ```{r}
