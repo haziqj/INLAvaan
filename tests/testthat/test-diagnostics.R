@@ -140,6 +140,24 @@ test_that("warn_fit_diagnostics() flags high NMAD marginals by name", {
   expect_match(conditionMessage(w), "1 other") # top 3 shown, 1 elided
 })
 
+test_that("a healthy skew-normal fit passes warn_fit_diagnostics() silently", {
+  int <- INLAvaan:::get_inlavaan_internal(fit_sn)
+  expect_no_warning(INLAvaan:::warn_fit_diagnostics(int))
+})
+
+test_that("warn_fit_diagnostics() flags a marginal that outruns the scan", {
+  int <- INLAvaan:::get_inlavaan_internal(fit_sn)
+  # Ten times the fitted scale leaves about 0.71 of the mass outside the
+  # window that was scanned, well past the 0.05 tolerance.
+  int$approx_data[1, "omega"] <- 10 * int$approx_data[1, "omega"]
+  w <- expect_warning(
+    INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  expect_match(conditionMessage(w), "beyond the scanned")
+  expect_match(conditionMessage(w), names(coef(fit_sn))[1], fixed = TRUE)
+})
+
 test_that("warn_fit_diagnostics() flags large VB shifts", {
   int <- INLAvaan:::get_inlavaan_internal(fit)
   m <- length(coef(fit))

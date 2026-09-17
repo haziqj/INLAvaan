@@ -312,11 +312,16 @@ diagnostics_internal <- function(int) {
 # single consolidated warning when the checks reported by diagnostics() look
 # off. Thresholds are deliberately loose so that a healthy fit stays silent:
 # healthy fits sit orders of magnitude below them (mode shifts ~1e-4 SD,
-# NMAD < 0.06, VB shifts < 0.6 SD, condition numbers < 1e3).
+# NMAD < 0.06, VB shifts < 0.6 SD, condition numbers < 1e3). The
+# scan-endpoint mass of a healthy fit runs from 1e-3 to 1e-2 (0.001 on
+# Holzinger-Swineford with std.lv, 0.0036 on Political Democracy). Across the
+# base cells of the calibration study at n >= 150 its p95 was 0.0066 and its
+# maximum 0.0104.
 warn_fit_diagnostics <- function(
   int,
   mode_shift_tol = 0.1,
   nmad_tol = 0.1,
+  scan_end_mass_tol = 0.05,
   vb_shift_tol = 1,
   hess_cond_tol = 1e8
 ) {
@@ -381,16 +386,46 @@ warn_fit_diagnostics <- function(
     )
   }
 
-  vbs <- abs(param$vb_shift_sigma)
-  if (any(!is.na(vbs) & vbs > vb_shift_tol)) {
-    worst <- param$names[which.max(vbs)]
+  bad_mass <- which(
+    !is.na(param$scan_end_mass) & param$scan_end_mass > scan_end_mass_tol
+  )
+  if (length(bad_mass)) {
+    bad_mass <- bad_mass[
+      order(param$scan_end_mass[bad_mass], decreasing = TRUE)
+    ]
+    shown <- head(bad_mass, 3L)
+    listed <- paste0(
+      "{.code ",
+      param$names[shown],
+      "} (",
+      formatC(param$scan_end_mass[shown], digits = 2, format = "f"),
+      ")",
+      collapse = ", "
+    )
+    more <- length(bad_mass) - length(shown)
+    issues <- c(
+      issues,
+      "x" = paste0(
+        "The fitted marginal puts more than ",
+        scan_end_mass_tol,
+        " of its mass beyond the scanned window (4 posterior SDs either side
+         of the mode) for ",
+        listed,
+        if (more > 0) paste0(" and ", more, " other", if (more > 1) "s"),
+        "; its credible limits rely on extrapolation."
+      )
+    )
+  }
+
+  if (isTRUE(glob[["vb_shift_max"]] > vb_shift_tol)) {
+    worst <- param$names[which.max(abs(param$vb_shift_sigma))]
     issues <- c(
       issues,
       "x" = paste0(
         "The VB correction shifted {.code ",
         worst,
         "} by ",
-        fmt(max(vbs, na.rm = TRUE)),
+        fmt(glob[["vb_shift_max"]]),
         " posterior SDs; the Gaussian approximation at the mode may be
          inaccurate."
       )
