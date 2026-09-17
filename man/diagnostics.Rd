@@ -65,7 +65,7 @@ marginals (skew-normal method only; NA otherwise).}
 \strong{Per-parameter diagnostics} (\code{type = "param"}):
 A data frame with columns:
 \describe{
-\item{\code{param}}{Parameter name.}
+\item{\code{names}}{Parameter name.}
 \item{\code{grad}}{Analytic gradient of the negative log-posterior at the
 mode. Should be ~0 at convergence.}
 \item{\code{grad_num}}{Numerical (finite-difference) gradient at the mode.
