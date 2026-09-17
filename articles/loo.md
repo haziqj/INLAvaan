@@ -155,8 +155,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.112    0.00 7535.045 29.596 -3769.163 42.996 32.597
-#>  fit1f   27   -3990.302 -105.19 7757.553 27.136 -3878.041 46.738 27.377
+#>    fit   30   -3885.112    0.00 7536.084 30.115 -3769.163 42.996 32.597
+#>  fit1f   27   -3990.302 -105.19 7756.445 26.582 -3878.041 46.738 27.377
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -108.878  17.009

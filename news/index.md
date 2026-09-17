@@ -13,6 +13,14 @@
 
 ### Bug fixes
 
+- With `marginal_method = "marggaus"`, the `Mean` and `SD` reported for
+  a parameter estimated on a transformed scale (variances, correlations)
+  were the back-transformed Gaussian centre and a delta-method SD, so
+  `Mean` was in fact the posterior median. Both are now the moments of
+  the transformed Gaussian marginal, computed by Gauss-Hermite
+  quadrature as for the skew-normal marginals. Quantiles, modes and
+  densities are unchanged.
+
 - [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) drew
   its parameter sample without the NORTA correlation adjustment and
   ignored the `samp_copula` setting the model was fitted with, so factor
@@ -86,6 +94,19 @@
   either now stores both (see the `test` entry under New features).
 
 ### New features
+
+- New `samp_norta` argument to
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),
+  [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),
+  [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md) and
+  [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md)
+  switches the NORTA correlation adjustment of the skew-normal copula on
+  and off independently of `samp_copula`. It defaults to `FALSE`: the
+  adjustment leaves every marginal untouched and, on the benchmark
+  models, moves no correlation by more than 0.01, so it is now opt-in.
+  The setting is recorded on the fit and inherited by
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) through
+  the stored `R_star`.
 
 - The `test` argument of
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),

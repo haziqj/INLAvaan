@@ -41,26 +41,23 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [276ms]
+#> ✔ Posterior mode and Hessian. [290ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [837ms]
+#> ✔ VB correction; mean |δ| = 0.190σ. [857ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 15/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [299ms]
+#> ⠹ Fitting 13/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [984ms]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.1.9011 ended normally after 71 iterations
+#> INLAvaan 0.3.1.9012 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -72,14 +69,14 @@ print(fit1)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -818.305 
-#>    PPP (Chi-square)                              0.506
+#>    PPP (Chi-square)                              0.509
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        1.808        1.750        0.943        0.805        1.472        1.061 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        0.721        1.354        0.913        0.567        1.080        0.469 
+#>        0.721        1.354        0.913        0.567        1.080        0.470 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        1.844        3.596        0.607       -0.669        1.283        0.071 
+#>        1.844        3.596        0.607       -0.668        1.283        0.071 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
 #>        0.144        0.424        1.698        7.790        4.086        2.786 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
@@ -97,15 +94,15 @@ coef(fit1)
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
 #> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [550ms]
+#> ✔ Posterior mode and Hessian. [577ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.154σ. [1.5s]
+#> ✔ VB correction; mean |δ| = 0.154σ. [1.6s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 8/42 skew-normal marginals.
-#> ⠸ Fitting 27/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [4.8s]
+#> ⠹ Fitting 7/42 skew-normal marginals.
+#> ⠸ Fitting 26/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [5.1s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -135,15 +132,12 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [322ms]
-#> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [741ms]
+#> ✔ Summarise 1000 posterior draws. [747ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)
-#> INLAvaan 0.3.1.9011 ended normally after 91 iterations
+#> INLAvaan 0.3.1.9012 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

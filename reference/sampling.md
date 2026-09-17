@@ -140,19 +140,16 @@ for Bayesian fit indices.
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [65ms]
+#> ✔ Posterior mode and Hessian. [52ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [259ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [274ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [125ms]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [21ms]
+#> ✔ Fit 6/6 skew-normal marginals. [127ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [493ms]
+#> ✔ Summarise 1000 posterior draws. [486ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -160,12 +157,12 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  0.8340108  1.1326184 0.9592854 1.1238918 0.4756688      0.5856419
-#> [2,]  0.5413290  0.9381464 0.7976655 1.0815794 0.7289457      0.6925345
-#> [3,]  0.6411047  1.2613409 0.8385270 1.1815162 0.4770222      0.5091393
-#> [4,]  0.5430467  1.3342505 0.8955872 1.1082828 0.6117675      0.4043779
-#> [5,]  0.8014610  1.0506824 0.9762700 1.0193204 0.8359192      0.4563288
-#> [6,]  0.7620878  1.5761469 1.0628360 0.9559976 0.2601366      0.3651592
+#> [1,]  0.8340108   1.132861 0.9601254 1.1239101 0.4769312      0.5847085
+#> [2,]  0.5413290   0.937252 0.7987346 1.0821189 0.7298471      0.6929135
+#> [3,]  0.6411047   1.260196 0.8376776 1.1819014 0.4767897      0.5106020
+#> [4,]  0.5430467   1.332250 0.8947850 1.1092371 0.6120674      0.4057366
+#> [5,]  0.8014610   1.050886 0.9778346 1.0195363 0.8374772      0.4546362
+#> [6,]  0.7620878   1.575142 1.0619017 0.9567764 0.2602893      0.3668445
 
 # Compare copula vs Gaussian sampling
 s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)

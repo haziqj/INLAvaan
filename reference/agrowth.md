@@ -16,6 +16,7 @@ agrowth(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
@@ -125,8 +126,19 @@ agrowth(
 
   Logical. When `TRUE` (default), posterior samples are drawn using the
   copula method with the fitted marginals (e.g. skew-normal or
-  asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
-  samples are drawn from the Gaussian (Laplace) approximation. Only re
+  asymmetric Gaussian). When `FALSE`, samples are drawn from the
+  Gaussian (Laplace) approximation.
+
+- samp_norta:
+
+  Logical. When `TRUE`, the latent correlation matrix of the skew-normal
+  copula is adjusted by the NORmal-To-Anything (NORTA) scheme of Cario
+  and Nelson (1997) so that the Pearson correlations of the copula draws
+  match those of the Laplace approximation after the nonlinear quantile
+  transform. The adjustment never changes a marginal; it affects only
+  summaries that involve several parameters at once, and in practice
+  moves the correlations very little. Default `FALSE`. Only used when
+  `samp_copula = TRUE` and `marginal_method = "skewnorm"`.
 
 - cov_as_cor:
 
@@ -298,24 +310,21 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [279ms]
+#> ✔ Posterior mode and Hessian. [265ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [319ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [309ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 15/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.2s]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [87ms]
+#> ✔ Fit 17/17 skew-normal marginals. [1.1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [174ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 100 posterior draws. [153ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.1.9011 ended normally after 83 iterations
+#> INLAvaan 0.3.1.9012 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -330,8 +339,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4997.474 
-#>    Effective parameters (pD)                    17.570 
+#>    Deviance (DIC)                             4997.468 
+#>    Effective parameters (pD)                    17.567 
 #> 
 #> Parameter Estimates:
 #> 

@@ -16,6 +16,7 @@ asem(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
@@ -125,8 +126,19 @@ asem(
 
   Logical. When `TRUE` (default), posterior samples are drawn using the
   copula method with the fitted marginals (e.g. skew-normal or
-  asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
-  samples are drawn from the Gaussian (Laplace) approximation. Only re
+  asymmetric Gaussian). When `FALSE`, samples are drawn from the
+  Gaussian (Laplace) approximation.
+
+- samp_norta:
+
+  Logical. When `TRUE`, the latent correlation matrix of the skew-normal
+  copula is adjusted by the NORmal-To-Anything (NORTA) scheme of Cario
+  and Nelson (1997) so that the Pearson correlations of the copula draws
+  match those of the Laplace approximation after the nonlinear quantile
+  transform. The adjustment never changes a marginal; it affects only
+  summaries that involve several parameters at once, and in practice
+  moves the correlations very little. Default `FALSE`. Only used when
+  `samp_copula = TRUE` and `marginal_method = "skewnorm"`.
 
 - cov_as_cor:
 
@@ -289,23 +301,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [273ms]
+#> ✔ Posterior mode and Hessian. [262ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [436ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [405ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 18/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.3s]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [265ms]
+#> ⠹ Fitting 21/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [2.4s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [354ms]
+#> ✔ Summarise 1000 posterior draws. [342ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.1.9011 ended normally after 82 iterations
+#> INLAvaan 0.3.1.9012 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -350,16 +359,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.654    0.384   -0.038    1.471    0.003       beta(1,1)
+#>    .y5                0.654    0.384   -0.038    1.472    0.003       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                1.438    0.706    0.137    2.909    0.007       beta(1,1)
-#>    .y6                2.233    0.741    0.884    3.795    0.012       beta(1,1)
+#>    .y4                1.438    0.706    0.137    2.911    0.007       beta(1,1)
+#>    .y6                2.233    0.742    0.883    3.796    0.012       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.856    0.641   -0.332    2.185    0.006       beta(1,1)
+#>    .y7                0.857    0.641   -0.331    2.186    0.006       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.397    0.468   -0.477    1.360    0.004       beta(1,1)
+#>    .y8                0.397    0.468   -0.476    1.361    0.004       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                1.362    0.594    0.290    2.622    0.005       beta(1,1)
+#>    .y8                1.362    0.594    0.290    2.624    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

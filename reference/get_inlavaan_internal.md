@@ -56,12 +56,12 @@ int <- get_inlavaan_internal(fit)
 names(int)
 #>  [1] "coefficients"     "mloglik"          "DIC"              "summary"         
 #>  [5] "ppp"              "loo"              "waic"             "test"            
-#>  [9] "optim_method"     "marginal_method"  "samp_copula"      "theta_star_novbc"
-#> [13] "theta_star"       "Sigma_theta"      "R_star"           "vcov_x"          
-#> [17] "theta_star_trans" "approx_data"      "nsamp"            "pdf_data"        
-#> [21] "partable"         "lavmodel"         "lavsamplestats"   "lavdata"         
-#> [25] "opt"              "timing"           "visual_debug"     "vb"              
-#> [29] "call"             "version"         
+#>  [9] "optim_method"     "marginal_method"  "samp_copula"      "samp_norta"      
+#> [13] "theta_star_novbc" "theta_star"       "Sigma_theta"      "R_star"          
+#> [17] "vcov_x"           "theta_star_trans" "approx_data"      "nsamp"           
+#> [21] "pdf_data"         "partable"         "lavmodel"         "lavsamplestats"  
+#> [25] "lavdata"          "opt"              "timing"           "visual_debug"    
+#> [29] "vb"               "call"             "version"         
 
 # Extract a specific element
 get_inlavaan_internal(fit, "coefficients")

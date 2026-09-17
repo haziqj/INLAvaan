@@ -16,6 +16,7 @@ acfa(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
@@ -125,8 +126,19 @@ acfa(
 
   Logical. When `TRUE` (default), posterior samples are drawn using the
   copula method with the fitted marginals (e.g. skew-normal or
-  asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
-  samples are drawn from the Gaussian (Laplace) approximation. Only re
+  asymmetric Gaussian). When `FALSE`, samples are drawn from the
+  Gaussian (Laplace) approximation.
+
+- samp_norta:
+
+  Logical. When `TRUE`, the latent correlation matrix of the skew-normal
+  copula is adjusted by the NORmal-To-Anything (NORTA) scheme of Cario
+  and Nelson (1997) so that the Pearson correlations of the copula draws
+  match those of the Laplace approximation after the nonlinear quantile
+  transform. The adjustment never changes a marginal; it affects only
+  summaries that involve several parameters at once, and in practice
+  moves the correlations very little. Default `FALSE`. Only used when
+  `samp_copula = TRUE` and `marginal_method = "skewnorm"`.
 
 - cov_as_cor:
 
@@ -277,24 +289,21 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [155ms]
+#> ✔ Posterior mode and Hessian. [158ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [263ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [525ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 5/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [990ms]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [153ms]
+#> ⠹ Fitting 7/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [978ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [78ms]
+#> ✔ Summarise 100 posterior draws. [91ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.1.9011 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9012 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -309,8 +318,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.662 
-#>    Effective parameters (pD)                    20.748 
+#>    Deviance (DIC)                             7552.656 
+#>    Effective parameters (pD)                    20.745 
 #> 
 #> Parameter Estimates:
 #> 

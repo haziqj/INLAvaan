@@ -39,23 +39,20 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [314ms]
+#> ✔ Posterior mode and Hessian. [321ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.032σ. [370ms]
+#> ✔ VB correction; mean |δ| = 0.032σ. [375ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.2s]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [94ms]
+#> ✔ Fit 17/17 skew-normal marginals. [1.3s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [173ms]
+#> ✔ Summarise 100 posterior draws. [164ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.1.9011 ended normally after 83 iterations
+#> INLAvaan 0.3.1.9012 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -66,12 +63,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2565.885 
-#>    PPP (Chi-square)                              0.950 
+#>    PPP (Chi-square)                              0.960 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4995.778 
-#>    Effective parameters (pD)                    16.721 
+#>    Deviance (DIC)                             4997.137 
+#>    Effective parameters (pD)                    17.401 
 #> 
 #> Parameter Estimates:
 #> 
@@ -111,7 +108,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.075    0.040   -0.005    0.154    0.006       beta(1,1)
+#>    .s                 0.074    0.041   -0.006    0.153    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

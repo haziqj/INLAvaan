@@ -110,19 +110,16 @@ single-observation draws from the predictive distribution
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [82ms]
+#> ✔ Posterior mode and Hessian. [51ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [266ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [258ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [126ms]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [21ms]
+#> ✔ Fit 6/6 skew-normal marginals. [117ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [494ms]
+#> ✔ Summarise 1000 posterior draws. [481ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -130,22 +127,22 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 sims <- simulate(fit, nsim = 1)
 head(sims[[1]])                    # data frame
 #>         x1       x2       x3
-#> 1 3.743224 6.286438 1.939401
-#> 2 4.127640 3.388817 1.124473
-#> 3 5.170055 6.310140 1.503733
-#> 4 3.825113 4.549455 2.826727
-#> 5 4.142293 5.794321 2.650404
-#> 6 6.442781 6.252439 3.566194
+#> 1 4.874311 7.175988 2.952320
+#> 2 7.431747 5.987174 4.074055
+#> 3 5.427319 6.513878 1.734391
+#> 4 5.365032 5.758307 4.200700
+#> 5 4.738655 6.262219 3.183317
+#> 6 4.160777 4.456732 1.523877
 attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>      0.6373449      0.7132554      0.5960884      0.9044017      0.9249321 
+#>      0.6373449      0.7132519      0.5971695      0.9042445      0.9238094 
 #> visual~~visual 
-#>      0.7572526 
+#>      0.7586431 
 attr(sims[[1]], "truth_theta")     # corresponding unconstrained (theta-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>     0.63734493     0.71325538    -0.51736634    -0.10048167    -0.07803498 
+#>      0.6373449      0.7132519     -0.5155544     -0.1006555     -0.0792495 
 #> visual~~visual 
-#>    -0.27805834 
+#>     -0.2762238 
 
 # Simulate from the prior (e.g., for SBC)
 sims_prior <- simulate(fit, nsim = 5, prior = TRUE)

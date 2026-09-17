@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9011</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9012</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,26 +130,23 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [276ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [290ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.190σ. [837ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.190σ. [857ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 15/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.5s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [299ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 13/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [984ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="va">fit1</span><span class="op">@</span><span class="va">Data</span><span class="op">@</span><span class="va">nobs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.1.9011 ended normally after 71 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1.9012 ended normally after 71 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -161,14 +158,14 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                    -818.305 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.506</span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.509</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit1</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 </span></span>
 <span><span class="co">#&gt;        1.808        1.750        0.943        0.805        1.472        1.061 </span></span>
 <span><span class="co">#&gt;    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 </span></span>
-<span><span class="co">#&gt;        0.721        1.354        0.913        0.567        1.080        0.469 </span></span>
+<span><span class="co">#&gt;        0.721        1.354        0.913        0.567        1.080        0.470 </span></span>
 <span><span class="co">#&gt;       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 </span></span>
-<span><span class="co">#&gt;        1.844        3.596        0.607       -0.669        1.283        0.071 </span></span>
+<span><span class="co">#&gt;        1.844        3.596        0.607       -0.668        1.283        0.071 </span></span>
 <span><span class="co">#&gt;       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 </span></span>
 <span><span class="co">#&gt;        0.144        0.424        1.698        7.790        4.086        2.786 </span></span>
 <span><span class="co">#&gt;       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 </span></span>
@@ -185,15 +182,15 @@
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [550ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [577ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.154σ. [1.5s]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.154σ. [1.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 8/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 27/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [4.8s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 7/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 26/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [5.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
@@ -223,15 +220,12 @@
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
 <span><span class="co">#&gt; Warning in sqrt(Vx): NaNs produced</span></span>
-<span><span class="co">#&gt; ℹ Adjusting copula correlations (NORTA).</span></span>
-<span><span class="co">#&gt; ✔ Adjust copula correlations (NORTA). [322ms]</span></span>
-<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [741ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [747ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.1.9011 ended normally after 91 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.1.9012 ended normally after 91 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
