@@ -12,6 +12,10 @@ show_inlavaan <- function(object) {
   tmp$test <- NULL
   garb <- capture.output(tmp)
   garb <- gsub("lavaan", "INLAvaan", garb)
+  if (is.null(inlavaan_version)) {
+    # Fits saved by older versions did not record the package version.
+    inlavaan_version <- as.character(utils::packageVersion("INLAvaan"))
+  }
   garb <- gsub(lavaan_version, inlavaan_version, garb, fixed = TRUE)
   cat(paste0(garb, collapse = "\n"))
   cat("\n\n")

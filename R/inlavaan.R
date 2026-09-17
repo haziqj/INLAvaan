@@ -60,8 +60,16 @@
 #'   (including posterior sampling for model fit indices).
 #' @param samp_copula Logical. When `TRUE` (default), posterior samples are
 #'   drawn using the copula method with the fitted marginals (e.g. skew-normal
-#'   or asymmetric Gaussian), with NORTA correlation adjustment. When `FALSE`,
-#'   samples are drawn from the Gaussian (Laplace) approximation. Only re
+#'   or asymmetric Gaussian). When `FALSE`, samples are drawn from the
+#'   Gaussian (Laplace) approximation.
+#' @param samp_norta Logical. When `TRUE`, the latent correlation matrix of
+#'   the skew-normal copula is adjusted by the NORmal-To-Anything (NORTA)
+#'   scheme of Cario and Nelson (1997) so that the Pearson correlations of
+#'   the copula draws match those of the Laplace approximation after the
+#'   nonlinear quantile transform. The adjustment never changes a marginal;
+#'   it affects only summaries that involve several parameters at once, and
+#'   in practice moves the correlations very little. Default `FALSE`. Only
+#'   used when `samp_copula = TRUE` and `marginal_method = "skewnorm"`.
 #' @param cov_as_cor Logical. Residual and latent-disturbance covariance
 #'   parameters (`~~` between two observed or two latent variables) are
 #'   always estimated on the correlation scale internally (an `atanh` link,
@@ -152,6 +160,7 @@ inlavaan <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
@@ -925,7 +934,9 @@ inlavaan <- function(
 
   ## ----- NORTA adjustment for SN copula sampling ----------------------------
   R_star <- NULL
-  if (marginal_method == "skewnorm" && isTRUE(samp_copula)) {
+  if (
+    marginal_method == "skewnorm" && isTRUE(samp_copula) && isTRUE(samp_norta)
+  ) {
     if (isTRUE(verbose)) {
       cli_progress_step(
         "Adjusting copula correlations (NORTA).",
@@ -1218,6 +1229,7 @@ inlavaan <- function(
     optim_method = optim_method,
     marginal_method = marginal_method,
     samp_copula = samp_copula,
+    samp_norta = samp_norta,
     theta_star_novbc = as.numeric(theta_star),
     theta_star = as.numeric(theta_star_vbc),
     Sigma_theta = Sigma_theta,
@@ -1286,6 +1298,7 @@ acfa <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
@@ -1340,6 +1353,7 @@ asem <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
@@ -1392,6 +1406,7 @@ agrowth <- function(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,

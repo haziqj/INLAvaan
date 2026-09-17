@@ -143,9 +143,10 @@ test_that("predict() passes R_star and honours the fit's samp_copula", {
 
   fit_sn <- acfa(mod, dat, verbose = FALSE, nsamp = NSAMP,
                  vb_correction = FALSE, test = "none",
-                 marginal_method = "skewnorm")
+                 marginal_method = "skewnorm", samp_norta = TRUE)
   int_sn <- get_inlavaan_internal(fit_sn)
   expect_false(is.null(int_sn$R_star))
+  expect_true(isTRUE(int_sn$samp_norta))
 
   args <- NULL
   predict(fit_sn, nsamp = NSAMP)

@@ -82,6 +82,14 @@
 
 ## New features
 
+* New `samp_norta` argument to `inlavaan()`, `acfa()`, `asem()` and
+  `agrowth()` switches the NORTA correlation adjustment of the skew-normal
+  copula on and off independently of `samp_copula`. It defaults to `FALSE`:
+  the adjustment leaves every marginal untouched and, on the benchmark
+  models, moves no correlation by more than 0.01, so it is now opt-in. The
+  setting is recorded on the fit and inherited by `predict()` through the
+  stored `R_star`.
+
 * The `test` argument of `inlavaan()`, `acfa()`, `asem()` and `agrowth()`
   now names the post-estimation quantities to compute, as a set. The atoms
   are `"ppp"`, `"dic"`, `"loo"` and `"waic"`; `"standard"` (and its synonym

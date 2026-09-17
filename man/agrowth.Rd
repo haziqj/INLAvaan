@@ -15,6 +15,7 @@ agrowth(
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
   samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
   sn_fit_ngrid = 21,
   sn_fit_logthresh = -6,
@@ -91,8 +92,17 @@ and \code{"none"} (or \code{FALSE}) applies no correction.}
 
 \item{samp_copula}{Logical. When \code{TRUE} (default), posterior samples are
 drawn using the copula method with the fitted marginals (e.g. skew-normal
-or asymmetric Gaussian), with NORTA correlation adjustment. When \code{FALSE},
-samples are drawn from the Gaussian (Laplace) approximation. Only re}
+or asymmetric Gaussian). When \code{FALSE}, samples are drawn from the
+Gaussian (Laplace) approximation.}
+
+\item{samp_norta}{Logical. When \code{TRUE}, the latent correlation matrix of
+the skew-normal copula is adjusted by the NORmal-To-Anything (NORTA)
+scheme of Cario and Nelson (1997) so that the Pearson correlations of
+the copula draws match those of the Laplace approximation after the
+nonlinear quantile transform. The adjustment never changes a marginal;
+it affects only summaries that involve several parameters at once, and
+in practice moves the correlations very little. Default \code{FALSE}. Only
+used when \code{samp_copula = TRUE} and \code{marginal_method = "skewnorm"}.}
 
 \item{cov_as_cor}{Logical. Residual and latent-disturbance covariance
 parameters (\verb{~~} between two observed or two latent variables) are
