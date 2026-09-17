@@ -82,6 +82,27 @@
 
 ## New features
 
+* `diagnostics()` reports three more global quantities and two more
+  per-parameter ones. `hess_min_eig` is the smallest eigenvalue of the
+  Hessian at the mode, the companion to `hess_cond` that carries the scale
+  of the parameters; `vb_shift_max` is the largest VB mean correction in
+  posterior-SD units, previously available only as the maximum of the
+  per-parameter table; and `scan_end_mass_max` is the largest of the new
+  per-parameter `scan_end_mass`. The per-parameter table also gains
+  `alpha`, the fitted skew-normal shape.
+
+* `scan_end_mass` is the probability the fitted skew-normal marginal puts
+  outside the window that was scanned to fit it, four posterior SDs either
+  side of the mode. The marginal is fitted inside that window only, so
+  whatever it puts outside is extrapolation, which makes a parameter's
+  credible limits the first thing to distrust when the value is large. A
+  Gaussian marginal scores 6.3e-05 and healthy fits sit between 1e-03 and
+  1e-02. The fit-time check now warns, naming up to three offenders, when
+  any parameter exceeds 0.05. With the VB shift and the NMAD it completes
+  the set of three diagnostics with simulation evidence behind them. Both
+  columns are `NA` unless `marginal_method = "skewnorm"`, and the check is
+  closed-form (Owen's T on fixed Gauss-Legendre nodes), so it costs nothing.
+
 * New `samp_norta` argument to `inlavaan()`, `acfa()`, `asem()` and
   `agrowth()` switches the NORTA correlation adjustment of the skew-normal
   copula on and off independently of `samp_copula`. It defaults to `FALSE`:
