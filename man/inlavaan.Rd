@@ -73,7 +73,10 @@ warning and the rest of the fit proceeds. The fit records what was
 requested and what was computed (\code{get_inlavaan_internal(fit, "test")});
 \code{\link[=summary]{summary()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
 report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO and WAIC
-post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand.}
+post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand. For a random-slope
+model \code{"ppp"} is dropped, with a message saying why (see the Random
+slopes section of \code{\link[=inlavaan]{inlavaan()}}); \code{"dic"}, \code{"loo"} and \code{"waic"} are
+unaffected.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
@@ -222,6 +225,92 @@ reports the realised error per fit as \code{vb_mcse_sigma} per parameter and
 \code{vb_method = "gauss_hermite"} removes the random node set altogether; see
 the \code{vb_method} argument.
 }
+\section{Random slopes}{
+
+Wrapping a level-1 regression coefficient in lavaan's \code{rv()} modifier
+turns it into a level-2 latent variable -- a random slope -- which can
+then be given a mean, a variance and cross-level regressions like any
+other level-2 latent variable:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{level: 1
+  fw =~ y1 + y2 + y3
+  fw ~ rv('s1')*x1
+level: 2
+  fb =~ y1 + y2 + y3
+  s1 ~ w1
+  s1 ~~ s1
+  s1 ~ 1
+}\if{html}{\out{</div>}}
+
+The slope's variance and intercept are added automatically, so in
+practice only the cross-level regression \code{s1 ~ w1} need be written out.
+\code{\link[=summary]{summary()}} marks the level-1 carrier row as \code{x1 (s1)}: that row is
+fixed at zero, the slope itself being reported under Level 2.
+
+The likelihood takes one of two routes. When the covariate carrying the
+slope is observed and purely within-cluster, the slope integrates out in
+closed form. When it is latent, or split across both levels (the same
+variable entering at level 1 and at level 2), the integral is done by
+Gauss-Hermite quadrature instead; that route warns at fit time and is
+governed by \code{integration.ngh}, passed through to lavaan. The node count
+is an accuracy setting as much as a cost setting, so give every fit that
+is to be compared with another the same \code{integration.ngh}.
+
+Random slopes require \code{fixed.x = TRUE} (the default): the likelihood is
+the density of the outcomes \emph{given} the exogenous covariates, so the
+covariates' own means and (co)variances are unidentified and would be
+reported back as their priors. A \code{fixed.x = FALSE} fit is refused.
+
+A random-slope model implies no single within-cluster covariance matrix
+-- the covariance of the outcomes depends on the covariate values -- so
+everything resting on a comparison with one aborts with an explanation
+rather than returning a plausible wrong number:
+\itemize{
+\item the posterior predictive p-value (\code{test = "ppp"}) and the Bayesian
+fit indices from \code{\link[=bfit_indices]{bfit_indices()}} (BRMSEA, BGammaHat, adjBGammaHat,
+BMc), which are built on a chi-square against a saturated
+log-likelihood that is on a different scale here;
+\item \code{\link[=fitted]{fitted()}} and \code{\link[=residuals]{residuals()}}, whose implied moments silently drop
+the slope variance and would report it as misfit;
+\item \code{\link[=simulate]{simulate()}}, lavaan having no random-slope data generator;
+\item \code{\link[=predict]{predict()}} for anything but \code{type = "lv"};
+\item \code{loo(type = "loso")}, which would need a cluster's sufficient
+statistics downdated by one row, something the random-slope kernel
+has no analogue for.
+}
+
+The model-comparison side works throughout. \code{\link[=compare]{compare()}} reports the
+marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}; \code{\link[=loo]{loo()}}
+and \code{\link[=waic]{waic()}} score the fit leave-one-cluster-out on the conditional
+likelihood; \code{predict(type = "lv", level = 2)} returns the cluster-level
+slopes alongside the other level-2 latent variables; and \code{\link[=fitmeasures]{fitmeasures()}}
+keeps \code{npar}, \code{margloglik}, \code{dic} and \code{p_dic}.
+
+To ask whether there is a random slope at all, compare the fit with one
+in which the slope variance is fixed at zero, \code{s1 ~~ 0*s1}, \emph{and} any
+cross-level regression on the slope is dropped. That model has the same
+log-likelihood and the same number of parameters as the plain
+fixed-slope model (\code{fw ~ x1} at level 1, \code{fb ~ w1} at level 2) and
+conditions on the same covariates. Keeping \code{s1 ~ w1} while fixing
+\code{s1 ~~ 0*s1} gives a third, intermediate model -- a cross-level
+interaction with a deterministic cluster-varying slope -- which is
+equally a member of the comparison. The plain fixed-slope model may also
+be used directly whenever it conditions on the same covariates
+(\code{\link[=compare]{compare()}} checks), and it fits far faster.
+
+One caveat at the boundary. When the data carry no slope variation, the
+marginal posterior of the slope variance piles up against zero and is
+strongly asymmetric, with an exponential-like left tail on the log
+scale. The skew-normal family used for the marginals cannot follow such
+a tail, so its 95\% interval holds somewhat less than 95\% of the
+posterior mass there; the posterior mean and the upper limit are
+affected in the third decimal, and the qualitative reading -- the
+interval reaches zero, so the data do not support slope variation -- is
+not. This is a property of parametric marginals at a boundary rather
+than of random slopes, and INLAvaan's fit \code{\link[=diagnostics]{diagnostics()}} are the
+safeguard.
+}
+
 \examples{
 # The Holzinger and Swineford (1939) example
 HS.model <- "

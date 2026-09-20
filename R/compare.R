@@ -52,6 +52,19 @@
 #' results (`test` including `"loo"` or `"full"`, or [add_loo()]) are
 #' reused.
 #'
+#' When any of the models has random slopes (lavaan's `rv()` modifier; see
+#' [inlavaan()]), its marginal log-likelihood and DIC are densities of the
+#' outcomes *given* the exogenous covariates, so a table of such fits says
+#' something only when every fit conditions in the same way. `compare()`
+#' therefore aborts unless all the models were fitted with
+#' `fixed.x = TRUE`, all condition on the same covariates, and all
+#' Gauss-Hermite fits share one `integration.ngh`: a Bayes factor between
+#' quantities on different scales is not a weaker statement but a
+#' meaningless one. To test the slope itself, keep the covariates and fix
+#' the variance instead -- `s1 ~~ 0*s1`, with any cross-level regression on
+#' the slope dropped, is the exact fixed-slope comparator. Comparisons of
+#' ordinary fits are untouched.
+#'
 #' `anova()` is disabled for `INLAvaan` fits -- there is no direct Bayesian
 #' analogue of the classical likelihood-ratio test -- and points here instead.
 #'

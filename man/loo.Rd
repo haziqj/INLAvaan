@@ -56,7 +56,9 @@ see Details).}
 
 \item{units}{Optional integer vector of unit indices to score; defaults
 to all units. For LOSO these are case numbers (row numbers of the
-analysed dataset); for LOCO, cluster positions.}
+analysed dataset); for LOCO, cluster positions. For a random-slope fit
+the per-cluster kernels return every cluster on each call, so this
+trims the reported table rather than the work.}
 
 \item{second_order}{Logical; compute the second-order correction
 (default \code{TRUE}). \code{FALSE} skips the Hessian stage and reports
@@ -176,6 +178,15 @@ covariates, i.e. joint under \code{fixed.x = FALSE}, conditional under
 \code{fixed.x = TRUE} (recorded as \code{"joint"} or \code{"conditional"} in the result's
 \code{flavour} field), and the two flavours are never comparable (\code{\link[=compare]{compare()}}
 refuses to mix them).
+
+A random-slope fit (lavaan's \code{rv()} modifier; see \code{\link[=inlavaan]{inlavaan()}}) is always
+scored leave-one-cluster-out, on lavaan's own per-cluster random-slope
+kernels. Those kernels are conditional on the exogenous covariates by
+construction, so \code{flavour} is \code{"conditional"} for such a fit, and
+\code{type = "loso"} is unavailable: deleting a single row would need a
+cluster's sufficient statistics downdated by one row, which the
+random-slope kernel has no analogue for. The Gauss-Hermite route warns
+here as it does at fit time.
 
 Supplying \code{theta}/\code{Omega} evaluates the LOO at an arbitrary Gaussian
 posterior summary (a singular \code{Omega} is restricted to its non-degenerate

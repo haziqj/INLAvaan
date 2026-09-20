@@ -56,6 +56,15 @@
 #' `flavour` field), and the two flavours are never comparable ([compare()]
 #' refuses to mix them).
 #'
+#' A random-slope fit (lavaan's `rv()` modifier; see [inlavaan()]) is always
+#' scored leave-one-cluster-out, on lavaan's own per-cluster random-slope
+#' kernels. Those kernels are conditional on the exogenous covariates by
+#' construction, so `flavour` is `"conditional"` for such a fit, and
+#' `type = "loso"` is unavailable: deleting a single row would need a
+#' cluster's sufficient statistics downdated by one row, which the
+#' random-slope kernel has no analogue for. The Gauss-Hermite route warns
+#' here as it does at fit time.
+#'
 #' Supplying `theta`/`Omega` evaluates the LOO at an arbitrary Gaussian
 #' posterior summary (a singular `Omega` is restricted to its non-degenerate
 #' block), the building block for refit-free submodel scoring. `Sigma` is
@@ -83,7 +92,9 @@
 #'   see Details).
 #' @param units Optional integer vector of unit indices to score; defaults
 #'   to all units. For LOSO these are case numbers (row numbers of the
-#'   analysed dataset); for LOCO, cluster positions.
+#'   analysed dataset); for LOCO, cluster positions. For a random-slope fit
+#'   the per-cluster kernels return every cluster on each call, so this
+#'   trims the reported table rather than the work.
 #' @param second_order Logical; compute the second-order correction
 #'   (default `TRUE`). `FALSE` skips the Hessian stage and reports
 #'   first-order estimates, which cannot be compared across models of
