@@ -30,14 +30,24 @@ parameters. Returns an \code{nsamp} by \code{npar} matrix.}
 Returns an \code{nsamp} by \code{npar} matrix.}
 \item{\code{"latent"}}{Latent variables from the model-implied
 distribution. Returns an \code{nsamp} by \code{nlv} matrix (one draw per
-posterior sample, not tied to any individual).}
+posterior sample, not tied to any individual). For two-level
+models the matrix holds the within- \emph{and} between-level latent
+variables, the level-2 columns carrying the \code{.l2} suffix when the
+same latent variable also exists at level 1.}
 \item{\code{"observed"}}{Observed variables generated from the full
-model. Returns an \code{nsamp} by \code{nobs_vars} matrix.}
+model. Returns an \code{nsamp} by \code{nobs_vars} matrix. For two-level
+models each row is a draw from the two-level generative model,
+\eqn{\mathbf{y} = \mathbf{y}^B + \mathbf{y}^W}: variables that
+live at both levels sum their between- and within-level draws,
+and within-only or between-only variables take the single level
+available to them.}
 \item{\code{"implied"}}{Model-implied moments. Returns a length-\code{nsamp}
 list, each element a list with \code{cov} (model-implied covariance
 matrix) and, when \code{meanstructure = TRUE}, \code{mean} (model-implied
 mean vector). For multi-group models each element is itself a
-list of groups.}
+list of groups. For two-level models each element is a list with
+a \code{within} and a \code{cluster} block, each holding a \code{cov} and a
+\code{mean}, as \code{\link[lavaan:lavInspect]{lavaan::lavInspect()}} reports them.}
 \item{\code{"all"}}{A named list with elements \code{lavaan}, \code{theta},
 \code{latent}, \code{observed}, and \code{implied}.}
 }}

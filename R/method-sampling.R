@@ -34,14 +34,24 @@
 #'       Returns an `nsamp` by `npar` matrix.}
 #'     \item{`"latent"`}{Latent variables from the model-implied
 #'       distribution. Returns an `nsamp` by `nlv` matrix (one draw per
-#'       posterior sample, not tied to any individual).}
+#'       posterior sample, not tied to any individual). For two-level
+#'       models the matrix holds the within- *and* between-level latent
+#'       variables, the level-2 columns carrying the `.l2` suffix when the
+#'       same latent variable also exists at level 1.}
 #'     \item{`"observed"`}{Observed variables generated from the full
-#'       model. Returns an `nsamp` by `nobs_vars` matrix.}
+#'       model. Returns an `nsamp` by `nobs_vars` matrix. For two-level
+#'       models each row is a draw from the two-level generative model,
+#'       \eqn{\mathbf{y} = \mathbf{y}^B + \mathbf{y}^W}: variables that
+#'       live at both levels sum their between- and within-level draws,
+#'       and within-only or between-only variables take the single level
+#'       available to them.}
 #'     \item{`"implied"`}{Model-implied moments. Returns a length-`nsamp`
 #'       list, each element a list with `cov` (model-implied covariance
 #'       matrix) and, when `meanstructure = TRUE`, `mean` (model-implied
 #'       mean vector). For multi-group models each element is itself a
-#'       list of groups.}
+#'       list of groups. For two-level models each element is a list with
+#'       a `within` and a `cluster` block, each holding a `cov` and a
+#'       `mean`, as [lavaan::lavInspect()] reports them.}
 #'     \item{`"all"`}{A named list with elements `lavaan`, `theta`,
 #'       `latent`, `observed`, and `implied`.}
 #'   }
