@@ -261,6 +261,14 @@ the density of the outcomes \emph{given} the exogenous covariates, so the
 covariates' own means and (co)variances are unidentified and would be
 reported back as their priors. A \code{fixed.x = FALSE} fit is refused.
 
+Equality constraints are supported among parameters that share a
+transformation: loadings, regressions and intercepts may be tied to one
+another, and variances to one another. A constraint that mixes the two,
+or that ties a covariance, is refused -- lavaan returns the random-slope
+gradient summed over the constrained parameters, and that sum can only
+be split back exactly when every parameter in the group is on the same
+scale.
+
 A random-slope model implies no single within-cluster covariance matrix
 -- the covariance of the outcomes depends on the covariate values -- so
 everything resting on a comparison with one aborts with an explanation

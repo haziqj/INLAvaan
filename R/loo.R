@@ -503,6 +503,11 @@ loco_rs_scores_theta <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
   }
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, cache$x)
   G_x <- lavaan___lav_mvn_cl_rs_scores(lavmodel = lavmodel_x, rs = rs)
+  # lavaan scores the packed free parameters here, one column per equality
+  # group, while the chain rule works one column per free partable row
+  if (rs_grad_is_packed(ncol(G_x), lavmodel)) {
+    G_x <- rs_unpack_grad(G_x, lavmodel)
+  }
   loo_chain_rule(G_x[units, , drop = FALSE], cache)
 }
 

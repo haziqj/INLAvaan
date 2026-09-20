@@ -336,3 +336,254 @@ test_that("Random slopes: comparing quadrature fits needs one node count", {
   expect_named(cmp, c("Model", "npar", "Marg.Loglik", "logBF"))
   expect_equal(diff(cmp$Marg.Loglik), 0, tolerance = 1e-4)
 })
+
+## ----- Equality constraints --------------------------------------------------
+# lavaan builds the random-slope gradient from the packed free parameters,
+# one entry per equality group, where every other model returns one entry
+# per free partable row. A constrained fit used to mismatch the chain rule
+# row by row -- recycling warnings all the way into a failed Cholesky
+# factorisation -- so these fits are the regression test for the scatter in
+# rs_unpack_grad().
+mod_ceq <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ rv('s1')*x1
+  level: 2
+    fb =~ y1 + c*y2 + c*y3
+    fb ~ w1
+    s1 ~ w1
+"
+fit_ceq <- NULL
+
+# The log-likelihood and its gradient in the theta space the optimiser
+# works in, assembled exactly as joint_lp()/joint_lp_grad() assemble them
+# but without the priors
+ceq_theta_loglik <- function(int, opts, pars) {
+  x <- pars_to_x(as.numeric(int$lavmodel@ceq.simple.K %*% pars), int$partable)
+  inlav_model_loglik(
+    x,
+    int$lavmodel,
+    int$lavsamplestats,
+    int$lavdata,
+    opts,
+    int$lavcache
+  )
+}
+
+ceq_theta_grad <- function(int, pars) {
+  pt <- int$partable
+  pars_unpacked <- as.numeric(int$lavmodel@ceq.simple.K %*% pars)
+  x <- pars_to_x(pars_unpacked, pt)
+  jcb <- mapply(function(f, z) f(z), pt$ginv_prime[pt$free > 0], pars_unpacked)
+  gll <- inlav_model_grad(
+    x,
+    int$lavmodel,
+    int$lavsamplestats,
+    int$lavdata,
+    int$lavcache
+  )
+  out <- jcb * attr(x, "sd1sd2") * gll
+  jcb_mat <- attr(x, "jcb_mat")
+  if (!is.null(jcb_mat)) {
+    jcb_mat <- rbind(jcb_mat)
+    for (k in seq_len(nrow(jcb_mat))) {
+      i <- jcb_mat[k, 1]
+      out[i] <- out[i] + jcb_mat[k, 3] * gll[jcb_mat[k, 2]]
+    }
+  }
+  as.numeric(out %*% int$lavmodel@ceq.simple.K)
+}
+
+test_that("Random slopes: a cross-level equality constraint fits", {
+  expect_no_warning(
+    fit_ceq <<- asem(
+      mod_ceq,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      nsamp = 3
+    )
+  )
+
+  fit_ceq_lav <- suppressWarnings(
+    lavaan::sem(mod_ceq, d_rs, cluster = "cluster")
+  )
+  keep <- setdiff(names(coef(fit_ceq_lav)), "s1~~s1.l2")
+  expect_equal(coef(fit_ceq)[keep], coef(fit_ceq_lav)[keep], tolerance = 0.15)
+})
+
+test_that("Random slopes: the constrained gradient is the exact one", {
+  int <- get_inlavaan_internal(fit_ceq)
+  opts <- fit_ceq@Options
+  opts$estimator <- "ML"
+  theta <- int$theta_star
+
+  g_an <- ceq_theta_grad(int, theta)
+  h <- 1e-5
+  g_fd <- vapply(
+    seq_along(theta),
+    function(k) {
+      th_up <- th_dn <- theta
+      th_up[k] <- th_up[k] + h
+      th_dn[k] <- th_dn[k] - h
+      (ceq_theta_loglik(int, opts, th_up) -
+        ceq_theta_loglik(int, opts, th_dn)) /
+        (2 * h)
+    },
+    numeric(1)
+  )
+  expect_length(g_an, length(theta))
+  expect_lt(max(abs(g_an - g_fd) / pmax(abs(g_fd), 1)), 1e-5)
+})
+
+test_that("Random slopes: LOCO carries the constraint too", {
+  int <- get_inlavaan_internal(fit_ceq)
+  spec <- rs_spec(int)
+  opts <- fit_ceq@Options
+  opts$estimator <- "ML"
+  theta <- int$theta_star
+
+  res_ceq <- loo(fit_ceq)
+  expect_equal(res_ceq$n_units, 24L)
+  expect_equal(
+    sum(res_ceq$per_unit$l_star),
+    ceq_theta_loglik(int, opts, theta),
+    tolerance = 1e-6
+  )
+
+  units <- 1:2
+  s_an <- loco_rs_scores_theta(
+    theta,
+    spec$rs,
+    int$lavmodel,
+    int$partable,
+    units
+  )
+  h <- 1e-5
+  s_fd <- vapply(
+    seq_along(theta),
+    function(k) {
+      th_up <- th_dn <- theta
+      th_up[k] <- th_up[k] + h
+      th_dn[k] <- th_dn[k] - h
+      (loco_rs_loglik_all(th_up, spec$rs, int$lavmodel, int$partable, units) -
+        loco_rs_loglik_all(th_dn, spec$rs, int$lavmodel, int$partable, units)) /
+        (2 * h)
+    },
+    numeric(length(units))
+  )
+  expect_equal(dim(s_an), dim(s_fd))
+  expect_lt(max(abs(s_an - s_fd) / pmax(abs(s_fd), 1)), 1e-5)
+})
+
+test_that("Random slopes: constrained variances and shared slope labels fit", {
+  # Two residual variances tied together: one group, all of it on the log
+  # scale, so the scatter is exact
+  mod_var <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+      y1 ~~ a*y1
+      y2 ~~ a*y2
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      s1 ~ w1
+  "
+  expect_no_warning(
+    fit_var <- asem(
+      mod_var,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      nsamp = 3
+    )
+  )
+  # One free parameter, reported once for each row it is tied to
+  a_vals <- coef(fit_var)[names(coef(fit_var)) == "a"]
+  expect_length(a_vals, 2L)
+  expect_equal(a_vals[[1L]], a_vals[[2L]])
+  expect_gt(a_vals[[1L]], 0)
+
+  # Two random slopes sharing one level-2 regression coefficient
+  mod_two <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1 + rv('s2')*x2
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      s1 ~ v*w1
+      s2 ~ v*w1
+  "
+  expect_no_warning(
+    fit_two <- asem(
+      mod_two,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      nsamp = 3
+    )
+  )
+  expect_setequal(rs_spec(get_inlavaan_internal(fit_two))$slopes, c("s1", "s2"))
+})
+
+test_that("Random slopes: an inexact equality group is refused", {
+  # A loading and a variance under one label: the two carry different
+  # transformations, so the group total cannot be split between them
+  mod_mix <- "
+    level: 1
+      fw =~ y1 + a*y2 + y3
+      fw ~ rv('s1')*x1
+      y1 ~~ a*y1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      s1 ~ w1
+  "
+  expect_error(
+    asem(
+      mod_mix,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3
+    ),
+    class = "inlavaan_rs_ceq"
+  )
+
+  # A covariance in the group: its Jacobian carries the two standard
+  # deviations, which differ from row to row
+  mod_cov <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      s1 ~ w1
+      fb ~~ a*s1
+      y1 ~~ a*y2
+  "
+  expect_error(
+    asem(
+      mod_cov,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3
+    ),
+    class = "inlavaan_rs_ceq"
+  )
+})

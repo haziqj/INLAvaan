@@ -190,6 +190,14 @@
 #' covariates' own means and (co)variances are unidentified and would be
 #' reported back as their priors. A `fixed.x = FALSE` fit is refused.
 #'
+#' Equality constraints are supported among parameters that share a
+#' transformation: loadings, regressions and intercepts may be tied to one
+#' another, and variances to one another. A constraint that mixes the two,
+#' or that ties a covariance, is refused -- lavaan returns the random-slope
+#' gradient summed over the constrained parameters, and that sum can only
+#' be split back exactly when every parameter in the group is on the same
+#' scale.
+#'
 #' A random-slope model implies no single within-cluster covariance matrix
 #' -- the covariance of the outcomes depends on the covariate values -- so
 #' everything resting on a comparison with one aborts with an explanation
@@ -369,6 +377,11 @@ inlavaan <- function(
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
 
+  # Partable. Built here rather than with the rest of the optimisation
+  # bookkeeping below because the random-slope checks read the
+  # transformation each free parameter carries.
+  pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
+
   ## ----- Random-slope checks -------------------------------------------------
   # A random-slope likelihood is a per-cluster kernel conditional on the
   # covariates, which rules out two things the rest of the pipeline would
@@ -423,10 +436,12 @@ inlavaan <- function(
     if (isTRUE(lavcache[[1L]]$rs$info$nl.flag)) {
       warn_rs_route_b(list(ngh = lavcache[[1L]]$rs$info$ngh))
     }
+    # Equality constraints lavaan's packed random-slope gradient cannot be
+    # redistributed over exactly (see rs_unpack_grad())
+    check_rs_ceq(pt, lavmodel)
   }
 
-  # Partable and check for equality constraints
-  pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
+  # Free parameters, always in the reduced space under equality constraints
   PTFREEIDX <- which(pt$free > 0L)
   if (isTRUE(ceq.simple)) {
     # Note: Always work in the reduced space

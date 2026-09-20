@@ -76,6 +76,14 @@ inlav_model_grad <- function(
     lavcache = lavcache
   )
 
+  # lavaan takes an early return for random-slope models and builds the
+  # gradient from the packed free parameters, one entry per equality group,
+  # where every other model returns one entry per free partable row. The
+  # chain rule downstream expects the unpacked convention.
+  if (rs_grad_is_packed(length(grad_F), lavmodel)) {
+    grad_F <- rs_unpack_grad(grad_F, lavmodel)
+  }
+
   out <-
     if (lavmodel@estimator == "ML") {
       -1 * lavsamplestats@ntotal * grad_F

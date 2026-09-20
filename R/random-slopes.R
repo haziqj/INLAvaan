@@ -37,6 +37,100 @@ rs_spec <- function(int) {
   )
 }
 
+# lavaan builds a random-slope derivative from the packed free parameters
+# (`lavmodel@nx.free`, one entry per equality group), where every other
+# model hands back one entry per free partable row (`lavmodel@nx.unco`,
+# with a duplicate for each further member of a group). INLAvaan's chain
+# rule works in that unpacked space -- it multiplies row u by
+# `jcb[u] * sd1sd2[u]`, adds the off-diagonal variance-into-covariance
+# terms, and only then repacks with `%*% K` -- so a packed random-slope
+# derivative is scattered back onto the first row of each group, leaving
+# the duplicates at zero. `g` is either a gradient vector or a matrix of
+# per-cluster scores with the parameters in its columns.
+#
+# The scatter is exact whenever `jcb * sd1sd2` is constant within a group,
+# because the repack sums the group again:
+#   sum_u jcb[u] * sd1sd2[u] * dl/dx_u = jcb[1] * sd1sd2[1] * sum_u dl/dx_u,
+# and `sum_u dl/dx_u` is exactly the packed element lavaan returns. The
+# factor is constant when every member carries the same transformation
+# (all identity, or all log with one shared value of theta) and none is a
+# covariance, whose `sd1sd2` differs from row to row and whose gradient is
+# read again by the off-diagonal terms. check_rs_ceq() refuses the rest at
+# fit time.
+rs_unpack_grad <- function(g, lavmodel) {
+  K <- lavmodel@ceq.simple.K
+  first <- apply(K, 2L, function(col) which(col != 0)[1L])
+  if (is.matrix(g)) {
+    out <- matrix(0, nrow = nrow(g), ncol = nrow(K))
+    out[, first] <- g
+  } else {
+    out <- numeric(nrow(K))
+    out[first] <- g
+  }
+  out
+}
+
+# Is a derivative lavaan just returned in the packed random-slope
+# convention? `n` is its length (a gradient) or its number of columns (a
+# score matrix).
+rs_grad_is_packed <- function(n, lavmodel) {
+  has_random_slopes(lavmodel) &&
+    lavmodel@nx.free < lavmodel@nx.unco &&
+    n == lavmodel@nx.free
+}
+
+# The transformation a free parameter is optimised under, in the three
+# classes partable_transform_funcs() distinguishes.
+rs_transform_class <- function(mat) {
+  out <- rep("identity", length(mat))
+  out[grepl("theta_var|psi_var", mat)] <- "log"
+  out[grepl("theta_cor|theta_cov|psi_cor|psi_cov", mat)] <- "atanh"
+  out
+}
+
+# Fit-time gate for the equality constraints rs_unpack_grad() cannot
+# redistribute exactly: a group whose members carry different
+# transformations, or one holding a covariance.
+check_rs_ceq <- function(pt, lavmodel) {
+  if (!isTRUE(lavmodel@ceq.simple.only)) {
+    return(invisible(NULL)) # nocov -- general constraints never reach here
+  }
+  free <- pt$free[pt$free > 0L]
+  groups <- unique(free[duplicated(free)])
+  if (length(groups) == 0L) {
+    return(invisible(NULL))
+  }
+  cls <- rs_transform_class(pt$mat)
+  bad <- vapply(
+    groups,
+    function(gr) {
+      k <- which(pt$free == gr)
+      length(unique(cls[k])) > 1L || any(cls[k] == "atanh")
+    },
+    logical(1)
+  )
+  if (!any(bad)) {
+    return(invisible(NULL))
+  }
+  rows <- which(pt$free %in% groups[bad])
+  bad_names <- unique(pt$names[rows])
+  cli_abort(
+    c(
+      "Random-slope models do not support this equality constraint:
+       {.val {bad_names}}.",
+      "x" = "{.pkg lavaan} returns the random-slope gradient summed over
+             the parameters a constraint ties together, and INLAvaan can
+             redistribute that sum exactly only when every parameter in
+             the group carries the same transformation and none of them is
+             a covariance.",
+      "i" = "Constrain loadings, regressions and intercepts among
+             themselves, or variances among themselves, or drop the
+             constraint."
+    ),
+    class = "inlavaan_rs_ceq"
+  )
+}
+
 # Gate for the moment-based methods. Both report a single model-implied
 # covariance matrix per level, which a random-slope model does not have.
 check_rs_moments <- function(object, fn) {
