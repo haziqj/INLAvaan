@@ -185,10 +185,13 @@
 #' is an accuracy setting as much as a cost setting, so give every fit that
 #' is to be compared with another the same `integration.ngh`.
 #'
-#' Random slopes require `fixed.x = TRUE` (the default): the likelihood is
-#' the density of the outcomes *given* the exogenous covariates, so the
-#' covariates' own means and (co)variances are unidentified and would be
-#' reported back as their priors. A `fixed.x = FALSE` fit is refused.
+#' A model with observed exogenous covariates requires `fixed.x = TRUE`
+#' (the default): the likelihood is the density of the outcomes *given*
+#' those covariates, so their own means and (co)variances are unidentified
+#' and would be reported back as their priors. A `fixed.x = FALSE` fit is
+#' refused. A model whose covariates are all latent or modelled has nothing
+#' to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own
+#' accord; such a fit is accepted as it stands.
 #'
 #' Equality constraints are supported among parameters that share a
 #' transformation: loadings, regressions and intercepts may be tied to one
@@ -388,14 +391,21 @@ inlavaan <- function(
   # otherwise do. Everything here is a no-op without an `rv()` modifier.
   rs_skipped <- character(0)
   if (has_random_slopes(lavmodel)) {
-    if (!isTRUE(lavmodel@fixed.x)) {
+    # lavaan reports `fixed.x = FALSE` of its own accord for a model with
+    # no observed exogenous variables at all -- a slope on a latent
+    # covariate, say -- so the slot alone would refuse such a fit over an
+    # argument the user never passed. The syntax-level set decides.
+    if (
+      !isTRUE(lavmodel@fixed.x) &&
+        length(lavaan::lavNames(lavpartable, "ov.x")) > 0L
+    ) {
       cli_abort(
         c(
           "Random-slope models require {.code fixed.x = TRUE}.",
           "x" = "The likelihood conditions on the exogenous covariates, so
                  their means and (co)variances are unidentified and would be
                  reported back as their priors.",
-          "i" = "Refit without {.code fixed.x = FALSE}."
+          "i" = "Refit with {.code fixed.x = TRUE}."
         ),
         class = "inlavaan_rs_fixedx"
       )

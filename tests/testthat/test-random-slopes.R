@@ -115,6 +115,43 @@ test_that("Random slopes: fixed.x = FALSE is refused", {
   )
 })
 
+test_that("Random slopes: a latent covariate keeps lavaan's own fixed.x", {
+  skip_on_cran()
+  # lavaan reports `fixed.x = FALSE` for a model with no observed exogenous
+  # variables at all, which the gate above used to read as a user request
+  # and refuse. Here the slope is carried by a latent covariate, so there is
+  # nothing to hold fixed and the integral goes by quadrature.
+  mod_lat <- "
+    level: 1
+      fx =~ x1 + x2 + x3
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*fx
+    level: 2
+      fb =~ y1 + y2 + y3
+      s1 ~~ s1
+  "
+  expect_warning(
+    fit_lat <- asem(
+      mod_lat,
+      d_rs,
+      cluster = "cluster",
+      integration.ngh = 5,
+      verbose = FALSE,
+      test = "none",
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      nsamp = 3
+    ),
+    class = "inlavaan_rs_route_b"
+  )
+
+  int_lat <- get_inlavaan_internal(fit_lat)
+  expect_false(isTRUE(int_lat$lavmodel@fixed.x))
+  expect_length(lavaan::lavNames(int_lat$partable, "ov.x"), 0L)
+  expect_equal(rs_spec(int_lat)$route, "B")
+  expect_true(is.finite(as.numeric(logLik(fit_lat))))
+})
+
 test_that("Random slopes: PPP is dropped from the default test", {
   # Two warnings must stay inside: lavaan's "test statistics are not
   # available ... test set to none" and the silent PPP drop under the

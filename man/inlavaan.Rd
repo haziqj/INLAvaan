@@ -256,10 +256,13 @@ governed by \code{integration.ngh}, passed through to lavaan. The node count
 is an accuracy setting as much as a cost setting, so give every fit that
 is to be compared with another the same \code{integration.ngh}.
 
-Random slopes require \code{fixed.x = TRUE} (the default): the likelihood is
-the density of the outcomes \emph{given} the exogenous covariates, so the
-covariates' own means and (co)variances are unidentified and would be
-reported back as their priors. A \code{fixed.x = FALSE} fit is refused.
+A model with observed exogenous covariates requires \code{fixed.x = TRUE}
+(the default): the likelihood is the density of the outcomes \emph{given}
+those covariates, so their own means and (co)variances are unidentified
+and would be reported back as their priors. A \code{fixed.x = FALSE} fit is
+refused. A model whose covariates are all latent or modelled has nothing
+to hold fixed, and lavaan reports \code{fixed.x = FALSE} for it of its own
+accord; such a fit is accepted as it stands.
 
 Equality constraints are supported among parameters that share a
 transformation: loadings, regressions and intercepts may be tied to one

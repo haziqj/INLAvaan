@@ -462,9 +462,16 @@ check_rs_comparable <- function(internals, modnames) {
 
   # (a) Are the covariates conditioned on, or modelled? A fixed.x = FALSE fit
   # scores them as outcomes, so its log-likelihood covers more variables.
+  # As at fit time, a model with no observed exogenous variables carries
+  # `fixed.x = FALSE` without anyone having asked for it, so the syntax-level
+  # set decides. The stored partable is lavaan's own with extra columns,
+  # which lavNames() reads unchanged.
   fixed_x <- vapply(
     internals,
-    function(m) isTRUE(m$lavmodel@fixed.x),
+    function(m) {
+      isTRUE(m$lavmodel@fixed.x) ||
+        length(lavaan::lavNames(m$partable, "ov.x")) == 0L
+    },
     logical(1)
   )
   if (!all(fixed_x)) {
