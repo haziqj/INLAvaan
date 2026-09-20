@@ -213,6 +213,9 @@
 #'   - [fitted()] and [residuals()], whose implied moments silently drop
 #'     the slope variance and would report it as misfit;
 #'   - [simulate()], lavaan having no random-slope data generator;
+#'   - the latent, observed and implied draws of [sampling()], which are
+#'     built from those same implied moments (parameter draws are
+#'     unaffected);
 #'   - [predict()] for anything but `type = "lv"`;
 #'   - `loo(type = "loso")`, which would need a cluster's sufficient
 #'     statistics downdated by one row, something the random-slope kernel

@@ -284,6 +284,9 @@ log-likelihood that is on a different scale here;
 \item \code{\link[=fitted]{fitted()}} and \code{\link[=residuals]{residuals()}}, whose implied moments silently drop
 the slope variance and would report it as misfit;
 \item \code{\link[=simulate]{simulate()}}, lavaan having no random-slope data generator;
+\item the latent, observed and implied draws of \code{\link[=sampling]{sampling()}}, which are
+built from those same implied moments (parameter draws are
+unaffected);
 \item \code{\link[=predict]{predict()}} for anything but \code{type = "lv"};
 \item \code{loo(type = "loso")}, which would need a cluster's sufficient
 statistics downdated by one row, something the random-slope kernel

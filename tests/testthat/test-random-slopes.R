@@ -224,6 +224,14 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(fitted(fit_rs), class = "inlavaan_rs_moments")
   expect_error(residuals(fit_rs), class = "inlavaan_rs_moments")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
+  for (tp in c("latent", "observed", "implied", "all")) {
+    expect_error(
+      sampling(fit_rs, type = tp, nsamp = 2),
+      class = "inlavaan_rs_sampling"
+    )
+  }
+  # Parameter draws never touch the implied moments and stay available
+  expect_equal(dim(sampling(fit_rs, type = "lavaan", nsamp = 4)), c(4L, 19L))
 })
 
 test_that("Random slopes: summary() marks the carrier row", {
