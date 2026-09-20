@@ -12,6 +12,7 @@ asem(
   test = "standard",
   vb_correction = TRUE,
   n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -97,7 +98,22 @@ asem(
   Defaults to `64`; see the Details section of
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
   Values above `128` (the size of the stored Sobol table) require the
-  qrng package. Ignored when `vb_correction = FALSE`.
+  qrng package. Ignored when `vb_correction = FALSE` or
+  `vb_method = "gauss_hermite"`.
+
+- vb_method:
+
+  Integration rule for the VB mean correction. `"sobol"` (default)
+  averages over `n_qmc` scrambled Sobol nodes. `"gauss_hermite"` uses a
+  deterministic rule instead: a three-point Gauss-Hermite rule along
+  each principal axis of the Laplace covariance, `2m + 1` nodes in all
+  for `m` free parameters. It is exact whenever the log-posterior is
+  quartic in whitened coordinates, and it gives the same shift on every
+  run. Having no node sets to compare, it reports no quadrature error,
+  so `vb_mcse_sigma` in
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  is `NA`. Its cost grows with `m`: it is cheaper than the default below
+  about 30 free parameters and dearer above. Experimental.
 
 - marginal_method:
 
@@ -301,20 +317,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [262ms]
+#> ✔ Posterior mode and Hessian. [251ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [405ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [426ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
 #> ⠹ Fitting 21/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.4s]
+#> ✔ Fit 28/28 skew-normal marginals. [2.2s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [342ms]
+#> ✔ Summarise 1000 posterior draws. [248ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.1.9012 ended normally after 82 iterations
+#> INLAvaan 0.3.1.9014 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

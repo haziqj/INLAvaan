@@ -12,6 +12,7 @@ acfa(
   test = "standard",
   vb_correction = TRUE,
   n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -97,7 +98,22 @@ acfa(
   Defaults to `64`; see the Details section of
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
   Values above `128` (the size of the stored Sobol table) require the
-  qrng package. Ignored when `vb_correction = FALSE`.
+  qrng package. Ignored when `vb_correction = FALSE` or
+  `vb_method = "gauss_hermite"`.
+
+- vb_method:
+
+  Integration rule for the VB mean correction. `"sobol"` (default)
+  averages over `n_qmc` scrambled Sobol nodes. `"gauss_hermite"` uses a
+  deterministic rule instead: a three-point Gauss-Hermite rule along
+  each principal axis of the Laplace covariance, `2m + 1` nodes in all
+  for `m` free parameters. It is exact whenever the log-posterior is
+  quartic in whitened coordinates, and it gives the same shift on every
+  run. Having no node sets to compare, it reports no quadrature error,
+  so `vb_mcse_sigma` in
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  is `NA`. Its cost grows with `m`: it is cheaper than the default below
+  about 30 free parameters and dearer above. Experimental.
 
 - marginal_method:
 
@@ -289,21 +305,21 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [158ms]
+#> ✔ Posterior mode and Hessian. [153ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [525ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [246ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 7/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [978ms]
+#> ⠹ Fitting 6/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [91ms]
+#> ✔ Summarise 100 posterior draws. [67ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.1.9012 ended normally after 66 iterations
+#> INLAvaan 0.3.1.9014 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

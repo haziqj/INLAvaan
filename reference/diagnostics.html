@@ -9,7 +9,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9012</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9014</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -129,12 +129,27 @@ be ~0 at convergence.</p></dd>
 <dd><p>Condition number of the Hessian (precision matrix)
 computed from \(\Sigma_\theta\). Large values indicate near-singularity.</p></dd>
 
+<dt><code>hess_min_eig</code></dt>
+<dd><p>Smallest eigenvalue of the Hessian, that is
+\(1 / \max \mathrm{eig}(\Sigma_\theta)\). Companion to
+<code>hess_cond</code>: the condition number is relative, so a
+well-conditioned Hessian can still be flat in every direction. This is
+the absolute curvature of the log-posterior along its flattest
+direction, and it carries the scale of the parameters. Reported, not
+checked.</p></dd>
+
 <dt><code>vb_kld_global</code></dt>
 <dd><p>Global KL divergence from the VB mean correction
 (NA if VB correction was not applied).</p></dd>
 
 <dt><code>vb_applied</code></dt>
 <dd><p>1 if VB correction was applied, 0 otherwise.</p></dd>
+
+<dt><code>vb_shift_max</code></dt>
+<dd><p>Maximum, across parameters, of the absolute
+VB correction in posterior-SD units (max |<code>vb_shift_sigma</code>|). This
+is the quantity the fit-time check tests. NA if the VB correction was
+not applied.</p></dd>
 
 <dt><code>kld_max</code></dt>
 <dd><p>Maximum per-parameter KL divergence from the VB correction.</p></dd>
@@ -145,7 +160,8 @@ computed from \(\Sigma_\theta\). Large values indicate near-singularity.</p></dd
 <dt><code>vb_mcse_max</code></dt>
 <dd><p>Maximum, across parameters, of the estimated
 quadrature error of the VB shift, in posterior-SD units. See
-<code>vb_mcse_sigma</code> below.</p></dd>
+<code>vb_mcse_sigma</code> below. NA under
+<code>vb_method = "gauss_hermite"</code>.</p></dd>
 
 <dt><code>vb_mcse_mean</code></dt>
 <dd><p>Mean estimated quadrature error of the VB
@@ -158,9 +174,14 @@ marginals (skew-normal method only; NA otherwise).</p></dd>
 <dt><code>nmad_mean</code></dt>
 <dd><p>Mean NMAD across marginals.</p></dd>
 
+<dt><code>scan_end_mass_max</code></dt>
+<dd><p>Maximum, across parameters, of
+<code>scan_end_mass</code> (see below). NA unless the skew-normal marginal
+method was used.</p></dd>
+
 
 </dl><p><strong>Per-parameter diagnostics</strong> (<code>type = "param"</code>):
-A data frame with columns:</p><dl><dt><code>param</code></dt>
+A data frame with columns:</p><dl><dt><code>names</code></dt>
 <dd><p>Parameter name.</p></dd>
 
 <dt><code>grad</code></dt>
@@ -206,21 +227,50 @@ much, in SD units, purely from the choice of node set. It runs
 conservative, because the two halves are negatively correlated and
 quasi-Monte Carlo error falls faster than root-n. It is exactly zero for
 parameters whose shift is pinned by the saturated-means fast path, since
-no quadrature is used there.</p></dd>
+no quadrature is used there. It is NA for every parameter under
+<code>vb_method = "gauss_hermite"</code>, whose rule is deterministic.</p></dd>
 
 <dt><code>nmad</code></dt>
 <dd><p>Normalised max-absolute-deviation of the skew-normal fit
 (NA when not using the skewnorm method).</p></dd>
 
+<dt><code>alpha</code></dt>
+<dd><p>Shape parameter of the fitted skew-normal marginal,
+on the unconstrained scale. Zero is a Gaussian marginal, and the sign
+gives the direction of the skew (NA when not using the skewnorm
+method).</p></dd>
+
+<dt><code>scan_end_mass</code></dt>
+<dd><p>Mass the fitted marginal puts outside the
+window that was scanned to fit it,
+\(F(\hat\theta_j - 4 s_j) + 1 - F(\hat\theta_j + 4 s_j)\), where
+\(F\) is the fitted skew-normal distribution function,
+\(\hat\theta_j\) the posterior mode and \(s_j\) the Laplace
+posterior SD. The marginal is fitted inside that window only, so mass
+outside it is extrapolation, and when this is large the 2.5\<!-- % and -->
+97.5\<!-- % credible limits are the numbers to distrust. A Gaussian marginal -->
+gives \(2\Phi(-4)\) = 6.3e-05, and healthy fits sit between 1e-03 and
+1e-02 (NA when not using the skewnorm method).</p></dd>
+
 
 </dl><p><strong>Fit-time warnings</strong>: <code><a href="inlavaan.html">inlavaan()</a></code> runs these checks once at the end
 of every fit and emits a single consolidated warning (condition class
-<code>"inlavaan_diagnostics_warning"</code>) when any of them look off: the
-optimiser did not converge, <code>mode_shift_max</code> exceeds 0.1,
-any marginal has NMAD above 0.1, the VB correction shifted a posterior
-mean by more than 1 posterior SD, or the Hessian condition number exceeds
-1e8. A healthy fit stays silent. Silence the check with
-<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings()</a></code>, or selectively by handling the condition class.</p>
+<code>"inlavaan_diagnostics_warning"</code>) when any of them looks off:</p><ul><li><p>the optimiser did not converge;</p></li>
+<li><p><code>mode_shift_max</code> above 0.1 posterior SDs;</p></li>
+<li><p>any marginal with <code>nmad</code> above 0.1;</p></li>
+<li><p>any marginal with <code>scan_end_mass</code> above 0.05;</p></li>
+<li><p><code>vb_shift_max</code> above 1 posterior SD;</p></li>
+<li><p><code>hess_cond</code> above 1e8.</p></li>
+</ul><p>Three of these checks have calibration behind them. Over 1,046 simulated
+fits with MCMC references, the Spearman correlation with the worst-case
+posterior-mean discrepancy was 0.64 for the VB shift in SD units, 0.59 for
+the scan-endpoint mass and 0.48 for the NMAD. The convergence, mode-shift
+and condition-number checks, and <code>hess_min_eig</code> (reported, not
+checked), are rules of thumb. Every number above is a package default,
+chosen so that a healthy fit stays silent, and not a calibrated cut-off: a
+tripped check is a prompt to look again, and silence is not a certificate
+of accuracy. Silence the check with <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings()</a></code>, or
+selectively by handling the condition class.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -241,14 +291,16 @@ mean by more than 1 posterior SD, or the Hessian condition number exceeds
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Global convergence summary</span></span></span>
 <span class="r-in"><span><span class="fu">diagnostics</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           npar          nsamp      converged     iterations       grad_inf </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             21            100              1             66       2.02e-03 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   grad_inf_rel        grad_l2 mode_shift_max      hess_cond     vb_applied </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       4.50e-03       3.01e-03       1.80e-04       4.51e+01              1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  vb_kld_global        kld_max       kld_mean    vb_mcse_max   vb_mcse_mean </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        10.3095         0.0186         0.0057         0.1330         0.0532 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       nmad_max      nmad_mean </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         0.0229         0.0060 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              npar             nsamp         converged        iterations </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                21               100                 1                66 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          2.02e-03          4.50e-03          3.01e-03          1.80e-04 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         hess_cond      hess_min_eig        vb_applied      vb_shift_max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          4.51e+01          1.64e+01                 1            0.1926 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     vb_kld_global           kld_max          kld_mean       vb_mcse_max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           10.3095            0.0186            0.0057            0.1330 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      vb_mcse_mean          nmad_max         nmad_mean scan_end_mass_max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.0532            0.0229            0.0060          1.03e-03 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Per-parameter table</span></span></span>
 <span class="r-in"><span><span class="fu">diagnostics</span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"param"</span><span class="op">)</span></span></span>
@@ -274,28 +326,28 @@ mean by more than 1 posterior SD, or the Hessian condition number exceeds
 <span class="r-out co"><span class="r-pr">#&gt;</span> 19 visual~~textual -2e-04   -2e-04         0    2e-04   0.0004            0e+00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 20   visual~~speed  7e-04    7e-04         0    7e-04   0.0014            1e-04</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 21  textual~~speed  2e-04    2e-04         0    2e-04   0.0009            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       kld vb_shift vb_shift_sigma vb_mcse_sigma   nmad</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0045   0.0079         0.0947        0.0675 0.0094</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.0010   0.0037         0.0454        0.0357 0.0004</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.0040   0.0070         0.0900        0.0940 0.0024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.0141   0.0095         0.1681        0.0039 0.0032</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.0161   0.0113         0.1797        0.0270 0.0033</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.0147   0.0092         0.1714        0.0026 0.0032</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.0022  -0.0049        -0.0669        0.0753 0.0027</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.0001  -0.0008        -0.0102        0.1330 0.0141</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.0186   0.0148         0.1926        0.0503 0.0160</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.0011  -0.0103        -0.0477        0.1157 0.0112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 0.0018   0.0056         0.0604        0.0516 0.0014</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 0.0001   0.0017         0.0152        0.0135 0.0026</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 0.0005   0.0041         0.0320        0.0156 0.0033</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 0.0003   0.0030         0.0231        0.0290 0.0031</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 0.0016   0.0069         0.0568        0.0119 0.0023</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 0.0170   0.0201         0.1846        0.0759 0.0036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 0.0035   0.0156         0.0835        0.0460 0.0229</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 0.0101  -0.0223        -0.1421        0.0840 0.0067</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 0.0007  -0.0031        -0.0383        0.0534 0.0010</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 0.0051   0.0110         0.1009        0.0644 0.0111</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 0.0027   0.0057         0.0741        0.0669 0.0026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       kld vb_shift vb_shift_sigma vb_mcse_sigma   nmad   alpha scan_end_mass</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0045   0.0079         0.0947        0.0675 0.0094  0.5392      6.17e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.0010   0.0037         0.0454        0.0357 0.0004  0.5437      7.39e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.0040   0.0070         0.0900        0.0940 0.0024  0.6498      8.64e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.0141   0.0095         0.1681        0.0039 0.0032  0.9488      2.28e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.0161   0.0113         0.1797        0.0270 0.0033  0.9527      2.33e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.0147   0.0092         0.1714        0.0026 0.0032  0.9433      2.17e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.0022  -0.0049        -0.0669        0.0753 0.0027 -0.8595      1.26e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.0001  -0.0008        -0.0102        0.1330 0.0141 -0.7907      6.02e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.0186   0.0148         0.1926        0.0503 0.0160  0.8780      1.26e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.0011  -0.0103        -0.0477        0.1157 0.0112 -2.2918      6.26e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 0.0018   0.0056         0.0604        0.0516 0.0014  0.3314      7.18e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 0.0001   0.0017         0.0152        0.0135 0.0026 -1.1178      1.54e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 0.0005   0.0041         0.0320        0.0156 0.0033 -1.0977      1.49e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 0.0003   0.0030         0.0231        0.0290 0.0031 -1.0794      1.47e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 0.0016   0.0069         0.0568        0.0119 0.0023 -0.9738      1.14e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 0.0170   0.0201         0.1846        0.0759 0.0036  0.5696      1.05e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 0.0035   0.0156         0.0835        0.0460 0.0229 -1.3189      6.17e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 0.0101  -0.0223        -0.1421        0.0840 0.0067 -2.1898      1.03e-03</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 0.0007  -0.0031        -0.0383        0.0534 0.0010  0.5158      6.55e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 0.0051   0.0110         0.1009        0.0644 0.0111  1.2491      2.34e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 0.0027   0.0057         0.0741        0.0669 0.0026  0.5496      7.32e-05</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

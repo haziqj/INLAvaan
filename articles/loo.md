@@ -127,7 +127,7 @@ head(res$per_unit)
 #> 6    6    1 -13.38440   5.003680 -13.32254 -13.41005 -13.44627 -13.53799
 #>      det_term      k_max        k_min      k_sum       k_ssq   ok
 #> 1 -0.04877800 0.03771003 -0.041158433 0.09406725 0.006957204 TRUE
-#> 2 -0.07227935 0.05815722 -0.049561144 0.14011057 0.008783305 TRUE
+#> 2 -0.07227935 0.05815722 -0.049561145 0.14011057 0.008783305 TRUE
 #> 3 -0.09292559 0.04160895 -0.009708889 0.18341460 0.004783929 TRUE
 #> 4 -0.04763963 0.02980145 -0.010455924 0.09422994 0.002071943 TRUE
 #> 5 -0.04796120 0.03028302 -0.011319956 0.09484053 0.002135644 TRUE
@@ -155,8 +155,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3885.112    0.00 7536.084 30.115 -3769.163 42.996 32.597
-#>  fit1f   27   -3990.302 -105.19 7756.445 26.582 -3878.041 46.738 27.377
+#>    fit   30   -3885.112    0.00 7536.482 30.314 -3769.163 42.996 32.597
+#>  fit1f   27   -3990.302 -105.19 7756.460 26.590 -3878.041 46.738 27.377
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -108.878  17.009
@@ -243,7 +243,7 @@ loo(fit2l, units = worst)
 #> 
 #>   first-to-second-order gap         0.5
 #>   pD/2 (trace)                      0.5
-#>   excess over pD/2 (trace)       +11.9%
+#>   excess over pD/2 (trace)       +11.8%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
 #>   second-order expansion has not settled over the sample.

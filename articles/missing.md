@@ -41,23 +41,23 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [290ms]
+#> ✔ Posterior mode and Hessian. [251ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [857ms]
+#> ✔ VB correction; mean |δ| = 0.190σ. [825ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 13/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.6s]
+#> ⠹ Fitting 17/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ✔ Summarise 1000 posterior draws. [793ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.1.9012 ended normally after 71 iterations
+#> INLAvaan 0.3.1.9014 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -93,16 +93,15 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [577ms]
+#> ✔ Posterior mode and Hessian. [519ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.154σ. [1.6s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 7/42 skew-normal marginals.
-#> ⠸ Fitting 26/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [5.1s]
+#> ⠹ Fitting 11/42 skew-normal marginals.
+#> ⠸ Fitting 30/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [5s]
 #> 
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
@@ -133,11 +132,17 @@ fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> Warning in sqrt(Vx): NaNs produced
 #> Warning in sqrt(Vx): NaNs produced
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [747ms]
+#> ✔ Summarise 1000 posterior draws. [505ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
+#> Warning: Fit diagnostics flagged 1 potential issue:
+#> ✖ The fitted marginal puts more than 0.05 of its mass beyond the scanned window
+#>   (4 posterior SDs either side of the mode) for `ind60=~x2` (1.00), `dem65=~y8`
+#>   (1.00), `dem65=~y7` (1.00) and 28 others; its credible limits rely on
+#>   extrapolation.
+#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 print(fit2)
-#> INLAvaan 0.3.1.9012 ended normally after 91 iterations
+#> INLAvaan 0.3.1.9014 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

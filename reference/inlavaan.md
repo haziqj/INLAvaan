@@ -17,6 +17,7 @@ inlavaan(
   test = "standard",
   vb_correction = TRUE,
   n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
   marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
   marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
@@ -114,7 +115,22 @@ inlavaan(
   Number of quasi-Monte Carlo nodes used by the VB mean correction.
   Defaults to `64`; see the Details section of `inlavaan()`. Values
   above `128` (the size of the stored Sobol table) require the qrng
-  package. Ignored when `vb_correction = FALSE`.
+  package. Ignored when `vb_correction = FALSE` or
+  `vb_method = "gauss_hermite"`.
+
+- vb_method:
+
+  Integration rule for the VB mean correction. `"sobol"` (default)
+  averages over `n_qmc` scrambled Sobol nodes. `"gauss_hermite"` uses a
+  deterministic rule instead: a three-point Gauss-Hermite rule along
+  each principal axis of the Laplace covariance, `2m + 1` nodes in all
+  for `m` free parameters. It is exact whenever the log-posterior is
+  quartic in whitened coordinates, and it gives the same shift on every
+  run. Having no node sets to compare, it reports no quadrature error,
+  so `vb_mcse_sigma` in
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  is `NA`. Its cost grows with `m`: it is cheaper than the default below
+  about 30 free parameters and dearer above. Experimental.
 
 - marginal_method:
 
@@ -276,7 +292,9 @@ shifts being corrected. Users may increase `n_qmc` to reduce the error
 further, at a proportional cost in computation time;
 [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
 reports the realised error per fit as `vb_mcse_sigma` per parameter and
-`vb_mcse_max` globally, both in posterior-SD units.
+`vb_mcse_max` globally, both in posterior-SD units. Setting
+`vb_method = "gauss_hermite"` removes the random node set altogether;
+see the `vb_method` argument.
 
 ## See also
 
@@ -305,20 +323,21 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [175ms]
+#> ✔ Posterior mode and Hessian. [154ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [325ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [309ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1.1s]
+#> ✔ Fit 21/21 skew-normal marginals. [1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [671ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [502ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.1.9012 ended normally after 65 iterations
+#> INLAvaan 0.3.1.9014 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
