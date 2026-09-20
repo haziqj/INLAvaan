@@ -18,6 +18,13 @@
   Both arguments are now passed, which is what makes random slopes fittable
   at all.
 
+* `sampling()` returned only the within-level block for two-level models —
+  `type = "latent"` omitted the between-level latent variables,
+  `type = "observed"` omitted the between-level component and the
+  between-only variables, and `type = "implied"` returned a single
+  covariance instead of the within and cluster pair; all three now draw
+  from the two-level generative model.
+
 * With `marginal_method = "marggaus"`, the `Mean` and `SD` reported for a
   parameter estimated on a transformed scale (variances, correlations) were
   the back-transformed Gaussian centre and a delta-method SD, so `Mean` was

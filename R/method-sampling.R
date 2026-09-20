@@ -34,14 +34,24 @@
 #'       Returns an `nsamp` by `npar` matrix.}
 #'     \item{`"latent"`}{Latent variables from the model-implied
 #'       distribution. Returns an `nsamp` by `nlv` matrix (one draw per
-#'       posterior sample, not tied to any individual).}
+#'       posterior sample, not tied to any individual). For two-level
+#'       models the matrix holds the within- *and* between-level latent
+#'       variables, the level-2 columns carrying the `.l2` suffix when the
+#'       same latent variable also exists at level 1.}
 #'     \item{`"observed"`}{Observed variables generated from the full
-#'       model. Returns an `nsamp` by `nobs_vars` matrix.}
+#'       model. Returns an `nsamp` by `nobs_vars` matrix. For two-level
+#'       models each row is a draw from the two-level generative model,
+#'       \eqn{\mathbf{y} = \mathbf{y}^B + \mathbf{y}^W}: variables that
+#'       live at both levels sum their between- and within-level draws,
+#'       and within-only or between-only variables take the single level
+#'       available to them.}
 #'     \item{`"implied"`}{Model-implied moments. Returns a length-`nsamp`
 #'       list, each element a list with `cov` (model-implied covariance
 #'       matrix) and, when `meanstructure = TRUE`, `mean` (model-implied
 #'       mean vector). For multi-group models each element is itself a
-#'       list of groups.}
+#'       list of groups. For two-level models each element is a list with
+#'       a `within` and a `cluster` block, each holding a `cov` and a
+#'       `mean`, as [lavaan::lavInspect()] reports them.}
 #'     \item{`"all"`}{A named list with elements `lavaan`, `theta`,
 #'       `latent`, `observed`, and `implied`.}
 #'   }
@@ -210,67 +220,72 @@ sample_params_prior <- function(int, nsamp) {
 
 # ---- Internal: generate eta from model-implied distribution ------------------
 
+# Cholesky factor of a covariance block. Outside strict mode a non-PD block is
+# projected onto the nearest PD matrix. Prior rejection sampling asks for
+# strict = TRUE so that the error propagates and the draw is rejected.
+chol_cov_block <- function(S, strict = FALSE) {
+  if (strict) {
+    t(chol(S)) # nocov - error propagates if non-PD
+  } else {
+    tryCatch(t(chol(S)), error = function(e) t(chol(make_pd(S))))
+  }
+}
+
+draw_latent_block <- function(glist, strict = FALSE) {
+  Psi <- glist$psi
+  B <- glist$beta
+  alpha <- glist$alpha
+
+  IminB <- if (is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
+  if (is.null(alpha)) {
+    alpha <- rep(0, nrow(Psi))
+  }
+  IminB_inv <- solve(IminB)
+
+  mu_eta <- as.numeric(IminB_inv %*% alpha)
+  Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
+  chol_Phi <- chol_cov_block(Phi, strict)
+
+  eta <- mu_eta + as.numeric(chol_Phi %*% stats::rnorm(length(mu_eta)))
+  names(eta) <- colnames(Psi)
+  eta
+}
+
 sample_latent_from_model <- function(x_row, lavmodel, strict = FALSE) {
   GLIST <- get_SEM_param_matrix(x_row, "all", lavmodel)
   nG <- lavmodel@ngroups
-  eta_list <- vector("list", nG)
-
-  for (g in seq_len(nG)) {
-    glist <- GLIST[[g]]
-    Psi <- glist$psi
-    B <- glist$beta
-    alpha <- glist$alpha
-
-    IminB <- if (is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
-    if (is.null(alpha)) {
-      alpha <- rep(0, nrow(Psi))
-    }
-    IminB_inv <- solve(IminB)
-
-    mu_eta <- as.numeric(IminB_inv %*% alpha)
-    Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
-    chol_Phi <- if (strict) {
-      t(chol(Phi)) # nocov - error propagates if non-PD
-    } else {
-      tryCatch(t(chol(Phi)), error = function(e) t(chol(make_pd(Phi))))
-    }
-
-    eta <- mu_eta + as.numeric(chol_Phi %*% stats::rnorm(length(mu_eta)))
-    names(eta) <- colnames(Psi)
-    eta_list[[g]] <- eta
-  }
+  eta_list <- lapply(seq_len(nG), function(g) {
+    draw_latent_block(GLIST[[g]], strict = strict)
+  })
 
   if (nG == 1L) eta_list[[1L]] else eta_list
 }
 
 # ---- Internal: generate y from model given eta ------------------------------
 
+draw_observed_block <- function(glist, eta, strict = FALSE) {
+  Lambda <- glist$lambda
+  Theta <- glist$theta
+  nu <- glist$nu
+
+  if (is.null(nu)) {
+    nu <- rep(0, nrow(Lambda))
+  }
+
+  mu_y <- as.numeric(Lambda %*% eta + nu)
+  chol_Theta <- chol_cov_block(Theta, strict)
+  y <- mu_y + as.numeric(chol_Theta %*% stats::rnorm(length(mu_y)))
+  names(y) <- rownames(Lambda)
+  y
+}
+
 sample_observed_from_model <- function(x_row, eta, lavmodel, strict = FALSE) {
   GLIST <- get_SEM_param_matrix(x_row, "all", lavmodel)
   nG <- lavmodel@ngroups
-  y_list <- vector("list", nG)
-
-  for (g in seq_len(nG)) {
-    glist <- GLIST[[g]]
-    Lambda <- glist$lambda
-    Theta <- glist$theta
-    nu <- glist$nu
-
+  y_list <- lapply(seq_len(nG), function(g) {
     eta_g <- if (nG == 1L) eta else eta[[g]]
-    if (is.null(nu)) {
-      nu <- rep(0, nrow(Lambda))
-    }
-
-    mu_y <- as.numeric(Lambda %*% eta_g + nu)
-    chol_Theta <- if (strict) {
-      t(chol(Theta)) # nocov - error propagates if non-PD
-    } else {
-      tryCatch(t(chol(Theta)), error = function(e) t(chol(make_pd(Theta))))
-    }
-    y <- mu_y + as.numeric(chol_Theta %*% stats::rnorm(length(mu_y)))
-    names(y) <- rownames(Lambda)
-    y_list[[g]] <- y
-  }
+    draw_observed_block(GLIST[[g]], eta_g, strict = strict)
+  })
 
   if (nG == 1L) y_list[[1L]] else y_list
 }
@@ -320,6 +335,178 @@ compute_implied_moments <- function(x_row, lavmodel, meanstructure = FALSE) {
   if (nG == 1L) out_list[[1L]] else out_list # nocov (else = multigroup)
 }
 
+# ---- Internal: two-level generative draws ------------------------------------
+#
+# A two-level fit stores nblocks = ngroups * nlevels sets of model matrices,
+# block (g - 1) * nlevels + l holding level l of group g. Slicing the GLIST by
+# group alone, as get_SEM_param_matrix() does, would return the within block
+# only, so the helpers below address the blocks themselves through the number
+# of matrices per block recorded in lavmodel@nmat.
+
+get_block_param_matrix <- function(x_row, lavmodel) {
+  lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_row)
+  offset <- cumsum(c(0L, lavmodel_x@nmat))
+
+  lapply(seq_len(lavmodel_x@nblocks), function(b) {
+    mm <- seq_len(lavmodel_x@nmat[b]) + offset[b]
+    glist <- Map(
+      function(mat, dn) {
+        rownames(mat) <- dn[[1]]
+        colnames(mat) <- dn[[2]]
+        mat
+      },
+      lavmodel_x@GLIST[mm],
+      lavmodel_x@dimNames[mm]
+    )
+    names(glist) <- names(lavmodel_x@GLIST)[mm]
+    glist
+  })
+}
+
+# Latent variable names across levels, flattened into a single vector. A
+# level-2 name takes the ".l2" suffix of the coefficient labels, but only when
+# the same latent variable also exists at level 1.
+ml_latent_names <- function(name_list) {
+  out <- name_list
+  for (l in seq_along(name_list)[-1L]) {
+    seen <- unlist(name_list[seq_len(l - 1L)], use.names = FALSE)
+    dup <- out[[l]] %in% seen
+    out[[l]][dup] <- paste0(out[[l]][dup], ".l", l)
+  }
+  unlist(out, use.names = FALSE)
+}
+
+# One draw of the latent and (optionally) observed vectors from the two-level
+# generative model. An observed variable that lives at both levels is the sum
+# of its between- and within-level draws, and a variable that lives at one
+# level only takes that level's draw.
+sample_generative_ml <- function(
+  x_row,
+  lavmodel,
+  lavdata,
+  need_obs = TRUE,
+  strict = FALSE
+) {
+  GLIST <- get_block_param_matrix(x_row, lavmodel)
+  nG <- lavmodel@ngroups
+  nlevels <- lavdata@nlevels
+  eta_list <- vector("list", nG)
+  y_list <- vector("list", nG)
+
+  for (g in seq_len(nG)) {
+    ov_names <- lavdata@ov.names[[g]]
+    y_g <- rep(0, length(ov_names))
+    names(y_g) <- ov_names
+    eta_g <- vector("list", nlevels)
+
+    for (l in seq_len(nlevels)) {
+      glist <- GLIST[[(g - 1) * nlevels + l]]
+      eta_g[[l]] <- draw_latent_block(glist, strict = strict)
+      if (need_obs) {
+        y_l <- draw_observed_block(glist, eta_g[[l]], strict = strict)
+        y_g[names(y_l)] <- y_g[names(y_l)] + y_l
+      }
+    }
+
+    eta_list[[g]] <- stats::setNames(
+      unlist(eta_g, use.names = FALSE),
+      ml_latent_names(lapply(eta_g, names))
+    )
+    y_list[[g]] <- y_g
+  }
+
+  if (nG > 1L) {
+    # nocov start
+    suffix <- function(v, g) stats::setNames(v, paste0(names(v), ".g", g))
+    eta_list <- Map(suffix, eta_list, seq_len(nG))
+    y_list <- Map(suffix, y_list, seq_len(nG))
+  } # nocov end
+
+  list(
+    latent = unlist(eta_list),
+    observed = if (need_obs) unlist(y_list) else NULL
+  )
+}
+
+# Model-implied moments of a two-level model, one within/between pair per
+# group, named and ordered as lavInspect(object, "implied") reports them.
+compute_implied_moments_ml <- function(x_row, lavmodel, lavdata) {
+  lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_row)
+  implied <- lavaan::lav_model_implied(lavmodel_x)
+  nG <- lavmodel@ngroups
+  nlevels <- lavdata@nlevels
+  out_list <- vector("list", nG)
+
+  for (g in seq_len(nG)) {
+    Lp <- lavdata@Lp[[g]]
+    blocks <- (g - 1) * nlevels + seq_len(nlevels)
+    res <- vector("list", nlevels)
+
+    for (l in seq_len(nlevels)) {
+      ov_names <- Lp$ov.names[Lp$ov.idx[[l]]]
+      Sigma_y <- implied$cov[[blocks[l]]]
+      dimnames(Sigma_y) <- list(ov_names, ov_names)
+      # A two-level model always carries a mean structure (the within-level
+      # means are zero), so both blocks report a mean vector.
+      mu_y <- as.numeric(implied$mean[[blocks[l]]])
+      names(mu_y) <- ov_names
+      res[[l]] <- list(cov = Sigma_y, mean = mu_y)
+    }
+
+    names(res) <- lavdata@block.label[blocks]
+    out_list[[g]] <- res
+  }
+
+  if (nG == 1L) out_list[[1L]] else out_list # nocov (else = multigroup)
+}
+
+# The two-level counterpart of the generative steps in sampling_impl(): the
+# implied moments, the latent draws and the observed draws all span both
+# levels.
+sampling_generative_ml <- function(int, samp, type, nsamp) {
+  lavmodel <- int$lavmodel
+  lavdata <- int$lavdata
+
+  implied_list <- NULL
+  if (type == "implied" || type == "all") {
+    implied_list <- lapply(seq_len(nsamp), function(i) {
+      compute_implied_moments_ml(samp$x_samp[i, ], lavmodel, lavdata)
+    })
+    if (type == "implied") {
+      return(implied_list)
+    }
+  }
+
+  need_obs <- type %in% c("observed", "all")
+  draws <- lapply(seq_len(nsamp), function(i) {
+    sample_generative_ml(
+      samp$x_samp[i, ],
+      lavmodel,
+      lavdata,
+      need_obs = need_obs
+    )
+  })
+
+  eta_mat <- do.call(rbind, lapply(draws, `[[`, "latent"))
+  if (type == "latent") {
+    return(eta_mat)
+  }
+
+  y_mat <- do.call(rbind, lapply(draws, `[[`, "observed"))
+  if (type == "observed") {
+    return(y_mat)
+  }
+
+  # type == "all"
+  list(
+    lavaan = samp$x_samp,
+    theta = samp$theta_samp,
+    latent = eta_mat,
+    observed = y_mat,
+    implied = implied_list
+  )
+}
+
 # ---- Internal: prior generative sampling with reject-and-redraw --------------
 #
 # When prior = TRUE and we need latent/observed draws, parameter vectors that
@@ -337,7 +524,9 @@ sampling_prior_generative <- function(
   pt <- int$partable
   xnames <- pt$names[pt$free > 0 & !duplicated(pt$free)]
   lavmodel <- int$lavmodel
+  lavdata <- int$lavdata
   nG <- lavmodel@ngroups
+  two_level <- is_multilevel(lavdata)
 
   # For 'implied' alone, no Cholesky decomposition is needed — just sample
   # parameters and compute the moments directly (no rejection required).
@@ -345,7 +534,11 @@ sampling_prior_generative <- function(
     samp <- sample_params_prior(int, nsamp)
     colnames(samp$x_samp) <- xnames
     return(lapply(seq_len(nsamp), function(i) {
-      compute_implied_moments(samp$x_samp[i, ], lavmodel, meanstructure)
+      if (two_level) {
+        compute_implied_moments_ml(samp$x_samp[i, ], lavmodel, lavdata)
+      } else {
+        compute_implied_moments(samp$x_samp[i, ], lavmodel, meanstructure)
+      }
     }))
   }
 
@@ -354,19 +547,25 @@ sampling_prior_generative <- function(
 
   # Pre-compute dimensions from a single draw
   samp0 <- sample_params_prior(int, 1L)
-  GLIST0 <- get_SEM_param_matrix(samp0$x_samp[1, ], "all", lavmodel)
-  nlv <- ncol(GLIST0[[1]]$psi)
-  nobs <- nrow(GLIST0[[1]]$lambda)
-  lv_names <- colnames(GLIST0[[1]]$psi)
-  ov_names <- rownames(GLIST0[[1]]$lambda)
-
-  # Column names for output matrices
-  if (nG == 1L) {
-    eta_cn <- lv_names
-    y_cn <- ov_names
+  if (two_level) {
+    draw0 <- sample_generative_ml(samp0$x_samp[1, ], lavmodel, lavdata)
+    eta_cn <- names(draw0$latent)
+    y_cn <- names(draw0$observed)
   } else {
-    eta_cn <- paste0(rep(lv_names, nG), ".g", rep(seq_len(nG), each = nlv)) # nocov
-    y_cn <- paste0(rep(ov_names, nG), ".g", rep(seq_len(nG), each = nobs)) # nocov
+    GLIST0 <- get_SEM_param_matrix(samp0$x_samp[1, ], "all", lavmodel)
+    nlv <- ncol(GLIST0[[1]]$psi)
+    nobs <- nrow(GLIST0[[1]]$lambda)
+    lv_names <- colnames(GLIST0[[1]]$psi)
+    ov_names <- rownames(GLIST0[[1]]$lambda)
+
+    # Column names for output matrices
+    if (nG == 1L) {
+      eta_cn <- lv_names
+      y_cn <- ov_names
+    } else {
+      eta_cn <- paste0(rep(lv_names, nG), ".g", rep(seq_len(nG), each = nlv)) # nocov
+      y_cn <- paste0(rep(ov_names, nG), ".g", rep(seq_len(nG), each = nobs)) # nocov
+    }
   }
 
   # Pre-allocate storage
@@ -401,23 +600,42 @@ sampling_prior_generative <- function(
 
       x1 <- samp_batch$x_samp[i, ]
 
-      # Try latent draw (strict = TRUE: no make_pd fallback)
-      eta1 <- tryCatch(
-        sample_latent_from_model(x1, lavmodel, strict = TRUE),
-        error = function(e) NULL
-      )
-      if (is.null(eta1)) {
-        # nocov
-        next
-      }
-
-      # Try observed draw if needed
-      if (need_obs) {
-        y1 <- tryCatch(
-          sample_observed_from_model(x1, eta1, lavmodel, strict = TRUE),
+      # Try the generative draw (strict = TRUE: no make_pd fallback). The
+      # two-level draw already returns both levels in one flat vector.
+      if (two_level) {
+        draw1 <- tryCatch(
+          sample_generative_ml(
+            x1,
+            lavmodel,
+            lavdata,
+            need_obs = need_obs,
+            strict = TRUE
+          ),
           error = function(e) NULL
         )
-        if (is.null(y1)) next # nocov
+        if (is.null(draw1)) {
+          next
+        } # nocov
+        eta1 <- draw1$latent
+        y1 <- draw1$observed
+      } else {
+        eta1 <- tryCatch(
+          sample_latent_from_model(x1, lavmodel, strict = TRUE),
+          error = function(e) NULL
+        )
+        if (is.null(eta1)) {
+          # nocov
+          next
+        }
+
+        # Try observed draw if needed
+        if (need_obs) {
+          y1 <- tryCatch(
+            sample_observed_from_model(x1, eta1, lavmodel, strict = TRUE),
+            error = function(e) NULL
+          )
+          if (is.null(y1)) next # nocov
+        }
       }
 
       # Valid draw -- store it
@@ -425,7 +643,7 @@ sampling_prior_generative <- function(
       x_mat[collected, ] <- x1
       theta_mat[collected, ] <- samp_batch$theta_samp[i, ]
 
-      if (nG == 1L) {
+      if (two_level || nG == 1L) {
         eta_mat[collected, ] <- eta1
         if (need_obs) y_mat[collected, ] <- y1
       } else {
@@ -435,11 +653,11 @@ sampling_prior_generative <- function(
       } # nocov end
 
       if (need_implied) {
-        implied_list[[collected]] <- compute_implied_moments(
-          x1,
-          lavmodel,
-          meanstructure
-        )
+        implied_list[[collected]] <- if (two_level) {
+          compute_implied_moments_ml(x1, lavmodel, lavdata) # nocov
+        } else {
+          compute_implied_moments(x1, lavmodel, meanstructure)
+        }
       }
 
       if (collected >= nsamp) break
@@ -538,6 +756,12 @@ sampling_impl <- function(
   }
   if (type == "theta") {
     return(samp$theta_samp)
+  }
+
+  # A two-level fit generates a within-level and a between-level quantity for
+  # each of the types below, so it takes the two-level generative path.
+  if (is_multilevel(int$lavdata)) {
+    return(sampling_generative_ml(int, samp, type, nsamp))
   }
 
   # Compute model-implied moments if requested
