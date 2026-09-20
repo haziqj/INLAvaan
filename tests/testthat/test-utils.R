@@ -98,3 +98,16 @@ test_that("dmode handles edge cases", {
 test_that("get_inlavaan_internal errors for non-INLAvaan", {
   expect_error(get_inlavaan_internal(list()), "Object must be of class")
 })
+
+test_that("lavaan internals resolve to functions", {
+  for (name in lavaan_internal_names) {
+    expect_true(
+      is.function(get(paste0("lavaan___", name))),
+      info = name
+    )
+  }
+  # The random-slope kernels are bound only from lavaan >= 0.7-2
+  expect_true(is.function(lavaan___lav_mvn_cl_rs_m2ll))
+  expect_true(is.function(lavaan___lav_mvn_cl_rs_scores))
+  expect_true(is.function(lavaan___lav_mvn_cl_rs_eb))
+})
