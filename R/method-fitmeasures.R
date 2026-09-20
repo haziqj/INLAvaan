@@ -95,7 +95,11 @@ compute_BMc <- function(nonc, N) exp(-0.5 * nonc / N)
 compute_BCFI <- function(nonc, nonc_null) 1 - nonc / nonc_null
 compute_BTLI <- function(adj_dev, df, adj_dev_null, df_null) {
   tli_null <- adj_dev_null / df_null
-  (tli_null - adj_dev / df) / (tli_null - 1)
+  denom <- tli_null - 1
+  out <- (tli_null - adj_dev / df) / denom
+  # A baseline whose own ratio is 1 leaves nothing to scale by
+  out[abs(denom) < 1e-8] <- NA_real_
+  out
 }
 compute_BNFI <- function(adj_dev, adj_dev_null) {
   (adj_dev_null - adj_dev) / adj_dev_null
@@ -167,6 +171,98 @@ compute_rescaled_quantities <- function(
 }
 
 # ---------------------------------------------------------------------------
+# Independence baseline for the incremental indices
+# ---------------------------------------------------------------------------
+
+# Keys of the free parameters of a parameter table, for structural equality
+free_param_keys <- function(pt) {
+  i <- pt$free > 0
+  grp <- pt$group %||% rep(1L, length(pt$lhs))
+  lvl <- pt$level %||% rep(1L, length(pt$lhs))
+  sort(paste(pt$lhs[i], pt$op[i], pt$rhs[i], grp[i], lvl[i]))
+}
+
+# TRUE when every free parameter is a variance or an intercept, which is
+# what the independence model consists of
+is_independence_partable <- function(pt) {
+  i <- pt$free > 0
+  all((pt$op[i] == "~~" & pt$lhs[i] == pt$rhs[i]) | pt$op[i] == "~1")
+}
+
+# Fit the independence (null) model that the incremental indices BCFI, BTLI
+# and BNFI are scaled against, on the same data and likelihood options as
+# `object`. lavaan writes that model's parameter table, and the fitted
+# object's data and sample-statistics slots are reused directly, so no data
+# frame is re-read. The indices need only this model's posterior draws and
+# its pD, so the marginals are Gaussian and the VB shift is skipped, which
+# makes the fit take a fraction of a second even for many items.
+fit_independence_baseline <- function(object, nsamp = NULL) {
+  int <- object@external$inlavaan_internal
+  pt0 <- lavaan::lav_partable_independence(object)
+  opt <- object@Options
+  inlavaan(
+    model = pt0,
+    data = NULL,
+    slotData = object@Data,
+    slotSampleStats = object@SampleStats,
+    missing = opt$missing %||% "default",
+    meanstructure = opt$meanstructure %||% "default",
+    fixed.x = opt$fixed.x %||% "default",
+    conditional.x = opt$conditional.x %||% "default",
+    likelihood = opt$likelihood %||% "default",
+    estimator = int$lavmodel@estimator,
+    marginal_method = "marggaus",
+    vb_correction = FALSE,
+    test = "dic",
+    nsamp = nsamp %||% int$nsamp %||% 1000L,
+    verbose = FALSE
+  )
+}
+
+# Resolve the `baseline.model` argument of bfit_indices(): NULL fits the
+# independence model (none for a model that already is one), FALSE skips
+# the incremental indices, and a supplied fit is checked and used.
+resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
+  if (isFALSE(baseline.model)) {
+    return(NULL)
+  }
+  if (is.null(baseline.model)) {
+    if (is_independence_partable(object@ParTable)) {
+      return(NULL)
+    }
+    return(tryCatch(
+      fit_independence_baseline(object, nsamp),
+      error = function(e) {
+        cli_warn(c(
+          "Could not fit the independence baseline, so BCFI, BTLI and BNFI
+           are not reported.",
+          "x" = conditionMessage(e)
+        ))
+        NULL
+      }
+    ))
+  }
+  if (!is(baseline.model, "INLAvaan")) {
+    cli_abort(
+      "{.arg baseline.model} must be an {.cls INLAvaan} object, or
+       {.code FALSE} to skip the incremental indices."
+    )
+  }
+  if (
+    identical(
+      free_param_keys(object@ParTable),
+      free_param_keys(baseline.model@ParTable)
+    )
+  ) {
+    cli_warn(
+      "{.arg baseline.model} has the same free parameters as {.arg object},
+       so BCFI, BTLI and BNFI are zero by construction."
+    )
+  }
+  baseline.model
+}
+
+# ---------------------------------------------------------------------------
 # bfit_indices: compute per-sample Bayesian fit index vectors and return
 # an S3 object of class "bfit_indices" with a summary() and print() method.
 # ---------------------------------------------------------------------------
@@ -177,9 +273,14 @@ compute_rescaled_quantities <- function(
 #' model, analogous to [blavaan::blavFitIndices()].
 #'
 #' @param object An object of class [INLAvaan].
-#' @param baseline.model An optional [INLAvaan] object representing the
-#'   baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-#'   BNFI).
+#' @param baseline.model The baseline (null) model that the incremental fit
+#'   indices (BCFI, BTLI, BNFI) are scaled against. `NULL` (default) fits the
+#'   independence model on the same data and options automatically, as
+#'   lavaan does: every observed variable keeps its variance (and intercept)
+#'   and nothing correlates. That fit uses Gaussian marginals and no VB
+#'   shift, since only its posterior draws and pD are needed, and takes a
+#'   fraction of a second. Supply an [INLAvaan] object to use another
+#'   baseline, or `FALSE` to skip the incremental indices.
 #' @param rescale Character string controlling how the Bayesian chi-square
 #'   is rescaled. `"devM"` (default) subtracts pD from the deviance at each
 #'   sample. `"MCMC"` uses the classical chi-square and classical df at each
@@ -296,11 +397,10 @@ bfit_indices <- function(
     indices$BMc <- compute_BMc(rq$nonc, rq$N_adj)
   } # else: df == 0, no absolute fit indices (nocov – saturated model)
 
-  # Incremental indices
+  # Incremental indices, scaled against the independence model unless the
+  # caller supplies a baseline or asks to skip them
+  baseline.model <- resolve_baseline_model(object, baseline.model, nsamp)
   if (!is.null(baseline.model)) {
-    if (!is(baseline.model, "INLAvaan")) {
-      cli_abort("{.arg baseline.model} must be an {.cls INLAvaan} object.")
-    }
     bint <- baseline.model@external$inlavaan_internal
 
     bmethod <- if (isTRUE(samp_copula)) bint$marginal_method else "sampling"
@@ -435,8 +535,24 @@ inlav_fit_measures <- function(
   }
 
   # Validate baseline.model early (before tryCatch)
-  if (!is.null(baseline.model) && !is(baseline.model, "INLAvaan")) {
-    cli_abort("{.arg baseline.model} must be an {.cls INLAvaan} object.")
+  if (
+    !is.null(baseline.model) &&
+      !isFALSE(baseline.model) &&
+      !is(baseline.model, "INLAvaan")
+  ) {
+    cli_abort(
+      "{.arg baseline.model} must be an {.cls INLAvaan} object, or
+       {.code FALSE} to skip the incremental indices."
+    )
+  }
+
+  # The independence baseline is fitted only when an incremental index is
+  # actually wanted, so a request for absolute indices alone stays free
+  incr_measures <- c("BCFI", "BTLI", "BNFI")
+  need_incr <- identical(fit.measures, "all") ||
+    any(incr_measures %in% fit.measures)
+  if (is.null(baseline.model) && !need_incr) {
+    baseline.model <- FALSE
   }
 
   # Bayesian fit indices (BRMSEA, BGammaHat, etc.)
@@ -560,11 +676,11 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #'   recomputed on every call -- store the result with `fit <- add_loo(fit)`
 #'   (or call [loo()]/[waic()] directly) for repeated access. INLAvaan's
 #'   stable spelling `fit.measures` is also accepted.
-#' @param baseline_model An optional [INLAvaan] object representing the
-#'   baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-#'   BNFI). Must have been fitted with a `test` that includes `"dic"` (the
-#'   default `"standard"` does). INLAvaan's stable spelling `baseline.model`
-#'   is also accepted.
+#' @param baseline_model The baseline (null) model for the incremental fit
+#'   indices (BCFI, BTLI, BNFI). `NULL` (default) fits the independence model
+#'   automatically, as lavaan does. Supply an [INLAvaan] object to use
+#'   another baseline, or `FALSE` to skip the incremental indices. INLAvaan's
+#'   stable spelling `baseline.model` is also accepted; see [bfit_indices()].
 #' @param h1_model Ignored (included for compatibility with the lavaan
 #'   generic).
 #' @param fm_args Ignored (included for compatibility with the lavaan

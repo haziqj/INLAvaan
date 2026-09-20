@@ -29,11 +29,11 @@ recomputed on every call -- store the result with \code{fit <- add_loo(fit)}
 (or call \code{\link[=loo]{loo()}}/\code{\link[=waic]{waic()}} directly) for repeated access. INLAvaan's
 stable spelling \code{fit.measures} is also accepted.}
 
-\item{baseline_model}{An optional \link{INLAvaan} object representing the
-baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-BNFI). Must have been fitted with a \code{test} that includes \code{"dic"} (the
-default \code{"standard"} does). INLAvaan's stable spelling \code{baseline.model}
-is also accepted.}
+\item{baseline_model}{The baseline (null) model for the incremental fit
+indices (BCFI, BTLI, BNFI). \code{NULL} (default) fits the independence model
+automatically, as lavaan does. Supply an \link{INLAvaan} object to use
+another baseline, or \code{FALSE} to skip the incremental indices. INLAvaan's
+stable spelling \code{baseline.model} is also accepted; see \code{\link[=bfit_indices]{bfit_indices()}}.}
 
 \item{h1_model}{Ignored (included for compatibility with the lavaan
 generic).}

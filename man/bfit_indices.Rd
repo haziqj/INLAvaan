@@ -21,9 +21,14 @@ bfit_indices(
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
 
-\item{baseline.model}{An optional \link{INLAvaan} object representing the
-baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-BNFI).}
+\item{baseline.model}{The baseline (null) model that the incremental fit
+indices (BCFI, BTLI, BNFI) are scaled against. \code{NULL} (default) fits the
+independence model on the same data and options automatically, as
+lavaan does: every observed variable keeps its variance (and intercept)
+and nothing correlates. That fit uses Gaussian marginals and no VB
+shift, since only its posterior draws and pD are needed, and takes a
+fraction of a second. Supply an \link{INLAvaan} object to use another
+baseline, or \code{FALSE} to skip the incremental indices.}
 
 \item{rescale}{Character string controlling how the Bayesian chi-square
 is rescaled. \code{"devM"} (default) subtracts pD from the deviance at each
