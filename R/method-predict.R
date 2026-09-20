@@ -352,6 +352,23 @@ predict.inlavaan_internal <- function(
       # ---- Multilevel path: use lavaan internals ----
       lavsamplestats <- object$lavsamplestats
 
+      # A random-slope model has no single implied within-cluster
+      # covariance to condition on, so its scores come from lavaan's own
+      # empirical Bayes kernel, which returns both levels at once and
+      # carries the slopes among the level-2 latent variables.
+      spec <- rs_spec(object)
+      sample_lv_rs <- function(xx) {
+        lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
+        eb <- lavaan___lav_mvn_cl_rs_eb(
+          lavmodel = lavmodel_x,
+          lavdata = lavdata,
+          lavcache = object$lavcache
+        )
+        FS <- if (level == 1L) eb$l1 else eb$l2
+        rownames(FS) <- NULL
+        FS
+      }
+
       # Pre-compute per-block ov names for imputation
       ov_names_block <- vector("list", lavmodel@nblocks)
       for (b in seq_len(lavmodel@nblocks)) {
@@ -483,6 +500,7 @@ predict.inlavaan_internal <- function(
         out
       }
 
+      draw_lv <- if (is.null(spec)) sample_lv_ml else sample_lv_rs
       out <- vector("list", nsamp)
       cli_progress_bar(
         "Sampling latent variables (multilevel)",
@@ -490,7 +508,7 @@ predict.inlavaan_internal <- function(
         clear = FALSE
       )
       for (i in seq_len(nsamp)) {
-        out[[i]] <- sample_lv_ml(x_samp[i, ])
+        out[[i]] <- draw_lv(x_samp[i, ])
         cli_progress_update()
       }
       cli_progress_done()

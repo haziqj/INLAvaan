@@ -190,6 +190,36 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
 })
 
+test_that("Random slopes: latent variables come from the EB kernel", {
+  p2 <- predict(fit_rs, type = "lv", level = 2L, nsamp = 5)
+  expect_length(p2, 5L)
+  expect_true(all(vapply(p2, nrow, integer(1L)) == 24L))
+  expect_setequal(colnames(p2[[1L]]), c("fb", "s1"))
+  # The old implied-moment path had no slope at all, and would have handed
+  # back the same population mean for every cluster
+  expect_gt(stats::sd(p2[[1L]][, "s1"]), 0)
+
+  p1 <- predict(fit_rs, type = "lv", level = 1L, nsamp = 5)
+  expect_true(all(vapply(p1, nrow, integer(1L)) == nrow(d_rs)))
+  expect_setequal(colnames(p1[[1L]]), "fw")
+
+  # At fixed parameters the kernel is lavPredict() to the last bit
+  int <- get_inlavaan_internal(fit_rs)
+  lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, coef(fit_lav))
+  f2 <- fit_lav
+  f2@Model <- lm_x
+  eb <- lavaan___lav_mvn_cl_rs_eb(
+    lavmodel = lm_x,
+    lavdata = int$lavdata,
+    lavcache = int$lavcache
+  )
+  expect_equal(
+    unname(as.matrix(lavaan::lavPredict(f2, level = 2))),
+    unname(eb$l2),
+    tolerance = 1e-10
+  )
+})
+
 ## ----- Route B (Gauss-Hermite quadrature) ------------------------------------
 
 test_that("Random slopes: the closed-form route is silent", {
