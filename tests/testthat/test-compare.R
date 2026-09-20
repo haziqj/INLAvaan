@@ -261,3 +261,119 @@ test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
     "outcome variables"
   )
 })
+
+## ----- Random slopes ---------------------------------------------------------
+# A random-slope likelihood is conditional on the exogenous covariates, so the
+# table only means anything across fits that condition on the same ones. The
+# fixtures are the 24-cluster subset of lavaan::Demo.twolevel used throughout
+# the random-slope tests, and `test = "dic"` is what fills the DIC/pD columns.
+d_rs <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
+mod_rs <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ rv('s1')*x1
+  level: 2
+    fb =~ y1 + y2 + y3
+    fb ~ w1
+    s1 ~ w1
+"
+# The nested no-random-slope fit: one constraint away from mod_rs, and it
+# keeps the conditioning set whole
+mod_rs0 <- paste0(mod_rs, "    s1 ~~ 0*s1\n")
+# The exact fixed-slope comparator: with no level-2 regression on the slope
+# either, s1 is a single constant shared by every cluster
+mod_rs0e <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ rv('s1')*x1
+  level: 2
+    fb =~ y1 + y2 + y3
+    fb ~ w1
+    s1 ~~ 0*s1
+"
+mod_fx <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ x1
+  level: 2
+    fb =~ y1 + y2 + y3
+    fb ~ w1
+"
+fit_twolevel <- function(mod, ...) {
+  asem(
+    mod,
+    d_rs,
+    cluster = "cluster",
+    verbose = FALSE,
+    nsamp = 3,
+    test = "dic",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    ...
+  )
+}
+fit_rs <- fit_twolevel(mod_rs)
+fit_rs0 <- fit_twolevel(mod_rs0)
+fit_fx <- fit_twolevel(mod_fx)
+
+test_that("random-slope fits are compared on marginal likelihood and DIC", {
+  cmp <- compare(fit_rs, fit_rs0, fit_fx)
+  expect_named(cmp, c("Model", "npar", "Marg.Loglik", "logBF", "DIC", "pD"))
+  expect_false(any(c("AIC", "BIC") %in% names(cmp)))
+  # 19 parameters with the random slope, one fewer once its variance is fixed
+  # at zero, and one fewer again without the level-2 regression on it
+  expect_equal(
+    cmp$npar[match(c("fit_rs", "fit_rs0", "fit_fx"), cmp$Model)],
+    c(19L, 18L, 17L)
+  )
+  expect_true(all(is.finite(cmp$Marg.Loglik)))
+  expect_true(all(is.finite(cmp$DIC)))
+})
+
+test_that("a zero-variance slope is on the same scale as a fixed slope", {
+  # Fixing the slope variance at zero *and* dropping its level-2 regression
+  # leaves exactly the fixed-slope model, so the two marginal likelihoods are
+  # one number computed two ways -- the regression test that the random-slope
+  # kernel and the ordinary two-level one live on a single scale
+  fit_rs0e <- fit_twolevel(mod_rs0e)
+  cmp <- compare(fit_rs0e, fit_fx)
+  expect_equal(cmp$npar, c(17L, 17L))
+  expect_equal(diff(cmp$Marg.Loglik), 0, tolerance = 1e-3)
+})
+
+test_that("comparing a random-slope fit with a fixed.x = FALSE fit aborts", {
+  fit_fx_free <- fit_twolevel(mod_fx, fixed.x = FALSE)
+  expect_error(
+    compare(fit_rs, fit_fx_free),
+    class = "inlavaan_rs_compare_fixedx"
+  )
+})
+
+test_that("comparing across conditioning sets aborts", {
+  # Without `fb ~ w1` this fit conditions on x1 alone, so its marginal
+  # log-likelihood is a density of different things
+  mod_nw <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+  "
+  fit_nw <- fit_twolevel(mod_nw)
+  err <- expect_error(
+    compare(fit_rs, fit_nw),
+    class = "inlavaan_rs_compare_cond"
+  )
+  expect_match(conditionMessage(err), "w1")
+  expect_match(conditionMessage(err), "s1 ~~ 0\\*s1")
+})
+
+test_that("compare(loo = TRUE) works across random-slope fits", {
+  cmp <- compare(fit_rs, fit_rs0, loo = TRUE)
+  expect_true(all(
+    c("ELPD", "SE", "p_loo", "elpd_diff", "se_diff") %in% names(cmp)
+  ))
+  expect_true(all(is.finite(cmp$ELPD)))
+  expect_equal(attr(cmp, "loo_n_models"), 2L)
+  expect_equal(sum(cmp$elpd_diff == 0), 1L)
+})
