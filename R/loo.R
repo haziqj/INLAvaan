@@ -460,6 +460,52 @@ loco_scores_theta <- function(theta, css, lavmodel, pt, units, cache = NULL) {
   loo_chain_rule(G_x, cache)
 }
 
+# ---- LOCO with random slopes -------------------------------------------------
+#
+# A random-slope model implies no single within-cluster covariance matrix, so
+# the sufficient-statistic kernels above do not describe its likelihood.
+# lavaan builds that likelihood from per-cluster crossproducts of the
+# outcomes on the covariates, held in the fit's cache, and exposes both the
+# per-cluster log-likelihood and the per-cluster score -- exactly the two
+# ingredients the Taylor expansion needs. The chain rule and everything
+# downstream then apply verbatim.
+#
+# Two properties of these kernels shape the branch in inlav_loo(). They score
+# the outcomes conditionally on the exogenous covariates by construction, so
+# no frozen-covariate constant is ever subtracted from their values; and they
+# handle missing data themselves, so the FIML path is the same code.
+#
+# Both return every cluster on every call, so a `units` subset trims the
+# result without trimming the work.
+
+# Per-cluster log-likelihoods at one theta, in lavaan's cluster order
+loco_rs_loglik_all <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
+  if (is.null(cache)) {
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+  }
+  lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, cache$x)
+  ll <- lavaan___lav_mvn_cl_rs_m2ll(
+    lavmodel = lavmodel_x,
+    rs = rs,
+    log2pi = TRUE,
+    minus_two = FALSE,
+    per_cluster = TRUE
+  )
+  as.numeric(attr(ll, "loglik.cluster"))[units]
+}
+
+# All-cluster theta-scores at one theta. lavaan returns the per-cluster
+# scores on the natural log-likelihood scale in lavaan-x order, which the
+# shared chain rule maps into the packed theta space.
+loco_rs_scores_theta <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
+  if (is.null(cache)) {
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+  }
+  lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, cache$x)
+  G_x <- lavaan___lav_mvn_cl_rs_scores(lavmodel = lavmodel_x, rs = rs)
+  loo_chain_rule(G_x[units, , drop = FALSE], cache)
+}
+
 # ---- LOCO under missing data (two-level FIML) ------------------------------
 #
 # With incomplete data a cluster's sufficient statistics (n_j, ybar_j, S_j) no
@@ -951,6 +997,12 @@ resolve_loo_cores <- function(cores) {
 # scored on its own conditional likelihood, a fit with modelled covariates
 # on the joint one
 loo_flavour <- function(int) {
+  # A random-slope kernel scores the outcomes given the covariates whatever
+  # the covariate bookkeeping says, so it is conditional by construction
+  # (and fixed.x = TRUE is enforced at fit time anyway).
+  if (has_random_slopes(int$lavmodel)) {
+    return("conditional")
+  }
   if (
     isTRUE(int$lavmodel@fixed.x) &&
       length(unlist(int$lavsamplestats@x.idx)) > 0L
@@ -1125,19 +1177,6 @@ check_loo_model <- function(int, fn = "loo") {
   if (isTRUE(lavmodel@conditional.x)) {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
   }
-  # The random-slope per-cluster kernels are not wired into the casewise
-  # machinery yet, and the plain two-level kernel would silently score the
-  # fixed-slope model instead.
-  if (has_random_slopes(lavmodel)) {
-    cli_abort(
-      c(
-        "{.fn {fn}} does not support random-slope models yet.",
-        "i" = "Use {.fn compare} (marginal likelihood, Bayes factors, DIC)
-               in the meantime."
-      ),
-      class = "inlavaan_rs_loo"
-    )
-  }
   invisible(NULL)
 }
 
@@ -1195,6 +1234,10 @@ inlav_loo <- function(
   }
 
   check_loo_model(int, fn = "loo")
+  # NULL for an ordinary fit; the per-cluster random-slope kernels and the
+  # cluster bookkeeping otherwise. The cache it reads is theta-free, so it is
+  # resolved once here and reused by every evaluation below.
+  spec <- rs_spec(int)
   flavour <- loo_flavour(int)
 
   # Posterior summary to score at (defaults to the fit's own Laplace summary)
@@ -1294,6 +1337,30 @@ inlav_loo <- function(
     units <- uv$ids
     unit_group <- uv$grp
     nobs <- rep(1L, uv$n)
+  } else if (!is.null(spec)) {
+    # Random slopes: lavaan's own per-cluster kernels. This comes before the
+    # FIML branch below because those kernels handle incomplete data
+    # themselves, and the sufficient-statistic missing objects would describe
+    # the wrong likelihood.
+    if (spec$route == "B") {
+      warn_rs_route_b(spec)
+    }
+    units <- check_loo_units(units, spec$ncl, "clusters")
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+    # No frozen-covariate constant is subtracted here, unlike the
+    # complete-data branch below: the kernel is already the conditional
+    # likelihood of the outcomes given the exogenous covariates.
+    l_star <- loco_rs_loglik_all(theta, spec$rs, lavmodel, pt, units, cache)
+    s_mat <- loco_rs_scores_theta(theta, spec$rs, lavmodel, pt, units, cache)
+    score_fn <- function(th_act) {
+      th <- theta
+      th[free] <- th_act
+      loco_rs_scores_theta(th, spec$rs, lavmodel, pt, units)[,
+        free,
+        drop = FALSE
+      ]
+    }
+    nobs <- spec$nobs[units]
   } else if (isTRUE(int$lavsamplestats@missing.flag)) {
     # Two-level FIML: per-cluster observed-data kernels (joint flavour only)
     minfo <- loco_missing_info(int)

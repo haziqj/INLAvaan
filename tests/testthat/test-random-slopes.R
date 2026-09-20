@@ -186,7 +186,6 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(predict(fit_rs, type = "yhat"), class = "inlavaan_rs_predict")
   expect_error(fitted(fit_rs), class = "inlavaan_rs_moments")
   expect_error(residuals(fit_rs), class = "inlavaan_rs_moments")
-  expect_error(loo(fit_rs), class = "inlavaan_rs_loo")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
 })
 
