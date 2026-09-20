@@ -4,11 +4,11 @@
 #' statistics and (optionally) fit indices side by side.
 #'
 #' @details
-#' The first argument `x` serves as the **baseline** (null) model.
-#' All models (including the baseline) appear in the comparison table. The
-#' baseline is also passed to [fitMeasures()][lavaan::fitMeasures] when
-#' incremental fit indices (BCFI, BTLI, BNFI) are requested via
-#' `fit.measures`.
+#' All models appear in the comparison table. When incremental fit indices
+#' (BCFI, BTLI, BNFI) are requested via `fit.measures`, they are scaled
+#' against the independence (null) model, fitted once on the data of the
+#' first model and shared by every model in the table (see
+#' [bfit_indices()]).
 #'
 #' The default table always includes:
 #'
@@ -55,11 +55,8 @@
 #' `anova()` is disabled for `INLAvaan` fits -- there is no direct Bayesian
 #' analogue of the classical likelihood-ratio test -- and points here instead.
 #'
-#' @param x An [INLAvaan] (or `inlavaan_internal`) object used as the
-#'   **baseline** (null) model. It is included in the comparison table and
-#'   passed to [fitMeasures()][lavaan::fitMeasures] for incremental indices.
-#' @param y,... One or more [INLAvaan] (or `inlavaan_internal`) objects to
-#'   compare against the baseline.
+#' @param x,y,... Two or more [INLAvaan] (or `inlavaan_internal`) objects
+#'   fitted to the same data.
 #' @param fit.measures Character vector of additional fit-measure names to
 #'   include (e.g. `"BRMSEA"`, `"BCFI"`). Use `"all"` to include every
 #'   measure returned by [fitMeasures()][lavaan::fitMeasures]. The default
@@ -111,7 +108,6 @@ setMethod(
       models = model_objs,
       modnames = modnames,
       fit.measures = fit.measures,
-      baseline = x,
       loo = loo
     )
   }
@@ -143,7 +139,6 @@ compare.inlavaan_internal <- function(
     models = model_objs,
     modnames = modnames,
     fit.measures = fit.measures,
-    baseline = x,
     loo = loo
   )
 }
@@ -154,7 +149,6 @@ compare_impl <- function(
   models,
   modnames,
   fit.measures = NULL,
-  baseline = NULL,
   loo = FALSE
 ) {
   # Normalise to internal objects, keeping originals for fitMeasures()
@@ -237,8 +231,19 @@ compare_impl <- function(
       )
     } else {
       # nocov end
-      # baseline (x) is used for incremental indices
-      baseline_obj <- if (is(baseline, "INLAvaan")) baseline else NULL
+      # One independence baseline, fitted on the first model's data, serves
+      # every model's incremental indices. FALSE skips the refit when none
+      # is requested.
+      need_incr <- identical(fit.measures, "all") ||
+        any(c("BCFI", "BTLI", "BNFI") %in% fit.measures)
+      baseline_obj <- if (need_incr) {
+        tryCatch(
+          fit_independence_baseline(originals[[1]]),
+          error = function(e) NULL
+        )
+      } else {
+        FALSE
+      }
 
       fm_list <- lapply(originals, function(m) {
         tryCatch(
@@ -408,7 +413,6 @@ compare_impl <- function(
 
   rownames(out) <- NULL
   attr(out, "fit_measures_used") <- !is.null(fit.measures)
-  attr(out, "baseline_name") <- modnames[1]
   attr(out, "loo_used") <- isTRUE(loo)
   if (isTRUE(loo)) {
     attr(out, "loo_order") <- if (order_2) 2L else 1L
@@ -422,9 +426,7 @@ compare_impl <- function(
 #' @exportS3Method print compare.inlavaan_internal
 print.compare.inlavaan_internal <- function(x, ...) {
   cat("Bayesian Model Comparison (INLAvaan)\n")
-  if (isTRUE(attr(x, "fit_measures_used"))) {
-    cat("Baseline model:", attr(x, "baseline_name"), "\n")
-  } else if (isTRUE(attr(x, "loo_used"))) {
+  if (isTRUE(attr(x, "loo_used"))) {
     ord <- attr(x, "loo_order")
     cat(
       "Models ordered by ELPD (Taylor LOO, ",

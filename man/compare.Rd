@@ -14,12 +14,8 @@ compare(x, y, ..., fit.measures = NULL, loo = FALSE)
 \S4method{anova}{INLAvaan}(object, ...)
 }
 \arguments{
-\item{x}{An \link{INLAvaan} (or \code{inlavaan_internal}) object used as the
-\strong{baseline} (null) model. It is included in the comparison table and
-passed to \link[lavaan:fitMeasures]{fitMeasures()} for incremental indices.}
-
-\item{y, ...}{One or more \link{INLAvaan} (or \code{inlavaan_internal}) objects to
-compare against the baseline.}
+\item{x, y, ...}{Two or more \link{INLAvaan} (or \code{inlavaan_internal}) objects
+fitted to the same data.}
 
 \item{fit.measures}{Character vector of additional fit-measure names to
 include (e.g. \code{"BRMSEA"}, \code{"BCFI"}). Use \code{"all"} to include every
@@ -43,11 +39,11 @@ Compare two or more Bayesian SEM fitted with INLAvaan, reporting model-fit
 statistics and (optionally) fit indices side by side.
 }
 \details{
-The first argument \code{x} serves as the \strong{baseline} (null) model.
-All models (including the baseline) appear in the comparison table. The
-baseline is also passed to \link[lavaan:fitMeasures]{fitMeasures()} when
-incremental fit indices (BCFI, BTLI, BNFI) are requested via
-\code{fit.measures}.
+All models appear in the comparison table. When incremental fit indices
+(BCFI, BTLI, BNFI) are requested via \code{fit.measures}, they are scaled
+against the independence (null) model, fitted once on the data of the
+first model and shared by every model in the table (see
+\code{\link[=bfit_indices]{bfit_indices()}}).
 
 The default table always includes:
 \itemize{
