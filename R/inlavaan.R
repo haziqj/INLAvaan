@@ -1197,6 +1197,7 @@ inlavaan <- function(
     partable = pt,
     lavmodel = lavmodel,
     lavdata = lavdata,
+    lavcache = if (has_random_slopes(lavmodel)) lavcache else NULL,
     lavsamplestats = lavsamplestats,
     theta_star = as.numeric(theta_star_vbc),
     Sigma_theta = Sigma_theta,
@@ -1305,6 +1306,7 @@ inlavaan <- function(
     lavmodel = lavmodel,
     lavsamplestats = lavsamplestats,
     lavdata = lavdata,
+    lavcache = if (has_random_slopes(lavmodel)) lavcache else NULL,
     opt = opt,
     timing = timing[-1], # remove start.time
     visual_debug = visual_debug,
