@@ -240,6 +240,22 @@ bfit_indices <- function(
   lavsamplestats <- int$lavsamplestats
   lavdata <- int$lavdata
 
+  if (has_random_slopes(lavmodel)) {
+    cli_abort(
+      c(
+        "Bayesian fit indices do not exist for a random-slope model.",
+        "x" = "They rest on a chi-square against the saturated
+               log-likelihood, which for a random-slope model is the joint
+               (y, x) fit and not on the scale of the model's conditional
+               log-likelihood, so BRMSEA, BGammaHat, adjBGammaHat, BMc,
+               BCFI, BTLI and BNFI would be arbitrary numbers.",
+        "i" = "Use {.fn compare} (marginal likelihood, Bayes factors, DIC)
+               or {.fn loo}."
+      ),
+      class = "inlavaan_rs_bfit"
+    )
+  }
+
   nsamp <- nsamp %||% int$nsamp %||% 500L
   method <- if (isTRUE(samp_copula)) int$marginal_method else "sampling"
   samp <- sample_params(
@@ -506,6 +522,16 @@ inlav_fit_measures <- function(
   if (!identical(fit.measures, "all")) {
     idx <- which(names(out) %in% fit.measures)
     if (length(idx) == 0L) {
+      if (has_random_slopes(int$lavmodel)) {
+        cli_abort(
+          c(
+            "None of {.val {fit.measures}} is available for a random-slope
+             model.",
+            "i" = "Available: {.val {names(out)}}."
+          ),
+          class = "inlavaan_rs_fitmeasures"
+        )
+      }
       cli_abort("No matching fit measures found.")
     }
     out <- out[idx]

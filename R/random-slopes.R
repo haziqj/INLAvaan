@@ -37,6 +37,26 @@ rs_spec <- function(int) {
   )
 }
 
+# Gate for the moment-based methods. Both report a single model-implied
+# covariance matrix per level, which a random-slope model does not have.
+check_rs_moments <- function(object, fn) {
+  if (!has_random_slopes(object@external$inlavaan_internal$lavmodel)) {
+    return(invisible(NULL))
+  }
+  cli_abort(
+    c(
+      "{.fn {fn}} has no model-implied moments for a random-slope model.",
+      "x" = "The covariance of y depends on the covariate values, so there
+             is no single within-cluster covariance matrix, and
+             {.pkg lavaan}'s implied moments silently drop the slope
+             variance -- the residuals would report it as misfit.",
+      "i" = "Use {.code predict(object, type = \"lv\", level = 2)} for the
+             cluster-level slopes."
+    ),
+    class = "inlavaan_rs_moments"
+  )
+}
+
 # Route B (a random slope on a latent or split covariate) replaces the
 # closed-form cluster kernel with Gauss-Hermite quadrature, so it is both
 # slower and less accurate. Warn once wherever that route is entered.

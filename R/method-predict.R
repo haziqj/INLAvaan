@@ -298,7 +298,22 @@ predict.inlavaan_internal <- function(
     if (!level %in% c(1L, 2L)) {
       cli_abort("{.arg level} must be {.val 1} or {.val 2}.")
     }
-  } # nocov end
+    # nocov end
+    if (has_random_slopes(lavmodel) && type != "lv") {
+      cli_abort(
+        c(
+          "{.fn predict} has no {.val {type}} values for a random-slope
+           model.",
+          "x" = "They would be built from the model-implied moments, which
+                 ignore the random slope entirely.",
+          "i" = "{.code predict(object, type = \"lv\", level = 2)} returns the
+                 cluster-level slope estimates alongside the other level-2
+                 latent variables."
+        ),
+        class = "inlavaan_rs_predict"
+      )
+    }
+  }
 
   # Handle newdata: rebuild lavdata matrices
   if (!is.null(newdata)) {

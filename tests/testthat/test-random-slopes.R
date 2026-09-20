@@ -23,6 +23,17 @@ fit_rs <- asem(
   vb_correction = FALSE,
   nsamp = 3
 )
+# A second fit carrying the one fit measure a random-slope model keeps
+fit_rs_dic <- asem(
+  mod_rs,
+  d_rs,
+  cluster = "cluster",
+  verbose = FALSE,
+  test = "dic",
+  marginal_correction = "none",
+  vb_correction = FALSE,
+  nsamp = 3
+)
 # The maximum-likelihood comparator. Two variances sit slightly below zero
 # on this subset, which lavaan reports and the priors keep positive.
 suppressWarnings(
@@ -135,4 +146,39 @@ test_that("Random slopes: PPP is dropped from the default test", {
     ),
     class = "inlavaan_rs_ppp"
   )
+})
+
+test_that("Random slopes: fitmeasures keeps only what exists", {
+  fm <- fitMeasures(fit_rs_dic)
+
+  expect_true(all(c("npar", "margloglik", "dic", "p_dic") %in% names(fm)))
+  gone <- c(
+    "ppp",
+    "BRMSEA",
+    "BGammaHat",
+    "adjBGammaHat",
+    "BMc",
+    "chisq",
+    "cfi",
+    "rmsea",
+    "aic",
+    "bic"
+  )
+  expect_false(any(gone %in% names(fm)))
+
+  # Asking for one of them by name says why nothing came back
+  expect_error(
+    fitMeasures(fit_rs_dic, "BRMSEA"),
+    class = "inlavaan_rs_fitmeasures"
+  )
+})
+
+test_that("Random slopes: the quantities that do not exist are gated", {
+  expect_error(bfit_indices(fit_rs), class = "inlavaan_rs_bfit")
+  expect_error(simulate(fit_rs, nsim = 1), class = "inlavaan_rs_simulate")
+  expect_error(predict(fit_rs, type = "yhat"), class = "inlavaan_rs_predict")
+  expect_error(fitted(fit_rs), class = "inlavaan_rs_moments")
+  expect_error(residuals(fit_rs), class = "inlavaan_rs_moments")
+  expect_error(loo(fit_rs), class = "inlavaan_rs_loo")
+  expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
 })

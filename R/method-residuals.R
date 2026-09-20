@@ -60,16 +60,22 @@
 #' @name residuals
 #' @aliases residuals,INLAvaan-method
 #' @export
-setMethod("residuals", "INLAvaan", function(object, type = "raw", labels = TRUE, ...) {
-  # Delegate to lavaan's implementation so the output structure (moments,
-  # casewise) stays identical; the posterior means already live in the object.
-  lavaan::residuals(as(object, "lavaan"), type = type, labels = labels, ...)
-})
+setMethod(
+  "residuals",
+  "INLAvaan",
+  function(object, type = "raw", labels = TRUE, ...) {
+    check_rs_moments(object, "residuals")
+    # Delegate to lavaan's implementation so the output structure (moments,
+    # casewise) stays identical; the posterior means already live in the object.
+    lavaan::residuals(as(object, "lavaan"), type = type, labels = labels, ...)
+  }
+)
 
 #' @importFrom stats resid
 #' @rdname residuals
 #' @aliases resid,INLAvaan-method
 #' @export
 setMethod("resid", "INLAvaan", function(object, type = "raw", ...) {
+  check_rs_moments(object, "resid")
   lavaan::resid(as(object, "lavaan"), type = type, ...)
 })

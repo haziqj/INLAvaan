@@ -1125,6 +1125,19 @@ check_loo_model <- function(int, fn = "loo") {
   if (isTRUE(lavmodel@conditional.x)) {
     cli_abort("{.fn {fn}} does not support {.code conditional.x = TRUE}.")
   }
+  # The random-slope per-cluster kernels are not wired into the casewise
+  # machinery yet, and the plain two-level kernel would silently score the
+  # fixed-slope model instead.
+  if (has_random_slopes(lavmodel)) {
+    cli_abort(
+      c(
+        "{.fn {fn}} does not support random-slope models yet.",
+        "i" = "Use {.fn compare} (marginal likelihood, Bayes factors, DIC)
+               in the meantime."
+      ),
+      class = "inlavaan_rs_loo"
+    )
+  }
   invisible(NULL)
 }
 
@@ -1144,10 +1157,9 @@ inlav_loo <- function(
   lavmodel <- int$lavmodel
   lavdata <- int$lavdata
 
-  check_loo_model(int, fn = "loo")
-  flavour <- loo_flavour(int)
-
-  # Resolve LOSO (per-row) vs LOCO (per-cluster)
+  # Resolve LOSO (per-row) vs LOCO (per-cluster). This comes before the
+  # general validation gate so that a scoring level that does not exist for
+  # the model is reported as such, rather than as the gate's own reason.
   two_level <- is_multilevel(lavdata)
   if (type == "auto") {
     type <- if (two_level) "loco" else "loso"
@@ -1157,6 +1169,20 @@ inlav_loo <- function(
        no clusters."
     )
   } else if (type == "loso" && two_level) {
+    if (has_random_slopes(lavmodel)) {
+      cli_abort(
+        c(
+          "Leave-one-unit-out does not exist for a random-slope model.",
+          "x" = "Deleting a row needs the cluster's sufficient statistics
+                 downdated by one row, and the random-slope kernel is built
+                 from per-cluster crossproducts of y on x that no rank-one
+                 downdate reproduces.",
+          "i" = "Use the default {.code type = \"loco\"}
+                 (leave-one-cluster-out)."
+        ),
+        class = "inlavaan_rs_loso"
+      )
+    }
     cli_warn(c(
       "Scoring leave-one-unit-out (the {.emph conditional} predictive) on a
        two-level model, not the default leave-one-cluster-out (the
@@ -1167,6 +1193,9 @@ inlav_loo <- function(
        consider subsetting with {.arg units}."
     ))
   }
+
+  check_loo_model(int, fn = "loo")
+  flavour <- loo_flavour(int)
 
   # Posterior summary to score at (defaults to the fit's own Laplace summary)
   theta_star <- int$theta_star
