@@ -13,6 +13,21 @@ mod_rs <- "
     s1 ~ w1
 "
 fit0_rs <- lavaan::sem(mod_rs, d_rs, cluster = "cluster", do.fit = FALSE)
+fit_rs <- asem(
+  mod_rs,
+  d_rs,
+  cluster = "cluster",
+  verbose = FALSE,
+  test = "none",
+  marginal_correction = "none",
+  vb_correction = FALSE,
+  nsamp = 3
+)
+# The maximum-likelihood comparator. Two variances sit slightly below zero
+# on this subset, which lavaan reports and the priors keep positive.
+suppressWarnings(
+  fit_lav <- lavaan::sem(mod_rs, d_rs, cluster = "cluster")
+)
 
 test_that("Random slopes are detected from the lavaan model", {
   expect_true(has_random_slopes(fit0_rs@Model))
@@ -49,4 +64,20 @@ test_that("rs_spec() describes the closed-form route", {
     rs_spec(list(lavmodel = fit0_rs@Model, lavcache = NULL)),
     class = "inlavaan_rs_cache"
   )
+})
+
+test_that("Random slopes: fit and posterior means", {
+  expect_s4_class(fit_rs, "INLAvaan")
+
+  # The slope variance is the boundary parameter here (its MLE is slightly
+  # negative), so it is compared on its own
+  keep <- setdiff(names(coef(fit_lav)), "s1~~s1.l2")
+  expect_equal(coef(fit_rs)[keep], coef(fit_lav)[keep], tolerance = 0.15)
+  expect_gte(unname(coef(fit_rs)["s1~~s1.l2"]), 0)
+
+  # The stored cache travels with the fit, so rs_spec() works off the
+  # INLAvaan object as well
+  spec <- rs_spec(get_inlavaan_internal(fit_rs))
+  expect_equal(spec$route, "A")
+  expect_equal(spec$ncl, 24L)
 })

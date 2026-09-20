@@ -4,7 +4,7 @@ inlav_model_loglik <- function(
   lavsamplestats,
   lavdata,
   lavoptions,
-  lavcache
+  lavcache = NULL
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -13,15 +13,28 @@ inlav_model_loglik <- function(
   out <- -1e40
   if (!is_bad_cov(Sigma)) {
     if (lavmodel@estimator == "ML") {
-      # Multivariate normal log-likelihood
+      # Multivariate normal log-likelihood. A random-slope model is scored
+      # from the GLIST of `lavmodel` and from the per-cluster statistics in
+      # `lavcache`, not from `lavimplied`, so both have to be the updated
+      # ones -- otherwise the log-likelihood is constant in `x`. Passing
+      # `lavmodel_x` is inert for every other model, which reads
+      # `lavimplied`, itself already built from `lavmodel_x`.
       out <- lavaan___lav_model_loglik(
         lavdata = lavdata,
         lavsamplestats = lavsamplestats,
         lavimplied = lavimplied,
-        lavmodel = lavmodel,
-        lavoptions = lavoptions
+        lavmodel = lavmodel_x,
+        lavoptions = lavoptions,
+        lavcache = lavcache
       )$loglik
-      if (is.na(out)) out <- -1e40
+      # is_bad_cov() above only inspects the fixed-slope implied covariance,
+      # so a random-slope kernel can still return a non-finite value.
+      if (is.na(out)) {
+        out <- -1e40
+      }
+      if (!is.finite(out)) {
+        out <- -1e40
+      }
       if (out != -1e40 && marginalised_means_active(lavmodel)) {
         out <- out + marginalised_means_loglik_corr(lavimplied, lavsamplestats)
       }
