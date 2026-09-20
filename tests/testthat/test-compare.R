@@ -71,7 +71,11 @@ test_that("compare() print runs without error", {
 test_that("compare() with fit.measures appends extra columns", {
   cmp <- compare(fit1, fit2, fit.measures = "margloglik")
   expect_true("margloglik" %in% names(cmp))
-  expect_output(print(cmp), "Baseline model")
+  expect_output(print(cmp), "Bayesian Model Comparison")
+  expect_no_match(
+    paste(capture.output(print(cmp)), collapse = ""),
+    "Baseline model"
+  )
 })
 
 test_that("compare() includes DIC/pD when the fit computed the DIC", {
@@ -260,4 +264,27 @@ test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
     suppressWarnings(compare(fitA, fitB, loo = TRUE)),
     "outcome variables"
   )
+})
+test_that("compare() scales incremental indices against the independence model", {
+  fit_a <- acfa(
+    mod_null,
+    dat,
+    verbose = FALSE,
+    nsamp = 50,
+    vb_correction = FALSE,
+    marginal_method = "marggaus"
+  )
+  fit_b <- acfa(
+    mod_full,
+    dat,
+    verbose = FALSE,
+    nsamp = 50,
+    vb_correction = FALSE,
+    marginal_method = "marggaus"
+  )
+  cmp <- compare(fit_a, fit_b, fit.measures = c("BCFI", "BTLI"))
+  expect_true(all(is.finite(cmp$BCFI)))
+  # The first model is no longer its own baseline, so it does not sit at 0
+  expect_gt(cmp$BCFI[cmp$Model == "fit_a"], 0.3)
+  expect_true(all(cmp$BCFI <= 1))
 })
