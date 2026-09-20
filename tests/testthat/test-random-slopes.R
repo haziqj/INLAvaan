@@ -81,3 +81,58 @@ test_that("Random slopes: fit and posterior means", {
   expect_equal(spec$route, "A")
   expect_equal(spec$ncl, 24L)
 })
+
+test_that("Random slopes: fixed.x = FALSE is refused", {
+  expect_error(
+    asem(
+      mod_rs,
+      d_rs,
+      cluster = "cluster",
+      fixed.x = FALSE,
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3
+    ),
+    class = "inlavaan_rs_fixedx"
+  )
+})
+
+test_that("Random slopes: PPP is dropped from the default test", {
+  # Two warnings must stay inside: lavaan's "test statistics are not
+  # available ... test set to none" and the silent PPP drop under the
+  # default `test`
+  expect_no_warning(
+    fit_std <- asem(
+      mod_rs,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "standard",
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      nsamp = 3
+    )
+  )
+
+  rec <- get_inlavaan_internal(fit_std, "test")
+  expect_false("ppp" %in% rec$computed)
+  expect_true("dic" %in% rec$computed)
+  expect_true("ppp" %in% rec$requested)
+  expect_true("ppp" %in% names(rec$skipped))
+  expect_match(rec$skipped[["ppp"]], "within-cluster covariance")
+
+  # Naming ppp explicitly is worth a warning
+  expect_warning(
+    asem(
+      mod_rs,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "ppp",
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      nsamp = 3
+    ),
+    class = "inlavaan_rs_ppp"
+  )
+})

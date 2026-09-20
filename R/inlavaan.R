@@ -213,6 +213,10 @@ inlavaan <- function(
   # `test` is an INLAvaan-only selection of post-estimation quantities (see
   # resolve_test() in R/utils.R); it never reaches lavaan as typed
   test_req <- resolve_test(test)
+  # What the user asked for, kept for the `test` record below: `test_req`
+  # itself loses any atom that does not exist for this model class (see the
+  # random-slope checks further down).
+  test_requested <- test_req
 
   lavargs <- list(...)
   lavargs$model <- model
@@ -249,7 +253,18 @@ inlavaan <- function(
   }
 
   ## ----- Initialise lavaan object --------------------------------------------
-  fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+  # lavaan refuses its own test statistics for random-slope models and says
+  # so. Under `do.fit = FALSE` they are never computed anyway, and INLAvaan
+  # never reads them, so the warning is noise here.
+  fit0 <- withCallingHandlers(
+    do.call(get(model.type, envir = asNamespace("lavaan")), lavargs),
+    warning = function(cond) {
+      msg <- conditionMessage(cond)
+      if (grepl("random slopes", msg) && grepl("test set to", msg)) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
   if (length(fit0@Data@ordered) > 0) {
     # Redo automatically with PML if ordinal data
     lavargs$estimator <- "PML"
@@ -266,6 +281,56 @@ inlavaan <- function(
   n <- fit0@SampleStats@ntotal
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
+
+  ## ----- Random-slope checks -------------------------------------------------
+  # A random-slope likelihood is a per-cluster kernel conditional on the
+  # covariates, which rules out two things the rest of the pipeline would
+  # otherwise do. Everything here is a no-op without an `rv()` modifier.
+  rs_skipped <- character(0)
+  if (has_random_slopes(lavmodel)) {
+    if (!isTRUE(lavmodel@fixed.x)) {
+      cli_abort(
+        c(
+          "Random-slope models require {.code fixed.x = TRUE}.",
+          "x" = "The likelihood conditions on the exogenous covariates, so
+                 their means and (co)variances are unidentified and would be
+                 reported back as their priors.",
+          "i" = "Refit without {.code fixed.x = FALSE}."
+        ),
+        class = "inlavaan_rs_fixedx"
+      )
+    }
+    if ("ppp" %in% test_req) {
+      test_req <- setdiff(test_req, "ppp")
+      rs_skipped <- c(
+        ppp = "A posterior predictive p-value compares the observed
+               within-cluster covariance with the model-implied one, and a
+               random-slope model implies no single within-cluster
+               covariance: the covariance of y depends on the covariate
+               values."
+      )
+      if (any(c("ppp", "full") %in% test)) {
+        cli_warn(
+          c(
+            "Dropping {.val ppp} from {.arg test}: a posterior predictive
+             p-value does not exist for a random-slope model.",
+            "x" = "Its discrepancy compares the observed within-cluster
+                   covariance with the model-implied one, and a random-slope
+                   model implies no single within-cluster covariance -- the
+                   covariance of y depends on the covariate values.",
+            "i" = "Use {.fn compare} (marginal likelihood, Bayes factors,
+                   DIC) or {.fn loo} instead."
+          ),
+          class = "inlavaan_rs_ppp"
+        )
+      } else if (isTRUE(verbose)) {
+        # Kept to one source line: cli_alert_info() does not re-wrap
+        cli_alert_info(
+          "No PPP: no single within-cluster covariance to compare with."
+        )
+      }
+    }
+  }
 
   # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
@@ -1213,7 +1278,7 @@ inlavaan <- function(
   # and skips them rather than failing the whole fit; the reason is kept in
   # the `test` record below rather than only in the transient warning.
   loo_res <- waic_res <- NULL
-  skipped <- character(0)
+  skipped <- rs_skipped
   if (any(c("loo", "waic") %in% test_req)) {
     if (isTRUE(verbose)) {
       samp_stage <- "Computing Taylor LOO and WAIC"
@@ -1250,7 +1315,11 @@ inlavaan <- function(
     !is.null(loo_res),
     !is.null(waic_res)
   )]
-  test_rec <- list(requested = test_req, computed = computed, skipped = skipped)
+  test_rec <- list(
+    requested = test_requested,
+    computed = computed,
+    skipped = skipped
+  )
 
   if (isTRUE(verbose)) {
     # Close the sampling step with an overview; the specific fit measures
