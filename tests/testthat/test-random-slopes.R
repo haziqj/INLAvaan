@@ -354,6 +354,34 @@ test_that("Random slopes: the quadrature route warns and honours ngh", {
   )
 })
 
+test_that("Random slopes: the quadrature route warns once per fit", {
+  skip_on_cran()
+  # The fit announces the route on its way in, and its own LOO pass used to
+  # announce it a second time
+  seen <- 0L
+  suppressWarnings(withCallingHandlers(
+    asem(
+      mod_b,
+      d_b,
+      cluster = "cluster",
+      integration.ngh = 5,
+      verbose = FALSE,
+      test = "loo",
+      nsamp = 3,
+      marginal_correction = "none",
+      vb_correction = FALSE
+    ),
+    inlavaan_rs_route_b = function(cond) {
+      seen <<- seen + 1L
+      invokeRestart("muffleWarning")
+    }
+  ))
+  expect_equal(seen, 1L)
+
+  # A user's own call still says which route it is scoring
+  expect_warning(loo(fit_route_b(5)), class = "inlavaan_rs_route_b")
+})
+
 test_that("Random slopes: comparing quadrature fits needs one node count", {
   skip_on_cran()
   # The quadrature error moves the log-likelihood by an amount comparable

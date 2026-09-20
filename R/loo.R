@@ -1197,7 +1197,8 @@ inlav_loo <- function(
   Sigma = NULL,
   eff_cores = 1L,
   verbose = FALSE,
-  max_seconds = Inf
+  max_seconds = Inf,
+  warn_route_b = TRUE
 ) {
   type <- match.arg(type)
   pt <- int$partable
@@ -1350,7 +1351,9 @@ inlav_loo <- function(
     # FIML branch below because those kernels handle incomplete data
     # themselves, and the sufficient-statistic missing objects would describe
     # the wrong likelihood.
-    if (spec$route == "B") {
+    # The fit itself warns when it takes this route, so its own LOO pass
+    # asks for silence here and the warning stays one per fit
+    if (spec$route == "B" && isTRUE(warn_route_b)) {
       warn_rs_route_b(spec)
     }
     units <- check_loo_units(units, spec$ncl, "clusters")

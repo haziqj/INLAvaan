@@ -1406,7 +1406,8 @@ inlavaan <- function(
       inlav_loo(
         int = int_fit,
         eff_cores = resolve_loo_cores(cores),
-        verbose = FALSE
+        verbose = FALSE,
+        warn_route_b = FALSE
       ),
       error = function(e) e
     )
