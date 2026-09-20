@@ -245,31 +245,47 @@ test_that("Random slopes: the closed-form route is silent", {
   )
 })
 
+# A covariate that lives at both levels is split into a latent
+# within-cluster part, and that part has to be integrated out by
+# Gauss-Hermite quadrature rather than in closed form. Twenty clusters of
+# eight keep each fit near a second.
+set.seed(2)
+J <- 20
+n <- 8
+cl <- rep(seq_len(J), each = n)
+xb <- rnorm(J)
+xw <- rnorm(J * n)
+x1 <- xb[cl] + xw
+u0 <- rnorm(J, 0, sqrt(0.5))
+u1 <- rnorm(J, 0, 0.5)
+y1 <- 1 + u0[cl] + (0.5 + u1[cl]) * xw + rnorm(J * n)
+d_b <- data.frame(y1 = y1, x1 = x1, cluster = cl)
+mod_b <- "
+  level: 1
+    y1 ~ rv('s1')*x1
+  level: 2
+    y1 ~ x1
+    y1 ~~ y1
+    s1 ~~ s1
+"
+fit_route_b <- function(ngh) {
+  suppressWarnings(
+    asem(
+      mod_b,
+      d_b,
+      cluster = "cluster",
+      integration.ngh = ngh,
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3,
+      marginal_correction = "none",
+      vb_correction = FALSE
+    )
+  )
+}
+
 test_that("Random slopes: the quadrature route warns and honours ngh", {
   skip_on_cran()
-  # A covariate that lives at both levels is split into a latent
-  # within-cluster part, and that part has to be integrated out by
-  # Gauss-Hermite quadrature rather than in closed form.
-  set.seed(2)
-  J <- 20
-  n <- 8
-  cl <- rep(seq_len(J), each = n)
-  xb <- rnorm(J)
-  xw <- rnorm(J * n)
-  x1 <- xb[cl] + xw
-  u0 <- rnorm(J, 0, sqrt(0.5))
-  u1 <- rnorm(J, 0, 0.5)
-  y1 <- 1 + u0[cl] + (0.5 + u1[cl]) * xw + rnorm(J * n)
-  d_b <- data.frame(y1 = y1, x1 = x1, cluster = cl)
-  mod_b <- "
-    level: 1
-      y1 ~ rv('s1')*x1
-    level: 2
-      y1 ~ x1
-      y1 ~~ y1
-      s1 ~~ s1
-  "
-
   expect_warning(
     fit_b <- asem(
       mod_b,
@@ -299,4 +315,24 @@ test_that("Random slopes: the quadrature route warns and honours ngh", {
     max(abs(coef(fit_b)[names(coef(fit_b_lav))] - coef(fit_b_lav))),
     0.3
   )
+})
+
+test_that("Random slopes: comparing quadrature fits needs one node count", {
+  skip_on_cran()
+  # The quadrature error moves the log-likelihood by an amount comparable
+  # with the differences read off a comparison table, so two node counts
+  # put the two fits on different scales.
+  fit_b5 <- fit_route_b(5)
+  fit_b5b <- fit_route_b(5)
+  fit_b7 <- fit_route_b(7)
+
+  expect_error(
+    compare(fit_b5, fit_b7),
+    class = "inlavaan_rs_compare_ngh"
+  )
+
+  # One node count throughout is all the guard asks for
+  expect_no_error(cmp <- compare(fit_b5, fit_b5b))
+  expect_named(cmp, c("Model", "npar", "Marg.Loglik", "logBF"))
+  expect_equal(diff(cmp$Marg.Loglik), 0, tolerance = 1e-4)
 })
