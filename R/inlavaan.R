@@ -330,6 +330,12 @@ inlavaan <- function(
         )
       }
     }
+    # A slope on a latent or split covariate replaces the closed-form
+    # cluster kernel with Gauss-Hermite quadrature, which is worth saying
+    # whatever `verbose` asks for.
+    if (isTRUE(lavcache[[1L]]$rs$info$nl.flag)) {
+      warn_rs_route_b(list(ngh = lavcache[[1L]]$rs$info$ngh))
+    }
   }
 
   # Partable and check for equality constraints

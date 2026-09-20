@@ -93,6 +93,13 @@ test_that("Random slopes: fit and posterior means", {
   expect_equal(spec$ncl, 24L)
 })
 
+test_that("Random slopes: the likelihood summaries exist", {
+  expect_true(is.finite(as.numeric(logLik(fit_rs))))
+  # deviance() needs the DIC components, which only the `dic` fit carries
+  expect_true(is.finite(as.numeric(deviance(fit_rs_dic))))
+  expect_no_error(capture.output(summary(fit_rs)))
+})
+
 test_that("Random slopes: fixed.x = FALSE is refused", {
   expect_error(
     asem(
@@ -181,4 +188,77 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(residuals(fit_rs), class = "inlavaan_rs_moments")
   expect_error(loo(fit_rs), class = "inlavaan_rs_loo")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
+})
+
+## ----- Route B (Gauss-Hermite quadrature) ------------------------------------
+
+test_that("Random slopes: the closed-form route is silent", {
+  expect_no_warning(
+    asem(
+      mod_rs,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      nsamp = 3
+    )
+  )
+})
+
+test_that("Random slopes: the quadrature route warns and honours ngh", {
+  skip_on_cran()
+  # A covariate that lives at both levels is split into a latent
+  # within-cluster part, and that part has to be integrated out by
+  # Gauss-Hermite quadrature rather than in closed form.
+  set.seed(2)
+  J <- 20
+  n <- 8
+  cl <- rep(seq_len(J), each = n)
+  xb <- rnorm(J)
+  xw <- rnorm(J * n)
+  x1 <- xb[cl] + xw
+  u0 <- rnorm(J, 0, sqrt(0.5))
+  u1 <- rnorm(J, 0, 0.5)
+  y1 <- 1 + u0[cl] + (0.5 + u1[cl]) * xw + rnorm(J * n)
+  d_b <- data.frame(y1 = y1, x1 = x1, cluster = cl)
+  mod_b <- "
+    level: 1
+      y1 ~ rv('s1')*x1
+    level: 2
+      y1 ~ x1
+      y1 ~~ y1
+      s1 ~~ s1
+  "
+
+  expect_warning(
+    fit_b <- asem(
+      mod_b,
+      d_b,
+      cluster = "cluster",
+      integration.ngh = 5,
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3,
+      marginal_correction = "none",
+      vb_correction = FALSE
+    ),
+    class = "inlavaan_rs_route_b"
+  )
+
+  spec <- rs_spec(get_inlavaan_internal(fit_b))
+  expect_equal(spec$route, "B")
+  # The node count used to be dropped on the way to lavaan, leaving every
+  # quadrature fit on lavaan's default of 21 nodes
+  expect_equal(spec$ngh, 5)
+  expect_true(is.finite(fitMeasures(fit_b, "margloglik")))
+
+  fit_b_lav <- suppressWarnings(
+    lavaan::sem(mod_b, d_b, cluster = "cluster", integration.ngh = 5)
+  )
+  expect_lt(
+    max(abs(coef(fit_b)[names(coef(fit_b_lav))] - coef(fit_b_lav))),
+    0.3
+  )
 })
