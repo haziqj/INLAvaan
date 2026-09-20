@@ -237,18 +237,6 @@
 #' be used directly whenever it conditions on the same covariates
 #' ([compare()] checks), and it fits far faster.
 #'
-#' One caveat at the boundary. When the data carry no slope variation, the
-#' marginal posterior of the slope variance piles up against zero and is
-#' strongly asymmetric, with an exponential-like left tail on the log
-#' scale. The skew-normal family used for the marginals cannot follow such
-#' a tail, so its 95% interval holds somewhat less than 95% of the
-#' posterior mass there; the posterior mean and the upper limit are
-#' affected in the third decimal, and the qualitative reading -- the
-#' interval reaches zero, so the data do not support slope variation -- is
-#' not. This is a property of parametric marginals at a boundary rather
-#' than of random slopes, and INLAvaan's fit [diagnostics()] are the
-#' safeguard.
-#'
 #' @seealso Typically, users will interact with the specific latent variable
 #'   model functions instead, including [acfa()], [asem()], and [agrowth()].
 #'

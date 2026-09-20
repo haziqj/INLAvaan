@@ -298,15 +298,6 @@ INLAvaan prefers an error that explains itself to a plausible wrong number, so t
 A random-slope model with observed exogenous covariates also requires `fixed.x = TRUE` (lavaan's default): the likelihood conditions on those covariates, so their means and (co)variances are unidentified and would simply be reported back as their priors.
 A model whose covariates are all latent or modelled has nothing to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own accord; such a fit is accepted as it stands.
 
-### A Note on the Boundary
-
-The slope variance in this fit sits against its lower bound, which is worth a word about the marginals.
-When the data carry no slope variation, the marginal posterior of the variance piles up against zero and is strongly asymmetric, with an exponential-like left tail on the log scale.
-The skew-normal family that INLAvaan fits to each marginal cannot follow such a tail, so its 95% interval holds somewhat less than 95% of the posterior mass there.
-The effect is small -- the posterior mean and the upper limit move in the third decimal -- and the qualitative reading is untouched: the interval reaches zero, so these data do not support slope variation.
-This is a property of parametric marginals at a boundary rather than of random slopes, and the fit's own diagnostics are the safeguard: the `NMAD` column of the summary measures how closely each fitted marginal tracks the scanned posterior, and it is largest for `.s1` here.
-`diagnostics()` reports the same quantity and flags the marginals that track it badly.
-
 ### Latent and Split Covariates
 
 Everything above uses a covariate that is observed and purely within-cluster, for which the random slope integrates out in closed form.
