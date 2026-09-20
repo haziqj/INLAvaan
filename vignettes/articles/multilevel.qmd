@@ -9,6 +9,7 @@ knitr:
   opts_chunk: 
     collapse: true
     comment: '#>'
+bibliography: ../refs.bib
 ---
 
 Standard SEM assumes that all observations are independent. 
@@ -153,3 +154,162 @@ fmt <- function(x) sprintf("%.3f", x)
 
 
 
+
+## Random Slopes
+
+The model above lets every school have its own average performance, but it forces the *effect* of study hours to be identical in all 200 schools.
+Often that is exactly the question of interest: does an extra hour of study buy more in some schools than in others?
+A **random slope** answers it by promoting a Level 1 regression coefficient to a Level 2 latent variable, with a mean, a variance, and cluster-level predictors of its own.
+
+In lavaan syntax a slope is made random by wrapping it in the `rv()` modifier, which gives it a name.
+That name is then an ordinary Level 2 latent variable, so it can be regressed on school-level predictors -- here on teacher experience `w1`, asking whether the study-hours effect is larger in schools with more experienced teachers.
+
+```{r}
+mod_rs <- "
+  level: 1
+      # Measurement model (Within-student)
+      fw =~ y1 + y2 + y3
+      # The effect of x1 is now a latent variable called s1
+      fw ~ rv('s1')*x1
+
+  level: 2
+      # Measurement model (Between-school)
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      # s1 behaves like any other Level 2 latent variable
+      s1 ~ w1
+"
+```
+
+The mean and variance of `s1` are added automatically, so only the cross-level regression has to be written out.
+The fit is requested exactly as before.
+
+```{r}
+fit_rs <- asem(mod_rs, data = Demo.twolevel, cluster = "cluster")
+```
+
+```{r}
+summary(fit_rs)
+```
+
+Two things in that output are specific to random slopes.
+At Level 1 the carrier row for `x1` is tagged `(s1)` and fixed at zero: the slope is no longer a Level 1 parameter, so there is nothing to report there.
+At Level 2 the slope appears in its own right -- its mean under *Intercepts* (`.s1`, the average study-hours effect across schools), its variance under *Variances* (`.s1`, how much that effect varies between schools), and its regression on `w1` under *Regressions*.
+
+### Fit Measures
+
+```{r}
+fitmeasures(fit_rs)
+```
+
+Four numbers, and no more.
+A random-slope model implies no single within-cluster covariance matrix -- the covariance of the outcomes depends on the values the covariates happen to take -- so there is nothing for an observed covariance matrix to be compared against.
+That removes the posterior predictive p-value and every index built on a chi-square against a saturated model (BRMSEA, BGammaHat, adjBGammaHat, BMc).
+Each of them would still return a number, but it would be a number about the wrong comparison, so INLAvaan drops `"ppp"` from the default `test` (the message printed above the fit) and raises an explanatory error for the indices.
+What remains is the model-comparison machinery, and that is enough to answer the substantive question.
+
+### Is There a Random Slope at All?
+
+The Bayesian answer is a model comparison.
+The natural comparator fixes the slope variance at zero **and** drops the cross-level regression on the slope: what is left is a slope that is one constant shared by every school, which is exactly the fixed-slope model, with the same log-likelihood and the same number of parameters.
+Keeping `s1 ~ w1` while fixing the variance gives a useful model in between -- a slope that varies from school to school, but deterministically, as a cross-level interaction with teacher experience.
+
+```{r}
+mod_cli <- "
+  level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+
+  level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      s1 ~ w1
+      # A school-varying slope, but with no variance of its own
+      s1 ~~ 0*s1
+"
+
+mod_fx <- "
+  level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+
+  level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      # One constant slope shared by every school
+      s1 ~~ 0*s1
+"
+fit_cli <- asem(mod_cli, data = Demo.twolevel, cluster = "cluster")
+fit_fx <- asem(mod_fx, data = Demo.twolevel, cluster = "cluster")
+```
+
+```{r}
+cmp <- compare(fit_rs, fit_cli, fit_fx)
+cmp
+```
+
+```{r}
+#| include: false
+bf <- stats::setNames(cmp$logBF, cmp$Model)
+```
+
+Because a random-slope likelihood is the density of the outcomes *given* the covariates, a table like this one only says something when every fit conditions on the same covariates in the same way.
+`compare()` checks that, and aborts otherwise; the three models here all condition on `x1` and `w1`, the last two keeping `w1` through `fb ~ w1`.
+The plain fixed-slope model written out directly (`fw ~ x1` at Level 1) is an equally valid member of the table whenever it conditions on the same covariates, and it fits a good deal faster.
+
+On `Demo.twolevel` the maximum-likelihood estimate of the slope variance is slightly negative, so there is no slope variation in these data to find, and the models without it are duly preferred: a log Bayes factor of `r fmt(bf["fit_cli"])` for the cross-level-interaction model and `r fmt(bf["fit_rs"])` for the full random-slope model, both against the fixed-slope fit, with the DIC ordering the three the same way.
+
+### Cross-Validation
+
+`loo()` and `waic()` work on random-slope fits too.
+
+```{r}
+loo(fit_rs)
+```
+
+The units are always clusters (leave-one-cluster-out), and the score is always the *conditional* flavour: the likelihood is the density of the outcomes given the covariates, so what is cross-validated is the prediction of a new school's outcomes from its covariates.
+Leave-one-observation-out is not available here, because deleting a single row would need a school's sufficient statistics downdated by one row and the random-slope likelihood is not built from such statistics.
+
+```{r}
+compare(fit_rs, fit_fx, loo = TRUE)
+```
+
+The paired standard error is the right uncertainty for a nested comparison like this one, and it confirms the reading above: the fixed-slope model predicts a held-out school slightly better, by about one elpd unit.
+
+### School-Level Slopes
+
+Even when the variance is small, the empirical Bayes estimates of the school-specific slopes are available, alongside the other Level 2 latent variables.
+
+```{r}
+predict(fit_rs, type = "lv", level = 2, summary = TRUE)
+```
+
+### What Is Not Available
+
+INLAvaan prefers an error that explains itself to a plausible wrong number, so the following raise one on a random-slope fit:
+
+- the posterior predictive p-value and the Bayesian fit indices from `bfit_indices()`, as described above;
+- `fitted()` and `residuals()`, whose implied moments silently drop the slope variance and would report it as misfit;
+- `simulate()`, lavaan having no random-slope data generator;
+- `predict()` for anything other than `type = "lv"`;
+- `loo(type = "loso")`.
+
+Random slopes also require `fixed.x = TRUE` (lavaan's default): the likelihood conditions on the exogenous covariates, so their means and (co)variances are unidentified and would simply be reported back as their priors.
+
+### A Note on the Boundary
+
+The slope variance in this fit sits against its lower bound, which is worth a word about the marginals.
+When the data carry no slope variation, the marginal posterior of the variance piles up against zero and is strongly asymmetric, with an exponential-like left tail on the log scale.
+The skew-normal family that INLAvaan fits to each marginal cannot follow such a tail, so its 95% interval holds somewhat less than 95% of the posterior mass there.
+The effect is small -- the posterior mean and the upper limit move in the third decimal -- and the qualitative reading is untouched: the interval reaches zero, so these data do not support slope variation.
+This is a property of parametric marginals at a boundary rather than of random slopes, and the fit's own diagnostics are the safeguard: the `NMAD` column of the summary measures how closely each fitted marginal tracks the scanned posterior, and it is largest for `.s1` here.
+`diagnostics()` reports the same quantity and flags the marginals that track it badly.
+
+### Latent and Split Covariates
+
+Everything above uses a covariate that is observed and purely within-cluster, for which the random slope integrates out in closed form.
+When the covariate is latent, or split across both levels (the same variable entering at Level 1 and at Level 2), the integral has to be done by Gauss-Hermite quadrature instead [@rockwood2020maximum].
+INLAvaan takes that route automatically and warns when it does.
+The argument `integration.ngh` sets the number of nodes per dimension; because it is an accuracy setting as much as a cost setting, every fit that is to appear in the same `compare()` table must use the same value, which `compare()` also checks.
+
+## References
