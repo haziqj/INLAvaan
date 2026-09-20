@@ -10,6 +10,24 @@
 
 ## Bug fixes
 
+* The incremental fit indices `BCFI`, `BTLI` and `BNFI` were scaled against
+  whatever fit the caller passed as `baseline.model`, and `compare()`
+  silently used its first argument as that baseline: a model listed first
+  was scored against itself, which gives zero by construction, and the
+  later models were scored against it rather than against a null model.
+  `fitMeasures()`, `bfit_indices()` and `compare()` now fit the
+  independence model (every observed variable keeps its variance and
+  intercept, nothing correlates) on the same data and options
+  automatically, as lavaan does. The fit reuses the data slots of the
+  fitted object, uses Gaussian marginals and no VB shift, since the indices
+  need only its posterior draws and pD, and takes a fraction of a second
+  even for 64 items. `compare()` fits it once and shares it across the
+  table. Pass `baseline.model` to override it, or `baseline.model = FALSE`
+  to skip the incremental indices; a `baseline.model` with the same free
+  parameters as the model now warns. `BTLI` is `NA`, not `-Inf`, when the
+  baseline's own ratio is 1. Absolute indices (`BRMSEA`, `BGammaHat`,
+  `adjBGammaHat`, `BMc`) are unchanged.
+
 * `sampling()` returned only the within-level block for two-level models —
   `type = "latent"` omitted the between-level latent variables,
   `type = "observed"` omitted the between-level component and the
