@@ -10,6 +10,14 @@
 
 ## Bug fixes
 
+* `inlav_model_loglik()` passed lavaan the un-updated model object and no
+  cache, so lavaan's random-slope branch read its parameters off the model
+  as it stood at setup: the log-likelihood of a model with an `rv()` slope
+  was constant in the parameters, and `integration.ngh` was silently
+  ignored, leaving every Gauss-Hermite fit on lavaan's default of 21 nodes.
+  Both arguments are now passed, which is what makes random slopes fittable
+  at all.
+
 * With `marginal_method = "marggaus"`, the `Mean` and `SD` reported for a
   parameter estimated on a transformed scale (variances, correlations) were
   the back-transformed Gaussian centre and a delta-method SD, so `Mean` was
@@ -81,6 +89,30 @@
   both (see the `test` entry under New features).
 
 ## New features
+
+* **Random slopes.** lavaan's `rv()` modifier turns a level-1 regression
+  coefficient into a level-2 latent variable, and `inlavaan()` now fits such
+  models on both of lavaan's likelihood routes: the closed form when the
+  covariate carrying the slope is observed and purely within-cluster, and
+  Gauss-Hermite quadrature when it is latent or split across both levels
+  (that route warns at fit time, and `integration.ngh` passes through to
+  lavaan, where it is an accuracy setting as much as a cost one).
+  `compare()` puts such fits in one table -- marginal likelihood, Bayes
+  factors, DIC and pD -- `logLik()` and `deviance()` report the likelihood
+  summaries, `fitmeasures()` keeps `npar`, `margloglik`, `dic` and `p_dic`,
+  `loo()` and `waic()` score the fit leave-one-cluster-out on the
+  conditional likelihood, `predict(type = "lv")` returns the cluster-level
+  slopes from lavaan's empirical Bayes kernel, and `summary()` tags the
+  level-1 carrier row with the slope's name (`x1 (s1)`). What such a model
+  cannot support aborts with an explanation rather than returning a
+  plausible number: it implies no single within-cluster covariance matrix,
+  so the posterior predictive p-value is dropped from `test` with a message,
+  and the Bayesian fit indices, `fitted()`, `residuals()`, `simulate()`,
+  `predict()` for anything but `type = "lv"`, and `loo(type = "loso")` all
+  raise an error saying why. `fixed.x = TRUE` is required -- the likelihood
+  conditions on the exogenous covariates, so their moments are unidentified
+  -- and a `fixed.x = FALSE` fit is refused. See the Random slopes section
+  of `?inlavaan` and the multilevel article.
 
 * New `vb_method` argument to `inlavaan()`, `acfa()`, `asem()` and
   `agrowth()` chooses the integration rule for the VB mean correction.
