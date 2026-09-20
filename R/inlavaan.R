@@ -412,12 +412,18 @@ inlavaan <- function(
     }
     if ("ppp" %in% test_req) {
       test_req <- setdiff(test_req, "ppp")
+      # Collapsed to one line because the reason is handed back to the
+      # user through `test$skipped`, where the source indentation of a
+      # wrapped string would show through
       rs_skipped <- c(
-        ppp = "A posterior predictive p-value compares the observed
-               within-cluster covariance with the model-implied one, and a
-               random-slope model implies no single within-cluster
-               covariance: the covariance of y depends on the covariate
-               values."
+        ppp = gsub(
+          "\\s+",
+          " ",
+          "A posterior predictive p-value compares the observed
+           within-cluster covariance with the model-implied one, and a
+           random-slope model implies no single within-cluster covariance:
+           the covariance of y depends on the covariate values."
+        )
       )
       if (any(c("ppp", "full") %in% test)) {
         cli_warn(
