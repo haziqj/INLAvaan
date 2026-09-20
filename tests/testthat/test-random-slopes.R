@@ -190,6 +190,15 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
 })
 
+test_that("Random slopes: summary() marks the carrier row", {
+  out <- capture.output(summary(fit_rs))
+
+  expect_true(any(grepl("(s1)", out, fixed = TRUE)))
+  expect_true(any(grepl("random slope", out, fixed = TRUE)))
+  # lavaan itself drops the `s1 =~ s1` marker row from the estimates
+  expect_false(any(grepl("s1 =~", out, fixed = TRUE)))
+})
+
 test_that("Random slopes: latent variables come from the EB kernel", {
   p2 <- predict(fit_rs, type = "lv", level = 2L, nsamp = 5)
   expect_length(p2, 5L)

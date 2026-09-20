@@ -14,6 +14,15 @@ test_that("summary(standardized = TRUE) works with equality constraints", {
   expect_true(any(grepl("Std.all", out)))
 })
 
+test_that("summary() without random slopes gains no annotation", {
+  out <- capture.output(summary(fit))
+
+  expect_false(any(grepl("random slope", out, fixed = TRUE)))
+  # The user's own labels are left alone
+  expect_true(any(grepl("(a)", out, fixed = TRUE)))
+  expect_true(any(grepl("(b)", out, fixed = TRUE)))
+})
+
 test_that("summary(estimates = FALSE) prints the header only", {
   expect_no_error(out <- capture.output(summary(fit, estimates = FALSE)))
   expect_true(any(grepl("Number of model parameters", out)))

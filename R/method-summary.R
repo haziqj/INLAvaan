@@ -124,6 +124,28 @@ summary_inlavaan <- function(
 
   # Now need to put information into PE from pt and summary
   pt <- object@ParTable
+
+  # Random slopes: lavaan drops the `s1 =~ s1` marker row from the
+  # estimates and leaves the level-1 carrier at zero with nothing to say
+  # why. Labelling the carrier with the slope name renders it as
+  # `x1 (s1)`, and a legend under the table says where to read it.
+  rs_labels <- character(0)
+  if (!is.null(pt$rv) && any(nzchar(pt$rv))) {
+    rvidx <- which(nzchar(pt$rv) & pt$op == "~")
+    pervidx <- match(
+      paste0(pt$lhs[rvidx], pt$op[rvidx], pt$rhs[rvidx], pt$block[rvidx]),
+      paste0(PE$lhs, PE$op, PE$rhs, PE$block)
+    )
+    keep <- !is.na(pervidx)
+    if (any(keep)) {
+      if (is.null(PE$label)) {
+        PE$label <- ""
+      }
+      PE$label[pervidx[keep]] <- pt$rv[rvidx][keep]
+      rs_labels <- unique(pt$rv[rvidx][keep])
+    }
+  }
+
   ptfreeidx <- which(pt$free > 0)
   ptdefidx <- which(pt$op == ":=")
   ptdeltaidx <- which(pt$op == "~*~")
@@ -273,6 +295,23 @@ summary_inlavaan <- function(
     ))[2],
     garb[(idxpehead + 2):length(garb)]
   )
+
+  if (length(rs_labels) > 0) {
+    rs_names <- paste(rs_labels, collapse = ", ")
+    newgarb <- c(
+      newgarb,
+      "",
+      paste0(
+        "  (",
+        rs_names,
+        ")  random slope",
+        if (length(rs_labels) > 1L) "s" else "",
+        ": mean, variance and regressions appear as ",
+        rs_names,
+        " at Level 2"
+      )
+    )
+  }
 
   # Print
   cat(paste0(newgarb, collapse = "\n"))
