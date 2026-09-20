@@ -171,3 +171,143 @@ test_that("Observed posterior draws are centred without a mean structure", {
   ybar <- colMeans(hs[, colnames(yrep)])
   expect_lt(max(abs(colMeans(yrep) - ybar)), 0.5)
 })
+
+## ----- Two-level fits --------------------------------------------------------
+mod_ml <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ x1
+  level: 2
+    fb =~ y1 + y2 + y3
+    fb ~ w1
+"
+dat_ml <- subset(lavaan::Demo.twolevel, cluster <= 24)
+fit_ml <- asem(
+  mod_ml,
+  dat_ml,
+  cluster = "cluster",
+  verbose = FALSE,
+  test = "none",
+  nsamp = 50,
+  vb_correction = FALSE,
+  marginal_correction = "none"
+)
+
+test_that("sampling() type = 'implied' returns the within/cluster pair", {
+  s <- sampling(fit_ml, type = "implied", nsamp = 1)
+  expect_length(s, 1)
+  expect_named(s[[1]], c("within", "cluster"))
+
+  # At the posterior mode the two blocks must reproduce lavaan's own
+  # model-implied moments exactly.
+  lavmodel_x <- lavaan::lav_model_set_parameters(fit_ml@Model, coef(fit_ml))
+  implied <- lavaan::lav_model_implied(lavmodel_x)
+  int <- INLAvaan:::get_inlavaan_internal(fit_ml)
+  fixed <- INLAvaan:::compute_implied_moments_ml(
+    coef(fit_ml),
+    int$lavmodel,
+    int$lavdata
+  )
+
+  expect_named(fixed, c("within", "cluster"))
+  expect_equal(
+    fixed$within$cov,
+    implied$cov[[1]],
+    tolerance = 1e-8,
+    ignore_attr = TRUE
+  )
+  expect_equal(
+    fixed$cluster$cov,
+    implied$cov[[2]],
+    tolerance = 1e-8,
+    ignore_attr = TRUE
+  )
+  expect_equal(
+    fixed$within$mean,
+    as.numeric(implied$mean[[1]]),
+    tolerance = 1e-8,
+    ignore_attr = TRUE
+  )
+  expect_equal(
+    fixed$cluster$mean,
+    as.numeric(implied$mean[[2]]),
+    tolerance = 1e-8,
+    ignore_attr = TRUE
+  )
+  expect_equal(colnames(fixed$within$cov), c("y1", "y2", "y3", "x1"))
+  expect_equal(colnames(fixed$cluster$cov), c("y1", "y2", "y3", "w1"))
+})
+
+test_that("sampling() type = 'latent' covers both levels", {
+  s <- sampling(fit_ml, type = "latent", nsamp = 6)
+  expect_true(is.matrix(s))
+  expect_equal(nrow(s), 6)
+  expect_true(all(c("fw", "fb") %in% colnames(s)))
+  expect_true(all(is.finite(s)))
+})
+
+test_that("sampling() type = 'observed' covers both levels", {
+  s <- sampling(fit_ml, type = "observed", nsamp = 6)
+  expect_true(is.matrix(s))
+  expect_equal(nrow(s), 6)
+  expect_setequal(colnames(s), c("y1", "y2", "y3", "x1", "w1"))
+  expect_true(all(is.finite(s)))
+})
+
+test_that("Two-level observed draws follow the two-level moments", {
+  # Draws at a fixed parameter vector: the marginal covariance of a variable
+  # present at both levels is the sum of the within and cluster blocks, and a
+  # between-only variable carries the cluster block's variance alone.
+  int <- INLAvaan:::get_inlavaan_internal(fit_ml)
+  x <- coef(fit_ml)
+  implied <- lavaan::lav_model_implied(
+    lavaan::lav_model_set_parameters(fit_ml@Model, x)
+  )
+
+  set.seed(20240917)
+  draws <- t(vapply(
+    seq_len(2000),
+    function(i) {
+      INLAvaan:::sample_generative_ml(x, int$lavmodel, int$lavdata)$observed
+    },
+    numeric(5)
+  ))
+
+  S <- stats::cov(draws)
+  target_y <- diag(implied$cov[[1]])[1:3] + diag(implied$cov[[2]])[1:3]
+  expect_lt(max(abs(diag(S)[1:3] / target_y - 1)), 0.25)
+
+  var_w1 <- implied$cov[[2]][4, 4]
+  expect_lt(abs(S["w1", "w1"] / var_w1 - 1), 0.25)
+})
+
+test_that("sampling() type = 'all' works for two-level fits", {
+  s <- sampling(fit_ml, type = "all", nsamp = 4)
+  expect_named(s, c("lavaan", "theta", "latent", "observed", "implied"))
+  expect_equal(nrow(s$lavaan), 4)
+  expect_equal(nrow(s$theta), 4)
+  expect_equal(nrow(s$latent), 4)
+  expect_equal(nrow(s$observed), 4)
+  expect_length(s$implied, 4)
+  expect_named(s$implied[[1]], c("within", "cluster"))
+})
+
+test_that("sampling() prior = TRUE covers both levels", {
+  s <- sampling(fit_ml, type = "latent", nsamp = 4, prior = TRUE, silent = TRUE)
+  expect_equal(nrow(s), 4)
+  expect_true(all(c("fw", "fb") %in% colnames(s)))
+
+  im <- sampling(fit_ml, type = "implied", nsamp = 2, prior = TRUE)
+  expect_length(im, 2)
+  expect_named(im[[1]], c("within", "cluster"))
+})
+
+test_that("Single-level draws are unchanged by the two-level path", {
+  lat <- sampling(fit, type = "latent", nsamp = 5)
+  expect_equal(colnames(lat), c("visual", "textual"))
+  obs <- sampling(fit, type = "observed", nsamp = 5, silent = TRUE)
+  expect_equal(colnames(obs), paste0("x", 1:6))
+  im <- sampling(fit, type = "implied", nsamp = 2)
+  expect_equal(colnames(im[[1]]$cov), paste0("x", 1:6))
+  expect_null(im[[1]]$mean)
+})
