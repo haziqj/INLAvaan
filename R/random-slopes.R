@@ -24,8 +24,18 @@ rs_spec <- function(int) {
       class = "inlavaan_rs_cache"
     )
   }
-  cond <- unique(c(rs$info$x.names, rs$info$exo.b.names, rs$info$zb.names))
+  # What the kernel conditions on, and what it scores. `x.names` are the
+  # level-1 covariates carrying the slopes and `exo.b.names` the
+  # between-level exogenous variables, both of which the kernel takes as
+  # given. `zb.names` are the between-only endogenous variables, which it
+  # models and which therefore belong to the response set, alongside
+  # `y.names` -- on the quadrature route the latter already includes a
+  # split covariate, which the kernel scores jointly with the outcomes.
+  # (`yb.names`, the between-level responses, is a subset of `y.names`.)
+  cond <- unique(c(rs$info$x.names, rs$info$exo.b.names))
   cond <- cond[nzchar(cond)]
+  resp <- unique(c(rs$info$y.names, rs$info$zb.names))
+  resp <- resp[nzchar(resp)]
   list(
     rs = rs,
     slopes = c(names(lavmodel@rv.ov), names(lavmodel@rv.lv)),
@@ -33,7 +43,8 @@ rs_spec <- function(int) {
     ngh = rs$info$ngh,
     ncl = rs$stats$nclusters,
     nobs = rs$stats$cluster.size,
-    cond = cond
+    cond = cond,
+    resp = resp
   )
 }
 

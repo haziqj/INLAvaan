@@ -1002,9 +1002,12 @@ resolve_loo_cores <- function(cores) {
 # scored on its own conditional likelihood, a fit with modelled covariates
 # on the joint one
 loo_flavour <- function(int) {
-  # A random-slope kernel scores the outcomes given the covariates whatever
-  # the covariate bookkeeping says, so it is conditional by construction
-  # (and fixed.x = TRUE is enforced at fit time anyway).
+  # A random-slope kernel conditions on the between-level exogenous
+  # covariates it carries whatever the covariate bookkeeping says, so the
+  # label is conditional. On the quadrature route a split covariate is part
+  # of the kernel's response vector instead and is scored jointly with the
+  # outcomes, which the label does not say: comparability across fits is
+  # enforced on the kernel's own response set in check_rs_comparable().
   if (has_random_slopes(int$lavmodel)) {
     return("conditional")
   }

@@ -377,3 +377,128 @@ test_that("compare(loo = TRUE) works across random-slope fits", {
   expect_equal(attr(cmp, "loo_n_models"), 2L)
   expect_equal(sum(cmp$elpd_diff == 0), 1L)
 })
+
+test_that("a between-level factor is compared on the kernel's own sets", {
+  skip_on_cran()
+  # `fz =~ w1 + w2` makes w1 and w2 part of what the kernel models, not
+  # part of what it conditions on, so this fit is on the same scale as the
+  # plain fixed-slope fit that models them the same way
+  mod_zb <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fz =~ w1 + w2
+      fb ~ fz
+      s1 ~ fz
+  "
+  mod_zb_fx <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fz =~ w1 + w2
+      fb ~ fz
+  "
+  # Three parameters of these small fits trip the marginal-fit diagnostic,
+  # which has nothing to do with what is being tested here
+  fit_zb <- suppressWarnings(fit_twolevel(mod_zb))
+  fit_zb_fx <- suppressWarnings(fit_twolevel(mod_zb_fx))
+
+  spec <- rs_spec(get_inlavaan_internal(fit_zb))
+  expect_equal(spec$cond, "x1")
+  expect_setequal(spec$resp, c("y1", "y2", "y3", "w1", "w2"))
+
+  expect_no_error(cmp <- compare(fit_zb, fit_zb_fx))
+  expect_true(all(is.finite(cmp$Marg.Loglik)))
+
+  # Regressing on w1 and w2 instead conditions on them, which is a
+  # different scale again -- the conditioning check is the first to fire
+  mod_exo <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1 + w2
+      s1 ~ w1 + w2
+  "
+  fit_exo <- suppressWarnings(fit_twolevel(mod_exo))
+  expect_setequal(
+    rs_spec(get_inlavaan_internal(fit_exo))$cond,
+    c("x1", "w1", "w2")
+  )
+  expect_error(
+    compare(fit_zb, fit_exo),
+    class = "inlavaan_rs_compare_cond"
+  )
+})
+
+test_that("quadrature fits scoring different covariates are refused", {
+  skip_on_cran()
+  # A covariate that lives at both levels is part of the kernel's response
+  # vector, so a second one adds log p(x2) to the marginal likelihood
+  set.seed(2)
+  J <- 12
+  n <- 6
+  cl <- rep(seq_len(J), each = n)
+  xw <- stats::rnorm(J * n)
+  x1 <- stats::rnorm(J)[cl] + xw
+  x2 <- stats::rnorm(J)[cl] + stats::rnorm(J * n)
+  u0 <- stats::rnorm(J, 0, sqrt(0.5))
+  u1 <- stats::rnorm(J, 0, 0.5)
+  d_b <- data.frame(
+    y1 = 1 + u0[cl] + (0.5 + u1[cl]) * xw + stats::rnorm(J * n),
+    x1 = x1,
+    x2 = x2,
+    cluster = cl
+  )
+  fit_b <- function(mod) {
+    suppressWarnings(
+      asem(
+        mod,
+        d_b,
+        cluster = "cluster",
+        integration.ngh = 5,
+        verbose = FALSE,
+        nsamp = 3,
+        test = "none",
+        marginal_correction = "none",
+        vb_correction = FALSE
+      )
+    )
+  }
+  fit_b1 <- fit_b(
+    "
+    level: 1
+      y1 ~ rv('s1')*x1
+    level: 2
+      y1 ~ x1
+      y1 ~~ y1
+      s1 ~~ s1
+  "
+  )
+  fit_b2 <- fit_b(
+    "
+    level: 1
+      y1 ~ rv('s1')*x1 + rv('s2')*x2
+    level: 2
+      y1 ~ x1 + x2
+      y1 ~~ y1
+      s1 ~~ s1
+      s2 ~~ s2
+  "
+  )
+
+  spec1 <- rs_spec(get_inlavaan_internal(fit_b1))
+  expect_setequal(spec1$resp, c("y1", "x1"))
+  expect_length(spec1$cond, 0L)
+
+  err <- expect_error(
+    compare(fit_b1, fit_b2),
+    class = "inlavaan_rs_compare_resp"
+  )
+  expect_match(conditionMessage(err), "x2")
+})

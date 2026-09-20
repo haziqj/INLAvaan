@@ -57,10 +57,15 @@
 #' outcomes *given* the exogenous covariates, so a table of such fits says
 #' something only when every fit conditions in the same way. `compare()`
 #' therefore aborts unless all the models were fitted with
-#' `fixed.x = TRUE`, all condition on the same covariates, and all
-#' Gauss-Hermite fits share one `integration.ngh`: a Bayes factor between
-#' quantities on different scales is not a weaker statement but a
-#' meaningless one. To test the slope itself, keep the covariates and fix
+#' `fixed.x = TRUE`, all condition on the same covariates, all score the
+#' same variables, and all Gauss-Hermite fits share one `integration.ngh`:
+#' a Bayes factor between quantities on different scales is not a weaker
+#' statement but a meaningless one. The conditioning and response sets are
+#' the kernel's own: a between-level variable the model regresses on is
+#' conditioned on, one the model explains is scored, and on the
+#' Gauss-Hermite route a covariate split across the two levels is scored
+#' jointly with the outcomes. The same response set governs the variable
+#' check under `loo = TRUE`. To test the slope itself, keep the covariates and fix
 #' the variance instead -- `s1 ~~ 0*s1`, with any cross-level regression on
 #' the slope dropped, is the exact fixed-slope comparator. Comparisons of
 #' ordinary fits are untouched.
@@ -329,6 +334,12 @@ compare_impl <- function(
     # variable sets must match; conditional scores are densities over the
     # outcomes only, so covariate sets may differ but the outcomes must match
     score_vars <- lapply(internals, function(m) {
+      spec <- rs_spec(m)
+      if (!is.null(spec)) {
+        # A random-slope kernel scores its own response set, which on the
+        # quadrature route holds the split covariates as well
+        return(sort(unique(spec$resp)))
+      }
       ov <- sort(unique(unlist(m$lavdata@ov.names)))
       if (flavs[1L] == "conditional") {
         setdiff(ov, unlist(m$lavdata@ov.names.x))
@@ -472,7 +483,8 @@ check_rs_comparable <- function(internals, modnames) {
   }
 
   # (b) Which covariates? A random-slope fit conditions on the covariates its
-  # kernel carries; an ordinary fixed.x fit on its exogenous variables.
+  # kernel carries. An ordinary fixed.x fit conditions on its exogenous
+  # variables.
   cond <- lapply(seq_along(internals), function(k) {
     v <- if (is.null(specs[[k]])) {
       unlist(internals[[k]]$lavdata@ov.names.x)
@@ -499,7 +511,42 @@ check_rs_comparable <- function(internals, modnames) {
     )
   }
 
-  # (c) How accurately is the slope integrated out? Route B replaces the
+  # (c) Which variables are scored? A random-slope fit scores the response
+  # set its kernel carries -- the outcomes, the between-only endogenous
+  # variables it models, and, on the quadrature route, the split covariates
+  # that sit in the response vector. An ordinary fixed.x fit scores
+  # everything it does not condition on.
+  resp <- lapply(seq_along(internals), function(k) {
+    v <- if (is.null(specs[[k]])) {
+      setdiff(
+        unlist(internals[[k]]$lavdata@ov.names),
+        unlist(internals[[k]]$lavdata@ov.names.x)
+      )
+    } else {
+      specs[[k]]$resp
+    }
+    sort(unique(v[nzchar(v)]))
+  })
+  same <- vapply(resp, identical, logical(1), y = resp[[1L]])
+  if (!all(same)) {
+    k <- which(!same)[1L]
+    cli_abort(
+      c(
+        "Cannot compare fits that score different variables.",
+        "x" = "{.val {modnames[1L]}} scores {.val {resp[[1L]]}} but
+               {.val {modnames[k]}} scores {.val {resp[[k]]}}, and the
+               kernels give these variables a joint density, so the
+               marginal log-likelihoods and DICs are densities of different
+               things.",
+        "i" = "Keep the same variables in every model: to test a path, drop
+               the regression but keep the variable, or fix the slope
+               variance to zero with {.code s1 ~~ 0*s1}."
+      ),
+      class = "inlavaan_rs_compare_resp"
+    )
+  }
+
+  # (d) How accurately is the slope integrated out? Route B replaces the
   # closed form with Gauss-Hermite quadrature, whose error moves the
   # log-likelihood by an amount comparable with the differences being read
   # off the table.
