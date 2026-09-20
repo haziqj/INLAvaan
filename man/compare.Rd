@@ -105,10 +105,10 @@ the kernel's own: a between-level variable the model regresses on is
 conditioned on, one the model explains is scored, and on the
 Gauss-Hermite route a covariate split across the two levels is scored
 jointly with the outcomes. The same response set governs the variable
-check under \code{loo = TRUE}. To test the slope itself, keep the covariates and fix
-the variance instead -- \code{s1 ~~ 0*s1}, with any cross-level regression on
-the slope dropped, is the exact fixed-slope comparator. Comparisons of
-ordinary fits are untouched.
+check under \code{loo = TRUE}. To test the slope itself, keep the covariates
+and fix the variance instead -- \code{s1 ~~ 0*s1}, with any cross-level
+regression on the slope dropped, is the exact fixed-slope comparator.
+Comparisons of ordinary fits are untouched.
 
 \code{anova()} is disabled for \code{INLAvaan} fits -- there is no direct Bayesian
 analogue of the classical likelihood-ratio test -- and points here instead.

@@ -255,6 +255,7 @@ bf <- stats::setNames(cmp$logBF, cmp$Model)
 
 Because a random-slope likelihood is the density of the outcomes *given* the covariates, a table like this one only says something when every fit conditions on the same covariates in the same way.
 `compare()` checks that, and aborts otherwise; the three models here all condition on `x1` and `w1`, the last two keeping `w1` through `fb ~ w1`.
+It checks the other side of the split as well: the variables the kernel *scores* -- the outcomes, plus any between-level variable the model explains rather than regresses on -- must also match across the table.
 The plain fixed-slope model written out directly (`fw ~ x1` at Level 1) is an equally valid member of the table whenever it conditions on the same covariates, and it fits a good deal faster.
 
 On `Demo.twolevel` the maximum-likelihood estimate of the slope variance is slightly negative, so there is no slope variation in these data to find, and the models without it are duly preferred: a log Bayes factor of `r fmt(bf["fit_cli"])` for the cross-level-interaction model and `r fmt(bf["fit_rs"])` for the full random-slope model, both against the fixed-slope fit, with the DIC ordering the three the same way.
@@ -294,7 +295,8 @@ INLAvaan prefers an error that explains itself to a plausible wrong number, so t
 - `predict()` for anything other than `type = "lv"`;
 - `loo(type = "loso")`.
 
-Random slopes also require `fixed.x = TRUE` (lavaan's default): the likelihood conditions on the exogenous covariates, so their means and (co)variances are unidentified and would simply be reported back as their priors.
+A random-slope model with observed exogenous covariates also requires `fixed.x = TRUE` (lavaan's default): the likelihood conditions on those covariates, so their means and (co)variances are unidentified and would simply be reported back as their priors.
+A model whose covariates are all latent or modelled has nothing to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own accord; such a fit is accepted as it stands.
 
 ### A Note on the Boundary
 
@@ -311,5 +313,6 @@ Everything above uses a covariate that is observed and purely within-cluster, fo
 When the covariate is latent, or split across both levels (the same variable entering at Level 1 and at Level 2), the integral has to be done by Gauss-Hermite quadrature instead [@rockwood2020maximum].
 INLAvaan takes that route automatically and warns when it does.
 The argument `integration.ngh` sets the number of nodes per dimension; because it is an accuracy setting as much as a cost setting, every fit that is to appear in the same `compare()` table must use the same value, which `compare()` also checks.
+A split covariate is part of what the quadrature kernel scores rather than something it conditions on, so two such fits are comparable only when they split the same covariates.
 
 ## References

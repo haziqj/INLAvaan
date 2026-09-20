@@ -109,10 +109,16 @@
   so the posterior predictive p-value is dropped from `test` with a message,
   and the Bayesian fit indices, `fitted()`, `residuals()`, `simulate()`,
   `predict()` for anything but `type = "lv"`, and `loo(type = "loso")` all
-  raise an error saying why. `fixed.x = TRUE` is required -- the likelihood
-  conditions on the exogenous covariates, so their moments are unidentified
-  -- and a `fixed.x = FALSE` fit is refused. See the Random slopes section
-  of `?inlavaan` and the multilevel article.
+  raise an error saying why. A model with observed exogenous covariates
+  requires `fixed.x = TRUE` -- the likelihood conditions on those
+  covariates, so their moments are unidentified -- and a
+  `fixed.x = FALSE` fit is refused. A model whose covariates are all
+  latent or modelled has nothing to hold fixed, carries lavaan's own
+  `fixed.x = FALSE`, and is accepted as it stands. Equality constraints
+  are supported among parameters that share a transformation: loadings,
+  regressions and intercepts with one another, variances with one
+  another. See the Random slopes section of `?inlavaan` and the
+  multilevel article.
 
 * New `vb_method` argument to `inlavaan()`, `acfa()`, `asem()` and
   `agrowth()` chooses the integration rule for the VB mean correction.
