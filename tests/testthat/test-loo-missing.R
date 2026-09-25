@@ -55,22 +55,25 @@ test_that("the test dataset has the expected missingness", {
 test_that("FIML LOSO matches reference values", {
   # Reference values from an independent prototype of the same observed-data
   # Taylor LOO formulas on this exact fit (lab 02-package-validation.R),
-  # cross-checked below against lavaan's FIML loglik and finite differences
+  # cross-checked below against lavaan's FIML loglik and finite differences.
+  # Refreshed 2026-09-25 after the saturated-means fast path was switched
+  # off under FIML: the mode (l_star) is unchanged, the Laplace covariance
+  # now carries the mean/covariance coupling of the FIML information
   expect_equal(res$type, "loso")
   expect_equal(res$flavour, "joint")
   expect_equal(res$n_units, 70L)
-  expect_equal(res$elpd_1, -810.8096330551, tolerance = 1e-4)
-  expect_equal(res$elpd_2, -829.4835098090, tolerance = 1e-4)
-  expect_equal(res$se_1, 21.8869310500, tolerance = 1e-4)
-  expect_equal(res$se_2, 22.5837971790, tolerance = 1e-4)
-  expect_equal(res$p_loo_1, 27.7612891234, tolerance = 1e-2)
+  expect_equal(res$elpd_1, -811.1753858767, tolerance = 1e-4)
+  expect_equal(res$elpd_2, -830.3571670168, tolerance = 1e-4)
+  expect_equal(res$se_1, 21.9053202468, tolerance = 1e-4)
+  expect_equal(res$se_2, 22.6162191421, tolerance = 1e-4)
+  expect_equal(res$p_loo_1, 28.4929008194, tolerance = 1e-2)
   # A unit here has no second-order lpd and contributes its first-order
   # difference to p_loo, while elpd_loo keeps its second order (see
   # test-loo-loso.R).
   expect_equal(res$n_ok, res$n_units)
   expect_lt(res$n_lpd_ok, res$n_units)
   expect_true(res$use_second)
-  expect_equal(res$p_loo_2, 32.7683746310, tolerance = 1e-2)
+  expect_equal(res$p_loo_2, 33.6053890188, tolerance = 1e-2)
   expect_equal(unname(res$estimates["p_loo", "Estimate"]), res$p_loo_2)
 
   # rows spanning complete (4), one hole (2), and three holes (11)
@@ -83,17 +86,17 @@ test_that("FIML LOSO matches reference values", {
   )
   expect_equal(
     pu$log_cpo_1,
-    c(-10.09565853301, -10.79854756016, -9.08394011848),
+    c(-10.09818170338, -10.80627348547, -9.08766423461),
     tolerance = 1e-4
   )
   expect_equal(
     pu$log_cpo_2,
-    c(-10.23563590292, -10.94860225615, -9.19913075203),
+    c(-10.24256502006, -10.96362783092, -9.20641924141),
     tolerance = 1e-4
   )
   expect_equal(
     pu$det_term,
-    c(-0.13882114800, -0.14444389100, -0.10621393414),
+    c(-0.14308926042, -0.15101483407, -0.10910637406),
     tolerance = 1e-3
   )
 })
