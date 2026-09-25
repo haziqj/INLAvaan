@@ -10,6 +10,19 @@
 
 ## Bug fixes
 
+* The Bayesian fit indices used a single-level formula for the saturated
+  log-likelihood and counted the sample moments by hand. For two-level
+  models the saturated value was far too low, so the deviance chi-square
+  went negative and was clamped to zero (`BRMSEA` 0, `BGammaHat` 1, `BTLI`
+  above 1), and two-level fits with `missing = "ml"` returned `NA`. The
+  hand count also included the moments of fixed exogenous covariates,
+  which lavaan excludes, so `BRMSEA` and `adjBGammaHat` used a slightly
+  wrong df for any model with an observed predictor under
+  `fixed.x = TRUE`. Both quantities now come from lavaan: the saturated
+  log-likelihood from the fit's `h1` slot and the moment count from
+  `lav_partable_ndat()`. Single-level fits without covariates are
+  unchanged.
+
 * The incremental fit indices `BCFI`, `BTLI` and `BNFI` were scaled against
   whatever fit the caller passed as `baseline.model`, and `compare()`
   silently used its first argument as that baseline: a model listed first
