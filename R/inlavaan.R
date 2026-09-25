@@ -1166,6 +1166,7 @@ inlavaan <- function(
         lavsamplestats = lavsamplestats,
         lavdata = lavdata,
         lavpartable = lavpartable,
+        h1 = fit0@h1,
         cli_env = samp_env
       )
     }

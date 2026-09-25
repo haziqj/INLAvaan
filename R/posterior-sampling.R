@@ -126,10 +126,18 @@ get_ppp <- function(
   lavsamplestats,
   lavdata,
   lavpartable = NULL,
+  h1 = NULL,
   cli_env = NULL
 ) {
   n_blocks <- lavmodel@nblocks
   n_levels <- lavdata@nlevels
+  has_missing <- isTRUE(lavsamplestats@missing.flag)
+  # lavaan's saturated (h1) covariance blocks. They are the observed
+  # covariance that the discrepancy must use whenever the plain sample
+  # statistics are not: under FIML the sample covariance is not the
+  # saturated estimate, and the two-level cluster statistics (YLp) are
+  # computed without regard to missing cells.
+  h1_cov <- h1$implied$cov
 
   # Pre-compute per-block observed variable names (needed for alignment)
   ov_names_block <- vector("list", n_blocks)
@@ -157,25 +165,39 @@ get_ppp <- function(
 
     if (n_levels > 1) {
       # nocov start
-      cluster_stats <- lavsamplestats@YLp[[g]][[2]]
-      ov_all <- lavdata@ov.names[[g]]
-      if (l == 1) {
-        n <- lavdata@nobs[[g]]
-        S <- cluster_stats$Sigma.W
+      n <- if (l == 1) {
+        lavdata@nobs[[g]]
       } else {
-        n <- lavdata@Lp[[g]]$nclusters[[l]]
-        S <- cluster_stats$Sigma.B
+        lavdata@Lp[[g]]$nclusters[[l]]
       }
-      rownames(S) <- colnames(S) <- ov_all
-      keep <- rowSums(S != 0) > 0
-      S <- S[keep, keep, drop = FALSE]
+      if (!is.null(h1_cov) && length(h1_cov) >= b) {
+        # Saturated within- and between-level covariances, named by the
+        # variables of that level
+        S <- h1_cov[[b]]
+        ov_l <- lavdata@ov.names.l[[g]][[l]]
+        if (nrow(S) == length(ov_l)) {
+          rownames(S) <- colnames(S) <- ov_l
+        }
+      } else {
+        cluster_stats <- lavsamplestats@YLp[[g]][[2]]
+        S <- if (l == 1) cluster_stats$Sigma.W else cluster_stats$Sigma.B
+        rownames(S) <- colnames(S) <- lavdata@ov.names[[g]]
+        keep <- rowSums(S != 0) > 0
+        S <- S[keep, keep, drop = FALSE]
+      }
       # nocov end
     } else {
       n <- lavsamplestats@nobs[[g]]
-      # rescale the divisor-n sample covariance to its unbiased (n - 1)
-      # form: the replicates below are Wishart(n - 1, Sigma) / (n - 1)
-      # objects, so the observed discrepancy must be on the same scale
-      S <- lavsamplestats@cov[[g]] * n / (n - 1)
+      # The observed covariance: the EM (saturated) estimate under FIML,
+      # the plain sample covariance otherwise. Both have divisor n, and
+      # the replicates below are Wishart(n - 1, Sigma) / (n - 1) objects,
+      # so rescale to the unbiased (n - 1) form to match
+      S <- if (has_missing && !is.null(lavsamplestats@missing.h1[[g]]$sigma)) {
+        lavsamplestats@missing.h1[[g]]$sigma
+      } else {
+        lavsamplestats@cov[[g]]
+      }
+      S <- S * n / (n - 1)
     }
 
     logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
@@ -275,7 +297,8 @@ get_defpars <- function(x_samp, pt) {
   apply(def_samp, 2, summarise_samples)
 }
 
-get_defpars_fit_sn <- function(x_samp, pt) { # nocov start
+get_defpars_fit_sn <- function(x_samp, pt) {
+  # nocov start
   pt_def_rows <- which(pt$op == ":=")
   param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
   param_map <- param_map[names(param_map) != ""]
