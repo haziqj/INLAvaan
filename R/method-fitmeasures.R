@@ -1,9 +1,17 @@
 # --- Bayesian fit index helpers -----------------------------------------------
 
-# Saturated log-likelihood (constant for ML; sum across groups)
-# Under FIML, uses the pattern-based formula to stay on the same scale as
+# Saturated log-likelihood (constant for ML; sum across groups). lavaan
+# stores it in the fit's h1 slot for every model type it supports, including
+# two-level and missing-data fits, so that is read first. The single-level
+# formulas below remain as a fallback for objects without an h1 slot. Under
+# FIML they use the pattern-based formula to stay on the same scale as
 # inlav_model_loglik (which delegates to lavaan___lav_model_loglik).
-compute_loglik_sat <- function(lavsamplestats, lavdata) {
+compute_loglik_sat <- function(object, lavsamplestats, lavdata) {
+  h1 <- tryCatch(object@h1$logl$loglik, error = function(e) NULL)
+  if (is.numeric(h1) && length(h1) == 1L && is.finite(h1)) {
+    return(h1)
+  }
+  # nocov start
   ngroups <- lavdata@ngroups
   logl_sat <- 0
   for (g in seq_len(ngroups)) {
@@ -34,11 +42,13 @@ compute_loglik_sat <- function(lavsamplestats, lavdata) {
     }
   }
   logl_sat
+  # nocov end
 }
 
 # Per-sample deviance chi-square:  chisq_s = 2 * (loglik_sat - loglik(x_s))
 # This equals N * F_ML(x_s).
 compute_chisq_dev <- function(
+  object,
   x_samp,
   lavmodel,
   lavsamplestats,
@@ -46,7 +56,7 @@ compute_chisq_dev <- function(
   lavoptions,
   lavcache
 ) {
-  loglik_sat <- compute_loglik_sat(lavsamplestats, lavdata)
+  loglik_sat <- compute_loglik_sat(object, lavsamplestats, lavdata)
   vapply(
     seq_len(nrow(x_samp)),
     function(i) {
@@ -62,21 +72,6 @@ compute_chisq_dev <- function(
     },
     numeric(1)
   )
-}
-
-# Number of sample statistics:  sum_g [ p_g(p_g+1)/2 + meanstructure * p_g ]
-compute_p_samplestats <- function(nvar, meanstructure) {
-  sum(vapply(
-    nvar,
-    function(nv) {
-      nMom <- nv * (nv + 1) / 2
-      if (isTRUE(meanstructure)) {
-        nMom <- nMom + nv # nocov
-      }
-      nMom
-    },
-    numeric(1)
-  ))
 }
 
 # Absolute fit indices (vectorised over posterior samples) ---------------------
@@ -134,6 +129,7 @@ compute_rescaled_quantities <- function(
   npar <- object@Fit@npar
 
   chisq_dev <- compute_chisq_dev(
+    object,
     x_samp,
     lavmodel,
     lavsamplestats,
@@ -372,8 +368,10 @@ bfit_indices <- function(
   N <- lavsamplestats@ntotal
   Ngr <- lavdata@ngroups
   nvar <- lavmodel@nvar
-  ms <- isTRUE(lavoptions$meanstructure)
-  p <- compute_p_samplestats(nvar, ms)
+  # Number of sample moments, counted as lavaan counts them for the model's
+  # degrees of freedom: per group and level, without the moments of fixed
+  # exogenous covariates
+  p <- lavaan::lav_partable_ndat(object@ParTable)
 
   rq <- compute_rescaled_quantities(
     object,
