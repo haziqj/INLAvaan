@@ -199,3 +199,72 @@ test_that("bfit_indices errors for non-INLAvaan baseline.model", {
     class = "error"
   )
 })
+
+## ----- Saturated log-likelihood and moment count come from lavaan -----------
+
+test_that("Moment count excludes fixed exogenous covariates, as in lavaan", {
+  fit_x <- acfa(
+    "f =~ x1 + x2 + x3\n f ~ ageyr",
+    dat,
+    verbose = FALSE,
+    nsamp = 20,
+    vb_correction = FALSE,
+    marginal_method = "marggaus"
+  )
+  b <- bfit_indices(fit_x, baseline.model = FALSE)
+  # df = p - pD, so p = df + pD must be lavaan's count (9, not 10)
+  expect_equal(
+    b$details$df + b$details$pD,
+    lavaan::lav_partable_ndat(fit_x@ParTable)
+  )
+  expect_equal(lavaan::lav_partable_ndat(fit_x@ParTable), 9)
+})
+
+test_that("Two-level fit indices are finite and sane", {
+  d2 <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:60, ]
+  mod2 <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+  "
+  fit2 <- asem(
+    mod2,
+    d2,
+    cluster = "cluster",
+    verbose = FALSE,
+    nsamp = 30,
+    vb_correction = FALSE,
+    marginal_method = "marggaus"
+  )
+  fm <- fitMeasures(fit2)
+  idx <- c("BRMSEA", "BGammaHat", "BCFI", "BTLI")
+  expect_true(all(is.finite(fm[idx])))
+  # The generating model: close fit, no longer BGammaHat = 1 and BTLI = 3.5
+  expect_lt(fm["BRMSEA"], 0.1)
+  expect_gt(fm["BCFI"], 0.9)
+  expect_lt(fm["BTLI"], 1.1)
+  b <- bfit_indices(fit2, baseline.model = FALSE)
+  expect_equal(
+    b$details$df + b$details$pD,
+    lavaan::lav_partable_ndat(fit2@ParTable)
+  )
+
+  # Missing data at level 1: the h1 log-likelihood covers it too
+  set.seed(3)
+  d2$y1[sample(nrow(d2), 40)] <- NA
+  fit2m <- asem(
+    mod2,
+    d2,
+    cluster = "cluster",
+    missing = "ml",
+    verbose = FALSE,
+    nsamp = 30,
+    vb_correction = FALSE,
+    marginal_method = "marggaus"
+  )
+  fmm <- fitMeasures(fit2m)
+  expect_true(all(is.finite(fmm[idx])))
+})
