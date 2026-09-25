@@ -35,8 +35,10 @@ fast_hessian <- function(fn, x, h = 1e-5) {
         xpp <- xpm <- xmp <- xmm <- x
         xpp[c(i, j)] <- x[c(i, j)] + h
         xmm[c(i, j)] <- x[c(i, j)] - h
-        xpm[i] <- x[i] + h; xpm[j] <- x[j] - h
-        xmp[i] <- x[i] - h; xmp[j] <- x[j] + h
+        xpm[i] <- x[i] + h
+        xpm[j] <- x[j] - h
+        xmp[i] <- x[i] - h
+        xmp[j] <- x[j] + h
         H[i, j] <- H[j, i] <-
           (fn(xpp) - fn(xpm) - fn(xmp) + fn(xmm)) / (4 * h^2)
       }
@@ -72,35 +74,76 @@ fast_grad <- function(fn, x, h = 1e-5) {
 # the skew-normal scans are redundant. Returns NULL when the fast path does
 # not apply, else the packed indices, prior precisions, and Sigma row
 # positions of the free intercepts.
-saturated_mean_idx <- function(pt, lavmodel, lavsamplestats, lavdata,
-                               ceq.simple) {
-  if (!isTRUE(lavmodel@meanstructure)) return(NULL)
-  if (lavmodel@ngroups > 1L || lavdata@nlevels > 1L) return(NULL)
-  if (isTRUE(ceq.simple)) return(NULL)
-  if (!is.null(attr(pt, "gcp_blocks"))) return(NULL)
-  if (any(pt$mat == "alpha" & pt$free > 0)) return(NULL)
+saturated_mean_idx <- function(
+  pt,
+  lavmodel,
+  lavsamplestats,
+  lavdata,
+  ceq.simple
+) {
+  if (!isTRUE(lavmodel@meanstructure)) {
+    return(NULL)
+  }
+  if (lavmodel@ngroups > 1L || lavdata@nlevels > 1L) {
+    return(NULL)
+  }
+  # Under FIML the saturated mean is not the sample mean of any pattern, and
+  # the mean/covariance cross-information does not vanish at the mode, so the
+  # intercept block is neither analytic nor separable
+  if (isTRUE(lavsamplestats@missing.flag)) {
+    return(NULL)
+  }
+  if (isTRUE(ceq.simple)) {
+    return(NULL)
+  }
+  if (!is.null(attr(pt, "gcp_blocks"))) {
+    return(NULL)
+  }
+  if (any(pt$mat == "alpha" & pt$free > 0)) {
+    return(NULL)
+  }
   # mu must equal nu EXACTLY: any nonzero alpha (frozen exogenous dummies
   # under fixed.x, or latent means fixed at nonzero values) makes the
   # implied mean depend on free loadings/regressions, so the mean/covariance
   # cross-information no longer vanishes at the mode
   a_vals <- unlist(lavmodel@GLIST[names(lavmodel@GLIST) == "alpha"])
-  if (length(a_vals) && any(abs(a_vals) > 1e-12)) return(NULL)
-  if (length(unlist(lavsamplestats@x.idx)) > 0L) return(NULL)
+  if (length(a_vals) && any(abs(a_vals) > 1e-12)) {
+    return(NULL)
+  }
+  if (length(unlist(lavsamplestats@x.idx)) > 0L) {
+    return(NULL)
+  }
   nu_rows <- which(pt$mat == "nu")
-  if (!length(nu_rows)) return(NULL)
+  if (!length(nu_rows)) {
+    return(NULL)
+  }
   free_nu <- nu_rows[pt$free[nu_rows] > 0]
-  if (!length(free_nu)) return(NULL)
+  if (!length(free_nu)) {
+    return(NULL)
+  }
   fixed_nu <- setdiff(nu_rows, free_nu)
   ovn <- lavdata@ov.names[[1L]]
   xn <- ovn[unlist(lavsamplestats@x.idx[[1L]])]
-  if (length(fixed_nu) && !all(pt$lhs[fixed_nu] %in% xn)) return(NULL)
-  if (!setequal(pt$lhs[free_nu], setdiff(ovn, xn))) return(NULL)
-  if (!all(grepl("^normal\\(", pt$prior[free_nu]))) return(NULL)
+  if (length(fixed_nu) && !all(pt$lhs[fixed_nu] %in% xn)) {
+    return(NULL)
+  }
+  if (!setequal(pt$lhs[free_nu], setdiff(ovn, xn))) {
+    return(NULL)
+  }
+  if (!all(grepl("^normal\\(", pt$prior[free_nu]))) {
+    return(NULL)
+  }
   idx <- pt$free[free_nu]
-  if (any(duplicated(idx)) || any(idx %in% pt$free[-nu_rows])) return(NULL)
-  sds <- vapply(pt$prior[free_nu], function(s) {
-    as.numeric(strsplit(gsub("normal\\(|\\)", "", s), ",")[[1]][2])
-  }, numeric(1))
+  if (any(duplicated(idx)) || any(idx %in% pt$free[-nu_rows])) {
+    return(NULL)
+  }
+  sds <- vapply(
+    pt$prior[free_nu],
+    function(s) {
+      as.numeric(strsplit(gsub("normal\\(|\\)", "", s), ",")[[1]][2])
+    },
+    numeric(1)
+  )
   ord <- order(idx)
   list(
     idx = idx[ord],
