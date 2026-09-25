@@ -10,6 +10,31 @@
 
 ## Bug fixes
 
+* Single-level fits with `missing = "ml"` returned wrong posterior
+  summaries under the default skew-normal marginals: loadings and variances
+  far from the FIML estimates, with the scan-endpoint diagnostic flagging
+  nearly every parameter. The saturated-means fast path, which treats the
+  free intercepts as exactly Gaussian and separable from the covariance
+  parameters, was applied under FIML, where the mean and covariance blocks
+  of the information matrix are coupled. The Hessian's intercept block and
+  the whitening used by the shortcut volume correction were then
+  inconsistent with the actual curvature, tilting every scanned marginal
+  towards the edge of the scan. The fast path is now off under FIML. The
+  posterior mode and the Laplace covariance were already correct, so
+  `marginal_method = "marggaus"` and `marginal_correction = "hessian"` or
+  `"none"` were unaffected, as were two-level FIML fits.
+
+* The posterior predictive p-value compared the model-implied covariance
+  with the sample covariance as stored by lavaan, which under
+  `missing = "ml"` is not the saturated estimate, and for two-level models
+  with the cluster statistics `YLp`, which ignore missing cells. A correct
+  model with 20% missing cells scored PPP 0.000. The observed covariance is
+  now lavaan's saturated (h1) estimate: the EM covariance for single-level
+  FIML fits and the within- and between-level h1 covariances for two-level
+  fits, complete or not. Complete-data single-level fits are unchanged;
+  complete-data two-level PPP values move slightly because the h1 within
+  and between covariances replace the pooled cluster statistics.
+
 * The Bayesian fit indices used a single-level formula for the saturated
   log-likelihood and counted the sample moments by hand. For two-level
   models the saturated value was far too low, so the deviance chi-square
