@@ -38,7 +38,6 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
     "grad_l2",
     "mode_shift_max",
     "hess_cond",
-    "hess_min_eig",
     "vb_applied",
     "vb_shift_max",
     "vb_kld_global",
@@ -85,14 +84,6 @@ test_that("the skew-normal diagnostics are NA for another method", {
   expect_true(is.na(glob[["scan_end_mass_max"]]))
   expect_true(all(is.na(dp$alpha)))
   expect_true(all(is.na(dp$scan_end_mass)))
-})
-
-test_that("hess_min_eig is the smallest eigenvalue of the Hessian", {
-  int <- INLAvaan:::get_inlavaan_internal(fit)
-  expect_equal(
-    diagnostics(fit)[["hess_min_eig"]],
-    1 / max(eigen(int$Sigma_theta, symmetric = TRUE)$values)
-  )
 })
 
 # ---- fit-time diagnostics warnings ----

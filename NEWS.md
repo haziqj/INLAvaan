@@ -159,10 +159,8 @@
   is `NA`, and its cost grows with `m`: it is cheaper than the default below
   about 30 free parameters and dearer above. Experimental.
 
-* `diagnostics()` reports three more global quantities and two more
-  per-parameter ones. `hess_min_eig` is the smallest eigenvalue of the
-  Hessian at the mode, the companion to `hess_cond` that carries the scale
-  of the parameters; `vb_shift_max` is the largest VB mean correction in
+* `diagnostics()` reports two more global quantities and two more
+  per-parameter ones. `vb_shift_max` is the largest VB mean correction in
   posterior-SD units, previously available only as the maximum of the
   per-parameter table; and `scan_end_mass_max` is the largest of the new
   per-parameter `scan_end_mass`. The per-parameter table also gains

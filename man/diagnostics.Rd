@@ -47,13 +47,6 @@ the true posterior mode relative to the posterior uncertainty. Should
 be ~0 at convergence.}
 \item{\code{hess_cond}}{Condition number of the Hessian (precision matrix)
 computed from \eqn{\Sigma_\theta}. Large values indicate near-singularity.}
-\item{\code{hess_min_eig}}{Smallest eigenvalue of the Hessian, that is
-\eqn{1 / \max \mathrm{eig}(\Sigma_\theta)}. Companion to
-\code{hess_cond}: the condition number is relative, so a
-well-conditioned Hessian can still be flat in every direction. This is
-the absolute curvature of the log-posterior along its flattest
-direction, and it carries the scale of the parameters. Reported, not
-checked.}
 \item{\code{vb_kld_global}}{Global KL divergence from the VB mean correction
 (NA if VB correction was not applied).}
 \item{\code{vb_applied}}{1 if VB correction was applied, 0 otherwise.}
@@ -140,12 +133,11 @@ Three of these checks have calibration behind them. Over 1,046 simulated
 fits with MCMC references, the Spearman correlation with the worst-case
 posterior-mean discrepancy was 0.64 for the VB shift in SD units, 0.59 for
 the scan-endpoint mass and 0.48 for the NMAD. The convergence, mode-shift
-and condition-number checks, and \code{hess_min_eig} (reported, not
-checked), are rules of thumb. Every number above is a package default,
-chosen so that a healthy fit stays silent, and not a calibrated cut-off: a
-tripped check is a prompt to look again, and silence is not a certificate
-of accuracy. Silence the check with \code{suppressWarnings()}, or
-selectively by handling the condition class.
+and condition-number checks are rules of thumb. Every number above is a
+package default, chosen so that a healthy fit stays silent, and not a
+calibrated cut-off: a tripped check is a prompt to look again, and silence
+is not a certificate of accuracy. Silence the check with
+\code{suppressWarnings()}, or selectively by handling the condition class.
 }
 \examples{
 \donttest{
