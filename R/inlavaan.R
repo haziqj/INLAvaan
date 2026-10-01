@@ -931,6 +931,8 @@ inlavaan <- function(
             logC = fit_sn$logC
           )
         )
+        # Keep the z-space fit so visual_debug() can draw the smooth SN curve
+        attr(vd, "sn_params") <- unlist(fit_sn[c("xi", "omega", "alpha", "logC")])
 
         # Adjust back to theta space
         fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
