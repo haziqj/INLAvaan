@@ -1,0 +1,62 @@
+cff-version: 1.2.0
+message: >-
+  If you use INLAvaan in your work, please cite it as below. Please also
+  consider citing the companion methodology paper listed under references.
+type: software
+title: "INLAvaan: Approximate Bayesian Latent Variable Analysis"
+abstract: >-
+  Implements approximate Bayesian inference for Structural Equation Models
+  (SEM) using a custom adaptation of the Integrated Nested Laplace
+  Approximation. Provides a computationally efficient alternative to Markov
+  Chain Monte Carlo (MCMC) for Bayesian estimation, allowing users to fit
+  latent variable models using the 'lavaan' syntax.
+authors:
+  - family-names: Jamil
+    given-names: Haziq
+    orcid: "https://orcid.org/0000-0003-3298-1010"
+version: 0.3.2
+license: GPL-3.0-or-later
+url: "https://inlavaan.haziqj.ml/"
+repository-code: "https://github.com/haziqj/INLAvaan"
+keywords:
+  - Bayesian inference
+  - structural equation modelling
+  - latent variable models
+  - INLA
+  - Laplace approximation
+  - lavaan
+  - R
+preferred-citation:
+  type: generic
+  title: >-
+    Implementation and workflows for INLA-based approximate Bayesian
+    structural equation modelling
+  authors:
+    - family-names: Jamil
+      given-names: Haziq
+      orcid: "https://orcid.org/0000-0003-3298-1010"
+    - family-names: Rue
+      given-names: Håvard
+      orcid: "https://orcid.org/0000-0002-0222-1881"
+  year: 2026
+  doi: 10.48550/arXiv.2604.00671
+  url: "https://arxiv.org/abs/2604.00671"
+  publisher:
+    name: arXiv
+references:
+  - type: generic
+    title: >-
+      Approximate Bayesian inference for structural equation models using
+      integrated nested Laplace approximations
+    authors:
+      - family-names: Jamil
+        given-names: Haziq
+        orcid: "https://orcid.org/0000-0003-3298-1010"
+      - family-names: Rue
+        given-names: Håvard
+        orcid: "https://orcid.org/0000-0002-0222-1881"
+    year: 2026
+    doi: 10.48550/arXiv.2603.25690
+    url: "https://arxiv.org/abs/2603.25690"
+    publisher:
+      name: arXiv
