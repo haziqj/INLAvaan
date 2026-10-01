@@ -184,19 +184,19 @@ fit <- acfa(
 )
 standardisedsolution(fit, nsamp = 10, se = FALSE, ci = FALSE)
 #>        lhs op     rhs est.std
-#> 1   visual =~      x1   0.753
-#> 2   visual =~      x2   0.442
-#> 3   visual =~      x3   0.581
-#> 4  textual =~      x4   0.848
-#> 5  textual =~      x5   0.862
-#> 6  textual =~      x6   0.847
-#> 7       x1 ~~      x1   0.431
-#> 8       x2 ~~      x2   0.801
-#> 9       x3 ~~      x3   0.658
-#> 10      x4 ~~      x4   0.280
-#> 11      x5 ~~      x5   0.257
-#> 12      x6 ~~      x6   0.283
+#> 1   visual =~      x1   0.769
+#> 2   visual =~      x2   0.428
+#> 3   visual =~      x3   0.575
+#> 4  textual =~      x4   0.847
+#> 5  textual =~      x5   0.854
+#> 6  textual =~      x6   0.844
+#> 7       x1 ~~      x1   0.404
+#> 8       x2 ~~      x2   0.813
+#> 9       x3 ~~      x3   0.668
+#> 10      x4 ~~      x4   0.282
+#> 11      x5 ~~      x5   0.270
+#> 12      x6 ~~      x6   0.287
 #> 13  visual ~~  visual   1.000
 #> 14 textual ~~ textual   1.000
-#> 15  visual ~~ textual   0.452
+#> 15  visual ~~ textual   0.428
 ```

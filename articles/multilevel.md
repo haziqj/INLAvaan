@@ -133,17 +133,18 @@ the `cluster` argument to identify the grouping variable.
 
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [694ms]
+#> ✔ Posterior mode and Hessian. [1.1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.054σ. [863ms]
+#> ✔ VB correction; mean |δ| = 0.054σ. [1.4s]
 #> 
 #> ⠙ Fitting 0/20 skew-normal marginals.
-#> ⠹ Fitting 7/20 skew-normal marginals.
-#> ✔ Fit 20/20 skew-normal marginals. [2.5s]
+#> ⠹ Fitting 14/20 skew-normal marginals.
+#> ✔ Fit 20/20 skew-normal marginals. [3.9s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.9s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -156,7 +157,7 @@ standard deviations, and credible intervals) for *both levels*.
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.1.9014 ended normally after 108 iterations
+#> INLAvaan 0.3.1.9015 ended normally after 108 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -168,12 +169,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.520 
-#>    PPP (Chi-square)                              0.033 
+#>    PPP (Chi-square)                              0.125 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24192.439 
-#>    Effective parameters (pD)                    19.623 
+#>    Deviance (DIC)                            24192.470 
+#>    Effective parameters (pD)                    19.639 
 #> 
 #> Parameter Estimates:
 #> 

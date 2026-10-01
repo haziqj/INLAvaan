@@ -53,19 +53,30 @@ sampling(
 
   :   Latent variables from the model-implied distribution. Returns an
       `nsamp` by `nlv` matrix (one draw per posterior sample, not tied
-      to any individual).
+      to any individual). For two-level models the matrix holds the
+      within- *and* between-level latent variables, the level-2 columns
+      carrying the `.l2` suffix when the same latent variable also
+      exists at level 1.
 
   `"observed"`
 
   :   Observed variables generated from the full model. Returns an
-      `nsamp` by `nobs_vars` matrix.
+      `nsamp` by `nobs_vars` matrix. For two-level models each row is a
+      draw from the two-level generative model, \\\mathbf{y} =
+      \mathbf{y}^B + \mathbf{y}^W\\: variables that live at both levels
+      sum their between- and within-level draws, and within-only or
+      between-only variables take the single level available to them.
 
   `"implied"`
 
   :   Model-implied moments. Returns a length-`nsamp` list, each element
       a list with `cov` (model-implied covariance matrix) and, when
       `meanstructure = TRUE`, `mean` (model-implied mean vector). For
-      multi-group models each element is itself a list of groups.
+      multi-group models each element is itself a list of groups. For
+      two-level models each element is a list with a `within` and a
+      `cluster` block, each holding a `cov` and a `mean`, as
+      [`lavaan::lavInspect()`](https://rdrr.io/pkg/lavaan/man/lavInspect.html)
+      reports them.
 
   `"all"`
 
@@ -140,17 +151,16 @@ for Bayesian fit indices.
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [35ms]
+#> ✔ Posterior mode and Hessian. [53ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [174ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [264ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [80ms]
+#> ✔ Fit 6/6 skew-normal marginals. [129ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [307ms]
+#> ✔ Summarise 1000 posterior draws. [417ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -158,12 +168,12 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  0.8340108   1.132861 0.9601254 1.1239101 0.4769312      0.5847085
-#> [2,]  0.5413290   0.937252 0.7987346 1.0821189 0.7298471      0.6929135
-#> [3,]  0.6411047   1.260196 0.8376776 1.1819014 0.4767897      0.5106020
-#> [4,]  0.5430467   1.332250 0.8947850 1.1092371 0.6120674      0.4057366
-#> [5,]  0.8014610   1.050886 0.9778346 1.0195363 0.8374772      0.4546362
-#> [6,]  0.7620878   1.575142 1.0619017 0.9567764 0.2602893      0.3668445
+#> [1,]  0.7477399  0.8877891 0.7998267 1.0448873 0.6585890      0.6717765
+#> [2,]  0.7021235  0.9840182 0.9117030 0.8236839 0.6799073      0.6488450
+#> [3,]  0.8859716  0.9864082 0.7467865 1.0081880 0.7717786      0.4905924
+#> [4,]  0.5868180  0.7294134 0.6228251 1.1087883 0.8004732      1.0150505
+#> [5,]  0.6556735  0.8717570 0.7179963 0.9392806 0.6986852      0.5676588
+#> [6,]  1.1547926  1.7145797 1.1559026 1.2681746 0.3197285      0.3187415
 
 # Compare copula vs Gaussian sampling
 s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)

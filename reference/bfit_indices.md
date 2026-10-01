@@ -31,10 +31,16 @@ print(x, ...)
 
 - baseline.model:
 
-  An optional
+  The baseline (null) model that the incremental fit indices (BCFI,
+  BTLI, BNFI) are scaled against. `NULL` (default) fits the independence
+  model on the same data and options automatically, as lavaan does:
+  every observed variable keeps its variance (and intercept) and nothing
+  correlates. That fit uses Gaussian marginals and no VB shift, since
+  only its posterior draws and pD are needed, and takes a fraction of a
+  second. Supply an
   [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md)
-  object representing the baseline (null) model. Required for
-  incremental fit indices (BCFI, BTLI, BNFI).
+  object to use another baseline, or `FALSE` to skip the incremental
+  indices.
 
 - rescale:
 
@@ -106,8 +112,10 @@ bf <- bfit_indices(fit)
 bf
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 100): 
 #> 
-#>       BRMSEA    BGammaHat adjBGammaHat          BMc 
-#>        0.115        0.933        0.878        0.851 
+#>       BRMSEA    BGammaHat adjBGammaHat          BMc         BCFI         BTLI 
+#>        0.115        0.933        0.878        0.851        0.894        0.846 
+#>         BNFI 
+#>        0.872 
 summary(bf)
 #> 
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 100):
@@ -117,5 +125,8 @@ summary(bf)
 #> BGammaHat    0.933 0.004 0.925 0.931 0.934 0.936  0.940 0.935
 #> adjBGammaHat 0.878 0.007 0.862 0.873 0.879 0.883  0.890 0.880
 #> BMc          0.851 0.009 0.832 0.846 0.853 0.857  0.866 0.855
+#> BCFI         0.894 0.007 0.879 0.889 0.895 0.899  0.905 0.897
+#> BTLI         0.846 0.010 0.825 0.839 0.847 0.853  0.863 0.850
+#> BNFI         0.872 0.007 0.858 0.868 0.873 0.876  0.883 0.875
 # }
 ```

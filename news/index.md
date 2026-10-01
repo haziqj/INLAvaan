@@ -13,6 +13,78 @@
 
 ### Bug fixes
 
+- Single-level fits with `missing = "ml"` returned wrong posterior
+  summaries under the default skew-normal marginals: loadings and
+  variances far from the FIML estimates, with the scan-endpoint
+  diagnostic flagging nearly every parameter. The saturated-means fast
+  path, which treats the free intercepts as exactly Gaussian and
+  separable from the covariance parameters, was applied under FIML,
+  where the mean and covariance blocks of the information matrix are
+  coupled. The Hessian’s intercept block and the whitening used by the
+  shortcut volume correction were then inconsistent with the actual
+  curvature, tilting every scanned marginal towards the edge of the
+  scan. The fast path is now off under FIML. The posterior mode and the
+  Laplace covariance were already correct, so
+  `marginal_method = "marggaus"` and `marginal_correction = "hessian"`
+  or `"none"` were unaffected, as were two-level FIML fits.
+
+- The posterior predictive p-value compared the model-implied covariance
+  with the sample covariance as stored by lavaan, which under
+  `missing = "ml"` is not the saturated estimate, and for two-level
+  models with the cluster statistics `YLp`, which ignore missing cells.
+  A correct model with 20% missing cells scored PPP 0.000. The observed
+  covariance is now lavaan’s saturated (h1) estimate: the EM covariance
+  for single-level FIML fits and the within- and between-level h1
+  covariances for two-level fits, complete or not. Complete-data
+  single-level fits are unchanged; complete-data two-level PPP values
+  move slightly because the h1 within and between covariances replace
+  the pooled cluster statistics.
+
+- The Bayesian fit indices used a single-level formula for the saturated
+  log-likelihood and counted the sample moments by hand. For two-level
+  models the saturated value was far too low, so the deviance chi-square
+  went negative and was clamped to zero (`BRMSEA` 0, `BGammaHat` 1,
+  `BTLI` above 1), and two-level fits with `missing = "ml"` returned
+  `NA`. The hand count also included the moments of fixed exogenous
+  covariates, which lavaan excludes, so `BRMSEA` and `adjBGammaHat` used
+  a slightly wrong df for any model with an observed predictor under
+  `fixed.x = TRUE`. Both quantities now come from lavaan: the saturated
+  log-likelihood from the fit’s `h1` slot and the moment count from
+  [`lav_partable_ndat()`](https://rdrr.io/pkg/lavaan/man/lav_long_names.html).
+  Single-level fits without covariates are unchanged.
+
+- The incremental fit indices `BCFI`, `BTLI` and `BNFI` were scaled
+  against whatever fit the caller passed as `baseline.model`, and
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
+  silently used its first argument as that baseline: a model listed
+  first was scored against itself, which gives zero by construction, and
+  the later models were scored against it rather than against a null
+  model.
+  [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html),
+  [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+  and [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) now
+  fit the independence model (every observed variable keeps its variance
+  and intercept, nothing correlates) on the same data and options
+  automatically, as lavaan does. The fit reuses the data slots of the
+  fitted object, uses Gaussian marginals and no VB shift, since the
+  indices need only its posterior draws and pD, and takes a fraction of
+  a second even for 64 items.
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) fits it
+  once and shares it across the table. Pass `baseline.model` to override
+  it, or `baseline.model = FALSE` to skip the incremental indices; a
+  `baseline.model` with the same free parameters as the model now warns.
+  `BTLI` is `NA`, not `-Inf`, when the baseline’s own ratio is 1.
+  Absolute indices (`BRMSEA`, `BGammaHat`, `adjBGammaHat`, `BMc`) are
+  unchanged.
+
+- [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
+  returned only the within-level block for two-level models —
+  `type = "latent"` omitted the between-level latent variables,
+  `type = "observed"` omitted the between-level component and the
+  between-only variables, and `type = "implied"` returned a single
+  covariance instead of the within and cluster pair; all three now draw
+  from the two-level generative model.
+
 - With `marginal_method = "marggaus"`, the `Mean` and `SD` reported for
   a parameter estimated on a transformed scale (variances, correlations)
   were the back-transformed Gaussian centre and a delta-method SD, so
@@ -115,9 +187,7 @@
   dearer above. Experimental.
 
 - [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
-  reports three more global quantities and two more per-parameter ones.
-  `hess_min_eig` is the smallest eigenvalue of the Hessian at the mode,
-  the companion to `hess_cond` that carries the scale of the parameters;
+  reports two more global quantities and two more per-parameter ones.
   `vb_shift_max` is the largest VB mean correction in posterior-SD
   units, previously available only as the maximum of the per-parameter
   table; and `scan_end_mass_max` is the largest of the new per-parameter

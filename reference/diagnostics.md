@@ -82,15 +82,6 @@ For `type = "global"`, a named numeric vector (class
   Condition number of the Hessian (precision matrix) computed from
   \\\Sigma\_\theta\\. Large values indicate near-singularity.
 
-- `hess_min_eig`:
-
-  Smallest eigenvalue of the Hessian, that is \\1 / \max
-  \mathrm{eig}(\Sigma\_\theta)\\. Companion to `hess_cond`: the
-  condition number is relative, so a well-conditioned Hessian can still
-  be flat in every direction. This is the absolute curvature of the
-  log-posterior along its flattest direction, and it carries the scale
-  of the parameters. Reported, not checked.
-
 - `vb_kld_global`:
 
   Global KL divergence from the VB mean correction (NA if VB correction
@@ -245,11 +236,10 @@ Three of these checks have calibration behind them. Over 1,046 simulated
 fits with MCMC references, the Spearman correlation with the worst-case
 posterior-mean discrepancy was 0.64 for the VB shift in SD units, 0.59
 for the scan-endpoint mass and 0.48 for the NMAD. The convergence,
-mode-shift and condition-number checks, and `hess_min_eig` (reported,
-not checked), are rules of thumb. Every number above is a package
-default, chosen so that a healthy fit stays silent, and not a calibrated
-cut-off: a tripped check is a prompt to look again, and silence is not a
-certificate of accuracy. Silence the check with
+mode-shift and condition-number checks are rules of thumb. Every number
+above is a package default, chosen so that a healthy fit stays silent,
+and not a calibrated cut-off: a tripped check is a prompt to look again,
+and silence is not a certificate of accuracy. Silence the check with
 [`suppressWarnings()`](https://rdrr.io/r/base/warning.html), or
 selectively by handling the condition class.
 
@@ -278,12 +268,12 @@ diagnostics(fit)
 #>                21               100                 1                66 
 #>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max 
 #>          2.02e-03          4.50e-03          3.01e-03          1.80e-04 
-#>         hess_cond      hess_min_eig        vb_applied      vb_shift_max 
-#>          4.51e+01          1.64e+01                 1            0.1926 
-#>     vb_kld_global           kld_max          kld_mean       vb_mcse_max 
-#>           10.3095            0.0186            0.0057            0.1330 
-#>      vb_mcse_mean          nmad_max         nmad_mean scan_end_mass_max 
-#>            0.0532            0.0229            0.0060          1.03e-03 
+#>         hess_cond        vb_applied      vb_shift_max     vb_kld_global 
+#>          4.51e+01                 1            0.1926           10.3095 
+#>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean 
+#>            0.0186            0.0057            0.1330            0.0532 
+#>          nmad_max         nmad_mean scan_end_mass_max 
+#>            0.0229            0.0060          1.03e-03 
 
 # Per-parameter table
 diagnostics(fit, type = "param")

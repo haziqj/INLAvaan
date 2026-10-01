@@ -44,12 +44,14 @@ fitmeasures(object, fit_measures = "all",
 
 - baseline_model:
 
-  An optional
+  The baseline (null) model for the incremental fit indices (BCFI, BTLI,
+  BNFI). `NULL` (default) fits the independence model automatically, as
+  lavaan does. Supply an
   [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md)
-  object representing the baseline (null) model. Required for
-  incremental fit indices (BCFI, BTLI, BNFI). Must have been fitted with
-  a `test` that includes `"dic"` (the default `"standard"` does).
-  INLAvaan's stable spelling `baseline.model` is also accepted.
+  object to use another baseline, or `FALSE` to skip the incremental
+  indices. INLAvaan's stable spelling `baseline.model` is also accepted;
+  see
+  [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md).
 
 - h1_model:
 
@@ -107,13 +109,13 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 # All available fit measures
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3848.489        0.000     7553.832       21.333        0.117 
-#>    BGammaHat adjBGammaHat          BMc 
-#>        0.933        0.872        0.850 
+#>           21    -3848.489        0.000     7551.513       20.173        0.113 
+#>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
+#>        0.934        0.880        0.853        0.895        0.846        0.873 
 
 # Specific measures
 fitMeasures(fit, c("npar", "dic", "p_dic", "ppp"))
 #>     npar      ppp      dic    p_dic 
-#>       21    0.000 7553.832   21.333 
+#>       21    0.000 7551.513   20.173 
 # }
 ```

@@ -118,16 +118,17 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [288ms]
+#> ✔ Posterior mode and Hessian. [412ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.030σ. [180ms]
+#> ✔ VB correction; mean |δ| = 0.030σ. [280ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [442ms]
+#> ✔ Fit 13/13 skew-normal marginals. [731ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [500ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [716ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -189,7 +190,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.1.9014 ended normally after 67 iterations
+#> INLAvaan 0.3.1.9015 ended normally after 67 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -219,7 +220,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.1.9014 ended normally after 67 iterations
+#> INLAvaan 0.3.1.9015 ended normally after 67 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -389,8 +390,8 @@ stored with the fit.
 fitmeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
 #>           13    -8087.559        0.123    16069.086       13.026        0.071 
-#>    BGammaHat adjBGammaHat          BMc 
-#>        0.987        0.965        0.980
+#>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
+#>        0.987        0.965        0.980        0.979        0.961        0.975
 ```
 
 Definitions and worked examples are in the [Bayesian fit indices
@@ -417,12 +418,12 @@ diagnostics(fit)
 #>                13              1000                 1                67 
 #>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max 
 #>          4.85e-03          6.34e-03          7.43e-03          5.50e-04 
-#>         hess_cond      hess_min_eig        vb_applied      vb_shift_max 
-#>          3.53e+01          5.61e+01                 1            0.0620 
-#>     vb_kld_global           kld_max          kld_mean       vb_mcse_max 
-#>            6.3275            0.0019            0.0007            0.0884 
-#>      vb_mcse_mean          nmad_max         nmad_mean scan_end_mass_max 
-#>            0.0304            0.0071            0.0036          3.86e-04
+#>         hess_cond        vb_applied      vb_shift_max     vb_kld_global 
+#>          3.53e+01                 1            0.0620            6.3275 
+#>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean 
+#>            0.0019            0.0007            0.0884            0.0304 
+#>          nmad_max         nmad_mean scan_end_mass_max 
+#>            0.0071            0.0036          3.86e-04
 ```
 
 The [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)
@@ -433,7 +434,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.48 s
+#> 2.25 s
 ```
 
 ### Plot
@@ -467,16 +468,17 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [131ms]
+#> ✔ Posterior mode and Hessian. [215ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.033σ. [159ms]
+#> ✔ VB correction; mean |δ| = 0.033σ. [230ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [352ms]
+#> ✔ Fit 12/12 skew-normal marginals. [581ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [453ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [632ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
@@ -485,7 +487,7 @@ compare(fit, fit2)
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD
 #>    fit   13   -8087.559   0.000 16069.09 13.026
-#>   fit2   12   -8107.822 -20.263 16120.28 12.146
+#>   fit2   12   -8107.822 -20.263 16119.83 11.924
 ```
 
 As a note, there have been several criticisms of the use of Bayes
@@ -538,7 +540,7 @@ compare(fit, fit2, loo = TRUE)
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
 #>    fit   13   -8087.559   0.000 16069.09 13.026 -8024.734 54.320 12.839
-#>   fit2   12   -8107.822 -20.263 16120.28 12.146 -8050.232 54.545 11.841
+#>   fit2   12   -8107.822 -20.263 16119.83 11.924 -8050.232 54.545 11.841
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>    -25.498   7.285

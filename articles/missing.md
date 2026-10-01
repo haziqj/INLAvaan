@@ -41,23 +41,24 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [251ms]
+#> ✔ Posterior mode and Hessian. [429ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [825ms]
+#> ✔ VB correction; mean |δ| = 0.190σ. [1.4s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 17/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
+#> ⠹ Fitting 4/42 skew-normal marginals.
+#> ⠸ Fitting 26/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [4.2s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [793ms]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.1.9014 ended normally after 71 iterations
+#> INLAvaan 0.3.1.9015 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -93,56 +94,25 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [519ms]
+#> ✔ Posterior mode and Hessian. [898ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.154σ. [1.6s]
+#> ✔ VB correction; mean |δ| = 0.164σ. [2.1s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 11/42 skew-normal marginals.
-#> ⠸ Fitting 30/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [5s]
+#> ⠹ Fitting 3/42 skew-normal marginals.
+#> ⠸ Fitting 15/42 skew-normal marginals.
+#> ⠼ Fitting 26/42 skew-normal marginals.
+#> ⠴ Fitting 38/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [10.9s]
 #> 
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
-#> Warning in sqrt(Vx): NaNs produced
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [505ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [2s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
-#> Warning: Fit diagnostics flagged 1 potential issue:
-#> ✖ The fitted marginal puts more than 0.05 of its mass beyond the scanned window
-#>   (4 posterior SDs either side of the mode) for `ind60=~x2` (1.00), `dem65=~y8`
-#>   (1.00), `dem65=~y7` (1.00) and 28 others; its credible limits rely on
-#>   extrapolation.
-#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 print(fit2)
-#> INLAvaan 0.3.1.9014 ended normally after 91 iterations
+#> INLAvaan 0.3.1.9015 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -153,23 +123,23 @@ print(fit2)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1415.597 
-#>    PPP (Chi-square)                              1.000
+#>    Marginal log-likelihood                   -1415.111 
+#>    PPP (Chi-square)                              0.047
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        2.703        2.413        1.375        1.236        1.438        1.839 
+#>        2.214        1.835        0.650        0.791        0.954        1.026 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        1.567        1.963        3.014        1.500        1.094        3.908 
+#>        1.050        1.287        1.299        0.524        0.756        0.482 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        6.535       11.466        3.516        4.883        7.183        0.207 
+#>        0.898        3.316        0.301        0.365        1.294        0.084 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        1.016        1.008        5.546       14.907        6.945        6.979 
+#>        0.136        0.511        1.699        7.448        3.408        2.945 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        4.439       12.553        4.898        8.195        0.980       11.150 
+#>        1.794        5.910        2.073        3.682        0.462        4.558 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>       11.337        5.060        4.791        3.557        5.462        5.780 
+#>        0.206        5.060        4.791        3.557        5.462        5.787 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        7.155        5.250        5.354        4.103        6.853        4.423
+#>        7.158        5.253        5.356        4.092        6.855        4.422
 ```
 
 ``` r
@@ -203,15 +173,15 @@ loo(fit2)
 #> ── Leave-one-subject-out ────────────────────────── 75 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -1285.7 36.7
-#> p_loo        37.4  3.2
-#> looic      2571.3 73.4
+#> elpd_loo  -1287.1 36.6
+#> p_loo        38.6  3.2
+#> looic      2574.2 73.2
 #> 
 #> ── Curvature check ─────────────────────────────────────────────────────────────
 #> 
-#>   first-to-second-order gap        22.6
-#>   pD/2 (trace)                     18.5
-#>   excess over pD/2 (trace)       +21.7%
+#>   first-to-second-order gap        23.4
+#>   pD/2 (trace)                     19.2
+#>   excess over pD/2 (trace)       +22.1%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
 #>   second-order expansion has not settled over the sample.

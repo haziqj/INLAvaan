@@ -9,7 +9,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9014</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9015</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,15 +128,6 @@ be ~0 at convergence.</p></dd>
 <dt><code>hess_cond</code></dt>
 <dd><p>Condition number of the Hessian (precision matrix)
 computed from \(\Sigma_\theta\). Large values indicate near-singularity.</p></dd>
-
-<dt><code>hess_min_eig</code></dt>
-<dd><p>Smallest eigenvalue of the Hessian, that is
-\(1 / \max \mathrm{eig}(\Sigma_\theta)\). Companion to
-<code>hess_cond</code>: the condition number is relative, so a
-well-conditioned Hessian can still be flat in every direction. This is
-the absolute curvature of the log-posterior along its flattest
-direction, and it carries the scale of the parameters. Reported, not
-checked.</p></dd>
 
 <dt><code>vb_kld_global</code></dt>
 <dd><p>Global KL divergence from the VB mean correction
@@ -265,12 +256,11 @@ of every fit and emits a single consolidated warning (condition class
 fits with MCMC references, the Spearman correlation with the worst-case
 posterior-mean discrepancy was 0.64 for the VB shift in SD units, 0.59 for
 the scan-endpoint mass and 0.48 for the NMAD. The convergence, mode-shift
-and condition-number checks, and <code>hess_min_eig</code> (reported, not
-checked), are rules of thumb. Every number above is a package default,
-chosen so that a healthy fit stays silent, and not a calibrated cut-off: a
-tripped check is a prompt to look again, and silence is not a certificate
-of accuracy. Silence the check with <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings()</a></code>, or
-selectively by handling the condition class.</p>
+and condition-number checks are rules of thumb. Every number above is a
+package default, chosen so that a healthy fit stays silent, and not a
+calibrated cut-off: a tripped check is a prompt to look again, and silence
+is not a certificate of accuracy. Silence the check with
+<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings()</a></code>, or selectively by handling the condition class.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -295,12 +285,12 @@ selectively by handling the condition class.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                21               100                 1                66 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          2.02e-03          4.50e-03          3.01e-03          1.80e-04 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         hess_cond      hess_min_eig        vb_applied      vb_shift_max </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          4.51e+01          1.64e+01                 1            0.1926 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     vb_kld_global           kld_max          kld_mean       vb_mcse_max </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           10.3095            0.0186            0.0057            0.1330 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      vb_mcse_mean          nmad_max         nmad_mean scan_end_mass_max </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.0532            0.0229            0.0060          1.03e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         hess_cond        vb_applied      vb_shift_max     vb_kld_global </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          4.51e+01                 1            0.1926           10.3095 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.0186            0.0057            0.1330            0.0532 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          nmad_max         nmad_mean scan_end_mass_max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0.0229            0.0060          1.03e-03 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Per-parameter table</span></span></span>
 <span class="r-in"><span><span class="fu">diagnostics</span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"param"</span><span class="op">)</span></span></span>

@@ -66,16 +66,17 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [180ms]
+#> ✔ Posterior mode and Hessian. [268ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.375σ. [1.3s]
+#> ✔ VB correction; mean |δ| = 0.375σ. [2s]
 #> 
 #> ⠙ Fitting 0/10 skew-normal marginals.
-#> ✔ Fit 10/10 skew-normal marginals. [497ms]
+#> ⠹ Fitting 2/10 skew-normal marginals.
+#> ✔ Fit 10/10 skew-normal marginals. [754ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [900ms]
+#> ✔ Summarise 1000 posterior draws. [1.4s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:
@@ -83,7 +84,7 @@ fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #>   approximation at the mode may be inaccurate.
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`.
 summary(fit)
-#> INLAvaan 0.3.1.9014 ended normally after 44 iterations
+#> INLAvaan 0.3.1.9015 ended normally after 44 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

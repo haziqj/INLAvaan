@@ -9,7 +9,7 @@ model, analogous to blavaan::blavFitIndices()."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9014</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9015</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,9 +86,14 @@ model, analogous to <code><a href="https://blavaan.org/reference/blavFitIndices.
 
 
 <dt id="arg-baseline-model">baseline.model<a class="anchor" aria-label="anchor" href="#arg-baseline-model"></a></dt>
-<dd><p>An optional <a href="INLAvaan-package.html">INLAvaan</a> object representing the
-baseline (null) model. Required for incremental fit indices (BCFI, BTLI,
-BNFI).</p></dd>
+<dd><p>The baseline (null) model that the incremental fit
+indices (BCFI, BTLI, BNFI) are scaled against. <code>NULL</code> (default) fits the
+independence model on the same data and options automatically, as
+lavaan does: every observed variable keeps its variance (and intercept)
+and nothing correlates. That fit uses Gaussian marginals and no VB
+shift, since only its posterior draws and pD are needed, and takes a
+fraction of a second. Supply an <a href="INLAvaan-package.html">INLAvaan</a> object to use another
+baseline, or <code>FALSE</code> to skip the incremental indices.</p></dd>
 
 
 <dt id="arg-rescale">rescale<a class="anchor" aria-label="anchor" href="#arg-rescale"></a></dt>
@@ -154,8 +159,10 @@ quantiles, Mode) for each index.</p>
 <span class="r-in"><span><span class="va">bf</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Posterior summary of devM-based Bayesian fit indices (nsamp = 100): </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       BRMSEA    BGammaHat adjBGammaHat          BMc </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        0.115        0.933        0.878        0.851 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       BRMSEA    BGammaHat adjBGammaHat          BMc         BCFI         BTLI </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.115        0.933        0.878        0.851        0.894        0.846 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         BNFI </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.872 </span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">bf</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Posterior summary of devM-based Bayesian fit indices (nsamp = 100):</span>
@@ -165,6 +172,9 @@ quantiles, Mode) for each index.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BGammaHat    0.933 0.004 0.925 0.931 0.934 0.936  0.940 0.935</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> adjBGammaHat 0.878 0.007 0.862 0.873 0.879 0.883  0.890 0.880</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BMc          0.851 0.009 0.832 0.846 0.853 0.857  0.866 0.855</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BCFI         0.894 0.007 0.879 0.889 0.895 0.899  0.905 0.897</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BTLI         0.846 0.010 0.825 0.839 0.847 0.853  0.863 0.850</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BNFI         0.872 0.007 0.858 0.868 0.873 0.876  0.883 0.875</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

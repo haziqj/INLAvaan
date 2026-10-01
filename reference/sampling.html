@@ -13,7 +13,7 @@ from the prior instead (useful for prior predictive checks)."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9014</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1.9015</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,18 +106,28 @@ Returns an <code>nsamp</code> by <code>npar</code> matrix.</p></dd>
 <dt><code>"latent"</code></dt>
 <dd><p>Latent variables from the model-implied
 distribution. Returns an <code>nsamp</code> by <code>nlv</code> matrix (one draw per
-posterior sample, not tied to any individual).</p></dd>
+posterior sample, not tied to any individual). For two-level
+models the matrix holds the within- <em>and</em> between-level latent
+variables, the level-2 columns carrying the <code>.l2</code> suffix when the
+same latent variable also exists at level 1.</p></dd>
 
 <dt><code>"observed"</code></dt>
 <dd><p>Observed variables generated from the full
-model. Returns an <code>nsamp</code> by <code>nobs_vars</code> matrix.</p></dd>
+model. Returns an <code>nsamp</code> by <code>nobs_vars</code> matrix. For two-level
+models each row is a draw from the two-level generative model,
+\(\mathbf{y} = \mathbf{y}^B + \mathbf{y}^W\): variables that
+live at both levels sum their between- and within-level draws,
+and within-only or between-only variables take the single level
+available to them.</p></dd>
 
 <dt><code>"implied"</code></dt>
 <dd><p>Model-implied moments. Returns a length-<code>nsamp</code>
 list, each element a list with <code>cov</code> (model-implied covariance
 matrix) and, when <code>meanstructure = TRUE</code>, <code>mean</code> (model-implied
 mean vector). For multi-group models each element is itself a
-list of groups.</p></dd>
+list of groups. For two-level models each element is a list with
+a <code>within</code> and a <code>cluster</code> block, each holding a <code>cov</code> and a
+<code>mean</code>, as <code><a href="https://rdrr.io/pkg/lavaan/man/lavInspect.html" class="external-link">lavaan::lavInspect()</a></code> reports them.</p></dd>
 
 <dt><code>"all"</code></dt>
 <dd><p>A named list with elements <code>lavaan</code>, <code>theta</code>,
@@ -184,17 +194,16 @@ for SBC); <code><a href="predict.html">predict()</a></code> for individual-speci
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="st">"visual =~ x1 + x2 + x3"</span>, <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[35ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[53ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.285σ. <span style="color: #B2B2B2;">[174ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.285σ. <span style="color: #B2B2B2;">[264ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/6 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 6/6 skew-normal marginals. <span style="color: #B2B2B2;">[80ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 6/6 skew-normal marginals. <span style="color: #B2B2B2;">[129ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[307ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[417ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -202,12 +211,12 @@ for SBC); <code><a href="predict.html">predict()</a></code> for individual-speci
 <span class="r-in"><span><span class="va">samps</span> <span class="op">&lt;-</span> <span class="fu">sampling</span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">samps</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.8340108   1.132861 0.9601254 1.1239101 0.4769312      0.5847085</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.5413290   0.937252 0.7987346 1.0821189 0.7298471      0.6929135</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.6411047   1.260196 0.8376776 1.1819014 0.4767897      0.5106020</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.5430467   1.332250 0.8947850 1.1092371 0.6120674      0.4057366</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.8014610   1.050886 0.9778346 1.0195363 0.8374772      0.4546362</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]  0.7620878   1.575142 1.0619017 0.9567764 0.2602893      0.3668445</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.7477399  0.8877891 0.7998267 1.0448873 0.6585890      0.6717765</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.7021235  0.9840182 0.9117030 0.8236839 0.6799073      0.6488450</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.8859716  0.9864082 0.7467865 1.0081880 0.7717786      0.4905924</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.5868180  0.7294134 0.6228251 1.1087883 0.8004732      1.0150505</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.6556735  0.8717570 0.7179963 0.9392806 0.6986852      0.5676588</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]  1.1547926  1.7145797 1.1559026 1.2681746 0.3197285      0.3187415</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare copula vs Gaussian sampling</span></span></span>
 <span class="r-in"><span><span class="va">s_cop</span> <span class="op">&lt;-</span> <span class="fu">sampling</span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">500</span>, samp_copula <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
