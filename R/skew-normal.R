@@ -165,7 +165,8 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
     g2 <- -2 * sum(w * r * L_lsinv)
     g3 <- -2 * sum(w * r * L_a)
     g4 <- -2 * sum(w * r * L_logC)
-    g5 <- sum(y * w * r^2) * exp(logk)
+    # w is normalised, so its derivative carries the centring term y - ybar
+    g5 <- sum(w * r^2 * (y - sum(w * y))) * exp(logk)
 
     if (is_est_k) {
       return(c(g1, g2, g3, g4, g5))
