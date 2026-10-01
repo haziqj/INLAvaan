@@ -292,17 +292,13 @@ run_parallel_or_serial <- function(
       on.exit(parallel::stopCluster(cl), add = TRUE)
       # Ship FUN (and its closure) to the workers once; the per-chunk calls
       # below then send only the indices.
-      parallel::clusterCall(
+      .inlavaan_parallel_fun <- FUN
+      parallel::clusterExport(
         cl,
-        function(f) {
-          assign(".inlavaan_parallel_fun", f, envir = globalenv())
-          NULL
-        },
-        FUN
+        ".inlavaan_parallel_fun",
+        envir = environment()
       )
-      cluster_fun <- function(j) {
-        get(".inlavaan_parallel_fun", envir = globalenv())(j)
-      }
+      cluster_fun <- function(j) .inlavaan_parallel_fun(j)
       environment(cluster_fun) <- globalenv()
     }
     # Parallel: process in chunks of `cores` for progress feedback
