@@ -94,6 +94,7 @@ mod <- "
 "
 
 test_that("fast_jacobian Hessian matches numDeriv on the PoliticalDemocracy SEM", {
+  skip_on_cran()
   # Fit with debug = TRUE to get internal objects, but we need the gradient
 
   # closure. Instead, build a lightweight version using INLAvaan internals.

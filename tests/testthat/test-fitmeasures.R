@@ -221,6 +221,7 @@ test_that("Moment count excludes fixed exogenous covariates, as in lavaan", {
 })
 
 test_that("Two-level fit indices are finite and sane", {
+  skip_on_cran()
   d2 <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:60, ]
   mod2 <- "
     level: 1

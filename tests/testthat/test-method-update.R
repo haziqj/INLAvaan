@@ -30,6 +30,7 @@ test_that("update() overrides arguments and preserves expressions", {
 })
 
 test_that("update() applies a changed prior", {
+  skip_on_cran()
   fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
   fit_tight <- update(
     fit,
@@ -41,6 +42,7 @@ test_that("update() applies a changed prior", {
 })
 
 test_that("update(add=) extends the model structure", {
+  skip_on_cran()
   fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
   # nsamp = 3 can trip the marginal-fit diagnostic; irrelevant to structure here
   fit_add <- suppressWarnings(update(fit, add = "x1 ~~ x2", verbose = FALSE))
@@ -49,6 +51,7 @@ test_that("update(add=) extends the model structure", {
 })
 
 test_that("warm start reaches the same posterior mode as a cold fit", {
+  skip_on_cran()
   fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
   dp2 <- priors_for(lambda = "normal(0,0.3)")
   fit_warm <- update(fit, dp = dp2, verbose = FALSE)
@@ -83,6 +86,7 @@ test_that("start of wrong length is rejected", {
 })
 
 test_that("update() re-parses a recorded test = c('standard', 'loo') call", {
+  skip_on_cran()
   fit <- suppressWarnings(acfa(
     mod,
     dat,

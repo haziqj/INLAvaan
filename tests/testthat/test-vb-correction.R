@@ -82,6 +82,7 @@ test_that("no VB correction means no quadrature error to report", {
 })
 
 test_that("n_qmc sets the VB node count and is validated", {
+  skip_on_cran()
   mod <- "visual =~ x1 + x2 + x3"
   fit_at <- function(n) {
     invisible(capture.output(suppressMessages(
@@ -133,6 +134,7 @@ test_that("the Gauss-Hermite node set matches Gaussian moments", {
 })
 
 test_that("vb_method = 'gauss_hermite' is deterministic and agrees with Sobol", {
+  skip_on_cran()
   mod <- "
     visual =~ x1 + x2 + x3
     textual =~ x4 + x5 + x6

@@ -79,6 +79,7 @@ test_that("compare() with fit.measures appends extra columns", {
 })
 
 test_that("compare() includes DIC/pD when the fit computed the DIC", {
+  skip_on_cran()
   # the default test = "standard" computes the DIC but no fit-time LOO/WAIC,
   # so nothing here warns
   fit1_std <- acfa(mod_null, dat, verbose = FALSE, nsamp = 3)
@@ -97,6 +98,7 @@ test_that("compare.inlavaan_internal S3 method works", {
 })
 
 test_that("compare() warns when mean-structure treatments differ", {
+  skip_on_cran()
   fit_ms <- acfa(
     mod_null,
     dat,
@@ -124,6 +126,7 @@ test_that("compare() warns when mean-structure treatments differ", {
 })
 
 test_that("compare() accepts more than two models via ...", {
+  skip_on_cran()
   fit_speed <- acfa(mod_speed, dat, verbose = FALSE, nsamp = 3, test = "none")
   cmp <- compare(fit1, fit2, fit_speed)
   expect_equal(nrow(cmp), 3)
@@ -213,6 +216,7 @@ test_that("compare(loo = TRUE) aborts for models on different data", {
 })
 
 test_that("compare(loo = TRUE) aborts when the variable sets differ", {
+  skip_on_cran()
   fit9 <- acfa(
     mod_speed,
     dat,
@@ -225,6 +229,7 @@ test_that("compare(loo = TRUE) aborts when the variable sets differ", {
 })
 
 test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
+  skip_on_cran()
   # Both fixed.x = TRUE (conditional flavour), but the outcome variable sets
   # differ (covariate sets may differ under conditional scoring, but outcomes
   # must match) -- distinct from the joint-flavour "same set of observed

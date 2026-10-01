@@ -21,6 +21,10 @@ test_that("Multigroup fitting and testing", {
   })
   expect_no_error(out <- capture.output(summary(fit1)))
 
+  # The rest of the ladder adds two fits and a compare() call. Convergence
+  # (dx ~ 0) also depends on the platform's BLAS/compiler, so CI only.
+  skip_on_cran()
+
   # Weak invariance
   expect_no_error({
     fit2 <- acfa(
@@ -55,9 +59,6 @@ test_that("Multigroup fitting and testing", {
     out <- capture.output(print(cp))
   })
 
-  # Convergence (dx ~ 0) depends on the optimiser path, which varies with the
-  # platform's BLAS/compiler -- too fragile to assert on CRAN's check farm.
-  skip_on_cran()
   expect_equal(fit1@optim$dx, rep(0, length(fit1@optim$dx)), tolerance = 1e-3)
   expect_equal(fit2@optim$dx, rep(0, length(fit2@optim$dx)), tolerance = 1e-3)
   expect_equal(fit3@optim$dx, rep(0, length(fit3@optim$dx)), tolerance = 1e-3)

@@ -1,3 +1,7 @@
+# Extended LOO suite pinned to reference values. It runs in CI, and
+# test-loo-loso.R covers the core LOO on CRAN.
+skip_on_cran()
+
 # FIML LOO (single-level, missing data). Under FIML the fitted likelihood is
 # the observed-data likelihood, so each unit is scored on the entries it
 # actually has, l_i = log N(y_i,obs; mu[o_i], Sigma[o_i, o_i]); the Taylor

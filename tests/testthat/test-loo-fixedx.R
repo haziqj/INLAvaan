@@ -1,3 +1,7 @@
+# Extended LOO suite pinned to reference values. It runs in CI, and
+# test-loo-loso.R covers the core LOO on CRAN.
+skip_on_cran()
+
 # Conditional-flavour LOO for fixed.x fits: units are scored by the
 # predictive density of their outcomes given their covariates, matching the
 # (conditional) likelihood the model was fitted with.

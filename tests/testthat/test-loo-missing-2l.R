@@ -1,3 +1,7 @@
+# Extended LOO suite pinned to reference values. It runs in CI, and
+# test-loo-loso.R covers the core LOO on CRAN.
+skip_on_cran()
+
 # Two-level FIML LOCO (leave-one-cluster-out under missing data). Each cluster
 # is scored on its observed-data marginal likelihood via lavaan's raw-data
 # missing kernels; since LOCO deletes a whole cluster there is no downdating.

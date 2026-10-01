@@ -1,3 +1,7 @@
+# Extended LOO suite pinned to reference values. It runs in CI, and
+# test-loo-loso.R covers the core LOO on CRAN.
+skip_on_cran()
+
 # Multigroup LOSO: groups are independent, so every single-group kernel
 # applies blockwise with group-indexed moments and constants. Units are
 # identified by case index, so they keep their identity across fits that

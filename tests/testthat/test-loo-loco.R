@@ -1,3 +1,7 @@
+# Extended LOO suite pinned to reference values. It runs in CI, and
+# test-loo-loso.R covers the core LOO on CRAN.
+skip_on_cran()
+
 twolevel_model <- "
   level: 1
     fw =~ y1 + y2 + y3

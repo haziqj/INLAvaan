@@ -101,6 +101,7 @@ test_that("multigroup predict works for lv, yhat, and newdata", {
 # ---- summary = TRUE shortcut ---------------------------------------------
 
 test_that("predict(summary = TRUE) matches summary(predict(...))", {
+  skip_on_cran()
   set.seed(1)
   a <- predict(fit_cfa, type = "yhat", nsamp = NSAMP, summary = TRUE)
   set.seed(1)

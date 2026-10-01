@@ -101,6 +101,7 @@ test_that("Method: sampling", {
 })
 
 test_that("cov_as_cor reports correlations without changing the fit", {
+  skip_on_cran()
   fit_off <- asem(
     mod,
     dat,
