@@ -2,319 +2,269 @@
 
 ## Deprecations
 
-* The `Sigma` argument of `loo()` is renamed `Omega`, the notation used for
-  the Laplace summary's posterior covariance in the accompanying manuscript
-  and documentation. A legacy `Sigma =` is still accepted, with a
-  deprecation warning, so existing scripts keep running; supplying both
-  names is an error.
+* The `Sigma` argument of `loo()` is now `Omega`. The new name agrees with the
+  notation for the posterior covariance in the documentation. You can still use
+  `Sigma`, but you get a deprecation warning. If you supply the two names, you
+  get an error.
 
 ## Bug fixes
 
-* Single-level fits with `missing = "ml"` returned wrong posterior
-  summaries under the default skew-normal marginals: loadings and variances
-  far from the FIML estimates, with the scan-endpoint diagnostic flagging
-  nearly every parameter. The saturated-means fast path, which treats the
-  free intercepts as exactly Gaussian and separable from the covariance
-  parameters, was applied under FIML, where the mean and covariance blocks
-  of the information matrix are coupled. The Hessian's intercept block and
-  the whitening used by the shortcut volume correction were then
-  inconsistent with the actual curvature, tilting every scanned marginal
-  towards the edge of the scan. The fast path is now off under FIML. The
-  posterior mode and the Laplace covariance were already correct, so
-  `marginal_method = "marggaus"` and `marginal_correction = "hessian"` or
-  `"none"` were unaffected, as were two-level FIML fits.
+* Single-level fits with `missing = "ml"` gave incorrect posterior summaries
+  with the default skew-normal marginals. The loadings and variances were far
+  from the FIML estimates, and the scan-endpoint check flagged almost all
+  parameters. The cause was a shortcut that treats the free intercepts as
+  separate from the covariance parameters. This is correct for complete data,
+  but not under FIML. INLAvaan no longer uses the shortcut under FIML. These
+  results were already correct:
+  - The posterior mode and the Laplace covariance.
+  - Fits with `marginal_method = "marggaus"`, or with
+    `marginal_correction = "hessian"` or `"none"`.
+  - Two-level FIML fits.
 
-* The posterior predictive p-value compared the model-implied covariance
-  with the sample covariance as stored by lavaan, which under
-  `missing = "ml"` is not the saturated estimate, and for two-level models
-  with the cluster statistics `YLp`, which ignore missing cells. A correct
-  model with 20% missing cells scored PPP 0.000. The observed covariance is
-  now lavaan's saturated (h1) estimate: the EM covariance for single-level
-  FIML fits and the within- and between-level h1 covariances for two-level
-  fits, complete or not. Complete-data single-level fits are unchanged;
-  complete-data two-level PPP values move slightly because the h1 within
-  and between covariances replace the pooled cluster statistics.
+* The posterior predictive p-value (PPP) was incorrect for data with missing
+  values. For example, a correct model with 20% missing cells got a PPP of
+  0.000. The cause was that the PPP used a sample covariance that is not
+  correct when values are missing. The PPP now uses the saturated (h1)
+  covariance from lavaan:
+  - For single-level FIML fits, this is the EM covariance.
+  - For two-level fits, these are the within-level and between-level h1
+    covariances, with or without missing values.
 
-* The Bayesian fit indices used a single-level formula for the saturated
-  log-likelihood and counted the sample moments by hand. For two-level
-  models the saturated value was far too low, so the deviance chi-square
-  went negative and was clamped to zero (`BRMSEA` 0, `BGammaHat` 1, `BTLI`
-  above 1), and two-level fits with `missing = "ml"` returned `NA`. The
-  hand count also included the moments of fixed exogenous covariates,
-  which lavaan excludes, so `BRMSEA` and `adjBGammaHat` used a slightly
-  wrong df for any model with an observed predictor under
-  `fixed.x = TRUE`. Both quantities now come from lavaan: the saturated
-  log-likelihood from the fit's `h1` slot and the moment count from
-  `lav_partable_ndat()`. Single-level fits without covariates are
-  unchanged.
+  Single-level fits with complete data do not change. Two-level fits with
+  complete data get slightly different PPP values.
 
-* The incremental fit indices `BCFI`, `BTLI` and `BNFI` were scaled against
-  whatever fit the caller passed as `baseline.model`, and `compare()`
-  silently used its first argument as that baseline: a model listed first
-  was scored against itself, which gives zero by construction, and the
-  later models were scored against it rather than against a null model.
-  `fitMeasures()`, `bfit_indices()` and `compare()` now fit the
-  independence model (every observed variable keeps its variance and
-  intercept, nothing correlates) on the same data and options
-  automatically, as lavaan does. The fit reuses the data slots of the
-  fitted object, uses Gaussian marginals and no VB shift, since the indices
-  need only its posterior draws and pD, and takes a fraction of a second
-  even for 64 items. `compare()` fits it once and shares it across the
-  table. Pass `baseline.model` to override it, or `baseline.model = FALSE`
-  to skip the incremental indices; a `baseline.model` with the same free
-  parameters as the model now warns. `BTLI` is `NA`, not `-Inf`, when the
-  baseline's own ratio is 1. Absolute indices (`BRMSEA`, `BGammaHat`,
-  `adjBGammaHat`, `BMc`) are unchanged.
+* The Bayesian fit indices had two errors:
+  - For two-level models, the saturated log-likelihood was much too low. The
+    deviance chi-square became negative, and INLAvaan set it to zero. As a
+    result, `BRMSEA` was 0, `BGammaHat` was 1 and `BTLI` was more than 1.
+    Two-level fits with `missing = "ml"` gave `NA`.
+  - The count of sample moments included the moments of fixed exogenous
+    covariates, but lavaan does not count these. As a result, `BRMSEA` and
+    `adjBGammaHat` used slightly incorrect degrees of freedom for models with
+    an observed predictor and `fixed.x = TRUE`.
 
-* `sampling()` returned only the within-level block for two-level models —
-  `type = "latent"` omitted the between-level latent variables,
-  `type = "observed"` omitted the between-level component and the
-  between-only variables, and `type = "implied"` returned a single
-  covariance instead of the within and cluster pair; all three now draw
-  from the two-level generative model.
+  INLAvaan now gets the two values from lavaan. Single-level fits without
+  covariates do not change.
 
-* With `marginal_method = "marggaus"`, the `Mean` and `SD` reported for a
-  parameter estimated on a transformed scale (variances, correlations) were
-  the back-transformed Gaussian centre and a delta-method SD, so `Mean` was
-  in fact the posterior median. Both are now the moments of the transformed
-  Gaussian marginal, computed by Gauss-Hermite quadrature as for the
-  skew-normal marginals. Quantiles, modes and densities are unchanged.
+* The incremental fit indices `BCFI`, `BTLI` and `BNFI` used an incorrect
+  baseline. `compare()` used its first model as the baseline, without a
+  warning. Thus the first model got a score against itself, which is always
+  zero, and the other models got a score against the first model, not against
+  a null model. `fitMeasures()`, `bfit_indices()` and `compare()` now fit the
+  independence model automatically, as lavaan does. In this model, each
+  observed variable has its variance and intercept, and no variables
+  correlate. The fit uses the same data and options as the model, and takes
+  less than one second, also for 64 items. `compare()` fits it one time for
+  all models. Other changes:
+  - Use `baseline.model` to supply a different baseline, or
+    `baseline.model = FALSE` to skip the incremental indices.
+  - If `baseline.model` has the same free parameters as the model, you get a
+    warning.
+  - `BTLI` is now `NA`, not `-Inf`, when the ratio of the baseline is 1.
 
-* `predict()` drew its parameter sample without the NORTA correlation
-  adjustment and ignored the `samp_copula` setting the model was fitted
-  with, so factor scores and predicted values came from a copula with a
-  different dependence structure than the fit's own posterior draws. It now
-  draws exactly as every other part of the package does: the stored
-  NORTA-adjusted correlation matrix is passed to the copula, and a fit made
-  with `samp_copula = FALSE` gets non-copula draws in `predict()` too.
+  The absolute indices (`BRMSEA`, `BGammaHat`, `adjBGammaHat`, `BMc`) do not
+  change.
 
-* `timing()` overstated the total: the lavaan-side setup stages were added on
-  top of INLAvaan's own segments even though they already sit inside `init`,
-  double-counting the whole lavaan setup (and silently summing the four
-  segment names both sides share). The reported segments are now INLAvaan's
-  own, disjoint, and sum to a `total` that matches `system.time()` on the
-  call; the absolute `start_time` stamp is no longer exposed as if it were a
-  duration, and the `loo`/`waic` segments are now documented.
+* For two-level models, `sampling()` gave only the within-level part. All
+  three types now draw from the full two-level model:
+  - `type = "latent"` now includes the between-level latent variables.
+  - `type = "observed"` now includes the between-level part and the
+    between-only variables.
+  - `type = "implied"` now gives the within-level and between-level
+    covariances, not one covariance.
 
-* `loo()` no longer drops units without a second-order term from `elpd_loo`,
-  `p_loo` and their standard errors, which summed the model over fewer units
-  and so flattered it. A second-order term is a Gaussian integral that need
-  not converge: the log CPO term exists only where `k_max < 1`, the `lpd`
-  term only where the complementary condition on the same curvature holds.
-  Where a log CPO term does not exist, every estimate is now reported at
-  first order over *all* units, so it remains an approximation of one order
-  rather than a mix of two — substituting first-order terms for the failing
-  units alone drops exactly the curvature that made the integral diverge,
-  giving an error that is systematic, one-directional and concentrated on
-  those units. A missing `lpd` term gets the opposite remedy, because the two
-  divergences mean opposite things: the case-deletion integral can genuinely
-  be infinite, but the `lpd` integral is always finite in truth (a density is
-  bounded), so a missing `lpd` term is an artefact of extrapolating the
-  quadratic rather than a feature of the unit. Its first-order contribution
-  recovers most of the true one — against a sampled reference, roughly 90%,
-  where dropping the unit recovers none — so such a unit now contributes its
-  first-order difference to `p_loo`, leaving `elpd_loo` and `looic` untouched.
-  The log CPO case warns, from `loo()` and from `fitmeasures()`; the `lpd`
-  case is silent at the console, being both the ordinary state of an SEM fit
-  and a smaller error than the second-order `lpd`'s own bias on the units
-  that keep it, and is instead noted when a result is printed and counted by
-  `n_lpd_ok`. This changes `elpd_loo`/`looic` for fits with any
-  `k_max >= 1`. The warning names the offending units: since
-  `Sigma^-1 + H_u` is the *deleted* posterior precision, `k_max >= 1` says
-  that removing the unit leaves the remaining data and the prior unable to
-  identify some combination of parameters — a finding about that unit, worth
-  inspecting rather than worked around.
+* With `marginal_method = "marggaus"`, the `Mean` and `SD` were incorrect for
+  parameters on a transformed scale, such as variances and correlations. The
+  `Mean` was the posterior median, and the `SD` came from the delta method.
+  INLAvaan now calculates the two values as the moments of the transformed
+  Gaussian marginal, with Gauss-Hermite quadrature. The quantiles, modes and
+  densities do not change.
 
-* `compare()` computed `se_diff` from pointwise contributions that did not
-  match the `elpd_diff` above them: units without a second-order term were
-  dropped from the paired variance while still counted in the ELPD totals.
-  Both now rest on the same per-unit contributions.
+* `predict()` did not draw its parameter sample in the same way as the rest of
+  the package. It did not use the NORTA correlation adjustment, and it ignored
+  the `samp_copula` setting of the fit. Thus the factor scores and predicted
+  values had a different dependence structure from the posterior draws of the
+  fit. `predict()` now uses the stored correlation matrix and the `samp_copula`
+  setting of the fit.
 
-* `compare(loo = TRUE)` now scores every model at one common Taylor order,
-  the lowest any of them can supply. Previously a model with all its
-  second-order terms was compared at second order against a model reported
-  at first order, so part of `elpd_diff` was a change of estimator rather
-  than a difference between the models. The order used is printed with the
-  table.
+* `timing()` gave a total that was too large. It added the lavaan setup time
+  two times, because this time is already part of `init`. The segments now do
+  not overlap, and their sum agrees with `system.time()`. `timing()` no longer
+  shows the `start_time` stamp as a duration. The documentation now includes
+  the `loo` and `waic` segments.
 
-* `test = "loo"` stored the LOO without the WAIC, although the WAIC comes
-  from the same Taylor pass and the documentation promised both. The
-  INLAvaan-only token was stripped before `test` reached lavaan, which left
-  `test` empty and so switched the WAIC off. Asking for either now stores
-  both (see the `test` entry under New features).
+* `loo()` removed the units without a second-order term from `elpd_loo`,
+  `p_loo` and their standard errors. Thus the sum had fewer units, and the
+  model looked better than it is. `loo()` now keeps all the units:
+  - If the log CPO term of a unit does not exist at second order
+    (`k_max >= 1`), `loo()` gives all estimates at first order, for all units.
+    Thus each estimate uses one order only. `loo()` and `fitmeasures()` give a
+    warning that names these units.
+  - If the `lpd` term of a unit does not exist at second order, the unit adds
+    its first-order difference to `p_loo`. `elpd_loo` and `looic` do not
+    change. This case is usual in SEM fits and the error is small, thus there
+    is no warning. The printed result shows a note, and `n_lpd_ok` gives the
+    count.
+
+  This changes `elpd_loo` and `looic` for fits with a unit at `k_max >= 1`.
+  Without such a unit, the other data and the prior cannot identify some
+  combination of the parameters. Thus, examine such units.
+
+* `compare()` calculated `se_diff` from per-unit values that did not agree with
+  `elpd_diff`. The paired variance did not include the units without a
+  second-order term, but the ELPD totals included them. The two values now use
+  the same per-unit values.
+
+* `compare(loo = TRUE)` now uses the same Taylor order for all models. This is
+  the highest order that all the models can supply. Before, it could compare
+  a model at second order with a model at first order. Thus part of
+  `elpd_diff` came from the change of order, not from the models. The table
+  shows the order.
+
+* `test = "loo"` stored the LOO but not the WAIC, but the documentation said
+  that it stores the two. A request for the LOO or the WAIC now stores the two
+  (see the `test` entry under New features).
 
 ## New features
 
-* New `vb_method` argument to `inlavaan()`, `acfa()`, `asem()` and
-  `agrowth()` chooses the integration rule for the VB mean correction.
-  `"sobol"` (the default) keeps the scrambled Sobol rule over `n_qmc` nodes.
-  `"gauss_hermite"` replaces it with a deterministic rule: a three-point
-  Gauss-Hermite rule along each principal axis of the Laplace covariance,
-  `2m + 1` nodes in all for `m` free parameters. In whitened coordinates
-  every cross moment of the Gaussian vanishes, so the expected gradient
-  splits into one-dimensional integrals, and the rule is exact whenever the
-  log-posterior is quartic in those coordinates. It gives the same shift on
-  every run, and on the benchmark models it was more accurate than the
-  default 64-node rule. It reports no quadrature error, so `vb_mcse_sigma`
-  is `NA`, and its cost grows with `m`: it is cheaper than the default below
-  about 30 free parameters and dearer above. Experimental.
+* New `vb_method` argument to `inlavaan()`, `acfa()`, `asem()` and `agrowth()`
+  sets the integration rule for the VB mean correction:
+  - `"sobol"` (the default) uses the scrambled Sobol rule with `n_qmc` nodes,
+    as before.
+  - `"gauss_hermite"` uses a deterministic three-point Gauss-Hermite rule
+    along each principal axis of the Laplace covariance. This is `2m + 1`
+    nodes for `m` free parameters.
 
-* `diagnostics()` reports two more global quantities and two more
-  per-parameter ones. `vb_shift_max` is the largest VB mean correction in
-  posterior-SD units, previously available only as the maximum of the
-  per-parameter table; and `scan_end_mass_max` is the largest of the new
-  per-parameter `scan_end_mass`. The per-parameter table also gains
-  `alpha`, the fitted skew-normal shape.
+  The Gauss-Hermite rule gives the same shift on each run. On the benchmark
+  models, it was more accurate than the default 64-node rule. It is faster
+  than the default for fewer than approximately 30 free parameters, and
+  slower for more. It gives no quadrature error, thus `vb_mcse_sigma` is
+  `NA`. This feature is experimental.
 
-* `scan_end_mass` is the probability the fitted skew-normal marginal puts
-  outside the window that was scanned to fit it, four posterior SDs either
-  side of the mode. The marginal is fitted inside that window only, so
-  whatever it puts outside is extrapolation, which makes a parameter's
-  credible limits the first thing to distrust when the value is large. A
-  Gaussian marginal scores 6.3e-05 and healthy fits sit between 1e-03 and
-  1e-02. The fit-time check now warns, naming up to three offenders, when
-  any parameter exceeds 0.05. With the VB shift and the NMAD it completes
-  the set of three diagnostics with simulation evidence behind them. Both
-  columns are `NA` unless `marginal_method = "skewnorm"`, and the check is
-  closed-form (Owen's T on fixed Gauss-Legendre nodes), so it costs nothing.
+* `diagnostics()` has new values:
+  - Global: `vb_shift_max`, the largest VB mean correction in posterior-SD
+    units, and `scan_end_mass_max`, the largest `scan_end_mass`.
+  - For each parameter: `scan_end_mass` (see the next entry), and `alpha`,
+    the shape of the fitted skew-normal.
+
+* New diagnostic `scan_end_mass`. It is the probability that the fitted
+  skew-normal marginal puts outside the scan window, which is four posterior
+  SDs on each side of the mode. INLAvaan fits the marginal only inside this
+  window, thus the mass outside it is an extrapolation. A large value shows
+  that the credible limits of the parameter are not reliable.
+  - A Gaussian marginal gives 6.3e-05. Good fits give values from 1e-03 to
+    1e-02.
+  - The fit gives a warning if a parameter has a value more than 0.05. The
+    warning names a maximum of three parameters.
+  - The value is `NA` unless `marginal_method = "skewnorm"`.
+  - The calculation is closed-form, thus it adds no cost.
 
 * New `samp_norta` argument to `inlavaan()`, `acfa()`, `asem()` and
-  `agrowth()` switches the NORTA correlation adjustment of the skew-normal
-  copula on and off independently of `samp_copula`. It defaults to `FALSE`:
-  the adjustment leaves every marginal untouched and, on the benchmark
-  models, moves no correlation by more than 0.01, so it is now opt-in. The
-  setting is recorded on the fit and inherited by `predict()` through the
-  stored `R_star`.
+  `agrowth()` enables or disables the NORTA correlation adjustment of the
+  skew-normal copula. It is independent of `samp_copula`. The default is
+  `FALSE`, because the adjustment does not change the marginals and has a very
+  small effect: on the benchmark models, it changed no correlation by more
+  than 0.01. `predict()` uses the same setting as the fit.
 
-* The `test` argument of `inlavaan()`, `acfa()`, `asem()` and `agrowth()`
-  now names the post-estimation quantities to compute, as a set. The atoms
-  are `"ppp"`, `"dic"`, `"loo"` and `"waic"`; `"standard"` (and its synonym
-  `"default"`) stands for `c("ppp", "dic")`, `"full"` for all four, and
-  `"none"` for nothing. Aliases and atoms can be mixed and are unioned, so
-  `test = c("standard", "loo")` keeps working, and the PPP and DIC are now
-  separately selectable: `test = "dic"` reports the DIC in `summary()`,
-  `fitmeasures()`, `deviance()` and `logLik(type = "plugin")` without
-  computing a PPP. An unknown value is an error listing the valid ones;
-  this includes lavaan's own test-statistic names (`"satorra.bentler"`,
-  `"browne.residual.adf"`, ...), which were previously forwarded to lavaan
-  and silently ignored, since no lavaan test statistic is ever computed.
-  **The default no longer computes the LOO and WAIC.** Previously
-  `test = "standard"` also ran the full leave-one-out on any supported
-  model whose predicted cost fitted a 10-second budget, a gate that made
-  fit times hard to predict and skipped silently on unsupported models.
-  The LOO and WAIC now run only when asked for (`"loo"`, `"waic"` or
-  `"full"`), with no time budget, and a fit that asks for them on an
-  unsupported model (PML or ordinal data, `conditional.x = TRUE`,
-  multigroup two-level) warns and skips them rather than failing.
-  `loo(fit)` and `waic(fit)` still compute on demand, and `add_loo(fit)`
-  now stores both the LOO and the WAIC (previously the LOO only), so a
-  script that relied on `fitmeasures(fit)` listing `elpd_loo` under the
-  old default should now pass `test = "full"` or call `add_loo()`. The fit
-  records what was requested and what was computed
-  (`get_inlavaan_internal(fit, "test")`), and `show()`, `summary()`,
-  `fitmeasures()` and `timing()` read that record instead of inferring it
-  from which results happen to be present.
+* The `test` argument of `inlavaan()`, `acfa()`, `asem()` and `agrowth()` now
+  gives the set of post-estimation values to calculate:
+  - The basic values are `"ppp"`, `"dic"`, `"loo"` and `"waic"`.
+  - `"standard"` (or `"default"`) is `c("ppp", "dic")`. `"full"` is all four.
+    `"none"` is nothing.
+  - You can combine values, for example `test = c("standard", "loo")`.
+  - An unknown value gives an error. This includes the test names of lavaan,
+    for example `"satorra.bentler"`. Before, lavaan ignored these values
+    without a warning.
 
-* `cores > 1` now works the same in every front end. Parallel stages
-  (`inlavaan()`, `loo()`) forked worker processes via `mclapply`, which is
-  unavailable on Windows and unsafe inside threaded IDE R sessions —
-  RStudio's console and Positron's ark kernel — where forked children can
-  die silently. INLAvaan now falls back to a PSOCK cluster (separate R
-  processes) wherever forking is unsafe, detected from the embedding
-  program rather than IDE environment variables.
+  You can now request the PPP and the DIC separately. For example,
+  `test = "dic"` gives the DIC without the PPP.
 
-* `inlavaan()` gains `cov_as_cor`. Residual and latent-disturbance covariance
-  parameters (`theta_cov`/`psi_cov`) are always estimated on the correlation
-  scale internally (an `atanh` link); by default the reported marginal is
-  then re-derived on the covariance scale from a posterior sample, because
-  that is what lavaan/blavaan report natively. `cov_as_cor = TRUE` skips that
-  re-derivation and reports each parameter's own directly profiled
-  correlation-scale marginal instead (relabelling it `theta_cor`/`psi_cor`
-  in the returned partable to match) — useful for comparing the profiling
-  machinery itself against a correlation-scale reference without the
-  sampling/copula step in between. Model estimation (mode, Hessian, all
-  other parameters) is identical either way.
+  **The default no longer calculates the LOO and the WAIC.** Before, the
+  default calculated the LOO if its predicted time was less than 10 seconds.
+  Thus the fit time was difficult to predict. INLAvaan now calculates the LOO
+  and the WAIC only on request (`"loo"`, `"waic"` or `"full"`). If the model
+  does not support them (PML or ordinal data, `conditional.x = TRUE`,
+  multigroup two-level models), you get a warning and the fit continues
+  without them.
 
-* `waic()` is now deterministic: both WAIC terms are computed in closed form
-  from the fit's Laplace summary — the same per-unit Taylor quantities behind
-  `loo()` — instead of being estimated from posterior draws. The penalty is
-  the variance of the unit log-likelihood under the Gaussian posterior,
-  \eqn{p_{waic,u} = s_u' \Sigma s_u + tr[(H_u \Sigma)^2]/2}, a polynomial in
-  Gaussian moments with no existence condition of its own; the lpd term is
-  the one `loo()` already computes, and a unit without a second-order lpd
-  contributes its first-order lpd (noted when printing, counted by
-  `n_lpd_ok`). **This is a change of estimand, not only of computation**:
-  the previous estimator took a variance across draws from the skew-normal
-  copula sampler, so `p_waic` and `waic` change on every existing fit, most
-  visibly at small `N` where the two posteriors' second moments differ most.
-  Consequences: results are exactly reproducible (no seed sensitivity); the
-  `nsamp` argument is gone (passing it warns); and a `second_order` argument
-  mirrors `loo()`, at which order WAIC and LOO coincide exactly. The
-  `p_waic > 0.4` reliability rule is **removed** rather than carried over:
-  it is an empirical threshold calibrated on simulations (Vehtari, Gelman &
-  Gabry, 2017, state plainly that no theory backs it) and it was there to
-  police an estimator's variability across draws. What replaces it is the
-  estimand's own existence condition — `p_waic` is a polynomial in the
-  posterior moments and always finite, so the second-order WAIC exists
-  exactly where its `lpd` term does, namely where `Sigma^-1 - H_u` is
-  positive definite (`k_min > -1`); where it does not, every estimate is
-  reported at first order over all units and warns, and that fallback is
-  exact rather than approximate because first-order WAIC *is* the
-  first-order LOO score. The log CPO condition `k_max < 1` is irrelevant to
-  the WAIC, which reads no case-deletion term. At fit time the WAIC is
-  derived from the same computation as the fit-time LOO at no extra cost
-  (previously it needed `nsamp >= 100` and a separate casewise pass over all
-  draws), and is skipped when that LOO is skipped. `loo()`'s `per_unit`
-  gains the `k_ssq` column (\eqn{tr[(\Sigma H_u)^2]}, which feeds the
-  penalty) and `k_min`, the existence diagnostic for the `lpd` term.
+  To get `elpd_loo` in `fitmeasures(fit)` as before, use `test = "full"` or
+  `add_loo(fit)`. `add_loo()` now stores the LOO and the WAIC (before, it
+  stored only the LOO). `loo(fit)` and `waic(fit)` still calculate on request.
 
-* `loo()` now reports two curvature diagnostics per unit, `k_max` and `k_sum`,
-  obtained in closed form from the Laplace summary rather than estimated from
-  posterior draws. `k_max` is the share of the posterior precision the unit
-  carries along its worst direction, and `k_max < 1` is exactly the condition
-  for its second-order term to exist; `k_sum` is the unit's total leverage.
-  No threshold is applied to either: existence is the only condition acted on.
+* `cores > 1` now works in all front ends. Before, the parallel stages of
+  `inlavaan()` and `loo()` used `mclapply()` to fork worker processes. Forks
+  are not available on Windows. They are also not safe in threaded IDE
+  sessions, such as RStudio and Positron, where the child processes can stop
+  without a message. INLAvaan now uses a PSOCK cluster (separate R processes)
+  when forks are not safe.
+
+* New `cov_as_cor` argument to `inlavaan()`. INLAvaan always estimates the
+  residual and latent covariances (`theta_cov`, `psi_cov`) on the correlation
+  scale. By default, it then reports them on the covariance scale from a
+  posterior sample, as lavaan and blavaan do. With `cov_as_cor = TRUE`,
+  INLAvaan reports the correlation-scale marginals directly, as `theta_cor`
+  and `psi_cor`. Use this option to compare the marginals with a reference on
+  the correlation scale. The estimation does not change.
+
+* `waic()` is now deterministic. It calculates the two WAIC terms in closed
+  form from the Laplace summary, with the same per-unit Taylor values as
+  `loo()`. It no longer uses posterior draws. **This changes the estimand**,
+  thus `p_waic` and `waic` change for all existing fits. The change is largest
+  at small `N`. Other changes:
+  - The results are exactly reproducible, and do not depend on a seed.
+  - The `nsamp` argument is removed. If you supply it, you get a warning.
+  - The new `second_order` argument works as in `loo()`. At first order, the
+    WAIC and the LOO are identical.
+  - The `p_waic > 0.4` rule is removed. It was an empirical threshold for the
+    variation of the old estimator, with no theory to support it.
+  - The second-order WAIC exists only if the `lpd` term exists for all units
+    (`k_min > -1`). If not, `waic()` gives all estimates at first order, with
+    a warning.
+  - At fit time, the WAIC comes from the same calculation as the LOO, at no
+    extra cost.
+  - The `per_unit` table of `loo()` has two new columns: `k_ssq`, which is
+    part of the WAIC penalty, and `k_min`, the existence check for the `lpd`
+    term.
+
+* `loo()` now gives two curvature diagnostics for each unit, `k_max` and
+  `k_sum`. It calculates them in closed form from the Laplace summary, not
+  from posterior draws. `k_max` is the fraction of the posterior precision
+  that the unit has along its worst direction. The second-order term of the
+  unit exists only if `k_max < 1`. `k_sum` is the total leverage of the unit.
+  `loo()` applies no threshold to these values.
 
 ## Minor improvements and fixes
 
 * `loo()` no longer uses the name "effective number of parameters" for two
-  different quantities. `p_loo` keeps the **loo** package's definition and
-  stays in the `estimates` table; the sum of the per-unit `k_sum` is now named
-  for what it is, the trace form of the DIC's `p_D`, and is returned as
-  `pd_trace`. The two are the cross-product and second-derivative forms of the
-  same information matrix: they share a limit but differ in a finite sample,
-  and agree only if the model is correct. Printing a LOO result now also
-  reports the curvature check the two make possible — the summed
-  first-to-second-order gap (returned as `elpd_gap`), the reference `pD/2`,
-  and the signed excess between them, the gap approaching `pD/2` from above so
-  that a large excess says the second-order expansion has not settled. Nothing
-  is thresholded, as elsewhere in `loo()`. The documentation now also states
-  plainly that `second_order = FALSE` is for diagnostics and cost only: a
-  first-order score overstates the elpd by `pD/2` in the limit, a bias that
-  grows with model dimension, so candidates of different size are not
-  comparable on it.
+  different values:
+  - `p_loo` has the same definition as in the **loo** package. It stays in
+    the `estimates` table.
+  - The sum of the per-unit `k_sum` is now `pd_trace`, the trace form of the
+    DIC `pD`.
 
-* `loo()` and `waic()` results print under a `cli` rule carrying the unit
-  count, the group count and the Taylor order, replacing the separate
-  "Computed from ..." line, and their notes now reflow to the console width.
-  `summary()` on either result is an alias for `print()`.
+  The printed result also shows a new curvature check. It compares the total
+  gap between the first-order and second-order estimates (`elpd_gap`) with
+  half of `pD`. A large excess shows that the second-order expansion is not
+  stable. The documentation now also tells you to use `second_order = FALSE`
+  only for diagnostics or to decrease cost. A first-order score is too high by
+  approximately half of `pD`, thus it cannot compare models of different
+  sizes.
 
-* INLAvaan now requires lavaan >= 0.7-2. This retires the compatibility
-  layer that supported both lavaan generations at once — the dual-name
-  alias probing for renamed internals, the per-session resolution of
-  renamed argument spellings, and the positional calls that avoided
-  cross-version argument names — and with it the interim warning about
-  lavaan's slightly inexact two-level FIML gradient for fully-missing-within
-  cases, which lavaan >= 0.7-1.2707 fixed upstream. The unexported lavaan
-  internals INLAvaan relies on are still bound once per session at load
-  time (now under their 0.7 names only), keeping the package correct when
-  lavaan is upgraded in place.
+* `loo()` and `waic()` results now print under a `cli` rule that shows the
+  number of units, the number of groups and the Taylor order. This rule
+  replaces the "Computed from ..." line. The notes now fit the width of the
+  console. `summary()` on these results is the same as `print()`.
 
-* The default `"nlminb"` optimiser now runs with `iter.max = 1000` and
-  `eval.max = 2000` instead of `nlminb()`'s stock 150 and 200, which complex
-  models could exhaust — quietly, since hitting the ceiling surfaces only
-  through `diagnostics()` or the fit-time warning. Values supplied via
-  `control` still take precedence.
+* INLAvaan now requires lavaan >= 0.7-2. Thus the compatibility layer for
+  older lavaan versions is removed. The warning about the two-level FIML
+  gradient for cases with all within-level values missing is also removed,
+  because lavaan >= 0.7-1.2707 corrects this problem.
+
+* The default `"nlminb"` optimiser now uses `iter.max = 1000` and
+  `eval.max = 2000`. The `nlminb()` defaults (150 and 200) were too small for
+  some complex models. When the optimiser reached these limits, only
+  `diagnostics()` or a fit-time warning showed it. Values that you supply in
+  `control` still have priority.
 
 # INLAvaan 0.3.1
 
