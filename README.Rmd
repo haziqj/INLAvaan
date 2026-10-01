@@ -88,7 +88,7 @@ Computation speed is valuable only when accuracy is preserved.
 Our method yields posterior distributions that are visually and numerically comparable to those obtained via MCMC (e.g., via `{blavaan}`/Stan), but at a fraction of the computational cost.
 
 The figure below illustrates the posterior density overlap for the example above.
-The percentages refer to the one minus the [Jensen-Shannon distance](https://en.wikipedia.org/wiki/Jensen–Shannon_divergence), which gives a measure of similarity between two probability distributions.
+The percentages refer to the one minus the normalised [Jensen-Shannon divergence](https://en.wikipedia.org/wiki/Jensen–Shannon_divergence), which gives a measure of similarity between two probability distributions.
 
 ```{r}
 #| label: fig-compare-poldem

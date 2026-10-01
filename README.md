@@ -74,16 +74,17 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [82ms]
+#> ✔ Posterior mode and Hessian. [84ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.154σ. [111ms]
+#> ✔ VB correction; mean |δ| = 0.154σ. [133ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [870ms]
+#> ✔ Fit 30/30 skew-normal marginals. [885ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [270ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [305ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -99,12 +100,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1659.789 
-#>    PPP (Chi-square)                              0.473 
+#>    PPP (Chi-square)                              0.475 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3174.318 
-#>    Effective parameters (pD)                    29.279 
+#>    Deviance (DIC)                             3174.115 
+#>    Effective parameters (pD)                    29.178 
 #> 
 #> Parameter Estimates:
 #> 
@@ -140,16 +141,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.852    0.385    0.182    1.691    0.005       beta(1,1)
+#>    .y5                0.854    0.400    0.131    1.701    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                1.108    0.713   -0.163    2.635    0.004       beta(1,1)
-#>    .y6                2.183    0.791    0.793    3.895    0.011       beta(1,1)
+#>    .y4                1.077    0.717   -0.212    2.603    0.004       beta(1,1)
+#>    .y6                2.161    0.708    0.941    3.711    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                1.016    0.665   -0.184    2.428    0.005       beta(1,1)
+#>    .y7                1.012    0.654   -0.180    2.388    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.245    0.454   -0.644    1.135    0.003       beta(1,1)
+#>    .y4                0.253    0.477   -0.601    1.270    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                1.275    0.579    0.279    2.547    0.005       beta(1,1)
+#>    .y8                1.283    0.602    0.207    2.569    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -177,9 +178,9 @@ comparable to those obtained via MCMC (e.g., via `{blavaan}`/Stan), but
 at a fraction of the computational cost.
 
 The figure below illustrates the posterior density overlap for the
-example above. The percentages refer to the one minus the
+example above. The percentages refer to the one minus the normalised
 [Jensen-Shannon
-distance](https://en.wikipedia.org/wiki/Jensen–Shannon_divergence),
+divergence](https://en.wikipedia.org/wiki/Jensen–Shannon_divergence),
 which gives a measure of similarity between two probability
 distributions.
 
