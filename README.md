@@ -14,9 +14,9 @@ coverage](https://codecov.io/gh/haziqj/INLAvaan/branch/main/graph/badge.svg)](ht
 [![Dependencies](https://tinyverse.netlify.app/badge/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
 [![CRAN
 Downloads](http://cranlogs.r-pkg.org/badges/grand-total/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
-[![GitHub Repo
-stars](https://img.shields.io/github/stars/haziqj/inlavaan)](https://github.com/haziqj/INLAvaan/stargazers)
-<!-- ![GitHub Repo stars](https://img.shields.io/github/stars/haziqj/inlavaan) -->
+![GitHub Repo
+stars](https://img.shields.io/github/stars/haziqj/inlavaan)
+<!-- [![GitHub Repo stars](https://img.shields.io/github/stars/haziqj/inlavaan)](https://github.com/haziqj/INLAvaan/stargazers) -->
 <!-- badges: end -->
 
 > Efficient approximate Bayesian inference for Structural Equation
@@ -74,29 +74,21 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model = mod_poldem, data = PoliticalDemocracy)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [85ms]
+#> ✔ Posterior mode and Hessian. [82ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.154σ. [208ms]
+#> ✔ VB correction; mean |δ| = 0.154σ. [111ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 2/30 skew-normal marginals.
-#> ⠸ Fitting 9/30 skew-normal marginals.
-#> ⠼ Fitting 17/30 skew-normal marginals.
-#> ⠴ Fitting 25/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [824ms]
-#> 
-#> ℹ Adjusting copula correlations (NORTA).
-#> ✔ Adjust copula correlations (NORTA). [118ms]
+#> ✔ Fit 30/30 skew-normal marginals. [870ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [424ms]
+#> ✔ Summarise 1000 posterior draws. [270ms]
 #> 
-#> ℹ Fit measures: PPP, DIC, LOO, WAIC.
+#> ℹ Fit measures: PPP, DIC.
 
 summary(fit)
-#> INLAvaan 0.3.1.9009 ended normally after 71 iterations
+#> INLAvaan 0.3.2 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -107,12 +99,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1659.789 
-#>    PPP (Chi-square)                              0.487 
+#>    PPP (Chi-square)                              0.473 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3174.462 
-#>    Effective parameters (pD)                    29.351 
+#>    Deviance (DIC)                             3174.318 
+#>    Effective parameters (pD)                    29.279 
 #> 
 #> Parameter Estimates:
 #> 
@@ -148,16 +140,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.815    0.384    0.111    1.618    0.005       beta(1,1)
+#>    .y5                0.852    0.385    0.182    1.691    0.005       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                1.079    0.711   -0.212    2.580    0.004       beta(1,1)
-#>    .y6                2.201    0.744    0.836    3.759    0.011       beta(1,1)
+#>    .y4                1.108    0.713   -0.163    2.635    0.004       beta(1,1)
+#>    .y6                2.183    0.791    0.793    3.895    0.011       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                1.029    0.658   -0.261    2.320    0.005       beta(1,1)
+#>    .y7                1.016    0.665   -0.184    2.428    0.005       beta(1,1)
 #>  .y8 ~~                                                                        
-#>    .y4                0.257    0.463   -0.582    1.235    0.003       beta(1,1)
+#>    .y4                0.245    0.454   -0.644    1.135    0.003       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                1.298    0.589    0.238    2.551    0.005       beta(1,1)
+#>    .y8                1.275    0.579    0.279    2.547    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
