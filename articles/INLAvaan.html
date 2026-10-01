@@ -29,7 +29,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,7 +84,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.2/vignettes/INLAvaan.qmd" class="external-link"><code>vignettes/INLAvaan.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/INLAvaan.qmd" class="external-link"><code>vignettes/INLAvaan.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -210,16 +210,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [260ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [265ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.037σ. [182ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.037σ. [186ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [444ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [455ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [578ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [595ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
 </div>
@@ -235,7 +235,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots</span></span>
 <span><span class="va">fit</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.2 ended normally after 64 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.2.9000 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -260,7 +260,7 @@
 <span></span>
 <span><span class="co"># Summary of results</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.2 ended normally after 64 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.2.9000 ended normally after 64 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -419,7 +419,7 @@
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 1.53 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.57 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -447,16 +447,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [145ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [151ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.041σ. [189ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.041σ. [187ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [363ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [365ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [672ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [543ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>

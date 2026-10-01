@@ -320,16 +320,17 @@ fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ✔ Posterior mode and Hessian. [263ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [418ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [417ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
+#> ⠹ Fitting 16/28 skew-normal marginals.
 #> ✔ Fit 28/28 skew-normal marginals. [2.3s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [346ms]
+#> ✔ Summarise 1000 posterior draws. [347ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.2 ended normally after 82 iterations
+#> INLAvaan 0.3.2.9000 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

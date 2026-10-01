@@ -289,17 +289,17 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [169ms]
+#> ✔ Posterior mode and Hessian. [161ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [199ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [212ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 15/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [846ms]
+#> ✔ Fit 30/30 skew-normal marginals. [888ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [662ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [690ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -377,18 +377,19 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [994ms]
+#> ✔ Posterior mode and Hessian. [1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.050σ. [830ms]
+#> ✔ VB correction; mean |δ| = 0.050σ. [861ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 14/34 skew-normal marginals.
-#> ⠸ Fitting 30/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.4s]
+#> ⠹ Fitting 2/34 skew-normal marginals.
+#> ⠸ Fitting 17/34 skew-normal marginals.
+#> ⠼ Fitting 33/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.5s]
+#> ✔ Summarise 1000 posterior draws. [1.6s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 loo(fit2l)

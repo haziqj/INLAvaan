@@ -118,16 +118,16 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [260ms]
+#> ✔ Posterior mode and Hessian. [265ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.037σ. [182ms]
+#> ✔ VB correction; mean |δ| = 0.037σ. [186ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [444ms]
+#> ✔ Fit 13/13 skew-normal marginals. [455ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [578ms]
+#> ✔ Summarise 1000 posterior draws. [595ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -189,7 +189,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.2 ended normally after 64 iterations
+#> INLAvaan 0.3.2.9000 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -219,7 +219,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.2 ended normally after 64 iterations
+#> INLAvaan 0.3.2.9000 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -433,7 +433,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.53 s
+#> 1.57 s
 ```
 
 ### Plot
@@ -467,16 +467,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [145ms]
+#> ✔ Posterior mode and Hessian. [151ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [189ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [187ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [363ms]
+#> ✔ Fit 12/12 skew-normal marginals. [365ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [672ms]
+#> ✔ Summarise 1000 posterior draws. [543ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
