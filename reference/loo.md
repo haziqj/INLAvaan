@@ -269,7 +269,7 @@ structural equation models*. arXiv. (Preprint forthcoming; placeholder.)
 Merkle, E. C., Furr, D., & Rabe-Hesketh, S. (2019). Bayesian comparison
 of latent variable models: Conditional versus marginal likelihoods.
 *Psychometrika*, *84*(3), 802–829.
-<https://doi.org/10.1007/s11336-019-09679-0>
+[doi:10.1007/s11336-019-09679-0](https://doi.org/10.1007/s11336-019-09679-0)
 
 ## See also
 
@@ -289,16 +289,16 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [159ms]
+#> ✔ Posterior mode and Hessian. [158ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [202ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [199ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [855ms]
+#> ✔ Fit 30/30 skew-normal marginals. [846ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [682ms]
+#> ✔ Summarise 1000 posterior draws. [671ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -376,19 +376,20 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
+#> ℹ Computing the Hessian.
 #> ✔ Posterior mode and Hessian. [1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.050σ. [834ms]
+#> ✔ VB correction; mean |δ| = 0.050σ. [838ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 6/34 skew-normal marginals.
-#> ⠸ Fitting 22/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.4s]
+#> ⠹ Fitting 7/34 skew-normal marginals.
+#> ⠸ Fitting 23/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [6.5s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.5s]
+#> ✔ Summarise 1000 posterior draws. [1.6s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 loo(fit2l)
