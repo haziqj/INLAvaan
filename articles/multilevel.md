@@ -133,10 +133,10 @@ the `cluster` argument to identify the grouping variable.
 
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [694ms]
+#> ✔ Posterior mode and Hessian. [698ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.054σ. [886ms]
+#> ✔ VB correction; mean |δ| = 0.054σ. [870ms]
 #> 
 #> ⠙ Fitting 0/20 skew-normal marginals.
 #> ⠹ Fitting 5/20 skew-normal marginals.
@@ -157,7 +157,7 @@ standard deviations, and credible intervals) for *both levels*.
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.1.9015 ended normally after 108 iterations
+#> INLAvaan 0.3.2 ended normally after 108 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -169,12 +169,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.520 
-#>    PPP (Chi-square)                              0.117 
+#>    PPP (Chi-square)                              0.112 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24191.979 
-#>    Effective parameters (pD)                    19.393 
+#>    Deviance (DIC)                            24192.865 
+#>    Effective parameters (pD)                    19.836 
 #> 
 #> Parameter Estimates:
 #> 

@@ -118,13 +118,13 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [256ms]
+#> ✔ Posterior mode and Hessian. [258ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.037σ. [186ms]
+#> ✔ VB correction; mean |δ| = 0.037σ. [184ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [446ms]
+#> ✔ Fit 13/13 skew-normal marginals. [452ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [581ms]
@@ -189,7 +189,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.1.9015 ended normally after 64 iterations
+#> INLAvaan 0.3.2 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -219,7 +219,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.1.9015 ended normally after 64 iterations
+#> INLAvaan 0.3.2 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -470,13 +470,13 @@ fit2 <- asem(mod2, dat)
 #> ✔ Posterior mode and Hessian. [146ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [190ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [188ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
 #> ✔ Fit 12/12 skew-normal marginals. [364ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [528ms]
+#> ✔ Summarise 1000 posterior draws. [533ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)

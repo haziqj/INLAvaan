@@ -113,13 +113,13 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Posterior mode and Hessian. [49ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [255ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [249ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [114ms]
+#> ✔ Fit 6/6 skew-normal marginals. [111ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [469ms]
+#> ✔ Summarise 1000 posterior draws. [465ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
