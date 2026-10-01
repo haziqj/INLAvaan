@@ -49,9 +49,12 @@ jobs:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
 
+      # Install the package itself: on Windows the R session that Quarto spawns
+      # to render vignettes does not see R CMD build's temporary library
+      # (quarto-dev/quarto-r#217).
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: any::rcmdcheck, local::.
           needs: check
 
       - name: Install lavaan devel from GitHub
