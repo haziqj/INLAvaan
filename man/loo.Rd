@@ -243,7 +243,7 @@ equation models}. arXiv. (Preprint forthcoming; placeholder.)
 Merkle, E. C., Furr, D., & Rabe-Hesketh, S. (2019). Bayesian comparison of
 latent variable models: Conditional versus marginal likelihoods.
 \emph{Psychometrika}, \emph{84}(3), 802--829.
-\url{https://doi.org/10.1007/s11336-019-09679-0}
+\doi{10.1007/s11336-019-09679-0}
 }
 \seealso{
 \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=compare]{compare()}}, \code{\link[=inlavaan]{inlavaan()}}

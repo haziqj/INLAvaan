@@ -141,7 +141,7 @@
 #' Merkle, E. C., Furr, D., & Rabe-Hesketh, S. (2019). Bayesian comparison of
 #' latent variable models: Conditional versus marginal likelihoods.
 #' *Psychometrika*, *84*(3), 802--829.
-#' <https://doi.org/10.1007/s11336-019-09679-0>
+#' \doi{10.1007/s11336-019-09679-0}
 #'
 #' @seealso [fitmeasures()], [compare()], [inlavaan()]
 #'
