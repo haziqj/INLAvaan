@@ -133,17 +133,18 @@ the `cluster` argument to identify the grouping variable.
 
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [709ms]
+#> ✔ Posterior mode and Hessian. [689ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.054σ. [872ms]
+#> ✔ VB correction; mean |δ| = 0.054σ. [862ms]
 #> 
 #> ⠙ Fitting 0/20 skew-normal marginals.
-#> ⠹ Fitting 7/20 skew-normal marginals.
+#> ⠹ Fitting 5/20 skew-normal marginals.
 #> ✔ Fit 20/20 skew-normal marginals. [2.5s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.5s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -168,12 +169,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12185.520 
-#>    PPP (Chi-square)                              0.127 
+#>    PPP (Chi-square)                              0.126 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24192.516 
-#>    Effective parameters (pD)                    19.661 
+#>    Deviance (DIC)                            24192.512 
+#>    Effective parameters (pD)                    19.659 
 #> 
 #> Parameter Estimates:
 #> 
