@@ -212,15 +212,19 @@ compute_ml_ranef <- function(y_g, Lp, decomp) {
   between_idx <- Lp$between.idx[[2]]
   nvar <- length(ov_idx)
 
-  mu_y <- decomp$mu.w + decomp$mu.b
+  # lavaan > 0.7-2 returns snake_case keys (sigma_yz) where earlier versions
+  # used dot.case (sigma.yz), so normalise to snake_case.
+  names(decomp) <- gsub(".", "_", names(decomp), fixed = TRUE)
+
+  mu_y <- decomp$mu_w + decomp$mu_b
   MB.j <- matrix(0, nclusters, nvar)
 
   has_between <- length(between_idx) > 0L
   if (has_between) {
-    sigma_1 <- cbind(decomp$sigma.yz, decomp$sigma.b)
-    mu_all <- c(decomp$mu.z, mu_y)
+    sigma_1 <- cbind(decomp$sigma_yz, decomp$sigma_b)
+    mu_all <- c(decomp$mu_z, mu_y)
   } else {
-    sigma_1 <- decomp$sigma.b
+    sigma_1 <- decomp$sigma_b
     mu_all <- mu_y
   }
 
@@ -232,19 +236,19 @@ compute_ml_ranef <- function(y_g, Lp, decomp) {
     if (has_between) {
       b_vals <- y_g[obs_in_cl[1L], between_idx, drop = TRUE]
       b_j <- c(b_vals, ybar)
-      sigma_j <- decomp$sigma.w + nj * decomp$sigma.b
+      sigma_j <- decomp$sigma_w + nj * decomp$sigma_b
       omega_j <- rbind(
-        cbind(decomp$sigma.zz, t(decomp$sigma.yz)),
-        cbind(decomp$sigma.yz, (1 / nj) * sigma_j)
+        cbind(decomp$sigma_zz, t(decomp$sigma_yz)),
+        cbind(decomp$sigma_yz, (1 / nj) * sigma_j)
       )
     } else {
       b_j <- ybar
-      omega_j <- (1 / nj) * (decomp$sigma.w + nj * decomp$sigma.b)
+      omega_j <- (1 / nj) * (decomp$sigma_w + nj * decomp$sigma_b)
     }
 
     omega_j_inv <- solve(omega_j)
     MB.j[cl, ] <- as.numeric(
-      decomp$mu.b + sigma_1 %*% omega_j_inv %*% (b_j - mu_all)
+      decomp$mu_b + sigma_1 %*% omega_j_inv %*% (b_j - mu_all)
     )
   }
   MB.j
