@@ -3,30 +3,12 @@
 ## Bug fixes
 
 * The marginal log-likelihood was too low by about half the number of free
-  parameters, in nats, for fits with the VB correction (the default). The
-  cause was a term that INLAvaan subtracted from the Laplace approximation.
-  This term was not a KL divergence, and its value was close to half the
-  number of free parameters. INLAvaan now adds the location term of the VB
-  shift. This term is the KL divergence between the Laplace approximation and
-  its VB-shifted copy. It corrects the Laplace approximation for the shift of
-  the posterior mass away from the mode. `diagnostics()` reports it as
-  `vb_kld_global`.
-
-  The fix changes the marginal log-likelihood in `show()`, `summary()`,
-  `logLik()`, `fitMeasures()` (`margloglik`) and `compare()` (`Marg.Loglik`
-  and `logBF`). The old Bayes factors favoured the model with fewer
-  parameters by about half the difference in the number of parameters. For
-  example, the log Bayes factor for the Political Democracy model with a mean
-  structure (42 parameters) against the same model without residual
-  covariances (36 parameters) was 1.84. It is now 5.24. Fits with
-  `vb_correction = FALSE` do not change.
+  parameters when `vb_correction = TRUE` (the default). As a result, Bayes
+  factors from `compare()` favoured models with fewer parameters.
 
 ## Minor improvements and fixes
 
-* `compare()` now gives a warning when some fits use the VB correction and
-  others do not. The VB correction changes the marginal log-likelihood, the
-  DIC plug-in point and the LOO expansion point. Thus such a comparison mixes
-  two approximations.
+* `compare()` warns when fits differ in `vb_correction`.
 
 # INLAvaan 0.3.2
 
