@@ -84,8 +84,13 @@ For `type = "global"`, a named numeric vector (class
 
 - `vb_kld_global`:
 
-  Global KL divergence from the VB mean correction (NA if VB correction
-  was not applied).
+  KL divergence between the joint Laplace approximation and its
+  VB-shifted copy, \\\frac{1}{2}\delta^\top \Sigma\_\theta^{-1} \delta\\
+  for the VB shift \\\delta\\. It is the joint counterpart of the
+  per-parameter `kld`, and the location term that the VB correction adds
+  to the Laplace marginal log-likelihood (see
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)). NA
+  if VB correction was not applied.
 
 - `vb_applied`:
 
@@ -269,7 +274,7 @@ diagnostics(fit)
 #>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max 
 #>          2.02e-03          4.50e-03          3.01e-03          1.80e-04 
 #>         hess_cond        vb_applied      vb_shift_max     vb_kld_global 
-#>          4.51e+01                 1            0.1926           10.3095 
+#>          4.51e+01                 1            0.1926            0.0721 
 #>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean 
 #>            0.0186            0.0057            0.1330            0.0532 
 #>          nmad_max         nmad_mean scan_end_mass_max 

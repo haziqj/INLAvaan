@@ -108,7 +108,9 @@ inlavaan(
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
-  the posterior mean vector of estimates. Defaults to `TRUE`.
+  the posterior mean vector of estimates. Defaults to `TRUE`. The shift
+  also adds a location term to the marginal log-likelihood (see
+  Details).
 
 - n_qmc:
 
@@ -296,6 +298,18 @@ reports the realised error per fit as `vb_mcse_sigma` per parameter and
 `vb_method = "gauss_hermite"` removes the random node set altogether;
 see the `vb_method` argument.
 
+The marginal log-likelihood (the log evidence that
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) uses for
+Bayes factors) is the Laplace approximation at the posterior mode. The
+Laplace approximation treats the posterior as symmetric about the mode.
+With the VB correction on, INLAvaan adds the location term
+\\\frac{1}{2}\delta^\top \Sigma\_\theta^{-1} \delta\\, where \\\delta\\
+is the VB shift. This term removes the part of the \\O(n^{-1})\\ Laplace
+error that comes from the shift of the posterior mass away from the
+mode.
+[`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+reports it as `vb_kld_global`.
+
 ## See also
 
 Typically, users will interact with the specific latent variable model
@@ -323,21 +337,21 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [160ms]
+#> ✔ Posterior mode and Hessian. [105ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [322ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [227ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1s]
+#> ⠹ Fitting 19/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [741ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [651ms]
+#> ✔ Summarise 1000 posterior draws. [383ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9000 ended normally after 65 iterations
+#> INLAvaan 0.3.2.9001 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -347,7 +361,7 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3841.076 
+#>    Marginal log-likelihood                   -3830.509 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:

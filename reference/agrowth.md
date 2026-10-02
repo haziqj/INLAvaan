@@ -90,7 +90,9 @@ agrowth(
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
-  the posterior mean vector of estimates. Defaults to `TRUE`.
+  the posterior mean vector of estimates. Defaults to `TRUE`. The shift
+  also adds a location term to the marginal log-likelihood (see
+  Details).
 
 - n_qmc:
 
@@ -326,21 +328,21 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [287ms]
+#> ✔ Posterior mode and Hessian. [213ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [345ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [233ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 12/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.1s]
+#> ⠹ Fitting 2/17 skew-normal marginals.
+#> ✔ Fit 17/17 skew-normal marginals. [851ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [166ms]
+#> ✔ Summarise 100 posterior draws. [119ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9000 ended normally after 83 iterations
+#> INLAvaan 0.3.2.9001 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -350,7 +352,7 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -2565.893 
+#>    Marginal log-likelihood                   -2557.535 
 #>    PPP (Chi-square)                              0.940 
 #> 
 #> Information Criteria:

@@ -90,7 +90,9 @@ asem(
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
-  the posterior mean vector of estimates. Defaults to `TRUE`.
+  the posterior mean vector of estimates. Defaults to `TRUE`. The shift
+  also adds a location term to the marginal log-likelihood (see
+  Details).
 
 - n_qmc:
 
@@ -317,20 +319,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [263ms]
+#> ✔ Posterior mode and Hessian. [182ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [417ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [294ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 16/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.3s]
+#> ⠹ Fitting 24/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [1.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [347ms]
+#> ✔ Summarise 1000 posterior draws. [197ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.2.9000 ended normally after 82 iterations
+#> INLAvaan 0.3.2.9001 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -340,7 +342,7 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1652.924 
+#>    Marginal log-likelihood                   -1638.407 
 #> 
 #> Parameter Estimates:
 #> 

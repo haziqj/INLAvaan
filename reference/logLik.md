@@ -101,7 +101,7 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 
 # Marginal log-likelihood (log evidence)
 logLik(fit)
-#> 'log Lik.' -3848.489 (marginal)
+#> 'log Lik.' -3838.108 (marginal)
 #> # ℹ Laplace-approximated log evidence -- not comparable to classical
 #> # ℹ logLik()/AIC()/BIC(). See `compare()` for Bayes-factor comparison.
 #> 

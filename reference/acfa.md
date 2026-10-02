@@ -90,7 +90,9 @@ acfa(
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
-  the posterior mean vector of estimates. Defaults to `TRUE`.
+  the posterior mean vector of estimates. Defaults to `TRUE`. The shift
+  also adds a location term to the marginal log-likelihood (see
+  Details).
 
 - n_qmc:
 
@@ -305,20 +307,20 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [152ms]
+#> ✔ Posterior mode and Hessian. [105ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [252ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [169ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1s]
+#> ✔ Fit 21/21 skew-normal marginals. [683ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [77ms]
+#> ✔ Summarise 100 posterior draws. [59ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9000 ended normally after 66 iterations
+#> INLAvaan 0.3.2.9001 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -328,7 +330,7 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3848.489 
+#>    Marginal log-likelihood                   -3838.108 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:

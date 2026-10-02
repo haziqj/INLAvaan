@@ -9,7 +9,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,8 +130,13 @@ be ~0 at convergence.</p></dd>
 computed from \(\Sigma_\theta\). Large values indicate near-singularity.</p></dd>
 
 <dt><code>vb_kld_global</code></dt>
-<dd><p>Global KL divergence from the VB mean correction
-(NA if VB correction was not applied).</p></dd>
+<dd><p>KL divergence between the joint Laplace
+approximation and its VB-shifted copy,
+\(\frac{1}{2}\delta^\top \Sigma_\theta^{-1} \delta\) for the VB shift
+\(\delta\). It is the joint counterpart of the per-parameter
+<code>kld</code>, and the location term that the VB correction adds to the
+Laplace marginal log-likelihood (see <code><a href="inlavaan.html">inlavaan()</a></code>). NA if VB correction
+was not applied.</p></dd>
 
 <dt><code>vb_applied</code></dt>
 <dd><p>1 if VB correction was applied, 0 otherwise.</p></dd>
@@ -286,7 +291,7 @@ is not a certificate of accuracy. Silence the check with
 <span class="r-out co"><span class="r-pr">#&gt;</span>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          2.02e-03          4.50e-03          3.01e-03          1.80e-04 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         hess_cond        vb_applied      vb_shift_max     vb_kld_global </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          4.51e+01                 1            0.1926           10.3095 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          4.51e+01                 1            0.1926            0.0721 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            0.0186            0.0057            0.1330            0.0532 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          nmad_max         nmad_mean scan_end_mass_max </span>
