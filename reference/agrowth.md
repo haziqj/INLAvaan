@@ -90,9 +90,7 @@ agrowth(
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
-  the posterior mean vector of estimates. Defaults to `TRUE`. The shift
-  also adds a location term to the marginal log-likelihood (see
-  Details).
+  the posterior mean vector of estimates. Defaults to `TRUE`.
 
 - n_qmc:
 
@@ -328,17 +326,16 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [213ms]
+#> ✔ Posterior mode and Hessian. [280ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [233ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [299ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 2/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [851ms]
+#> ✔ Fit 17/17 skew-normal marginals. [1.1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [119ms]
+#> ✔ Summarise 100 posterior draws. [161ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)

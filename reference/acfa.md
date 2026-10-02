@@ -90,9 +90,7 @@ acfa(
 - vb_correction:
 
   Logical indicating whether to apply a variational Bayes correction for
-  the posterior mean vector of estimates. Defaults to `TRUE`. The shift
-  also adds a location term to the marginal log-likelihood (see
-  Details).
+  the posterior mean vector of estimates. Defaults to `TRUE`.
 
 - n_qmc:
 
@@ -307,16 +305,17 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [105ms]
+#> ✔ Posterior mode and Hessian. [150ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [169ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [242ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [683ms]
+#> ✔ Fit 21/21 skew-normal marginals. [980ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [59ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 100 posterior draws. [80ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)

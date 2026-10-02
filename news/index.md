@@ -5,38 +5,15 @@
 ### Bug fixes
 
 - The marginal log-likelihood was too low by about half the number of
-  free parameters, in nats, for fits with the VB correction (the
-  default). The cause was a term that INLAvaan subtracted from the
-  Laplace approximation. This term was not a KL divergence, and its
-  value was close to half the number of free parameters. INLAvaan now
-  adds the location term of the VB shift. This term is the KL divergence
-  between the Laplace approximation and its VB-shifted copy. It corrects
-  the Laplace approximation for the shift of the posterior mass away
-  from the mode.
-  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
-  reports it as `vb_kld_global`.
-
-  The fix changes the marginal log-likelihood in
-  [`show()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
-  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
-  [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md),
-  [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
-  (`margloglik`) and
+  free parameters when `vb_correction = TRUE` (the default). As a
+  result, Bayes factors from
   [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
-  (`Marg.Loglik` and `logBF`). The old Bayes factors favoured the model
-  with fewer parameters by about half the difference in the number of
-  parameters. For example, the log Bayes factor for the Political
-  Democracy model with a mean structure (42 parameters) against the same
-  model without residual covariances (36 parameters) was 1.84. It is now
-  5.24. Fits with `vb_correction = FALSE` do not change.
+  favoured models with fewer parameters.
 
 ### Minor improvements and fixes
 
-- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) now
-  gives a warning when some fits use the VB correction and others do
-  not. The VB correction changes the marginal log-likelihood, the DIC
-  plug-in point and the LOO expansion point. Thus such a comparison
-  mixes two approximations.
+- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) warns
+  when fits differ in `vb_correction`.
 
 ## INLAvaan 0.3.2
 

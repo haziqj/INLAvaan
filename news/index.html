@@ -56,15 +56,12 @@
 <h2 class="pkg-version" data-toc-text="development version" id="inlavaan-development-version">INLAvaan (development version)<a class="anchor" aria-label="anchor" href="#inlavaan-development-version"></a></h2>
 <div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li>
-<p>The marginal log-likelihood was too low by about half the number of free parameters, in nats, for fits with the VB correction (the default). The cause was a term that INLAvaan subtracted from the Laplace approximation. This term was not a KL divergence, and its value was close to half the number of free parameters. INLAvaan now adds the location term of the VB shift. This term is the KL divergence between the Laplace approximation and its VB-shifted copy. It corrects the Laplace approximation for the shift of the posterior mass away from the mode. <code><a href="../reference/diagnostics.html">diagnostics()</a></code> reports it as <code>vb_kld_global</code>.</p>
-<p>The fix changes the marginal log-likelihood in <code><a href="../reference/INLAvaan-class.html">show()</a></code>, <code><a href="../reference/INLAvaan-class.html">summary()</a></code>, <code><a href="../reference/logLik.html">logLik()</a></code>, <code><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html" class="external-link">fitMeasures()</a></code> (<code>margloglik</code>) and <code><a href="../reference/compare.html">compare()</a></code> (<code>Marg.Loglik</code> and <code>logBF</code>). The old Bayes factors favoured the model with fewer parameters by about half the difference in the number of parameters. For example, the log Bayes factor for the Political Democracy model with a mean structure (42 parameters) against the same model without residual covariances (36 parameters) was 1.84. It is now 5.24. Fits with <code>vb_correction = FALSE</code> do not change.</p>
-</li>
+<ul><li>The marginal log-likelihood was too low by about half the number of free parameters when <code>vb_correction = TRUE</code> (the default). As a result, Bayes factors from <code><a href="../reference/compare.html">compare()</a></code> favoured models with fewer parameters.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-improvements-and-fixes-development-version">Minor improvements and fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-fixes-development-version"></a></h3>
 <ul><li>
-<code><a href="../reference/compare.html">compare()</a></code> now gives a warning when some fits use the VB correction and others do not. The VB correction changes the marginal log-likelihood, the DIC plug-in point and the LOO expansion point. Thus such a comparison mixes two approximations.</li>
+<code><a href="../reference/compare.html">compare()</a></code> warns when fits differ in <code>vb_correction</code>.</li>
 </ul></div>
 </div>
     <div class="section level2">

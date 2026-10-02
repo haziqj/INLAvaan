@@ -130,13 +130,8 @@ be ~0 at convergence.</p></dd>
 computed from \(\Sigma_\theta\). Large values indicate near-singularity.</p></dd>
 
 <dt><code>vb_kld_global</code></dt>
-<dd><p>KL divergence between the joint Laplace
-approximation and its VB-shifted copy,
-\(\frac{1}{2}\delta^\top \Sigma_\theta^{-1} \delta\) for the VB shift
-\(\delta\). It is the joint counterpart of the per-parameter
-<code>kld</code>, and the location term that the VB correction adds to the
-Laplace marginal log-likelihood (see <code><a href="inlavaan.html">inlavaan()</a></code>). NA if VB correction
-was not applied.</p></dd>
+<dd><p>Global KL divergence from the VB mean correction
+(NA if VB correction was not applied).</p></dd>
 
 <dt><code>vb_applied</code></dt>
 <dd><p>1 if VB correction was applied, 0 otherwise.</p></dd>

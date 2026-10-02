@@ -41,17 +41,17 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [184ms]
+#> ✔ Posterior mode and Hessian. [264ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [597ms]
+#> ✔ VB correction; mean |δ| = 0.190σ. [796ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [1.8s]
+#> ⠹ Fitting 17/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.4s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [559ms]
+#> ✔ Summarise 1000 posterior draws. [959ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
@@ -93,18 +93,19 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [381ms]
+#> ✔ Posterior mode and Hessian. [570ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.164σ. [950ms]
+#> ✔ VB correction; mean |δ| = 0.164σ. [1.3s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 9/42 skew-normal marginals.
-#> ⠸ Fitting 36/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [4.7s]
+#> ⠹ Fitting 12/42 skew-normal marginals.
+#> ⠸ Fitting 32/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [6.4s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [926ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.7s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)
