@@ -39,6 +39,8 @@
 #'   post hoc; [loo()] and [waic()] compute on demand.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
+#'   The shift also adds a location term to the marginal log-likelihood (see
+#'   Details).
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
 #'   correction. Defaults to `64`; see the Details section of [inlavaan()].
 #'   Values above `128` (the size
@@ -150,6 +152,15 @@
 #'   `vb_mcse_max` globally, both in posterior-SD units. Setting
 #'   `vb_method = "gauss_hermite"` removes the random node set altogether; see
 #'   the `vb_method` argument.
+#'
+#'   The marginal log-likelihood (the log evidence that [compare()] uses for
+#'   Bayes factors) is the Laplace approximation at the posterior mode. The
+#'   Laplace approximation treats the posterior as symmetric about the mode.
+#'   With the VB correction on, INLAvaan adds the location term
+#'   \eqn{\frac{1}{2}\delta^\top \Sigma_\theta^{-1} \delta}, where
+#'   \eqn{\delta} is the VB shift. This term removes the part of the
+#'   \eqn{O(n^{-1})} Laplace error that comes from the shift of the posterior
+#'   mass away from the mode. [diagnostics()] reports it as `vb_kld_global`.
 #'
 #' @seealso Typically, users will interact with the specific latent variable
 #'   model functions instead, including [acfa()], [asem()], and [agrowth()].
@@ -753,7 +764,10 @@ inlavaan <- function(
     )
 
     vb_kld <- (vb_shift)^2 / (2 * diag(Sigma_theta))
-    vb_kld_global <- lp_max + vb_opt$objective
+    # The joint counterpart of vb_kld: the KL divergence between the Laplace
+    # Gaussian and its VB-shifted copy, 0.5 * shift' H shift, read off the
+    # precision Cholesky in canonical order.
+    vb_kld_global <- 0.5 * sum((R_prec %*% vb_shift[canon_perm])^2)
   }
 
   vb <- list(
@@ -782,7 +796,11 @@ inlavaan <- function(
   # log det(Sigma) = -2 sum(log(diag(R_prec))) from the precision Cholesky
   mloglik <- lp_max + (m / 2) * log(2 * pi) - sum(log(diag(R_prec)))
   if (isTRUE(vb_correction)) {
-    mloglik <- mloglik - vb_kld_global
+    # Laplace at the mode treats the posterior as symmetric about its peak.
+    # The VB shift shows that the mass leans to one side, and the mass this
+    # misses is, to O(1/n), the location term of the Laplace expansion. For
+    # the mode-to-mean shift that term is 0.5 * shift' H shift, so it is added.
+    mloglik <- mloglik + vb_kld_global
   }
   timing <- add_timing(timing, "loglik")
 

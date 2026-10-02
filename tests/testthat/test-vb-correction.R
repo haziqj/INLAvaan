@@ -201,3 +201,41 @@ test_that("the Gauss-Hermite rule keeps the fast path and reports no error", {
   expect_true(is.na(glob[["vb_mcse_max"]]))
   expect_true(all(is.na(diagnostics(fit, type = "param")$vb_mcse_sigma)))
 })
+
+test_that("the VB shift adds its location term to the marginal log-likelihood", {
+  mod <- "
+    visual =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+  "
+  fit_with_vb <- function(vb_correction) {
+    invisible(capture.output(suppressMessages(
+      fit <- acfa(
+        mod,
+        lavaan::HolzingerSwineford1939,
+        meanstructure = TRUE,
+        vb_correction = vb_correction,
+        marginal_method = "marggaus",
+        verbose = FALSE,
+        nsamp = 3,
+        test = "none"
+      )
+    )))
+    fit
+  }
+  fit_on <- fit_with_vb(TRUE)
+  fit_off <- fit_with_vb(FALSE)
+
+  # The term is the KL divergence between the Laplace Gaussian and its
+  # VB-shifted copy.
+  int <- get_inlavaan_internal(fit_on)
+  delta <- int$vb$correction
+  kld <- 0.5 * drop(crossprod(delta, solve(int$Sigma_theta, delta)))
+  expect_equal(diagnostics(fit_on)[["vb_kld_global"]], kld)
+
+  # The VB step changes neither the mode nor the Hessian, so the two fits
+  # share the Laplace value and differ by the location term alone. The term
+  # is a small positive correction. The old code subtracted about m / 2.
+  expect_equal(as.numeric(logLik(fit_on)) - as.numeric(logLik(fit_off)), kld)
+  expect_gt(kld, 0)
+  expect_lt(kld, 1)
+})
