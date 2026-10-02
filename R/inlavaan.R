@@ -39,8 +39,6 @@
 #'   post hoc; [loo()] and [waic()] compute on demand.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
-#'   The shift also adds a location term to the marginal log-likelihood (see
-#'   Details).
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
 #'   correction. Defaults to `64`; see the Details section of [inlavaan()].
 #'   Values above `128` (the size
@@ -152,15 +150,6 @@
 #'   `vb_mcse_max` globally, both in posterior-SD units. Setting
 #'   `vb_method = "gauss_hermite"` removes the random node set altogether; see
 #'   the `vb_method` argument.
-#'
-#'   The marginal log-likelihood (the log evidence that [compare()] uses for
-#'   Bayes factors) is the Laplace approximation at the posterior mode. The
-#'   Laplace approximation treats the posterior as symmetric about the mode.
-#'   With the VB correction on, INLAvaan adds the location term
-#'   \eqn{\frac{1}{2}\delta^\top \Sigma_\theta^{-1} \delta}, where
-#'   \eqn{\delta} is the VB shift. This term removes the part of the
-#'   \eqn{O(n^{-1})} Laplace error that comes from the shift of the posterior
-#'   mass away from the mode. [diagnostics()] reports it as `vb_kld_global`.
 #'
 #' @seealso Typically, users will interact with the specific latent variable
 #'   model functions instead, including [acfa()], [asem()], and [agrowth()].

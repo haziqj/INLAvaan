@@ -29,13 +29,8 @@
 #'     be ~0 at convergence.}
 #'   \item{\code{hess_cond}}{Condition number of the Hessian (precision matrix)
 #'     computed from \eqn{\Sigma_\theta}. Large values indicate near-singularity.}
-#'   \item{\code{vb_kld_global}}{KL divergence between the joint Laplace
-#'     approximation and its VB-shifted copy,
-#'     \eqn{\frac{1}{2}\delta^\top \Sigma_\theta^{-1} \delta} for the VB shift
-#'     \eqn{\delta}. It is the joint counterpart of the per-parameter
-#'     \code{kld}, and the location term that the VB correction adds to the
-#'     Laplace marginal log-likelihood (see [inlavaan()]). NA if VB correction
-#'     was not applied.}
+#'   \item{\code{vb_kld_global}}{Global KL divergence from the VB mean correction
+#'     (NA if VB correction was not applied).}
 #'   \item{\code{vb_applied}}{1 if VB correction was applied, 0 otherwise.}
 #'   \item{\code{vb_shift_max}}{Maximum, across parameters, of the absolute
 #'     VB correction in posterior-SD units (max |\code{vb_shift_sigma}|). This

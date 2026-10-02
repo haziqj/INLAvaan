@@ -66,9 +66,7 @@ report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO 
 post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
-correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.
-The shift also adds a location term to the marginal log-likelihood (see
-Details).}
+correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 
 \item{n_qmc}{Number of quasi-Monte Carlo nodes used by the VB mean
 correction. Defaults to \code{64}; see the Details section of \code{\link[=inlavaan]{inlavaan()}}.

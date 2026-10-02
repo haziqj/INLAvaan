@@ -76,9 +76,7 @@ report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO 
 post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
-correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.
-The shift also adds a location term to the marginal log-likelihood (see
-Details).}
+correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 
 \item{n_qmc}{Number of quasi-Monte Carlo nodes used by the VB mean
 correction. Defaults to \code{64}; see the Details section of \code{\link[=inlavaan]{inlavaan()}}.
@@ -223,15 +221,6 @@ reports the realised error per fit as \code{vb_mcse_sigma} per parameter and
 \code{vb_mcse_max} globally, both in posterior-SD units. Setting
 \code{vb_method = "gauss_hermite"} removes the random node set altogether; see
 the \code{vb_method} argument.
-
-The marginal log-likelihood (the log evidence that \code{\link[=compare]{compare()}} uses for
-Bayes factors) is the Laplace approximation at the posterior mode. The
-Laplace approximation treats the posterior as symmetric about the mode.
-With the VB correction on, INLAvaan adds the location term
-\eqn{\frac{1}{2}\delta^\top \Sigma_\theta^{-1} \delta}, where
-\eqn{\delta} is the VB shift. This term removes the part of the
-\eqn{O(n^{-1})} Laplace error that comes from the shift of the posterior
-mass away from the mode. \code{\link[=diagnostics]{diagnostics()}} reports it as \code{vb_kld_global}.
 }
 \examples{
 # The Holzinger and Swineford (1939) example

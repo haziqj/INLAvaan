@@ -13,16 +13,14 @@
 #' The default table always includes:
 #'
 #'   - **npar**: Number of free parameters.
-#'   - **Marg.Loglik**: Laplace-approximated marginal log-likelihood, with the
-#'     location term of the VB correction when that is on (see [inlavaan()]).
+#'   - **Marg.Loglik**: Approximated marginal log-likelihood.
 #'   - **logBF**: Natural-log Bayes factor relative to the best model.
 #'   - **DIC** / **pD**: Deviance Information Criterion and effective number
 #'     of parameters (when the fit computed the DIC, i.e. `test` included
 #'     `"dic"` during fitting; the default `"standard"` does).
 #'
-#' Fit all models with the same `vb_correction` setting. The VB correction
-#' changes the marginal log-likelihood, the DIC plug-in point and the LOO
-#' expansion point, so `compare()` warns when fits mix the two settings.
+#' Fit all models with the same `vb_correction` setting. `compare()` warns
+#' when they differ.
 #'
 #' Set `fit.measures` to a character vector of measure names (anything
 #' returned by [fitMeasures()][lavaan::fitMeasures]) to append extra columns.
