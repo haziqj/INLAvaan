@@ -48,12 +48,17 @@ first model and shared by every model in the table (see
 The default table always includes:
 \itemize{
 \item \strong{npar}: Number of free parameters.
-\item \strong{Marg.Loglik}: Approximated marginal log-likelihood.
+\item \strong{Marg.Loglik}: Laplace-approximated marginal log-likelihood, with the
+location term of the VB correction when that is on (see \code{\link[=inlavaan]{inlavaan()}}).
 \item \strong{logBF}: Natural-log Bayes factor relative to the best model.
 \item \strong{DIC} / \strong{pD}: Deviance Information Criterion and effective number
 of parameters (when the fit computed the DIC, i.e. \code{test} included
 \code{"dic"} during fitting; the default \code{"standard"} does).
 }
+
+Fit all models with the same \code{vb_correction} setting. The VB correction
+changes the marginal log-likelihood, the DIC plug-in point and the LOO
+expansion point, so \code{compare()} warns when fits mix the two settings.
 
 Set \code{fit.measures} to a character vector of measure names (anything
 returned by \link[lavaan:fitMeasures]{fitMeasures()}) to append extra columns.

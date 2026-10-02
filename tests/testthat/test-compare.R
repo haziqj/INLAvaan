@@ -125,6 +125,22 @@ test_that("compare() warns when mean-structure treatments differ", {
   expect_true(all(is.finite(cmp$ELPD)))
 })
 
+test_that("compare() warns when fits differ in the VB correction", {
+  fit2_novb <- acfa(
+    mod_full,
+    dat,
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  expect_warning(compare(fit1, fit2_novb), "VB correction")
+  # Fits that agree on the setting compare without it, with or without VB
+  expect_no_warning(compare(fit1, fit2))
+  expect_no_warning(compare(fit1_ms, fit2_ms))
+})
+
 test_that("compare() accepts more than two models via ...", {
   skip_on_cran()
   fit_speed <- acfa(mod_speed, dat, verbose = FALSE, nsamp = 3, test = "none")
@@ -206,6 +222,7 @@ test_that("compare(loo = TRUE) aborts for models on different data", {
       mod_null,
       dat[1:20, ],
       meanstructure = TRUE,
+      vb_correction = FALSE, # as fit1_ms
       verbose = FALSE,
       nsamp = 3,
       test = "none"
@@ -221,6 +238,7 @@ test_that("compare(loo = TRUE) aborts when the variable sets differ", {
     mod_speed,
     dat,
     meanstructure = TRUE,
+    vb_correction = FALSE, # as fit1_ms
     verbose = FALSE,
     nsamp = 3,
     test = "none"

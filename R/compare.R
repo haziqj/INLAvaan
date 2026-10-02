@@ -13,11 +13,16 @@
 #' The default table always includes:
 #'
 #'   - **npar**: Number of free parameters.
-#'   - **Marg.Loglik**: Approximated marginal log-likelihood.
+#'   - **Marg.Loglik**: Laplace-approximated marginal log-likelihood, with the
+#'     location term of the VB correction when that is on (see [inlavaan()]).
 #'   - **logBF**: Natural-log Bayes factor relative to the best model.
 #'   - **DIC** / **pD**: Deviance Information Criterion and effective number
 #'     of parameters (when the fit computed the DIC, i.e. `test` included
 #'     `"dic"` during fitting; the default `"standard"` does).
+#'
+#' Fit all models with the same `vb_correction` setting. The VB correction
+#' changes the marginal log-likelihood, the DIC plug-in point and the LOO
+#' expansion point, so `compare()` warns when fits mix the two settings.
 #'
 #' Set `fit.measures` to a character vector of measure names (anything
 #' returned by [fitMeasures()][lavaan::fitMeasures]) to append extra columns.
@@ -201,6 +206,25 @@ compare_impl <- function(
        the two mean treatments (the flat-prior normalisation of the
        saturated means does not cancel).",
       hint
+    ))
+  }
+
+  # The VB correction adds its location term to the marginal log-likelihood
+  # and moves the DIC plug-in point and the LOO expansion point to the
+  # shifted centre. A fit with the correction and a fit without it differ
+  # partly in the approximation, and that part would read as a difference
+  # between the models.
+  vb_vec <- vapply(
+    internals,
+    function(m) !is.null(m$vb$correction) && !anyNA(m$vb$correction),
+    logical(1)
+  )
+  if (length(unique(vb_vec)) > 1L) {
+    cli_warn(c(
+      "Comparing fits with and without the VB correction: their marginal
+       log-likelihoods, DIC, and LOO use different approximations, so the
+       differences are not only differences between the models.",
+      "i" = "Fit all models with the same {.arg vb_correction} setting."
     ))
   }
 
