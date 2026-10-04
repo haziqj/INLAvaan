@@ -46,6 +46,10 @@
   fit. Previously factor columns gave an error and 0/1 codes gave wrong
   factor scores.
 
+* Chained modifiers in the model syntax are now all kept. Previously only one
+  survived, so `prior("normal(0,1)")*a*x2` lost its prior, `0.5*a*x2` was
+  left free and `NA*a*x1` stayed fixed.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
