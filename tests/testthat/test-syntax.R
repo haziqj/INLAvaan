@@ -46,6 +46,7 @@ test_that("split_modifiers() also covers thresholds, ~*~, ? and efa()", {
     "x1 ~*~ start(1)*x1 + d1*x1"
   )
   expect_equal(split_modifiers("y ~ a*0.5?x"), "y ~ a*x + start(0.5)*x")
+  expect_identical(split_modifiers("y ~ rv(b)*a*x"), "y ~ rv(b)*a*x")
   expect_equal(
     split_modifiers('efa("e")*f1 +\n efa("e")*f2 =~ x1 + start(1)*a*x2'),
     'efa("e")*f1 + efa("e")*f2 =~ x1 + start(1)*x2 + a*x2'

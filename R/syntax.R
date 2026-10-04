@@ -77,7 +77,8 @@ split_term <- function(term) {
     if (length(q) == 2L) c(paste0("start(", q[1], ")"), q[2]) else p
   }))
   n <- length(parts)
-  if (n < 3L) {
+  # rv() (random slopes) is left to lavaan
+  if (n < 3L || any(startsWith(parts, "rv("))) {
     return(term)
   }
   paste0(parts[-n], "*", parts[n], collapse = " + ")
