@@ -1128,12 +1128,12 @@ inlavaan <- function(
   if (any(pt$op == ":=")) {
     if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
       # nocov start
-      defpars <- get_defpars_fit_sn(x_samp, pt)
+      defpars <- get_defpars_fit_sn(x_samp, pt, lavmodel)
       sn_rows <- do.call(rbind, lapply(defpars, `[[`, "sn_params"))
       approx_data <- rbind(approx_data, sn_rows)
     } else {
       # nocov end
-      defpars <- get_defpars(x_samp, pt)
+      defpars <- get_defpars(x_samp, pt, lavmodel)
     }
 
     for (def_name in names(defpars)) {

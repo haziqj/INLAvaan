@@ -273,50 +273,30 @@ sample_covariances <- function(x_samp, pt) {
   apply(cov_samp, 2, summarise_samples)
 }
 
-get_defpars <- function(x_samp, pt) {
+# Draws of the defined (:=) parameters, one column per := row. lavaan's own
+# def.function maps x to the definitions in dependency order, so a definition
+# may use another defined parameter.
+sample_defpars <- function(x_samp, pt, lavmodel) {
   pt_def_rows <- which(pt$op == ":=")
-  param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
-  param_map <- param_map[names(param_map) != ""]
-
-  def_funs <- lapply(pt_def_rows, function(i) {
-    expr <- parse(text = pt$rhs[i])
-
-    function(theta) {
-      env_vals <- as.list(theta[param_map])
-      names(env_vals) <- names(param_map)
-      eval(expr, envir = env_vals)
-    }
-  })
-
-  # Apply each function in def_funs to every row of x_samp
-  def_samp <- sapply(def_funs, function(fn) {
-    apply(x_samp, 1, fn)
-  })
+  def_samp <- do.call(
+    "rbind",
+    lapply(seq_len(nrow(x_samp)), function(i) {
+      lavmodel@def.function(x_samp[i, ])
+    })
+  )
+  def_samp <- def_samp[, pt$lhs[pt_def_rows], drop = FALSE]
   colnames(def_samp) <- pt$names[pt_def_rows]
+  def_samp
+}
 
+get_defpars <- function(x_samp, pt, lavmodel) {
+  def_samp <- sample_defpars(x_samp, pt, lavmodel)
   apply(def_samp, 2, summarise_samples)
 }
 
-get_defpars_fit_sn <- function(x_samp, pt) {
+get_defpars_fit_sn <- function(x_samp, pt, lavmodel) {
   # nocov start
-  pt_def_rows <- which(pt$op == ":=")
-  param_map <- setNames(pt$free[pt$free > 0], pt$label[pt$free > 0])
-  param_map <- param_map[names(param_map) != ""]
-
-  def_funs <- lapply(pt_def_rows, function(i) {
-    expr <- parse(text = pt$rhs[i])
-
-    function(theta) {
-      env_vals <- as.list(theta[param_map])
-      names(env_vals) <- names(param_map)
-      eval(expr, envir = env_vals)
-    }
-  })
-
-  def_samp <- sapply(def_funs, function(fn) {
-    apply(x_samp, 1, fn)
-  })
-  colnames(def_samp) <- pt$names[pt_def_rows]
+  def_samp <- sample_defpars(x_samp, pt, lavmodel)
 
   sn_params <- apply(def_samp, 2, fit_skew_normal_samp)
   sn_params <- do.call("rbind", lapply(sn_params, unlist))
