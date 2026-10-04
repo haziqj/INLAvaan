@@ -263,6 +263,15 @@ inlavaan <- function(
       do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
     )
   }
+  # Rebuild from a table where explicit constraints are shared free indices
+  # or fixed values (see pack_constraints())
+  pt_packed <- pack_constraints(fit0@ParTable, fit0@Options$effect.coding)
+  if (!is.null(pt_packed)) {
+    lavargs$model <- pt_packed
+    fit0 <- muffle_nan_warnings(
+      do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+    )
+  }
   lavmodel <- fit0@Model
   lavsamplestats <- fit0@SampleStats
   lavdata <- fit0@Data
@@ -275,6 +284,7 @@ inlavaan <- function(
 
   # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
+  check_packed_kinds(pt)
   PTFREEIDX <- which(pt$free > 0L)
   if (isTRUE(ceq.simple)) {
     # Note: Always work in the reduced space
