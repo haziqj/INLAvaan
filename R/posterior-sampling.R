@@ -295,57 +295,9 @@ get_defpars <- function(x_samp, pt, lavmodel) {
 }
 
 get_defpars_fit_sn <- function(x_samp, pt, lavmodel) {
-  # nocov start
   def_samp <- sample_defpars(x_samp, pt, lavmodel)
-
-  sn_params <- apply(def_samp, 2, fit_skew_normal_samp)
-  sn_params <- do.call("rbind", lapply(sn_params, unlist))
-  sn_params <- cbind(sn_params, logC = 0, k = 0, rmse = 0, nmad = 0, gamma1 = 0)
-
-  apply(sn_params, 1, function(y) {
-    xi <- y["xi"]
-    omega <- y["omega"]
-    alpha <- y["alpha"]
-    delta <- alpha / sqrt(1 + alpha^2)
-
-    Ex <- xi + omega * delta * sqrt(2 / pi)
-    Vx <- omega^2 * (1 - 2 * delta^2 / pi)
-    SDx <- sqrt(Vx)
-    qq <- qsnorm_fast(
-      c(0.025, 0.25, 0.5, 0.75, 0.975),
-      xi = xi,
-      omega = omega,
-      alpha = alpha
-    )
-
-    x <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
-    fx <- dsnorm(x, xi = xi, omega = omega, alpha = alpha)
-
-    xmax <- optimize(
-      function(x) dsnorm(x, xi = xi, omega = omega, alpha = alpha),
-      interval = range(x),
-      maximum = TRUE
-    )$maximum
-
-    res <- c(Ex, SDx, qq, xmax)
-    names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
-
-    list(
-      summary = res,
-      pdf_data = data.frame(x = x, y = fx),
-      sn_params = c(
-        xi = xi,
-        omega = omega,
-        alpha = alpha,
-        logC = NA_real_,
-        k = NA_real_,
-        rmse = NA_real_,
-        nmad = NA_real_,
-        gamma1 = NA_real_
-      )
-    )
-  })
-} # nocov end
+  apply(def_samp, 2, summarise_samples_sn)
+}
 
 sample_covariances_fit_sn <- function(x_samp, pt) {
   pt_cov_rows <- grep("cov", pt$mat)
@@ -355,53 +307,55 @@ sample_covariances_fit_sn <- function(x_samp, pt) {
   cov_samp <- x_samp[, idxcov, drop = FALSE]
   colnames(cov_samp) <- pt$names[pt_cov_free_rows]
 
-  sn_params <- apply(cov_samp, 2, fit_skew_normal_samp)
-  sn_params <- do.call("rbind", lapply(sn_params, unlist))
+  apply(cov_samp, 2, summarise_samples_sn)
+}
 
-  # FIXME: Repeated code in post_marg_skewnorm
-  apply(sn_params, 1, function(y) {
-    xi <- y["xi"]
-    omega <- y["omega"]
-    alpha <- y["alpha"]
-    delta <- alpha / sqrt(1 + alpha^2)
+# Like summarise_samples(), but from a skew-normal fitted to the draws by
+# maximum likelihood. Also returns the fitted parameters (sn_params).
+# FIXME: Repeated code in post_marg_skewnorm
+summarise_samples_sn <- function(y) {
+  sn <- fit_skew_normal_samp(y)
+  xi <- sn$xi
+  omega <- sn$omega
+  alpha <- sn$alpha
+  delta <- alpha / sqrt(1 + alpha^2)
 
-    Ex <- xi + omega * delta * sqrt(2 / pi)
-    Vx <- omega^2 * (1 - 2 * delta^2 / pi)
-    SDx <- sqrt(Vx)
-    qq <- qsnorm_fast(
-      c(0.025, 0.25, 0.5, 0.75, 0.975),
+  Ex <- xi + omega * delta * sqrt(2 / pi)
+  Vx <- omega^2 * (1 - 2 * delta^2 / pi)
+  SDx <- sqrt(Vx)
+  qq <- qsnorm_fast(
+    c(0.025, 0.25, 0.5, 0.75, 0.975),
+    xi = xi,
+    omega = omega,
+    alpha = alpha
+  )
+
+  x <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
+  fx <- dsnorm(x, xi = xi, omega = omega, alpha = alpha)
+
+  xmax <- optimize(
+    function(x) dsnorm(x, xi = xi, omega = omega, alpha = alpha),
+    interval = range(x),
+    maximum = TRUE
+  )$maximum
+
+  res <- c(Ex, SDx, qq, xmax)
+  names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
+
+  list(
+    summary = res,
+    pdf_data = data.frame(x = x, y = fx),
+    sn_params = c(
       xi = xi,
       omega = omega,
-      alpha = alpha
+      alpha = alpha,
+      logC = NA_real_,
+      k = NA_real_,
+      rmse = NA_real_,
+      nmad = NA_real_,
+      gamma1 = NA_real_
     )
-
-    x <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
-    fx <- dsnorm(x, xi = xi, omega = omega, alpha = alpha)
-
-    xmax <- optimize(
-      function(x) dsnorm(x, xi = xi, omega = omega, alpha = alpha),
-      interval = range(x),
-      maximum = TRUE
-    )$maximum
-
-    res <- res <- c(Ex, SDx, qq, xmax)
-    names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
-
-    list(
-      summary = res,
-      pdf_data = data.frame(x = x, y = fx),
-      sn_params = c(
-        xi = xi,
-        omega = omega,
-        alpha = alpha,
-        logC = NA_real_,
-        k = NA_real_,
-        rmse = NA_real_,
-        nmad = NA_real_,
-        gamma1 = NA_real_
-      )
-    )
-  })
+  )
 }
 
 get_dic <- function(
