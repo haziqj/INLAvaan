@@ -19,9 +19,21 @@ test_that("split_modifiers() writes chained modifiers as separate terms", {
     split_modifiers("f =~ x1 + 0.5*a*x2\nab := a*b*c\na == 2*b*c"),
     "f =~ x1 + 0.5*x2 + a*x2\nab := a*b*c\na == 2*b*c"
   )
-  # Nothing chained: the model comes back untouched
-  mod <- "f =~ x1 + a*x2 + x3 # note\n"
-  expect_identical(split_modifiers(mod), mod)
+  # Nothing chained: the model comes back untouched, even with single-term
+  # statements, several strings, or a `;` inside a comment
+  for (mod in list(
+    "f =~ x1 + a*x2 + x3 # note\n",
+    "f =~ x1 + x2 + x3\n\ny ~ f # a*b*c\n",
+    c("f =~ x1 + x2", "f ~~ 1*f"),
+    "f =~ x1 + x2 # two items; see notes\n# tried: x1 ~~ x4; x2 ~~ x5\n"
+  )) {
+    expect_identical(split_modifiers(mod), mod)
+  }
+  # A `;` inside a comment does not become syntax
+  expect_equal(
+    split_modifiers("f =~ x1 + start(1)*a*x2 # note; x1 ~~ x4"),
+    "f =~ x1 + start(1)*x2 + a*x2"
+  )
 })
 
 test_that("Chained modifiers keep their prior and fixed value", {

@@ -10,9 +10,11 @@ split_modifiers <- function(model) {
   if (!is.character(model)) {
     return(model)
   }
-  text <- paste(model, collapse = "\n")
-  lines <- strsplit(gsub(";", "\n", text, fixed = TRUE), "\n")[[1]]
-  lines <- trimws(gsub("[#!].*$", "", lines))
+
+  # Comments go first, then `;` separates statements, as in lavaan
+  lines <- strsplit(paste(model, collapse = "\n"), "\n", fixed = TRUE)[[1]]
+  lines <- unlist(strsplit(gsub("[#!].*$", "", lines), ";", fixed = TRUE))
+  lines <- trimws(lines)
   lines <- lines[nzchar(lines)]
   if (length(lines) == 0L || any(grepl("efa(", lines, fixed = TRUE))) {
     return(model)
@@ -20,60 +22,56 @@ split_modifiers <- function(model) {
 
   # A statement starts at a line with an operator and runs until the next one
   ops <- c("=~", "<~", "~*~", "~~", "~", "==", "<", ">", ":=", ":", "|", "%")
+  masked <- mask_quotes(lines)
   has_op <- vapply(
-    mask_quotes(lines),
+    masked,
     function(l) any(vapply(ops, grepl, logical(1), l, fixed = TRUE)),
-    logical(1)
+    logical(1),
+    USE.NAMES = FALSE
   )
-  if (!any(has_op)) {
+  starts <- which(has_op)
+  if (length(starts) == 0L) {
     return(model)
   }
-  starts <- which(has_op)
   ends <- c(starts[-1] - 1L, length(lines))
-  stmts <- mapply(
-    function(s, e) paste(lines[s:e], collapse = " "),
-    starts,
-    ends
+  stmts <- vapply(
+    seq_along(starts),
+    function(k) paste(lines[starts[k]:ends[k]], collapse = " "),
+    character(1)
   )
 
   changed <- FALSE
   for (k in seq_along(stmts)) {
     masked <- mask_quotes(stmts[k])
     op <- ops[vapply(ops, grepl, logical(1), masked, fixed = TRUE)][1]
-    if (!op %in% c("=~", "~", "~~", "<~")) {
+    if (!op %in% c("=~", "<~", "~~", "~")) {
       next
     }
     pos <- regexpr(op, masked, fixed = TRUE)
-    lhs <- substr(stmts[k], 1L, pos - 1L)
+    lhs <- trimws(substr(stmts[k], 1L, pos - 1L))
     rhs <- substr(stmts[k], pos + nchar(op), nchar(stmts[k]))
-    terms <- split_top_level(rhs, "+")
-    new_terms <- vapply(
-      terms,
-      function(term) {
-        parts <- trimws(split_top_level(term, "*"))
-        n <- length(parts)
-        if (n < 3L) {
-          return(trimws(term))
-        }
-        paste0(parts[-n], "*", parts[n], collapse = " + ")
-      },
-      character(1)
-    )
-    if (!identical(unname(new_terms), trimws(terms))) {
+    terms <- trimws(split_top_level(rhs, "+"))
+    new_terms <- vapply(terms, split_term, character(1), USE.NAMES = FALSE)
+    if (!identical(new_terms, terms)) {
       changed <- TRUE
-      stmts[k] <- paste0(
-        trimws(lhs),
-        " ",
-        op,
-        " ",
-        paste(new_terms, collapse = " + ")
-      )
+      stmts[k] <- paste(lhs, op, paste(new_terms, collapse = " + "))
     }
   }
   if (!changed) {
     return(model)
   }
   paste(c(lines[seq_len(starts[1] - 1L)], stmts), collapse = "\n")
+}
+
+# One term with chained modifiers as separate terms, e.g. "a*0.5*x" becomes
+# "a*x + 0.5*x". A term with at most one modifier is returned as is.
+split_term <- function(term) {
+  parts <- trimws(split_top_level(term, "*"))
+  n <- length(parts)
+  if (n < 3L) {
+    return(term)
+  }
+  paste0(parts[-n], "*", parts[n], collapse = " + ")
 }
 
 # Replace each character inside quotes with "_", keeping the positions
@@ -104,10 +102,9 @@ mask_quotes <- function(x) {
 
 # Split x at each sep that is outside quotes and parentheses
 split_top_level <- function(x, sep) {
+  x <- unname(x)
   chars <- strsplit(mask_quotes(x), "")[[1]]
   depth <- cumsum(chars == "(") - cumsum(chars == ")")
   at <- which(chars == sep & depth == 0L)
-  starts <- c(1L, at + 1L)
-  ends <- c(at - 1L, length(chars))
-  substring(x, starts, ends)
+  substring(x, c(1L, at + 1L), c(at - 1L, length(chars)))
 }
