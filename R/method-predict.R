@@ -75,8 +75,19 @@ build_newdata <- function(newdata, lavdata) {
 recode_ordinal <- function(newdata, lavdata) {
   ov <- lavdata@ov
   for (i in which(ov$type == "ordered" & ov$name %in% names(newdata))) {
+    v <- ov$name[i]
     lev <- strsplit(ov$lnam[i], "|", fixed = TRUE)[[1]]
-    newdata[[ov$name[i]]] <- match(as.character(newdata[[ov$name[i]]]), lev)
+    value <- as.character(newdata[[v]])
+    newdata[[v]] <- match(value, lev)
+    unknown <- unique(value[!is.na(value) & is.na(newdata[[v]])])
+    if (length(unknown) > 0L) {
+      cli_warn(c(
+        "{.arg newdata} has values of {.field {v}} that were not seen when
+         fitting: {.val {unknown}}.",
+        "i" = "They are treated as missing. The fitted categories are
+               {.val {lev}}."
+      ))
+    }
   }
   newdata
 }

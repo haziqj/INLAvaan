@@ -50,3 +50,11 @@ test_that("predict() recodes ordinal newdata", {
   set.seed(2)
   expect_equal(predict(fit, newdata = dat_01, nsamp = 3), fs)
 })
+
+test_that("predict() warns about unknown ordinal categories", {
+  fit <- fit_ord(dat_fac)
+  dat_new <- dat_fac
+  dat_new$x1 <- as.character(dat_new$x1)
+  dat_new$x1[1:2] <- "9"
+  expect_warning(predict(fit, newdata = dat_new, nsamp = 3), "not seen")
+})
