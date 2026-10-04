@@ -136,3 +136,27 @@ test_that("Gradients are correct (Finite Difference Check)", {
     tolerance = 1e-3
   )
 })
+
+test_that("Covariances held equal have the right gradient", {
+  mod <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
+    visual ~~ c1*textual + c1*speed
+  "
+  dat <- lavaan::HolzingerSwineford1939
+  expect_no_warning(
+    fit <- acfa(mod, dat, verbose = FALSE, nsamp = NSAMP, test = "none")
+  )
+  int <- get_inlavaan_internal(fit)
+  expect_lt(max(abs(int$opt$dx_analytic - int$opt$dx)), 1e-4)
+
+  # The posterior mode sits at the ML estimate
+  pt <- int$partable
+  x_mode <- pars_to_x(
+    as.numeric(fit@Model@ceq.simple.K %*% int$theta_star_novbc),
+    pt
+  )
+  c1_mode <- x_mode[pt$free[pt$label == "c1"][1]]
+  expect_equal(c1_mode, coef(lavaan::cfa(mod, dat))[["c1"]], tolerance = 0.05)
+})

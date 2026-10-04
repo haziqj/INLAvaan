@@ -20,17 +20,24 @@ pars_to_x <- function(theta, pt) {
   thidx <- integer(npt)
   thidx[pt$free > 0] <- seq_len(sum(pt$free > 0))
 
+  # Covariances held equal share a free index, and the packed x keeps the first
+  # such row (the owner). So every copy is scaled by the owner's variances.
+  owner <- seq_len(npt)
+  is_copy <- pt$free > 0L & duplicated(pt$free)
+  owner[is_copy] <- match(pt$free[is_copy], pt$free)
+
   # Now deal with covariances
   for (g in seq_len(nG)) {
     idxcov <- which(grepl("cov", pt$mat) & pt$group == g)
     for (j in idxcov) {
-      X1 <- pt$lhs[j]
-      X2 <- pt$rhs[j]
+      k <- owner[j]
+      X1 <- pt$lhs[k]
+      X2 <- pt$rhs[k]
       where_varX1 <- which(
-        pt$lhs == X1 & pt$op == "~~" & pt$rhs == X1 & pt$group == g
+        pt$lhs == X1 & pt$op == "~~" & pt$rhs == X1 & pt$group == pt$group[k]
       )
       where_varX2 <- which(
-        pt$lhs == X2 & pt$op == "~~" & pt$rhs == X2 & pt$group == g
+        pt$lhs == X2 & pt$op == "~~" & pt$rhs == X2 & pt$group == pt$group[k]
       )
 
       sd1 <- sqrt(x[where_varX1])
