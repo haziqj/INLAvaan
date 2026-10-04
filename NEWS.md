@@ -6,6 +6,14 @@
   parameters when `vb_correction = TRUE` (the default). As a result, Bayes
   factors from `compare()` favoured models with fewer parameters.
 
+* A defined parameter (`:=`) can now use other defined parameters, in any
+  order, as in lavaan. Previously the fit failed with an "object not found"
+  error.
+
+* `summary()` showed the wrong SD, credible interval and prior for defined
+  parameters, and for some rows after them, when the model had equality
+  constraints (shared labels or `group.equal`).
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
