@@ -20,6 +20,18 @@
   parameters, and for some rows after them, when the model had equality
   constraints (shared labels or `group.equal`).
 
+* Equality constraints written as `a == b` or `a == <number>` are now
+  honoured. Previously they were ignored, along with shared labels and
+  `group.equal` in the same model. Constraints INLAvaan cannot fit (such as
+  `a == 2*b`, `a > 0`, `effect.coding`, or a loading held equal to a variance)
+  now give an error.
+
+* Covariances held equal (by shared labels or `group.equal`) now fit
+  correctly. Previously their posterior was biased, or the fit failed.
+
+* `sampling()` and `simulate()` now work for models with equality
+  constraints, and `simulate()` for multigroup models.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
