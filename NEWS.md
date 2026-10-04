@@ -50,9 +50,17 @@
   survived, so `prior("normal(0,1)")*a*x2` lost its prior, `0.5*a*x2` was
   left free and `NA*a*x1` stayed fixed.
 
+* A `prior()` on any of several parameters held equal is now used. Previously
+  only a prior on the first of them counted.
+
+* Models where only one variance enters a covariance (for example, with the
+  other variance fixed) no longer fail.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
+
+* `predict(newdata = )` warns about ordinal values not seen when fitting.
 
 # INLAvaan 0.3.2
 
