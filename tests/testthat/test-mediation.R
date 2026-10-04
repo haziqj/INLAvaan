@@ -88,3 +88,31 @@ test_that("Defined parameters can use other defined parameters", {
   )
   expect_no_error(out <- capture.output(summary(fit)))
 })
+
+test_that("summary() matches defined parameters under equality constraints", {
+  set.seed(1234)
+  mod <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    textual ~ b*visual
+    d := 2*b
+  "
+  fit <- asem(
+    mod,
+    lavaan::HolzingerSwineford1939,
+    group = "school",
+    group.equal = c("loadings", "regressions"),
+    verbose = FALSE,
+    nsamp = 100,
+    test = "none"
+  )
+  expect_no_warning(out <- capture.output(summary(fit)))
+
+  summ <- get_inlavaan_internal(fit)$summary
+  def_line <- grep("^\\s+d\\s", out, value = TRUE)
+  expect_match(def_line, formatC(summ["d.g0", "SD"], digits = 3, format = "f"))
+  expect_match(
+    def_line,
+    formatC(summ["d.g0", "97.5%"], digits = 3, format = "f")
+  )
+})

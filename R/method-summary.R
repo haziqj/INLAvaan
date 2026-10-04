@@ -138,12 +138,12 @@ summary_inlavaan <- function(
     ),
     paste0(PE$lhs, PE$op, PE$rhs, PE$block)
   )
-  summidx <- match(pt$free[pt$free > 0], seq_len(nrow(summ)))
-  if (length(ptdefidx) > 0 | length(ptdeltaidx) > 0) {
-    # FIXME: I think this should be ok, since pt$free always in increasing
-    # order
-    summidx <- seq_len(nrow(summ))
-  }
+  # Free rows by their (packed) free index, so rows that share a label share a
+  # summary row. Defined and delta rows by name.
+  summidx <- c(
+    pt$free[ptfreeidx],
+    match(pt$names[c(ptdefidx, ptdeltaidx)], rownames(summ))
+  )
 
   char.format <- paste("%", max(8, nd + 5), "s", sep = "")
   PE$SD <- ""
