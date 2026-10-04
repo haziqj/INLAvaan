@@ -277,6 +277,17 @@ summary_inlavaan <- function(
   # Print
   cat(paste0(newgarb, collapse = "\n"))
   cat("\n")
+
+  # Note := rows summarised over part of the posterior (see defined_draws())
+  undef <- object@external$inlavaan_internal$def_undefined
+  undef <- undef[undef > 0]
+  if (length(undef) > 0) {
+    cat(
+      "\nDefined parameters summarised over the draws where they are defined:\n",
+      paste0("  ", names(undef), ": undefined in ", format_share(undef), "\n"),
+      sep = ""
+    )
+  }
 }
 
 #' @param header Logical; if TRUE, print model fit information header.

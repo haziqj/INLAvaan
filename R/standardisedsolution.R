@@ -52,6 +52,9 @@ standardisedsolution <- function(
     return(blavaan::standardizedPosterior(object))
   }
 
+  if (!isTRUE(nsamp >= 2)) {
+    cli_abort("{.arg nsamp} must be at least 2 to summarise posterior draws.")
+  }
   fit_inlv <- get_inlavaan_internal(object)
   pt <- fit_inlv$partable
 
@@ -81,7 +84,7 @@ standardisedsolution <- function(
       def_names <- pt$names[pt_def_rows]
       esti[pt_def_rows] <- fit_inlv$summary[def_names, "Mean"]
     }
-    xstd_samp[[i]] <- lavaan::standardizedSolution(
+    xstd_samp[[i]] <- muffle_nan_warnings(lavaan::standardizedSolution(
       object = object,
       est = esti,
       glist = lavmodel@GLIST,
@@ -91,20 +94,11 @@ standardisedsolution <- function(
       remove_ineq = remove.ineq,
       remove_def = remove.def,
       ...
-    )$est.std
+    ))$est.std
   }
   xstd_samp <- do.call("rbind", xstd_samp)
 
-  res <- list(
-    mean = apply(xstd_samp, 2, mean),
-    sd = apply(xstd_samp, 2, sd),
-    ci_lower = apply(xstd_samp, 2, quantile, probs = (1 - level) / 2),
-    ci_upper = apply(xstd_samp, 2, quantile, probs = 1 - (1 - level) / 2),
-    median = apply(xstd_samp, 2, median),
-    mode = apply(xstd_samp, 2, dmode)
-  )
-
-  out <- lavaan::standardizedSolution(
+  out <- muffle_nan_warnings(lavaan::standardizedSolution(
     object = object,
     est = esti,
     type = type,
@@ -113,7 +107,39 @@ standardisedsolution <- function(
     remove_ineq = remove.ineq,
     remove_def = remove.def,
     ...
+  ))
+
+  # Summarise each row over its finite draws, since a := parameter can be
+  # undefined for part of the posterior. Warn about := rows that the fit did not
+  # already report, e.g. those undefined only on the standardised scale.
+  ok <- is.finite(xstd_samp)
+  def_rows <- which(out$op == ":=")
+  share <- setNames(colMeans(!ok[, def_rows, drop = FALSE]), out$lhs[def_rows])
+  reported <- names(which(fit_inlv$def_undefined > 0))
+  new_bad <- share > 0 & !names(share) %in% reported
+  if (any(new_bad)) {
+    n_defined <- colSums(ok[, def_rows, drop = FALSE])
+    warn_undefined_draws(share[new_bad], n_defined[new_bad], scale = type)
+  }
+  finite_stat <- function(f, ...) {
+    vapply(
+      seq_len(ncol(xstd_samp)),
+      function(j) {
+        y <- xstd_samp[ok[, j], j]
+        if (length(y) < 2) NA_real_ else unname(f(y, ...))
+      },
+      numeric(1)
+    )
+  }
+  res <- list(
+    mean = finite_stat(mean),
+    sd = finite_stat(sd),
+    ci_lower = finite_stat(quantile, probs = (1 - level) / 2),
+    ci_upper = finite_stat(quantile, probs = 1 - (1 - level) / 2),
+    median = finite_stat(median),
+    mode = finite_stat(dmode)
   )
+
   out$est.std <- res$mean
   if (isTRUE(se)) {
     out$se <- res$sd

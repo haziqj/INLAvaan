@@ -36,6 +36,13 @@ plot.inlavaan_internal <- function(
     param_names <- all_names
   } else {
     bad <- setdiff(params, all_names)
+    no_dens <- intersect(bad, rownames(x$summary))
+    if (length(no_dens) > 0) {
+      cli_abort(c(
+        "No posterior density to plot for {.code {no_dens}}.",
+        "i" = "Its draws are constant or could not be computed."
+      ))
+    }
     if (length(bad) > 0) {
       # nocov start
       stop(

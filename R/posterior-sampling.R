@@ -3,17 +3,35 @@
 # standard (Mean, SD, 2.5%, 50%, 97.5%, Mode) list + pdf_data table.
 # ---------------------------------------------------------------------------
 summarise_samples <- function(y) {
-  Ex <- mean(y)
-  SDx <- stats::sd(y)
-  qq <- stats::quantile(y, probs = c(0.025, 0.25, 0.5, 0.75, 0.975))
-  dens <- stats::density(y)
-  xmax <- dens$x[which.max(dens$y)]
-  res <- c(Ex, SDx, qq, xmax)
+  res <- rep(NA_real_, 8)
   names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")
+  # Fewer than two draws (e.g. a := parameter that is almost nowhere defined)
+  # leave the summary NA.
+  if (length(y) < 2) {
+    return(list(summary = res, pdf_data = NULL))
+  }
+  res[1:7] <- c(
+    mean(y),
+    stats::sd(y),
+    stats::quantile(y, probs = c(0.025, 0.25, 0.5, 0.75, 0.975))
+  )
+  # A constant (e.g. k := 2) has no density, and its mode is its value
+  if (is_constant(y)) {
+    res["Mode"] <- res["Mean"]
+    return(list(summary = res, pdf_data = NULL))
+  }
+  dens <- stats::density(y)
+  res["Mode"] <- dens$x[which.max(dens$y)]
   list(
     summary = res,
     pdf_data = data.frame(x = dens$x, y = dens$y)
   )
+}
+
+# Draws that do not vary beyond rounding error relative to their size. All zeros
+# count as constant.
+is_constant <- function(y) {
+  stats::sd(y) <= sqrt(.Machine$double.eps) * max(abs(y))
 }
 
 # ---------------------------------------------------------------------------
@@ -278,25 +296,97 @@ sample_covariances <- function(x_samp, pt) {
 # may use another defined parameter.
 sample_defpars <- function(x_samp, pt, lavmodel) {
   pt_def_rows <- which(pt$op == ":=")
-  def_samp <- do.call(
+  def_samp <- muffle_nan_warnings(do.call(
     "rbind",
     lapply(seq_len(nrow(x_samp)), function(i) {
       lavmodel@def.function(x_samp[i, ])
     })
-  )
+  ))
   def_samp <- def_samp[, pt$lhs[pt_def_rows], drop = FALSE]
   colnames(def_samp) <- pt$names[pt_def_rows]
   def_samp
 }
 
-get_defpars <- function(x_samp, pt, lavmodel) {
-  def_samp <- sample_defpars(x_samp, pt, lavmodel)
-  apply(def_samp, 2, summarise_samples)
+# The draws of each defined parameter where it is defined, with the share of
+# undefined draws as attribute "undefined" (named by labels). A definition can
+# be undefined for part of the posterior, such as log(b) when b can be negative.
+# lavaan's def.function returns Inf there, so any non-finite draw counts as
+# undefined. Dropping those draws summarises the posterior given that the
+# parameter is defined.
+defined_draws <- function(def_samp, labels = colnames(def_samp)) {
+  ok <- is.finite(def_samp)
+  share <- setNames(colMeans(!ok), labels)
+  if (any(share > 0)) {
+    warn_undefined_draws(share[share > 0], colSums(ok)[share > 0])
+  }
+  out <- lapply(
+    setNames(seq_len(ncol(def_samp)), colnames(def_samp)),
+    function(j) def_samp[ok[, j], j]
+  )
+  attr(out, "undefined") <- share
+  out
 }
 
-get_defpars_fit_sn <- function(x_samp, pt, lavmodel) {
-  def_samp <- sample_defpars(x_samp, pt, lavmodel)
-  apply(def_samp, 2, summarise_samples_sn)
+# One warning for the := parameters that could not be computed for every
+# posterior draw. share is named by the user's := labels.
+warn_undefined_draws <- function(share, n_defined, scale = NULL) {
+  bullets <- paste0(
+    "{.code ",
+    cli_escape(names(share)),
+    "}: undefined in ",
+    format_share(share),
+    ifelse(n_defined < 2, ", so its summary is NA", "")
+  )
+  names(bullets) <- rep("*", length(bullets))
+  on_scale <- if (is.null(scale)) "" else paste0(" (", cli_escape(scale), ")")
+  cli_warn(c(
+    paste0(
+      "Some defined parameters could not be computed for every posterior ",
+      "draw",
+      on_scale,
+      "."
+    ),
+    bullets,
+    "i" = "Summaries use only the draws where each parameter is defined."
+  ))
+}
+
+# Share of draws as text, e.g. "16.3% of draws" or "every draw"
+format_share <- function(share) {
+  pct <- sprintf("%.1f%%", 100 * share)
+  pct[share < 0.001] <- "<0.1%"
+  pct[share > 0.999] <- ">99.9%"
+  out <- paste(pct, "of draws")
+  out[share >= 1] <- "every draw"
+  out
+}
+
+# Escape braces so cli prints text such as a := label literally
+cli_escape <- function(x) {
+  gsub("}", "}}", gsub("{", "{{", x, fixed = TRUE), fixed = TRUE)
+}
+
+# Evaluate expr without R's "NaNs produced" warnings, one per draw where a :=
+# parameter is undefined. defined_draws() reports those draws once instead.
+muffle_nan_warnings <- function(expr) {
+  nan_msg <- gettext("NaNs produced", domain = "R")
+  withCallingHandlers(expr, warning = function(w) {
+    if (identical(conditionMessage(w), nan_msg)) {
+      invokeRestart("muffleWarning")
+    }
+  })
+}
+
+# Summaries of the defined parameters, each over the draws where it is defined.
+# Attribute "undefined" holds the share of undefined draws.
+get_defpars <- function(x_samp, pt, lavmodel, summarise = summarise_samples) {
+  def_draws <- defined_draws(
+    sample_defpars(x_samp, pt, lavmodel),
+    labels = pt$lhs[pt$op == ":="]
+  )
+  out <- lapply(def_draws, summarise)
+  attr(out, "undefined") <- attr(def_draws, "undefined")
+  out
 }
 
 sample_covariances_fit_sn <- function(x_samp, pt) {
@@ -314,6 +404,22 @@ sample_covariances_fit_sn <- function(x_samp, pt) {
 # maximum likelihood. Also returns the fitted parameters (sn_params).
 # FIXME: Repeated code in post_marg_skewnorm
 summarise_samples_sn <- function(y) {
+  # A skew-normal needs draws that vary (a constant := parameter does not), so
+  # summarise other draws directly.
+  if (length(y) < 2 || is_constant(y)) {
+    out <- summarise_samples(y)
+    out$sn_params <- c(
+      xi = NA_real_,
+      omega = NA_real_,
+      alpha = NA_real_,
+      logC = NA_real_,
+      k = NA_real_,
+      rmse = NA_real_,
+      nmad = NA_real_,
+      gamma1 = NA_real_
+    )
+    return(out)
+  }
   sn <- fit_skew_normal_samp(y)
   xi <- sn$xi
   omega <- sn$omega

@@ -116,3 +116,98 @@ test_that("summary() matches defined parameters under equality constraints", {
     formatC(summ["d.g0", "97.5%"], digits = 3, format = "f")
   )
 })
+
+test_that("Defined parameters summarise the draws where they are defined", {
+  set.seed(1234)
+  mod <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
+    textual ~ a*visual
+    speed   ~ b*textual + c*visual
+
+    # The posterior of b crosses zero, so lb is undefined for some draws and
+    # nb for all of them.
+    lb := log(b)
+    nb := log(-b^2)
+    k  := 2
+  "
+  dat <- lavaan::HolzingerSwineford1939
+  for (sn_fit_sample in c(TRUE, FALSE)) {
+    expect_warning(
+      fit <- asem(
+        mod,
+        dat,
+        verbose = FALSE,
+        nsamp = 200,
+        test = "none",
+        sn_fit_sample = sn_fit_sample
+      ),
+      "could not be computed"
+    )
+    int <- get_inlavaan_internal(fit)
+    summ <- int$summary
+    lb <- unlist(summ["lb", c("Mean", "SD", "2.5%", "97.5%")])
+    expect_true(all(is.finite(lb)))
+    expect_true(all(is.na(summ["nb", c("Mean", "SD")])))
+    expect_equal(
+      unlist(summ["k", c("Mean", "SD", "Mode")]),
+      c(Mean = 2, SD = 0, Mode = 2)
+    )
+    expect_named(int$def_undefined, c("lb", "nb", "k"))
+    expect_gt(int$def_undefined[["lb"]], 0)
+    expect_equal(int$def_undefined[c("nb", "k")], c(nb = 1, k = 0))
+    expect_false(any(c("nb", "k") %in% names(int$pdf_data)))
+  }
+
+  expect_no_warning(std <- standardisedsolution(fit, nsamp = 20))
+  expect_true(is.finite(std$est.std[std$lhs == "lb"]))
+  expect_true(is.na(std$est.std[std$lhs == "nb"]))
+  out <- capture.output(summary(fit))
+  expect_true(any(grepl("lb: undefined in", out)))
+  expect_error(plot(fit, params = "nb"), "No posterior density")
+  expect_error(
+    asem(mod, dat, verbose = FALSE, nsamp = 1, test = "none"),
+    "at least 2"
+  )
+})
+
+test_that("standardisedsolution() warns about := undefined only when standardised", {
+  set.seed(1234)
+  # vs is about 0.4, but 1 on the standardised scale
+  mod <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
+    speed ~~ vs*speed
+    d := log(0.9 - vs)
+  "
+  expect_no_warning(
+    fit <- acfa(
+      mod,
+      lavaan::HolzingerSwineford1939,
+      verbose = FALSE,
+      nsamp = 100,
+      test = "none"
+    )
+  )
+  expect_warning(std <- standardisedsolution(fit, nsamp = 20), "std.all")
+  expect_true(is.na(std$est.std[std$lhs == "d"]))
+})
+
+test_that("Undefined-draw warnings format shares and escape labels", {
+  expect_equal(
+    format_share(c(0.0004, 0.163, 0.9996, 1)),
+    c("<0.1% of draws", "16.3% of draws", ">99.9% of draws", "every draw")
+  )
+  expect_warning(
+    warn_undefined_draws(c("a{b}" = 0.5), n_defined = 10),
+    "`a{b}`: undefined in 50.0% of draws",
+    fixed = TRUE
+  )
+})
+
+test_that("muffle_nan_warnings() muffles only NaN warnings", {
+  expect_no_warning(muffle_nan_warnings(log(-1)))
+  expect_warning(muffle_nan_warnings(warning("something else")), "else")
+})

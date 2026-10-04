@@ -277,6 +277,17 @@ inlavaan <- function(
   m <- length(PTFREEIDX)
   parnames <- pt$names[PTFREEIDX]
 
+  # Draw-based summaries: covariances, defined (:=) and delta (~*~) parameters,
+  # or (for the pure sampling method) every marginal
+  needs_draw_summaries <-
+    marginal_method == "sampling" ||
+    sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 ||
+    any(pt$op == ":=") ||
+    any(pt$op == "~*~")
+  if (needs_draw_summaries && !isTRUE(nsamp >= 2)) {
+    cli_abort("{.arg nsamp} must be at least 2 to summarise posterior draws.")
+  }
+
   # Cache partable for prior logdens and grad
   prior_cache <- prepare_priors_for_optim(pt)
 
@@ -1019,13 +1030,6 @@ inlavaan <- function(
   timing <- add_timing(timing, "norta")
 
   ## ----- Draw posterior samples (once) ---------------------------------------
-  # Draw-based summaries: covariances, defined (:=) and delta (~*~) parameters,
-  # or (for the pure sampling method) every marginal
-  needs_draw_summaries <-
-    marginal_method == "sampling" ||
-    sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 ||
-    any(pt$op == ":=") ||
-    any(pt$op == "~*~")
   has_extra_samp_work <- needs_draw_summaries ||
     any(c("ppp", "dic") %in% test_req)
   samp_env <- NULL
@@ -1125,16 +1129,16 @@ inlavaan <- function(
   timing <- add_timing(timing, "covariances")
 
   # Defined parameters
+  def_undefined <- NULL
   if (any(pt$op == ":=")) {
     if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
-      # nocov start
-      defpars <- get_defpars_fit_sn(x_samp, pt, lavmodel)
+      defpars <- get_defpars(x_samp, pt, lavmodel, summarise_samples_sn)
       sn_rows <- do.call(rbind, lapply(defpars, `[[`, "sn_params"))
       approx_data <- rbind(approx_data, sn_rows)
     } else {
-      # nocov end
       defpars <- get_defpars(x_samp, pt, lavmodel)
     }
+    def_undefined <- attr(defpars, "undefined")
 
     for (def_name in names(defpars)) {
       tmp_new_summ <- defpars[[def_name]]$summary
@@ -1311,6 +1315,7 @@ inlavaan <- function(
     approx_data = approx_data,
     nsamp = nsamp,
     pdf_data = pdf_data,
+    def_undefined = def_undefined,
     partable = pt,
     lavmodel = lavmodel,
     lavsamplestats = lavsamplestats,
