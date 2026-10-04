@@ -66,6 +66,14 @@
 * `vcov()` now matches `coef()` in length, order and names for models with
   equality constraints, and `lavInspect(fit, "vcov")` works on such fits.
 
+* `predict()` no longer fails when a variance is zero, for example a residual
+  variance fixed to zero, or a latent variable fully determined by such an
+  indicator.
+
+* `loo()` and `waic()` no longer fail on two-level models fitted with
+  `missing = "ML"` that have between-level variables, such as cluster-level
+  covariates.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
