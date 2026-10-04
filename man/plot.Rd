@@ -26,8 +26,9 @@
 densities), \code{"sn_fit"} (skew-normal fit diagnostic on natural scale),
 or \code{"sn_fit_log"} (same on log scale).}
 
-\item{params}{Character vector of parameter names to plot, or \code{"all"}
-(default) to plot all free parameters.}
+\item{params}{Character vector of parameter names to plot, as in
+\code{coef()} or \code{:=} labels, or \code{"all"} (default) to plot all
+parameters.}
 
 \item{nrow, ncol}{Integer. Number of rows/columns for the facet grid when
 \code{use_ggplot = TRUE}. If \code{NULL} (default), layout is chosen

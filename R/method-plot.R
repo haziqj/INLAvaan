@@ -213,8 +213,9 @@ plot.inlavaan_internal <- function(
 #' @param type Character. One of \code{"marg_pdf"} (default; posterior marginal
 #'   densities), \code{"sn_fit"} (skew-normal fit diagnostic on natural scale),
 #'   or \code{"sn_fit_log"} (same on log scale).
-#' @param params Character vector of parameter names to plot, or \code{"all"}
-#'   (default) to plot all free parameters.
+#' @param params Character vector of parameter names to plot, as in
+#'   \code{coef()} or \code{:=} labels, or \code{"all"} (default) to plot all
+#'   parameters.
 #' @param nrow,ncol Integer. Number of rows/columns for the facet grid when
 #'   \code{use_ggplot = TRUE}. If \code{NULL} (default), layout is chosen
 #'   automatically.
