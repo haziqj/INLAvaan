@@ -40,6 +40,7 @@ get_SEM_param_matrix <- function(x, mat, lavmodel) {
 
 # Helper: build data matrices from newdata, reusing metadata from lavdata
 build_newdata <- function(newdata, lavdata) {
+  newdata <- recode_ordinal(newdata, lavdata)
   nG <- lavdata@ngroups
   grp <- lavdata@group
   has_group <- length(grp) > 0L && nzchar(grp)
@@ -67,6 +68,17 @@ build_newdata <- function(newdata, lavdata) {
     group.label = if (has_group) lavdata@group.label else character(0),
     nobs = new_nobs
   )
+}
+
+# Code ordinal columns 1, 2, ... by the categories seen when fitting, as lavaan
+# does, whether newdata holds factors or the original values
+recode_ordinal <- function(newdata, lavdata) {
+  ov <- lavdata@ov
+  for (i in which(ov$type == "ordered" & ov$name %in% names(newdata))) {
+    lev <- strsplit(ov$lnam[i], "|", fixed = TRUE)[[1]]
+    newdata[[ov$name[i]]] <- match(as.character(newdata[[ov$name[i]]]), lev)
+  }
+  newdata
 }
 
 # nocov start

@@ -35,3 +35,18 @@ test_that("ordered = names only the ordinal variables in the model", {
   )
   expect_error(fit_ord(dat, ordered = "zz"), "estimator")
 })
+
+test_that("predict() recodes ordinal newdata", {
+  dat_01 <- dat
+  for (v in xs) {
+    dat_01[[v]] <- as.integer(dat[[v]] > stats::median(dat[[v]]))
+  }
+  fit <- fit_ord(dat_01, ordered = TRUE)
+  set.seed(2)
+  fs <- predict(fit, nsamp = 3)
+  set.seed(2)
+  expect_equal(predict(fit, newdata = dat_01, nsamp = 3), fs)
+  dat_01[xs] <- lapply(dat_01[xs], ordered)
+  set.seed(2)
+  expect_equal(predict(fit, newdata = dat_01, nsamp = 3), fs)
+})
