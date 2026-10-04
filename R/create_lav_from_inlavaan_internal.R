@@ -62,6 +62,8 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   pt$ginv_prime2 <- sapply(pt$ginv_prime2, as_fun_string)
 
   fit0@ParTable <- pt
+  # lavaan restores the column names from this cache, by position
+  fit0@pta$names <- names(pt)
 
   ## ----- Update Options slot -------------------------------------------------
   optim_method <- fit_inlv$optim_method

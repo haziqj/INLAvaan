@@ -79,3 +79,18 @@ test_that("Unsupported constraints give an error", {
   )
   expect_error(fit_with("", effect.coding = "loadings"), "effect.coding")
 })
+
+test_that("Two-level fits with a constraint keep working lavaan methods", {
+  set.seed(1)
+  fit <- asem(
+    "level: 1\n fw =~ y1 + a*y2 + y3\n level: 2\n fb =~ y1 + b*y2 + y3\n a == b",
+    lavaan::Demo.twolevel,
+    cluster = "cluster",
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  expect_true(is.numeric(lavaan::lavInspect(fit, "est")$within$lambda))
+  expect_true(is.numeric(unlist(lavaan::lavInspect(fit, "rsquare"))))
+  expect_no_error(capture.output(summary(fit, rsquare = TRUE)))
+})
