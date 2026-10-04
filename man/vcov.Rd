@@ -12,8 +12,9 @@
 
 \item{type}{Character. \code{"lavaan"} (default) returns the posterior
 covariance matrix of the model parameters computed from posterior
-samples (matching lavaan output). \code{"theta"} returns the Laplace
-approximation covariance in the internal parameterisation.}
+samples, with one row per entry of \code{\link[=coef]{coef()}} (matching lavaan output).
+\code{"theta"} returns the Laplace approximation covariance in the
+internal parameterisation, with one row per distinct free parameter.}
 
 \item{...}{Currently unused.}
 }

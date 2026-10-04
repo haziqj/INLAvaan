@@ -6,8 +6,9 @@
 #' @param object An object of class [INLAvaan].
 #' @param type Character. \code{"lavaan"} (default) returns the posterior
 #'   covariance matrix of the model parameters computed from posterior
-#'   samples (matching lavaan output). \code{"theta"} returns the Laplace
-#'   approximation covariance in the internal parameterisation.
+#'   samples, with one row per entry of [coef()] (matching lavaan output).
+#'   \code{"theta"} returns the Laplace approximation covariance in the
+#'   internal parameterisation, with one row per distinct free parameter.
 #' @param ... Currently unused.
 #'
 #' @returns A square numeric matrix.
