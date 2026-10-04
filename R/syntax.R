@@ -3,8 +3,8 @@
 # silently loses its prior and `0.5*a*x2` its fixed value. Writing each
 # modifier as its own term (`prior("normal(0,1)")*x2 + a*x2`) keeps them all,
 # so split_modifiers() rewrites chained modifiers that way. Statements are
-# formed as the old parser forms them, and only the right-hand side of =~, ~,
-# ~~ and <~ is touched. The model comes back unchanged when nothing is
+# formed as the old parser forms them, and only right-hand sides are touched
+# (of =~, <~, ~*~, ~~, ~ and |). The model comes back unchanged when nothing is
 # chained.
 split_modifiers <- function(model) {
   if (!is.character(model)) {
@@ -16,11 +16,12 @@ split_modifiers <- function(model) {
   lines <- unlist(strsplit(gsub("[#!].*$", "", lines), ";", fixed = TRUE))
   lines <- trimws(lines)
   lines <- lines[nzchar(lines)]
-  if (length(lines) == 0L || any(grepl("efa(", lines, fixed = TRUE))) {
+  if (length(lines) == 0L) {
     return(model)
   }
 
-  # A statement starts at a line with an operator and runs until the next one
+  # A statement starts at a line with an operator (or an efa() line, which
+  # takes the next line with it) and runs until the next start
   ops <- c("=~", "<~", "~*~", "~~", "~", "==", "<", ">", ":=", ":", "|", "%")
   masked <- mask_quotes(lines)
   has_op <- vapply(
@@ -29,7 +30,11 @@ split_modifiers <- function(model) {
     logical(1),
     USE.NAMES = FALSE
   )
-  starts <- which(has_op)
+  is_efa <- grepl("efa(", masked, fixed = TRUE)
+  is_start <- has_op | is_efa
+  efa_only <- which(is_efa & !has_op)
+  is_start[efa_only[efa_only < length(lines)] + 1L] <- FALSE
+  starts <- which(is_start)
   if (length(starts) == 0L) {
     return(model)
   }
@@ -44,7 +49,7 @@ split_modifiers <- function(model) {
   for (k in seq_along(stmts)) {
     masked <- mask_quotes(stmts[k])
     op <- ops[vapply(ops, grepl, logical(1), masked, fixed = TRUE)][1]
-    if (!op %in% c("=~", "<~", "~~", "~")) {
+    if (!op %in% c("=~", "<~", "~*~", "~~", "~", "|")) {
       next
     }
     pos <- regexpr(op, masked, fixed = TRUE)
@@ -63,10 +68,14 @@ split_modifiers <- function(model) {
   paste(c(lines[seq_len(starts[1] - 1L)], stmts), collapse = "\n")
 }
 
-# One term with chained modifiers as separate terms, e.g. "a*0.5*x" becomes
-# "a*x + 0.5*x". A term with at most one modifier is returned as is.
+# One term with chained modifiers as separate terms, e.g. "a*0.5?x" becomes
+# "a*x + start(0.5)*x". A term with at most one modifier is returned as is.
 split_term <- function(term) {
   parts <- trimws(split_top_level(term, "*"))
+  parts <- unlist(lapply(parts, function(p) {
+    q <- trimws(split_top_level(p, "?"))
+    if (length(q) == 2L) c(paste0("start(", q[1], ")"), q[2]) else p
+  }))
   n <- length(parts)
   if (n < 3L) {
     return(term)

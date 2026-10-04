@@ -36,6 +36,22 @@ test_that("split_modifiers() writes chained modifiers as separate terms", {
   )
 })
 
+test_that("split_modifiers() also covers thresholds, ~*~, ? and efa()", {
+  expect_equal(
+    split_modifiers("x1 | a*0.5*t1 + t2"),
+    "x1 | a*t1 + 0.5*t1 + t2"
+  )
+  expect_equal(
+    split_modifiers("x1 ~*~ start(1)*d1*x1"),
+    "x1 ~*~ start(1)*x1 + d1*x1"
+  )
+  expect_equal(split_modifiers("y ~ a*0.5?x"), "y ~ a*x + start(0.5)*x")
+  expect_equal(
+    split_modifiers('efa("e")*f1 +\n efa("e")*f2 =~ x1 + start(1)*a*x2'),
+    'efa("e")*f1 + efa("e")*f2 =~ x1 + start(1)*x2 + a*x2'
+  )
+})
+
 test_that("Chained modifiers keep their prior and fixed value", {
   dat <- lavaan::HolzingerSwineford1939
   base <- "visual =~ x1 + x2 + x3\n textual =~ x4 + "
