@@ -146,6 +146,9 @@ inlavaanify_partable <- function(
 ) {
   nlevels <- lavdata@nlevels
   is_multilvl <- nlevels > 1
+  if (is_multilvl && lavdata@ngroups > 1) {
+    cli_abort("Multigroup two-level models are not supported.")
+  }
   if (is_multilvl) {
     pt$group <- pt$level
   }

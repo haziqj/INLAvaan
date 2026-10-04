@@ -376,3 +376,14 @@ test_that("Multigroup := parameters can be plotted by name", {
   on.exit(dev.off())
   expect_no_error(plot(fit, params = "d"))
 })
+
+test_that("Multigroup two-level models give an error", {
+  dat <- lavaan::Demo.twolevel
+  dat$g <- ifelse(dat$cluster %% 2 == 0, "a", "b")
+  blk <- "level: 1\n fw =~ y1 + y2 + y3\n level: 2\n fb =~ y1 + y2 + y3\n"
+  mod <- paste0("group: a\n", blk, "group: b\n", blk)
+  expect_error(
+    asem(mod, dat, cluster = "cluster", group = "g", verbose = FALSE),
+    "Multigroup two-level"
+  )
+})
