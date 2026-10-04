@@ -37,6 +37,15 @@
   A `:=` parameter that reuses a parameter label, and multigroup two-level
   models, now give an error.
 
+* Data with ordered-factor columns are now fitted as ordinal data, as with
+  `ordered =`. Previously the fit failed. `ordered =` naming variables outside
+  the model no longer widens the posterior, and a name that matches no model
+  variable gives an error.
+
+* `predict(newdata = )` for ordinal models now codes the categories as in the
+  fit. Previously factor columns gave an error and 0/1 codes gave wrong
+  factor scores.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
