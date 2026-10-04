@@ -499,17 +499,30 @@ loco_missing_build_cj <- function(Y1j, Y2j, Lp, between_idx) {
   Lpj$ncluster.sizes[[2L]] <- 1L
   Lpj$cluster.size.ns[[2L]] <- 1L
   Lpj$cluster.idx[[2L]] <- rep.int(1L, nj)
-  Ywj <- if (length(between_idx) > 0L) {
-    Y1j[, -between_idx, drop = FALSE]
-  } else {
-    Y1j
+  # Pass all columns: the pattern builder drops the between-only columns itself
+  # and reads the between-level pattern (Mp$Zp) from the cluster's first row.
+  # The kernels score the level-2 values in Y2j, so copy those onto every row
+  # first. Otherwise a dropped or removed first row could leave a pattern that
+  # disagrees with Y2j.
+  if (length(between_idx) > 0L) {
+    Y1j[, between_idx] <- Y2j[rep.int(1L, nj), between_idx, drop = FALSE]
   }
   Mpj <- lavaan___lav_data_mi_patterns(
-    y = Ywj,
+    y = Y1j,
     sort_freq = FALSE,
     coverage = FALSE,
     lp = Lpj
   )
+  # A cluster missing all its between-only values has no between-level pattern,
+  # but the kernels assume at least one. A zero-frequency placeholder pattern
+  # satisfies them without changing the result: the cluster stays flagged as
+  # empty and is scored marginally over the between-only variables.
+  if (!is.null(Mpj$Zp) && Mpj$Zp$npatterns == 0L) {
+    Mpj$Zp$npatterns <- 1L
+    Mpj$Zp$freq <- 0L
+    Mpj$Zp$case.idx <- list(integer(0L))
+    Mpj$Zp$pat <- matrix(TRUE, 1L, length(between_idx))
+  }
   list(Y1 = Y1j, Y2 = Y2j, Lp = Lpj, Mp = Mpj)
 }
 

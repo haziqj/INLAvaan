@@ -273,3 +273,198 @@ test_that("LOCO scores are correct for clusters with a fully-missing row", {
   )
   expect_equal(max(abs(as.numeric(s_an) - s_fd)), 0, tolerance = 1e-5)
 })
+
+# Between-only variables under FIML, with MCAR holes in y1 and the between-only
+# outcome w2 missing in clusters 3 and 7. fit_between also has a cluster-level
+# covariate (w1), so those clusters keep a partial between-level pattern.
+# fit_between_na drops w1, leaving them with no observed between-only values.
+model_between <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+  level: 2
+    fb =~ y1 + y2 + y3
+    fb ~ w1
+    w2 ~ fb
+"
+model_between_na <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+  level: 2
+    fb =~ y1 + y2 + y3
+    w2 ~ fb
+"
+d_between <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+set.seed(123)
+d_between$y1[sample(nrow(d_between), 15)] <- NA
+d_between$w2[d_between$cluster %in% c(3, 7)] <- NA
+# Clusters 5 and 6 have w2 missing on their first row only, which lavaan reads
+# as w2 missing for the whole cluster. The first row of cluster 5 is also
+# missing on y1-y3, so LOCO drops it before building the cluster's patterns.
+first_row <- !duplicated(d_between$cluster)
+d_between$w2[first_row & d_between$cluster %in% c(5, 6)] <- NA
+d_between[first_row & d_between$cluster == 5, c("y1", "y2", "y3")] <- NA
+
+fit_2l_ml <- function(model, data) {
+  suppressWarnings(asem(
+    model,
+    data,
+    cluster = "cluster",
+    missing = "ml",
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  ))
+}
+fits_between <- list(
+  fit_between = fit_2l_ml(model_between, d_between),
+  fit_between_na = fit_2l_ml(model_between_na, d_between)
+)
+
+test_that("LOCO handles between-only variables under missing data", {
+  for (fit_b in fits_between) {
+    res_b <- loo(fit_b)
+    expect_equal(res_b$type, "loco")
+    expect_equal(res_b$n_units, 30L)
+    expect_true(all(res_b$per_unit$ok))
+
+    # Per-cluster logliks sum to the fitted FIML loglik plus the covariate term
+    # (loglik.x) that lavaan subtracts under fixed.x.
+    int <- get_inlavaan_internal(fit_b)
+    x <- INLAvaan:::pars_to_x(int$theta_star, int$partable)
+    lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
+    opts <- fit_b@Options
+    opts$estimator <- "ML"
+    ll <- lavaan:::lav_model_loglik(
+      lavdata = int$lavdata,
+      lavsamplestats = int$lavsamplestats,
+      lavimplied = lavaan::lav_model_implied(lm_x),
+      lavmodel = lm_x,
+      lavoptions = opts
+    )$loglik
+    ll_x <- int$lavsamplestats@YLp[[1L]][[2L]]$loglik.x
+    expect_equal(sum(res_b$per_unit$l_star), ll + ll_x, tolerance = 1e-6)
+  }
+})
+
+test_that("the per-row override handles between-only variables", {
+  for (fit_b in fits_between) {
+    minfo <- INLAvaan:::loco_missing_info(get_inlavaan_internal(fit_b))
+    rows <- c(1L, minfo$rows_by_cluster[[3L]][1:2])
+    expect_warning(
+      res_row <- loo(fit_b, type = "loso", units = rows),
+      "leave-one-unit-out"
+    )
+    expect_equal(nrow(res_row$per_unit), 3L)
+    expect_true(all(res_row$per_unit$ok))
+  }
+})
+
+test_that("between-only scores match finite differences", {
+  # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
+  # differences across CRAN check flavours -- too fragile to assert there.
+  skip_on_cran()
+  for (fit_b in fits_between) {
+    int <- get_inlavaan_internal(fit_b)
+    minfo <- INLAvaan:::loco_missing_info(int)
+    # w2 missing in cluster 3, and on the first row only in clusters 5 and 6
+    js <- c(1L, 3L, 5L, 6L)
+    rows <- c(
+      1L,
+      minfo$rows_by_cluster[[3L]][1:2],
+      minfo$rows_by_cluster[[6L]][1L]
+    )
+    s_an <- rbind(
+      INLAvaan:::loco_missing_scores_theta(
+        int$theta_star,
+        minfo,
+        int$lavmodel,
+        int$partable,
+        js
+      ),
+      INLAvaan:::loso2l_missing_scores_theta(
+        int$theta_star,
+        minfo,
+        int$lavmodel,
+        int$partable,
+        rows
+      )
+    )
+    ll_units <- function(theta) {
+      cache <- INLAvaan:::loo_grad_cache(
+        theta,
+        int$lavmodel,
+        int$partable,
+        two_level = TRUE
+      )
+      c(
+        vapply(
+          js,
+          function(j) INLAvaan:::loco_missing_loglik_one(j, minfo, cache$mom),
+          numeric(1)
+        ),
+        INLAvaan:::loso2l_missing_loglik_all(rows, minfo, cache$mom)
+      )
+    }
+    h <- 1e-6
+    s_fd <- vapply(
+      seq_along(int$theta_star),
+      function(k) {
+        tp <- tm <- int$theta_star
+        tp[k] <- tp[k] + h
+        tm[k] <- tm[k] - h
+        (ll_units(tp) - ll_units(tm)) / (2 * h)
+      },
+      numeric(length(js) + length(rows))
+    )
+    expect_equal(max(abs(s_an - s_fd)), 0, tolerance = 1e-5)
+  }
+})
+
+test_that("missing kernels match complete-data kernels on complete data", {
+  d_full <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  int <- get_inlavaan_internal(fit_2l_ml(model_between, d_full))
+  css <- INLAvaan:::loco_suff_stats(int$lavdata)
+  minfo <- INLAvaan:::loco_missing_info(int)
+  cache <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable,
+    two_level = TRUE
+  )
+  js <- seq_len(css$J)
+  expect_equal(
+    vapply(
+      js,
+      function(j) INLAvaan:::loco_missing_loglik_one(j, minfo, cache$mom),
+      numeric(1)
+    ),
+    vapply(
+      js,
+      function(j) INLAvaan:::loco_loglik_one(j, css, cache$mom),
+      numeric(1)
+    ),
+    tolerance = 1e-10
+  )
+  expect_equal(
+    INLAvaan:::loco_missing_scores_theta(
+      int$theta_star,
+      minfo,
+      int$lavmodel,
+      int$partable,
+      js,
+      cache
+    ),
+    INLAvaan:::loco_scores_theta(
+      int$theta_star,
+      css,
+      int$lavmodel,
+      int$partable,
+      js,
+      cache
+    ),
+    tolerance = 1e-8
+  )
+})
