@@ -94,3 +94,10 @@ test_that("Two-level fits with a constraint keep working lavaan methods", {
   expect_true(is.numeric(unlist(lavaan::lavInspect(fit, "rsquare"))))
   expect_no_error(capture.output(summary(fit, rsquare = TRUE)))
 })
+
+test_that("A := may use a parameter fixed by a constraint", {
+  fit <- fit_with("textual =~ x4 + c*x5 + x6\n c == 0.5\n e := c * 2")
+  summ <- get_inlavaan_internal(fit)$summary
+  expect_equal(summ["e", "Mean"], 1)
+  expect_equal(summ["e", "SD"], 0)
+})

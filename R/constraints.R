@@ -97,6 +97,26 @@ pack_constraints <- function(pt, effect_coding = "") {
   pt$free[idx[to_fix]] <- 0L
   pt$free[idx[!to_fix]] <- match(cls[!to_fix], sort(unique(cls[!to_fix])))
 
+  # lavaan allows only free parameters in a := definition, so a parameter fixed
+  # here enters the definitions as its value
+  def_rows <- which(pt$op == ":=")
+  for (k in which(to_fix)) {
+    r <- idx[k]
+    for (nm in setdiff(c(pt$label[r], pt$plabel[r]), "")) {
+      pattern <- paste0(
+        "(?<![[:alnum:]._])",
+        gsub("([][{}()+*^$|\\\\?.])", "\\\\\\1", nm),
+        "(?![[:alnum:]._])"
+      )
+      pt$rhs[def_rows] <- gsub(
+        pattern,
+        paste0("(", deparse(fixed_at[cls[k]]), ")"),
+        pt$rhs[def_rows],
+        perl = TRUE
+      )
+    }
+  }
+
   # lavaan keeps shared free indices only in a table without constraint rows
   pt <- lapply(pt, `[`, -con_idx)
   pt$id <- seq_along(pt$id)
