@@ -215,7 +215,7 @@ inlavaan <- function(
   test_req <- resolve_test(test)
 
   lavargs <- list(...)
-  lavargs$model <- model
+  lavargs$model <- split_modifiers(model)
   lavargs$data <- data
   lavargs$ceq.simple <- TRUE # FIXME: Force ceq.simple rather than eq.constraints
   lavargs$verbose <- FALSE # FIXME: Need some quiet mode maybe
