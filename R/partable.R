@@ -207,17 +207,15 @@ inlavaanify_partable <- function(
     USE.NAMES = FALSE
   )
 
-  # Add names
-  pt$names <- mapply(paste0, pt$lhs, pt$op, pt$rhs)
+  # Names as coef() gives them: the label if any, else lhs op rhs with a group
+  # (".g2") or level (".l2") suffix after the first. pt$group holds the level
+  # in a two-level model, and := rows sit in group 0.
+  pt$names <- paste0(pt$lhs, pt$op, pt$rhs)
+  later <- pt$group > 1
+  prefix <- if (is_multilvl) ".l" else ".g"
+  pt$names[later] <- paste0(pt$names[later], prefix, pt$group[later])
   where_label <- pt$label != ""
   pt$names[where_label] <- pt$label[where_label]
-  if (ngroups > 1) {
-    prefix <- ifelse(is_multilvl, ".l", ".g")
-    pt$names <- paste0(pt$names, prefix, pt$group)
-    pt$names <- gsub(".g1|.l1", "", pt$names)
-  }
-  # Remove .l0 from names of defined params
-  pt$names[pt$op == ":="] <- gsub(".l0", "", pt$names[pt$op == ":="])
 
   # Remove pt$group if multilevel (interacts with lav_partable_labels())
   if (is_multilvl) {

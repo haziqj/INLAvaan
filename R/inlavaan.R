@@ -292,6 +292,13 @@ inlavaan <- function(
   }
   m <- length(PTFREEIDX)
   parnames <- pt$names[PTFREEIDX]
+  if (anyDuplicated(parnames) > 0) {
+    # nocov start
+    cli_abort(
+      "Parameter names must be unique, but {.code
+       {unique(parnames[duplicated(parnames)])}} appear{?s/} more than once."
+    )
+  } # nocov end
 
   # Draw-based summaries: covariances, defined (:=) and delta (~*~) parameters,
   # or (for the pure sampling method) every marginal

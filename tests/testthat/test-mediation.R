@@ -110,10 +110,10 @@ test_that("summary() matches defined parameters under equality constraints", {
 
   summ <- get_inlavaan_internal(fit)$summary
   def_line <- grep("^\\s+d\\s", out, value = TRUE)
-  expect_match(def_line, formatC(summ["d.g0", "SD"], digits = 3, format = "f"))
+  expect_match(def_line, formatC(summ["d", "SD"], digits = 3, format = "f"))
   expect_match(
     def_line,
-    formatC(summ["d.g0", "97.5%"], digits = 3, format = "f")
+    formatC(summ["d", "97.5%"], digits = 3, format = "f")
   )
 })
 

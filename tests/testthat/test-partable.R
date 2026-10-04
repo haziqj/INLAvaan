@@ -314,3 +314,53 @@ test_that("inlavaanify_partable integrates with lavaan / blavaan objects", {
   expect_equal(length(res$names), nrow(pt))
   expect_true(all(nzchar(res$names)))
 })
+
+test_that("Parameter names follow coef()", {
+  dat <- lavaan::HolzingerSwineford1939
+  dat$grp <- rep_len(1:12, nrow(dat))
+  # Labels ending in g1, groups 10 and above, and a := row
+  fit <- suppressWarnings(lavaan::cfa(
+    "visual =~ x1 + lag1*x2 + x3\n big1 := 2*lag1",
+    dat,
+    group = "grp",
+    ceq.simple = TRUE,
+    do.fit = FALSE
+  ))
+  pt <- inlavaanify_partable(
+    fit@ParTable,
+    lavdata = fit@Data,
+    lavoptions = fit@Options
+  )
+  free <- pt$free > 0 & !duplicated(pt$free)
+  expect_setequal(pt$names[free], names(lavaan::coef(fit)))
+  expect_true(all(c("big1", "visual=~x3.g10", "visual=~x3.g12") %in% pt$names))
+
+  fit <- lavaan::sem(
+    "level: 1\n fw =~ y1 + ab1*y2 + y3\n level: 2\n fb =~ y1 + y2 + y3",
+    lavaan::Demo.twolevel,
+    cluster = "cluster",
+    do.fit = FALSE
+  )
+  pt <- inlavaanify_partable(
+    fit@ParTable,
+    lavdata = fit@Data,
+    lavoptions = fit@Options
+  )
+  free <- pt$free > 0 & !duplicated(pt$free)
+  expect_identical(pt$names[free], names(lavaan::coef(fit)))
+})
+
+test_that("Multigroup := parameters can be plotted by name", {
+  fit <- acfa(
+    "visual =~ x1 + c(a1, a2)*x2 + x3\n d := a1 - a2",
+    lavaan::HolzingerSwineford1939,
+    group = "school",
+    verbose = FALSE,
+    nsamp = 10,
+    test = "none"
+  )
+  expect_true("d" %in% rownames(get_inlavaan_internal(fit)$summary))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_no_error(plot(fit, params = "d"))
+})
