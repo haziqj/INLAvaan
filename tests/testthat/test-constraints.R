@@ -101,3 +101,11 @@ test_that("A := may use a parameter fixed by a constraint", {
   expect_equal(summ["e", "Mean"], 1)
   expect_equal(summ["e", "SD"], 0)
 })
+
+test_that("Fixing a parameter at two values names both constraints", {
+  expect_error(
+    fit_with("textual =~ x4 + a*x5 + b*x6\n a == b\n a == 0.5\n b == 0.7"),
+    "`a == 0.5` and `b == 0.7`",
+    fixed = TRUE
+  )
+})

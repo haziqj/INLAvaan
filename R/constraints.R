@@ -40,7 +40,11 @@ pack_constraints <- function(pt, effect_coding = "") {
     } else if (setequal(types, c("free", "value"))) {
       side <- if (lhs$type == "free") lhs else rhs
       value <- if (lhs$type == "value") lhs$value else rhs$value
-      fixes[[length(fixes) + 1L]] <- c(pt$free[side$row], value)
+      fixes[[length(fixes) + 1L]] <- list(
+        free = pt$free[side$row],
+        value = value,
+        txt = txt
+      )
     } else if (all(types == "value")) {
       if (!isTRUE(all.equal(lhs$value, rhs$value))) {
         bad[txt] <- "both sides are fixed, at different values"
@@ -67,21 +71,33 @@ pack_constraints <- function(pt, effect_coding = "") {
   }
   root <- vapply(seq_along(root), find, integer(1))
   fixed_at <- rep(NA_real_, length(root))
+  fixed_by <- character(length(root))
   for (fx in fixes) {
-    r <- root[fx[1L]]
-    if (!is.na(fixed_at[r]) && !isTRUE(all.equal(fixed_at[r], fx[2L]))) {
-      bad[paste("fixed at", fixed_at[r], "and", fx[2L])] <-
-        "a parameter cannot be fixed at two values"
+    r <- root[fx$free]
+    if (!is.na(fixed_at[r]) && !isTRUE(all.equal(fixed_at[r], fx$value))) {
+      bad[paste0(fixed_by[r], "\t", fx$txt)] <- paste(
+        "a parameter cannot be fixed at both",
+        fixed_at[r],
+        "and",
+        fx$value
+      )
     }
-    fixed_at[r] <- fx[2L]
+    fixed_at[r] <- fx$value
+    fixed_by[r] <- fx$txt
   }
 
   if (length(bad) > 0L) {
-    bullets <- paste0("{.code ", cli_escape(names(bad)), "}: ", bad)
+    # A clash between two constraints is keyed by both, separated by a tab
+    txt <- vapply(
+      strsplit(names(bad), "\t", fixed = TRUE),
+      function(x) paste0("{.code ", cli_escape(x), "}", collapse = " and "),
+      character(1)
+    )
+    bullets <- paste0(txt, ": ", bad)
     names(bullets) <- rep("x", length(bullets))
+    n_con <- length(unlist(strsplit(names(bad), "\t", fixed = TRUE)))
     cli_abort(c(
-      "INLAvaan cannot honour {cli::qty(length(bad))}{?this/these}
-       constraint{?s}.",
+      "INLAvaan cannot honour {cli::qty(n_con)}{?this/these} constraint{?s}.",
       bullets,
       "i" = "Supported: {.code a == b} and {.code a == <number>}, where
              {.code a} and {.code b} are model parameters."
