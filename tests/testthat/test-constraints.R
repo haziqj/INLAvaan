@@ -123,3 +123,10 @@ test_that("A prior on any parameter held equal is used", {
     "different priors"
   )
 })
+
+test_that("plot() accepts every name of parameters held equal", {
+  fit <- fit_with("textual =~ x4 + a*x5 + b*x6\n a == b")
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_no_error(plot(fit, params = c("a", "b")))
+})

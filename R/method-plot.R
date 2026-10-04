@@ -35,6 +35,14 @@ plot.inlavaan_internal <- function(
   if (identical(params, "all")) {
     param_names <- all_names
   } else {
+    # A parameter held equal to another goes by either name, as in coef()
+    pt <- x$partable
+    is_free <- pt$free > 0
+    owner <- pt$names[is_free][match(pt$free[is_free], pt$free[is_free])]
+    alias <- setNames(owner, pt$names[is_free])
+    hit <- params %in% names(alias) & !params %in% all_names
+    params <- unique(replace(params, hit, alias[params[hit]]))
+
     bad <- setdiff(params, all_names)
     no_dens <- intersect(bad, rownames(x$summary))
     if (length(no_dens) > 0) {
