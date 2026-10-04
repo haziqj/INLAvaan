@@ -71,7 +71,7 @@ build_newdata <- function(newdata, lavdata) {
 }
 
 # Code ordinal columns 1, 2, ... by the categories seen when fitting, as lavaan
-# does, whether newdata holds factors or the original values
+# does, whether newdata holds factors or the original values.
 recode_ordinal <- function(newdata, lavdata) {
   ov <- lavdata@ov
   for (i in which(ov$type == "ordered" & ov$name %in% names(newdata))) {

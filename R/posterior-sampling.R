@@ -115,8 +115,8 @@ sample_params <- function(
     }
   }
 
-  # theta stays packed (one column per free parameter), and pars_to_x() takes
-  # it unpacked to every free row
+  # theta stays packed (one column per free parameter), and pars_to_x() takes it
+  # unpacked to every free row.
   theta_full <- theta
   if (lavmodel@ceq.simple.only) {
     K <- lavmodel@ceq.simple.K

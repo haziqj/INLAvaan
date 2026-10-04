@@ -276,8 +276,8 @@ inlavaan <- function(
              model."
     ))
   }
-  # Rebuild from a table where explicit constraints are shared free indices
-  # or fixed values (see pack_constraints())
+  # Rebuild from a table where explicit constraints are shared free indices or
+  # fixed values (see pack_constraints()).
   pt_packed <- pack_constraints(fit0@ParTable, fit0@Options$effect.coding)
   if (!is.null(pt_packed)) {
     lavargs$model <- pt_packed
@@ -314,7 +314,7 @@ inlavaan <- function(
   } # nocov end
 
   # Draw-based summaries: covariances, defined (:=) and delta (~*~) parameters,
-  # or (for the pure sampling method) every marginal
+  # or (for the pure sampling method) every marginal.
   needs_draw_summaries <-
     marginal_method == "sampling" ||
     sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 ||

@@ -2,11 +2,11 @@
 # ceq.simple packing). lavaan turns that packing off for the whole table once
 # the model has an explicit constraint, so shared labels and group.equal then
 # also arrive as `.pN. == .pM.` rows. pack_constraints() rewrites what it can
-# honour: `a == b` becomes a shared free index and `a == 0.5` (or `a` equal to
-# a fixed parameter) a fixed value. Bounds that the parameterisation already
-# guarantees (a variance above zero) are dropped, and anything else is
-# refused. It returns NULL when the table has no constraint rows, else a
-# parameter table for lavaan to rebuild the model from.
+# honour: `a == b` becomes a shared free index and `a == 0.5` (or `a` equal to a
+# fixed parameter) a fixed value. Bounds that the parameterisation already
+# guarantees (a variance above zero) are dropped, and anything else is refused.
+# It returns NULL when the table has no constraint rows, else a parameter table
+# for lavaan to rebuild the model from.
 pack_constraints <- function(pt, effect_coding = "") {
   if (any(nzchar(effect_coding))) {
     cli_abort(c(
@@ -114,7 +114,7 @@ pack_constraints <- function(pt, effect_coding = "") {
   pt$free[idx[!to_fix]] <- match(cls[!to_fix], sort(unique(cls[!to_fix])))
 
   # lavaan allows only free parameters in a := definition, so a parameter fixed
-  # here enters the definitions as its value
+  # here enters the definitions as its value.
   def_rows <- which(pt$op == ":=")
   for (k in which(to_fix)) {
     r <- idx[k]
@@ -140,7 +140,7 @@ pack_constraints <- function(pt, effect_coding = "") {
 }
 
 # What one side of a constraint refers to: a free parameter (its row), a value
-# (a number, or a fixed parameter), a defined parameter, or anything else
+# (a number, or a fixed parameter), a defined parameter, or anything else.
 constraint_side <- function(pt, s) {
   s <- trimws(s)
   num <- suppressWarnings(as.numeric(s))
@@ -164,7 +164,7 @@ constraint_side <- function(pt, s) {
 }
 
 # Whether `lhs op rhs` only says that a variance is above a value of at most
-# zero, which the log transformation already guarantees
+# zero, which the log transformation already guarantees.
 implied_bound <- function(pt, op, lhs, rhs) {
   if (lhs$type == "free" && rhs$type == "value" && op == ">") {
     side <- lhs
@@ -179,9 +179,9 @@ implied_bound <- function(pt, op, lhs, rhs) {
   pt$op[r] == "~~" && pt$lhs[r] == pt$rhs[r] && value <= 0
 }
 
-# Rows that share a free index share one internal coordinate, which
-# pars_to_x() maps with the first row's transformation. That is exact only
-# when every row has the same kind of transformation.
+# Rows that share a free index share one internal coordinate, which pars_to_x()
+# maps with the first row's transformation. That is exact only when every row
+# has the same kind of transformation.
 check_packed_kinds <- function(pt) {
   kind <- rep(NA_character_, length(pt$mat))
   kind[pt$mat %in% c("lambda", "beta", "nu", "alpha", "tau")] <- "identity"
@@ -210,8 +210,8 @@ check_packed_kinds <- function(pt) {
   invisible(pt)
 }
 
-# Rows of a parameter table as text for messages (lhs op rhs), with the group
-# or level when there is more than one
+# Rows of a parameter table as text for messages (lhs op rhs), with the group or
+# level when there is more than one.
 partable_row_name <- function(pt, rows) {
   nm <- paste0(pt$lhs[rows], pt$op[rows], pt$rhs[rows])
   block <- if (is.null(pt$level)) pt$group else pt$level

@@ -1,11 +1,10 @@
 # INLAvaan parses model syntax with lavaan's old parser, which reads prior().
 # That parser keeps only one modifier per term, so `prior("normal(0,1)")*a*x2`
-# silently loses its prior and `0.5*a*x2` its fixed value. Writing each
-# modifier as its own term (`prior("normal(0,1)")*x2 + a*x2`) keeps them all,
-# so split_modifiers() rewrites chained modifiers that way. Statements are
-# formed as the old parser forms them, and only right-hand sides are touched
-# (of =~, <~, ~*~, ~~, ~ and |). The model comes back unchanged when nothing is
-# chained.
+# silently loses its prior and `0.5*a*x2` its fixed value. Writing each modifier
+# as its own term (`prior("normal(0,1)")*x2 + a*x2`) keeps them all, so
+# split_modifiers() rewrites chained modifiers that way. Statements are formed
+# as the old parser forms them, and only right-hand sides are touched (of =~,
+# <~, ~*~, ~~, ~ and |). The model comes back unchanged when nothing is chained.
 split_modifiers <- function(model) {
   if (!is.character(model)) {
     return(model)
@@ -20,8 +19,8 @@ split_modifiers <- function(model) {
     return(model)
   }
 
-  # A statement starts at a line with an operator (or an efa() line, which
-  # takes the next line with it) and runs until the next start
+  # A statement starts at a line with an operator (or an efa() line, which takes
+  # the next line with it) and runs until the next start.
   ops <- c("=~", "<~", "~*~", "~~", "~", "==", "<", ">", ":=", ":", "|", "%")
   masked <- mask_quotes(lines)
   has_op <- vapply(
@@ -68,8 +67,9 @@ split_modifiers <- function(model) {
   paste(c(lines[seq_len(starts[1] - 1L)], stmts), collapse = "\n")
 }
 
-# One term with chained modifiers as separate terms, e.g. "a*0.5?x" becomes
-# "a*x + start(0.5)*x". A term with at most one modifier is returned as is.
+# One term with chained modifiers as separate terms. For example, "a*0.5?x"
+# becomes "a*x + start(0.5)*x". A term with at most one modifier is returned
+# as is.
 split_term <- function(term) {
   parts <- trimws(split_top_level(term, "*"))
   parts <- unlist(lapply(parts, function(p) {

@@ -193,8 +193,8 @@ inlavaanify_partable <- function(
     where_user_prior <- user_prior != ""
     pt$prior[where_user_prior] <- user_prior[where_user_prior]
 
-    # Parameters held equal use the prior of their first row, so a prior
-    # written on another row of the class moves there
+    # Parameters held equal use the prior of their first row, so a prior written
+    # on another row of the class moves there.
     shared <- unique(pt$free[pt$free > 0L & duplicated(pt$free)])
     for (f in shared) {
       rows <- which(pt$free == f)
@@ -230,8 +230,8 @@ inlavaanify_partable <- function(
   )
 
   # Names as coef() gives them: the label if any, else lhs op rhs with a group
-  # (".g2") or level (".l2") suffix after the first. pt$group holds the level
-  # in a two-level model, and := rows sit in group 0.
+  # (".g2") or level (".l2") suffix after the first. pt$group holds the level in
+  # a two-level model, and := rows sit in group 0.
   pt$names <- paste0(pt$lhs, pt$op, pt$rhs)
   later <- pt$group > 1
   prefix <- if (is_multilvl) ".l" else ".g"
