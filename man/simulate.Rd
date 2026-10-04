@@ -23,8 +23,9 @@
 
 \item{seed}{Optional random seed (passed to \code{\link[=set.seed]{set.seed()}}).}
 
-\item{sample.nobs}{Number of observations per dataset. Defaults to the
-sample size of the original data.}
+\item{sample.nobs}{Number of observations per dataset, per group for
+multigroup models (a single number is used for every group). Defaults to
+the sample size of the original data.}
 
 \item{prior}{Logical. When \code{TRUE}, parameters are drawn from the prior;
 when \code{FALSE} (default), from the posterior.}

@@ -28,8 +28,9 @@
 #' @param object An object of class [INLAvaan].
 #' @param nsim Number of replicate datasets to generate (default 1).
 #' @param seed Optional random seed (passed to [set.seed()]).
-#' @param sample.nobs Number of observations per dataset. Defaults to the
-#'   sample size of the original data.
+#' @param sample.nobs Number of observations per dataset, per group for
+#'   multigroup models (a single number is used for every group). Defaults to
+#'   the sample size of the original data.
 #' @param prior Logical. When `TRUE`, parameters are drawn from the prior;
 #'   when `FALSE` (default), from the posterior.
 #' @param samp_copula Logical. When `TRUE` (default) and `prior = FALSE`,
@@ -78,7 +79,12 @@ setMethod(
     lavmodel <- int$lavmodel
 
     xnames <- pt$names[pt$free > 0 & !duplicated(pt$free)]
-    n <- if (is.null(sample.nobs)) object@SampleStats@ntotal else sample.nobs
+    # One sample size per group, as lavaan::simulateData() needs
+    n <- if (is.null(sample.nobs)) {
+      unlist(object@SampleStats@nobs)
+    } else {
+      rep_len(sample.nobs, lavmodel@ngroups)
+    }
 
     # Draw a generous batch of parameters upfront
     oversample <- nsim * 5L

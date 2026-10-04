@@ -141,3 +141,21 @@ test_that("simulate() prior predictive replicates stay centred at zero", {
   sims <- simulate(fit_ms, nsim = 40, prior = TRUE, silent = TRUE)
   expect_lt(max(abs(sim_col_means(sims))), 1)
 })
+
+test_that("simulate() works for multigroup models", {
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3; textual =~ x4 + x5 + x6",
+    lavaan::HolzingerSwineford1939,
+    group = "school",
+    group.equal = "loadings",
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  sims <- simulate(fit, nsim = 2)
+  expect_length(sims, 2)
+  expect_equal(
+    as.numeric(table(sims[[1]]$group)),
+    as.numeric(unlist(fit@SampleStats@nobs))
+  )
+})
