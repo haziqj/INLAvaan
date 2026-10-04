@@ -285,7 +285,10 @@ get_ppp <- function(
 
 sample_covariances <- function(x_samp, pt) {
   pt_cov_rows <- grep("cov", pt$mat)
-  pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
+  # One per free parameter (covariances held equal share a free index)
+  pt_cov_free_rows <- pt_cov_rows[
+    pt$free[pt_cov_rows] > 0 & !duplicated(pt$free)[pt_cov_rows]
+  ]
   idxcov <- pt$free[pt_cov_free_rows]
 
   cov_samp <- x_samp[, idxcov, drop = FALSE]
@@ -394,7 +397,10 @@ get_defpars <- function(x_samp, pt, lavmodel, summarise = summarise_samples) {
 
 sample_covariances_fit_sn <- function(x_samp, pt) {
   pt_cov_rows <- grep("cov", pt$mat)
-  pt_cov_free_rows <- pt_cov_rows[pt$free[pt_cov_rows] > 0]
+  # One per free parameter (covariances held equal share a free index)
+  pt_cov_free_rows <- pt_cov_rows[
+    pt$free[pt_cov_rows] > 0 & !duplicated(pt$free)[pt_cov_rows]
+  ]
   idxcov <- pt$free[pt_cov_free_rows]
 
   cov_samp <- x_samp[, idxcov, drop = FALSE]

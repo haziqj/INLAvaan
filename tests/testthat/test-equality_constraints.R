@@ -176,3 +176,18 @@ test_that("sampling() works with equality constraints", {
   expect_equal(ncol(sampling(fit, type = "theta", nsamp = 2)), npar)
   expect_no_error(sampling(fit, type = "all", nsamp = 2))
 })
+
+test_that("Covariances held equal across groups fit", {
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3; textual =~ x4 + x5 + x6",
+    lavaan::HolzingerSwineford1939,
+    group = "school",
+    group.equal = c("loadings", "lv.covariances"),
+    verbose = FALSE,
+    nsamp = NSAMP,
+    test = "none"
+  )
+  int <- get_inlavaan_internal(fit)
+  expect_length(int$coefficients, fit@Model@nx.free)
+  expect_no_error(capture.output(summary(fit)))
+})
