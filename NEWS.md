@@ -32,6 +32,11 @@
 * `sampling()` and `simulate()` now work for models with equality
   constraints, and `simulate()` for multigroup models.
 
+* Parameter names now match `coef()`. Previously `plot(fit, params = )` could
+  not find multigroup `:=` parameters, and labels such as `lag1` were mangled.
+  A `:=` parameter that reuses a parameter label, and multigroup two-level
+  models, now give an error.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
