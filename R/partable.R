@@ -192,6 +192,25 @@ inlavaanify_partable <- function(
   if (!is.null(user_prior)) {
     where_user_prior <- user_prior != ""
     pt$prior[where_user_prior] <- user_prior[where_user_prior]
+
+    # Parameters held equal use the prior of their first row, so a prior
+    # written on another row of the class moves there
+    shared <- unique(pt$free[pt$free > 0L & duplicated(pt$free)])
+    for (f in shared) {
+      rows <- which(pt$free == f)
+      priors <- unique(user_prior[rows][user_prior[rows] != ""])
+      if (length(priors) > 1L) {
+        cli_abort(c(
+          "Parameters held equal have different priors.",
+          "x" = "{.code {partable_row_name(pt, rows)}}: {.code {priors}}.",
+          "i" = "Give a prior on one of them only."
+        ))
+      }
+      if (length(priors) == 1L) {
+        pt$prior[rows] <- NA_character_
+        pt$prior[rows[1L]] <- priors
+      }
+    }
   }
 
   # Add transformations to unrestricted parameter space

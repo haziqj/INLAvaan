@@ -109,3 +109,17 @@ test_that("Fixing a parameter at two values names both constraints", {
     fixed = TRUE
   )
 })
+
+test_that("A prior on any parameter held equal is used", {
+  fit <- suppressWarnings(fit_with(
+    'textual =~ x4 + a*x5 + prior("normal(3,0.01)")*b*x6\n a == b'
+  ))
+  expect_equal(coef(fit)[["b"]], 3, tolerance = 0.01)
+  expect_error(
+    fit_with(paste(
+      'textual =~ x4 + prior("normal(1,1)")*a*x5 +',
+      'prior("normal(3,1)")*b*x6\n a == b'
+    )),
+    "different priors"
+  )
+})
