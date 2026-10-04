@@ -537,7 +537,7 @@ predict.inlavaan_internal <- function(
           Sigmay_inv <- solve(front %*% Psi %*% t(front) + Theta)
           PhiLtSinv <- Phi %*% t(Lambda) %*% Sigmay_inv
 
-          # E(eta | y) = alpha + Phi Lambda' Sigma^{-1} (y - mu_y): centre
+          # E(eta | y) = E(eta) + Phi Lambda' Sigma^{-1} (y - mu_y): centre
           # by the implied mean, or the saturated means without one
           alpha_vec <- rep_len(as.numeric(alpha), ncol(front))
           mu_y <- if (!is.null(glist$nu)) {
@@ -546,7 +546,8 @@ predict.inlavaan_internal <- function(
             ybar_fit[[g]]
           }
           yc <- sweep(y[[g]], 2L, mu_y)
-          mu_eta <- t(as.numeric(alpha) + PhiLtSinv %*% t(yc))
+          eeta <- if (is.null(B)) alpha_vec else IminB_inv %*% alpha_vec
+          mu_eta <- t(as.numeric(eeta) + PhiLtSinv %*% t(yc))
 
           V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
           chol_V <- t(chol(V_eta))
@@ -837,7 +838,8 @@ predict.inlavaan_internal <- function(
             ybar_fit[[g]]
           }
           yc <- sweep(y[[g]], 2L, mu_y)
-          mu_eta <- t(as.numeric(alpha) + PhiLtSinv %*% t(yc))
+          eeta <- if (is.null(B)) alpha_vec else IminB_inv %*% alpha_vec
+          mu_eta <- t(as.numeric(eeta) + PhiLtSinv %*% t(yc))
           V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
           chol_V <- t(chol(V_eta))
           n_obs <- nrow(mu_eta)
@@ -845,18 +847,9 @@ predict.inlavaan_internal <- function(
           Z <- matrix(rnorm(n_obs * nlv), nrow = nlv, ncol = n_obs)
           eta_draw <- mu_eta + t(chol_V %*% Z)
 
-          # yhat = mu_y + front (eta - alpha)
+          # yhat = nu + Lambda eta = mu_y + Lambda (eta - E(eta))
           nu_eff <- mu_y - as.numeric(front %*% alpha_vec)
-          if (is.null(B)) {
-            yhat <- sweep(tcrossprod(eta_draw, Lambda), 2, nu_eff, "+")
-          } else {
-            yhat <- sweep(
-              tcrossprod(eta_draw %*% t(IminB_inv), Lambda),
-              2,
-              nu_eff,
-              "+"
-            )
-          }
+          yhat <- sweep(tcrossprod(eta_draw, Lambda), 2, nu_eff, "+")
 
           # Add residual noise for ypred
           if (add_noise) {

@@ -162,3 +162,27 @@ test_that("predict() passes R_star and honours the fit's samp_copula", {
   predict(fit_nc, nsamp = NSAMP)
   expect_identical(args$method, "sampling")
 })
+
+# Average of the predict() draws with every posterior draw pinned at x
+predict_at <- function(fit, x, type = "lv", nsamp = 200, ...) {
+  local_mocked_bindings(
+    sample_params_posterior = function(int, nsamp, ...) {
+      list(x_samp = matrix(x, nsamp, length(x), byrow = TRUE))
+    }
+  )
+  set.seed(1)
+  Reduce(`+`, unclass(predict(fit, type = type, nsamp = nsamp, ...))) / nsamp
+}
+rel_err <- function(a, b) max(abs(a - b)) / sd(b)
+
+test_that("Fitted values of a latent regression match lavaan", {
+  # Regression test: yhat applied (I - B)^{-1} to factor scores that already
+  # carry the structural effects.
+  fit_lav <- lavaan::sem(sem_mod, sem_dat)
+  x_lav <- lavaan::lav_model_get_parameters(fit_lav@Model)
+  yhat <- predict_at(fit_sem, x_lav, "yhat")
+  yhat_lav <- lavaan::lavPredict(fit_lav, type = "ov")
+  for (v in colnames(yhat_lav)) {
+    expect_lt(rel_err(yhat[, v], yhat_lav[, v]), 0.25)
+  }
+})
