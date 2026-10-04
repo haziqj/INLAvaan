@@ -348,6 +348,24 @@ test_that("Parameter names follow coef()", {
   )
   free <- pt$free > 0 & !duplicated(pt$free)
   expect_identical(pt$names[free], names(lavaan::coef(fit)))
+
+  # Named levels suffix with the level name
+  fit <- lavaan::sem(
+    "level: within\n fw =~ y1 + ab1*y2 + y3
+     level: between\n fb =~ y1 + y2 + y3",
+    lavaan::Demo.twolevel,
+    cluster = "cluster",
+    do.fit = FALSE
+  )
+  pt <- inlavaanify_partable(
+    fit@ParTable,
+    lavdata = fit@Data,
+    lavoptions = fit@Options
+  )
+  free <- pt$free > 0 & !duplicated(pt$free)
+  expect_identical(pt$names[free], names(lavaan::coef(fit)))
+  expect_true("fb=~y3.lbetween" %in% pt$names)
+  expect_identical(partable_level_labels(pt), c("within", "between"))
 })
 
 test_that("A := parameter cannot reuse a parameter label", {

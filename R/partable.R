@@ -138,6 +138,22 @@ partable_transform_funcs <- function(matrix) {
   ))
 }
 
+# Level of each row of a two-level parameter table as an index (1, 2), with 0
+# for rows outside the levels such as := rows. lavaan keeps the level as the
+# syntax writes it, a number ("level: 1") or a name ("level: within").
+partable_level_index <- function(pt) {
+  lvl <- pt$level
+  in_level <- if (is.character(lvl)) nzchar(lvl) else lvl > 0L
+  in_level <- in_level & !pt$op %in% c("==", "<", ">", ":=")
+  match(lvl, unique(lvl[in_level]), nomatch = 0L)
+}
+
+# Level names of a two-level parameter table, in level order
+partable_level_labels <- function(pt) {
+  idx <- partable_level_index(pt)
+  pt$level[match(seq_len(max(idx)), idx)]
+}
+
 inlavaanify_partable <- function(
   pt,
   dp = priors_for(),
@@ -150,7 +166,7 @@ inlavaanify_partable <- function(
     cli_abort("Multigroup two-level models are not supported.")
   }
   if (is_multilvl) {
-    pt$group <- pt$level
+    pt$group <- partable_level_index(pt)
   }
   ngroups <- max(pt$group)
   std_ov <- lavoptions$std.ov
@@ -230,12 +246,17 @@ inlavaanify_partable <- function(
   )
 
   # Names as coef() gives them: the label if any, else lhs op rhs with a group
-  # (".g2") or level (".l2") suffix after the first. pt$group holds the level in
-  # a two-level model, and := rows sit in group 0.
+  # (".g2") or level (".l2", or ".lbetween" for a named level) suffix after the
+  # first. pt$group holds the level index in a two-level model, and := rows sit
+  # in group 0.
   pt$names <- paste0(pt$lhs, pt$op, pt$rhs)
   later <- pt$group > 1
-  prefix <- if (is_multilvl) ".l" else ".g"
-  pt$names[later] <- paste0(pt$names[later], prefix, pt$group[later])
+  suffix <- if (is_multilvl) {
+    paste0(".l", pt$level)
+  } else {
+    paste0(".g", pt$group)
+  }
+  pt$names[later] <- paste0(pt$names[later], suffix[later])
   where_label <- pt$label != ""
   pt$names[where_label] <- pt$label[where_label]
 

@@ -130,3 +130,18 @@ test_that("plot() accepts every name of parameters held equal", {
   on.exit(dev.off())
   expect_no_error(plot(fit, params = c("a", "b")))
 })
+
+test_that("Constraint errors name the level of each row", {
+  expect_error(
+    asem(
+      "level: within\n f =~ y1 + v*y2 + y3\n level: between\n g =~ y1 + y2 + y3
+       y1 ~~ v*y1",
+      lavaan::Demo.twolevel,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none"
+    ),
+    "(level within) = y1~~y1 (level between)",
+    fixed = TRUE
+  )
+})

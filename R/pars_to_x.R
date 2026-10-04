@@ -7,7 +7,7 @@ pars_to_x <- function(theta, pt) {
 
   is_multilvl <- "level" %in% names(pt)
   if (is_multilvl) {
-    pt$group <- pt$level
+    pt$group <- partable_level_index(pt)
   }
   nG <- max(pt$group)
   idxfree <- pt$free > 0

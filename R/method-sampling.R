@@ -364,14 +364,15 @@ get_block_param_matrix <- function(x_row, lavmodel) {
 }
 
 # Latent variable names across levels, flattened into a single vector. A
-# level-2 name takes the ".l2" suffix of the coefficient labels, but only when
-# the same latent variable also exists at level 1.
-ml_latent_names <- function(name_list) {
+# level-2 name takes the level suffix of the coefficient labels (".l2", or
+# ".lbetween" for a named level), but only when the same latent variable also
+# exists at level 1.
+ml_latent_names <- function(name_list, labels = seq_along(name_list)) {
   out <- name_list
   for (l in seq_along(name_list)[-1L]) {
     seen <- unlist(name_list[seq_len(l - 1L)], use.names = FALSE)
     dup <- out[[l]] %in% seen
-    out[[l]][dup] <- paste0(out[[l]][dup], ".l", l)
+    out[[l]][dup] <- paste0(out[[l]][dup], ".l", labels[l])
   }
   unlist(out, use.names = FALSE)
 }
@@ -385,7 +386,8 @@ sample_generative_ml <- function(
   lavmodel,
   lavdata,
   need_obs = TRUE,
-  strict = FALSE
+  strict = FALSE,
+  level_labels = seq_len(lavdata@nlevels)
 ) {
   GLIST <- get_block_param_matrix(x_row, lavmodel)
   nG <- lavmodel@ngroups
@@ -410,7 +412,7 @@ sample_generative_ml <- function(
 
     eta_list[[g]] <- stats::setNames(
       unlist(eta_g, use.names = FALSE),
-      ml_latent_names(lapply(eta_g, names))
+      ml_latent_names(lapply(eta_g, names), level_labels)
     )
     y_list[[g]] <- y_g
   }
@@ -478,12 +480,14 @@ sampling_generative_ml <- function(int, samp, type, nsamp) {
   }
 
   need_obs <- type %in% c("observed", "all")
+  level_labels <- partable_level_labels(int$partable)
   draws <- lapply(seq_len(nsamp), function(i) {
     sample_generative_ml(
       samp$x_samp[i, ],
       lavmodel,
       lavdata,
-      need_obs = need_obs
+      need_obs = need_obs,
+      level_labels = level_labels
     )
   })
 
@@ -548,7 +552,12 @@ sampling_prior_generative <- function(
   # Pre-compute dimensions from a single draw
   samp0 <- sample_params_prior(int, 1L)
   if (two_level) {
-    draw0 <- sample_generative_ml(samp0$x_samp[1, ], lavmodel, lavdata)
+    draw0 <- sample_generative_ml(
+      samp0$x_samp[1, ],
+      lavmodel,
+      lavdata,
+      level_labels = partable_level_labels(pt)
+    )
     eta_cn <- names(draw0$latent)
     y_cn <- names(draw0$observed)
   } else {
@@ -609,7 +618,8 @@ sampling_prior_generative <- function(
             lavmodel,
             lavdata,
             need_obs = need_obs,
-            strict = TRUE
+            strict = TRUE,
+            level_labels = partable_level_labels(pt)
           ),
           error = function(e) NULL
         )

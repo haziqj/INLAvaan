@@ -116,3 +116,68 @@ test_that("Multilevel predict ymis works", {
   expect_true(all(grepl("^y1\\[", names(v)))) # all from y1
 })
 
+## ----- Named levels ----------------------------------------------------------
+test_that("Named levels give the same results as numbered levels", {
+  mod_num <- "
+    level: 1
+      f =~ y1 + a*y2 + y3
+      f ~ x1
+    level: 2
+      f =~ y1 + b*y2 + y3
+      d := a - b
+  "
+  mod_named <- sub("level: 1", "level: within", mod_num)
+  mod_named <- sub("level: 2", "level: between", mod_named)
+  dat <- subset(lavaan::Demo.twolevel, cluster <= 40)
+  fit_2l <- function(model) {
+    set.seed(1)
+    asem(
+      model,
+      dat,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      nsamp = 20
+    )
+  }
+  fit_num <- fit_2l(mod_num)
+  fit_named <- fit_2l(mod_named)
+  to_num <- function(x) sub(".lbetween", ".l2", x, fixed = TRUE)
+
+  # Names follow coef(), which suffixes later-level names with the level name
+  fit_lav <- lavaan::sem(mod_named, dat, cluster = "cluster", do.fit = FALSE)
+  expect_identical(names(coef(fit_named)), names(lavaan::coef(fit_lav)))
+  expect_identical(to_num(names(coef(fit_named))), names(coef(fit_num)))
+  expect_equal(unname(coef(fit_named)), unname(coef(fit_num)))
+  expect_equal(unname(vcov(fit_named)), unname(vcov(fit_num)))
+  summ_named <- get_inlavaan_internal(fit_named)$summary
+  summ_num <- get_inlavaan_internal(fit_num)$summary
+  expect_identical(to_num(rownames(summ_named)), rownames(summ_num))
+  expect_equal(summ_named, summ_num, ignore_attr = TRUE)
+
+  expect_no_error(capture.output(summary(fit_named)))
+  pdf(NULL)
+  on.exit(dev.off())
+  expect_no_error(plot(fit_named, params = c("d", "f~~f.lbetween")))
+
+  # Each method draws from the same seed for both fits
+  same_draws <- function(f, seed) {
+    set.seed(seed)
+    a <- f(fit_named)
+    set.seed(seed)
+    b <- f(fit_num)
+    list(named = a, num = b)
+  }
+  std <- same_draws(function(x) standardisedsolution(x, nsamp = 10), 2)
+  expect_equal(std$named$est.std, std$num$est.std)
+  lat <- same_draws(function(x) sampling(x, type = "latent", nsamp = 3), 3)
+  expect_true(all(c("f", "f.lbetween") %in% colnames(lat$named)))
+  expect_identical(to_num(colnames(lat$named)), colnames(lat$num))
+  expect_equal(unname(lat$named), unname(lat$num))
+  pred <- same_draws(function(x) predict(x, level = 2L, nsamp = 2), 4)
+  expect_equal(pred$named, pred$num)
+  loos <- same_draws(function(x) loo(x, type = "loco")$estimates, 5)
+  expect_equal(loos$named, loos$num)
+  fms <- same_draws(function(x) fitmeasures(x), 6)
+  expect_equal(unclass(fms$named), unclass(fms$num))
+})

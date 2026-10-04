@@ -214,10 +214,16 @@ check_packed_kinds <- function(pt) {
 # level when there is more than one.
 partable_row_name <- function(pt, rows) {
   nm <- paste0(pt$lhs[rows], pt$op[rows], pt$rhs[rows])
-  block <- if (is.null(pt$level)) pt$group else pt$level
+  if (is.null(pt$level)) {
+    block <- label <- pt$group
+    unit <- "group"
+  } else {
+    block <- partable_level_index(pt)
+    label <- pt$level
+    unit <- "level"
+  }
   if (max(block) > 1L) {
-    unit <- if (is.null(pt$level)) "group" else "level"
-    nm <- paste0(nm, " (", unit, " ", block[rows], ")")
+    nm <- paste0(nm, " (", unit, " ", label[rows], ")")
   }
   nm
 }
