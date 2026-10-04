@@ -217,6 +217,14 @@ inlavaanify_partable <- function(
   where_label <- pt$label != ""
   pt$names[where_label] <- pt$label[where_label]
 
+  is_def <- pt$op == ":="
+  clash <- intersect(pt$lhs[is_def], pt$label[!is_def])
+  if (length(clash) > 0) {
+    cli_abort(
+      "Defined parameter{?s} {.code {clash}} reuse{?s/} a parameter label."
+    )
+  }
+
   # Remove pt$group if multilevel (interacts with lav_partable_labels())
   if (is_multilvl) {
     pt$group <- NULL

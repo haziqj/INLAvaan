@@ -350,6 +350,18 @@ test_that("Parameter names follow coef()", {
   expect_identical(pt$names[free], names(lavaan::coef(fit)))
 })
 
+test_that("A := parameter cannot reuse a parameter label", {
+  expect_error(
+    acfa(
+      "visual =~ x1 + a*x2 + x3\n a := 2",
+      lavaan::HolzingerSwineford1939,
+      verbose = FALSE,
+      test = "none"
+    ),
+    "reuses a parameter label"
+  )
+})
+
 test_that("Multigroup := parameters can be plotted by name", {
   fit <- acfa(
     "visual =~ x1 + c(a1, a2)*x2 + x3\n d := a1 - a2",
