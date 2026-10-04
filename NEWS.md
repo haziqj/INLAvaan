@@ -56,6 +56,16 @@
 * Models where only one variance enters a covariance (for example, with the
   other variance fixed) no longer fail.
 
+* `predict()` now works for models with observed covariates or observed
+  outcomes, including with `conditional.x = TRUE`. Factor scores and fitted
+  values for models with latent regressions now match lavaan.
+
+* Two-level models with named levels (`level: within` / `level: between`) now
+  fit, and their parameter names follow `coef()`.
+
+* `vcov()` now matches `coef()` in length, order and names for models with
+  equality constraints, and `lavInspect(fit, "vcov")` works on such fits.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
