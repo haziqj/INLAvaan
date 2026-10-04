@@ -160,3 +160,19 @@ test_that("Covariances held equal have the right gradient", {
   c1_mode <- x_mode[pt$free[pt$label == "c1"][1]]
   expect_equal(c1_mode, coef(lavaan::cfa(mod, dat))[["c1"]], tolerance = 0.05)
 })
+
+test_that("sampling() works with equality constraints", {
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3; textual =~ x4 + x5 + x6",
+    lavaan::HolzingerSwineford1939,
+    group = "school",
+    group.equal = "loadings",
+    verbose = FALSE,
+    nsamp = NSAMP,
+    test = "none"
+  )
+  npar <- fit@Model@nx.free
+  expect_equal(ncol(sampling(fit, type = "lavaan", nsamp = 2)), npar)
+  expect_equal(ncol(sampling(fit, type = "theta", nsamp = 2)), npar)
+  expect_no_error(sampling(fit, type = "all", nsamp = 2))
+})

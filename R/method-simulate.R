@@ -141,7 +141,10 @@ setMethod(
 
       # Generate data via lavaan's simulateData using the partable
       pt_sim <- lavaan::lav_partable_complete(lavaan::partable(object))
-      pt_sim$est[pt_sim$free > 0] <- as.numeric(x_draw)
+      # x_draw holds one value per free index, shared by equal parameters
+      pt_sim$est[pt_sim$free > 0] <- as.numeric(x_draw)[
+        pt_sim$free[pt_sim$free > 0]
+      ]
 
       # The := rows play no part in the data, so a draw where one is undefined
       # is fine.

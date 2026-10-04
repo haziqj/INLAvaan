@@ -115,12 +115,15 @@ sample_params <- function(
     }
   }
 
+  # theta stays packed (one column per free parameter), and pars_to_x() takes
+  # it unpacked to every free row
+  theta_full <- theta
   if (lavmodel@ceq.simple.only) {
     K <- lavmodel@ceq.simple.K
-    theta <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
+    theta_full <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
   }
 
-  x <- t(apply(theta, 1, pars_to_x, pt = pt))
+  x <- t(apply(theta_full, 1, pars_to_x, pt = pt))
 
   list(theta_samp = theta, x_samp = x)
 }

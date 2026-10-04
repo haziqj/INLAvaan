@@ -205,15 +205,15 @@ sample_params_prior <- function(int, nsamp) {
     )
   }
 
-  # Apply equality constraints if present
+  # Apply equality constraints if present, keeping theta_samp packed
+  theta_full <- theta_samp
   if (lavmodel@ceq.simple.only) {
-    # nocov start
     K <- lavmodel@ceq.simple.K
-    theta_samp <- t(apply(theta_samp, 1, function(p) as.numeric(K %*% p)))
-  } # nocov end
+    theta_full <- t(apply(theta_samp, 1, function(p) as.numeric(K %*% p)))
+  }
 
   # Map theta → lavaan x-space (handles covariance = cor * sqrt(var1 * var2))
-  x_samp <- t(apply(theta_samp, 1, pars_to_x, pt = pt))
+  x_samp <- t(apply(theta_full, 1, pars_to_x, pt = pt))
 
   list(theta_samp = theta_samp, x_samp = x_samp)
 }
