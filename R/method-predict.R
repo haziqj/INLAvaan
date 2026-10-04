@@ -38,6 +38,59 @@ get_SEM_param_matrix <- function(x, mat, lavmodel) {
 #
 # For sampling marginal_method just sample from the above distribution.
 
+# Indices of the latent variables that lavaan adds for observed covariates and
+# observed endogenous variables in block g, with their observed columns.
+dummy_lv_idx <- function(lavmodel, g) {
+  list(
+    lv = c(lavmodel@ov.y.dummy.lv.idx[[g]], lavmodel@ov.x.dummy.lv.idx[[g]]),
+    ov = c(lavmodel@ov.y.dummy.ov.idx[[g]], lavmodel@ov.x.dummy.ov.idx[[g]])
+  )
+}
+
+# Latent intercepts as a full vector. Without a mean structure, the dummy latent
+# variables get the intercepts that reproduce the sample means of their observed
+# variables and the others get zero, as in lavaan.
+eta_intercepts <- function(alpha, glist, front, dummy, ybar) {
+  alpha_vec <- rep_len(as.numeric(alpha), ncol(front))
+  if (is.null(glist$alpha) && length(dummy$lv) > 0L) {
+    alpha_vec[dummy$lv] <- solve(
+      front[dummy$ov, dummy$lv, drop = FALSE],
+      ybar[dummy$ov]
+    )
+  }
+  alpha_vec
+}
+
+# Draw each row of eta | y from N(mu_eta, V_eta). A dummy latent variable is its
+# observed variable, so it has zero conditional variance, which chol() rejects.
+# Only the other columns are drawn, and the dummy columns take the data values,
+# as in lavaan.
+draw_eta <- function(mu_eta, V_eta, y, dummy) {
+  keep <- setdiff(seq_len(ncol(mu_eta)), dummy$lv)
+  out <- mu_eta
+  if (length(keep) > 0L) {
+    chol_V <- t(chol(V_eta[keep, keep, drop = FALSE]))
+    n_obs <- nrow(mu_eta)
+    nlv <- length(keep)
+    Z <- matrix(rnorm(n_obs * nlv), nrow = nlv, ncol = n_obs)
+    out[, keep] <- mu_eta[, keep, drop = FALSE] + t(chol_V %*% Z)
+  }
+  if (length(dummy$lv) > 0L) {
+    out[, dummy$lv] <- y[, dummy$ov, drop = FALSE]
+  }
+  out
+}
+
+# With conditional.x = TRUE, lavaan keeps the covariate effects in Gamma, so the
+# latent intercepts vary by row as alpha + Gamma x. Returns the n x m matrix
+# Gamma x for group g, or NULL when the model has no Gamma.
+gamma_x <- function(glist, x_exo, g) {
+  if (is.null(glist$gamma)) {
+    return(NULL)
+  }
+  tcrossprod(x_exo[[g]], glist$gamma)
+}
+
 # Helper: build data matrices from newdata, reusing metadata from lavdata
 build_newdata <- function(newdata, lavdata) {
   newdata <- recode_ordinal(newdata, lavdata)
@@ -49,21 +102,27 @@ build_newdata <- function(newdata, lavdata) {
     group_labels <- lavdata@group.label
     groups_in_data <- as.character(newdata[[grp]])
     new_X <- vector("list", nG)
+    new_eXo <- vector("list", nG)
     new_nobs <- vector("list", nG)
     for (g in seq_len(nG)) {
       rows_g <- which(groups_in_data == group_labels[g])
       ov_names_g <- lavdata@ov.names[[g]]
       new_X[[g]] <- as.matrix(newdata[rows_g, ov_names_g, drop = FALSE])
+      x_names_g <- lavdata@ov.names.x[[g]]
+      new_eXo[[g]] <- as.matrix(newdata[rows_g, x_names_g, drop = FALSE])
       new_nobs[[g]] <- length(rows_g)
     }
   } else {
     ov_names <- lavdata@ov.names[[1L]]
     new_X <- list(as.matrix(newdata[, ov_names, drop = FALSE]))
+    x_names <- lavdata@ov.names.x[[1L]]
+    new_eXo <- list(as.matrix(newdata[, x_names, drop = FALSE]))
     new_nobs <- list(nrow(newdata))
   }
 
   list(
     X = new_X,
+    eXo = new_eXo,
     ngroups = nG,
     group.label = if (has_group) lavdata@group.label else character(0),
     nobs = new_nobs
@@ -331,11 +390,13 @@ predict.inlavaan_internal <- function(
   if (!is.null(newdata)) {
     new_ld <- build_newdata(newdata, lavdata)
     y <- new_ld$X
+    x_exo <- new_ld$eXo
     nG <- new_ld$ngroups
     group_labels <- new_ld$group.label
     nobs_out <- new_ld$nobs
   } else {
     y <- lavdata@X
+    x_exo <- lavdata@eXo
     nG <- lavdata@ngroups
     group_labels <- lavdata@group.label
     nobs_out <- lavdata@nobs
@@ -520,6 +581,7 @@ predict.inlavaan_internal <- function(
           Theta <- glist$theta
           B <- glist$beta
           alpha <- glist$alpha
+          dummy <- dummy_lv_idx(lavmodel, g)
 
           if (is.null(alpha)) {
             alpha <- 0
@@ -539,7 +601,7 @@ predict.inlavaan_internal <- function(
 
           # E(eta | y) = E(eta) + Phi Lambda' Sigma^{-1} (y - mu_y): centre
           # by the implied mean, or the saturated means without one
-          alpha_vec <- rep_len(as.numeric(alpha), ncol(front))
+          alpha_vec <- eta_intercepts(alpha, glist, front, dummy, ybar_fit[[g]])
           mu_y <- if (!is.null(glist$nu)) {
             as.numeric(glist$nu + front %*% alpha_vec)
           } else {
@@ -547,15 +609,18 @@ predict.inlavaan_internal <- function(
           }
           yc <- sweep(y[[g]], 2L, mu_y)
           eeta <- if (is.null(B)) alpha_vec else IminB_inv %*% alpha_vec
+          gx <- gamma_x(glist, x_exo, g)
+          if (!is.null(gx)) {
+            eta_x <- if (is.null(B)) gx else tcrossprod(gx, IminB_inv)
+            yc <- yc - tcrossprod(eta_x, Lambda)
+          }
           mu_eta <- t(as.numeric(eeta) + PhiLtSinv %*% t(yc))
+          if (!is.null(gx)) {
+            mu_eta <- mu_eta + eta_x
+          }
 
           V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
-          chol_V <- t(chol(V_eta))
-
-          n_obs <- nrow(mu_eta)
-          nlv <- ncol(mu_eta)
-          Z <- matrix(rnorm(n_obs * nlv), nrow = nlv, ncol = n_obs)
-          outg <- mu_eta + t(chol_V %*% Z)
+          outg <- draw_eta(mu_eta, V_eta, y[[g]], dummy)
 
           out[[g]] <- outg
         }
@@ -809,6 +874,7 @@ predict.inlavaan_internal <- function(
           B <- glist$beta
           alpha <- glist$alpha
           nu <- glist$nu
+          dummy <- dummy_lv_idx(lavmodel, g)
 
           if (is.null(alpha)) {
             alpha <- rep(0, ncol(Lambda))
@@ -831,7 +897,7 @@ predict.inlavaan_internal <- function(
 
           # Posterior draw of eta | y, theta, centring by the implied mean
           # (or the saturated means when no mean structure exists)
-          alpha_vec <- rep_len(as.numeric(alpha), ncol(front))
+          alpha_vec <- eta_intercepts(alpha, glist, front, dummy, ybar_fit[[g]])
           mu_y <- if (!is.null(glist$nu)) {
             as.numeric(glist$nu + front %*% alpha_vec)
           } else {
@@ -839,24 +905,54 @@ predict.inlavaan_internal <- function(
           }
           yc <- sweep(y[[g]], 2L, mu_y)
           eeta <- if (is.null(B)) alpha_vec else IminB_inv %*% alpha_vec
+          gx <- gamma_x(glist, x_exo, g)
+          if (!is.null(gx)) {
+            eta_x <- if (is.null(B)) gx else tcrossprod(gx, IminB_inv)
+            yc <- yc - tcrossprod(eta_x, Lambda)
+          }
           mu_eta <- t(as.numeric(eeta) + PhiLtSinv %*% t(yc))
+          if (!is.null(gx)) {
+            mu_eta <- mu_eta + eta_x
+          }
           V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
-          chol_V <- t(chol(V_eta))
+          eta_draw <- draw_eta(mu_eta, V_eta, y[[g]], dummy)
           n_obs <- nrow(mu_eta)
-          nlv <- ncol(mu_eta)
-          Z <- matrix(rnorm(n_obs * nlv), nrow = nlv, ncol = n_obs)
-          eta_draw <- mu_eta + t(chol_V %*% Z)
+
+          # An observed endogenous variable carried as a dummy latent variable
+          # is predicted from its regressors rather than copied from the data.
+          ydum <- lavmodel@ov.y.dummy.lv.idx[[g]]
+          if (length(ydum) > 0L) {
+            pred <- matrix(alpha_vec[ydum], n_obs, length(ydum), byrow = TRUE)
+            if (!is.null(B)) {
+              pred <- pred + tcrossprod(eta_draw, B[ydum, , drop = FALSE])
+            }
+            if (!is.null(gx)) {
+              pred <- pred + gx[, ydum, drop = FALSE]
+            }
+            eta_draw[, ydum] <- pred
+          }
 
           # yhat = nu + Lambda eta = mu_y + Lambda (eta - E(eta))
           nu_eff <- mu_y - as.numeric(front %*% alpha_vec)
           yhat <- sweep(tcrossprod(eta_draw, Lambda), 2, nu_eff, "+")
 
-          # Add residual noise for ypred
+          # Add residual noise for ypred: Theta for the indicators, and Psi for
+          # the observed endogenous variables, whose residuals lavaan keeps
+          # there. Observed covariates get none.
           if (add_noise) {
-            p <- ncol(yhat)
-            chol_Theta <- t(chol(Theta))
-            E <- matrix(rnorm(n_obs * p), nrow = p, ncol = n_obs)
-            yhat <- yhat + t(chol_Theta %*% E)
+            endo <- setdiff(seq_len(ncol(yhat)), dummy$ov)
+            if (length(endo) > 0L) {
+              p <- length(endo)
+              chol_Theta <- t(chol(Theta[endo, endo, drop = FALSE]))
+              E <- matrix(rnorm(n_obs * p), nrow = p, ncol = n_obs)
+              yhat[, endo] <- yhat[, endo, drop = FALSE] + t(chol_Theta %*% E)
+            }
+            if (length(ydum) > 0L) {
+              yov <- lavmodel@ov.y.dummy.ov.idx[[g]]
+              chol_Psi <- t(chol(Psi[ydum, ydum, drop = FALSE]))
+              E <- matrix(rnorm(n_obs * length(ydum)), ncol = n_obs)
+              yhat[, yov] <- yhat[, yov, drop = FALSE] + t(chol_Psi %*% E)
+            }
           }
 
           out[[g]] <- yhat
