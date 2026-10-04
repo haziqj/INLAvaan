@@ -128,3 +128,14 @@ test_that("Covariance coefficients are on the covariance scale", {
     expect_lt(abs(co[nm]), bound)
   }
 })
+
+test_that("A single variance-into-covariance term keeps the gradient working", {
+  # visual's variance is fixed, so only textual's enters the covariance
+  expect_no_error(acfa(
+    "visual =~ NA*x1 + x2 + x3\n textual =~ x4 + x5 + x6\n visual ~~ 1*visual",
+    lavaan::HolzingerSwineford1939,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  ))
+})

@@ -68,9 +68,6 @@ loo_grad_cache <- function(theta, lavmodel, pt, two_level = FALSE) {
   x <- pars_to_x(theta_unp, pt)
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   jcb_mat <- attr(x, "jcb_mat")
-  if (!is.null(jcb_mat)) {
-    jcb_mat <- rbind(jcb_mat) # a single row drops to a vector upstream
-  }
   list(
     x = x,
     mom = loo_implied_moments(lavmodel_x, two_level),

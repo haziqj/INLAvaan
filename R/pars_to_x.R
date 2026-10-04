@@ -53,7 +53,9 @@ pars_to_x <- function(theta, pt) {
       sd1sd2[j] <- sd1 * sd2
     }
   }
-  jcb_mat <- jcb_mat[jcb_mat[, 1] != 0 & jcb_mat[, 2] != 0, ]
+  if (!is.null(jcb_mat)) {
+    jcb_mat <- jcb_mat[jcb_mat[, 1] != 0 & jcb_mat[, 2] != 0, , drop = FALSE]
+  }
 
   out <- x[pt$free > 0L & !duplicated(pt$free)]
   attr(out, "xcor") <- xx[pt$free > 0L & !duplicated(pt$free)]
