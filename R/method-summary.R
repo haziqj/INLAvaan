@@ -98,7 +98,9 @@ summary_inlavaan <- function(
   # else if (marg_method == "sampling")
   #   marg_method <- "Sampling"
 
-  PE <- lavaan::parameterEstimates(
+  # lavaan also standardises the := rows for the R-square, where they may be
+  # undefined.
+  PE <- muffle_nan_warnings(lavaan::parameterEstimates(
     object,
     se = FALSE, # create our own
     zstat = FALSE,
@@ -111,7 +113,7 @@ summary_inlavaan <- function(
     remove_def = FALSE,
     header = TRUE,
     output = "text"
-  )
+  ))
   if (is.null(PE$block)) {
     PE$block <- 1
     PE$block[PE$op == ":="] <- 0

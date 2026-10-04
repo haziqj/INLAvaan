@@ -143,8 +143,10 @@ setMethod(
       pt_sim <- lavaan::lav_partable_complete(lavaan::partable(object))
       pt_sim$est[pt_sim$free > 0] <- as.numeric(x_draw)
 
+      # The := rows play no part in the data, so a draw where one is undefined
+      # is fine.
       dat <- tryCatch(
-        lavaan::simulateData(pt_sim, sample.nobs = n),
+        muffle_nan_warnings(lavaan::simulateData(pt_sim, sample.nobs = n)),
         error = function(e) NULL
       )
       if (is.null(dat)) {

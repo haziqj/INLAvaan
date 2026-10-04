@@ -211,3 +211,23 @@ test_that("muffle_nan_warnings() muffles only NaN warnings", {
   expect_no_warning(muffle_nan_warnings(log(-1)))
   expect_warning(muffle_nan_warnings(warning("something else")), "else")
 })
+
+test_that("A := undefined only at the start values fits without warnings", {
+  set.seed(1234)
+  # a starts at 0 but its posterior is near 0.5
+  mod <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    textual ~ a*visual
+    la := log(a - 0.1)
+  "
+  expect_no_warning(
+    asem(
+      mod,
+      lavaan::HolzingerSwineford1939,
+      verbose = FALSE,
+      nsamp = 100,
+      test = "none"
+    )
+  )
+})

@@ -249,13 +249,19 @@ inlavaan <- function(
   }
 
   ## ----- Initialise lavaan object --------------------------------------------
-  fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+  # lavaan evaluates the := parameters at the start values, where they may be
+  # undefined. Any draws where they are undefined are reported later.
+  fit0 <- muffle_nan_warnings(
+    do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+  )
   if (length(fit0@Data@ordered) > 0) {
     # Redo automatically with PML if ordinal data
     lavargs$estimator <- "PML"
     lavargs$parameterization <- "theta"
     lavargs$test <- "none"
-    fit0 <- do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+    fit0 <- muffle_nan_warnings(
+      do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+    )
   }
   lavmodel <- fit0@Model
   lavsamplestats <- fit0@SampleStats
