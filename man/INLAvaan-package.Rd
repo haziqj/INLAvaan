@@ -23,7 +23,8 @@ Implements approximate Bayesian inference for Structural Equation Models (SEM) u
 
 Supports advanced 'lavaan' syntax features, including:
 \itemize{
-\item Equality constraints
+\item Equality constraints (shared labels, \code{group.equal}, \code{a == b} and
+\verb{a == <number>})
 \item Defined parameters (e.g., \verb{:=} operator for indirect effects)
 \item Flexible prior specifications
 }

@@ -6,7 +6,8 @@
 #'
 #' @section Model specifications:
 #' Supports advanced 'lavaan' syntax features, including:
-#' * Equality constraints
+#' * Equality constraints (shared labels, `group.equal`, `a == b` and
+#'   `a == <number>`)
 #' * Defined parameters (e.g., `:=` operator for indirect effects)
 #' * Flexible prior specifications
 #'
