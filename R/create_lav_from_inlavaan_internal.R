@@ -4,6 +4,12 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@Model <- lavaan::lav_model_set_parameters(fit0@Model, x)
   # fit0@Model@estimator <- "BAYES"
   fit0@implied <- lavaan::lav_model_implied(fit0@Model)
+  if (any(fit_inlv$partable$op == ":=")) {
+    fit0@Model@def.function <- def_function_in_pt_order(
+      fit0@Model@def.function,
+      fit_inlv$partable$lhs[fit_inlv$partable$op == ":="]
+    )
+  }
 
   ## ----- Update ParTable slot ------------------------------------------------
 
@@ -142,7 +148,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
 
   ## ----- Update vcov slot ----------------------------------------------------
   fit0@vcov <- list(
-    vcov = fit_inlv$vcov_x,          # Sample-based vcov (lavaan parameterisation)
+    vcov = fit_inlv$vcov_x, # Sample-based vcov (lavaan parameterisation)
     vcov_theta = fit_inlv$Sigma_theta # Laplace vcov (theta parameterisation)
   )
 
@@ -168,4 +174,14 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
     inlavaan_internal = fit_inlv #[!grepl("lav", names(fit_inlv))]
   )
   fit0
+}
+
+# lavaan sorts the := definitions into dependency order inside def.function()
+# but writes its output back to the := rows by position, so a definition that
+# uses a later one lands on the wrong row (e.g. in standardizedSolution()).
+# Returning the definitions in partable order keeps every row on its own value.
+def_function_in_pt_order <- function(def_function, def_lhs) {
+  force(def_function)
+  force(def_lhs)
+  function(.x., ...) def_function(.x., ...)[def_lhs]
 }

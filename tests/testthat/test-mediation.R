@@ -77,5 +77,14 @@ test_that("Defined parameters can use other defined parameters", {
     tolerance = 1e-3
   )
 
+  # Standardised := rows sit on their own rows
+  std <- standardisedsolution(fit, nsamp = 20)
+  std_est <- function(lhs, op, rhs) {
+    std$est.std[std$lhs == lhs & std$op == op & std$rhs == rhs]
+  }
+  expect_equal(
+    std_est("total", ":=", "c+ind"),
+    std_est("speed", "~", "visual") + std_est("ind", ":=", "a*b")
+  )
   expect_no_error(out <- capture.output(summary(fit)))
 })
