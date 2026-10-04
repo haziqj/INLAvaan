@@ -322,3 +322,46 @@ test_that("Fitted values of a latent regression match lavaan", {
     expect_lt(rel_err(yhat[, v], yhat_lav[, v]), 0.25)
   }
 })
+
+# ---- Zero variances ------------------------------------------------------
+
+test_that("psd_root() is the Cholesky factor, or a root of a singular matrix", {
+  S <- crossprod(matrix(c(2, 1, 0, 1, 3, 1, 0, 1, 2), 3))
+  expect_identical(psd_root(S), t(chol(S)))
+  S0 <- matrix(c(0.4, 0, 0.2, 0, 0, 0, 0.2, 0, 1.3), 3)
+  expect_error(chol(S0))
+  expect_equal(tcrossprod(psd_root(S0)), S0)
+  expect_equal(psd_root(matrix(0)), matrix(0))
+})
+
+test_that("predict() works when a residual variance is fixed to zero", {
+  # x4 has no residual, so f is known given the data: f - E(f) = x4 - E(x4)
+  fit <- fit_quick("visual =~ x1 + x2 + x3\n f =~ x4\n x4 ~~ 0*x4\n visual ~ f")
+  for (nd in list(NULL, dat[1:5, ])) {
+    x4 <- if (is.null(nd)) dat$x4 else nd$x4
+    lv <- predict(fit, type = "lv", newdata = nd, nsamp = NSAMP)
+    yhat <- predict(fit, type = "yhat", newdata = nd, nsamp = NSAMP)
+    ypred <- predict(fit, type = "ypred", newdata = nd, nsamp = NSAMP)
+    for (i in seq_len(NSAMP)) {
+      expect_equal(lv[[i]][, "f"], x4 - mean(dat$x4), tolerance = 1e-6)
+      expect_equal(unname(yhat[[i]][, "x4"]), x4, tolerance = 1e-6)
+      expect_equal(unname(ypred[[i]][, "x4"]), x4, tolerance = 1e-6)
+    }
+    expect_false(isTRUE(all.equal(lv[[1]][, "visual"], lv[[2]][, "visual"])))
+  }
+})
+
+test_that("predict() works when an observed outcome has no residual", {
+  # x4 = b visual exactly, so visual is known given x4
+  fit <- fit_quick(
+    "visual =~ x1 + x2 + x3\n x4 ~ start(0.5)*visual\n x4 ~~ 0*x4"
+  )
+  lv <- predict(fit, type = "lv", nsamp = NSAMP)
+  yhat <- predict(fit, type = "yhat", nsamp = NSAMP)
+  ypred <- predict(fit, type = "ypred", nsamp = NSAMP)
+  for (i in seq_len(NSAMP)) {
+    expect_equal(cor(lv[[i]][, "visual"], dat$x4), 1)
+    expect_equal(unname(yhat[[i]][, "x4"]), dat$x4, tolerance = 1e-6)
+    expect_equal(unname(ypred[[i]][, "x4"]), dat$x4, tolerance = 1e-6)
+  }
+})

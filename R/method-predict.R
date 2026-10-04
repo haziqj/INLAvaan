@@ -61,15 +61,31 @@ eta_intercepts <- function(alpha, glist, front, dummy, ybar) {
   alpha_vec
 }
 
+# A root L, with L L' = S, of a positive semi-definite covariance matrix S, used
+# to draw from N(0, S). It is the lower Cholesky factor whenever chol()
+# succeeds. A zero variance, such as a residual variance fixed to zero or a
+# latent variable pinned down by its indicators, makes S singular, and then L
+# comes from the eigendecomposition with negligible or negative eigenvalues set
+# to zero.
+psd_root <- function(S, tol = sqrt(.Machine$double.eps)) {
+  L <- tryCatch(t(chol(S)), error = function(e) NULL)
+  if (!is.null(L)) {
+    return(L)
+  }
+  e <- eigen((S + t(S)) / 2, symmetric = TRUE)
+  d <- e$values
+  d[d < tol * max(d, 0)] <- 0
+  sweep(e$vectors, 2, sqrt(d), "*")
+}
+
 # Draw each row of eta | y from N(mu_eta, V_eta). A dummy latent variable is its
-# observed variable, so it has zero conditional variance, which chol() rejects.
-# Only the other columns are drawn, and the dummy columns take the data values,
-# as in lavaan.
+# observed variable, so it has zero conditional variance. Only the other columns
+# are drawn, and the dummy columns take the data values, as in lavaan.
 draw_eta <- function(mu_eta, V_eta, y, dummy) {
   keep <- setdiff(seq_len(ncol(mu_eta)), dummy$lv)
   out <- mu_eta
   if (length(keep) > 0L) {
-    chol_V <- t(chol(V_eta[keep, keep, drop = FALSE]))
+    chol_V <- psd_root(V_eta[keep, keep, drop = FALSE])
     n_obs <- nrow(mu_eta)
     nlv <- length(keep)
     Z <- matrix(rnorm(n_obs * nlv), nrow = nlv, ncol = n_obs)
@@ -257,7 +273,7 @@ impute_ml_data <- function(
     A <- Sigma_mo %*% solve(Sigma_oo)
     Sigma_cond <- Sigma_mm - A %*% t(Sigma_mo)
     Sigma_cond <- (Sigma_cond + t(Sigma_cond)) / 2
-    chol_cond <- t(chol(Sigma_cond))
+    chol_cond <- psd_root(Sigma_cond)
 
     n_mis <- length(mis_idx)
     n_cases <- length(case_rows)
@@ -803,7 +819,7 @@ predict.inlavaan_internal <- function(
               mm_w <- seq_len(nmat[b_w]) + cumsum(c(0, nmat))[b_w]
               Theta_w <- lavmodel_x@GLIST[mm_w][["theta"]]
               Theta_w_sub <- Theta_w[endo_w, endo_w, drop = FALSE]
-              chol_Tw <- t(chol(Theta_w_sub))
+              chol_Tw <- psd_root(Theta_w_sub)
               n_ew <- length(endo_w)
               E_w <- matrix(rnorm(n_obs * n_ew), nrow = n_ew, ncol = n_obs)
               yhat[, ov.idx[[1]][endo_w]] <-
@@ -816,7 +832,7 @@ predict.inlavaan_internal <- function(
               Theta_b <- lavmodel_x@GLIST[mm_b][["theta"]]
               Theta_b_sub <- Theta_b[endo_b, endo_b, drop = FALSE]
               n_clust <- Lp$nclusters[[2]]
-              chol_Tb <- t(chol(Theta_b_sub))
+              chol_Tb <- psd_root(Theta_b_sub)
               n_eb <- length(endo_b)
               E_b <- matrix(rnorm(n_clust * n_eb), nrow = n_eb, ncol = n_clust)
               eps_b <- t(chol_Tb %*% E_b)
@@ -943,13 +959,13 @@ predict.inlavaan_internal <- function(
             endo <- setdiff(seq_len(ncol(yhat)), dummy$ov)
             if (length(endo) > 0L) {
               p <- length(endo)
-              chol_Theta <- t(chol(Theta[endo, endo, drop = FALSE]))
+              chol_Theta <- psd_root(Theta[endo, endo, drop = FALSE])
               E <- matrix(rnorm(n_obs * p), nrow = p, ncol = n_obs)
               yhat[, endo] <- yhat[, endo, drop = FALSE] + t(chol_Theta %*% E)
             }
             if (length(ydum) > 0L) {
               yov <- lavmodel@ov.y.dummy.ov.idx[[g]]
-              chol_Psi <- t(chol(Psi[ydum, ydum, drop = FALSE]))
+              chol_Psi <- psd_root(Psi[ydum, ydum, drop = FALSE])
               E <- matrix(rnorm(n_obs * length(ydum)), ncol = n_obs)
               yhat[, yov] <- yhat[, yov, drop = FALSE] + t(chol_Psi %*% E)
             }
@@ -1126,7 +1142,7 @@ predict.inlavaan_internal <- function(
           A <- Sigma_mo %*% solve(Sigma_oo)
           Sigma_cond <- Sigma_mm - A %*% t(Sigma_mo)
           Sigma_cond <- (Sigma_cond + t(Sigma_cond)) / 2
-          chol_cond <- t(chol(Sigma_cond))
+          chol_cond <- psd_root(Sigma_cond)
 
           n_mis <- length(mis_idx)
           n_cases <- length(case_rows)

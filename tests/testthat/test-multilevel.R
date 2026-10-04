@@ -181,3 +181,32 @@ test_that("Named levels give the same results as numbered levels", {
   fms <- same_draws(function(x) fitmeasures(x), 6)
   expect_equal(unclass(fms$named), unclass(fms$num))
 })
+
+## ----- Zero residual variances -----------------------------------------------
+test_that("Multilevel ypred works with residual variances fixed to zero", {
+  mod <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      y1 ~~ 0*y1
+    level: 2
+      fb =~ y1 + y2 + y3
+      y1 ~~ 0*y1
+  "
+  fit <- asem(
+    mod,
+    subset(lavaan::Demo.twolevel, cluster <= 40),
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  # Same seed, same fitted values: y1 gets no noise at either level
+  set.seed(1)
+  yhat <- predict(fit, type = "yhat", nsamp = 3)[[1]]
+  set.seed(1)
+  ypred <- predict(fit, type = "ypred", nsamp = 3)[[1]]
+  expect_equal(ypred[, "y1"], yhat[, "y1"])
+  expect_true(all(ypred[, c("y2", "y3")] != yhat[, c("y2", "y3")]))
+})
