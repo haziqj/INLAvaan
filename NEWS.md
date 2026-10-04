@@ -10,6 +10,12 @@
   order, as in lavaan. Previously the fit failed with an "object not found"
   error.
 
+* Defined parameters that are constant, or that cannot be computed for some
+  posterior draws (such as `log(b)` when `b` can be negative), no longer stop
+  the fit. Their summaries use the draws where they can be computed, and a
+  single warning gives the share left out, in place of R's repeated "NaNs
+  produced" warnings.
+
 * `summary()` showed the wrong SD, credible interval and prior for defined
   parameters, and for some rows after them, when the model had equality
   constraints (shared labels or `group.equal`).
