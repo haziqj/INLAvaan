@@ -254,14 +254,27 @@ inlavaan <- function(
   fit0 <- muffle_nan_warnings(
     do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
   )
-  if (length(fit0@Data@ordered) > 0) {
+  # Ordinal variables come from `ordered =`, threshold syntax or ordered-factor
+  # columns. Name exactly those the model uses, so that the PML refit (and its
+  # kappa scaling) sees all of them and nothing else.
+  ord_names <- lavaan::lavNames(fit0, "ov.ord")
+  if (length(ord_names) > 0) {
     # Redo automatically with PML if ordinal data
+    lavargs$ordered <- ord_names
     lavargs$estimator <- "PML"
     lavargs$parameterization <- "theta"
     lavargs$test <- "none"
     fit0 <- muffle_nan_warnings(
       do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
     )
+  }
+  if (!fit0@Model@estimator %in% c("ML", "PML")) {
+    cli_abort(c(
+      "lavaan chose the {.val {fit0@Model@estimator}} estimator, which INLAvaan
+       does not support.",
+      "i" = "{.arg ordered} must name endogenous observed variables in the
+             model."
+    ))
   }
   # Rebuild from a table where explicit constraints are shared free indices
   # or fixed values (see pack_constraints())
