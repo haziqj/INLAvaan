@@ -74,6 +74,11 @@
   `missing = "ML"` that have between-level variables, such as cluster-level
   covariates.
 
+* `fit_skew_normal_samp()`, and with it the summaries of covariances and
+  defined parameters (`:=`), missed the skew of draws with a small SD (below
+  about 0.2). Posterior modes are also more accurate for parameters on a small
+  scale.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
