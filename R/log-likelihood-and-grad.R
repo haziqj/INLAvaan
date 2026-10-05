@@ -142,6 +142,44 @@ draw_marginalised_mean_shift <- function(Sigma, x_idx, n) {
   shift
 }
 
+# Under fixed.x the evidence should be that of y given x, so the joint kernel
+# must lose the covariate log-density. A two-level lavaan loglik subtracts its
+# own saturated term (YLp loglik.x), which omits covariates that vary at both
+# levels. This returns loglik.x less the frozen covariate log-density of every
+# cluster, the amount to add to lavaan's loglik to make it conditional. It is
+# theta-free, so it moves the marginal likelihood and DIC but not the
+# posterior.
+twolevel_fixedx_loglik_adj <- function(lavmodel_x, lavdata, lavsamplestats) {
+  if (!isTRUE(lavmodel_x@fixed.x) || lavdata@nlevels < 2L) {
+    return(0)
+  }
+  if (length(lavsamplestats@x.idx[[1L]]) == 0L) {
+    return(0)
+  }
+  Lp <- lavdata@Lp[[1L]]
+  ylp <- lavsamplestats@YLp[[1L]][[2L]]
+  info <- loo_fixedx_info_loco(
+    list(lavdata = lavdata, lavsamplestats = lavsamplestats),
+    list(Lp = Lp),
+    loo_implied_moments(lavmodel_x, two_level = TRUE)
+  )
+  X <- lavdata@X[[1L]]
+  cl <- Lp$cluster.idx[[2L]]
+  c_sum <- sum(vapply(
+    seq_len(Lp$nclusters[[2L]]),
+    function(j) {
+      loo_fixedx_const_raw(
+        X[cl == j, , drop = FALSE],
+        ylp$Y2[j, , drop = FALSE],
+        info
+      )
+    },
+    numeric(1)
+  ))
+  loglik_x <- if (is.null(ylp$loglik.x)) 0 else ylp$loglik.x
+  loglik_x - c_sum
+}
+
 # d corr / dx_j = (1/2) tr(Sigma^{-1} dSigma/dx_j), assembled from the same
 # Delta matrices (d vech(Sigma) / dx) the LOO machinery uses; off-diagonal
 # vech elements are doubled to undo the half-vectorisation.

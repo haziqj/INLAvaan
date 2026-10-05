@@ -163,3 +163,26 @@ test_that("A zero-effect covariate leaves the evidence unchanged", {
     tolerance = 1e-6
   )
 })
+
+test_that("A zero-effect covariate at both levels leaves the evidence unchanged", {
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  without_x <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+  "
+  with_x <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ 0*x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ 0*x1
+  "
+  expect_equal(
+    fixedx_evidence(with_x, dat, cluster = "cluster"),
+    fixedx_evidence(without_x, dat, cluster = "cluster"),
+    tolerance = 1e-6
+  )
+})
