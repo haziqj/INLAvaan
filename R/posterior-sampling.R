@@ -249,7 +249,7 @@ get_ppp <- function(
       n <- block_obs[[b]]$n
       logdet_S <- block_obs[[b]]$logdet_S
 
-      Sigma <- implied_joint_cov(lavimplied, b, block_obs[[b]]$x_idx)
+      Sigma <- implied_joint_moments(lavimplied, b, block_obs[[b]]$x_idx)$cov
 
       # Align dimensions for multilevel models
       if (n_levels > 1 && length(ov_names_block[[b]]) == nrow(Sigma)) {
@@ -309,21 +309,27 @@ ml_discrepancy <- function(S, Sigma) {
   logdet_Sigma + sum(chol2inv(L) * S) - logdet_S - nrow(S)
 }
 
-# The implied covariance of all observed variables of block b, with the fixed
-# covariates at x_idx. Under conditional.x lavaan implies only the outcomes
-# given the covariates (res.cov, res.slopes) and the covariate block, so the
-# joint matrix is rebuilt from those. (lavimplied$cov would partially match
-# cov.x, hence [["cov"]].)
-implied_joint_cov <- function(lavimplied, b, x_idx) {
+# The implied covariance and mean (NULL without a mean structure) of all
+# observed variables of block b, with the fixed covariates at x_idx. Under
+# conditional.x lavaan implies only the outcomes given the covariates (res.cov,
+# res.int, res.slopes) and the covariate moments, so the joint moments are
+# rebuilt from those. (lavimplied$cov and $mean would partially match cov.x and
+# mean.x, hence [["cov"]] and [["mean"]].)
+implied_joint_moments <- function(lavimplied, b, x_idx) {
   if (!is.null(lavimplied[["cov"]])) {
-    return(lavimplied[["cov"]][[b]])
+    return(list(
+      cov = lavimplied[["cov"]][[b]],
+      mean = lavimplied[["mean"]][[b]]
+    ))
   }
   res_cov <- lavimplied$res.cov[[b]]
+  res_int <- as.numeric(lavimplied$res.int[[b]])
   if (length(x_idx) == 0L) {
-    return(res_cov) # nocov
+    return(list(cov = res_cov, mean = res_int)) # nocov
   }
   B <- lavimplied$res.slopes[[b]]
   Sigma_xx <- lavimplied$cov.x[[b]]
+  mu_x <- as.numeric(lavimplied$mean.x[[b]])
   p <- nrow(res_cov) + nrow(Sigma_xx)
   y_idx <- setdiff(seq_len(p), x_idx)
   BS <- B %*% Sigma_xx
@@ -332,7 +338,22 @@ implied_joint_cov <- function(lavimplied, b, x_idx) {
   Sigma[y_idx, x_idx] <- BS
   Sigma[x_idx, y_idx] <- t(BS)
   Sigma[x_idx, x_idx] <- Sigma_xx
-  Sigma
+  mu <- numeric(p)
+  mu[y_idx] <- res_int + as.numeric(B %*% mu_x)
+  mu[x_idx] <- mu_x
+  list(cov = Sigma, mean = mu)
+}
+
+# implied_joint_moments() for block b of a fitted model. Only a conditional.x
+# fit lacks the joint moments, and it is single-level, so its blocks are its
+# groups.
+implied_block_moments <- function(lavimplied, b, lavmodel, lavsamplestats) {
+  x_idx <- if (isTRUE(lavmodel@conditional.x)) {
+    lavsamplestats@x.idx[[b]]
+  } else {
+    integer(0L)
+  }
+  implied_joint_moments(lavimplied, b, x_idx)
 }
 
 sample_covariances <- function(x_samp, pt) {

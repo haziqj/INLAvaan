@@ -5,19 +5,25 @@ mod <- "
   visual + textual ~ ageyr + grade
 "
 
-test_that("The joint covariance is rebuilt from conditional.x moments", {
+test_that("The joint moments are rebuilt from conditional.x moments", {
   fit_cx <- lavaan::sem(mod, dat, conditional.x = TRUE)
-  fit_jx <- lavaan::sem(mod, dat)
-  Sigma <- implied_joint_cov(
+  fit_jx <- lavaan::sem(mod, dat, meanstructure = TRUE)
+  mom <- implied_joint_moments(
     lavaan::lav_model_implied(fit_cx@Model),
     1L,
     fit_cx@SampleStats@x.idx[[1L]]
   )
+  implied_jx <- lavaan::lav_model_implied(fit_jx@Model)
   expect_equal(
-    Sigma,
-    lavaan::lav_model_implied(fit_jx@Model)$cov[[1L]],
+    mom$cov,
+    implied_jx$cov[[1L]],
     tolerance = 1e-4,
     ignore_attr = TRUE
+  )
+  expect_equal(
+    mom$mean,
+    as.numeric(implied_jx$mean[[1L]]),
+    tolerance = 1e-4
   )
 })
 

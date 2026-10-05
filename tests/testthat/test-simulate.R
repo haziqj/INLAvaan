@@ -159,3 +159,18 @@ test_that("simulate() works for multigroup models", {
     as.numeric(unlist(fit@SampleStats@nobs))
   )
 })
+
+test_that("simulate() works for conditional.x fits", {
+  fit <- suppressWarnings(asem(
+    "visual =~ x1 + x2 + x3; visual ~ ageyr + grade",
+    na.omit(lavaan::HolzingerSwineford1939),
+    conditional.x = TRUE,
+    verbose = FALSE,
+    nsamp = 20,
+    test = "none"
+  ))
+  set.seed(1)
+  sims <- simulate(fit, nsim = 2, silent = TRUE)
+  expect_length(sims, 2)
+  expect_setequal(names(sims[[1]]), c("x1", "x2", "x3", "ageyr", "grade"))
+})

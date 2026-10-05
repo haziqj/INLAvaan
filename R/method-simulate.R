@@ -130,9 +130,9 @@ setMethod(
       implied <- lavaan::lav_model_implied(lavmodel_x)
 
       all_pd <- TRUE
-      for (g in seq_along(implied$cov)) {
+      for (b in seq_len(lavmodel@nblocks)) {
         eigs <- eigen(
-          implied$cov[[g]],
+          implied_block_moments(implied, b, lavmodel, int$lavsamplestats)$cov,
           symmetric = TRUE,
           only.values = TRUE
         )$values
@@ -151,6 +151,11 @@ setMethod(
       pt_sim$est[pt_sim$free > 0] <- as.numeric(x_draw)[
         pt_sim$free[pt_sim$free > 0]
       ]
+      # simulateData() fails on a conditional.x partable. Without the exo flags
+      # it draws the covariates from their fixed moments, as for other fits.
+      if (isTRUE(lavmodel@conditional.x)) {
+        pt_sim$exo[] <- 0L
+      }
 
       # The := rows play no part in the data, so a draw where one is undefined
       # is fine.
