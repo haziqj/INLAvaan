@@ -1419,10 +1419,13 @@ print.summary.predict.inlavaan_internal <- function(
 #'     \item{\code{"lv"}}{(default) Posterior draws of latent variable scores
 #'       \eqn{\eta | y, \theta}.}
 #'     \item{\code{"yhat"}, \code{"ov"}}{Predicted means for observed variables
-#'       \eqn{E(y | \eta, \theta) = \nu + \Lambda \eta}; no residual noise.}
+#'       \eqn{E(y | \eta, \theta) = \nu + \Lambda \eta}; no residual noise. An
+#'       observed outcome is predicted from its regressors.}
 #'     \item{\code{"ypred"}, \code{"ydist"}}{Predicted observed values including
 #'       residual noise \eqn{y = \nu + \Lambda \eta + \varepsilon},
-#'       \eqn{\varepsilon \sim N(0, \Theta)}.}
+#'       \eqn{\varepsilon \sim N(0, \Theta)}, with the residual variances that
+#'       \code{lavInspect(fit, "theta")} reports (observed outcomes included,
+#'       observed covariates excluded).}
 #'     \item{\code{"ymis"}, \code{"ovmis"}}{Imputed values for missing
 #'       observations, drawn from the conditional distribution
 #'       \eqn{y_{mis} | y_{obs}, \theta}.}
@@ -1430,8 +1433,10 @@ print.summary.predict.inlavaan_internal <- function(
 #' @param newdata An optional data frame of new observations. If supplied,
 #'   predictions are computed for \code{newdata} rather than the original
 #'   training data. Not supported for \code{type = "ymis"}.
-#' @param level Integer; for \code{type = "lv"} in multilevel models, specifies
+#' @param level Integer; for \code{type = "lv"} in two-level models, specifies
 #'   whether level 1 or level 2 latent variables are desired (default \code{1L}).
+#'   Other types ignore it: for two-level models, \code{"yhat"} and
+#'   \code{"ypred"} give the total within plus between prediction.
 #' @param nsamp Integer; number of posterior samples to use for prediction.
 #'   Defaults to \code{1000}.
 #' @param ymis_only Logical; only applies when \code{type = "ymis"}. When
