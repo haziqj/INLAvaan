@@ -96,6 +96,19 @@
 * `predict(type = "ypred")` for two-level models now adds residual noise to
   observed outcomes, not only to factor indicators.
 
+* `predict()` for two-level models now draws latent variables and missing
+  values from their posterior given all of the cluster's data, as for
+  single-level models. Previously it returned factor scores without their
+  uncertainty, and imputed each row without the rest of its cluster.
+
+* With `fixed.x = TRUE` (the default), the marginal likelihood and DIC now
+  condition on the covariates. Previously a covariate with no effect changed
+  Bayes factors from `compare()`, by a lot in two-level models where it varies
+  at both levels.
+
+* `fitMeasures()` overstated the chi-square of models without a mean
+  structure, and with it BRMSEA and the other Bayesian fit indices.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
