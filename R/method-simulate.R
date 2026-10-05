@@ -178,13 +178,13 @@ setMethod(
         names(ybar) <- int$lavdata@ov.names[[1L]]
         mu <- ybar
         if (marginalised_means_active(lavmodel)) {
-          Sig <- implied$cov[[1L]]
-          ch <- tryCatch(chol(Sig), error = function(e) NULL) # nocov
-          if (!is.null(ch)) {
-            n_fit <- nrow(int$lavdata@X[[1L]])
-            mu <- ybar +
-              as.numeric(crossprod(ch, stats::rnorm(length(ybar)))) /
-                sqrt(n_fit)
+          shift <- draw_marginalised_mean_shift(
+            implied$cov[[1L]],
+            int$lavsamplestats@x.idx[[1L]],
+            nrow(int$lavdata@X[[1L]])
+          )
+          if (!is.null(shift)) {
+            mu <- ybar + shift
           }
         }
         for (v in intersect(names(mu), colnames(dat))) {

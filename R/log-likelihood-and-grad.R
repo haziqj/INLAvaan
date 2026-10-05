@@ -90,7 +90,10 @@ inlav_model_grad <- function(
 #   (1/2) log|Sigma| + (p/2) log(2*pi/n).
 # The corrections below apply this at the loglik and gradient level so the
 # whole posterior (mode, Hessian, marginals, samples) is built from the
-# marginalised likelihood.
+# marginalised likelihood. Under fixed.x the likelihood is that of y given x,
+# so only the outcome intercepts are integrated and Sigma is replaced by the
+# conditional covariance, with log|Sigma_y.x| = log|Sigma| - log|Sigma_xx|.
+# Sigma_xx is fixed at the sample covariance, so the gradient is unchanged.
 marginalised_means_active <- function(lavmodel) {
   !isTRUE(lavmodel@meanstructure) && !isTRUE(lavmodel@conditional.x)
 }
@@ -99,11 +102,44 @@ marginalised_means_loglik_corr <- function(lavimplied, lavsamplestats) {
   corr <- 0
   for (g in seq_len(lavsamplestats@ngroups)) {
     Sigma_g <- lavimplied$cov[[g]]
+    n_g <- lavsamplestats@nobs[[g]]
     corr <- corr +
       0.5 * as.numeric(determinant(Sigma_g, logarithm = TRUE)$modulus) +
-      0.5 * ncol(Sigma_g) * log(2 * pi / lavsamplestats@nobs[[g]])
+      0.5 * ncol(Sigma_g) * log(2 * pi / n_g)
+    x_idx <- lavsamplestats@x.idx[[g]]
+    if (length(x_idx) > 0L) {
+      Sigma_xx <- Sigma_g[x_idx, x_idx, drop = FALSE]
+      corr <- corr -
+        0.5 * as.numeric(determinant(Sigma_xx, logarithm = TRUE)$modulus) -
+        0.5 * length(x_idx) * log(2 * pi / n_g)
+    }
   }
   corr
+}
+
+# One draw of the saturated means minus the sample means, from the posterior
+# N(0, Sigma / n). Under fixed.x the covariate means are not parameters, so
+# they stay at zero and the outcome means draw from Sigma_y.x / n. NULL when
+# Sigma is not positive definite.
+draw_marginalised_mean_shift <- function(Sigma, x_idx, n) {
+  shift <- numeric(ncol(Sigma))
+  y_idx <- setdiff(seq_len(ncol(Sigma)), x_idx)
+  S <- Sigma[y_idx, y_idx, drop = FALSE]
+  if (length(x_idx) > 0L) {
+    S <- S -
+      Sigma[y_idx, x_idx, drop = FALSE] %*%
+        solve(
+          Sigma[x_idx, x_idx, drop = FALSE],
+          Sigma[x_idx, y_idx, drop = FALSE]
+        )
+  }
+  ch <- tryCatch(chol(S), error = function(e) NULL)
+  if (is.null(ch)) {
+    return(NULL) # nocov
+  }
+  shift[y_idx] <- as.numeric(crossprod(ch, stats::rnorm(length(y_idx)))) /
+    sqrt(n)
+  shift
 }
 
 # d corr / dx_j = (1/2) tr(Sigma^{-1} dSigma/dx_j), assembled from the same

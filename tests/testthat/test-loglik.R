@@ -140,3 +140,26 @@ test_that("Missing data", {
   )
   expect_equal(output, target, tolerance = 1e-5)
 })
+
+# Under fixed.x the evidence is that of y given x, so a covariate with a zero
+# effect adds nothing to the marginal likelihood or the DIC
+fixedx_evidence <- function(model, data, ...) {
+  int <- get_inlavaan_internal(asem(
+    model,
+    data,
+    nsamp = 3,
+    test = "dic",
+    verbose = FALSE,
+    ...
+  ))
+  c(mloglik = int$mloglik, Dhat = int$DIC$Dhat)
+}
+
+test_that("A zero-effect covariate leaves the evidence unchanged", {
+  dat <- na.omit(lavaan::HolzingerSwineford1939)
+  expect_equal(
+    fixedx_evidence("visual =~ x1 + x2 + x3; visual ~ ageyr + 0*grade", dat),
+    fixedx_evidence("visual =~ x1 + x2 + x3; visual ~ ageyr", dat),
+    tolerance = 1e-6
+  )
+})

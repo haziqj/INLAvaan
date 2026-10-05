@@ -879,12 +879,12 @@ sampling_impl <- function(
     # estimated-nu draws do automatically when a mean structure exists
     if (marginalised_means_active(lavmodel)) {
       n_fit <- nrow(int$lavdata@X[[1L]])
+      x_idx <- int$lavsamplestats@x.idx[[1L]]
       for (i in seq_len(nrow(y_mat))) {
         Sg <- compute_implied_moments(samp$x_samp[i, ], lavmodel)$cov
-        ch <- tryCatch(chol(Sg), error = function(e) NULL) # nocov
-        if (!is.null(ch)) {
-          y_mat[i, ] <- y_mat[i, ] +
-            as.numeric(crossprod(ch, rnorm(ncol(y_mat)))) / sqrt(n_fit)
+        shift <- draw_marginalised_mean_shift(Sg, x_idx, n_fit)
+        if (!is.null(shift)) {
+          y_mat[i, ] <- y_mat[i, ] + shift
         }
       }
     }
