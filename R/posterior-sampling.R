@@ -222,7 +222,13 @@ get_ppp <- function(
     }
 
     logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
-    block_obs[[b]] <- list(S = S, n = n, logdet_S = logdet_S)
+    block_obs[[b]] <- list(
+      S = S,
+      n = n,
+      logdet_S = logdet_S,
+      # Positions of the fixed covariates (single-level only)
+      x_idx = if (n_levels == 1) lavsamplestats@x.idx[[g]] else integer(0L)
+    )
   }
 
   res <- vector("numeric", length = nrow(x_samp))
@@ -243,7 +249,7 @@ get_ppp <- function(
       n <- block_obs[[b]]$n
       logdet_S <- block_obs[[b]]$logdet_S
 
-      Sigma <- lavimplied$cov[[b]]
+      Sigma <- implied_joint_cov(lavimplied, b, block_obs[[b]]$x_idx)
 
       # Align dimensions for multilevel models
       if (n_levels > 1 && length(ov_names_block[[b]]) == nrow(Sigma)) {
@@ -274,6 +280,7 @@ get_ppp <- function(
         # F(S, Sigma) = log|Sigma| + tr(Sigma^{-1} S) - log|S| - p
         Tobs <- Tobs + logdet_Sigma + sum(Sigma_inv * S) - logdet_S - p
         Trep <- Trep + logdet_Sigma + sum(Sigma_inv * Srep) - logdet_Srep - p
+
       }
     }
 
@@ -281,6 +288,32 @@ get_ppp <- function(
   }
 
   mean(res)
+}
+
+# The implied covariance of all observed variables of block b, with the fixed
+# covariates at x_idx. Under conditional.x lavaan implies only the outcomes
+# given the covariates (res.cov, res.slopes) and the covariate block, so the
+# joint matrix is rebuilt from those. (lavimplied$cov would partially match
+# cov.x, hence [["cov"]].)
+implied_joint_cov <- function(lavimplied, b, x_idx) {
+  if (!is.null(lavimplied[["cov"]])) {
+    return(lavimplied[["cov"]][[b]])
+  }
+  res_cov <- lavimplied$res.cov[[b]]
+  if (length(x_idx) == 0L) {
+    return(res_cov) # nocov
+  }
+  B <- lavimplied$res.slopes[[b]]
+  Sigma_xx <- lavimplied$cov.x[[b]]
+  p <- nrow(res_cov) + nrow(Sigma_xx)
+  y_idx <- setdiff(seq_len(p), x_idx)
+  BS <- B %*% Sigma_xx
+  Sigma <- matrix(0, p, p)
+  Sigma[y_idx, y_idx] <- res_cov + tcrossprod(BS, B)
+  Sigma[y_idx, x_idx] <- BS
+  Sigma[x_idx, y_idx] <- t(BS)
+  Sigma[x_idx, x_idx] <- Sigma_xx
+  Sigma
 }
 
 sample_covariances <- function(x_samp, pt) {
