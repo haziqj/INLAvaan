@@ -97,6 +97,30 @@ draw_eta <- function(mu_eta, V_eta, y, dummy) {
   out
 }
 
+# Draw the residuals that ypred adds to n rows of block b, one column per
+# observed variable of the block. lavaan keeps the residual variance of an
+# observed outcome in Psi of its dummy latent variable, with zero Theta, so the
+# indicators draw from Theta and the observed outcomes from Psi. Observed
+# covariates get none.
+draw_residuals <- function(n, Theta, Psi, lavmodel, b) {
+  draw <- function(S) {
+    k <- nrow(S)
+    t(psd_root(S) %*% matrix(rnorm(n * k), nrow = k, ncol = n))
+  }
+  ov_y <- lavmodel@ov.y.dummy.ov.idx[[b]]
+  lv_y <- lavmodel@ov.y.dummy.lv.idx[[b]]
+  ov_x <- lavmodel@ov.x.dummy.ov.idx[[b]]
+  ind <- setdiff(seq_len(nrow(Theta)), c(ov_y, ov_x))
+  eps <- matrix(0, n, nrow(Theta))
+  if (length(ind) > 0L) {
+    eps[, ind] <- draw(Theta[ind, ind, drop = FALSE])
+  }
+  if (length(lv_y) > 0L) {
+    eps[, ov_y] <- draw(Psi[lv_y, lv_y, drop = FALSE])
+  }
+  eps
+}
+
 # With conditional.x = TRUE, lavaan keeps the covariate effects in Gamma, so the
 # latent intercepts vary by row as alpha + Gamma x. Returns the n x m matrix
 # Gamma x for group g, or NULL when the model has no Gamma.
@@ -799,47 +823,30 @@ predict.inlavaan_internal <- function(
           yhat[, ov.idx[[2]]] <- yhat[, ov.idx[[2]]] +
             yhat_b[Lp$cluster.idx[[2]], , drop = FALSE]
 
-          # --- Residual noise for ypred ---
+          # --- Residual noise for ypred: within by row, between by cluster ---
           if (add_noise) {
-            # Endogenous variable indices per block (exclude dummy LVs)
-            dummy_w <- c(
-              lavmodel_x@ov.x.dummy.ov.idx[[b_w]],
-              lavmodel_x@ov.y.dummy.ov.idx[[b_w]]
+            mm_w <- seq_len(nmat[b_w]) + cumsum(c(0, nmat))[b_w]
+            glist_w <- lavmodel_x@GLIST[mm_w]
+            eps_w <- draw_residuals(
+              n_obs,
+              glist_w$theta,
+              glist_w$psi,
+              lavmodel_x,
+              b_w
             )
-            endo_w <- setdiff(seq_len(length(ov.idx[[1]])), dummy_w)
+            yhat[, ov.idx[[1]]] <- yhat[, ov.idx[[1]], drop = FALSE] + eps_w
 
-            dummy_b <- c(
-              lavmodel_x@ov.x.dummy.ov.idx[[b_b]],
-              lavmodel_x@ov.y.dummy.ov.idx[[b_b]]
+            mm_b <- seq_len(nmat[b_b]) + cumsum(c(0, nmat))[b_b]
+            glist_b <- lavmodel_x@GLIST[mm_b]
+            eps_b <- draw_residuals(
+              Lp$nclusters[[2]],
+              glist_b$theta,
+              glist_b$psi,
+              lavmodel_x,
+              b_b
             )
-            endo_b <- setdiff(seq_len(length(ov.idx[[2]])), dummy_b)
-
-            # Within residual noise (endogenous only)
-            if (length(endo_w) > 0L) {
-              mm_w <- seq_len(nmat[b_w]) + cumsum(c(0, nmat))[b_w]
-              Theta_w <- lavmodel_x@GLIST[mm_w][["theta"]]
-              Theta_w_sub <- Theta_w[endo_w, endo_w, drop = FALSE]
-              chol_Tw <- psd_root(Theta_w_sub)
-              n_ew <- length(endo_w)
-              E_w <- matrix(rnorm(n_obs * n_ew), nrow = n_ew, ncol = n_obs)
-              yhat[, ov.idx[[1]][endo_w]] <-
-                yhat[, ov.idx[[1]][endo_w]] + t(chol_Tw %*% E_w)
-            }
-
-            # Between residual noise (endogenous, cluster-level, expanded)
-            if (length(endo_b) > 0L) {
-              mm_b <- seq_len(nmat[b_b]) + cumsum(c(0, nmat))[b_b]
-              Theta_b <- lavmodel_x@GLIST[mm_b][["theta"]]
-              Theta_b_sub <- Theta_b[endo_b, endo_b, drop = FALSE]
-              n_clust <- Lp$nclusters[[2]]
-              chol_Tb <- psd_root(Theta_b_sub)
-              n_eb <- length(endo_b)
-              E_b <- matrix(rnorm(n_clust * n_eb), nrow = n_eb, ncol = n_clust)
-              eps_b <- t(chol_Tb %*% E_b)
-              yhat[, ov.idx[[2]][endo_b]] <-
-                yhat[, ov.idx[[2]][endo_b]] +
-                eps_b[Lp$cluster.idx[[2]], , drop = FALSE]
-            }
+            yhat[, ov.idx[[2]]] <- yhat[, ov.idx[[2]], drop = FALSE] +
+              eps_b[Lp$cluster.idx[[2]], , drop = FALSE]
           }
 
           cn <- colnames(y[[g]])
@@ -952,23 +959,9 @@ predict.inlavaan_internal <- function(
           nu_eff <- mu_y - as.numeric(front %*% alpha_vec)
           yhat <- sweep(tcrossprod(eta_draw, Lambda), 2, nu_eff, "+")
 
-          # Add residual noise for ypred: Theta for the indicators, and Psi for
-          # the observed endogenous variables, whose residuals lavaan keeps
-          # there. Observed covariates get none.
+          # Residual noise for ypred
           if (add_noise) {
-            endo <- setdiff(seq_len(ncol(yhat)), dummy$ov)
-            if (length(endo) > 0L) {
-              p <- length(endo)
-              chol_Theta <- psd_root(Theta[endo, endo, drop = FALSE])
-              E <- matrix(rnorm(n_obs * p), nrow = p, ncol = n_obs)
-              yhat[, endo] <- yhat[, endo, drop = FALSE] + t(chol_Theta %*% E)
-            }
-            if (length(ydum) > 0L) {
-              yov <- lavmodel@ov.y.dummy.ov.idx[[g]]
-              chol_Psi <- psd_root(Psi[ydum, ydum, drop = FALSE])
-              E <- matrix(rnorm(n_obs * length(ydum)), ncol = n_obs)
-              yhat[, yov] <- yhat[, yov, drop = FALSE] + t(chol_Psi %*% E)
-            }
+            yhat <- yhat + draw_residuals(n_obs, Theta, Psi, lavmodel, g)
           }
 
           out[[g]] <- yhat

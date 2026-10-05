@@ -210,3 +210,94 @@ test_that("Multilevel ypred works with residual variances fixed to zero", {
   expect_equal(ypred[, "y1"], yhat[, "y1"])
   expect_true(all(ypred[, c("y2", "y3")] != yhat[, c("y2", "y3")]))
 })
+
+## ----- Residual noise in ypred -----------------------------------------------
+# Draws of predict() with every posterior draw pinned at the fit's parameters
+predict_pinned <- function(fit, type, nsamp) {
+  x <- lavaan::lav_model_get_parameters(fit@Model)
+  local_mocked_bindings(
+    sample_params_posterior = function(int, nsamp, ...) {
+      list(x_samp = matrix(x, nsamp, length(x), byrow = TRUE))
+    }
+  )
+  set.seed(1)
+  unclass(predict(fit, type = type, nsamp = nsamp))
+}
+
+test_that("Two-level ypred adds the residual variances lavInspect() reports", {
+  # At fixed parameters yhat is fixed, so ypred - yhat is the residual. Its
+  # variance sums the within and between diagonals of lavInspect(fit, "theta"),
+  # which hold the residual variances of observed outcomes too.
+  dat <- subset(lavaan::Demo.twolevel, cluster <= 30)
+  dat$y4 <- dat$y1 + dat$x2
+  dat$y5 <- 0.5 * dat$y3 + dat$x3
+  mods <- list(
+    # Outcome at both levels (y4), chain (y5), between-level outcome (w1)
+    outcomes = "
+      level: 1
+        fw =~ y1 + y2 + y3
+        y4 ~ fw + x1
+        y5 ~ y4
+      level: 2
+        fb =~ y1 + y2 + y3
+        y4 ~ fb
+        w1 ~ fb + w2
+    ",
+    path = "
+      level: 1
+        y1 ~ x1 + x2
+        y2 ~ y1
+      level: 2
+        y1 ~ w1
+        y2 ~ y1
+    ",
+    # Indicator with a residual covariance with an observed outcome
+    rescov = "
+      level: 1
+        fw =~ y1 + y2 + y3
+        y4 ~ x1
+        y1 ~~ y4
+      level: 2
+        fb =~ y1 + y2 + y3
+    "
+  )
+  for (nm in names(mods)) {
+    fit <- asem(
+      mods[[nm]],
+      dat,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      vb_correction = FALSE,
+      marginal_method = "marggaus",
+      nsamp = 3
+    )
+    yhat <- predict_pinned(fit, "yhat", 1)[[1]]
+    eps <- simplify2array(lapply(predict_pinned(fit, "ypred", 200), `-`, yhat))
+    v_emp <- colMeans(apply(eps, c(1, 2), var))
+    v_theta <- v_emp * 0
+    theta <- lavaan::lavInspect(fit, "theta")
+    for (th in theta) {
+      v_theta[rownames(th)] <- v_theta[rownames(th)] + diag(th)
+    }
+    ov_x <- unlist(lavaan::lavNames(fit, "ov.x", block = 1:2))
+    expect_true(all(eps[, ov_x, ] == 0))
+    for (v in setdiff(colnames(yhat), ov_x)) {
+      expect_equal(
+        v_emp[[v]],
+        v_theta[[v]],
+        tolerance = 0.1,
+        label = paste(nm, v)
+      )
+    }
+    if (nm == "outcomes") {
+      # A between-level residual is shared by the rows of a cluster
+      first <- match(dat$cluster, dat$cluster)
+      expect_equal(eps[, "w1", ], eps[first, "w1", ])
+    }
+    if (nm == "rescov") {
+      c_emp <- mean(eps[, "y1", ] * eps[, "y4", ])
+      expect_equal(c_emp, theta$within["y1", "y4"], tolerance = 0.1)
+    }
+  }
+})
