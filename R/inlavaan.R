@@ -833,8 +833,14 @@ inlavaan <- function(
   mloglik <- lp_max + (m / 2) * log(2 * pi) - sum(log(diag(R_prec)))
   # Two-level fits under fixed.x get a theta-free shift that makes the evidence
   # (and the DIC below) conditional on the covariates.
+  theta_mode <- if (isTRUE(ceq.simple)) {
+    as.numeric(ceq.K %*% theta_star)
+  } else {
+    theta_star
+  }
   loglik_x_adj <- twolevel_fixedx_loglik_adj(
-    lavaan::lav_model_set_parameters(lavmodel, pars_to_x(theta_star, pt)),
+    lavmodel,
+    pars_to_x(theta_mode, pt),
     lavdata,
     lavsamplestats
   )

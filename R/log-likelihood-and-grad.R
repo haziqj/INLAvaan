@@ -153,9 +153,9 @@ draw_marginalised_mean_shift <- function(Sigma, x_idx, n) {
 # levels. This returns loglik.x less the frozen covariate log-density of every
 # cluster, the amount to add to lavaan's loglik to make it conditional. It is
 # theta-free, so it moves the marginal likelihood and DIC but not the
-# posterior.
-twolevel_fixedx_loglik_adj <- function(lavmodel_x, lavdata, lavsamplestats) {
-  if (!isTRUE(lavmodel_x@fixed.x) || lavdata@nlevels < 2L) {
+# posterior. Any x (lavaan-side, unpacked) gives the same value.
+twolevel_fixedx_loglik_adj <- function(lavmodel, x, lavdata, lavsamplestats) {
+  if (!isTRUE(lavmodel@fixed.x) || lavdata@nlevels < 2L) {
     return(0)
   }
   if (length(lavsamplestats@x.idx[[1L]]) == 0L) {
@@ -166,7 +166,10 @@ twolevel_fixedx_loglik_adj <- function(lavmodel_x, lavdata, lavsamplestats) {
   info <- loo_fixedx_info_loco(
     list(lavdata = lavdata, lavsamplestats = lavsamplestats),
     list(Lp = Lp),
-    loo_implied_moments(lavmodel_x, two_level = TRUE)
+    loo_implied_moments(
+      lavaan::lav_model_set_parameters(lavmodel, x),
+      two_level = TRUE
+    )
   )
   X <- lavdata@X[[1L]]
   cl <- Lp$cluster.idx[[2L]]
