@@ -231,6 +231,24 @@ test_that("waic() runs on a FIML fit and agrees loosely with loo()", {
   }
 })
 
-# Two-level FIML (per-cluster LOCO) is supported; see test-loo-missing-2l.R
-# for the reference-pinned coverage. Only the per-row deletion override
-# remains gated under missing data.
+# Two-level FIML (per-cluster LOCO and the per-row override) is covered in
+# test-loo-missing-2l.R.
+
+test_that("a fully missing row is left out of the scored units", {
+  # lavaan keeps the empty row in the data but ignores it in the fit
+  fit_empty <- suppressWarnings(acfa(
+    HS_model,
+    rbind(dat, NA),
+    meanstructure = TRUE,
+    missing = "ml",
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  ))
+  expect_message(res_empty <- loo(fit_empty), "Not scoring 1 case")
+  expect_equal(res_empty$per_unit$unit, 1:70)
+  expect_equal(res_empty$per_unit$log_cpo_2, res$per_unit$log_cpo_2)
+})

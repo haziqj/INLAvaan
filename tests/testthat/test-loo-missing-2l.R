@@ -187,10 +187,8 @@ test_that("the per-row (leave-one-unit-out) override works under missing data", 
   expect_true(all(res_row$per_unit$nobs == 1L))
 
   # analytic per-row scores agree with finite differences, including rows in
-  # clusters that contain a fully-missing row (lavaan's gradient kernel
-  # mishandles zero-observed patterns; INLAvaan drops them before the kernel).
-  # Skipped on CRAN: this agreement is sensitive to BLAS/compiler differences
-  # across check flavours.
+  # clusters that contain a fully-missing row. Skipped on CRAN: this agreement
+  # is sensitive to BLAS/compiler differences across check flavours.
   skip_on_cran()
   int <- get_inlavaan_internal(fit)
   minfo <- INLAvaan:::loco_missing_info(int)
@@ -299,7 +297,7 @@ d_between$y1[sample(nrow(d_between), 15)] <- NA
 d_between$w2[d_between$cluster %in% c(3, 7)] <- NA
 # Clusters 5 and 6 have w2 missing on their first row only, which lavaan reads
 # as w2 missing for the whole cluster. The first row of cluster 5 is also
-# missing on y1-y3, so LOCO drops it before building the cluster's patterns.
+# missing on y1-y3, so it is an empty row in the cluster's patterns.
 first_row <- !duplicated(d_between$cluster)
 d_between$w2[first_row & d_between$cluster %in% c(5, 6)] <- NA
 d_between[first_row & d_between$cluster == 5, c("y1", "y2", "y3")] <- NA
@@ -520,4 +518,261 @@ test_that("the per-row override scores only a cluster's observed row", {
     suppressWarnings(loo(fit_resp, type = "loso", units = rows_resp[-1L])),
     "No units to score"
   )
+})
+
+# Small and empty clusters: cluster 2 cut to one row and cluster 3 to two,
+# cluster 4 missing y1-y3 (only its between-level w2 observed) and cluster 5
+# missing everything, plus MCAR holes in y2. The second model has exactly one
+# variable (y1) at both levels.
+d_small <- lavaan::Demo.twolevel[
+  lavaan::Demo.twolevel$cluster <= 30,
+  c("y1", "y2", "y3", "w2", "cluster")
+]
+pos <- ave(d_small$cluster, d_small$cluster, FUN = seq_along)
+d_small <- d_small[
+  !(d_small$cluster == 2 & pos > 1) & !(d_small$cluster == 3 & pos > 2),
+]
+d_small[d_small$cluster == 4, c("y1", "y2", "y3")] <- NA
+d_small[d_small$cluster == 5, c("y1", "y2", "y3", "w2")] <- NA
+set.seed(1)
+d_small$y2[sample(nrow(d_small), 20)] <- NA
+fits_small <- list(
+  three_both = fit_2l_ml(
+    "level: 1\n fw =~ y1 + y2 + y3\n level: 2\n fb =~ y1 + y2 + y3\n w2 ~ fb",
+    d_small
+  ),
+  one_both = fit_2l_ml(
+    "level: 1\n fw =~ y1 + y2 + y3\n level: 2\n y1 ~~ w2",
+    d_small
+  )
+)
+
+# Dense observed-data marginal of a set of rows from one cluster: the rows'
+# level-1 values stacked, then the cluster's between-only values.
+dense_marginal <- function(int, mom, rows) {
+  X <- int$lavdata@X[[1L]]
+  ovn <- int$lavdata@ov.names[[1L]]
+  l1 <- int$lavdata@ov.names.l[[1L]][[1L]]
+  l2 <- int$lavdata@ov.names.l[[1L]][[2L]]
+  z <- setdiff(l2, l1)
+  n <- length(rows)
+  E <- matrix(0, length(l1), length(l2))
+  b <- match(l1, l2)
+  E[cbind(which(!is.na(b)), b[!is.na(b)])] <- 1
+  Ez <- matrix(0, length(z), length(l2))
+  Ez[cbind(seq_along(z), match(z, l2))] <- 1
+  L <- rbind(E[rep(seq_along(l1), n), , drop = FALSE], Ez)
+  W <- matrix(0, nrow(L), nrow(L))
+  W[seq_len(n * length(l1)), seq_len(n * length(l1))] <-
+    kronecker(diag(n), mom$Sigma_w)
+  V <- W + L %*% mom$Sigma_b %*% t(L)
+  m <- c(rep(mom$mu_w, n), numeric(length(z))) + as.numeric(L %*% mom$mu_b)
+  v <- c(
+    as.numeric(t(X[rows, match(l1, ovn), drop = FALSE])),
+    X[rows[1L], match(z, ovn)]
+  )
+  o <- which(!is.na(v))
+  INLAvaan:::mvn_loglik_rows(
+    matrix(v[o], 1L),
+    m[o],
+    V[o, o, drop = FALSE]
+  )
+}
+
+test_that("LOCO scores small clusters and drops empty ones", {
+  for (fit_s in fits_small) {
+    expect_message(res_s <- loo(fit_s), "Not scoring 1 cluster")
+    expect_equal(res_s$per_unit$unit, setdiff(1:30, 5L))
+    expect_true(all(is.finite(res_s$per_unit$log_cpo_2)))
+
+    int <- get_inlavaan_internal(fit_s)
+    minfo <- INLAvaan:::loco_missing_info(int)
+    cache <- INLAvaan:::loo_grad_cache(
+      int$theta_star,
+      int$lavmodel,
+      int$partable,
+      two_level = TRUE
+    )
+    ll <- vapply(
+      seq_len(minfo$J),
+      function(j) INLAvaan:::loco_missing_loglik_one(j, minfo, cache$mom),
+      numeric(1)
+    )
+    expect_equal(ll[5L], 0)
+    expect_equal(res_s$per_unit$l_star, ll[-5L])
+
+    # Per-cluster logliks sum to the fitted FIML loglik
+    x <- INLAvaan:::pars_to_x(int$theta_star, int$partable)
+    lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
+    opts <- fit_s@Options
+    opts$estimator <- "ML"
+    ll_lav <- lavaan:::lav_model_loglik(
+      lavdata = int$lavdata,
+      lavsamplestats = int$lavsamplestats,
+      lavimplied = lavaan::lav_model_implied(lm_x),
+      lavmodel = lm_x,
+      lavoptions = opts
+    )$loglik
+    expect_equal(sum(ll), ll_lav, tolerance = 1e-8)
+
+    # The one-row, two-row and within-empty clusters match the dense marginal
+    for (j in 2:4) {
+      expect_equal(
+        ll[j],
+        dense_marginal(int, cache$mom, minfo$rows_by_cluster[[j]]),
+        tolerance = 1e-10
+      )
+    }
+  }
+})
+
+test_that("the per-row override scores one- and two-row clusters", {
+  for (fit_s in fits_small) {
+    int <- get_inlavaan_internal(fit_s)
+    minfo <- INLAvaan:::loco_missing_info(int)
+    r2 <- minfo$rows_by_cluster[[2L]]
+    r3 <- minfo$rows_by_cluster[[3L]]
+    expect_warning(
+      res_row <- loo(fit_s, type = "loso", units = c(r2, r3)),
+      "leave-one-unit-out"
+    )
+    expect_true(all(res_row$per_unit$ok))
+    # The singleton's only row is the cluster
+    expect_equal(
+      res_row$per_unit$l_star[1L],
+      loo(fit_s, units = 2L)$per_unit$l_star
+    )
+    # Each row of the two-row cluster, given the other
+    cache <- INLAvaan:::loo_grad_cache(
+      int$theta_star,
+      int$lavmodel,
+      int$partable,
+      two_level = TRUE
+    )
+    l3 <- dense_marginal(int, cache$mom, r3)
+    l_other <- c(
+      dense_marginal(int, cache$mom, r3[2L]),
+      dense_marginal(int, cache$mom, r3[1L])
+    )
+    expect_equal(res_row$per_unit$l_star[2:3], l3 - l_other, tolerance = 1e-10)
+  }
+})
+
+test_that("scores of small clusters match finite differences", {
+  # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
+  # differences across CRAN check flavours -- too fragile to assert there.
+  skip_on_cran()
+  for (fit_s in fits_small) {
+    int <- get_inlavaan_internal(fit_s)
+    minfo <- INLAvaan:::loco_missing_info(int)
+    js <- 2:4
+    rows <- c(minfo$rows_by_cluster[[2L]], minfo$rows_by_cluster[[3L]])
+    s_an <- rbind(
+      INLAvaan:::loco_missing_scores_theta(
+        int$theta_star,
+        minfo,
+        int$lavmodel,
+        int$partable,
+        js
+      ),
+      INLAvaan:::loso2l_missing_scores_theta(
+        int$theta_star,
+        minfo,
+        int$lavmodel,
+        int$partable,
+        rows
+      )
+    )
+    ll_units <- function(theta) {
+      cache <- INLAvaan:::loo_grad_cache(
+        theta,
+        int$lavmodel,
+        int$partable,
+        two_level = TRUE
+      )
+      c(
+        vapply(
+          js,
+          function(j) INLAvaan:::loco_missing_loglik_one(j, minfo, cache$mom),
+          numeric(1)
+        ),
+        INLAvaan:::loso2l_missing_loglik_all(rows, minfo, cache$mom)
+      )
+    }
+    h <- 1e-6
+    s_fd <- vapply(
+      seq_along(int$theta_star),
+      function(k) {
+        tp <- tm <- int$theta_star
+        tp[k] <- tp[k] + h
+        tm[k] <- tm[k] - h
+        (ll_units(tp) - ll_units(tm)) / (2 * h)
+      },
+      numeric(length(js) + length(rows))
+    )
+    expect_equal(max(abs(s_an - s_fd)), 0, tolerance = 1e-5)
+  }
+})
+
+test_that("missing kernels match complete-data kernels on small clusters", {
+  d_one <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  pos <- ave(d_one$cluster, d_one$cluster, FUN = seq_along)
+  d_one <- d_one[
+    !(d_one$cluster == 2 & pos > 1) & !(d_one$cluster == 3 & pos > 2),
+  ]
+  fit_one <- fit_2l_ml(
+    "level: 1\n fw =~ y1 + y2 + y3\n level: 2\n fb =~ y1 + y2 + y3\n w2 ~ fb",
+    d_one
+  )
+  int <- get_inlavaan_internal(fit_one)
+  css <- INLAvaan:::loco_suff_stats(int$lavdata)
+  minfo <- INLAvaan:::loco_missing_info(int)
+  X <- int$lavdata@X[[1L]]
+  cache <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable,
+    two_level = TRUE
+  )
+  js <- 1:4
+  expect_equal(
+    vapply(
+      js,
+      function(j) INLAvaan:::loco_missing_loglik_one(j, minfo, cache$mom),
+      numeric(1)
+    ),
+    vapply(
+      js,
+      function(j) INLAvaan:::loco_loglik_one(j, css, cache$mom),
+      numeric(1)
+    ),
+    tolerance = 1e-10
+  )
+  rows <- c(minfo$rows_by_cluster[[2L]], minfo$rows_by_cluster[[3L]])
+  expect_equal(
+    INLAvaan:::loso2l_missing_loglik_all(rows, minfo, cache$mom),
+    INLAvaan:::loso2l_loglik_all(rows, css, X, cache$mom),
+    tolerance = 1e-10
+  )
+  expect_equal(
+    INLAvaan:::loso2l_missing_scores_theta(
+      int$theta_star,
+      minfo,
+      int$lavmodel,
+      int$partable,
+      rows,
+      cache
+    ),
+    INLAvaan:::loso2l_scores_theta(
+      int$theta_star,
+      css,
+      X,
+      int$lavmodel,
+      int$partable,
+      rows,
+      cache
+    ),
+    tolerance = 1e-8
+  )
+  expect_no_error(loo(fit_one, units = js))
 })
