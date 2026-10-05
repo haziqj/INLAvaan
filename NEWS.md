@@ -115,6 +115,9 @@
   (`fixed.x = TRUE`, the default). Its replicates varied the covariates, which
   the model does not predict.
 
+* `simulate()` and `predict(type = "ymis")` now work for `conditional.x = TRUE`
+  fits. Previously `simulate()` rejected every draw and imputation failed.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
