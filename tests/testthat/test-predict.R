@@ -365,3 +365,24 @@ test_that("predict() works when an observed outcome has no residual", {
     expect_equal(unname(ypred[[i]][, "x4"]), dat$x4, tolerance = 1e-6)
   }
 })
+
+test_that("predict(type = 'ymis') imputes conditional.x fits", {
+  dat_mis <- dat
+  set.seed(1)
+  dat_mis$x2[sample(nrow(dat_mis), 30)] <- NA
+  fit <- suppressWarnings(asem(
+    "visual =~ x1 + x2 + x3; visual ~ ageyr + grade",
+    dat_mis,
+    conditional.x = TRUE,
+    missing = "ml",
+    verbose = FALSE,
+    nsamp = NSAMP,
+    test = "none"
+  ))
+  set.seed(1)
+  imp <- predict(fit, type = "ymis", nsamp = 5, ymis_only = TRUE)
+  v <- unlist(imp)
+  expect_true(all(grepl("^x2\\[", names(v))))
+  # Imputations sit on the scale of x2, not that of the covariates
+  expect_lt(abs(mean(v) - mean(dat_mis$x2, na.rm = TRUE)), 1)
+})

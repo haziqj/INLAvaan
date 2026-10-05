@@ -870,9 +870,15 @@ predict.inlavaan_internal <- function(
           next
         } # nocov end
 
-        Sigma_y <- lavimplied$cov[[g]]
-        mu_y <- if (!is.null(lavimplied$mean)) {
-          as.numeric(lavimplied$mean[[g]])
+        mom_g <- implied_block_moments(
+          lavimplied,
+          g,
+          lavmodel,
+          object$lavsamplestats
+        )
+        Sigma_y <- mom_g$cov
+        mu_y <- if (!is.null(mom_g$mean)) {
+          as.numeric(mom_g$mean)
         } else {
           # no mean structure: condition on the saturated (sample) means
           # (defensive: missing = "ML" forces a mean structure in lavaan,
