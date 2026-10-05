@@ -118,6 +118,12 @@
 * `simulate()` and `predict(type = "ymis")` now work for `conditional.x = TRUE`
   fits. Previously `simulate()` rejected every draw and imputation failed.
 
+* `sampling()` for `conditional.x = TRUE` fits now draws the covariates too,
+  as for other fits. Previously it left out their effects.
+
+* The PPP of a two-level model is skipped, with a warning, when a variable at
+  both levels has almost no between-level variance. It was 0 in such models.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
