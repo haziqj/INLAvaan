@@ -26,14 +26,15 @@ test_that("PPP agrees with and without conditional.x", {
     c(FALSE, TRUE),
     function(cx) {
       set.seed(1)
-      fit <- asem(
+      # Silence fit diagnostics on the intercepts, which do not bear on the PPP
+      fit <- suppressWarnings(asem(
         mod,
         dat,
         conditional.x = cx,
         nsamp = 500,
         test = "ppp",
         verbose = FALSE
-      )
+      ))
       get_inlavaan_internal(fit, "ppp")
     },
     numeric(1)
