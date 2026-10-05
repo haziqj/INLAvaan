@@ -74,6 +74,9 @@
   `missing = "ML"` that have between-level variables, such as cluster-level
   covariates.
 
+* `loo()` and `waic()` now score two-level `fixed.x = TRUE` models correctly
+  when they mix covariates at both levels with within-only ones.
+
 * `fit_skew_normal_samp()`, and with it the summaries of covariances and
   defined parameters (`:=`), missed the skew of draws with a small SD (below
   about 0.2). Posterior modes are also more accurate for parameters on a small
