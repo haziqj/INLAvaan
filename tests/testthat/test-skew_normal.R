@@ -24,6 +24,23 @@ test_that("SN fit variable temp", {
   expect_equal(res$alpha, 5)
 })
 
+test_that("Skew-normal sample fit is scale-equivariant", {
+  set.seed(1)
+  d <- 4 / sqrt(17)
+  y <- d * abs(rnorm(500)) + sqrt(1 - d^2) * rnorm(500)
+  ref <- fit_skew_normal_samp(y)
+  expect_gt(ref$alpha, 2)
+  for (s in c(1e-2, 1e-4)) {
+    res <- fit_skew_normal_samp(s * y)
+    expect_equal(res$alpha, ref$alpha, tolerance = 1e-5)
+    expect_equal(
+      c(res$xi, res$omega) / s,
+      c(ref$xi, ref$omega),
+      tolerance = 1e-5
+    )
+  }
+})
+
 test_that("Gaussian marginal moments are taken on the original scale", {
   m <- 0.5
   s <- 0.3

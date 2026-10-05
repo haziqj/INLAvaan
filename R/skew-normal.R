@@ -397,7 +397,8 @@ psnorm <- function(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE) {
 #' Fit a skew normal distribution to a sample
 #'
 #' @details Uses maximum likelihood estimation to fit a skew normal distribution
-#' to the provided numeric vector `x`.
+#' to the provided numeric vector `x`. The fit is computed on standardised
+#' draws, so it does not depend on the scale of `x`.
 #'
 #' @param x A numeric vector of sample data.
 #'
@@ -408,18 +409,19 @@ psnorm <- function(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE) {
 #' x <- rnorm(100, mean = 5, sd = 1)
 #' unlist(fit_skew_normal_samp(x))
 fit_skew_normal_samp <- function(x) {
-  # Starting values
-  xi0 <- stats::median(x)
-  omega0 <- log(stats::sd(x)) # log-scale param
-  alpha0 <- 0
-  start <- c(xi0, omega0, alpha0)
+  # Fit on standardised draws, starting from the standard normal, since
+  # nlminb() stalls at its start values when the draws have a small scale. The
+  # shape alpha is scale-free.
+  m <- stats::median(x)
+  s <- stats::sd(x)
+  z <- (x - m) / s
 
   opt <- nlminb(
-    start = c(xi0, omega0, alpha0),
+    start = c(0, 0, 0),
     objective = function(par) {
       -1 *
         sum(dsnorm(
-          x,
+          z,
           xi = par[1],
           omega = exp(par[2]),
           alpha = par[3],
@@ -428,8 +430,8 @@ fit_skew_normal_samp <- function(x) {
     }
   )
 
-  xi_hat <- opt$par[1]
-  omega_hat <- exp(opt$par[2])
+  xi_hat <- m + s * opt$par[1]
+  omega_hat <- s * exp(opt$par[2])
   alpha_hat <- opt$par[3]
 
   list(

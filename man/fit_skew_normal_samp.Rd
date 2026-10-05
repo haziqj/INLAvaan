@@ -27,7 +27,8 @@ Fit a skew normal distribution to a sample
 }
 \details{
 Uses maximum likelihood estimation to fit a skew normal distribution
-to the provided numeric vector \code{x}.
+to the provided numeric vector \code{x}. The fit is computed on standardised
+draws, so it does not depend on the scale of \code{x}.
 }
 \examples{
 x <- rnorm(100, mean = 5, sd = 1)
