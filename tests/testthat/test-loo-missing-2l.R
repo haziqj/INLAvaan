@@ -5,7 +5,7 @@ skip_on_cran()
 # Two-level FIML LOCO (leave-one-cluster-out under missing data). Each cluster
 # is scored on its observed-data marginal likelihood via lavaan's raw-data
 # missing kernels; since LOCO deletes a whole cluster there is no downdating.
-# The flavour is joint (lavaan rejects two-level + conditional.x).
+# Fits without covariates are scored jointly, fixed.x fits conditionally.
 
 twolevel_model <- "
   level: 1
@@ -328,8 +328,8 @@ test_that("LOCO handles between-only variables under missing data", {
     expect_equal(res_b$n_units, 30L)
     expect_true(all(res_b$per_unit$ok))
 
-    # Per-cluster logliks sum to the fitted FIML loglik plus the covariate term
-    # (loglik.x) that lavaan subtracts under fixed.x.
+    # Per-cluster logliks sum to the fitted FIML loglik, which is conditional on
+    # the covariate (w1) of fit_between as the scores are.
     int <- get_inlavaan_internal(fit_b)
     x <- INLAvaan:::pars_to_x(int$theta_star, int$partable)
     lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
@@ -342,8 +342,7 @@ test_that("LOCO handles between-only variables under missing data", {
       lavmodel = lm_x,
       lavoptions = opts
     )$loglik
-    ll_x <- int$lavsamplestats@YLp[[1L]][[2L]]$loglik.x
-    expect_equal(sum(res_b$per_unit$l_star), ll + ll_x, tolerance = 1e-6)
+    expect_equal(sum(res_b$per_unit$l_star), ll, tolerance = 1e-6)
   }
 })
 
@@ -775,4 +774,188 @@ test_that("missing kernels match complete-data kernels on small clusters", {
     tolerance = 1e-8
   )
   expect_no_error(loo(fit_one, units = js))
+})
+
+# Fixed.x covariates: x1 within, w1 between. The FIML score is conditional on
+# them, as the listwise (complete-data) score is.
+model_x <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ x1
+  level: 2
+    fb =~ y1 + y2 + y3
+    fb ~ w1
+"
+d_x <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+fit_x <- function(data, missing = "ml") {
+  suppressWarnings(asem(
+    model_x,
+    data,
+    cluster = "cluster",
+    missing = missing,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  ))
+}
+fit_x_ml <- fit_x(d_x)
+res_x_ml <- loo(fit_x_ml)
+rows_x <- c(1:3, 6L, 100L, 200L)
+loo_cols <- c("l_star", "log_cpo_1", "log_cpo_2", "lpd_2")
+
+test_that("two-level FIML scores fixed.x fits as the listwise path does", {
+  fit_lw <- fit_x(d_x, missing = "listwise")
+  int_lw <- get_inlavaan_internal(fit_lw)
+  expect_equal(res_x_ml$flavour, "conditional")
+  # Same data and summary, so the two kernels must agree
+  res_ml <- loo(
+    fit_x_ml,
+    theta = int_lw$theta_star,
+    Omega = int_lw$Sigma_theta
+  )
+  expect_equal(
+    res_ml$per_unit[loo_cols],
+    loo(fit_lw)$per_unit[loo_cols],
+    tolerance = 1e-8
+  )
+  res_ml_row <- suppressWarnings(loo(
+    fit_x_ml,
+    type = "loso",
+    units = rows_x,
+    theta = int_lw$theta_star,
+    Omega = int_lw$Sigma_theta
+  ))
+  res_lw_row <- suppressWarnings(loo(fit_lw, type = "loso", units = rows_x))
+  expect_equal(
+    res_ml_row$per_unit[loo_cols],
+    res_lw_row$per_unit[loo_cols],
+    tolerance = 1e-8
+  )
+
+  # The units sum to lavaan's loglik, which is conditional under fixed.x
+  int <- get_inlavaan_internal(fit_x_ml)
+  x <- INLAvaan:::pars_to_x(int$theta_star, int$partable)
+  lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
+  opts <- fit_x_ml@Options
+  opts$estimator <- "ML"
+  ll <- lavaan:::lav_model_loglik(
+    lavdata = int$lavdata,
+    lavsamplestats = int$lavsamplestats,
+    lavimplied = lavaan::lav_model_implied(lm_x),
+    lavmodel = lm_x,
+    lavoptions = opts
+  )$loglik
+  expect_equal(sum(res_x_ml$per_unit$l_star), ll, tolerance = 1e-8)
+})
+
+test_that("rescaling the covariates leaves the conditional score unchanged", {
+  d_s <- d_x
+  d_s$x1 <- 10 * d_s$x1
+  d_s$w1 <- 10 * d_s$w1
+  fit_s <- fit_x(d_s)
+  # Map the summary onto the rescaled fit: the slopes shrink tenfold
+  int <- get_inlavaan_internal(fit_x_ml)
+  pt <- int$partable
+  k <- pt$free[pt$op == "~" & pt$rhs %in% c("x1", "w1")]
+  D <- rep(1, length(int$theta_star))
+  D[k] <- 1 / 10
+  res_s <- loo(
+    fit_s,
+    theta = int$theta_star * D,
+    Omega = int$Sigma_theta * outer(D, D)
+  )
+  expect_equal(
+    res_s$per_unit[loo_cols],
+    res_x_ml$per_unit[loo_cols],
+    tolerance = 1e-8
+  )
+  res_s_row <- suppressWarnings(loo(
+    fit_s,
+    type = "loso",
+    units = rows_x,
+    theta = int$theta_star * D,
+    Omega = int$Sigma_theta * outer(D, D)
+  ))
+  res_row <- suppressWarnings(loo(fit_x_ml, type = "loso", units = rows_x))
+  expect_equal(
+    res_s_row$per_unit[loo_cols],
+    res_row$per_unit[loo_cols],
+    tolerance = 1e-8
+  )
+})
+
+# missing = "ml.x" keeps rows with a missing covariate. Cluster 4 keeps only its
+# covariates, so it has no outcome to score.
+d_mlx <- d_x
+set.seed(2)
+d_mlx$x1[sample(nrow(d_mlx), 25)] <- NA
+d_mlx$y1[sample(nrow(d_mlx), 25)] <- NA
+d_mlx[d_mlx$cluster == 4, c("y1", "y2", "y3")] <- NA
+fit_x_mlx <- fit_x(d_mlx, missing = "ml.x")
+
+test_that("ml.x scores each cluster given its observed covariates", {
+  expect_message(
+    res_mlx <- loo(fit_x_mlx),
+    "Not scoring 1 cluster with no observed outcome data"
+  )
+  expect_equal(res_mlx$per_unit$unit, setdiff(1:30, 4L))
+  expect_true(all(is.finite(res_mlx$per_unit$log_cpo_2)))
+
+  # Independent covariate term: x1 (within only) and w1 (between only) are
+  # scored row by row and cluster by cluster on their observed values.
+  int <- get_inlavaan_internal(fit_x_mlx)
+  minfo <- INLAvaan:::loco_missing_info(int)
+  cache <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable,
+    two_level = TRUE
+  )
+  mom <- cache$mom
+  ovn <- int$lavdata@ov.names[[1L]]
+  l1 <- int$lavdata@ov.names.l[[1L]][[1L]]
+  l2 <- int$lavdata@ov.names.l[[1L]][[2L]]
+  x1 <- minfo$X[, match("x1", ovn)]
+  a <- match("x1", l1)
+  l_x1 <- dnorm(x1, mom$mu_w[a], sqrt(mom$Sigma_w[a, a]), log = TRUE)
+  w1 <- vapply(minfo$clusters, function(cj) cj$Y2[1L, match("w1", ovn)], 0)
+  b <- match("w1", l2)
+  l_w1 <- dnorm(w1, mom$mu_b[b], sqrt(mom$Sigma_b[b, b]), log = TRUE)
+  c_j <- as.numeric(rowsum(l_x1, minfo$cl, na.rm = TRUE)) + l_w1
+  ll_j <- vapply(
+    seq_len(minfo$J),
+    function(j) INLAvaan:::loco_missing_loglik_one(j, minfo, mom),
+    numeric(1)
+  )
+  expect_equal(res_mlx$per_unit$l_star, (ll_j - c_j)[-4L], tolerance = 1e-10)
+  # The covariate-only cluster has nothing left to score
+  expect_equal(ll_j[4L], c_j[4L], tolerance = 1e-10)
+
+  # The per-row override drops cluster 4's covariate-only rows
+  rows <- c(minfo$rows_by_cluster[[1L]], minfo$rows_by_cluster[[4L]][1L])
+  expect_message(
+    res_row <- suppressWarnings(loo(fit_x_mlx, type = "loso", units = rows)),
+    "Not scoring 1 row"
+  )
+  expect_equal(res_row$per_unit$unit, minfo$rows_by_cluster[[1L]])
+  expect_true(all(is.finite(res_row$per_unit$log_cpo_2)))
+})
+
+test_that("waic() scores two-level FIML fixed.x fits conditionally", {
+  w <- suppressMessages(waic(fit_x_mlx, second_order = FALSE))
+  res1 <- suppressMessages(loo(fit_x_mlx, second_order = FALSE))
+  expect_equal(w$flavour, "conditional")
+  expect_equal(w$per_unit$unit, res1$per_unit$unit)
+  # First-order WAIC is the first-order LOO score
+  expect_equal(unname(w$estimates["elpd_waic", "Estimate"]), res1$elpd_1)
+  w_ml <- waic(fit_x_ml)
+  expect_equal(w_ml$flavour, "conditional")
+  expect_equal(
+    unname(w_ml$estimates["elpd_waic", "Estimate"]),
+    res_x_ml$elpd_2,
+    tolerance = 0.01
+  )
 })

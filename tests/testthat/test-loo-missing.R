@@ -252,3 +252,56 @@ test_that("a fully missing row is left out of the scored units", {
   expect_equal(res_empty$per_unit$unit, 1:70)
   expect_equal(res_empty$per_unit$log_cpo_2, res$per_unit$log_cpo_2)
 })
+
+test_that("ml.x scores each row given the covariates it has", {
+  d_x <- lavaan::PoliticalDemocracy[, c("y1", "y2", "y3", "y4", "x1", "x2")]
+  set.seed(3)
+  d_x$y1[sample(75, 8)] <- NA
+  d_x$x1[sample(75, 6)] <- NA
+  d_x[c(10, 20), c("x1", "x2")] <- NA # no observed covariate
+  d_x[30, c("y1", "y2", "y3", "y4")] <- NA # covariates only
+  fit_x <- suppressWarnings(asem(
+    "dem =~ y1 + y2 + y3 + y4\n dem ~ x1 + x2",
+    d_x,
+    missing = "ml.x",
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  ))
+  expect_message(
+    res_x <- loo(fit_x),
+    "Not scoring 1 case with no observed outcome data"
+  )
+  expect_equal(res_x$flavour, "conditional")
+  expect_equal(res_x$per_unit$unit, setdiff(1:75, 30L))
+  expect_true(all(is.finite(res_x$per_unit$log_cpo_2)))
+
+  # Each row's observed-data density less that of its observed covariates
+  int <- get_inlavaan_internal(fit_x)
+  mom <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable
+  )$mom[[1L]]
+  X <- int$lavdata@X[[1L]]
+  xi <- int$lavsamplestats@x.idx[[1L]]
+  dens <- function(y, mu, S) {
+    o <- which(!is.na(y))
+    if (length(o) == 0L) {
+      return(0)
+    }
+    INLAvaan:::mvn_loglik_rows(matrix(y[o], 1L), mu[o], S[o, o, drop = FALSE])
+  }
+  l_cond <- vapply(
+    res_x$per_unit$unit,
+    function(i) {
+      dens(X[i, ], mom$mu, mom$Sigma) -
+        dens(X[i, xi], mom$mu[xi], mom$Sigma[xi, xi])
+    },
+    numeric(1)
+  )
+  expect_equal(res_x$per_unit$l_star, l_cond, tolerance = 1e-10)
+})

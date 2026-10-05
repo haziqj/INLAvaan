@@ -188,10 +188,12 @@ loso_resolve_units <- function(lavdata, units) {
 # moments; scores scatter back into full (mu, vech Sigma) coordinates (zero
 # where unobserved, since l_i does not depend on the unobserved blocks). FIML
 # forces a mean structure, so the saturated-means transformation never
-# coincides with missingness and the iid kernels apply as-is; and lavaan
-# rejects fixed.x with incomplete data, so only the joint flavour arises here.
-# A row with no observed entries has no observed-data contribution, and
-# inlav_loo() leaves it out of the scored units.
+# coincides with missingness and the iid kernels apply as-is. Under fixed.x the
+# conditional flavour subtracts each row's covariate density on the covariate
+# entries it has (missing = "ml.x" keeps rows with missing covariates), and a
+# row with none adds nothing. inlav_loo() leaves out of the scored units any
+# row with nothing to predict: no observed entries, or no observed outcomes
+# under the conditional flavour.
 
 # Rows grouped by missing pattern: each entry lists the row positions (within
 # Y) sharing a pattern and that pattern's observed column indices.
@@ -232,6 +234,9 @@ loso_loglik_all <- function(Y, mom) {
   out <- numeric(nrow(Y))
   for (pat in fiml_patterns(Y)) {
     o <- pat$o
+    if (length(o) == 0L) {
+      next # nothing observed, log-density zero
+    }
     out[pat$rows] <- mvn_loglik_rows(
       Y[pat$rows, o, drop = FALSE],
       mom$mu[o],
@@ -309,11 +314,16 @@ loso_scores_theta <- function(
 }
 
 # Which resolved units have at least one observed entry (all of them unless
-# rows are fully missing under FIML, which lavaan keeps in the data).
-loso_observed_units <- function(uv, lavdata) {
+# rows are fully missing under FIML, which lavaan keeps in the data). x_idx
+# gives each group's covariate columns, which a conditional score does not
+# predict, so they are left out of the check.
+loso_observed_units <- function(uv, lavdata, x_idx = NULL) {
   keep <- logical(uv$n)
   for (g in seq_along(uv$rows)) {
     Xg <- lavdata@X[[g]][uv$pos[[g]], , drop = FALSE]
+    if (length(x_idx[[g]]) > 0L) {
+      Xg <- Xg[, -x_idx[[g]], drop = FALSE]
+    }
     keep[uv$rows[[g]]] <- rowSums(!is.na(Xg)) > 0L
   }
   keep
@@ -479,8 +489,9 @@ loco_scores_theta <- function(theta, css, lavmodel, pt, units, cache = NULL) {
 # it fits two-level FIML with), which we reuse per cluster: the same kernel
 # swap as the complete-data path, fed each cluster's raw rows and missing
 # pattern object instead of its sufficient statistics. Because LOCO deletes a
-# whole cluster, no downdating is needed. FIML forces joint scoring (lavaan
-# rejects two-level + conditional.x), so only the joint flavour arises.
+# whole cluster, no downdating is needed. Under fixed.x the kernels return the
+# joint density, and the conditional score subtracts each cluster's covariate
+# density (loo_fixedx_missing_loco()), as on complete data.
 
 # Single-cluster missing-kernel inputs from a level-1 data block Y1j (raw rows
 # of one cluster, possibly with a row removed for the per-row override), its
@@ -546,13 +557,17 @@ loco_missing_info <- function(int) {
   cl <- Lp$cluster.idx[[2L]]
   J <- Lp$nclusters[[2L]]
   between_idx <- Lp$between.idx[[2L]]
-  within_cols <- if (length(between_idx) > 0L) {
-    seq_len(ncol(X))[-between_idx]
+  # Covariates of a conditional score are conditioned on, not predicted, so
+  # only the outcome columns decide whether a row or cluster has data to score.
+  x_cols <- if (loo_flavour(int) == "conditional") {
+    int$lavsamplestats@x.idx[[1L]]
   } else {
-    seq_len(ncol(X))
+    integer(0L)
   }
+  within_cols <- setdiff(seq_len(ncol(X)), c(between_idx, x_cols))
+  between_cols <- setdiff(between_idx, x_cols)
   row_observed <- rowSums(!is.na(X[, within_cols, drop = FALSE])) > 0L
-  between_observed <- rowSums(!is.na(Y2[, between_idx, drop = FALSE])) > 0L
+  between_observed <- rowSums(!is.na(Y2[, between_cols, drop = FALSE])) > 0L
   rows_by_cluster <- lapply(seq_len(J), function(j) which(cl == j))
   clusters <- lapply(seq_len(J), function(j) {
     loco_missing_build_cj(
@@ -571,8 +586,8 @@ loco_missing_info <- function(int) {
     clusters = clusters,
     J = J,
     n_j = tabulate(cl, J),
-    # observed (not fully-missing) rows per cluster: the effective unit count
-    # the per-row override needs for its singleton guard
+    # Rows with observed outcomes per cluster: the effective unit count the
+    # per-row override needs for its singleton guard.
     n_obs = n_obs,
     # clusters with observed data at either level, the scorable LOCO units
     cluster_observed = n_obs > 0L | between_observed,
@@ -654,10 +669,10 @@ loco_missing_scores_theta <- function(
 # Rabe-Hesketh, 2019), l_i = ll_j(full cluster) - ll_j(cluster minus row i),
 # both observed-data cluster marginals from the missing kernel. "Minus row i"
 # drops the raw row and rebuilds the pattern object (no sufficient-statistic
-# downdating). A row fully missing on the within variables is not a prediction
-# target: removing it leaves the observed data unchanged, so l_i = 0, and
-# inlav_loo() drops such rows from the scored units. The only observed row of a
-# cluster is the cluster itself, l_i = ll_j(full), as for a singleton cluster.
+# downdating). A row with no observed within-level outcome is not a prediction
+# target: it scores l_i = 0, and inlav_loo() drops such rows from the scored
+# units. The only observed row of a cluster is the cluster itself,
+# l_i = ll_j(full), as for a singleton cluster.
 
 # Cluster of row i with that row removed: rebuild from the cluster's original
 # rows minus i.
@@ -1121,6 +1136,95 @@ loo_fixedx_rowdiff_loco <- function(int, css, X, units, mom) {
   )
 }
 
+# Frozen covariate log-density of one cluster under FIML, from its raw rows Xj
+# and its level-2 row Y2j. Each row is scored on the covariate entries it has
+# and adds nothing without any, the convention of blavaan's two-level fixed.x
+# term, here at the frozen two-level moments. With complete covariates this is
+# loo_fixedx_const_cluster() on the cluster's sufficient statistics. With holes
+# (missing = "ml.x") it is the Gaussian of the observed entries, whose
+# covariance is the between block B0 shared by all rows plus Sw_vv per row.
+loo_fixedx_const_raw <- function(Xj, Y2j, info) {
+  V <- Xj[, info$v_cols, drop = FALSE]
+  z <- Y2j[1L, info$z_cols]
+  n <- nrow(V)
+  if (!anyNA(V) && !anyNA(z)) {
+    p <- ncol(Xj)
+    ybar <- numeric(p)
+    S <- matrix(0, p, p)
+    ybar[info$z_cols] <- z
+    if (info$qv > 0L) {
+      ybar[info$v_cols] <- colMeans(V)
+      Vc <- sweep(V, 2L, ybar[info$v_cols], "-")
+      S[info$v_cols, info$v_cols] <- crossprod(Vc)
+    }
+    return(loo_fixedx_const_cluster(n, ybar, S, info))
+  }
+  # Stack z, then each row's v, with sel mapping each entry to its coordinate
+  v_idx <- info$qz + seq_len(info$qv)
+  sel <- c(seq_len(info$qz), rep(v_idx, n))
+  vals <- c(z, as.numeric(t(V)))
+  C <- info$B0[sel, sel, drop = FALSE]
+  w <- info$qz + seq_len(n * info$qv)
+  C[w, w] <- C[w, w] + kronecker(diag(n), info$Sw_vv)
+  o <- which(!is.na(vals))
+  if (length(o) == 0L) {
+    return(0)
+  }
+  mvn_loglik_rows(
+    matrix(vals[o], 1L),
+    info$mu_zv[sel][o],
+    C[o, o, drop = FALSE]
+  )
+}
+
+# FIML analogues of loo_fixedx_const_loco() and loo_fixedx_rowdiff_loco(): the
+# covariate part of a cluster, and of a row's contribution (the cluster term
+# less the term without the row). A cluster's only observed row takes the whole
+# term, and a row the override does not score takes zero.
+loo_fixedx_missing_loco <- function(int, minfo, units, mom) {
+  info <- loo_fixedx_info_loco(int, minfo, mom)
+  vapply(
+    units,
+    function(j) {
+      loo_fixedx_const_raw(
+        minfo$X[minfo$rows_by_cluster[[j]], , drop = FALSE],
+        minfo$clusters[[j]]$Y2,
+        info
+      )
+    },
+    numeric(1)
+  )
+}
+
+loo_fixedx_missing_rowdiff <- function(int, minfo, units, mom) {
+  info <- loo_fixedx_info_loco(int, minfo, mom)
+  cl <- minfo$cl[units]
+  need <- unique(cl)
+  c_full <- loo_fixedx_missing_loco(int, minfo, need, mom)
+  vapply(
+    seq_along(units),
+    function(u) {
+      i <- units[u]
+      j <- cl[u]
+      if (!minfo$row_observed[i]) {
+        return(0)
+      }
+      c_j <- c_full[match(j, need)]
+      if (minfo$n_obs[j] == 1L) {
+        return(c_j)
+      }
+      keep <- setdiff(minfo$rows_by_cluster[[j]], i)
+      c_j -
+        loo_fixedx_const_raw(
+          minfo$X[keep, , drop = FALSE],
+          minfo$clusters[[j]]$Y2,
+          info
+        )
+    },
+    numeric(1)
+  )
+}
+
 # Shared validation gate for the casewise log-likelihood machinery
 check_loo_model <- function(int, fn = "loo") {
   lavmodel <- int$lavmodel
@@ -1165,6 +1269,8 @@ inlav_loo <- function(
 
   check_loo_model(int, fn = "loo")
   flavour <- loo_flavour(int)
+  # A conditional score predicts the outcomes only
+  obs_what <- if (flavour == "conditional") "outcome data" else "data"
 
   # Resolve LOSO (per-row) vs LOCO (per-cluster)
   two_level <- is_multilevel(lavdata)
@@ -1233,10 +1339,14 @@ inlav_loo <- function(
       units,
       minfo$row_observed[units],
       "row",
-      "no observed within-level data"
+      paste("no observed within-level", obs_what)
     )
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
     l_star <- loso2l_missing_loglik_all(units, minfo, cache$mom)
+    if (flavour == "conditional") {
+      l_star <- l_star -
+        loo_fixedx_missing_rowdiff(int, minfo, units, cache$mom)
+    }
     s_mat <- loso2l_missing_scores_theta(
       theta,
       minfo,
@@ -1276,9 +1386,18 @@ inlav_loo <- function(
   } else if (type == "loso") {
     dv <- loso_data_view(lavmodel, lavdata, x_idx = int$lavsamplestats@x.idx)
     uv <- loso_resolve_units(lavdata, units)
-    keep <- loso_observed_units(uv, lavdata)
+    keep <- loso_observed_units(
+      uv,
+      lavdata,
+      if (flavour == "conditional") int$lavsamplestats@x.idx
+    )
     if (!all(keep)) {
-      units <- loo_drop_empty_units(uv$ids, keep, "case", "no observed data")
+      units <- loo_drop_empty_units(
+        uv$ids,
+        keep,
+        "case",
+        paste("no observed", obs_what)
+      )
       uv <- loso_resolve_units(lavdata, units)
     }
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = FALSE)
@@ -1296,14 +1415,14 @@ inlav_loo <- function(
     unit_group <- uv$grp
     nobs <- rep(1L, uv$n)
   } else if (isTRUE(int$lavsamplestats@missing.flag)) {
-    # Two-level FIML: per-cluster observed-data kernels (joint flavour only)
+    # Two-level FIML: per-cluster observed-data kernels
     minfo <- loco_missing_info(int)
     units <- check_loo_units(units, minfo$J, "clusters")
     units <- loo_drop_empty_units(
       units,
       minfo$cluster_observed[units],
       "cluster",
-      "no observed data"
+      paste("no observed", obs_what)
     )
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
     l_star <- vapply(
@@ -1311,6 +1430,9 @@ inlav_loo <- function(
       function(j) loco_missing_loglik_one(j, minfo, cache$mom),
       numeric(1)
     )
+    if (flavour == "conditional") {
+      l_star <- l_star - loo_fixedx_missing_loco(int, minfo, units, cache$mom)
+    }
     s_mat <- loco_missing_scores_theta(theta, minfo, lavmodel, pt, units, cache)
     score_fn <- function(th_act) {
       th <- theta
