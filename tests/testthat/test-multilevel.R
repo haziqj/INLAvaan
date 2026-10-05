@@ -224,80 +224,180 @@ predict_pinned <- function(fit, type, nsamp) {
   unclass(predict(fit, type = type, nsamp = nsamp))
 }
 
-test_that("Two-level ypred adds the residual variances lavInspect() reports", {
-  # At fixed parameters yhat is fixed, so ypred - yhat is the residual. Its
-  # variance sums the within and between diagonals of lavInspect(fit, "theta"),
-  # which hold the residual variances of observed outcomes too.
+predict_pinned_level2 <- function(fit, nsamp) {
+  x <- lavaan::lav_model_get_parameters(fit@Model)
+  local_mocked_bindings(
+    sample_params_posterior = function(int, nsamp, ...) {
+      list(x_samp = matrix(x, nsamp, length(x), byrow = TRUE))
+    }
+  )
+  set.seed(1)
+  unclass(predict(fit, type = "lv", level = 2L, nsamp = nsamp))
+}
+
+# Exact conditional moments, given theta, of the random quantities of cluster
+# 1, by conditioning the cluster's full joint Gaussian on its observed data.
+# Returns a function giving the mean and variance of a' X + c, where X stacks
+# (eta_w, w) for each row and then (eta_b, u).
+dense_cluster_1 <- function(fit, x) {
+  int <- get_inlavaan_internal(fit)
+  lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, x)
+  imp <- lavaan::lav_model_implied(lm_x)
+  mom <- ml_moments(lm_x, int$lavsamplestats)
+  Lp <- int$lavdata@Lp[[1]]
+  y <- int$lavdata@X[[1]]
+  idx1 <- Lp$ov.idx[[1]]
+  idx2 <- Lp$ov.idx[[2]]
+  A <- matrix(0, length(idx1), length(idx2))
+  sh <- match(idx1, idx2)
+  A[cbind(which(!is.na(sh)), sh[!is.na(sh)])] <- 1
+  zp <- which(!idx2 %in% idx1)
+  rows <- which(Lp$cluster.idx[[2]] == 1)
+  Lw <- mom$lambda[[1]]
+  Vw <- mom$veta[[1]]
+  Lb <- mom$lambda[[2]]
+  Vb <- mom$veta[[2]]
+  mw <- ncol(Vw)
+  kw <- mw + length(idx1)
+  K <- length(rows) * kw + ncol(Vb) + length(idx2)
+  mu <- numeric(K)
+  C <- matrix(0, K, K)
+  for (i in seq_along(rows)) {
+    s <- (i - 1) * kw + seq_len(kw)
+    mu[s] <- c(mom$eeta[[1]], imp$mean[[1]])
+    C[s, s] <- rbind(cbind(Vw, Vw %*% t(Lw)), cbind(Lw %*% Vw, imp$cov[[1]]))
+  }
+  sb <- length(rows) * kw + seq_len(ncol(Vb) + length(idx2))
+  mu[sb] <- c(mom$eeta[[2]], imp$mean[[2]])
+  C[sb, sb] <- rbind(cbind(Vb, Vb %*% t(Lb)), cbind(Lb %*% Vb, imp$cov[[2]]))
+  ui <- length(rows) * kw + ncol(Vb) + seq_along(idx2)
+  M <- NULL
+  d <- NULL
+  for (i in seq_along(rows)) {
+    for (k in seq_along(idx1)) {
+      if (!is.na(y[rows[i], idx1[k]])) {
+        r <- numeric(K)
+        r[(i - 1) * kw + mw + k] <- 1
+        r[ui] <- A[k, ]
+        M <- rbind(M, r)
+        d <- c(d, y[rows[i], idx1[k]])
+      }
+    }
+  }
+  for (q in zp) {
+    r <- numeric(K)
+    r[ui[q]] <- 1
+    M <- rbind(M, r)
+    d <- c(d, y[rows[1], idx2[q]])
+  }
+  G <- C %*% t(M) %*% solve(M %*% C %*% t(M))
+  m <- mu + G %*% (d - M %*% mu)
+  V <- C - G %*% M %*% C
+  list(
+    rows = rows,
+    kw = kw,
+    mw = mw,
+    ui = ui,
+    A = A,
+    idx1 = idx1,
+    Lw = Lw,
+    eeta_w = mom$eeta[[1]],
+    mean_w = imp$mean[[1]],
+    theta_w = imp$cov[[1]] - Lw %*% Vw %*% t(Lw),
+    moments = function(a, const = 0) {
+      c(mean = sum(a * m) + const, var = as.numeric(t(a) %*% V %*% a))
+    },
+    K = K
+  )
+}
+
+test_that("Two-level predict() draws match the exact conditional distribution", {
+  # Missing within values and a between-only indicator in cluster 1
+  dat <- subset(lavaan::Demo.twolevel, cluster <= 10)
+  dat$y1[c(2, 5)] <- NA
+  dat$y3[3] <- NA
+  fit <- asem(
+    "level: 1\n fw =~ y1 + y2 + y3\n level: 2\n fb =~ y1 + y2 + y3 + w2",
+    dat,
+    cluster = "cluster",
+    missing = "ML",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  )
+  x <- lavaan::lav_model_get_parameters(fit@Model)
+  ex <- dense_cluster_1(fit, x)
+  ns <- 2000
+  check <- function(draws, target) {
+    expect_lt(
+      abs(mean(draws) - target[["mean"]]),
+      4 * sqrt(target[["var"]] / ns)
+    )
+    expect_equal(var(draws), target[["var"]], tolerance = 0.15)
+  }
+  ov <- get_inlavaan_internal(fit)$lavdata@ov.names[[1]]
+
+  # Within factor of the first row, and the between factor of the cluster
+  a <- numeric(ex$K)
+  a[1] <- 1
+  lv1 <- predict_pinned(fit, "lv", ns)
+  check(sapply(lv1, function(z) z[1, 1]), ex$moments(a))
+  a <- numeric(ex$K)
+  a[ex$ui[1] - 1] <- 1
+  lv2 <- predict_pinned_level2(fit, ns)
+  check(sapply(lv2, function(z) z[1, 1]), ex$moments(a))
+
+  # A missing value: y1 of the second row is its within part plus u
+  a <- numeric(ex$K)
+  a[ex$kw + ex$mw + 1] <- 1
+  a[ex$ui] <- ex$A[1, ]
+  ym <- predict_pinned(fit, "ymis", ns)
+  check(sapply(ym, function(z) z[ex$rows[2], "y1"]), ex$moments(a))
+
+  # ypred of y2 in the first row: its within prediction, a new within
+  # residual, and the cluster's own between value
+  k <- which(ov[ex$idx1] == "y2")
+  a <- numeric(ex$K)
+  a[seq_len(ex$mw)] <- ex$Lw[k, ]
+  a[ex$ui] <- ex$A[k, ]
+  target <- ex$moments(a, ex$mean_w[k] - sum(ex$Lw[k, ] * ex$eeta_w))
+  target[["var"]] <- target[["var"]] + ex$theta_w[k, k]
+  yp <- predict_pinned(fit, "ypred", ns)
+  check(sapply(yp, function(z) z[ex$rows[1], "y2"]), target)
+})
+
+test_that("Two-level ypred keeps covariates and draws outcome residuals", {
   dat <- subset(lavaan::Demo.twolevel, cluster <= 30)
-  dat$y4 <- dat$y1 + dat$x2
-  dat$y5 <- 0.5 * dat$y3 + dat$x3
-  mods <- list(
-    # Outcome at both levels (y4), chain (y5), between-level outcome (w1)
-    outcomes = "
+  fit <- asem(
+    "
       level: 1
         fw =~ y1 + y2 + y3
         y4 ~ fw + x1
-        y5 ~ y4
       level: 2
         fb =~ y1 + y2 + y3
         y4 ~ fb
         w1 ~ fb + w2
     ",
-    path = "
-      level: 1
-        y1 ~ x1 + x2
-        y2 ~ y1
-      level: 2
-        y1 ~ w1
-        y2 ~ y1
-    ",
-    # Indicator with a residual covariance with an observed outcome
-    rescov = "
-      level: 1
-        fw =~ y1 + y2 + y3
-        y4 ~ x1
-        y1 ~~ y4
-      level: 2
-        fb =~ y1 + y2 + y3
-    "
+    dat,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
   )
-  for (nm in names(mods)) {
-    fit <- asem(
-      mods[[nm]],
-      dat,
-      cluster = "cluster",
-      verbose = FALSE,
-      test = "none",
-      vb_correction = FALSE,
-      marginal_method = "marggaus",
-      nsamp = 3
-    )
-    yhat <- predict_pinned(fit, "yhat", 1)[[1]]
-    eps <- simplify2array(lapply(predict_pinned(fit, "ypred", 200), `-`, yhat))
-    v_emp <- colMeans(apply(eps, c(1, 2), var))
-    v_theta <- v_emp * 0
-    theta <- lavaan::lavInspect(fit, "theta")
-    for (th in theta) {
-      v_theta[rownames(th)] <- v_theta[rownames(th)] + diag(th)
-    }
-    ov_x <- unlist(lavaan::lavNames(fit, "ov.x", block = 1:2))
-    expect_true(all(eps[, ov_x, ] == 0))
-    for (v in setdiff(colnames(yhat), ov_x)) {
-      expect_equal(
-        v_emp[[v]],
-        v_theta[[v]],
-        tolerance = 0.1,
-        label = paste(nm, v)
-      )
-    }
-    if (nm == "outcomes") {
-      # A between-level residual is shared by the rows of a cluster
-      first <- match(dat$cluster, dat$cluster)
-      expect_equal(eps[, "w1", ], eps[first, "w1", ])
-    }
-    if (nm == "rescov") {
-      c_emp <- mean(eps[, "y1", ] * eps[, "y4", ])
-      expect_equal(c_emp, theta$within["y1", "y4"], tolerance = 0.1)
+  yhat <- predict_pinned(fit, "yhat", 200)
+  ypred <- predict_pinned(fit, "ypred", 200)
+  for (v in c("x1", "w2")) {
+    for (z in ypred[1:3]) {
+      expect_equal(z[, v], dat[[v]], tolerance = 1e-10)
     }
   }
+  # A cluster-level outcome takes one value per cluster
+  first <- match(dat$cluster, dat$cluster)
+  expect_equal(ypred[[1]][, "w1"], ypred[[1]][first, "w1"])
+  # The within residual of the observed outcome y4 widens ypred over yhat
+  spread <- function(draws, v) {
+    mean(apply(sapply(draws, function(z) z[, v]), 1, var))
+  }
+  theta_w <- lavaan::lavInspect(fit, "theta")$within["y4", "y4"]
+  expect_gt(spread(ypred, "y4") - spread(yhat, "y4"), 0.8 * theta_w)
 })

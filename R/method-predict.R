@@ -192,188 +192,189 @@ recode_ordinal <- function(newdata, lavdata) {
 }
 
 # nocov start
-# Helper: compute factor scores for multilevel blocks.
-# Returns an n x nfac matrix of factor scores.
-compute_fs_ml <- function(
-  data_block,
-  VETA_b,
-  LAMBDA_b,
-  Sigma_hat_b,
-  Sigma_inv_b,
-  EETA_b,
-  EY_b
-) {
-  n <- nrow(data_block)
-  nfac <- ncol(VETA_b)
-  if (nfac == 0L) {
-    return(matrix(0, n, nfac))
-  }
-
-  Yc <- t(t(data_block) - EY_b)
-  FSC <- VETA_b %*% t(LAMBDA_b) %*% Sigma_inv_b
-  t(FSC %*% t(Yc) + EETA_b)
+# Solve for a covariance matrix that may be singular
+psd_solve <- function(S) {
+  tryCatch(solve(S), error = function(e) ginv_base(S))
 }
-# nocov end
 
-# nocov start
-# Impute missing values in multilevel data by sampling from the conditional
-# posterior: y_mis | y_obs, theta ~ N(mu_cond, Sigma_cond).
-# Returns the data matrix with NAs replaced by posterior draws.
-impute_ml_data <- function(
-  yg,
-  lavimplied,
-  g,
-  nlevels,
-  ov_names_block,
-  lavdata
-) {
-  if (!any(is.na(yg))) {
-    return(yg)
-  }
-
-  p <- ncol(yg)
-  var_names <- colnames(yg)
-  if (is.null(var_names)) {
-    var_names <- lavdata@ov.names[[g]]
-  }
-
-  block_w <- (g - 1) * nlevels + 1
-  block_b <- (g - 1) * nlevels + 2
-
-  Sigma_w <- lavimplied$cov[[block_w]]
-  Sigma_b <- lavimplied$cov[[block_b]]
-
-  nw <- ov_names_block[[block_w]]
-  if (length(nw) == nrow(Sigma_w)) {
-    rownames(Sigma_w) <- colnames(Sigma_w) <- nw
-  }
-  nb <- ov_names_block[[block_b]]
-  if (length(nb) == nrow(Sigma_b)) {
-    rownames(Sigma_b) <- colnames(Sigma_b) <- nb
-  }
-
-  Sigma_y <- matrix(0, p, p, dimnames = list(var_names, var_names))
-
-  vn_w <- rownames(Sigma_w)
-  w_in_data <- match(vn_w, var_names)
-  w_keep <- !is.na(w_in_data)
-  if (any(w_keep)) {
-    idx <- w_in_data[w_keep]
-    Sigma_y[idx, idx] <- Sigma_y[idx, idx] +
-      Sigma_w[w_keep, w_keep, drop = FALSE]
-  }
-
-  vn_b <- rownames(Sigma_b)
-  b_in_data <- match(vn_b, var_names)
-  b_keep <- !is.na(b_in_data)
-  if (any(b_keep)) {
-    idx <- b_in_data[b_keep]
-    Sigma_y[idx, idx] <- Sigma_y[idx, idx] +
-      Sigma_b[b_keep, b_keep, drop = FALSE]
-  }
-
-  mu_y <- rep(0, p)
-  names(mu_y) <- var_names
-  if (!is.null(lavimplied$mean)) {
-    mu_b <- as.numeric(lavimplied$mean[[block_b]])
-    names(mu_b) <- nb
-    b_match <- intersect(var_names, nb)
-    mu_y[match(b_match, var_names)] <- mu_b[b_match]
-  }
-
-  na_mat <- is.na(yg)
-  patterns <- apply(na_mat, 1, function(r) paste(which(r), collapse = ","))
-  unique_patterns <- unique(patterns[patterns != ""])
-
-  for (pat in unique_patterns) {
-    mis_idx <- as.integer(strsplit(pat, ",")[[1]])
-    obs_idx <- setdiff(seq_len(p), mis_idx)
-    case_rows <- which(patterns == pat)
-
-    Sigma_oo <- Sigma_y[obs_idx, obs_idx, drop = FALSE]
-    Sigma_mo <- Sigma_y[mis_idx, obs_idx, drop = FALSE]
-    Sigma_mm <- Sigma_y[mis_idx, mis_idx, drop = FALSE]
-
-    A <- Sigma_mo %*% solve(Sigma_oo)
-    Sigma_cond <- Sigma_mm - A %*% t(Sigma_mo)
-    Sigma_cond <- (Sigma_cond + t(Sigma_cond)) / 2
-    chol_cond <- psd_root(Sigma_cond)
-
-    n_mis <- length(mis_idx)
-    n_cases <- length(case_rows)
-
-    y_obs_c <- yg[case_rows, obs_idx, drop = FALSE] -
-      matrix(
-        mu_y[obs_idx],
-        nrow = n_cases,
-        ncol = length(obs_idx),
-        byrow = TRUE
-      )
-    mu_cond <- matrix(
-      mu_y[mis_idx],
-      nrow = n_cases,
-      ncol = n_mis,
-      byrow = TRUE
-    ) +
-      y_obs_c %*% t(A)
-
-    Z <- matrix(rnorm(n_cases * n_mis), nrow = n_mis, ncol = n_cases)
-    yg[case_rows, mis_idx] <- mu_cond + t(chol_cond %*% Z)
-  }
-  yg
-}
-# nocov end
-
-# nocov start
-# Compute cluster random effects (BLUP) directly from (imputed) data,
-# bypassing the precomputed YLp which may contain NAs.
-compute_ml_ranef <- function(y_g, Lp, decomp) {
-  nclusters <- Lp$nclusters[[2]]
-  cluster_idx <- Lp$cluster.idx[[2]]
-  ov_idx <- Lp$ov.idx[[1]]
-  between_idx <- Lp$between.idx[[2]]
-  nvar <- length(ov_idx)
-
-  # lavaan > 0.7-2 returns snake_case keys (sigma_yz) where earlier versions
-  # used dot.case (sigma.yz), so normalise to snake_case.
-  names(decomp) <- gsub(".", "_", names(decomp), fixed = TRUE)
-
-  mu_y <- decomp$mu_w + decomp$mu_b
-  MB.j <- matrix(0, nclusters, nvar)
-
-  has_between <- length(between_idx) > 0L
-  if (has_between) {
-    sigma_1 <- cbind(decomp$sigma_yz, decomp$sigma_b)
-    mu_all <- c(decomp$mu_z, mu_y)
-  } else {
-    sigma_1 <- decomp$sigma_b
-    mu_all <- mu_y
-  }
-
-  for (cl in seq_len(nclusters)) {
-    obs_in_cl <- which(cluster_idx == cl)
-    nj <- length(obs_in_cl)
-    ybar <- colMeans(y_g[obs_in_cl, ov_idx, drop = FALSE])
-
-    if (has_between) {
-      b_vals <- y_g[obs_in_cl[1L], between_idx, drop = TRUE]
-      b_j <- c(b_vals, ybar)
-      sigma_j <- decomp$sigma_w + nj * decomp$sigma_b
-      omega_j <- rbind(
-        cbind(decomp$sigma_zz, t(decomp$sigma_yz)),
-        cbind(decomp$sigma_yz, (1 / nj) * sigma_j)
-      )
-    } else {
-      b_j <- ybar
-      omega_j <- (1 / nj) * (decomp$sigma_w + nj * decomp$sigma_b)
-    }
-
-    omega_j_inv <- solve(omega_j)
-    MB.j[cl, ] <- as.numeric(
-      decomp$mu_b + sigma_1 %*% omega_j_inv %*% (b_j - mu_all)
+# Moments of the latent variables by block, with the raw loadings (dummy latent
+# variables loading 1 on their observed variables), for drawing eta | y.
+ml_moments <- function(lavmodel_x, lavsamplestats) {
+  list(
+    lambda = lavaan___lav_model_lambda(
+      lavmodel = lavmodel_x,
+      handle_dummy_lv = FALSE
+    ),
+    veta = lavaan___lav_model_veta(lavmodel = lavmodel_x),
+    eeta = lavaan___lav_model_eeta(
+      lavmodel = lavmodel_x,
+      lavsamplestats = lavsamplestats
     )
+  )
+}
+
+# Draw each row of eta | y for one block from N(E(eta) + V Lambda' Sigma^-1
+# (y - mu), V - V Lambda' Sigma^-1 Lambda V), with V = Var(eta).
+draw_eta_given <- function(data, mu, Sigma, Lambda, eeta, veta) {
+  n <- nrow(data)
+  m <- ncol(veta)
+  if (m == 0L) {
+    return(matrix(0, n, 0L))
   }
-  MB.j
+  FSC <- veta %*% t(Lambda) %*% psd_solve(Sigma)
+  mean <- t(FSC %*% (t(data) - mu) + as.numeric(eeta))
+  V <- veta - FSC %*% Lambda %*% veta
+  Z <- matrix(rnorm(n * m), nrow = m, ncol = n)
+  mean + t(psd_root((V + t(V)) / 2) %*% Z)
+}
+
+# One exact draw, given theta, of everything random in a two-level group: the
+# between-level values u_j of each cluster (the between parts of the variables
+# at both levels, and the between-only variables), the missing values, and the
+# latent variables at both levels. Given u_j the rows of a cluster are
+# independent, so u_j is drawn first by Gaussian updates over the cluster's
+# rows, and the rest follows from the conditionals within each level.
+draw_ml_group <- function(y_g, Lp, lavimplied, mom, lavmodel_x, g = 1L) {
+  b_w <- (g - 1L) * 2L + 1L
+  b_b <- b_w + 1L
+  idx1 <- Lp$ov.idx[[1]]
+  idx2 <- Lp$ov.idx[[2]]
+  p1 <- length(idx1)
+  p2 <- length(idx2)
+  cl <- Lp$cluster.idx[[2]]
+  mu_w <- as.numeric(lavimplied$mean[[b_w]])
+  S_w <- lavimplied$cov[[b_w]]
+  mu_b <- as.numeric(lavimplied$mean[[b_b]])
+  S_b <- lavimplied$cov[[b_b]]
+
+  # A adds the between values u to the level-1 columns they belong to
+  A <- matrix(0, p1, p2)
+  shared <- match(idx1, idx2)
+  A[cbind(which(!is.na(shared)), shared[!is.na(shared)])] <- 1
+  z_pos <- which(!idx2 %in% idx1)
+  y1 <- y_g[, idx1, drop = FALSE]
+  key <- apply(is.na(y1), 1, function(r) paste(which(!r), collapse = ","))
+
+  u <- matrix(0, Lp$nclusters[[2]], p2)
+  for (j in seq_len(nrow(u))) {
+    rows <- which(cl == j)
+    m <- mu_b
+    S <- S_b
+    # Between-only variables are observed without error, once per cluster
+    z_obs <- integer(0L)
+    zj <- numeric(0L)
+    if (length(z_pos) > 0L) {
+      zj <- vapply(
+        idx2[z_pos],
+        function(k) {
+          v <- y_g[rows, k]
+          v <- v[!is.na(v)]
+          if (length(v) > 0L) v[1L] else NA_real_
+        },
+        numeric(1)
+      )
+      z_obs <- z_pos[!is.na(zj)]
+      zj <- zj[!is.na(zj)]
+      if (length(z_obs) > 0L) {
+        K <- S[, z_obs, drop = FALSE] %*%
+          psd_solve(S[z_obs, z_obs, drop = FALSE])
+        m <- m + as.numeric(K %*% (zj - m[z_obs]))
+        S <- S - K %*% S[z_obs, , drop = FALSE]
+      }
+    }
+    # Each missingness pattern contributes the mean of its rows, with the
+    # within covariance divided by their number
+    for (pat in unique(key[rows])) {
+      if (!nzchar(pat)) {
+        next
+      }
+      o <- as.integer(strsplit(pat, ",", fixed = TRUE)[[1]])
+      rp <- rows[key[rows] == pat]
+      H <- A[o, , drop = FALSE]
+      R <- S_w[o, o, drop = FALSE] / length(rp)
+      K <- S %*% t(H) %*% psd_solve(H %*% S %*% t(H) + R)
+      ybar <- colMeans(y1[rp, o, drop = FALSE])
+      m <- m + as.numeric(K %*% (ybar - mu_w[o] - H %*% m))
+      S <- S - K %*% H %*% S
+    }
+    u[j, ] <- m + as.numeric(psd_root((S + t(S)) / 2) %*% rnorm(p2))
+    u[j, z_obs] <- zj
+  }
+
+  # Within parts: observed entries are y - A u, and missing ones are drawn
+  # given the observed ones in their row
+  w <- y1 - u[cl, , drop = FALSE] %*% t(A)
+  for (pat in unique(key)) {
+    o <- if (nzchar(pat)) {
+      as.integer(strsplit(pat, ",", fixed = TRUE)[[1]])
+    } else {
+      integer(0L)
+    }
+    mis <- setdiff(seq_len(p1), o)
+    if (length(mis) == 0L) {
+      next
+    }
+    rp <- which(key == pat)
+    if (length(o) > 0L) {
+      B <- S_w[mis, o, drop = FALSE] %*% psd_solve(S_w[o, o, drop = FALSE])
+      mean <- sweep(w[rp, o, drop = FALSE], 2, mu_w[o]) %*% t(B)
+      mean <- sweep(mean, 2, mu_w[mis], "+")
+      V <- S_w[mis, mis, drop = FALSE] - B %*% S_w[o, mis, drop = FALSE]
+    } else {
+      mean <- matrix(mu_w[mis], length(rp), length(mis), byrow = TRUE)
+      V <- S_w[mis, mis, drop = FALSE]
+    }
+    Z <- matrix(rnorm(length(rp) * length(mis)), nrow = length(mis))
+    w[rp, mis] <- mean + t(psd_root((V + t(V)) / 2) %*% Z)
+  }
+  y_full <- y_g
+  y_full[, idx1] <- w + u[cl, , drop = FALSE] %*% t(A)
+  y_full[, idx2[z_pos]] <- u[cl, z_pos, drop = FALSE]
+  y_full[!is.na(y_g)] <- y_g[!is.na(y_g)]
+
+  eta_w <- draw_eta_given(
+    w,
+    mu_w,
+    S_w,
+    mom$lambda[[b_w]],
+    mom$eeta[[b_w]],
+    mom$veta[[b_w]]
+  )
+  eta_b <- draw_eta_given(
+    u,
+    mu_b,
+    S_b,
+    mom$lambda[[b_b]],
+    mom$eeta[[b_b]],
+    mom$veta[[b_b]]
+  )
+  # Dummy latent variables are their observed variables
+  for (b in c(b_w, b_b)) {
+    dlv <- c(
+      lavmodel_x@ov.x.dummy.lv.idx[[b]],
+      lavmodel_x@ov.y.dummy.lv.idx[[b]]
+    )
+    dov <- c(
+      lavmodel_x@ov.x.dummy.ov.idx[[b]],
+      lavmodel_x@ov.y.dummy.ov.idx[[b]]
+    )
+    if (b == b_w) {
+      eta_w[, dlv] <- w[, dov, drop = FALSE]
+    } else {
+      eta_b[, dlv] <- u[, dov, drop = FALSE]
+    }
+  }
+
+  list(
+    y = y_full,
+    u = u,
+    eta_w = eta_w,
+    eta_b = eta_b,
+    A = A,
+    z_pos = z_pos,
+    mu_w = mu_w,
+    mu_b = mu_b
+  )
 }
 # nocov end
 
@@ -465,21 +466,6 @@ predict.inlavaan_internal <- function(
       # ---- Multilevel path: use lavaan internals ----
       lavsamplestats <- object$lavsamplestats
 
-      # Pre-compute per-block ov names for imputation
-      ov_names_block <- vector("list", lavmodel@nblocks)
-      for (b in seq_len(lavmodel@nblocks)) {
-        g_b <- ceiling(b / nlevels)
-        ov_all <- lavdata@ov.names[[g_b]]
-        ov_names_block[[b]] <- unique(
-          pt$lhs[
-            pt$block == b &
-              pt$op == "~~" &
-              pt$lhs == pt$rhs &
-              pt$lhs %in% ov_all
-          ]
-        )
-      }
-
       # Helper: get LV names from the psi dimNames for a given block
       get_lv_names <- function(lavmodel_x, block) {
         nmat <- lavmodel_x@nmat
@@ -491,96 +477,22 @@ predict.inlavaan_internal <- function(
       sample_lv_ml <- function(xx) {
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-
-        LAMBDA <- lavaan___lav_model_lambda(lavmodel = lavmodel_x)
-        VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
-        EETA <- lavaan___lav_model_eeta(
-          lavmodel = lavmodel_x,
-          lavsamplestats = lavsamplestats
-        )
-        EY <- lavaan___lav_model_ey(
-          lavmodel = lavmodel_x,
-          lavsamplestats = lavsamplestats
-        )
-        Sigma.hat <- lavimplied$cov
-        Sigma.inv <- lapply(Sigma.hat, ginv_base)
+        mom <- ml_moments(lavmodel_x, lavsamplestats)
 
         out <- vector("list", nG)
         names(out) <- group_labels
 
         for (g in seq_len(nG)) {
-          b <- (g - 1) * nlevels + level
-
-          # Impute missing data from conditional posterior, then decompose
-          y_g <- impute_ml_data(
+          dr <- draw_ml_group(
             y[[g]],
+            lavdata@Lp[[g]],
             lavimplied,
-            g,
-            nlevels,
-            ov_names_block,
-            lavdata
+            mom,
+            lavmodel_x,
+            g
           )
-
-          Lp <- lavdata@Lp[[g]]
-          group.idx <- (g - 1) * nlevels + seq_len(nlevels)
-          implied.group <- lapply(lavimplied, function(x) x[group.idx])
-
-          decomp <- lavaan___lav_mvn_cl_implied22l(
-            lp = Lp,
-            implied = implied.group
-          )
-          MB.j <- compute_ml_ranef(y_g, Lp, decomp)
-
-          ov.idx <- Lp$ov.idx
-
-          if (level == 1L) {
-            data.obs.g <- y_g[, ov.idx[[1]], drop = FALSE] -
-              MB.j[Lp$cluster.idx[[2]], , drop = FALSE]
-          } else {
-            # level == 2L
-            Data.B <- matrix(0, nrow = nrow(MB.j), ncol = ncol(y_g))
-            Data.B[, ov.idx[[1]]] <- MB.j
-            between.idx <- Lp$between.idx[[2 * g]]
-            if (length(between.idx) > 0L) {
-              unique_rows <- match(
-                seq_len(Lp$nclusters[[2]]),
-                Lp$cluster.idx[[2]]
-              )
-              Data.B[, between.idx] <-
-                y_g[unique_rows, between.idx, drop = FALSE]
-            }
-            data.obs.g <- Data.B[, ov.idx[[2]], drop = FALSE]
-          }
-
-          VETA.g <- VETA[[b]]
-          EETA.g <- EETA[[b]]
-          LAMBDA.g <- LAMBDA[[b]]
-          EY.g <- EY[[b]]
-          Sigma.inv.g <- Sigma.inv[[b]]
-
-          FS.g <- compute_fs_ml(
-            data.obs.g,
-            VETA.g,
-            LAMBDA.g,
-            Sigma.hat[[b]],
-            Sigma.inv.g,
-            EETA.g,
-            EY.g
-          )
-
-          # Replace dummy LV columns with data (level 1 only, per lavaan)
-          if (level == 1L) {
-            if (length(lavmodel_x@ov.y.dummy.lv.idx[[b]]) > 0L) {
-              FS.g[, lavmodel_x@ov.y.dummy.lv.idx[[b]]] <-
-                data.obs.g[, lavmodel_x@ov.y.dummy.ov.idx[[b]], drop = FALSE]
-            }
-            if (length(lavmodel_x@ov.x.dummy.lv.idx[[b]]) > 0L) {
-              FS.g[, lavmodel_x@ov.x.dummy.lv.idx[[b]]] <-
-                data.obs.g[, lavmodel_x@ov.x.dummy.ov.idx[[b]], drop = FALSE]
-            }
-          }
-
-          colnames(FS.g) <- get_lv_names(lavmodel_x, b)
+          FS.g <- if (level == 1L) dr$eta_w else dr$eta_b
+          colnames(FS.g) <- get_lv_names(lavmodel_x, (g - 1) * nlevels + level)
           out[[g]] <- FS.g
         }
 
@@ -702,38 +614,12 @@ predict.inlavaan_internal <- function(
       # ---- Multilevel yhat/ypred ----
       lavsamplestats <- object$lavsamplestats
 
-      # Pre-compute per-block ov names for imputation
-      ov_names_block <- vector("list", lavmodel@nblocks)
-      for (b in seq_len(lavmodel@nblocks)) {
-        g_b <- ceiling(b / nlevels)
-        ov_all <- lavdata@ov.names[[g_b]]
-        ov_names_block[[b]] <- unique(
-          pt$lhs[
-            pt$block == b &
-              pt$op == "~~" &
-              pt$lhs == pt$rhs &
-              pt$lhs %in% ov_all
-          ]
-        )
-      }
-
       sample_yhat_ml <- function(xx) {
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-
+        mom <- ml_moments(lavmodel_x, lavsamplestats)
+        # Loadings that predict an observed outcome from its regressors
         LAMBDA <- lavaan___lav_model_lambda(lavmodel = lavmodel_x)
-        VETA <- lavaan___lav_model_veta(lavmodel = lavmodel_x)
-        EETA <- lavaan___lav_model_eeta(
-          lavmodel = lavmodel_x,
-          lavsamplestats = lavsamplestats
-        )
-        EY <- lavaan___lav_model_ey(
-          lavmodel = lavmodel_x,
-          lavsamplestats = lavsamplestats
-        )
-        Sigma.hat <- lavimplied$cov
-        Sigma.inv <- lapply(Sigma.hat, ginv_base)
-
         nmat <- lavmodel_x@nmat
 
         out <- vector("list", nG)
@@ -742,89 +628,27 @@ predict.inlavaan_internal <- function(
         for (g in seq_len(nG)) {
           b_w <- (g - 1) * nlevels + 1 # within block
           b_b <- (g - 1) * nlevels + 2 # between block
-
-          # Impute missing data from conditional posterior, then decompose
-          y_g <- impute_ml_data(
-            y[[g]],
-            lavimplied,
-            g,
-            nlevels,
-            ov_names_block,
-            lavdata
-          )
-
           Lp <- lavdata@Lp[[g]]
-          group.idx <- (g - 1) * nlevels + seq_len(nlevels)
-          implied.group <- lapply(lavimplied, function(x) x[group.idx])
-
-          decomp <- lavaan___lav_mvn_cl_implied22l(
-            lp = Lp,
-            implied = implied.group
-          )
-          MB.j <- compute_ml_ranef(y_g, Lp, decomp)
-
+          cl <- Lp$cluster.idx[[2]]
           ov.idx <- Lp$ov.idx
-          n_obs <- nrow(y_g)
-          p <- ncol(y_g)
+          n_obs <- nrow(y[[g]])
+          p <- ncol(y[[g]])
 
-          # --- Within factor scores ---
-          data.w <- y_g[, ov.idx[[1]], drop = FALSE] -
-            MB.j[Lp$cluster.idx[[2]], , drop = FALSE]
-          eta.w <- compute_fs_ml(
-            data.w,
-            VETA[[b_w]],
-            LAMBDA[[b_w]],
-            Sigma.hat[[b_w]],
-            Sigma.inv[[b_w]],
-            EETA[[b_w]],
-            EY[[b_w]]
-          )
-          if (length(lavmodel_x@ov.x.dummy.lv.idx[[b_w]]) > 0L) {
-            eta.w[, lavmodel_x@ov.x.dummy.lv.idx[[b_w]]] <-
-              data.w[, lavmodel_x@ov.x.dummy.ov.idx[[b_w]], drop = FALSE]
-          }
-          if (length(lavmodel_x@ov.y.dummy.lv.idx[[b_w]]) > 0L) {
-            eta.w[, lavmodel_x@ov.y.dummy.lv.idx[[b_w]]] <-
-              data.w[, lavmodel_x@ov.y.dummy.ov.idx[[b_w]], drop = FALSE]
-          }
-
-          # --- Between factor scores ---
-          Data.B <- matrix(0, nrow = nrow(MB.j), ncol = p)
-          Data.B[, ov.idx[[1]]] <- MB.j
-          between.idx <- Lp$between.idx[[2 * g]]
-          if (length(between.idx) > 0L) {
-            unique_rows <- match(
-              seq_len(Lp$nclusters[[2]]),
-              Lp$cluster.idx[[2]]
-            )
-            Data.B[, between.idx] <-
-              y_g[unique_rows, between.idx, drop = FALSE]
-          }
-          data.b <- Data.B[, ov.idx[[2]], drop = FALSE]
-          eta.b <- compute_fs_ml(
-            data.b,
-            VETA[[b_b]],
-            LAMBDA[[b_b]],
-            Sigma.hat[[b_b]],
-            Sigma.inv[[b_b]],
-            EETA[[b_b]],
-            EY[[b_b]]
-          )
-
-          # --- Predicted values: within + between ---
-          eta_w_c <- sweep(eta.w, 2, EETA[[b_w]])
-          yhat_w <- t(EY[[b_w]] + LAMBDA[[b_w]] %*% t(eta_w_c)) # n_obs x p_w
-
-          eta_b_c <- sweep(eta.b, 2, EETA[[b_b]])
-          yhat_b <- t(EY[[b_b]] + LAMBDA[[b_b]] %*% t(eta_b_c)) # n_clust x p_b
+          dr <- draw_ml_group(y[[g]], Lp, lavimplied, mom, lavmodel_x, g)
+          eta_w_c <- sweep(dr$eta_w, 2, mom$eeta[[b_w]])
+          yhat_w <- sweep(tcrossprod(eta_w_c, LAMBDA[[b_w]]), 2, dr$mu_w, "+")
+          eta_b_c <- sweep(dr$eta_b, 2, mom$eeta[[b_b]])
+          yhat_b <- sweep(tcrossprod(eta_b_c, LAMBDA[[b_b]]), 2, dr$mu_b, "+")
 
           yhat <- matrix(0, n_obs, p)
-          yhat[, ov.idx[[1]]] <- yhat_w
-          yhat[, ov.idx[[2]]] <- yhat[, ov.idx[[2]]] +
-            yhat_b[Lp$cluster.idx[[2]], , drop = FALSE]
-
-          # --- Residual noise for ypred: within by row, between by cluster ---
-          if (add_noise) {
+          if (!add_noise) {
+            yhat[, ov.idx[[1]]] <- yhat_w
+            yhat[, ov.idx[[2]]] <- yhat[, ov.idx[[2]], drop = FALSE] +
+              yhat_b[cl, , drop = FALSE]
+          } else {
+            # A replicate of the same row in the same cluster: the cluster's
+            # between values u are kept, and only the observation-level
+            # residuals are new (within, and of the between-only variables).
             mm_w <- seq_len(nmat[b_w]) + cumsum(c(0, nmat))[b_w]
             glist_w <- lavmodel_x@GLIST[mm_w]
             eps_w <- draw_residuals(
@@ -834,19 +658,24 @@ predict.inlavaan_internal <- function(
               lavmodel_x,
               b_w
             )
-            yhat[, ov.idx[[1]]] <- yhat[, ov.idx[[1]], drop = FALSE] + eps_w
-
-            mm_b <- seq_len(nmat[b_b]) + cumsum(c(0, nmat))[b_b]
-            glist_b <- lavmodel_x@GLIST[mm_b]
-            eps_b <- draw_residuals(
-              Lp$nclusters[[2]],
-              glist_b$theta,
-              glist_b$psi,
-              lavmodel_x,
-              b_b
-            )
-            yhat[, ov.idx[[2]]] <- yhat[, ov.idx[[2]], drop = FALSE] +
-              eps_b[Lp$cluster.idx[[2]], , drop = FALSE]
+            yhat[, ov.idx[[1]]] <- yhat_w +
+              eps_w +
+              dr$u[cl, , drop = FALSE] %*% t(dr$A)
+            z_pos <- dr$z_pos
+            if (length(z_pos) > 0L) {
+              mm_b <- seq_len(nmat[b_b]) + cumsum(c(0, nmat))[b_b]
+              glist_b <- lavmodel_x@GLIST[mm_b]
+              eps_b <- draw_residuals(
+                Lp$nclusters[[2]],
+                glist_b$theta,
+                glist_b$psi,
+                lavmodel_x,
+                b_b
+              )
+              z_rep <- yhat_b[, z_pos, drop = FALSE] +
+                eps_b[, z_pos, drop = FALSE]
+              yhat[, ov.idx[[2]][z_pos]] <- z_rep[cl, , drop = FALSE]
+            }
           }
 
           cn <- colnames(y[[g]])
@@ -1012,26 +841,6 @@ predict.inlavaan_internal <- function(
     #   y_mis | y_obs, theta ~ N(mu_cond, Sigma_cond)
     nlevels <- lavdata@nlevels
 
-    # Pre-compute per-block ov names for naming model-implied matrices
-    ov_names_block <- NULL
-    if (nlevels > 1L) {
-      # nocov start
-      nblocks <- lavmodel@nblocks
-      ov_names_block <- vector("list", nblocks)
-      for (b in seq_len(nblocks)) {
-        g_b <- ceiling(b / nlevels)
-        ov_all <- lavdata@ov.names[[g_b]]
-        ov_names_block[[b]] <- unique(
-          pt$lhs[
-            pt$block == b &
-              pt$op == "~~" &
-              pt$lhs == pt$rhs &
-              pt$lhs %in% ov_all
-          ]
-        )
-      }
-    } # nocov end
-
     sample_ymis <- function(xx) {
       lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
       lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -1045,70 +854,31 @@ predict.inlavaan_internal <- function(
         n_obs <- nrow(yg)
         outg <- yg
 
-        if (nlevels == 1L) {
-          Sigma_y <- lavimplied$cov[[g]]
-          mu_y <- if (!is.null(lavimplied$mean)) {
-            as.numeric(lavimplied$mean[[g]])
-          } else {
-            # no mean structure: condition on the saturated (sample) means
-            # (defensive: missing = "ML" forces a mean structure in lavaan,
-            # so this branch is unreachable from a real fit)
-            ybar_fit[[g]] # nocov
-          }
-        } else {
+        if (nlevels > 1L) {
           # nocov start
-          # Multilevel: marginal covariance = within + between
-          block_w <- (g - 1) * nlevels + 1
-          block_b <- (g - 1) * nlevels + 2
-
-          Sigma_w <- lavimplied$cov[[block_w]]
-          Sigma_b <- lavimplied$cov[[block_b]]
-
-          # Name the model-implied matrices using per-block ov names
-          if (!is.null(ov_names_block)) {
-            nw <- ov_names_block[[block_w]]
-            if (length(nw) == nrow(Sigma_w)) {
-              rownames(Sigma_w) <- colnames(Sigma_w) <- nw
-            }
-            nb <- ov_names_block[[block_b]]
-            if (length(nb) == nrow(Sigma_b)) {
-              rownames(Sigma_b) <- colnames(Sigma_b) <- nb
-            }
-          }
-
-          var_names <- colnames(yg)
-          if (is.null(var_names)) {
-            var_names <- lavdata@ov.names[[g]]
-          }
-          Sigma_y <- matrix(0, p, p, dimnames = list(var_names, var_names))
-
-          vn_w <- rownames(Sigma_w)
-          w_in_data <- match(vn_w, var_names)
-          w_keep <- !is.na(w_in_data)
-          if (any(w_keep)) {
-            idx <- w_in_data[w_keep]
-            Sigma_y[idx, idx] <- Sigma_y[idx, idx] +
-              Sigma_w[w_keep, w_keep, drop = FALSE]
-          }
-
-          vn_b <- rownames(Sigma_b)
-          b_in_data <- match(vn_b, var_names)
-          b_keep <- !is.na(b_in_data)
-          if (any(b_keep)) {
-            idx <- b_in_data[b_keep]
-            Sigma_y[idx, idx] <- Sigma_y[idx, idx] +
-              Sigma_b[b_keep, b_keep, drop = FALSE]
-          }
-
-          mu_y <- rep(0, p)
-          names(mu_y) <- var_names
-          if (!is.null(lavimplied$mean)) {
-            mu_b <- as.numeric(lavimplied$mean[[block_b]])
-            names(mu_b) <- vn_b
-            b_match <- intersect(var_names, vn_b)
-            mu_y[match(b_match, var_names)] <- mu_b[b_match]
-          }
+          # Two-level: draw the missing values jointly with each cluster's
+          # between values (see draw_ml_group())
+          mom <- ml_moments(lavmodel_x, object$lavsamplestats)
+          out[[g]] <- draw_ml_group(
+            yg,
+            lavdata@Lp[[g]],
+            lavimplied,
+            mom,
+            lavmodel_x,
+            g
+          )$y
+          next
         } # nocov end
+
+        Sigma_y <- lavimplied$cov[[g]]
+        mu_y <- if (!is.null(lavimplied$mean)) {
+          as.numeric(lavimplied$mean[[g]])
+        } else {
+          # no mean structure: condition on the saturated (sample) means
+          # (defensive: missing = "ML" forces a mean structure in lavaan,
+          # so this branch is unreachable from a real fit)
+          ybar_fit[[g]] # nocov
+        }
 
         # Detect missing values
         na_mat <- is.na(yg)
