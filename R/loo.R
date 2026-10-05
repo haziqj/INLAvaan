@@ -565,6 +565,7 @@ loco_missing_info <- function(int) {
       integer(1)
     ),
     X = X,
+    row_observed = row_observed,
     rows_by_cluster = rows_by_cluster,
     Lp = Lp,
     cl = cl,
@@ -641,12 +642,13 @@ loco_missing_scores_theta <- function(
 # Rabe-Hesketh, 2019), l_i = ll_j(full cluster) - ll_j(cluster minus row i),
 # both observed-data cluster marginals from the missing kernel. "Minus row i"
 # drops the raw row and rebuilds the pattern object (no sufficient-statistic
-# downdating); a singleton cluster's only row is the cluster, l_i = ll_j(full).
+# downdating). A row fully missing on the within variables is not a prediction
+# target: removing it leaves the observed data unchanged, so l_i = 0, and
+# inlav_loo() drops such rows from the scored units. The only observed row of a
+# cluster is the cluster itself, l_i = ll_j(full), as for a singleton cluster.
 
 # Cluster of row i with that row removed: rebuild from the cluster's original
-# rows minus i (loco_missing_build_cj then drops any fully-missing rows). If i
-# is itself fully missing, the observed data is unchanged and l_i collapses to
-# zero automatically.
+# rows minus i (loco_missing_build_cj then drops any fully-missing rows).
 loco_missing_minus_row <- function(i, minfo) {
   j <- minfo$cl[i]
   keep <- setdiff(minfo$rows_by_cluster[[j]], i)
@@ -669,9 +671,11 @@ loso2l_missing_loglik_all <- function(units, minfo, mom) {
   vapply(
     seq_along(units),
     function(u) {
+      if (!minfo$row_observed[units[u]]) {
+        return(0)
+      }
       ll_j <- ll_full[match(cl[u], need)]
-      # a cluster with <= 1 observed row has nothing to condition on
-      if (minfo$n_obs[cl[u]] <= 1L) {
+      if (minfo$n_obs[cl[u]] == 1L) {
         return(ll_j)
       }
       ll_j -
@@ -703,8 +707,11 @@ loso2l_missing_scores_theta <- function(
   G_x <- t(vapply(
     seq_along(units),
     function(u) {
+      if (!minfo$row_observed[units[u]]) {
+        return(numeric(q))
+      }
       g_j <- g_full[, match(cl[u], need)]
-      if (minfo$n_obs[cl[u]] <= 1L) {
+      if (minfo$n_obs[cl[u]] == 1L) {
         return(g_j)
       }
       g_j -
@@ -1211,6 +1218,12 @@ inlav_loo <- function(
     # missing kernel, dropping the raw row and rebuilding its pattern object
     minfo <- loco_missing_info(int)
     units <- check_loo_units(units, length(minfo$cl), "rows")
+    units <- loo_drop_empty_units(
+      units,
+      minfo$row_observed[units],
+      "row",
+      "no observed within-level data"
+    )
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
     l_star <- loso2l_missing_loglik_all(units, minfo, cache$mom)
     s_mat <- loso2l_missing_scores_theta(
@@ -1623,6 +1636,26 @@ waic_from_taylor <- function(res) {
     ),
     class = "inlavaan_waic"
   )
+}
+
+# Units with no observed data carry no predictive information, so they are
+# left out of the scored set with a note. `keep` flags the units to score.
+loo_drop_empty_units <- function(units, keep, what, reason) {
+  if (all(keep)) {
+    return(units)
+  }
+  n_drop <- sum(!keep)
+  if (n_drop == length(units)) {
+    cli_abort(
+      "No units to score: every requested {what} has {reason}."
+    )
+  }
+  dropped <- cli_vec(units[!keep], style = list("vec-trunc" = 10L))
+  cli_inform(c(
+    "i" = "Not scoring {n_drop} {what}{qty(n_drop)}{?s} with {reason}:
+             {.val {dropped}}."
+  ))
+  units[keep]
 }
 
 check_loo_units <- function(units, n_avail, what) {

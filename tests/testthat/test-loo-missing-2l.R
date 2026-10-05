@@ -468,3 +468,56 @@ test_that("missing kernels match complete-data kernels on complete data", {
     tolerance = 1e-8
   )
 })
+
+# Cluster 1 keeps one responder, its other four rows fully missing on y1-y3
+d_resp <- lavaan::Demo.twolevel[
+  lavaan::Demo.twolevel$cluster <= 30,
+  c("y1", "y2", "y3", "w1", "cluster")
+]
+rows_resp <- which(d_resp$cluster == 1)
+d_resp[rows_resp[-1L], c("y1", "y2", "y3")] <- NA
+fit_resp <- fit_2l_ml(
+  "level: 1\n fw =~ y1 + y2 + y3\n level: 2\n y1 ~ w1",
+  d_resp
+)
+
+test_that("the per-row override scores only a cluster's observed row", {
+  expect_message(
+    res_row <- suppressWarnings(loo(
+      fit_resp,
+      type = "loso",
+      units = rows_resp
+    )),
+    "Not scoring 4 rows"
+  )
+  expect_equal(res_row$per_unit$unit, rows_resp[1L])
+  # Deleting the only responder deletes the cluster
+  res_cl <- loo(fit_resp, units = 1L)
+  expect_equal(res_row$per_unit$l_star, res_cl$per_unit$l_star)
+
+  # Fully missing rows contribute zero with a zero score
+  int <- get_inlavaan_internal(fit_resp)
+  minfo <- INLAvaan:::loco_missing_info(int)
+  cache <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable,
+    two_level = TRUE
+  )
+  ll <- INLAvaan:::loso2l_missing_loglik_all(rows_resp, minfo, cache$mom)
+  expect_equal(ll[-1L], rep(0, 4L))
+  s <- INLAvaan:::loso2l_missing_scores_theta(
+    int$theta_star,
+    minfo,
+    int$lavmodel,
+    int$partable,
+    rows_resp,
+    cache
+  )
+  expect_equal(unname(s[-1L, ]), matrix(0, 4L, ncol(s)))
+
+  expect_error(
+    suppressWarnings(loo(fit_resp, type = "loso", units = rows_resp[-1L])),
+    "No units to score"
+  )
+})
