@@ -335,6 +335,82 @@ test_that("conditional LOCO with within-level covariates matches reference value
   )
 })
 
+test_that("conditional LOCO mixes both-level and within-only covariates", {
+  # x1 is a covariate at both levels, x2 at the within level only and w1 at
+  # the between level only. The subtracted covariate constant must be the
+  # x-marginal of the implied joint: the stacked within covariates of a cluster
+  # have mean 1 (x) mu_w + L mu_b and covariance I (x) Sigma_w + L Sigma_b L',
+  # and w1 enters once through mu_b and Sigma_b.
+  twolevel_model_mix <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1 + x2
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ x1 + w1
+  "
+  d30 <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  fit_mix <- asem(
+    twolevel_model_mix,
+    d30,
+    cluster = "cluster",
+    fixed.x = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    marginal_correction = "none"
+  )
+  int <- get_inlavaan_internal(fit_mix)
+  css <- INLAvaan:::loco_suff_stats(int$lavdata)
+  mom <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable,
+    two_level = TRUE
+  )$mom
+  X <- int$lavdata@X[[1L]]
+  ovn <- int$lavdata@ov.names[[1L]]
+  l1 <- int$lavdata@ov.names.l[[1L]][[1L]]
+  l2 <- int$lavdata@ov.names.l[[1L]][[2L]]
+  v <- c("x1", "x2")
+  v1 <- match(v, l1)
+  # Selection matrices from the between-level variables to the covariates
+  Lv <- outer(v, l2, "==") * 1
+  Lz <- outer("w1", l2, "==") * 1
+  ldmvn <- function(y, mu, S) {
+    ch <- chol(S)
+    d <- backsolve(ch, y - mu, transpose = TRUE)
+    -0.5 * (length(y) * log(2 * pi) + 2 * sum(log(diag(ch))) + sum(d^2))
+  }
+  dense <- vapply(
+    seq_along(css$n_j),
+    function(j) {
+      rows <- which(css$cluster_idx == j)
+      n <- length(rows)
+      L <- rbind(kronecker(matrix(1, n, 1), Lv), Lz)
+      S <- L %*% mom$Sigma_b %*% t(L)
+      iv <- seq_len(n * length(v))
+      S[iv, iv] <- S[iv, iv] +
+        kronecker(diag(n), mom$Sigma_w[v1, v1, drop = FALSE])
+      mu <- c(rep(mom$mu_w[v1], n), 0) + as.vector(L %*% mom$mu_b)
+      obs <- c(t(X[rows, match(v, ovn)]), X[rows[1L], match("w1", ovn)])
+      ldmvn(obs, mu, S)
+    },
+    numeric(1)
+  )
+  expect_equal(
+    INLAvaan:::loo_fixedx_const_loco(int, css, seq_along(css$n_j), mom),
+    dense,
+    tolerance = 1e-10
+  )
+
+  res_mix <- loo(fit_mix)
+  expect_equal(res_mix$flavour, "conditional")
+  expect_true(all(is.finite(res_mix$per_unit$log_cpo_2)))
+})
+
 test_that("waic scores fixed.x fits conditionally", {
   w <- suppressWarnings(waic(fit_c))
   expect_equal(w$flavour, "conditional")

@@ -1007,7 +1007,9 @@ loso_fixedx_const_units <- function(int, uv, dv, mom) {
 
 # Positions and frozen blocks needed for the two-level covariate marginal:
 # z = cluster-level (between-only) covariates, v = within-side covariates
-# (with or without a between presence)
+# (with or without a between presence). Each v column is handled on its own:
+# its mean is mu_w plus mu_b when it has a between presence, and it enters the
+# between block B0 only then, so within-only and both-level covariates can mix.
 loo_fixedx_info_loco <- function(int, css, mom) {
   ovn <- int$lavdata@ov.names[[1L]]
   l1 <- int$lavdata@ov.names.l[[1L]][[1L]]
@@ -1018,24 +1020,13 @@ loo_fixedx_info_loco <- function(int, css, mom) {
   qz <- length(z_cols)
   qv <- length(v_cols)
   v1 <- match(ovn[v_cols], l1)
-  z2 <- match(ovn[z_cols], l2)
-  v2 <- match(ovn[v_cols], l2)
+  zv2 <- match(ovn[c(z_cols, v_cols)], l2)
+  has_b <- !is.na(zv2)
   Sw_vv <- mom$Sigma_w[v1, v1, drop = FALSE]
-  mu_zv <- c(
-    mom$mu_b[z2],
-    if (qv > 0L && anyNA(v2)) mom$mu_w[v1] else mom$mu_b[v2]
-  )
+  mu_zv <- c(rep(0, qz), mom$mu_w[v1])
+  mu_zv[has_b] <- mu_zv[has_b] + mom$mu_b[zv2[has_b]]
   B0 <- matrix(0, qz + qv, qz + qv)
-  if (qz > 0L) {
-    B0[seq_len(qz), seq_len(qz)] <- mom$Sigma_b[z2, z2]
-  }
-  if (qv > 0L && !anyNA(v2)) {
-    if (qz > 0L) {
-      B0[seq_len(qz), qz + seq_len(qv)] <- mom$Sigma_b[z2, v2]
-      B0[qz + seq_len(qv), seq_len(qz)] <- mom$Sigma_b[v2, z2]
-    }
-    B0[qz + seq_len(qv), qz + seq_len(qv)] <- mom$Sigma_b[v2, v2]
-  }
+  B0[has_b, has_b] <- mom$Sigma_b[zv2[has_b], zv2[has_b]]
   list(
     z_cols = z_cols,
     v_cols = v_cols,
