@@ -109,6 +109,12 @@
 * `fitMeasures()` overstated the chi-square of models without a mean
   structure, and with it BRMSEA and the other Bayesian fit indices.
 
+* The PPP no longer fails for `conditional.x = TRUE` fits.
+
+* The PPP no longer overstates the fit of models with fixed covariates
+  (`fixed.x = TRUE`, the default). Its replicates varied the covariates, which
+  the model does not predict.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
