@@ -82,6 +82,20 @@
   about 0.2). Posterior modes are also more accurate for parameters on a small
   scale.
 
+* `loo()` and `waic()` on FIML fits with `fixed.x` covariates now score the
+  outcomes given the covariates, as for complete data. Previously two-level
+  FIML scores included the covariates' density, so they could not be compared
+  with listwise fits or across covariate sets.
+
+* `loo()` and `waic()` no longer fail on FIML fits with singleton or two-row
+  clusters, or with clusters or rows that have no observed data. Units with
+  nothing to predict are left out, with a message. In two-level
+  `type = "loso"`, rows with no within-level data no longer each count the
+  whole cluster.
+
+* `predict(type = "ypred")` for two-level models now adds residual noise to
+  observed outcomes, not only to factor indicators.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
