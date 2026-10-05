@@ -4,7 +4,8 @@ inlav_model_loglik <- function(
   lavsamplestats,
   lavdata,
   lavoptions,
-  lavcache
+  lavcache,
+  marginalise_means = TRUE
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -22,7 +23,11 @@ inlav_model_loglik <- function(
         lavoptions = lavoptions
       )$loglik
       if (is.na(out)) out <- -1e40
-      if (out != -1e40 && marginalised_means_active(lavmodel)) {
+      if (
+        out != -1e40 &&
+          isTRUE(marginalise_means) &&
+          marginalised_means_active(lavmodel)
+      ) {
         out <- out + marginalised_means_loglik_corr(lavimplied, lavsamplestats)
       }
     } else if (lavmodel@estimator == "PML") {

@@ -47,6 +47,27 @@ test_that("Basic fitMeasures returns expected names", {
   expect_true("margloglik" %in% names(fm))
 })
 
+test_that("The deviance chi-square at the ML estimate is lavaan's chi-square", {
+  # fit_notest has no mean structure, whose saturated means INLAvaan
+  # marginalises. The chi-square still compares profiled logliks.
+  fit_ml <- lavaan::cfa(mod, dat)
+  int <- get_inlavaan_internal(fit_notest)
+  chisq <- compute_chisq_dev(
+    fit_notest,
+    matrix(lavaan::coef(fit_ml), 1L),
+    int$lavmodel,
+    int$lavsamplestats,
+    int$lavdata,
+    reconstruct_lavoptions(fit_notest),
+    NULL
+  )
+  expect_equal(
+    chisq,
+    unname(lavaan::fitMeasures(fit_ml, "chisq")),
+    tolerance = 1e-6
+  )
+})
+
 test_that("Bayesian absolute fit indices are computed with test != 'none'", {
   fm <- fitMeasures(fit_test)
   abs_names <- c("BRMSEA", "BGammaHat", "adjBGammaHat", "BMc")

@@ -46,7 +46,8 @@ compute_loglik_sat <- function(object, lavsamplestats, lavdata) {
 }
 
 # Per-sample deviance chi-square:  chisq_s = 2 * (loglik_sat - loglik(x_s))
-# This equals N * F_ML(x_s).
+# This equals N * F_ML(x_s), so both logliks profile the saturated means of a
+# model without a mean structure.
 compute_chisq_dev <- function(
   object,
   x_samp,
@@ -66,7 +67,8 @@ compute_chisq_dev <- function(
         lavsamplestats,
         lavdata,
         lavoptions,
-        lavcache
+        lavcache,
+        marginalise_means = FALSE
       )
       2 * (loglik_sat - ll_i)
     },
