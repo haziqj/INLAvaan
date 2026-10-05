@@ -237,11 +237,26 @@ inlavaanify_partable <- function(
   pt$ginv_prime <- lapply(tmp, `[[`, "ginv_prime")
   pt$ginv_prime2 <- lapply(tmp, `[[`, "ginv_prime2")
 
-  # Compute starting values in unrestricted space
+  # Compute starting values in unrestricted space. A covariance is held as a
+  # correlation there, so its start is lavaan's start covariance over the start
+  # standard deviations.
+  start <- pt$start
+  grp <- if ("level" %in% names(pt)) partable_level_index(pt) else pt$group
+  for (j in which(grepl("cov", pt$mat))) {
+    var_start <- vapply(
+      c(pt$lhs[j], pt$rhs[j]),
+      function(v) {
+        pt$start[pt$lhs == v & pt$op == "~~" & pt$rhs == v & grp == grp[j]][1L]
+      },
+      numeric(1)
+    )
+    rho <- start[j] / sqrt(prod(var_start))
+    start[j] <- if (is.finite(rho)) max(min(rho, 0.99), -0.99) else 0
+  }
   pt$parstart <- mapply(
     function(fun, val) fun(val),
     pt$g,
-    pt$start,
+    start,
     USE.NAMES = FALSE
   )
 

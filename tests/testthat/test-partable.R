@@ -405,3 +405,28 @@ test_that("Multigroup two-level models give an error", {
     "Multigroup two-level"
   )
 })
+
+test_that("Covariances start from their correlation", {
+  # With fixed.x = FALSE lavaan starts x2 ~~ x3 at its sample covariance, 1.78,
+  # whose atanh() is NaN
+  fit0 <- lavaan::sem(
+    "y1 ~ x1 + x2 + x3",
+    lavaan::PoliticalDemocracy,
+    fixed.x = FALSE,
+    do.fit = FALSE
+  )
+  pt <- inlavaanify_partable(
+    fit0@ParTable,
+    priors_for(),
+    fit0@Data,
+    fit0@Options
+  )
+  i <- which(pt$lhs == "x2" & pt$op == "~~" & pt$rhs == "x3")
+  v2 <- which(pt$lhs == "x2" & pt$op == "~~" & pt$rhs == "x2")
+  v3 <- which(pt$lhs == "x3" & pt$op == "~~" & pt$rhs == "x3")
+  expect_equal(
+    tanh(pt$parstart[i]),
+    pt$start[i] / sqrt(pt$start[v2] * pt$start[v3])
+  )
+  expect_true(all(is.finite(pt$parstart[pt$free > 0])))
+})
