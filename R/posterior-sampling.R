@@ -281,6 +281,17 @@ get_ppp <- function(
         Tobs <- Tobs + logdet_Sigma + sum(Sigma_inv * S) - logdet_S - p
         Trep <- Trep + logdet_Sigma + sum(Sigma_inv * Srep) - logdet_Srep - p
 
+        # Fixed covariates are conditioned on, not modelled, so the discrepancy
+        # is that of the outcomes given the covariates: F less its covariate
+        # block. The replicates vary that block too, and without this they
+        # would carry extra misfit and push the PPP up.
+        x_idx <- block_obs[[b]]$x_idx
+        if (length(x_idx) > 0L) {
+          Sigma_xx <- Sigma[x_idx, x_idx, drop = FALSE]
+          Tobs <- Tobs - ml_discrepancy(S[x_idx, x_idx, drop = FALSE], Sigma_xx)
+          Trep <- Trep -
+            ml_discrepancy(Srep[x_idx, x_idx, drop = FALSE], Sigma_xx)
+        }
       }
     }
 
@@ -288,6 +299,14 @@ get_ppp <- function(
   }
 
   mean(res)
+}
+
+# F(S, Sigma) = log|Sigma| + tr(Sigma^{-1} S) - log|S| - p
+ml_discrepancy <- function(S, Sigma) {
+  L <- chol(Sigma)
+  logdet_Sigma <- 2 * sum(log(diag(L)))
+  logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
+  logdet_Sigma + sum(chol2inv(L) * S) - logdet_S - nrow(S)
 }
 
 # The implied covariance of all observed variables of block b, with the fixed

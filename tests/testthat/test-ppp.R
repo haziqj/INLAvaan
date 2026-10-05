@@ -41,3 +41,23 @@ test_that("PPP agrees with and without conditional.x", {
   expect_true(all(ppp >= 0 & ppp <= 1))
   expect_lt(abs(ppp[1] - ppp[2]), 0.1)
 })
+
+# A saturated regression on six covariates has no misfit to find. Replicates
+# that also vary the 21 covariate moments would push the PPP to about 1.
+test_that("Fixed covariates add no misfit to the PPP", {
+  set.seed(42)
+  n <- 200
+  z <- matrix(rnorm(n * 6), n, 6, dimnames = list(NULL, paste0("z", 1:6)))
+  dat_sat <- data.frame(z, y = drop(z %*% rep(0.3, 6)) + rnorm(n))
+  set.seed(1)
+  fit <- asem(
+    "y ~ z1 + z2 + z3 + z4 + z5 + z6",
+    dat_sat,
+    nsamp = 500,
+    test = "ppp",
+    verbose = FALSE
+  )
+  ppp <- get_inlavaan_internal(fit, "ppp")
+  expect_gt(ppp, 0.2)
+  expect_lt(ppp, 0.8)
+})
