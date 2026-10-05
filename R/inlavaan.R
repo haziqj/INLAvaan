@@ -32,7 +32,9 @@
 #'   both. They run only when asked for, with no time budget. On a model
 #'   the casewise machinery does not support (PML or ordinal data,
 #'   `conditional.x = TRUE`, multigroup two-level) they are skipped with a
-#'   warning and the rest of the fit proceeds. The fit records what was
+#'   warning and the rest of the fit proceeds. The PPP is skipped the same way
+#'   for a two-level model in which a variable at both levels has almost no
+#'   between-level variance. The fit records what was
 #'   requested and what was computed (`get_inlavaan_internal(fit, "test")`);
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
 #'   report only what was computed. [add_loo()] stores the LOO and WAIC
@@ -1213,6 +1215,7 @@ inlavaan <- function(
 
   ## ----- Compute ppp and dic -------------------------------------------------
   ppp <- dic_list <- NULL
+  skipped <- character(0)
   if (any(c("ppp", "dic") %in% test_req)) {
     if (isTRUE(verbose)) {
       samp_stage <- paste0(
@@ -1222,7 +1225,22 @@ inlavaan <- function(
       )
       cli_progress_update(.envir = samp_env)
     }
-    if ("ppp" %in% test_req) {
+    weak <- ppp_weak_between_vars(lavdata, fit0@h1)
+    if ("ppp" %in% test_req && length(weak) > 0L) {
+      msg <- paste0(
+        "The between-level variance of ",
+        paste(weak, collapse = ", "),
+        " is too small next to the noise in its cluster means for the ",
+        "two-level PPP."
+      )
+      cli_warn(c(
+        "Skipping the PPP requested through {.arg test}.",
+        "x" = cli_escape(msg),
+        "i" = "The rest of the fit is unaffected; the reason is stored in
+               {.code get_inlavaan_internal(fit, \"test\")$skipped}."
+      ))
+      skipped <- c(skipped, ppp = msg)
+    } else if ("ppp" %in% test_req) {
       ppp <- get_ppp(
         x_samp = x_samp,
         lavmodel = lavmodel,
@@ -1277,7 +1295,6 @@ inlavaan <- function(
   # and skips them rather than failing the whole fit; the reason is kept in
   # the `test` record below rather than only in the transient warning.
   loo_res <- waic_res <- NULL
-  skipped <- character(0)
   if (any(c("loo", "waic") %in% test_req)) {
     if (isTRUE(verbose)) {
       samp_stage <- "Computing Taylor LOO and WAIC"
@@ -1299,7 +1316,7 @@ inlavaan <- function(
         "i" = "The rest of the fit is unaffected; the reason is stored in
                {.code get_inlavaan_internal(fit, \"test\")$skipped}."
       ))
-      skipped <- c(loo = msg, waic = msg)
+      skipped <- c(skipped, loo = msg, waic = msg)
     } else {
       loo_res <- loo_try
       timing <- add_timing(timing, "loo")

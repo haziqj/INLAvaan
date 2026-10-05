@@ -301,6 +301,29 @@ get_ppp <- function(
   mean(res)
 }
 
+# Variables at both levels whose between-level variance is under a quarter of
+# the noise in a cluster mean (within variance over the mean cluster size). The
+# two-level PPP takes the replicate between covariance as Wishart around the
+# implied one, which leaves that noise out. For such a variable the reference
+# is far too tight, and the PPP falls to 0 for a model that fits.
+ppp_weak_between_vars <- function(lavdata, h1) {
+  h1_cov <- h1$implied$cov
+  if (lavdata@nlevels < 2L || is.null(h1_cov)) {
+    return(character(0L))
+  }
+  weak <- character(0L)
+  for (g in seq_len(lavdata@ngroups)) {
+    nm <- lavdata@ov.names.l[[g]]
+    both <- intersect(nm[[1L]], nm[[2L]])
+    Lp <- lavdata@Lp[[g]]
+    nbar <- Lp$nclusters[[1L]] / Lp$nclusters[[2L]]
+    var_w <- diag(h1_cov[[2L * g - 1L]])[match(both, nm[[1L]])]
+    var_b <- diag(h1_cov[[2L * g]])[match(both, nm[[2L]])]
+    weak <- c(weak, both[var_b < 0.25 * var_w / nbar])
+  }
+  unique(weak)
+}
+
 # F(S, Sigma) = log|Sigma| + tr(Sigma^{-1} S) - log|S| - p
 ml_discrepancy <- function(S, Sigma) {
   L <- chol(Sigma)

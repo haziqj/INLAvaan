@@ -401,3 +401,42 @@ test_that("Two-level ypred keeps covariates and draws outcome residuals", {
   theta_w <- lavaan::lavInspect(fit, "theta")$within["y4", "y4"]
   expect_gt(spread(ypred, "y4") - spread(yhat, "y4"), 0.8 * theta_w)
 })
+
+test_that("The two-level PPP is skipped for a variable with no between variance", {
+  # x1 in Demo.twolevel varies almost only within clusters. As a covariate at
+  # both levels it would take the PPP to 0 for a model that fits.
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  fit_x <- function(model) {
+    asem(
+      model,
+      dat,
+      cluster = "cluster",
+      nsamp = 3,
+      test = "ppp",
+      verbose = FALSE
+    )
+  }
+  expect_warning(
+    fit <- fit_x("
+      level: 1
+        fw =~ y1 + y2 + y3
+        fw ~ x1
+      level: 2
+        fb =~ y1 + y2 + y3
+        fb ~ x1
+    "),
+    "Skipping the PPP"
+  )
+  rec <- get_inlavaan_internal(fit, "test")
+  expect_null(get_inlavaan_internal(fit, "ppp"))
+  expect_match(rec$skipped[["ppp"]], "x1")
+
+  fit <- fit_x("
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+  ")
+  expect_false(is.null(get_inlavaan_internal(fit, "ppp")))
+})
