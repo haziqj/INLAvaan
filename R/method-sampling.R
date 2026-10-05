@@ -231,6 +231,18 @@ chol_cov_block <- function(S, strict = FALSE) {
   }
 }
 
+# Names of a block's latent and observed draws. Under conditional.x the
+# covariates are not in the model matrices (their effects are in gamma), so
+# they are drawn from their fixed moments and appended, as the dummy variables
+# of other fits carry them.
+block_lv_names <- function(glist) {
+  c(colnames(glist$psi), colnames(glist$gamma))
+}
+
+block_ov_names <- function(glist) {
+  c(rownames(glist$lambda), colnames(glist$gamma))
+}
+
 draw_latent_block <- function(glist, strict = FALSE) {
   Psi <- glist$psi
   B <- glist$beta
@@ -242,12 +254,23 @@ draw_latent_block <- function(glist, strict = FALSE) {
   }
   IminB_inv <- solve(IminB)
 
+  x <- NULL
+  if (!is.null(glist$gamma)) {
+    x <- as.numeric(glist$mean.x) +
+      as.numeric(
+        chol_cov_block(glist$cov.x, strict) %*%
+          stats::rnorm(ncol(glist$gamma))
+      )
+    alpha <- alpha + glist$gamma %*% x
+  }
+
   mu_eta <- as.numeric(IminB_inv %*% alpha)
   Phi <- IminB_inv %*% Psi %*% t(IminB_inv)
   chol_Phi <- chol_cov_block(Phi, strict)
 
   eta <- mu_eta + as.numeric(chol_Phi %*% stats::rnorm(length(mu_eta)))
-  names(eta) <- colnames(Psi)
+  eta <- c(eta, x)
+  names(eta) <- block_lv_names(glist)
   eta
 }
 
@@ -263,6 +286,8 @@ sample_latent_from_model <- function(x_row, lavmodel, strict = FALSE) {
 
 # ---- Internal: generate y from model given eta ------------------------------
 
+# eta carries the drawn covariates after the latent variables under
+# conditional.x (see draw_latent_block()), and they pass through to y
 draw_observed_block <- function(glist, eta, strict = FALSE) {
   Lambda <- glist$lambda
   Theta <- glist$theta
@@ -272,10 +297,12 @@ draw_observed_block <- function(glist, eta, strict = FALSE) {
     nu <- rep(0, nrow(Lambda))
   }
 
-  mu_y <- as.numeric(Lambda %*% eta + nu)
+  lv <- seq_len(ncol(Lambda))
+  mu_y <- as.numeric(Lambda %*% eta[lv] + nu)
   chol_Theta <- chol_cov_block(Theta, strict)
   y <- mu_y + as.numeric(chol_Theta %*% stats::rnorm(length(mu_y)))
-  names(y) <- rownames(Lambda)
+  y <- c(y, unname(eta[-lv]))
+  names(y) <- block_ov_names(glist)
   y
 }
 
@@ -309,10 +336,23 @@ compute_implied_moments <- function(x_row, lavmodel, meanstructure = FALSE) {
     IminB <- if (is.null(B)) diag(nrow(Psi)) else (diag(nrow(B)) - B)
     IminB_inv <- solve(IminB)
 
-    # Sigma_y = Lambda (I-B)^{-1} Psi [(I-B)^{-1}]' Lambda' + Theta
+    # Sigma_y = Lambda (I-B)^{-1} Psi [(I-B)^{-1}]' Lambda' + Theta. Under
+    # conditional.x the covariates enter through gamma, with their fixed
+    # moments, and the joint matrix appends their block.
     front <- Lambda %*% IminB_inv
+    Gamma <- glist$gamma
+    if (!is.null(Gamma)) {
+      Psi <- Psi + Gamma %*% glist$cov.x %*% t(Gamma)
+    }
     Sigma_y <- front %*% Psi %*% t(front) + Theta
-    rownames(Sigma_y) <- colnames(Sigma_y) <- rownames(Lambda)
+    if (!is.null(Gamma)) {
+      Sigma_yx <- front %*% Gamma %*% glist$cov.x
+      Sigma_y <- rbind(
+        cbind(Sigma_y, Sigma_yx),
+        cbind(t(Sigma_yx), glist$cov.x)
+      )
+    }
+    rownames(Sigma_y) <- colnames(Sigma_y) <- block_ov_names(glist)
 
     res <- list(cov = Sigma_y)
 
@@ -324,8 +364,13 @@ compute_implied_moments <- function(x_row, lavmodel, meanstructure = FALSE) {
       if (is.null(nu)) {
         nu <- rep(0, nrow(Lambda))
       }
-      mu_y <- as.numeric(Lambda %*% IminB_inv %*% alpha + nu)
-      names(mu_y) <- rownames(Lambda)
+      mu_x <- NULL
+      if (!is.null(Gamma)) {
+        mu_x <- as.numeric(glist$mean.x)
+        alpha <- alpha + Gamma %*% mu_x
+      }
+      mu_y <- c(as.numeric(Lambda %*% IminB_inv %*% alpha + nu), mu_x)
+      names(mu_y) <- block_ov_names(glist)
       res$mean <- mu_y
     } # nocov end
 
@@ -562,10 +607,10 @@ sampling_prior_generative <- function(
     y_cn <- names(draw0$observed)
   } else {
     GLIST0 <- get_SEM_param_matrix(samp0$x_samp[1, ], "all", lavmodel)
-    nlv <- ncol(GLIST0[[1]]$psi)
-    nobs <- nrow(GLIST0[[1]]$lambda)
-    lv_names <- colnames(GLIST0[[1]]$psi)
-    ov_names <- rownames(GLIST0[[1]]$lambda)
+    lv_names <- block_lv_names(GLIST0[[1]])
+    ov_names <- block_ov_names(GLIST0[[1]])
+    nlv <- length(lv_names)
+    nobs <- length(ov_names)
 
     # Column names for output matrices
     if (nG == 1L) {
@@ -785,10 +830,10 @@ sampling_impl <- function(
   # Pre-compute dimensions from the first draw
   nG <- lavmodel@ngroups
   GLIST0 <- get_SEM_param_matrix(samp$x_samp[1, ], "all", lavmodel)
-  nlv <- ncol(GLIST0[[1]]$psi)
-  nobs <- nrow(GLIST0[[1]]$lambda)
-  lv_names <- colnames(GLIST0[[1]]$psi)
-  ov_names <- rownames(GLIST0[[1]]$lambda)
+  lv_names <- block_lv_names(GLIST0[[1]])
+  ov_names <- block_ov_names(GLIST0[[1]])
+  nlv <- length(lv_names)
+  nobs <- length(ov_names)
 
   # Step 2: draw latent variables from model-implied distribution
   if (nG == 1L) {

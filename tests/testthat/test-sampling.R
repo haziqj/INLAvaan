@@ -172,6 +172,47 @@ test_that("Observed posterior draws are centred without a mean structure", {
   expect_lt(max(abs(colMeans(yrep) - ybar)), 0.5)
 })
 
+test_that("conditional.x fits draw the covariates jointly", {
+  hs <- na.omit(lavaan::HolzingerSwineford1939)
+  fit <- suppressWarnings(asem(
+    "visual =~ x1 + x2 + x3; visual ~ ageyr + grade",
+    hs,
+    conditional.x = TRUE,
+    verbose = FALSE,
+    nsamp = 50,
+    test = "none"
+  ))
+  int <- get_inlavaan_internal(fit)
+  vars <- c("x1", "x2", "x3", "ageyr", "grade")
+  set.seed(1)
+  all_s <- sampling(fit, type = "all", nsamp = 200, silent = TRUE)
+  expect_setequal(colnames(all_s$observed), vars)
+  expect_setequal(colnames(all_s$latent), c("visual", "ageyr", "grade"))
+  expect_lt(
+    max(abs(colMeans(all_s$observed)[vars] - colMeans(hs[, vars]))),
+    0.3
+  )
+
+  # The implied moments are the joint ones lavaan's conditional pieces give
+  lavimplied <- lavaan::lav_model_implied(
+    lavaan::lav_model_set_parameters(int$lavmodel, all_s$lavaan[1, ])
+  )
+  mom <- implied_block_moments(
+    lavimplied,
+    1L,
+    int$lavmodel,
+    int$lavsamplestats
+  )
+  ov <- lavaan::lavNames(fit, "ov")
+  dimnames(mom$cov) <- list(ov, ov)
+  names(mom$mean) <- ov
+  expect_equal(all_s$implied[[1]]$cov[vars, vars], mom$cov[vars, vars])
+  expect_equal(all_s$implied[[1]]$mean[vars], mom$mean[vars])
+
+  prior_s <- sampling(fit, type = "observed", nsamp = 5, prior = TRUE)
+  expect_setequal(colnames(prior_s), vars)
+})
+
 ## ----- Two-level fits --------------------------------------------------------
 mod_ml <- "
   level: 1
