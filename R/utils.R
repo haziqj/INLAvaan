@@ -239,6 +239,18 @@ dmode <- function(x, na.rm = TRUE) {
   d$x[which.max(d$y)]
 }
 
+# Mode of a unimodal density f on an interval. The tolerance is relative to the
+# interval width, since the default absolute tolerance of optimize() (about
+# 1e-4) is too coarse for a parameter on a small scale.
+density_mode <- function(f, interval, rel_tol = 1e-8) {
+  stats::optimize(
+    f,
+    interval = interval,
+    maximum = TRUE,
+    tol = rel_tol * diff(range(interval))
+  )$maximum
+}
+
 # Forking (mclapply) is fast and zero-copy, but it is unavailable on Windows
 # and unsafe inside threaded IDE R sessions -- RStudio's console and
 # Positron's ark kernel -- where forked children can die silently and

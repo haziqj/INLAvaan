@@ -448,11 +448,10 @@ summarise_samples_sn <- function(y) {
   x <- seq(Ex - 4 * SDx, Ex + 4 * SDx, length.out = 200)
   fx <- dsnorm(x, xi = xi, omega = omega, alpha = alpha)
 
-  xmax <- optimize(
+  xmax <- density_mode(
     function(x) dsnorm(x, xi = xi, omega = omega, alpha = alpha),
-    interval = range(x),
-    maximum = TRUE
-  )$maximum
+    range(x)
+  )
 
   res <- c(Ex, SDx, qq, xmax)
   names(res) <- c("Mean", "SD", "2.5%", "25%", "50%", "75%", "97.5%", "Mode")

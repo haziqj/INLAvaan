@@ -84,7 +84,7 @@ post_marg_asymgaus <- function(
   SDx <- sqrt(Vx)
 
   # Posterior mode
-  xmax <- stats::optimize(fj_orig, interval = range(x), maximum = TRUE)$maximum
+  xmax <- density_mode(fj_orig, range(x))
 
   # Build CDF
   Fx <- c(0, cumsum(fmid * dx))
@@ -151,7 +151,7 @@ post_marg_skewnorm <- function(
   ))
 
   # Compute mode
-  xmax <- optimize(fj_orig, interval = range(x), maximum = TRUE)$maximum
+  xmax <- density_mode(fj_orig, range(x))
 
   # Combine results
   res <- c(Ex, SDx, qq, xmax)
@@ -204,7 +204,7 @@ post_marg_marggaus <- function(
   fx <- fx / C
 
   # Compute mode
-  xmax <- optimize(fj_orig, interval = range(x), maximum = TRUE)$maximum
+  xmax <- density_mode(fj_orig, range(x))
 
   # Combine results
   res <- c(x_mean, x_sd, qq, xmax)

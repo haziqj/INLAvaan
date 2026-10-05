@@ -41,6 +41,31 @@ test_that("Skew-normal sample fit is scale-equivariant", {
   }
 })
 
+test_that("Posterior modes are accurate on a small scale", {
+  set.seed(1)
+  d <- 4 / sqrt(17)
+  y <- d * abs(rnorm(500)) + sqrt(1 - d^2) * rnorm(500)
+  ref <- summarise_samples_sn(y)$summary[["Mode"]]
+  for (s in c(1e-2, 1e-4)) {
+    res <- summarise_samples_sn(s * y)$summary[["Mode"]]
+    expect_equal(res / s, ref, tolerance = 1e-5)
+  }
+
+  # A log-normal marginal with median 1e-3 has its mode at exp(m - v)
+  m <- log(1e-3)
+  v <- 0.3^2
+  res <- post_marg_marggaus(
+    j = 1,
+    g = log,
+    g_prime = function(x) 1 / x,
+    ginv = exp,
+    ginv_prime = exp,
+    theta_star = m,
+    Sigma_theta = matrix(v)
+  )$summary
+  expect_equal(unname(res["Mode"]), exp(m - v), tolerance = 1e-6)
+})
+
 test_that("Gaussian marginal moments are taken on the original scale", {
   m <- 0.5
   s <- 0.3
