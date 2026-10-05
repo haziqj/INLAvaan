@@ -9,7 +9,7 @@ inlav_model_loglik <- function(
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-  Sigma <- lavimplied$cov[[1]]
+  Sigma <- implied_block_moments(lavimplied, 1L, lavmodel, lavsamplestats)$cov
 
   out <- -1e40
   if (!is_bad_cov(Sigma)) {
