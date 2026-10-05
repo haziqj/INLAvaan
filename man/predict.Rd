@@ -43,7 +43,9 @@ training data. Not supported for \code{type = "ymis"}.}
 \item{level}{Integer; for \code{type = "lv"} in two-level models, specifies
 whether level 1 or level 2 latent variables are desired (default \code{1L}).
 Other types ignore it: for two-level models, \code{"yhat"} and
-\code{"ypred"} give the total within plus between prediction.}
+\code{"ypred"} give the total within plus between prediction, and a
+\code{"ypred"} draw keeps its cluster's between-level values, so only the
+observation-level residuals are new.}
 
 \item{nsamp}{Integer; number of posterior samples to use for prediction.
 Defaults to \code{1000}.}
