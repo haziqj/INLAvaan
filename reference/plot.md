@@ -38,8 +38,9 @@ plot(
 
 - params:
 
-  Character vector of parameter names to plot, or `"all"` (default) to
-  plot all free parameters.
+  Character vector of parameter names to plot, as in
+  [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) or
+  `:=` labels, or `"all"` (default) to plot all parameters.
 
 - nrow, ncol:
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,7 +125,9 @@ and the WAIC come from one Taylor pass, so asking for either stores
 both. They run only when asked for, with no time budget. On a model
 the casewise machinery does not support (PML or ordinal data,
 <code>conditional.x = TRUE</code>, multigroup two-level) they are skipped with a
-warning and the rest of the fit proceeds. The fit records what was
+warning and the rest of the fit proceeds. The PPP is skipped the same way
+for a two-level model in which a variable at both levels has almost no
+between-level variance. The fit records what was
 requested and what was computed (<code>get_inlavaan_internal(fit, "test")</code>);
 <code><a href="INLAvaan-class.html">summary()</a></code>, <code><a href="fitmeasures.html">fitmeasures()</a></code>, <code><a href="deviance.html">deviance()</a></code>, <code><a href="logLik.html">logLik()</a></code> and <code><a href="timing.html">timing()</a></code>
 report only what was computed. <code><a href="loo.html">add_loo()</a></code> stores the LOO and WAIC
@@ -331,21 +333,20 @@ model functions instead, including <code>acfa()</code>, <code><a href="asem.html
 <span class="r-in"><span><span class="co"># Fit a CFA model with standardised latent variables</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">acfa</span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[150ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[147ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.089σ. <span style="color: #B2B2B2;">[242ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.089σ. <span style="color: #B2B2B2;">[250ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/21 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 21/21 skew-normal marginals. <span style="color: #B2B2B2;">[980ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 21/21 skew-normal marginals. <span style="color: #B2B2B2;">[1s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 100 posterior draws. <span style="color: #B2B2B2;">[80ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 100 posterior draws. <span style="color: #B2B2B2;">[72ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.2.9001 ended normally after 66 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.2.9003 ended normally after 66 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                      BAYES</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>

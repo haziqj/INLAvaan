@@ -101,16 +101,16 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [73ms]
+#> ✔ Posterior mode and Hessian. [75ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.074σ. [231ms]
+#> ✔ VB correction; mean |δ| = 0.074σ. [248ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [158ms]
+#> ✔ Fit 7/7 skew-normal marginals. [165ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [662ms]
+#> ✔ Summarise 1000 posterior draws. [733ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -128,7 +128,7 @@ The summary output provides the posterior mean, standard deviation, and
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.2.9001 ended normally after 5 iterations
+#> INLAvaan 0.3.2.9003 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -139,7 +139,7 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                    -308.482 
-#>    PPP (Chi-square)                              0.613 
+#>    PPP (Chi-square)                              0.519 
 #> 
 #> Information Criteria:
 #> 
@@ -172,7 +172,7 @@ summary(fit)
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     ab                0.406    0.097    0.215    0.597                         
+#>     ab                0.406    0.097    0.227    0.609                         
 #>     total             0.349    0.136    0.083    0.615
 ```
 
@@ -187,7 +187,7 @@ output:
   \[-0.291, 0.171\] includes zero, correctly identifying that there is
   no direct effect.
 - Indirect Effect $`ab`$ estimated at 0.406 (true value 0.35). The
-  interval \[0.215, 0.597\] does not cross zero, indicating significant
+  interval \[0.227, 0.609\] does not cross zero, indicating significant
   mediation.
 - Total Effect estimated at 0.349.
   - This is the sum of the direct and indirect effects ($`c + ab`$).

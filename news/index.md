@@ -10,10 +10,161 @@
   [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)
   favoured models with fewer parameters.
 
+- A defined parameter (`:=`) can now use other defined parameters, in
+  any order, as in lavaan. Previously the fit failed with an “object not
+  found” error.
+
+- Defined parameters that are constant, or that cannot be computed for
+  some posterior draws (such as `log(b)` when `b` can be negative), no
+  longer stop the fit. Their summaries use the draws where they can be
+  computed, and a single warning gives the share left out, in place of
+  R’s repeated “NaNs produced” warnings.
+
+- [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  showed the wrong SD, credible interval and prior for defined
+  parameters, and for some rows after them, when the model had equality
+  constraints (shared labels or `group.equal`).
+
+- Equality constraints written as `a == b` or `a == <number>` are now
+  honoured. Previously they were ignored, along with shared labels and
+  `group.equal` in the same model. Constraints INLAvaan cannot fit (such
+  as `a == 2*b`, `a > 0`, `effect.coding`, or a loading held equal to a
+  variance) now give an error.
+
+- Covariances held equal (by shared labels or `group.equal`) now fit
+  correctly. Previously their posterior was biased, or the fit failed.
+
+- [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) and
+  [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) now
+  work for models with equality constraints, and
+  [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) for
+  multigroup models.
+
+- Parameter names now match
+  [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md).
+  Previously `plot(fit, params = )` could not find multigroup `:=`
+  parameters, and labels such as `lag1` were mangled. A `:=` parameter
+  that reuses a parameter label, and multigroup two-level models, now
+  give an error.
+
+- Data with ordered-factor columns are now fitted as ordinal data, as
+  with `ordered =`. Previously the fit failed. `ordered =` naming
+  variables outside the model no longer widens the posterior, and a name
+  that matches no model variable gives an error.
+
+- `predict(newdata = )` for ordinal models now codes the categories as
+  in the fit. Previously factor columns gave an error and 0/1 codes gave
+  wrong factor scores.
+
+- Chained modifiers in the model syntax are now all kept. Previously
+  only one survived, so `prior("normal(0,1)")*a*x2` lost its prior,
+  `0.5*a*x2` was left free and `NA*a*x1` stayed fixed.
+
+- A `prior()` on any of several parameters held equal is now used.
+  Previously only a prior on the first of them counted.
+
+- Models where only one variance enters a covariance (for example, with
+  the other variance fixed) no longer fail.
+
+- [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) now
+  works for models with observed covariates or observed outcomes,
+  including with `conditional.x = TRUE`. Factor scores and fitted values
+  for models with latent regressions now match lavaan.
+
+- Two-level models with named levels (`level: within` /
+  `level: between`) now fit, and their parameter names follow
+  [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md).
+
+- [`vcov()`](https://inlavaan.haziqj.ml/reference/vcov.md) now matches
+  [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md) in
+  length, order and names for models with equality constraints, and
+  `lavInspect(fit, "vcov")` works on such fits.
+
+- [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) no
+  longer fails when a variance is zero, for example a residual variance
+  fixed to zero, or a latent variable fully determined by such an
+  indicator.
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) no longer
+  fail on two-level models fitted with `missing = "ML"` that have
+  between-level variables, such as cluster-level covariates.
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) now score
+  two-level `fixed.x = TRUE` models correctly when they mix covariates
+  at both levels with within-only ones.
+
+- [`fit_skew_normal_samp()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal_samp.md),
+  and with it the summaries of covariances and defined parameters
+  (`:=`), missed the skew of draws with a small SD (below about 0.2).
+  Posterior modes are also more accurate for parameters on a small
+  scale.
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) on FIML fits
+  with `fixed.x` covariates now score the outcomes given the covariates,
+  as for complete data. Previously two-level FIML scores included the
+  covariates’ density, so they could not be compared with listwise fits
+  or across covariate sets.
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) no longer
+  fail on FIML fits with singleton or two-row clusters, or with clusters
+  or rows that have no observed data. Units with nothing to predict are
+  left out, with a message. In two-level `type = "loso"`, rows with no
+  within-level data no longer each count the whole cluster.
+
+- `predict(type = "ypred")` for two-level models now adds residual noise
+  to observed outcomes, not only to factor indicators.
+
+- [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) for
+  two-level models now draws latent variables and missing values from
+  their posterior given all of the cluster’s data, as for single-level
+  models. Previously it returned factor scores without their
+  uncertainty, and imputed each row without the rest of its cluster.
+
+- With `fixed.x = TRUE` (the default), the marginal likelihood and DIC
+  now condition on the covariates. Previously a covariate with no effect
+  changed Bayes factors from
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md), by a
+  lot in two-level models where it varies at both levels.
+
+- [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+  overstated the chi-square of models without a mean structure, and with
+  it BRMSEA and the other Bayesian fit indices.
+
+- The PPP no longer fails for `conditional.x = TRUE` fits.
+
+- The PPP no longer overstates the fit of models with fixed covariates
+  (`fixed.x = TRUE`, the default). Its replicates varied the covariates,
+  which the model does not predict.
+
+- [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) and
+  `predict(type = "ymis")` now work for `conditional.x = TRUE` fits.
+  Previously
+  [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md)
+  rejected every draw and imputation failed.
+
+- [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) for
+  `conditional.x = TRUE` fits now draws the covariates too, as for other
+  fits. Previously it left out their effects.
+
+- The PPP of a two-level model is skipped, with a warning, when a
+  variable at both levels has almost no between-level variance. It was 0
+  in such models.
+
+- Models with a free covariance above 1 at its starting value, such as
+  covariances between covariates under `fixed.x = FALSE`, no longer
+  fail.
+
 ### Minor improvements and fixes
 
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) warns
   when fits differ in `vb_correction`.
+
+- `predict(newdata = )` warns about ordinal values not seen when
+  fitting.
 
 ## INLAvaan 0.3.2
 

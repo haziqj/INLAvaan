@@ -72,8 +72,10 @@ acfa(
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
   data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. The fit records what
-  was requested and what was computed
+  with a warning and the rest of the fit proceeds. The PPP is skipped
+  the same way for a two-level model in which a variable at both levels
+  has almost no between-level variance. The fit records what was
+  requested and what was computed
   (`get_inlavaan_internal(fit, "test")`);
   [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
@@ -305,21 +307,20 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [150ms]
+#> ✔ Posterior mode and Hessian. [147ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [242ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [250ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [980ms]
+#> ✔ Fit 21/21 skew-normal marginals. [1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 100 posterior draws. [80ms]
+#> ✔ Summarise 100 posterior draws. [72ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9001 ended normally after 66 iterations
+#> INLAvaan 0.3.2.9003 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

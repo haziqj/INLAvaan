@@ -72,8 +72,10 @@ agrowth(
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
   data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. The fit records what
-  was requested and what was computed
+  with a warning and the rest of the fit proceeds. The PPP is skipped
+  the same way for a two-level model in which a variable at both levels
+  has almost no between-level variance. The fit records what was
+  requested and what was computed
   (`get_inlavaan_internal(fit, "test")`);
   [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
@@ -326,20 +328,21 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
+#> ℹ Computing the Hessian.
 #> ✔ Posterior mode and Hessian. [280ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [299ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [301ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
 #> ✔ Fit 17/17 skew-normal marginals. [1.1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [161ms]
+#> ✔ Summarise 100 posterior draws. [169ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9001 ended normally after 83 iterations
+#> INLAvaan 0.3.2.9003 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -350,7 +353,7 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2557.535 
-#>    PPP (Chi-square)                              0.940 
+#>    PPP (Chi-square)                              0.350 
 #> 
 #> Information Criteria:
 #> 

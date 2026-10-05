@@ -39,8 +39,9 @@ simulate(
 
 - sample.nobs:
 
-  Number of observations per dataset. Defaults to the sample size of the
-  original data.
+  Number of observations per dataset, per group for multigroup models (a
+  single number is used for every group). Defaults to the sample size of
+  the original data.
 
 - prior:
 
@@ -110,16 +111,16 @@ single-observation draws from the predictive distribution
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [50ms]
+#> ✔ Posterior mode and Hessian. [49ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [249ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [262ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [386ms]
+#> ✔ Fit 6/6 skew-normal marginals. [123ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [459ms]
+#> ✔ Summarise 1000 posterior draws. [487ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

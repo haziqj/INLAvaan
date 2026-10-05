@@ -9,7 +9,7 @@ fitted INLAvaan model."><meta property="og:image" content="https://inlavaan.hazi
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,8 +77,9 @@ fitted <code>INLAvaan</code> model.</p>
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Character. <code>"lavaan"</code> (default) returns the posterior
 covariance matrix of the model parameters computed from posterior
-samples (matching lavaan output). <code>"theta"</code> returns the Laplace
-approximation covariance in the internal parameterisation.</p></dd>
+samples, with one row per entry of <code><a href="INLAvaan-class.html">coef()</a></code> (matching lavaan output).
+<code>"theta"</code> returns the Laplace approximation covariance in the
+internal parameterisation, with one row per distinct free parameter.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

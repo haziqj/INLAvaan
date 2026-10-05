@@ -28,7 +28,8 @@ on implementation and workflows, Jamil and Rue (2026b)
 
 Supports advanced 'lavaan' syntax features, including:
 
-- Equality constraints
+- Equality constraints (shared labels, `group.equal`, `a == b` and
+  `a == <number>`)
 
 - Defined parameters (e.g., `:=` operator for indirect effects)
 

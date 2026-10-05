@@ -90,8 +90,10 @@ inlavaan(
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
   data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. The fit records what
-  was requested and what was computed
+  with a warning and the rest of the fit proceeds. The PPP is skipped
+  the same way for a two-level model in which a variable at both levels
+  has almost no between-level variance. The fit records what was
+  requested and what was computed
   (`get_inlavaan_internal(fit, "test")`);
   [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
@@ -323,21 +325,21 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [183ms]
+#> ✔ Posterior mode and Hessian. [162ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [317ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [319ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
+#> ⠹ Fitting 19/21 skew-normal marginals.
 #> ✔ Fit 21/21 skew-normal marginals. [1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [647ms]
+#> ✔ Summarise 1000 posterior draws. [674ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9001 ended normally after 65 iterations
+#> INLAvaan 0.3.2.9003 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -379,9 +381,9 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
 #>     textual           0.397    0.077    0.246    0.548    0.001       beta(1,1)
-#>     speed             0.250    0.051    0.151    0.349    0.011       beta(1,1)
+#>     speed             0.250    0.051    0.156    0.355    0.011       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.165    0.047    0.073    0.258    0.003       beta(1,1)
+#>     speed             0.165    0.047    0.078    0.264    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

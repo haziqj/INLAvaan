@@ -39,12 +39,16 @@ predict(
   `"yhat"`, `"ov"`
 
   :   Predicted means for observed variables \\E(y \| \eta, \theta) =
-      \nu + \Lambda \eta\\; no residual noise.
+      \nu + \Lambda \eta\\; no residual noise. An observed outcome is
+      predicted from its regressors.
 
   `"ypred"`, `"ydist"`
 
   :   Predicted observed values including residual noise \\y = \nu +
-      \Lambda \eta + \varepsilon\\, \\\varepsilon \sim N(0, \Theta)\\.
+      \Lambda \eta + \varepsilon\\, \\\varepsilon \sim N(0, \Theta)\\,
+      with the residual variances that `lavInspect(fit, "theta")`
+      reports (observed outcomes included, observed covariates
+      excluded).
 
   `"ymis"`, `"ovmis"`
 
@@ -59,8 +63,12 @@ predict(
 
 - level:
 
-  Integer; for `type = "lv"` in multilevel models, specifies whether
-  level 1 or level 2 latent variables are desired (default `1L`).
+  Integer; for `type = "lv"` in two-level models, specifies whether
+  level 1 or level 2 latent variables are desired (default `1L`). Other
+  types ignore it: for two-level models, `"yhat"` and `"ypred"` give the
+  total within plus between prediction, and a `"ypred"` draw keeps its
+  cluster's between-level values, so only the observation-level
+  residuals are new.
 
 - nsamp:
 

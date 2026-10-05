@@ -118,16 +118,16 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [259ms]
+#> ✔ Posterior mode and Hessian. [270ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.037σ. [181ms]
+#> ✔ VB correction; mean |δ| = 0.037σ. [186ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [445ms]
+#> ✔ Fit 13/13 skew-normal marginals. [459ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [577ms]
+#> ✔ Summarise 1000 posterior draws. [607ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -189,7 +189,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.2.9001 ended normally after 64 iterations
+#> INLAvaan 0.3.2.9003 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -219,7 +219,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.2.9001 ended normally after 64 iterations
+#> INLAvaan 0.3.2.9003 ended normally after 64 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -388,9 +388,9 @@ stored with the fit.
 
 fitmeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           13    -8078.220        0.317    16063.380       13.059        0.066 
+#>           13    -8078.220        0.317    16063.380       13.059        0.017 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.989        0.970        0.983        0.982        0.966        0.978
+#>        0.999        0.997        0.998        0.998        0.997        0.994
 ```
 
 Definitions and worked examples are in the [Bayesian fit indices
@@ -433,7 +433,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.53 s
+#> 1.59 s
 ```
 
 ### Plot
@@ -470,13 +470,13 @@ fit2 <- asem(mod2, dat)
 #> ✔ Posterior mode and Hessian. [144ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [188ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [201ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [361ms]
+#> ✔ Fit 12/12 skew-normal marginals. [375ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [529ms]
+#> ✔ Summarise 1000 posterior draws. [558ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)

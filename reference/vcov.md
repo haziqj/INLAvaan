@@ -20,9 +20,12 @@ vcov(object, type = c("lavaan", "theta"), ...)
 - type:
 
   Character. `"lavaan"` (default) returns the posterior covariance
-  matrix of the model parameters computed from posterior samples
+  matrix of the model parameters computed from posterior samples, with
+  one row per entry of
+  [`coef()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
   (matching lavaan output). `"theta"` returns the Laplace approximation
-  covariance in the internal parameterisation.
+  covariance in the internal parameterisation, with one row per distinct
+  free parameter.
 
 - ...:
 

@@ -11,7 +11,7 @@ missing data."><meta property="og:image" content="https://inlavaan.haziqj.ml/log
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,12 +93,15 @@ missing data.</p>
 
 <dt><code>"yhat"</code>, <code>"ov"</code></dt>
 <dd><p>Predicted means for observed variables
-\(E(y | \eta, \theta) = \nu + \Lambda \eta\); no residual noise.</p></dd>
+\(E(y | \eta, \theta) = \nu + \Lambda \eta\); no residual noise. An
+observed outcome is predicted from its regressors.</p></dd>
 
 <dt><code>"ypred"</code>, <code>"ydist"</code></dt>
 <dd><p>Predicted observed values including
 residual noise \(y = \nu + \Lambda \eta + \varepsilon\),
-\(\varepsilon \sim N(0, \Theta)\).</p></dd>
+\(\varepsilon \sim N(0, \Theta)\), with the residual variances that
+<code>lavInspect(fit, "theta")</code> reports (observed outcomes included,
+observed covariates excluded).</p></dd>
 
 <dt><code>"ymis"</code>, <code>"ovmis"</code></dt>
 <dd><p>Imputed values for missing
@@ -116,8 +119,12 @@ training data. Not supported for <code>type = "ymis"</code>.</p></dd>
 
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
-<dd><p>Integer; for <code>type = "lv"</code> in multilevel models, specifies
-whether level 1 or level 2 latent variables are desired (default <code>1L</code>).</p></dd>
+<dd><p>Integer; for <code>type = "lv"</code> in two-level models, specifies
+whether level 1 or level 2 latent variables are desired (default <code>1L</code>).
+Other types ignore it: for two-level models, <code>"yhat"</code> and
+<code>"ypred"</code> give the total within plus between prediction, and a
+<code>"ypred"</code> draw keeps its cluster's between-level values, so only the
+observation-level residuals are new.</p></dd>
 
 
 <dt id="arg-nsamp">nsamp<a class="anchor" aria-label="anchor" href="#arg-nsamp"></a></dt>

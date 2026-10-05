@@ -72,8 +72,10 @@ asem(
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
   data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. The fit records what
-  was requested and what was computed
+  with a warning and the rest of the fit proceeds. The PPP is skipped
+  the same way for a two-level model in which a variable at both levels
+  has almost no between-level variance. The fit records what was
+  requested and what was computed
   (`get_inlavaan_internal(fit, "test")`);
   [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
@@ -317,19 +319,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [261ms]
+#> ✔ Posterior mode and Hessian. [265ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [413ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [416ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.2s]
+#> ⠹ Fitting 2/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [2.3s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [344ms]
+#> ✔ Summarise 1000 posterior draws. [340ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.2.9001 ended normally after 82 iterations
+#> INLAvaan 0.3.2.9003 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
