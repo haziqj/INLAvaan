@@ -124,6 +124,9 @@
 * The PPP of a two-level model is skipped, with a warning, when a variable at
   both levels has almost no between-level variance. It was 0 in such models.
 
+* Models with a free covariance above 1 at its starting value, such as
+  covariances between covariates under `fixed.x = FALSE`, no longer fail.
+
 ## Minor improvements and fixes
 
 * `compare()` warns when fits differ in `vb_correction`.
