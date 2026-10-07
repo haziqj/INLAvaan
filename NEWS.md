@@ -1,6 +1,24 @@
 # INLAvaan (development version)
 
+## New features
+
+* INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
+  in single-level models with continuous data and one or more groups. They work
+  with the fit measures, `loo()`, `compare()`, `predict()` and `sampling()`.
+  Free weights have the new default prior `wmat = "normal(0,10)"` in
+  `priors_for()`. See the new article on composites.
+
+* Composite models that INLAvaan cannot fit yet stop with an error: two-level
+  models, ordinal data and `composites.cov = "free"`. So do composite
+  specifications that cannot be estimated as written, such as a free latent
+  mean that only composites measure (as in `agrowth()` on composites).
+
 ## Bug fixes
+
+* Multigroup models with `missing = "ml"` gave wrong posteriors.
+
+* `sampling(prior = TRUE)` with `type = "observed"` or `type = "all"` rejected
+  every draw in models with an observed outcome or covariate.
 
 * The marginal log-likelihood was too low by about half the number of free
   parameters when `vb_correction = TRUE` (the default). As a result, Bayes
@@ -128,6 +146,15 @@
   covariances between covariates under `fixed.x = FALSE`, no longer fail.
 
 ## Minor improvements and fixes
+
+* Parameter types missing from `dp` take their default priors, and a `dp`
+  without names gives an error.
+
+* A Hessian that is not positive definite at the posterior mode gives a clear
+  error.
+
+* `plot()` explains that fixed and derived parameters have no posterior
+  density.
 
 * `compare()` warns when fits differ in `vb_correction`.
 
