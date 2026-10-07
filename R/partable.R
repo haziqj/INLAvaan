@@ -198,6 +198,12 @@ inlavaanify_partable <- function(
   }
   pt$mat <- unlist(pt$mat)
 
+  # lavaan scales a composite by its marker weight even under std.lv, so a
+  # covariance with a composite stays a covariance.
+  comp <- unique(pt$lhs[pt$op == "<~"])
+  is_comp_cor <- pt$mat %in% "psi_cor" & (pt$lhs %in% comp | pt$rhs %in% comp)
+  pt$mat[is_comp_cor] <- "psi_cov"
+
   # Add priors
   # Note: Possible to add own non-standard priors, but the evaluation of
   # prior_logdens() will return an error.
