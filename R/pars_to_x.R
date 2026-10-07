@@ -67,17 +67,19 @@ pars_to_x <- function(theta, pt) {
       jcb_mat <- rbind(jcb_mat, c(thidx1, thidx3, 0.5 * rho * sd1 * sd2))
       jcb_mat <- rbind(jcb_mat, c(thidx2, thidx3, 0.5 * rho * sd1 * sd2))
       # A composite's sd moves with its weights: d sd(C) / d w = T w / sd(C)
-      for (side in 1:2) {
-        ct <- comp_tw[[paste(c(X1, X2)[side], pt$group[k])]]
-        if (is.null(ct)) {
-          next
+      if (length(comp_tw) > 0L) {
+        for (side in 1:2) {
+          ct <- comp_tw[[paste(c(X1, X2)[side], pt$group[k])]]
+          if (is.null(ct)) {
+            next
+          }
+          sd_this <- c(sd1, sd2)[side]
+          sd_other <- c(sd2, sd1)[side]
+          jcb_mat <- rbind(
+            jcb_mat,
+            cbind(thidx[ct$wrows], thidx3, rho * sd_other * ct$tw / sd_this)
+          )
         }
-        sd_this <- c(sd1, sd2)[side]
-        sd_other <- c(sd2, sd1)[side]
-        jcb_mat <- rbind(
-          jcb_mat,
-          cbind(thidx[ct$wrows], thidx3, rho * sd_other * ct$tw / sd_this)
-        )
       }
       sd1sd2[j] <- sd1 * sd2
     }
