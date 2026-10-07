@@ -319,8 +319,7 @@ get_ppp <- function(
     res[i] <- as.numeric(Trep >= Tobs)
   }
 
-  # A composite draw whose replicate moments are not a covariance is NA
-  mean(res, na.rm = TRUE)
+  mean(res)
 }
 
 # One posterior draw of the PPP for a fit with composites. lavaan fixes the
@@ -333,8 +332,9 @@ get_ppp <- function(
 # have, and the PPP would drift towards 1. The new block also moves the variance
 # w'Tw of each composite, so the draw is rescaled with it (see
 # composite_rescale_x()). Composites are single-level, so the blocks are the
-# groups. lavmodel_x is lavmodel at xx. Returns 1 when Trep >= Tobs, 0
-# otherwise, and NA when the replicate moments are not a covariance matrix.
+# groups. lavmodel_x is lavmodel at xx. Returns 1 when Trep >= Tobs and 0
+# otherwise. A replicate whose implied moments are not a covariance matrix
+# counts as an exceedance (Trep = Inf).
 ppp_composite_draw <- function(
   xx,
   lavmodel_x,
@@ -388,7 +388,7 @@ ppp_composite_draw <- function(
     x_idx <- block_obs[[b]]$x_idx
     Sigma_rep <- implied_joint_moments(implied_rep, b, x_idx)$cov
     if (is_bad_cov(Sigma_rep)) {
-      return(NA_real_) # nocov
+      return(1) # nocov
     }
     Trep <- Trep + ppp_discrepancy(Srep[[b]], Sigma_rep, x_idx)
   }
