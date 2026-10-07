@@ -226,6 +226,33 @@ compare_impl <- function(
     ))
   }
 
+  # The composite indicator (co)variances that lavaan fixes at their sample
+  # values are a plug-in of the data, not parameters, so the marginal
+  # likelihood and the DIC of a fit with composites condition on them. That
+  # cancels only between fits that fix the same ones. The LOO recomputes them
+  # without each unit, so it compares across such fits.
+  t_keys <- lapply(internals, composite_t_key)
+  if (length(unique(t_keys)) > 1L) {
+    hint <- if (isTRUE(loo)) {
+      c(
+        "i" = "Interpret only the ELPD columns, which recompute those
+         (co)variances without each unit."
+      )
+    } else {
+      c(
+        "i" = "Use {.code compare(..., loo = TRUE)} for a comparison that does
+         not depend on them."
+      )
+    }
+    cli_warn(c(
+      "Comparing fits that do not fix the same composite indicator
+       (co)variances at their sample values: marginal log-likelihoods, Bayes
+       factors, and DIC treat those as known, so they are comparable only
+       between models with the same composites.",
+      hint
+    ))
+  }
+
   best_ll <- max(marg_ll)
   logBF <- marg_ll - best_ll
 
@@ -443,6 +470,29 @@ compare_impl <- function(
   }
   class(out) <- c("compare.inlavaan_internal", class(out))
   out
+}
+
+# The composite indicator (co)variances a fit fixes at their sample values, as
+# sorted keys of group, variable pair and value. Empty for a fit without them.
+composite_t_key <- function(int) {
+  t_fixed <- composite_fixed_t(int$lavmodel, int$partable, int$lavdata)
+  if (is.null(t_fixed)) {
+    return(character(0L))
+  }
+  group_label <- int$lavdata@group.label
+  keys <- lapply(seq_along(t_fixed), function(g) {
+    e <- t_fixed[[g]]
+    ov <- int$lavdata@ov.names[[g]]
+    lhs <- ov[e$rc[, 1L]]
+    rhs <- ov[e$rc[, 2L]]
+    paste(
+      if (length(group_label) >= g) group_label[g] else "",
+      pmin(lhs, rhs),
+      pmax(lhs, rhs),
+      signif(int$lavmodel@GLIST[[e$mm]][e$pos], 8)
+    )
+  })
+  sort(unique(unlist(keys)))
 }
 
 #' @exportS3Method print compare.inlavaan_internal

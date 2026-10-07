@@ -131,7 +131,11 @@ test_that("The LOO matches the model that estimates the indicator moments", {
   )
   # Without indicator (co)variances fixed at sample values there is no term
   expect_null(loo(fit_phantom)$per_unit$t_delta)
-  cmp <- compare(fit_comp, fit_phantom, loo = TRUE)
+  # Their marginal likelihoods are not comparable, but their LOO is
+  expect_warning(
+    cmp <- compare(fit_comp, fit_phantom, loo = TRUE),
+    "Interpret only the ELPD columns"
+  )
   expect_lt(abs(cmp$elpd_diff[2]), 2 * cmp$se_diff[2])
   # Without the term the composite would win by about six nats
   expect_gt(sum(res_comp$per_unit$t_delta), 3 * cmp$se_diff[2])

@@ -311,3 +311,54 @@ test_that("compare() scales incremental indices against the independence model",
   expect_gt(cmp$BCFI[cmp$Model == "fit_a"], 0.3)
   expect_true(all(cmp$BCFI <= 1))
 })
+
+## ----- Composites ------------------------------------------------------------
+
+# lavaan fixes the (co)variances of composite indicators at their sample values,
+# and the marginal likelihood and DIC condition on them
+mod_comp <- "
+  C <~ x1 + x2 + x3
+  x4 ~ C
+  x5 ~ C
+  x4 ~~ x5
+"
+fit_args_comp <- list(
+  verbose = FALSE,
+  nsamp = 3,
+  test = "none",
+  vb_correction = FALSE,
+  marginal_method = "marggaus"
+)
+fit_comp <- do.call(asem, c(list(mod_comp, dat), fit_args_comp))
+
+test_that("compare() warns when fits do not fix the same composite blocks", {
+  # The same composite on the same data: comparable
+  mod_comp0 <- "
+    C <~ x1 + x2 + x3
+    x4 ~ C
+    x5 ~ C
+    x4 ~~ 0*x5
+  "
+  fit_comp0 <- do.call(asem, c(list(mod_comp0, dat), fit_args_comp))
+  expect_no_warning(compare(fit_comp, fit_comp0))
+
+  # The same model with the indicator moments estimated is not
+  mod_phantom <- "
+    C =~ 0
+    C ~ 1*x1 + x2 + x3
+    C ~~ 0*C
+    x4 ~ C
+    x5 ~ C
+    x4 ~~ x5
+  "
+  fit_phantom <- do.call(
+    asem,
+    c(list(mod_phantom, dat, fixed.x = FALSE), fit_args_comp)
+  )
+  expect_warning(compare(fit_comp, fit_phantom), "same composites")
+  expect_warning(
+    cmp <- compare(fit_comp, fit_phantom, loo = TRUE),
+    "Interpret only the ELPD columns"
+  )
+  expect_true(all(is.finite(cmp$ELPD)))
+})
