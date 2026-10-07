@@ -213,6 +213,41 @@ test_that("conditional.x fits draw the covariates jointly", {
   expect_setequal(colnames(prior_s), vars)
 })
 
+test_that("Prior observed draws work with an observed outcome", {
+  # Regression test: an observed outcome keeps its residual variance in Psi, so
+  # its row of Theta is zero, and the strict Cholesky factor of Theta rejected
+  # every prior draw. Only a non-PD implied covariance rejects a draw now.
+  fit_y <- asem(
+    "visual =~ x1 + x2 + x3\n x4 ~ visual",
+    dat,
+    verbose = FALSE,
+    nsamp = 5,
+    vb_correction = FALSE,
+    test = "none",
+    marginal_method = "marggaus"
+  )
+  set.seed(1)
+  expect_no_message(
+    s <- sampling(fit_y, type = "all", nsamp = 8, prior = TRUE)
+  )
+  expect_equal(dim(s$observed), c(8L, 4L))
+  expect_equal(colnames(s$observed), paste0("x", 1:4))
+  expect_true(all(is.finite(s$observed)))
+
+  int <- get_inlavaan_internal(fit_y)
+  x <- coef(fit_y)
+  expect_true(implied_cov_is_pd(x, int))
+  x[["x1~~x1"]] <- -5
+  expect_false(implied_cov_is_pd(x, int))
+
+  # A singular Theta has a root, and only a negative eigenvalue fails
+  expect_equal(
+    tcrossprod(theta_root(diag(c(2, 0)), strict = TRUE)),
+    diag(c(2, 0))
+  )
+  expect_error(theta_root(diag(c(2, -1)), strict = TRUE))
+})
+
 ## ----- Two-level fits --------------------------------------------------------
 mod_ml <- "
   level: 1
@@ -341,6 +376,17 @@ test_that("sampling() prior = TRUE covers both levels", {
   im <- sampling(fit_ml, type = "implied", nsamp = 2, prior = TRUE)
   expect_length(im, 2)
   expect_named(im[[1]], c("within", "cluster"))
+
+  # The within covariate x1 has a zero row in Theta
+  obs <- sampling(
+    fit_ml,
+    type = "observed",
+    nsamp = 3,
+    prior = TRUE,
+    silent = TRUE
+  )
+  expect_equal(dim(obs), c(3L, 5L))
+  expect_true(all(is.finite(obs)))
 })
 
 test_that("Single-level draws are unchanged by the two-level path", {

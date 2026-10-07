@@ -231,6 +231,46 @@ chol_cov_block <- function(S, strict = FALSE) {
   }
 }
 
+# Root of the residual covariance Theta, which may be singular: an observed
+# outcome keeps its residual variance in Psi of its dummy latent variable, so
+# its row of Theta is zero. With strict = TRUE a Theta with a negative
+# eigenvalue throws, so that prior rejection sampling rejects the draw.
+theta_root <- function(Theta, strict = FALSE) {
+  if (strict) {
+    d <- eigen(Theta, symmetric = TRUE, only.values = TRUE)$values
+    if (min(d) < -sqrt(.Machine$double.eps) * max(d, 0)) {
+      stop("Theta is not positive semi-definite.")
+    }
+  }
+  psd_root(Theta)
+}
+
+# Whether the model-implied covariance matrix of every block is positive
+# definite at x. This is the screen that simulate() applies to its draws.
+implied_cov_is_pd <- function(x, int) {
+  lavmodel <- int$lavmodel
+  implied <- tryCatch(
+    lavaan::lav_model_implied(
+      lavaan::lav_model_set_parameters(lavmodel, as.numeric(x))
+    ),
+    error = function(e) NULL
+  )
+  if (is.null(implied)) {
+    return(FALSE) # nocov
+  }
+  for (b in seq_len(lavmodel@nblocks)) {
+    S <- implied_block_moments(implied, b, lavmodel, int$lavsamplestats)$cov
+    if (!all(is.finite(S))) {
+      return(FALSE) # nocov
+    }
+    eigs <- eigen(S, symmetric = TRUE, only.values = TRUE)$values
+    if (any(eigs < 1e-10)) {
+      return(FALSE)
+    }
+  }
+  TRUE
+}
+
 # Names of a block's latent and observed draws. Under conditional.x the
 # covariates are not in the model matrices (their effects are in gamma), so
 # they are drawn from their fixed moments and appended, as the dummy variables
@@ -299,8 +339,8 @@ draw_observed_block <- function(glist, eta, strict = FALSE) {
 
   lv <- seq_len(ncol(Lambda))
   mu_y <- as.numeric(Lambda %*% eta[lv] + nu)
-  chol_Theta <- chol_cov_block(Theta, strict)
-  y <- mu_y + as.numeric(chol_Theta %*% stats::rnorm(length(mu_y)))
+  root_Theta <- theta_root(Theta, strict)
+  y <- mu_y + as.numeric(root_Theta %*% stats::rnorm(length(mu_y)))
   y <- c(y, unname(eta[-lv]))
   names(y) <- block_ov_names(glist)
   y
@@ -561,7 +601,8 @@ sampling_generative_ml <- function(int, samp, type, nsamp) {
 # When prior = TRUE and we need latent/observed draws, parameter vectors that
 # produce non-positive-definite model-implied covariance matrices are rejected
 # and redrawn.  This preserves the exact prior distribution rather than silently
-# projecting non-PD matrices to PD space via make_pd().
+# projecting non-PD matrices to PD space via make_pd(). The draws themselves
+# also need a positive definite Phi and a positive semi-definite Theta.
 
 sampling_prior_generative <- function(
   int,
@@ -653,6 +694,9 @@ sampling_prior_generative <- function(
       }
 
       x1 <- samp_batch$x_samp[i, ]
+      if (!implied_cov_is_pd(x1, int)) {
+        next
+      }
 
       # Try the generative draw (strict = TRUE: no make_pd fallback). The
       # two-level draw already returns both levels in one flat vector.
