@@ -154,3 +154,73 @@ check_composite_weights <- function(pt) {
   }
   invisible(NULL)
 }
+
+# lavaan fixes a composite's mean at w'nu, the weighted means of its
+# indicators, so the composite's intercept absorbs any latent mean above it. A
+# free latent mean whose every path to the data (along =~ and ~) runs through a
+# composite drops out of the likelihood, and its posterior would be its prior.
+# growth() and group.equal = "intercepts" free such means too. Means that share
+# a free index with an identified mean are fine.
+check_composite_means <- function(pt, lavoptions = NULL) {
+  if (!any(pt$op == "<~")) {
+    return(invisible(NULL))
+  }
+  block <- if (is.null(pt$block)) rep(1L, length(pt$lhs)) else pt$block
+  flag <- logical(length(pt$lhs))
+  for (b in unique(block[pt$op == "<~"])) {
+    in_b <- block == b
+    comps <- unique(pt$lhs[in_b & pt$op == "<~"])
+    factors <- unique(pt$lhs[in_b & pt$op == "=~"])
+    is_mm <- in_b & pt$op == "=~"
+    is_reg <- in_b & pt$op == "~"
+    from <- c(pt$lhs[is_mm], pt$rhs[is_reg])
+    to <- c(pt$rhs[is_mm], pt$lhs[is_reg])
+    rows <- which(in_b & pt$op == "~1" & pt$free > 0L & pt$lhs %in% factors)
+    for (i in rows) {
+      reached <- character()
+      frontier <- pt$lhs[i]
+      while (length(frontier) > 0L) {
+        nxt <- setdiff(unique(to[from %in% frontier]), reached)
+        reached <- c(reached, nxt)
+        frontier <- setdiff(nxt, comps) # a composite ends the path
+      }
+      flag[i] <- any(reached %in% comps) &&
+        all(reached %in% c(comps, factors))
+    }
+  }
+  for (i in which(flag)) {
+    flag[i] <- all(flag[pt$free == pt$free[i]])
+  }
+  if (!any(flag)) {
+    return(invisible(NULL))
+  }
+  rows <- which(flag)
+  bullets <- paste0("{.code ", cli_escape(partable_row_name(pt, rows)), "}")
+  names(bullets) <- rep("x", length(bullets))
+  hint <- NULL
+  if (identical(lavoptions$model.type, "growth")) {
+    hint <- c(
+      "i" = "{.fn agrowth} frees the means of the growth factors. Use
+             {.fn asem} with {.code meanstructure = TRUE}, which fixes them at
+             zero and frees the intercepts of the indicators."
+    )
+  } else if (
+    "intercepts" %in% lavoptions$group.equal && any(pt$user[rows] == 0L)
+  ) {
+    hint <- c(
+      "i" = "{.code group.equal = \"intercepts\"} frees the latent means of
+             later groups. Add {.val means} to {.arg group.equal}."
+    )
+  }
+  cli_abort(c(
+    "INLAvaan cannot estimate {cli::qty(length(rows))}{?this latent mean/these
+     latent means}, because composites absorb {?it/them}:",
+    bullets,
+    "i" = "A composite's mean is set by the means of its indicators, so a
+           latent mean that reaches the data only through composites does not
+           enter the likelihood.",
+    "i" = "Fix {cli::qty(length(rows))}{?it/them} at zero, for example
+           {.code {pt$lhs[rows[1L]]} ~ 0*1}.",
+    hint
+  ))
+}

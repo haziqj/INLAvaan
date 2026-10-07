@@ -303,6 +303,7 @@ inlavaan <- function(
   # Partable and check for equality constraints
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
   check_packed_kinds(pt)
+  check_composite_means(pt, lavoptions)
   PTFREEIDX <- which(pt$free > 0L)
   if (isTRUE(ceq.simple)) {
     # Note: Always work in the reduced space
