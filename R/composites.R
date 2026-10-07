@@ -318,7 +318,8 @@ check_composite_means <- function(pt, lavoptions = NULL) {
 # T^-1 Cov(x, y) = w a' for the indicators x and every other observed variable
 # y, so the first left singular vector of T^-1 S_xy, scaled to the marker, is a
 # moment estimate of w. A composite keeps lavaan's starts when this is not
-# finite or runs beyond 100.
+# finite or runs beyond 100, and a weight with a start() of the user's keeps
+# that value.
 composite_start_weights <- function(pt, lavsamplestats, lavdata) {
   parstart <- pt$parstart
   is_w <- pt$op == "<~"
@@ -348,7 +349,7 @@ composite_start_weights <- function(pt, lavsamplestats, lavdata) {
         next
       }
       w <- u / u[marker]
-      free <- pt$free[wrows] > 0L
+      free <- pt$free[wrows] > 0L & is.na(pt$ustart[wrows])
       if (all(is.finite(w)) && max(abs(w)) <= 100) {
         parstart[wrows[free]] <- w[free]
       }

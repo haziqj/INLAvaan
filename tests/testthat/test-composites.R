@@ -166,6 +166,11 @@ test_that("Weights start from a rank-one moment estimate", {
   expect_true(all(pt$parstart[c3] == 1))
   expect_true(all(start[c3] < 0))
   expect_equal(start[pt$free == 0], pt$parstart[pt$free == 0])
+
+  # A start() of the user's is kept
+  fit_s <- fit_quiet(sub("x2", "start(0.5)*x2", mod))
+  pt_s <- get_inlavaan_internal(fit_s)$partable
+  expect_equal(pt_s$parstart[pt_s$op == "<~" & pt_s$rhs == "x2"], 0.5)
 })
 
 test_that("A dp without a wmat entry uses the default weight prior", {
