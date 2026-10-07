@@ -151,6 +151,8 @@ The same model restrictions as
 does the flavour rule: fits with `fixed.x = TRUE` are scored
 conditionally on the exogenous covariates, fits with `fixed.x = FALSE`
 jointly (see [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)).
+For composites, \\p\_{\mathrm{waic}}\\ also counts the indicator
+(co)variances that lavaan fixes at their sample values, as `p_loo` does.
 
 **Marginal vs conditional WAIC (two-level models).** The default
 per-cluster scoring is the *marginal* WAIC, which corresponds to
@@ -191,17 +193,17 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [172ms]
+#> ✔ Posterior mode and Hessian. [184ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [205ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [199ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [893ms]
+#> ⠹ Fitting 18/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [945ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [738ms]
+#> ✔ Summarise 1000 posterior draws. [755ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 waic(fit)

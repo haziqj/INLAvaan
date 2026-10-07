@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
     <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/composites.html">Composites</a></li>
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
@@ -55,8 +56,15 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="inlavaan-development-version">INLAvaan (development version)<a class="anchor" aria-label="anchor" href="#inlavaan-development-version"></a></h2>
 <div class="section level3">
+<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<ul><li><p>INLAvaan now fits composites, which lavaan specifies with the <code>&lt;~</code> operator, in single-level models with continuous data and one or more groups. They work with the fit measures, <code><a href="../reference/loo.html">loo()</a></code>, <code><a href="../reference/compare.html">compare()</a></code>, <code><a href="../reference/predict.html">predict()</a></code> and <code><a href="../reference/sampling.html">sampling()</a></code>, and <code><a href="../reference/INLAvaan-class.html">summary()</a></code> gives posterior summaries for the variance and intercept of each composite. Free weights have the new default prior <code>wmat = "normal(0,10)"</code> in <code><a href="../reference/priors_for.html">priors_for()</a></code>. See the new article on composites.</p></li>
+<li><p>Composite models that INLAvaan cannot fit yet stop with an error: two-level models, ordinal data and <code>composites.cov = "free"</code>. So do composite specifications that cannot be estimated as written, such as a free latent mean that only composites measure (as in <code><a href="../reference/agrowth.html">agrowth()</a></code> on composites).</p></li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
-<ul><li><p>The marginal log-likelihood was too low by about half the number of free parameters when <code>vb_correction = TRUE</code> (the default). As a result, Bayes factors from <code><a href="../reference/compare.html">compare()</a></code> favoured models with fewer parameters.</p></li>
+<ul><li><p>Multigroup models with <code>missing = "ml"</code> gave wrong posteriors.</p></li>
+<li><p><code>sampling(prior = TRUE)</code> with <code>type = "observed"</code> or <code>type = "all"</code> rejected every draw in models with an observed outcome or covariate.</p></li>
+<li><p>The marginal log-likelihood was too low by about half the number of free parameters when <code>vb_correction = TRUE</code> (the default). As a result, Bayes factors from <code><a href="../reference/compare.html">compare()</a></code> favoured models with fewer parameters.</p></li>
 <li><p>A defined parameter (<code>:=</code>) can now use other defined parameters, in any order, as in lavaan. Previously the fit failed with an “object not found” error.</p></li>
 <li><p>Defined parameters that are constant, or that cannot be computed for some posterior draws (such as <code>log(b)</code> when <code>b</code> can be negative), no longer stop the fit. Their summaries use the draws where they can be computed, and a single warning gives the share left out, in place of R’s repeated “NaNs produced” warnings.</p></li>
 <li><p><code><a href="../reference/INLAvaan-class.html">summary()</a></code> showed the wrong SD, credible interval and prior for defined parameters, and for some rows after them, when the model had equality constraints (shared labels or <code>group.equal</code>).</p></li>
@@ -91,7 +99,10 @@
 </ul></div>
 <div class="section level3">
 <h3 id="minor-improvements-and-fixes-development-version">Minor improvements and fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-fixes-development-version"></a></h3>
-<ul><li><p><code><a href="../reference/compare.html">compare()</a></code> warns when fits differ in <code>vb_correction</code>.</p></li>
+<ul><li><p>Parameter types missing from <code>dp</code> take their default priors, and a <code>dp</code> without names gives an error.</p></li>
+<li><p>A Hessian that is not positive definite at the posterior mode gives a clear error.</p></li>
+<li><p><code><a href="../reference/plot.html">plot()</a></code> explains that fixed and derived parameters have no posterior density.</p></li>
+<li><p><code><a href="../reference/compare.html">compare()</a></code> warns when fits differ in <code>vb_correction</code>.</p></li>
 <li><p><code>predict(newdata = )</code> warns about ordinal values not seen when fitting.</p></li>
 </ul></div>
 </div>

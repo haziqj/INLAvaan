@@ -118,16 +118,16 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [270ms]
+#> ✔ Posterior mode and Hessian. [283ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.037σ. [186ms]
+#> ✔ VB correction; mean |δ| = 0.037σ. [192ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [459ms]
+#> ✔ Fit 13/13 skew-normal marginals. [483ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [607ms]
+#> ✔ Summarise 1000 posterior draws. [628ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -433,7 +433,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.59 s
+#> 1.66 s
 ```
 
 ### Plot
@@ -467,16 +467,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [144ms]
+#> ✔ Posterior mode and Hessian. [129ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.041σ. [201ms]
+#> ✔ VB correction; mean |δ| = 0.041σ. [218ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [375ms]
+#> ✔ Fit 12/12 skew-normal marginals. [393ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [558ms]
+#> ✔ Summarise 1000 posterior draws. [721ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
@@ -569,8 +569,10 @@ The default global priors are similar to those from
 priors_for()  # similar to blavaan::dpriors()
 #>                nu             alpha            lambda              beta 
 #>    "normal(0,32)"    "normal(0,10)"    "normal(0,10)"    "normal(0,10)" 
-#>             theta               psi               rho               tau 
-#> "gamma(1,.5)[sd]" "gamma(1,.5)[sd]"       "beta(1,1)"   "normal(0,1.5)"
+#>              wmat             theta               psi               rho 
+#>    "normal(0,10)" "gamma(1,.5)[sd]" "gamma(1,.5)[sd]"       "beta(1,1)" 
+#>               tau 
+#>   "normal(0,1.5)"
 ```
 
 Note that, [INLAvaan](https://inlavaan.haziqj.ml/) uses the separation
@@ -583,10 +585,10 @@ global priors, say a gamma distribution on **variances** instead of
 
 DP <- priors_for(theta = "gamma(1,1)", psi = "gamma(1,1)")
 DP
-#>              nu           alpha          lambda            beta           theta 
-#>  "normal(0,32)"  "normal(0,10)"  "normal(0,10)"  "normal(0,10)"    "gamma(1,1)" 
-#>             psi             rho             tau 
-#>    "gamma(1,1)"     "beta(1,1)" "normal(0,1.5)"
+#>              nu           alpha          lambda            beta            wmat 
+#>  "normal(0,32)"  "normal(0,10)"  "normal(0,10)"  "normal(0,10)"  "normal(0,10)" 
+#>           theta             psi             rho             tau 
+#>    "gamma(1,1)"    "gamma(1,1)"     "beta(1,1)" "normal(0,1.5)"
 ## fit <- asem(mod, dat, dpriors = DP)  # not run
 ```
 

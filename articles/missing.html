@@ -44,6 +44,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-examples">
 <li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
     <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/composites.html">Composites</a></li>
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
@@ -130,17 +131,17 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [289ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [295ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.190σ. [828ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.190σ. [937ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 15/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.5s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 14/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [2.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.1s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="va">fit1</span><span class="op">@</span><span class="va">Data</span><span class="op">@</span><span class="va">nobs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html" class="external-link">complete.cases</a></span><span class="op">(</span><span class="va">datmiss</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span>
@@ -181,19 +182,19 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [566ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [593ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.164σ. [1.3s]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.164σ. [1.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 10/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 30/42 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [6.4s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 9/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 28/42 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 42/42 skew-normal marginals. [6.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.7s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>

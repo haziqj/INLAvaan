@@ -158,6 +158,12 @@ An object of class `inlavaan_loo`: a list with elements
 
   :   Whether the second-order \\\log \mathrm{CPO}\\ exists.
 
+  `t_delta`
+
+  :   Composite fits only: the drop in \\\ell_u\\ when the fixed
+      indicator (co)variances are recomputed without the unit, already
+      subtracted from the log CPO terms.
+
 - `estimates`:
 
   Matrix with rows `elpd_loo`, `p_loo`, `looic` and columns `Estimate`,
@@ -239,6 +245,11 @@ result's `flavour` field), and the two flavours are never comparable
 ([`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) refuses
 to mix them).
 
+For composites (`<~`), lavaan fixes the (co)variances of the indicators
+at their sample values. Each unit is scored with them recomputed without
+it (to first order under missing data), so `p_loo` counts them as
+parameters.
+
 Supplying `theta`/`Omega` evaluates the LOO at an arbitrary Gaussian
 posterior summary (a singular `Omega` is restricted to its
 non-degenerate block), the building block for refit-free submodel
@@ -289,16 +300,17 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [176ms]
+#> ✔ Posterior mode and Hessian. [171ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [191ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [214ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [904ms]
+#> ⠹ Fitting 7/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [939ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [746ms]
+#> ✔ Summarise 1000 posterior draws. [753ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -376,20 +388,19 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [1s]
+#> ✔ Posterior mode and Hessian. [1.1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.050σ. [869ms]
+#> ✔ VB correction; mean |δ| = 0.050σ. [930ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 8/34 skew-normal marginals.
-#> ⠸ Fitting 23/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.8s]
+#> ⠹ Fitting 9/34 skew-normal marginals.
+#> ⠸ Fitting 24/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [7.1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.6s]
+#> ✔ Summarise 1000 posterior draws. [1.9s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 loo(fit2l)

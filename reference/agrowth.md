@@ -55,6 +55,7 @@ agrowth(
   Default prior distributions for the different types of model
   parameters; a named character vector as returned by
   [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
+  Types left out take their default priors.
 
 - test:
 
@@ -328,17 +329,17 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [280ms]
+#> ✔ Posterior mode and Hessian. [324ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [301ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [351ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.1s]
+#> ⠹ Fitting 3/17 skew-normal marginals.
+#> ✔ Fit 17/17 skew-normal marginals. [1.5s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [169ms]
+#> ✔ Summarise 100 posterior draws. [175ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)

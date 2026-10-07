@@ -396,6 +396,11 @@ Main lavaan-style functions to estimate SEM.
 - [Confirmatory Factor
   Analysis](https://inlavaan.haziqj.ml/articles/cfa.md):
 
+- [Composites](https://inlavaan.haziqj.ml/articles/composites.md):
+
+  Composite variables with lavaan’s `<~` operator: what they are, how
+  they differ from defined parameters, and how INLAvaan fits them.
+
 - [Equality constraints](https://inlavaan.haziqj.ml/articles/eqcon.md):
 
 - [Bayesian Fit

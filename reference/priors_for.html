@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
     <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/composites.html">Composites</a></li>
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
@@ -90,6 +91,7 @@ passing named arguments.</p>
 <li><p><code>alpha = "normal(0,10)"</code>: Latent variable intercepts</p></li>
 <li><p><code>lambda = "normal(0,10)"</code>: Factor loadings</p></li>
 <li><p><code>beta = "normal(0,10)"</code>: Regression coefficients</p></li>
+<li><p><code>wmat = "normal(0,10)"</code>: Composite weights (<code>&lt;~</code>)</p></li>
 <li><p><code>theta = "gamma(1,.5)[sd]"</code>: Residual precisions</p></li>
 <li><p><code>psi = "gamma(1,.5)[sd]"</code>: Latent variable precisions</p></li>
 <li><p><code>rho = "beta(1,1)"</code>: Correlations (both latent and observed)</p></li>
@@ -122,15 +124,19 @@ blavaan and corresponds to an Inverse-Gamma prior on the variance.</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">priors_for</span><span class="op">(</span>nu <span class="op">=</span> <span class="st">"normal(0,10)"</span>, lambda <span class="op">=</span> <span class="st">"normal(0,1)"</span>, rho <span class="op">=</span> <span class="st">"beta(3,3)"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                nu             alpha            lambda              beta </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    "normal(0,10)"    "normal(0,10)"     "normal(0,1)"    "normal(0,10)" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             theta               psi               rho               tau </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> "gamma(1,.5)[sd]" "gamma(1,.5)[sd]"       "beta(3,3)"   "normal(0,1.5)" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              wmat             theta               psi               rho </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    "normal(0,10)" "gamma(1,.5)[sd]" "gamma(1,.5)[sd]"       "beta(3,3)" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               tau </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   "normal(0,1.5)" </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Precision-scale prior for residual variances (blavaan-style)</span></span></span>
 <span class="r-in"><span><span class="fu">priors_for</span><span class="op">(</span>theta <span class="op">=</span> <span class="st">"gamma(1,1)[prec]"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 nu              alpha             lambda               beta </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     "normal(0,32)"     "normal(0,10)"     "normal(0,10)"     "normal(0,10)" </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              theta                psi                rho                tau </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> "gamma(1,1)[prec]"  "gamma(1,.5)[sd]"        "beta(1,1)"    "normal(0,1.5)" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               wmat              theta                psi                rho </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     "normal(0,10)" "gamma(1,1)[prec]"  "gamma(1,.5)[sd]"        "beta(1,1)" </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                tau </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    "normal(0,1.5)" </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

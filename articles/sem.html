@@ -44,6 +44,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-examples">
 <li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
     <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/composites.html">Composites</a></li>
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
@@ -120,17 +121,17 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [328ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [430ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.163σ. [544ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.163σ. [453ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/28 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 19/28 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 28/28 skew-normal marginals. [2.3s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 18/28 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 28/28 skew-normal marginals. [2.4s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [908ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [934ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
@@ -145,12 +146,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1638.467 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.538 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.535 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3169.847 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    27.200 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3170.440 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    27.497 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -185,16 +186,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y5                0.650    0.382   -0.015    1.481    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.653    0.395   -0.055    1.498    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y4                1.423    0.699    0.177    2.921    0.007       beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                2.199    0.720    0.908    3.734    0.012       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                1.445    0.705    0.165    2.935    0.007       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                2.249    0.754    0.900    3.858    0.012       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y7                0.864    0.658   -0.349    2.237    0.006       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                0.814    0.635   -0.393    2.103    0.006       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                0.397    0.495   -0.494    1.448    0.004       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                0.405    0.478   -0.464    1.416    0.004       beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .y8                1.366    0.572    0.301    2.549    0.005       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                1.369    0.639    0.244    2.749    0.005       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>

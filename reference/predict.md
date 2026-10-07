@@ -34,13 +34,15 @@ predict(
   `"lv"`
 
   :   (default) Posterior draws of latent variable scores \\\eta \| y,
-      \theta\\.
+      \theta\\. A composite (`<~`) score is the weighted sum of its
+      indicators (centred without a mean structure).
 
   `"yhat"`, `"ov"`
 
   :   Predicted means for observed variables \\E(y \| \eta, \theta) =
       \nu + \Lambda \eta\\; no residual noise. An observed outcome is
-      predicted from its regressors.
+      predicted from its regressors, and an indicator of a composite
+      from the composite.
 
   `"ypred"`, `"ydist"`
 
@@ -48,7 +50,8 @@ predict(
       \Lambda \eta + \varepsilon\\, \\\varepsilon \sim N(0, \Theta)\\,
       with the residual variances that `lavInspect(fit, "theta")`
       reports (observed outcomes included, observed covariates
-      excluded).
+      excluded), except that the drawn indicators of a composite keep
+      its weighted sum.
 
   `"ymis"`, `"ovmis"`
 

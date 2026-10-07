@@ -2,7 +2,35 @@
 
 ## INLAvaan (development version)
 
+### New features
+
+- INLAvaan now fits composites, which lavaan specifies with the `<~`
+  operator, in single-level models with continuous data and one or more
+  groups. They work with the fit measures,
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md),
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) and
+  [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md), and
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  gives posterior summaries for the variance and intercept of each
+  composite. Free weights have the new default prior
+  `wmat = "normal(0,10)"` in
+  [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
+  See the new article on composites.
+
+- Composite models that INLAvaan cannot fit yet stop with an error:
+  two-level models, ordinal data and `composites.cov = "free"`. So do
+  composite specifications that cannot be estimated as written, such as
+  a free latent mean that only composites measure (as in
+  [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md) on
+  composites).
+
 ### Bug fixes
+
+- Multigroup models with `missing = "ml"` gave wrong posteriors.
+
+- `sampling(prior = TRUE)` with `type = "observed"` or `type = "all"`
+  rejected every draw in models with an observed outcome or covariate.
 
 - The marginal log-likelihood was too low by about half the number of
   free parameters when `vb_correction = TRUE` (the default). As a
@@ -159,6 +187,15 @@
   fail.
 
 ### Minor improvements and fixes
+
+- Parameter types missing from `dp` take their default priors, and a
+  `dp` without names gives an error.
+
+- A Hessian that is not positive definite at the posterior mode gives a
+  clear error.
+
+- [`plot()`](https://inlavaan.haziqj.ml/reference/plot.md) explains that
+  fixed and derived parameters have no posterior density.
 
 - [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) warns
   when fits differ in `vb_correction`.

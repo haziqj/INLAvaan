@@ -55,6 +55,7 @@ asem(
   Default prior distributions for the different types of model
   parameters; a named character vector as returned by
   [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
+  Types left out take their default priors.
 
 - test:
 
@@ -319,17 +320,17 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [265ms]
+#> ✔ Posterior mode and Hessian. [280ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [416ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [429ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 2/28 skew-normal marginals.
+#> ⠹ Fitting 5/28 skew-normal marginals.
 #> ✔ Fit 28/28 skew-normal marginals. [2.3s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [340ms]
+#> ✔ Summarise 1000 posterior draws. [341ms]
 #> 
 summary(fit)
 #> INLAvaan 0.3.2.9003 ended normally after 82 iterations

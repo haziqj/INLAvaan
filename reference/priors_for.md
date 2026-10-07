@@ -42,6 +42,8 @@ The parameter names, and default settings, are:
 
 - `beta = "normal(0,10)"`: Regression coefficients
 
+- `wmat = "normal(0,10)"`: Composite weights (`<~`)
+
 - `theta = "gamma(1,.5)[sd]"`: Residual precisions
 
 - `psi = "gamma(1,.5)[sd]"`: Latent variable precisions
@@ -85,13 +87,17 @@ cases.
 priors_for(nu = "normal(0,10)", lambda = "normal(0,1)", rho = "beta(3,3)")
 #>                nu             alpha            lambda              beta 
 #>    "normal(0,10)"    "normal(0,10)"     "normal(0,1)"    "normal(0,10)" 
-#>             theta               psi               rho               tau 
-#> "gamma(1,.5)[sd]" "gamma(1,.5)[sd]"       "beta(3,3)"   "normal(0,1.5)" 
+#>              wmat             theta               psi               rho 
+#>    "normal(0,10)" "gamma(1,.5)[sd]" "gamma(1,.5)[sd]"       "beta(3,3)" 
+#>               tau 
+#>   "normal(0,1.5)" 
 
 # Precision-scale prior for residual variances (blavaan-style)
 priors_for(theta = "gamma(1,1)[prec]")
 #>                 nu              alpha             lambda               beta 
 #>     "normal(0,32)"     "normal(0,10)"     "normal(0,10)"     "normal(0,10)" 
-#>              theta                psi                rho                tau 
-#> "gamma(1,1)[prec]"  "gamma(1,.5)[sd]"        "beta(1,1)"    "normal(0,1.5)" 
+#>               wmat              theta                psi                rho 
+#>     "normal(0,10)" "gamma(1,1)[prec]"  "gamma(1,.5)[sd]"        "beta(1,1)" 
+#>                tau 
+#>    "normal(0,1.5)" 
 ```

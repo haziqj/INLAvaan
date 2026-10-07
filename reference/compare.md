@@ -71,6 +71,12 @@ The default table always includes:
 Fit all models with the same `vb_correction` setting. `compare()` warns
 when they differ.
 
+Marginal likelihoods, Bayes factors and DIC of fits with composites
+(`<~`) treat the indicator (co)variances that lavaan fixes at their
+sample values as known, so `compare()` warns unless all models fix the
+same ones. The LOO comparison (`loo = TRUE`) remains valid across such
+models.
+
 Set `fit.measures` to a character vector of measure names (anything
 returned by
 [fitMeasures()](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)) to
@@ -134,18 +140,19 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [468ms]
+#> ✔ Posterior mode and Hessian. [475ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.125σ. [936ms]
+#> ✔ VB correction; mean |δ| = 0.125σ. [922ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 24/60 skew-normal marginals.
-#> ⠸ Fitting 51/60 skew-normal marginals.
-#> ✔ Fit 60/60 skew-normal marginals. [7.1s]
+#> ⠹ Fitting 1/60 skew-normal marginals.
+#> ⠸ Fitting 26/60 skew-normal marginals.
+#> ⠼ Fitting 51/60 skew-normal marginals.
+#> ✔ Fit 60/60 skew-normal marginals. [7.3s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -157,17 +164,17 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [401ms]
+#> ✔ Posterior mode and Hessian. [443ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [266ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [290ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 29/54 skew-normal marginals.
-#> ✔ Fit 54/54 skew-normal marginals. [5.7s]
+#> ⠹ Fitting 25/54 skew-normal marginals.
+#> ⠸ Fitting 49/54 skew-normal marginals.
+#> ✔ Fit 54/54 skew-normal marginals. [6.4s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
 #> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
@@ -180,15 +187,15 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [402ms]
+#> ✔ Posterior mode and Hessian. [416ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.077σ. [322ms]
+#> ✔ VB correction; mean |δ| = 0.077σ. [336ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 15/48 skew-normal marginals.
-#> ⠸ Fitting 46/48 skew-normal marginals.
-#> ✔ Fit 48/48 skew-normal marginals. [4.6s]
+#> ⠹ Fitting 4/48 skew-normal marginals.
+#> ⠸ Fitting 34/48 skew-normal marginals.
+#> ✔ Fit 48/48 skew-normal marginals. [4.8s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.1s]

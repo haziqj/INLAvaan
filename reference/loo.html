@@ -28,6 +28,7 @@ two-level models are scored per cluster (leave-one-cluster-out, LOCO)."><meta pr
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
     <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/composites.html">Composites</a></li>
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
@@ -207,6 +208,11 @@ the closed-form <code><a href="waic.html">waic()</a></code> penalty.</p></dd>
 <dd><p>Whether the second-order \(\log \mathrm{CPO}\)
 exists.</p></dd>
 
+<dt><code>t_delta</code></dt>
+<dd><p>Composite fits only: the drop in \(\ell_u\)
+when the fixed indicator (co)variances are recomputed without the
+unit, already subtracted from the log CPO terms.</p></dd>
+
 
 </dl></dd>
 
@@ -281,6 +287,9 @@ covariates, i.e. joint under <code>fixed.x = FALSE</code>, conditional under
 <code>fixed.x = TRUE</code> (recorded as <code>"joint"</code> or <code>"conditional"</code> in the result's
 <code>flavour</code> field), and the two flavours are never comparable (<code><a href="compare.html">compare()</a></code>
 refuses to mix them).</p>
+<p>For composites (<code>&lt;~</code>), lavaan fixes the (co)variances of the indicators at
+their sample values. Each unit is scored with them recomputed without it (to
+first order under missing data), so <code>p_loo</code> counts them as parameters.</p>
 <p>Supplying <code>theta</code>/<code>Omega</code> evaluates the LOO at an arbitrary Gaussian
 posterior summary (a singular <code>Omega</code> is restricted to its non-degenerate
 block), the building block for refit-free submodel scoring. <code>Sigma</code> is
@@ -323,16 +332,17 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[176ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[171ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.133σ. <span style="color: #B2B2B2;">[191ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.133σ. <span style="color: #B2B2B2;">[214ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/30 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 30/30 skew-normal marginals. <span style="color: #B2B2B2;">[904ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 7/30 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 30/30 skew-normal marginals. <span style="color: #B2B2B2;">[939ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[746ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[753ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -410,20 +420,19 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="va">fit2l</span> <span class="op">&lt;-</span> <span class="fu"><a href="asem.html">asem</a></span><span class="op">(</span><span class="va">model2l</span>, <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span>,</span></span>
 <span class="r-in"><span>              meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, fixed.x <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[1.1s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.050σ. <span style="color: #B2B2B2;">[869ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.050σ. <span style="color: #B2B2B2;">[930ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 8/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 23/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 34/34 skew-normal marginals. <span style="color: #B2B2B2;">[6.8s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 9/34 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 24/34 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 34/34 skew-normal marginals. <span style="color: #B2B2B2;">[7.1s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.6s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.9s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span><span class="fu">loo</span><span class="op">(</span><span class="va">fit2l</span><span class="op">)</span></span></span>

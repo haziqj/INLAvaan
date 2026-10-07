@@ -24,6 +24,7 @@ missing data."><meta property="og:image" content="https://inlavaan.haziqj.ml/log
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-examples"><li><a class="dropdown-item" href="../articles/cfa.html">Confirmatory factor analysis</a></li>
     <li><a class="dropdown-item" href="../articles/sem.html">Structural equation modelling</a></li>
+    <li><a class="dropdown-item" href="../articles/composites.html">Composites</a></li>
     <li><a class="dropdown-item" href="../articles/growth.html">Latent growth curve models</a></li>
     <li><a class="dropdown-item" href="../articles/eqcon.html">Equality constraints</a></li>
     <li><a class="dropdown-item" href="../articles/multigroup.html">Multigroup analysis</a></li>
@@ -89,19 +90,22 @@ missing data.</p>
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Character string specifying the type of prediction:</p><dl><dt><code>"lv"</code></dt>
 <dd><p>(default) Posterior draws of latent variable scores
-\(\eta | y, \theta\).</p></dd>
+\(\eta | y, \theta\). A composite (<code>&lt;~</code>) score is the weighted
+sum of its indicators (centred without a mean structure).</p></dd>
 
 <dt><code>"yhat"</code>, <code>"ov"</code></dt>
 <dd><p>Predicted means for observed variables
 \(E(y | \eta, \theta) = \nu + \Lambda \eta\); no residual noise. An
-observed outcome is predicted from its regressors.</p></dd>
+observed outcome is predicted from its regressors, and an indicator of
+a composite from the composite.</p></dd>
 
 <dt><code>"ypred"</code>, <code>"ydist"</code></dt>
 <dd><p>Predicted observed values including
 residual noise \(y = \nu + \Lambda \eta + \varepsilon\),
 \(\varepsilon \sim N(0, \Theta)\), with the residual variances that
 <code>lavInspect(fit, "theta")</code> reports (observed outcomes included,
-observed covariates excluded).</p></dd>
+observed covariates excluded), except that the drawn indicators of a
+composite keep its weighted sum.</p></dd>
 
 <dt><code>"ymis"</code>, <code>"ovmis"</code></dt>
 <dd><p>Imputed values for missing

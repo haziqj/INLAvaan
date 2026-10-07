@@ -73,6 +73,7 @@ inlavaan(
   Default prior distributions for the different types of model
   parameters; a named character vector as returned by
   [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
+  Types left out take their default priors.
 
 - test:
 
@@ -325,17 +326,17 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [162ms]
+#> ✔ Posterior mode and Hessian. [182ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [319ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [350ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ⠹ Fitting 19/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1s]
+#> ✔ Fit 21/21 skew-normal marginals. [1.1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [674ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [710ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
