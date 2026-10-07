@@ -235,6 +235,9 @@ get_ppp <- function(
   # with the data, so they must change with each replicate too (see
   # ppp_composite_draw()).
   t_fixed <- composite_fixed_t(lavmodel, lavpartable, lavdata)
+  if (!is.null(t_fixed)) {
+    scale_plan <- composite_scale_plan(lavmodel, lavpartable)
+  }
 
   res <- vector("numeric", length = nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
@@ -247,7 +250,15 @@ get_ppp <- function(
     lavimplied <- lavaan::lav_model_implied(lavmodel_x)
 
     if (!is.null(t_fixed)) {
-      res[i] <- ppp_composite_draw(xx, lavimplied, lavmodel, t_fixed, block_obs)
+      res[i] <- ppp_composite_draw(
+        xx,
+        lavmodel_x,
+        lavimplied,
+        lavmodel,
+        t_fixed,
+        block_obs,
+        scale_plan
+      )
       next
     }
 
@@ -319,10 +330,20 @@ get_ppp <- function(
 # there (divisor n, as lavaan uses), which is what lavaan would fix had it been
 # given the replicate. Scored against the observed values instead, every
 # replicate would carry a misfit in that block that the observed data cannot
-# have, and the PPP would drift towards 1. Composites are single-level, so the
-# blocks are the groups. Returns 1 when Trep >= Tobs, 0 otherwise, and NA when
-# the replicate moments are not a covariance matrix.
-ppp_composite_draw <- function(xx, lavimplied, lavmodel, t_fixed, block_obs) {
+# have, and the PPP would drift towards 1. The new block also moves the variance
+# w'Tw of each composite, so the draw is rescaled with it (see
+# composite_rescale_x()). Composites are single-level, so the blocks are the
+# groups. lavmodel_x is lavmodel at xx. Returns 1 when Trep >= Tobs, 0
+# otherwise, and NA when the replicate moments are not a covariance matrix.
+ppp_composite_draw <- function(
+  xx,
+  lavmodel_x,
+  lavimplied,
+  lavmodel,
+  t_fixed,
+  block_obs,
+  scale_plan
+) {
   n_blocks <- length(block_obs)
   Tobs <- 0
   Srep <- vector("list", n_blocks)
@@ -347,9 +368,16 @@ ppp_composite_draw <- function(xx, lavimplied, lavmodel, t_fixed, block_obs) {
     n <- block_obs[[b]]$n
     lavmodel_rep@GLIST[[e$mm]][e$pos] <- Srep[[b]][e$rc] * (n - 1) / n
   }
-  # lavaan re-derives the composite variances from the replaced block
+  # lavaan re-derives the composite variances from the replaced block, and the
+  # draw is rescaled to follow them.
+  x_rep <- composite_rescale_x(
+    xx,
+    lavmodel_x,
+    lavaan::lav_model_set_parameters(lavmodel_rep, xx),
+    scale_plan
+  )
   implied_rep <- lavaan::lav_model_implied(
-    lavaan::lav_model_set_parameters(lavmodel_rep, xx)
+    lavaan::lav_model_set_parameters(lavmodel_rep, x_rep)
   )
 
   Trep <- 0
@@ -365,6 +393,126 @@ ppp_composite_draw <- function(xx, lavimplied, lavmodel, t_fixed, block_obs) {
     Trep <- Trep + ppp_discrepancy(Srep[[b]], Sigma_rep, x_idx)
   }
   as.numeric(Trep >= Tobs)
+}
+
+# The draw xx carried over to a replicate whose composite indicator blocks are
+# its own. With them, the variance w'Tw of composite k changes by s_k^2, while a
+# raw covariance with the composite, a loading on it or a path into it keeps its
+# value. Every replicate would then carry an artificial misfit, and the PPP
+# would drift towards 1. So these are rescaled to keep the composites'
+# standardised relations at the draw's values. A covariance is multiplied by the
+# scales of both sides, and a loading on a variable or a path into it by the
+# variable's scale over that of the factor or predictor. A path out of a
+# composite into anything other than a composite is left alone, because the
+# response given the indicators does not depend on T. A factor whose scale is
+# set by a fixed loading (its marker) takes the marker's scale, which then
+# reaches its variance, its other loadings, its covariances and the paths out of
+# it. Observed variables keep their scale. lavmodel_x and lavmodel_rep_x are the
+# model at xx with the observed and the replicate blocks.
+composite_rescale_x <- function(xx, lavmodel_x, lavmodel_rep_x, scale_plan) {
+  s <- composite_scales(lavmodel_x, lavmodel_rep_x, scale_plan)
+  s_lhs <- s[scale_plan$lhs]
+  s_lhs[is.na(s_lhs)] <- 1
+  s_rhs <- s[scale_plan$rhs]
+  s_rhs[is.na(s_rhs)] <- 1
+  s_from <- ifelse(scale_plan$rhs_comp & !scale_plan$lhs_comp, 1, s_rhs)
+  op <- scale_plan$op
+  mult <- rep(1, length(op))
+  mult[op == "~~"] <- (s_lhs * s_rhs)[op == "~~"]
+  mult[op == "=~"] <- (s_rhs / s_lhs)[op == "=~"]
+  mult[op == "~"] <- (s_lhs / s_from)[op == "~"]
+  x_rep <- xx
+  x_rep[scale_plan$x_idx] <- xx[scale_plan$x_idx] * mult
+  x_rep
+}
+
+# The scale in a replicate of each composite, sqrt(w'T_rep w / w'T w) at the
+# draw's weights, and of each factor scaled by a marker, named by variable and
+# block.
+composite_scales <- function(lavmodel_x, lavmodel_rep_x, scale_plan) {
+  s <- numeric(0L)
+  for (b in seq_along(scale_plan$blocks)) {
+    pb <- scale_plan$blocks[[b]]
+    if (length(pb$comps) == 0L) {
+      next # nocov
+    }
+    w <- lavmodel_x@GLIST[[pb$wmat]][, pb$comp_col, drop = FALSE]
+    v_obs <- colSums(w * (lavmodel_x@GLIST[[pb$theta]] %*% w))
+    v_rep <- colSums(w * (lavmodel_rep_x@GLIST[[pb$theta]] %*% w))
+    s_b <- stats::setNames(
+      c(sqrt(v_rep / v_obs), rep(1, length(pb$factors))),
+      c(pb$comps, pb$factors)
+    )
+    # A marker can itself be a factor scaled by a marker (a higher-order chain),
+    # so pass the scales along until they settle.
+    for (k in seq_along(pb$factors)) {
+      s_new <- s_b
+      s_new[pb$factors] <- ifelse(
+        pb$markers %in% names(s_b),
+        s_b[pb$markers],
+        1
+      )
+      if (identical(s_new, s_b)) {
+        break
+      }
+      s_b <- s_new
+    }
+    s[paste(names(s_b), b)] <- s_b
+  }
+  s
+}
+
+# What composite_rescale_x() needs from the model, worked out once per fit. Per
+# block: the GLIST indices of wmat and theta, the composites and their columns
+# in wmat, and each factor whose scale is set by a fixed loading (its marker)
+# because its (residual) variance is free. A factor with a fixed variance (as
+# under std.lv) keeps its scale. Then, for each entry of the packed x, the
+# parameter table row that owns it. Parameters held equal share a free index and
+# so one entry of x, which takes the multiplier of its owner (the first row)
+# even when the other rows would need another one, as for a covariance held
+# equal across groups. `pt` is lavaan's parameter table.
+composite_scale_plan <- function(lavmodel, pt) {
+  nmat <- lavmodel@nmat
+  offset <- cumsum(c(0L, nmat))
+  blocks <- lapply(seq_len(lavmodel@nblocks), function(b) {
+    mm_b <- offset[b] + seq_len(nmat[b])
+    mm_wmat <- mm_b[names(lavmodel@GLIST)[mm_b] == "wmat"]
+    in_b <- pt$block == b
+    comps <- unique(pt$lhs[in_b & pt$op == "<~"])
+    var_free <- pt$lhs[in_b & pt$op == "~~" & pt$lhs == pt$rhs & pt$free > 0L]
+    marker <- which(
+      in_b &
+        pt$op == "=~" &
+        pt$free == 0L &
+        !is.na(pt$ustart) &
+        pt$ustart != 0 &
+        pt$lhs %in% var_free
+    )
+    marker <- marker[!duplicated(pt$lhs[marker])]
+    list(
+      wmat = mm_wmat,
+      theta = mm_b[names(lavmodel@GLIST)[mm_b] == "theta"],
+      comps = comps,
+      comp_col = match(comps, lavmodel@dimNames[[mm_wmat]][[2L]]),
+      factors = pt$lhs[marker],
+      markers = pt$rhs[marker]
+    )
+  })
+  own <- which(pt$free > 0L & !duplicated(pt$free))
+  comp_keys <- unlist(lapply(seq_along(blocks), function(b) {
+    paste(blocks[[b]]$comps, b)
+  }))
+  lhs <- paste(pt$lhs[own], pt$block[own])
+  rhs <- paste(pt$rhs[own], pt$block[own])
+  list(
+    blocks = blocks,
+    x_idx = pt$free[own],
+    op = pt$op[own],
+    lhs = lhs,
+    rhs = rhs,
+    lhs_comp = lhs %in% comp_keys,
+    rhs_comp = rhs %in% comp_keys
+  )
 }
 
 # F(S, Sigma) of the outcomes given the fixed covariates at x_idx, which is F
