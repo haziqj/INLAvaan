@@ -83,6 +83,36 @@ check_composite_scope <- function(fit0) {
   invisible(NULL)
 }
 
+# A label on a derived composite row cannot tie it to anything: lavaan then
+# fixes the free rows that share the label, and a constraint that uses it would
+# hold a parameter at the value of the start weights.
+check_composite_labels <- function(pt) {
+  rows <- composite_derived_rows(pt)
+  user_labels <- pt$label[rows][nzchar(pt$label[rows])]
+  shared <- pt$label %in% user_labels & !seq_along(pt$lhs) %in% rows
+  is_con <- pt$op %in% c("==", "<", ">")
+  con_names <- unlist(lapply(
+    c(pt$lhs[is_con], pt$rhs[is_con]),
+    function(e) tryCatch(all.vars(str2lang(e)), error = function(err) e)
+  ))
+  derived_names <- c(user_labels, pt$plabel[rows])
+  bad <- unique(c(
+    pt$label[shared],
+    intersect(derived_names[nzchar(derived_names)], con_names)
+  ))
+  if (length(bad) == 0L) {
+    return(invisible(NULL))
+  }
+  cli_abort(c(
+    "The variances and intercepts of composites are set by the weights, so
+     their labels cannot be shared with other parameters or used in
+     constraints.",
+    "x" = "{cli::qty(length(bad))}Label{?s} {.code {bad}} name{?s/} such a
+           row.",
+    "i" = "Remove the label, or the constraint that uses it."
+  ))
+}
+
 # lavaan scales a composite by a weight fixed at 1 and finds that weight by its
 # value. Without one it fixes Var(C) at 1, so the composite is no longer w'x
 # and the scale of its weights is not identified. lavaan also accepts an
