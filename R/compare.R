@@ -22,6 +22,11 @@
 #' Fit all models with the same `vb_correction` setting. `compare()` warns
 #' when they differ.
 #'
+#' Marginal likelihoods, Bayes factors and DIC of fits with composites (`<~`)
+#' treat the indicator (co)variances that lavaan fixes at their sample values
+#' as known, so `compare()` warns unless all models fix the same ones. The LOO
+#' comparison (`loo = TRUE`) remains valid across such models.
+#'
 #' Set `fit.measures` to a character vector of measure names (anything
 #' returned by [fitMeasures()][lavaan::fitMeasures]) to append extra columns.
 #' Use `fit.measures = "all"` to include every available measure.

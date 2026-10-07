@@ -58,6 +58,11 @@ of parameters (when the fit computed the DIC, i.e. \code{test} included
 Fit all models with the same \code{vb_correction} setting. \code{compare()} warns
 when they differ.
 
+Marginal likelihoods, Bayes factors and DIC of fits with composites (\verb{<~})
+treat the indicator (co)variances that lavaan fixes at their sample values
+as known, so \code{compare()} warns unless all models fix the same ones. The LOO
+comparison (\code{loo = TRUE}) remains valid across such models.
+
 Set \code{fit.measures} to a character vector of measure names (anything
 returned by \link[lavaan:fitMeasures]{fitMeasures()}) to append extra columns.
 Use \code{fit.measures = "all"} to include every available measure.
