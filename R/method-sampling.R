@@ -773,7 +773,7 @@ sampling_prior_generative <- function(
     # nocov start
     rej_pct <- round(100 * rejected / attempts, 1)
     cli_inform(
-      "Prior sampling: {rejected} of {attempts} draw{?s} ({rej_pct}%) rejected (non-PD model-implied covariance)."
+      "Prior sampling: {rejected} of {attempts} draw{?s} ({rej_pct}%) rejected (a latent, residual or model-implied covariance not positive definite)."
     )
   } # nocov end
 

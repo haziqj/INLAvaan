@@ -216,7 +216,7 @@ test_that("conditional.x fits draw the covariates jointly", {
 test_that("Prior observed draws work with an observed outcome", {
   # Regression test: an observed outcome keeps its residual variance in Psi, so
   # its row of Theta is zero, and the strict Cholesky factor of Theta rejected
-  # every prior draw. Only a non-PD implied covariance rejects a draw now.
+  # every prior draw. A zero row of Theta no longer rejects a draw.
   fit_y <- asem(
     "visual =~ x1 + x2 + x3\n x4 ~ visual",
     dat,
