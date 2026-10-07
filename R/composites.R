@@ -3,14 +3,31 @@
 # variance when the composite is endogenous) and its intercept. lavaan keeps
 # them fixed unless the syntax frees one with NA*, which INLAvaan refuses (see
 # check_composite_derived()). Their values in a parameter table built with
-# do.fit = FALSE are those at the start weights.
+# do.fit = FALSE are those at the start weights. An intercept is left out when
+# the intercepts of all its indicators are fixed at zero, as at the within level
+# of a two-level model, because it is then zero whatever the weights.
 composite_derived_rows <- function(pt, include_free = FALSE) {
   comp <- unique(pt$lhs[pt$op == "<~"])
-  which(
+  rows <- which(
     (include_free | pt$free == 0L) &
       pt$lhs %in% comp &
       ((pt$op == "~~" & pt$lhs == pt$rhs) | pt$op == "~1")
   )
+  block <- if (is.null(pt$block)) pt$group else pt$block
+  is_zero <- vapply(
+    rows,
+    function(r) {
+      if (pt$op[r] != "~1" || is.null(pt$ustart)) {
+        return(FALSE)
+      }
+      ind <- pt$rhs[pt$op == "<~" & pt$lhs == pt$lhs[r] & block == block[r]]
+      nu <- pt$op == "~1" & pt$lhs %in% ind & block == block[r]
+      sum(nu) == length(ind) &&
+        all(pt$free[nu] == 0L & pt$ustart[nu] %in% 0)
+    },
+    logical(1)
+  )
+  rows[!is_zero]
 }
 
 # Var(C) = w'Tw of each composite at the current x, for pars_to_x(). T entries
