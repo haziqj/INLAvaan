@@ -147,12 +147,24 @@ check_composite_labels <- function(pt) {
 
 # lavaan scales a composite by a weight fixed at 1 and finds that weight by its
 # value. Without one it fixes Var(C) at 1, so the composite is no longer w'x
-# and the scale of its weights is not identified. lavaan also accepts an
-# indicator shared by two composites, but does not represent it consistently.
+# and the scale of its weights is not identified. A weight fixed at 0 drops its
+# indicator from the composite's block but not from the covariances lavaan
+# fixes for it, and lavaan also accepts an indicator shared by two composites.
+# Neither is represented consistently.
 check_composite_weights <- function(pt) {
   is_w <- pt$op == "<~"
   if (!any(is_w)) {
     return(invisible(NULL))
+  }
+  zero <- which(is_w & pt$free == 0L & pt$ustart %in% 0)
+  if (length(zero) > 0L) {
+    bullets <- paste0("{.code ", cli_escape(partable_row_name(pt, zero)), "}")
+    names(bullets) <- rep("x", length(bullets))
+    cli_abort(c(
+      "A composite weight cannot be fixed at 0:",
+      bullets,
+      "i" = "Leave the indicator out of the composite instead."
+    ))
   }
   block <- if (is.null(pt$block)) pt$group else pt$block
   comp_key <- paste(pt$lhs, block)

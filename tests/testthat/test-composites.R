@@ -213,6 +213,10 @@ test_that("Each composite needs a unit marker and its own indicators", {
   )
   expect_no_error(fit_quiet("C <~ 1*x1 + 1*x2 + 1*x3\n x4 ~ C\n x5 ~ C"))
   expect_error(
+    fit_quiet("C <~ x1 + x2 + 0*x3\n x4 ~ C\n x5 ~ C"),
+    "cannot be fixed at 0"
+  )
+  expect_error(
     fit_quiet("C1 <~ x1 + x2 + x3\n C2 <~ x3 + x4 + x5\n x7 ~ C1 + C2"),
     "one composite only"
   )
