@@ -362,3 +362,26 @@ test_that("compare() warns when fits do not fix the same composite blocks", {
   )
   expect_true(all(is.finite(cmp$ELPD)))
 })
+
+test_that("compare(loo = TRUE) says why a composite fit is scored jointly", {
+  fit_reg <- do.call(
+    asem,
+    c(list("x4 ~ x1 + x2 + x3\n x5 ~ x1 + x2 + x3", dat), fit_args_comp)
+  )
+  expect_error(
+    suppressWarnings(compare(fit_comp, fit_reg, loo = TRUE)),
+    "not fixed covariates"
+  )
+  # Without composites the usual hint stands
+  fit_reg_joint <- do.call(
+    asem,
+    c(
+      list("x4 ~ x1 + x2 + x3\n x5 ~ x1 + x2 + x3", dat, fixed.x = FALSE),
+      fit_args_comp
+    )
+  )
+  expect_error(
+    compare(fit_reg_joint, fit_reg, loo = TRUE),
+    "same `fixed.x` setting"
+  )
+})

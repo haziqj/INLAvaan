@@ -358,9 +358,21 @@ compare_impl <- function(
       character(1)
     )
     if (length(unique(flavs)) > 1L) {
+      # A composite fit without fixed covariates is joint whatever its fixed.x
+      # setting, so the usual hint would not explain the mismatch.
+      hint <- if (any(lengths(t_keys) > 0L & flavs == "joint")) {
+        c(
+          "i" = "A fit with composites is scored jointly: its composite
+           indicators are data, not fixed covariates.",
+          "i" = "Fit the models with fixed covariates with
+           {.code fixed.x = FALSE}."
+        )
+      } else {
+        c("i" = "Fit all models with the same {.code fixed.x} setting.")
+      }
       cli_abort(c(
         "LOO comparison cannot mix joint and conditional scores.",
-        "i" = "Fit all models with the same {.code fixed.x} setting."
+        hint
       ))
     }
 
