@@ -169,21 +169,24 @@ check_composite_weights <- function(pt) {
   block <- if (is.null(pt$block)) pt$group else pt$block
   comp_key <- paste(pt$lhs, block)
   marked <- comp_key[is_w & pt$free == 0L & pt$ustart %in% 1]
-  unmarked <- unique(pt$lhs[is_w & !comp_key %in% marked])
+  unmarked <- which(is_w & !comp_key %in% marked & !duplicated(comp_key))
   if (length(unmarked) > 0L) {
-    ind <- pt$rhs[is_w & pt$lhs == unmarked[1L]]
-    ind <- unique(ind)
+    bullets <- paste0("{.code ", cli_escape(pt$lhs[unmarked]), "}")
+    if (max(block) > 1L) {
+      bullets <- paste0(bullets, " in group ", block[unmarked])
+    }
+    bullets <- paste(bullets, "has none.")
+    names(bullets) <- rep("x", length(bullets))
+    ind <- pt$rhs[is_w & comp_key == comp_key[unmarked[1L]]]
     example <- paste0(
-      unmarked[1L],
+      pt$lhs[unmarked[1L]],
       " <~ 1*",
       paste(ind, collapse = " + ")
     )
     cli_abort(c(
       "Each composite needs one weight fixed at 1.",
-      "x" = "{cli::qty(length(unmarked))}Composite{?s} {.code {unmarked}}
-             ha{?s/ve} none.",
-      "i" = "Fix the weight of the indicator with the largest expected weight,
-             for example {.code {example}}."
+      bullets,
+      "i" = "Fix one of its weights at 1, for example {.code {example}}."
     ))
   }
   ind_key <- paste(pt$rhs, block)[is_w]
