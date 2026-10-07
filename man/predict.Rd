@@ -32,8 +32,8 @@ a composite from the composite.}
 residual noise \eqn{y = \nu + \Lambda \eta + \varepsilon},
 \eqn{\varepsilon \sim N(0, \Theta)}, with the residual variances that
 \code{lavInspect(fit, "theta")} reports (observed outcomes included,
-observed covariates excluded). The drawn indicators of a composite
-keep its weighted sum.}
+observed covariates excluded), except that the drawn indicators of a
+composite keep its weighted sum.}
 \item{\code{"ymis"}, \code{"ovmis"}}{Imputed values for missing
 observations, drawn from the conditional distribution
 \eqn{y_{mis} | y_{obs}, \theta}.}
