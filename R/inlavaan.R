@@ -215,6 +215,10 @@ inlavaan <- function(
   # `test` is an INLAvaan-only selection of post-estimation quantities (see
   # resolve_test() in R/utils.R); it never reaches lavaan as typed
   test_req <- resolve_test(test)
+  # Parameter types missing from dp (in a vector saved before a type existed,
+  # say) take their default prior.
+  dp_default <- priors_for()
+  dp <- c(dp, dp_default[setdiff(names(dp_default), names(dp))])
 
   lavargs <- list(...)
   lavargs$model <- split_modifiers(model)
