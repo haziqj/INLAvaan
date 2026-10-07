@@ -30,7 +30,9 @@ mod_phantom <- "
   x5 ~ C
   x4 ~~ x5
 "
+# The deletion term exists only where lavaan fixes the indicator block
 fit_args <- list(
+  composites.cov = "fixed",
   verbose = FALSE,
   nsamp = 3,
   test = "none",

@@ -312,12 +312,14 @@ mod_comp <- "
   x4 ~~ x5
 "
 
-# lavaan fixes the (co)variances of composite indicators at their sample values,
-# so they are not sample moments the model has to fit
+# With composites.cov = "fixed" the (co)variances of composite indicators are
+# fixed at their sample values, so they are not sample moments the model has to
+# fit
 test_that("Each group's fixed composite moments are removed once", {
   fit_mg <- asem(
     mod_comp,
     dat,
+    composites.cov = "fixed",
     group = "school",
     verbose = FALSE,
     nsamp = 20,
@@ -381,6 +383,7 @@ test_that("The baseline is scaled by its own moment count", {
   fit_comp <- asem(
     mod_comp,
     dat,
+    composites.cov = "fixed",
     verbose = FALSE,
     nsamp = 20,
     test = "none",

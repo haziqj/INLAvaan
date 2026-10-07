@@ -233,6 +233,15 @@ inlavaan <- function(
   lavargs$verbose <- FALSE # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
   lavargs$parser <- "old" # To get priors parsed
+  # The (co)variances of a composite's indicators are parameters with priors,
+  # unless the user fixes them at their sample values (composites.cov =
+  # "fixed", lavaan's default).
+  if (
+    !any(c("composites.cov", "composites_cov") %in% names(lavargs)) &&
+      has_composite_syntax(lavargs$model)
+  ) {
+    lavargs$composites.cov <- "free"
+  }
   # lavaan only ever sees "standard" or "none": its own test statistics are
   # never computed under do.fit = FALSE, and INLAvaan's atoms ("loo", ...)
   # are not lavaan-legal values

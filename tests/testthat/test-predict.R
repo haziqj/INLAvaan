@@ -428,7 +428,12 @@ test_that("Composite scores are the weighted sums of their indicators", {
 test_that("Scores of a factor linked to a composite match lavaan", {
   comp_mod <- "C <~ x1 + x2 + x3\n F =~ x4 + x5 + x6\n F ~ C"
   fit <- fit_quick(comp_mod, meanstructure = TRUE)
-  fit_lav <- lavaan::sem(comp_mod, dat, meanstructure = TRUE)
+  fit_lav <- lavaan::sem(
+    comp_mod,
+    dat,
+    meanstructure = TRUE,
+    composites.cov = "free"
+  )
   expect_equal(names(coef(fit)), names(coef(fit_lav)))
   x_lav <- lavaan::lav_model_get_parameters(fit_lav@Model)
   fs <- predict_at(fit, x_lav)

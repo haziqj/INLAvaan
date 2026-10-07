@@ -52,7 +52,7 @@ test_that("A prior() on a weight is used", {
 })
 
 test_that("The posterior mode is close to the ML estimates", {
-  fit_ml <- lavaan::sem(mod, dat)
+  fit_ml <- lavaan::sem(mod, dat, composites.cov = "free")
   expect_equal(mode_x(fit), coef(fit_ml), tolerance = 0.01)
 
   # One outcome: a reparametrised regression of x4 on x1, x2 and x3
@@ -73,7 +73,7 @@ test_that("Composite variances and intercepts have posterior summaries", {
   pt <- lavaan::parTable(fit_m)
   w <- c(1, coef(fit_m)[c("C<~x2", "C<~x3")])
   ind <- c("x1", "x2", "x3")
-  tmat <- cov(dat[ind]) * (nrow(dat) - 1) / nrow(dat)
+  tmat <- lavaan::lavInspect(fit_m, "est")$theta[ind, ind]
   vrow <- pt$lhs == "C" & pt$op == "~~"
   expect_equal(pt$est[vrow], drop(t(w) %*% tmat %*% w), tolerance = 1e-6)
   mrow <- pt$lhs == "C" & pt$op == "~1"
@@ -87,10 +87,15 @@ test_that("Composite variances and intercepts have posterior summaries", {
   expect_equal(pt$se[vrow], summ["C~~C", "SD"])
   out <- capture.output(summary(fit_m))
   expect_true(any(grepl(sprintf("%.3f", summ["C~~C", "Mean"]), out)))
-  summ_sum <- get_inlavaan_internal(
-    fit_quiet("C <~ 1*x1 + 1*x2 + 1*x3\n x4 ~ C")
+  # A sum score's variance is uncertain only through its indicators'
+  # covariances, so it has none when those are fixed
+  sum_mod <- "C <~ 1*x1 + 1*x2 + 1*x3\n x4 ~ C"
+  summ_free <- get_inlavaan_internal(fit_quiet(sum_mod))$summary
+  summ_fixed <- get_inlavaan_internal(
+    fit_quiet(sum_mod, composites.cov = "fixed")
   )$summary
-  expect_equal(summ_sum["C~~C", "SD"], 0)
+  expect_gt(summ_free["C~~C", "SD"], 0)
+  expect_equal(summ_fixed["C~~C", "SD"], 0)
 
   std <- standardisedsolution(fit_m, nsamp = 5)
   expect_equal(std$est.std[std$lhs == "C" & std$op == "~~"], 1)
@@ -103,7 +108,7 @@ test_that("Composite variances and intercepts have posterior summaries", {
 
 test_that("Mean structures, higher-order factors and groups fit", {
   fit_m <- fit_quiet(mod, meanstructure = TRUE)
-  fit_ml <- lavaan::sem(mod, dat, meanstructure = TRUE)
+  fit_ml <- lavaan::sem(mod, dat, meanstructure = TRUE, composites.cov = "free")
   expect_equal(mode_x(fit_m), coef(fit_ml), tolerance = 0.01)
 
   # With centred indicators the composite mean starts at zero, which used to
@@ -156,7 +161,12 @@ test_that("Covariances with a composite are scaled by its current variance", {
     x9 ~ C2
   "
   fit_2 <- suppressWarnings(fit_quiet(two, meanstructure = TRUE))
-  fit_ml <- lavaan::sem(two, dat, meanstructure = TRUE)
+  fit_ml <- lavaan::sem(
+    two,
+    dat,
+    meanstructure = TRUE,
+    composites.cov = "free"
+  )
   expect_equal(mode_x(fit_2), coef(fit_ml), tolerance = 0.02)
 
   # Under std.lv a composite keeps its marker scale, so C1 ~~ C2 stays a
@@ -208,6 +218,18 @@ test_that("A dp without a wmat entry uses the default weight prior", {
   expect_equal(pt$prior[pt$op == "<~" & pt$free > 0], rep("normal(0,10)", 2))
 })
 
+test_that("Indicator covariances are free unless composites.cov fixes them", {
+  pt <- get_inlavaan_internal(fit)$partable
+  ind <- c("x1", "x2", "x3")
+  t_rows <- pt$op == "~~" & pt$lhs %in% ind & pt$rhs %in% ind
+  expect_true(all(pt$free[t_rows] > 0))
+  pt_fix <- get_inlavaan_internal(fit_quiet(
+    mod,
+    composites.cov = "fixed"
+  ))$partable
+  expect_true(all(pt_fix$free[t_rows] == 0))
+})
+
 test_that("Out-of-scope composite models stop early", {
   expect_error(
     fit_quiet(
@@ -217,7 +239,6 @@ test_that("Out-of-scope composite models stop early", {
     ),
     "two-level"
   )
-  expect_error(fit_quiet(mod, composites.cov = "free"), "composites.cov")
   dat_ord <- dat
   dat_ord$x4 <- cut(dat$x4, 3, labels = FALSE)
   dat_ord$x5 <- cut(dat$x5, 3, labels = FALSE)

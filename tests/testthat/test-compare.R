@@ -323,6 +323,7 @@ mod_comp <- "
   x4 ~~ x5
 "
 fit_args_comp <- list(
+  composites.cov = "fixed",
   verbose = FALSE,
   nsamp = 3,
   test = "none",
