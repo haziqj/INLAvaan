@@ -340,3 +340,52 @@ test_that("Each group's fixed composite moments are removed once", {
     lavaan::lav_partable_ndat(fit_one@ParTable)
   )
 })
+
+test_that("The baseline is scaled by its own moment count", {
+  p_used <- numeric(0)
+  rescale_original <- compute_rescaled_quantities
+  local_mocked_bindings(
+    compute_rescaled_quantities = function(
+      object,
+      x_samp,
+      lavmodel,
+      lavsamplestats,
+      lavdata,
+      lavoptions,
+      lavcache,
+      p,
+      rescale
+    ) {
+      p_used <<- c(p_used, p)
+      rescale_original(
+        object,
+        x_samp,
+        lavmodel,
+        lavsamplestats,
+        lavdata,
+        lavoptions,
+        lavcache,
+        p,
+        rescale
+      )
+    }
+  )
+  fit_comp <- asem(
+    mod_comp,
+    dat,
+    verbose = FALSE,
+    nsamp = 20,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus"
+  )
+  bfit_indices(fit_comp, rescale = "MCMC")
+  # The composite model fixes six indicator moments, which its independence
+  # baseline estimates
+  expect_equal(p_used, c(9, 15))
+
+  # Without composites the two counts agree
+  p_used <- numeric(0)
+  bfit_indices(fit_test, baseline.model = fit_null)
+  expect_equal(p_used, c(21, 21))
+})
