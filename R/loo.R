@@ -372,8 +372,11 @@ loco_suff_stats <- function(lavdata) {
 
   J <- Lp$nclusters[[2L]]
   p <- ncol(X)
-  y_idx <- c(Lp$both.idx[[2L]], Lp$within.idx[[2L]])
+  # lavaan's kernels take the cluster means of the other variables in data
+  # column order, which differs from the order of both.idx when the levels list
+  # the variables in different orders
   z_idx <- Lp$between.idx[[2L]]
+  y_idx <- setdiff(seq_len(p), z_idx)
   zy_idx <- c(z_idx, y_idx)
   d <- length(zy_idx)
 

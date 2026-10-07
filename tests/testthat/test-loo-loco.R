@@ -227,6 +227,34 @@ test_that("LOCO unit subsetting and theta/Omega override", {
   )
 })
 
+test_that("cluster log-likelihoods add up when the levels order variables differently", {
+  # A regression at the within level only lists y4 first there, but not at the
+  # between level
+  mod <- "
+    level: 1
+      y4 ~ y1 + y2 + y3
+    level: 2
+      y1 ~~ y2 + y3 + y4
+      y2 ~~ y3 + y4
+      y3 ~~ y4
+  "
+  fl <- lavaan::sem(mod, d_sub, cluster = "cluster", fixed.x = FALSE)
+  expect_false(identical(
+    lavaan::lavNames(fl, "ov", level = 1),
+    lavaan::lavNames(fl, "ov", level = 2)
+  ))
+  css <- INLAvaan:::loco_suff_stats(fl@Data)
+  mom <- INLAvaan:::loo_implied_moments(fl@Model, two_level = TRUE)
+  ll <- vapply(
+    seq_len(css$J),
+    INLAvaan:::loco_loglik_one,
+    numeric(1),
+    css = css,
+    mom = mom
+  )
+  expect_equal(sum(ll), as.numeric(lavaan::logLik(fl)), tolerance = 1e-8)
+})
+
 test_that("two-level LOSO override scores row deletions", {
   expect_warning(
     res_row <- loo(fit, type = "loso", units = 1:8),
