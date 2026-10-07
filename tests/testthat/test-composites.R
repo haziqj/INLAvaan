@@ -220,6 +220,16 @@ test_that("Each composite needs a unit marker and its own indicators", {
     fit_quiet("C1 <~ x1 + x2 + x3\n C2 <~ x3 + x4 + x5\n x7 ~ C1 + C2"),
     "one composite only"
   )
+  expect_error(
+    fit_quiet(
+      "C1 <~ x1 + x2 + x3\n C2 <~ x4 + x5 + x6\n x7 ~ C1 + C2\n x3 ~~ x4"
+    ),
+    "outside that composite"
+  )
+  expect_error(
+    fit_quiet("C <~ x1 + x2 + x3\n F =~ x4 + x5 + x6\n F ~ C\n x3 ~~ x6"),
+    "outside that composite"
+  )
 })
 
 test_that("Freed composite variances and intercepts stop the fit", {

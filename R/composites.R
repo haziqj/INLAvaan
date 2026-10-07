@@ -202,6 +202,44 @@ check_composite_weights <- function(pt) {
   invisible(NULL)
 }
 
+# A covariance between an indicator of a composite and a variable outside that
+# composite is either fixed by lavaan at its sample value (an indicator of
+# another composite) or left free (an indicator of a factor). Neither keeps the
+# composite a weighted sum of its indicators once INLAvaan re-expresses it for
+# predict() and sampling(), so such covariances are refused.
+check_composite_covariances <- function(pt) {
+  is_w <- pt$op == "<~"
+  if (!any(is_w)) {
+    return(invisible(NULL))
+  }
+  block <- if (is.null(pt$block)) pt$group else pt$block
+  composite_of <- stats::setNames(
+    pt$lhs[is_w],
+    paste(pt$rhs[is_w], block[is_w])
+  )
+  lhs_comp <- unname(composite_of[paste(pt$lhs, block)])
+  rhs_comp <- unname(composite_of[paste(pt$rhs, block)])
+  same <- !is.na(lhs_comp) & !is.na(rhs_comp) & lhs_comp == rhs_comp
+  rows <- which(
+    pt$op == "~~" &
+      pt$lhs != pt$rhs &
+      (!is.na(lhs_comp) | !is.na(rhs_comp)) &
+      !same
+  )
+  if (length(rows) == 0L) {
+    return(invisible(NULL))
+  }
+  bullets <- paste0("{.code ", cli_escape(partable_row_name(pt, rows)), "}")
+  names(bullets) <- rep("x", length(bullets))
+  cli_abort(c(
+    "INLAvaan does not support covariances between an indicator of a composite
+     and a variable outside that composite:",
+    bullets,
+    "i" = "The indicators of a composite relate to other variables through the
+           composite. Remove these covariances."
+  ))
+}
+
 # lavaan fixes a composite's mean at w'nu, the weighted means of its
 # indicators, so the composite's intercept absorbs any latent mean above it. A
 # free latent mean whose every path to the data (along =~ and ~, leaving out
