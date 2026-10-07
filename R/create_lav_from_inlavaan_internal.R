@@ -22,6 +22,19 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   pt$est[pt$free > 0] <- x[pt$free[pt$free > 0]]
   pt$se[pt$free > 0] <- SD[pt$free[pt$free > 0]]
 
+  # Composite variances and intercepts are functions of the weights, which the
+  # model matrices already hold at x. Read them back, as lavaan does after its
+  # own fit, so that the parameter table and the model matrices agree.
+  comp_rows <- composite_derived_rows(pt)
+  if (length(comp_rows) > 0L) {
+    est_user <- lavaan::lav_model_get_parameters(
+      fit0@Model,
+      type = "user",
+      extra = FALSE
+    )
+    pt$est[comp_rows] <- est_user[comp_rows]
+  }
+
   pt$par <- pt$parstart
   pt$par[pt$free > 0] <- fit_inlv$theta_star[pt$free[pt$free > 0]]
 

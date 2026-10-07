@@ -71,6 +71,7 @@ standardisedsolution <- function(
     )
   )
   x_samp <- samp$x_samp
+  comp_rows <- composite_derived_rows(pt)
 
   xstd_samp <- vector("list", nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
@@ -79,6 +80,15 @@ standardisedsolution <- function(
 
     esti <- pt$est
     esti[pt$free > 0] <- xi[pt$free[pt$free > 0]]
+    # The composite variances and intercepts of this draw, because lavaan
+    # divides est by the variances in glist.
+    if (length(comp_rows) > 0L) {
+      esti[comp_rows] <- lavaan::lav_model_get_parameters(
+        lavmodel,
+        type = "user",
+        extra = FALSE
+      )[comp_rows]
+    }
     if (any(pt$op == ":=")) {
       pt_def_rows <- which(pt$op == ":=")
       def_names <- pt$names[pt_def_rows]
