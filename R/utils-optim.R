@@ -99,6 +99,12 @@ saturated_mean_idx <- function(
   if (!is.null(attr(pt, "gcp_blocks"))) {
     return(NULL)
   }
+  # A composite's mean is derived as w'nu at every parameter update, so the
+  # outcome means depend on the weights and on the indicator intercepts, and
+  # the intercept block is neither analytic nor separable.
+  if (any(pt$op == "<~")) {
+    return(NULL)
+  }
   if (any(pt$mat == "alpha" & pt$free > 0)) {
     return(NULL)
   }
