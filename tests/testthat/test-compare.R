@@ -62,6 +62,15 @@ test_that("compare() returns compare.inlavaan_internal data.frame", {
   expect_equal(cmp$logBF[1], 0)
 })
 
+test_that("compare() names a model given as a long call on one line", {
+  cmp <- compare(
+    fit1,
+    list(a_long_name_that_pushes_the_call_past_the_cutoff = fit2, b = 1)[[1]]
+  )
+  expect_equal(nrow(cmp), 2)
+  expect_true(any(grepl("a_long_name", cmp$Model)))
+})
+
 test_that("compare() print runs without error", {
   cmp <- compare(fit1, fit2)
   expect_output(print(cmp), "Bayesian Model Comparison")

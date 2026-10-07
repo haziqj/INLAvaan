@@ -110,7 +110,7 @@ setMethod(
       ]
     )
 
-    modnames <- vapply(model_exprs, deparse, character(1))
+    modnames <- vapply(model_exprs, model_expr_name, character(1))
 
     compare_impl(
       models = model_objs,
@@ -120,6 +120,12 @@ setMethod(
     )
   }
 )
+
+# A model's name in the comparison table: the expression that gave it, on one
+# line even when it is a long call
+model_expr_name <- function(expr) {
+  paste(trimws(deparse(expr)), collapse = " ")
+}
 
 #' @exportS3Method compare inlavaan_internal
 compare.inlavaan_internal <- function(
@@ -141,7 +147,7 @@ compare.inlavaan_internal <- function(
     ]
   )
 
-  modnames <- vapply(model_exprs, deparse, character(1))
+  modnames <- vapply(model_exprs, model_expr_name, character(1))
 
   compare_impl(
     models = model_objs,
