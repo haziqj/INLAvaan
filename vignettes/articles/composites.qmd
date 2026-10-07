@@ -78,9 +78,11 @@ summary(fit)
 
 The marker `x1` is fixed at 1. The variance of `C` is not a free parameter but
 the sample variance of the scores $\mathbf w^\top \mathbf x_i$, so its posterior
-comes from that of the weights. With the indicators' covariances fixed at their
-sample values, it reflects uncertainty in the weights only. The posterior means
-sit close to lavaan's maximum likelihood estimates.
+comes from that of the weights, much as the Bayesian $R^2$ of
+@gelman2019rsquared is computed draw by draw with the predictors held fixed.
+With the indicators' covariances fixed at their sample values, it reflects
+uncertainty in the weights only. The posterior means sit close to lavaan's
+maximum likelihood estimates.
 
 ```{r}
 fit_ml <- sem(model, HolzingerSwineford1939)
