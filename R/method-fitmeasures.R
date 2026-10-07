@@ -108,7 +108,9 @@ compute_BNFI <- function(adj_dev, adj_dev_null) {
 # values. lavaan's own count removes the fixed composite rows of every group
 # from each group, so a fit with composites is counted one group at a time on
 # single-group parameter tables. That stays right if lavaan comes to count them
-# per group. Composites are single-level, so their blocks are the groups.
+# per group. lavaan also removes an indicator (co)variance that the user fixes
+# at a value, which is a constraint the data test, so those count again.
+# Composites are single-level, so their blocks are the groups.
 count_sample_moments <- function(pt) {
   if (!any(pt$op == "<~") || length(unique(pt$level)) > 1L) {
     return(lavaan::lav_partable_ndat(pt))
@@ -126,7 +128,13 @@ count_sample_moments <- function(pt) {
       if (!is.null(pt_b$group)) {
         pt_b$group[] <- 1L
       }
-      lavaan::lav_partable_ndat(pt_b)
+      ind <- unique(pt_b$rhs[pt_b$op == "<~"])
+      user_fixed <- pt_b$op == "~~" &
+        pt_b$lhs %in% ind &
+        pt_b$rhs %in% ind &
+        pt_b$free == 0L &
+        !is.na(pt_b$ustart)
+      lavaan::lav_partable_ndat(pt_b) + sum(user_fixed)
     },
     numeric(1)
   )

@@ -339,6 +339,14 @@ test_that("Each group's fixed composite moments are removed once", {
     count_sample_moments(fit_one@ParTable),
     lavaan::lav_partable_ndat(fit_one@ParTable)
   )
+
+  # An indicator covariance fixed by the user is tested, so it counts
+  fit_fix <- lavaan::sem(
+    paste(mod_comp, "\n x1 ~~ 0.3*x2"),
+    dat,
+    do.fit = FALSE
+  )
+  expect_equal(count_sample_moments(fit_fix@ParTable), 10)
 })
 
 test_that("The baseline is scaled by its own moment count", {
