@@ -537,7 +537,14 @@ inlavaan <- function(
   canon_perm <- order(parnames)
   inv_perm <- order(canon_perm)
   H_canon <- H_sym[canon_perm, canon_perm]
-  R_prec <- chol(H_canon) # upper Cholesky of canonical precision
+  # Upper Cholesky of the canonical precision
+  R_prec <- tryCatch(chol(H_canon), error = function(e) {
+    cli_abort(c(
+      "The Hessian at the posterior mode is not positive definite.",
+      "i" = "The optimiser may have stopped short of the mode, or the model
+             may not be identified."
+    ))
+  })
   L_canon <- backsolve(R_prec, diag(m)) # L_c L_c^T = Sigma_canon (upper tri)
   L <- L_canon[inv_perm, ] # rows back to original param order
   Sigma_theta <- tcrossprod(L) # reconstruct covariance
