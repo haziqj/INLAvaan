@@ -58,7 +58,30 @@ compare_mcmc <- function(
   # actually produced, otherwise those blavaan-only parameters render as panels
   # with an MCMC density but no INLAvaan curve.
   inlav_available <- unique(unlist(lapply(fit_inlavaan_list, names)))
+
+  # A composite weight C <~ x, fitted in blavaan as a phantom regression C ~ x,
+  # is named "C~x" there and "C<~x" here, so rename those MCMC draws. Labelled
+  # weights need no renaming, as both packages name them by their label.
+  comp_names <- grep("<~", inlav_available, fixed = TRUE, value = TRUE)
+  phantom_names <- sub("<~", "~", comp_names, fixed = TRUE)
+  idx <- match(parnames, phantom_names)
+  rename <- !is.na(idx) & !parnames %in% inlav_available
+  phantom_map <- stats::setNames(comp_names[idx[rename]], parnames[rename])
+  parnames[rename] <- phantom_map
+  blav_chr <- as.character(plot_df_blav$name)
+  hit <- blav_chr %in% names(phantom_map)
+  blav_chr[hit] <- phantom_map[blav_chr[hit]]
+  plot_df_blav$name <- blav_chr
+
   parnames <- parnames[parnames %in% inlav_available]
+  inlav_only <- setdiff(inlav_available, parnames)
+  if (length(inlav_only) > 0L) {
+    cli_inform(c(
+      "INLAvaan parameter{?s} {.code {inlav_only}} {?has/have} no MCMC draws
+       and {?is/are} left out.",
+      "i" = "Give a parameter the same label in both models to compare it."
+    ))
+  }
   plot_df_blav <- plot_df_blav[
     as.character(plot_df_blav$name) %in% parnames,
     ,
