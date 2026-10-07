@@ -274,9 +274,23 @@ test_that("Latent means absorbed by composites stop the fit", {
   )
   expect_no_error(fit_quiet(gr, gdat, meanstructure = TRUE))
 
-  # A wave measured directly identifies the growth means
+  # Two waves measured directly identify both growth means. With only the
+  # first, the slope reaches it through a loading fixed at zero, so its mean
+  # is still absorbed.
   gdat$y1 <- gdat$x11 + gdat$x12 + rnorm(n, sd = 0.3)
+  gdat$y4 <- gdat$x41 + gdat$x42 + rnorm(n, sd = 0.3)
   mixed <- "
+    C2 <~ x21 + x22
+    C3 <~ x31 + x32
+    i =~ 1*y1 + 1*C2 + 1*C3 + 1*y4
+    s =~ 0*y1 + 1*C2 + 2*C3 + 3*y4
+    y1 ~ 0*1
+    y4 ~ 0*1
+    i ~ 1
+    s ~ 1
+  "
+  expect_no_error(fit_quiet(mixed, gdat, meanstructure = TRUE))
+  one_wave <- "
     C2 <~ x21 + x22
     C3 <~ x31 + x32
     C4 <~ x41 + x42
@@ -286,7 +300,10 @@ test_that("Latent means absorbed by composites stop the fit", {
     i ~ 1
     s ~ 1
   "
-  expect_no_error(fit_quiet(mixed, gdat, meanstructure = TRUE))
+  expect_error(
+    fit_quiet(one_wave, gdat, meanstructure = TRUE),
+    "composites absorb"
+  )
 })
 
 test_that("plot() explains that derived rows have no density", {

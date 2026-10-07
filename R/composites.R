@@ -157,10 +157,11 @@ check_composite_weights <- function(pt) {
 
 # lavaan fixes a composite's mean at w'nu, the weighted means of its
 # indicators, so the composite's intercept absorbs any latent mean above it. A
-# free latent mean whose every path to the data (along =~ and ~) runs through a
-# composite drops out of the likelihood, and its posterior would be its prior.
-# growth() and group.equal = "intercepts" free such means too. Means that share
-# a free index with an identified mean are fine.
+# free latent mean whose every path to the data (along =~ and ~, leaving out
+# coefficients fixed at zero) runs through a composite drops out of the
+# likelihood, and its posterior would be its prior. growth() and group.equal =
+# "intercepts" free such means too. Means that share a free index with an
+# identified mean are fine.
 check_composite_means <- function(pt, lavoptions = NULL) {
   if (!any(pt$op == "<~")) {
     return(invisible(NULL))
@@ -171,8 +172,9 @@ check_composite_means <- function(pt, lavoptions = NULL) {
     in_b <- block == b
     comps <- unique(pt$lhs[in_b & pt$op == "<~"])
     factors <- unique(pt$lhs[in_b & pt$op == "=~"])
-    is_mm <- in_b & pt$op == "=~"
-    is_reg <- in_b & pt$op == "~"
+    nonzero <- !(pt$free == 0L & pt$ustart %in% 0)
+    is_mm <- in_b & pt$op == "=~" & nonzero
+    is_reg <- in_b & pt$op == "~" & nonzero
     from <- c(pt$lhs[is_mm], pt$rhs[is_reg])
     to <- c(pt$rhs[is_mm], pt$lhs[is_reg])
     rows <- which(in_b & pt$op == "~1" & pt$free > 0L & pt$lhs %in% factors)
