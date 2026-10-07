@@ -94,11 +94,20 @@ test_that("Mean structures, higher-order factors and groups fit", {
   fit_ml <- lavaan::sem(mod, dat, meanstructure = TRUE)
   expect_equal(mode_x(fit_m), coef(fit_ml), tolerance = 0.01)
 
-  # The saturated-means fast path must stay off: centring the indicators
-  # leaves the weights and slopes unchanged.
+  # With centred indicators the composite mean starts at zero, which used to
+  # switch on the saturated-means fast path. The intercept block is not
+  # separable for composites, so the fast path must stay off.
   dat_c <- dat
   dat_c[paste0("x", 1:5)] <- scale(dat_c[paste0("x", 1:5)], scale = FALSE)
   fit_c <- fit_quiet(mod, dat_c, meanstructure = TRUE)
+  int_c <- get_inlavaan_internal(fit_c)
+  expect_null(saturated_mean_idx(
+    int_c$partable,
+    int_c$lavmodel,
+    int_c$lavsamplestats,
+    int_c$lavdata,
+    FALSE
+  ))
   slopes <- c("C<~x2", "C<~x3", "x4~C", "x5~C")
   expect_equal(mode_x(fit_c)[slopes], mode_x(fit_m)[slopes], tolerance = 1e-3)
 
@@ -112,6 +121,9 @@ test_that("Mean structures, higher-order factors and groups fit", {
     fit_ho <- suppressWarnings(fit_quiet(ho, meanstructure = TRUE))
   )
   expect_s4_class(fit_ho, "INLAvaan")
+  # From lavaan's starts (all weights 1) the fit settles in a poorer mode with
+  # these two weights positive.
+  expect_true(all(mode_x(fit_ho)[c("C3<~x8", "C3<~x9")] < 0))
   expect_no_error(
     fit_g <- suppressWarnings(fit_quiet(
       mod,
@@ -167,7 +179,10 @@ test_that("Weights start from a rank-one moment estimate", {
   expect_true(all(start[c3] < 0))
   expect_equal(start[pt$free == 0], pt$parstart[pt$free == 0])
 
-  # A start() of the user's is kept
+  # inlavaan() uses these starts, but keeps a start() of the user's
+  pt_fit <- get_inlavaan_internal(fit)$partable
+  w <- pt_fit$op == "<~" & pt_fit$free > 0
+  expect_false(any(pt_fit$parstart[w] == 1))
   fit_s <- fit_quiet(sub("x2", "start(0.5)*x2", mod))
   pt_s <- get_inlavaan_internal(fit_s)$partable
   expect_equal(pt_s$parstart[pt_s$op == "<~" & pt_s$rhs == "x2"], 0.5)
