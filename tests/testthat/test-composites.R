@@ -230,15 +230,55 @@ test_that("Indicator covariances are free unless composites.cov fixes them", {
   expect_true(all(pt_fix$free[t_rows] == 0))
 })
 
-test_that("Out-of-scope composite models stop early", {
+test_that("Two-level composites fit at either level", {
+  mod_2l <- "
+    level: 1
+      Cw <~ y1 + y2 + y3
+      y4 ~ Cw
+    level: 2
+      Cb <~ y1 + y2 + y3
+      y4 ~ Cb
+  "
+  dat_2l <- lavaan::Demo.twolevel
+  # The between-level weights are weakly identified by 200 clusters, which the
+  # fit diagnostics flag
+  fit_2l <- suppressWarnings(fit_quiet(mod_2l, dat_2l, cluster = "cluster"))
+  fit_ml <- lavaan::sem(mod_2l, dat_2l, cluster = "cluster")
+  within <- !grepl("\\.l2$", names(coef(fit_ml)))
+  expect_equal(
+    mode_x(fit_2l)[within],
+    coef(fit_ml)[within],
+    tolerance = 0.05
+  )
+
+  # The within-level composite has a zero mean whatever the weights, while the
+  # between-level one has a posterior
+  summ <- get_inlavaan_internal(fit_2l)$summary
+  expect_false("Cw~1" %in% rownames(summ))
+  expect_gt(summ["Cb~1.l2", "SD"], 0)
+  expect_gt(summ["Cw~~Cw", "SD"], 0)
+
+  scores <- predict(fit_2l, level = 1, nsamp = 20)
+  scores <- Reduce(`+`, scores) / length(scores)
+  scores_ml <- suppressWarnings(lavaan::lavPredict(fit_ml, level = 1))
+  expect_gt(cor(scores[, "Cw"], scores_ml), 0.99)
+  expect_no_error(sampling(fit_2l, type = "latent", nsamp = 2))
+
   expect_error(
-    fit_quiet(
-      "level: 1\n C <~ y1 + y2 + y3\n y4 ~ C\nlevel: 2\n y1 ~~ y2",
-      lavaan::Demo.twolevel,
-      cluster = "cluster"
-    ),
+    fit_quiet(mod_2l, dat_2l, cluster = "cluster", composites.cov = "fixed"),
     "two-level"
   )
+  expect_error(
+    fit_quiet(
+      paste(mod_2l, "y4 ~~ equal('Cb~~Cb.l2')*y4"),
+      dat_2l,
+      cluster = "cluster"
+    ),
+    "labels cannot be shared"
+  )
+})
+
+test_that("Out-of-scope composite models stop early", {
   dat_ord <- dat
   dat_ord$x4 <- cut(dat$x4, 3, labels = FALSE)
   dat_ord$x5 <- cut(dat$x5, 3, labels = FALSE)
