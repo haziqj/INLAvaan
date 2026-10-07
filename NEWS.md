@@ -7,10 +7,13 @@
   with the fit measures, `loo()`, `compare()`, `predict()` and `sampling()`,
   and `summary()` gives posterior summaries for the variance and intercept of
   each composite. Free weights have the new default prior
-  `wmat = "normal(0,10)"` in `priors_for()`. See the new article on composites.
+  `wmat = "normal(0,10)"` in `priors_for()`. Unlike lavaan, INLAvaan estimates
+  the (co)variances of the indicators by default (`composites.cov = "free"`);
+  `composites.cov = "fixed"` fixes them at their sample values. See the new
+  article on composites.
 
 * Composite models that INLAvaan cannot fit yet stop with an error: two-level
-  models, ordinal data and `composites.cov = "free"`. So do composite
+  models and ordinal data. So do composite
   specifications that cannot be estimated as written, such as a free latent
   mean that only composites measure (as in `agrowth()` on composites).
 

@@ -78,17 +78,18 @@ summary(fit)
 
 The marker `x1` is fixed at 1. The variance of `C` is not a free parameter but
 the sample variance of the scores $\mathbf w^\top \mathbf x_i$. It is still
-uncertain, because the weights are, and lavaan merely does not report a
-standard error for it. Here its posterior follows from that of the weights draw
-by draw, much as the Bayesian $R^2$ of @gelman2019rsquared, and without the
-normal approximation of the delta method. The indicators' variances and
-covariances (the $\boldsymbol\Theta_x$ block of lavaan's `theta` matrix) are
-fixed at their sample values, which is what maximum likelihood would estimate.
-They therefore have no posterior SD, and every posterior here is conditional on
-them. The posterior means sit close to lavaan's maximum likelihood estimates.
+uncertain, and lavaan merely does not report a standard error for it. Its
+posterior follows draw by draw from those of the weights and of the
+indicators' variances and covariances (the $\boldsymbol\Theta_x$ block of
+lavaan's `theta` matrix), without the normal approximation of the delta method.
+lavaan fixes $\boldsymbol\Theta_x$ at the sample covariances by default, which
+is what maximum likelihood would estimate anyway. INLAvaan estimates it with
+priors instead (lavaan's `composites.cov = "free"`), so that its uncertainty
+carries through. The posterior means sit close to lavaan's maximum likelihood
+estimates.
 
 ```{r}
-fit_ml <- sem(model, HolzingerSwineford1939)
+fit_ml <- sem(model, HolzingerSwineford1939, composites.cov = "free")
 round(cbind(INLAvaan = coef(fit), lavaan = coef(fit_ml)), 3)
 ```
 
@@ -102,12 +103,13 @@ round(cbind(INLAvaan = coef(fit), lavaan = coef(fit_ml)), 3)
   mean fixed at zero; INLAvaan stops with an error otherwise. For growth
   models on composites, use `asem()` with `meanstructure = TRUE` instead of
   `agrowth()`.
-- **Model comparison.** As in lavaan, the covariances of each composite's
-  indicators are fixed at their sample values, so marginal likelihoods and the
-  DIC compare only models with the same composites.
+- **Fixed indicator covariances.** `composites.cov = "fixed"` gives lavaan's
+  default, with $\boldsymbol\Theta_x$ fixed at the sample covariances. Every
+  posterior is then conditional on it, and marginal likelihoods and the DIC
+  compare only models with the same composites.
 - **Limits.** Composites are supported in single-level models with continuous
-  data, in one or more groups. Two-level models, ordinal data,
-  `composites.cov = "free"` and covariances between the indicators of a
-  composite and other variables stop with an error.
+  data, in one or more groups. Two-level models, ordinal data and covariances
+  between the indicators of a composite and other variables stop with an
+  error.
 
 ## References
