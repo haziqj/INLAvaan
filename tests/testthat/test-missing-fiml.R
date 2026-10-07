@@ -61,3 +61,44 @@ test_that("PPP under FIML tracks the complete-data PPP for the same data", {
   expect_gt(ppp_m, 0.05)
   expect_lt(abs(ppp_m - ppp_c), 0.3)
 })
+
+test_that("The FIML gradient is right with several groups", {
+  dat <- lavaan::HolzingerSwineford1939
+  set.seed(42)
+  for (v in paste0("x", 1:6)) dat[[v]][sample(nrow(dat), 25)] <- NA
+  fit0 <- lavaan::cfa(
+    "visual =~ x1 + x2 + x3\n textual =~ x4 + x5 + x6",
+    dat,
+    group = "school",
+    missing = "ml",
+    do.fit = FALSE
+  )
+  x <- lavaan::lav_model_get_parameters(fit0@Model) + 0.03
+  loglik <- function(x) {
+    inlav_model_loglik(
+      x,
+      fit0@Model,
+      fit0@SampleStats,
+      fit0@Data,
+      fit0@Options,
+      fit0@Cache
+    )
+  }
+  h <- 1e-5
+  grad_fd <- vapply(
+    seq_along(x),
+    function(i) {
+      e <- replace(numeric(length(x)), i, h)
+      (loglik(x + e) - loglik(x - e)) / (2 * h)
+    },
+    numeric(1)
+  )
+  grad <- inlav_model_grad(
+    x,
+    fit0@Model,
+    fit0@SampleStats,
+    fit0@Data,
+    fit0@Cache
+  )
+  expect_equal(grad, grad_fd, tolerance = 1e-5)
+})
