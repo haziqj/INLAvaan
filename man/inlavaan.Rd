@@ -54,7 +54,8 @@ explicitly here because lavaan >= 0.7-1 renamed the corresponding
 inherited from there.}
 
 \item{dp}{Default prior distributions for the different types of model
-parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}.}
+parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}. Types
+left out take their default priors.}
 
 \item{test}{Character vector naming the post-estimation quantities to
 compute and store with the fit. The atoms are \code{"ppp"} (posterior

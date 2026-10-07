@@ -18,7 +18,8 @@
 #'   inherited from there.
 #'
 #' @param dp Default prior distributions for the different types of model
-#'   parameters; a named character vector as returned by [priors_for()].
+#'   parameters; a named character vector as returned by [priors_for()]. Types
+#'   left out take their default priors.
 #' @param test Character vector naming the post-estimation quantities to
 #'   compute and store with the fit. The atoms are `"ppp"` (posterior
 #'   predictive p-value), `"dic"` (deviance information criterion and its
@@ -217,6 +218,11 @@ inlavaan <- function(
   test_req <- resolve_test(test)
   # Parameter types missing from dp (in a vector saved before a type existed,
   # say) take their default prior.
+  if (length(dp) > 0L && (is.null(names(dp)) || !all(nzchar(names(dp))))) {
+    cli_abort(
+      "{.arg dp} must be a named vector, as returned by {.fn priors_for}."
+    )
+  }
   dp_default <- priors_for()
   dp <- c(dp, dp_default[setdiff(names(dp_default), names(dp))])
 
