@@ -241,6 +241,18 @@ test_that("Moment count excludes fixed exogenous covariates, as in lavaan", {
   expect_equal(lavaan::lav_partable_ndat(fit_x@ParTable), 9)
 })
 
+test_that("Moment counts without composites are lavaan's", {
+  expect_equal(
+    count_sample_moments(fit_test@ParTable),
+    lavaan::lav_partable_ndat(fit_test@ParTable)
+  )
+  fit_mg <- lavaan::cfa(mod, dat, group = "school", do.fit = FALSE)
+  expect_equal(
+    count_sample_moments(fit_mg@ParTable),
+    lavaan::lav_partable_ndat(fit_mg@ParTable)
+  )
+})
+
 test_that("Two-level fit indices are finite and sane", {
   skip_on_cran()
   d2 <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:60, ]
@@ -289,4 +301,42 @@ test_that("Two-level fit indices are finite and sane", {
   )
   fmm <- fitMeasures(fit2m)
   expect_true(all(is.finite(fmm[idx])))
+})
+
+## ----- Composites ------------------------------------------------------------
+
+mod_comp <- "
+  C <~ x1 + x2 + x3
+  x4 ~ C
+  x5 ~ C
+  x4 ~~ x5
+"
+
+# lavaan fixes the (co)variances of composite indicators at their sample values,
+# so they are not sample moments the model has to fit
+test_that("Each group's fixed composite moments are removed once", {
+  fit_mg <- asem(
+    mod_comp,
+    dat,
+    group = "school",
+    verbose = FALSE,
+    nsamp = 20,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus"
+  )
+  # Per group 15 covariances and 5 means, less 6 fixed indicator moments
+  expect_equal(count_sample_moments(fit_mg@ParTable), 28)
+  b <- bfit_indices(fit_mg, baseline.model = FALSE, rescale = "MCMC")
+  # Against 24 parameters, which lavaan's own count puts at df = -8
+  expect_equal(b$details$df, 4)
+  expect_true("BRMSEA" %in% names(b$indices))
+
+  # One group is counted as lavaan counts it
+  fit_one <- lavaan::sem(mod_comp, dat, do.fit = FALSE)
+  expect_equal(count_sample_moments(fit_one@ParTable), 9)
+  expect_equal(
+    count_sample_moments(fit_one@ParTable),
+    lavaan::lav_partable_ndat(fit_one@ParTable)
+  )
 })

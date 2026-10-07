@@ -102,6 +102,37 @@ compute_BNFI <- function(adj_dev, adj_dev_null) {
   (adj_dev_null - adj_dev) / adj_dev_null
 }
 
+# Number of sample moments, counted as lavaan counts them for the degrees of
+# freedom: per group and level, without the moments of fixed exogenous
+# covariates or of composite indicator (co)variances fixed at their sample
+# values. lavaan's own count removes the fixed composite rows of every group
+# from each group, so a fit with composites is counted one group at a time on
+# single-group parameter tables. That stays right if lavaan comes to count them
+# per group. Composites are single-level, so their blocks are the groups.
+count_sample_moments <- function(pt) {
+  if (!any(pt$op == "<~") || length(unique(pt$level)) > 1L) {
+    return(lavaan::lav_partable_ndat(pt))
+  }
+  n_row <- length(pt$lhs)
+  blocks <- sort(unique(pt$block[pt$block > 0L]))
+  per_group <- vapply(
+    blocks,
+    function(b) {
+      in_b <- pt$block == b
+      pt_b <- lapply(pt, function(col) {
+        if (length(col) == n_row) col[in_b] else col
+      })
+      pt_b$block[] <- 1L
+      if (!is.null(pt_b$group)) {
+        pt_b$group[] <- 1L
+      }
+      lavaan::lav_partable_ndat(pt_b)
+    },
+    numeric(1)
+  )
+  sum(per_group)
+}
+
 # Reconstruct lavoptions suitable for inlav_model_loglik() from the INLAvaan
 # object (whose @Options$estimator was changed to "Bayes").
 reconstruct_lavoptions <- function(object) {
@@ -371,9 +402,8 @@ bfit_indices <- function(
   Ngr <- lavdata@ngroups
   nvar <- lavmodel@nvar
   # Number of sample moments, counted as lavaan counts them for the model's
-  # degrees of freedom: per group and level, without the moments of fixed
-  # exogenous covariates
-  p <- lavaan::lav_partable_ndat(object@ParTable)
+  # degrees of freedom (see count_sample_moments()).
+  p <- count_sample_moments(object@ParTable)
 
   rq <- compute_rescaled_quantities(
     object,
