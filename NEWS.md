@@ -4,9 +4,10 @@
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
   in single-level models with continuous data and one or more groups. They work
-  with the fit measures, `loo()`, `compare()`, `predict()` and `sampling()`.
-  Free weights have the new default prior `wmat = "normal(0,10)"` in
-  `priors_for()`. See the new article on composites.
+  with the fit measures, `loo()`, `compare()`, `predict()` and `sampling()`,
+  and `summary()` gives posterior summaries for the variance and intercept of
+  each composite. Free weights have the new default prior
+  `wmat = "normal(0,10)"` in `priors_for()`. See the new article on composites.
 
 * Composite models that INLAvaan cannot fit yet stop with an error: two-level
   models, ordinal data and `composites.cov = "free"`. So do composite

@@ -76,10 +76,11 @@ fit <- asem(model, HolzingerSwineford1939)
 summary(fit)
 ```
 
-The marker `x1` is fixed at 1. The variance of `C` is not a parameter but the
-sample variance of $\mathbf w^\top \mathbf x$ at the posterior means, so it has
-no posterior SD. The posterior means sit close to lavaan's maximum likelihood
-estimates.
+The marker `x1` is fixed at 1. The variance of `C` is not a free parameter but
+the sample variance of the scores $\mathbf w^\top \mathbf x_i$, so its posterior
+comes from that of the weights. With the indicators' covariances fixed at their
+sample values, it reflects uncertainty in the weights only. The posterior means
+sit close to lavaan's maximum likelihood estimates.
 
 ```{r}
 fit_ml <- sem(model, HolzingerSwineford1939)
