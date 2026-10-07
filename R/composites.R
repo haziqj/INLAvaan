@@ -16,8 +16,8 @@ composite_derived_rows <- function(pt, include_free = FALSE) {
 # The weight rows and the indicator covariance block T of each composite, per
 # group (or level), so that pars_to_x() can scale a covariance with a composite
 # by Var(C) = w'Tw at the current weights. lavaan fixes T at the sample
-# covariances, which are the start values of its rows, and leaves the entry of
-# a pair without a row at zero.
+# covariances, which are the start values of its rows, and leaves the entry of a
+# pair without a row at zero.
 composite_blocks <- function(pt) {
   grp <- if ("level" %in% names(pt)) partable_level_index(pt) else pt$group
   is_w <- pt$op == "<~"
@@ -54,10 +54,10 @@ composite_blocks <- function(pt) {
   out
 }
 
-# Composite models INLAvaan cannot fit yet. Two-level models come first,
-# because lavaan estimates the indicator covariances there (composites.cov =
-# "free"). Ordinal data must stop before the PML refit, whose theta
-# parameterisation lavaan rejects for composites.
+# Composite models INLAvaan cannot fit yet. Two-level models come first, because
+# lavaan estimates the indicator covariances there (composites.cov = "free").
+# Ordinal data must stop before the PML refit, whose theta parameterisation
+# lavaan rejects for composites.
 check_composite_scope <- function(fit0) {
   if (!any(fit0@ParTable$op == "<~")) {
     return(invisible(NULL))
@@ -146,11 +146,11 @@ check_composite_labels <- function(pt) {
 }
 
 # lavaan scales a composite by a weight fixed at 1 and finds that weight by its
-# value. Without one it fixes Var(C) at 1, so the composite is no longer w'x
-# and the scale of its weights is not identified. A weight fixed at 0 drops its
-# indicator from the composite's block but not from the covariances lavaan
-# fixes for it, and lavaan also accepts an indicator shared by two composites.
-# Neither is represented consistently.
+# value. Without one it fixes Var(C) at 1, so the composite is no longer w'x and
+# the scale of its weights is not identified. A weight fixed at 0 drops its
+# indicator from the composite's block but not from the covariances lavaan fixes
+# for it, and lavaan also accepts an indicator shared by two composites. Neither
+# is represented consistently.
 check_composite_weights <- function(pt) {
   is_w <- pt$op == "<~"
   if (!any(is_w)) {
@@ -240,13 +240,13 @@ check_composite_covariances <- function(pt) {
   ))
 }
 
-# lavaan fixes a composite's mean at w'nu, the weighted means of its
-# indicators, so the composite's intercept absorbs any latent mean above it. A
-# free latent mean whose every path to the data (along =~ and ~, leaving out
-# coefficients fixed at zero) runs through a composite drops out of the
-# likelihood, and its posterior would be its prior. growth() and group.equal =
-# "intercepts" free such means too. Means that share a free index with an
-# identified mean are fine.
+# lavaan fixes a composite's mean at w'nu, the weighted means of its indicators,
+# so the composite's intercept absorbs any latent mean above it. A free latent
+# mean whose every path to the data (along =~ and ~, leaving out coefficients
+# fixed at zero) runs through a composite drops out of the likelihood, and its
+# posterior would be its prior. growth() and group.equal = "intercepts" free
+# such means too. Means that share a free index with an identified mean are
+# fine.
 check_composite_means <- function(pt, lavoptions = NULL) {
   if (!any(pt$op == "<~")) {
     return(invisible(NULL))
@@ -313,13 +313,12 @@ check_composite_means <- function(pt, lavoptions = NULL) {
 }
 
 # Start values for the free weights. lavaan starts every weight at 1, and from
-# there the optimiser can settle in a poor local mode when the best weights
-# have signs opposite to the marker's. Under the composite model
-# T^-1 Cov(x, y) = w a' for the indicators x and every other observed variable
-# y, so the first left singular vector of T^-1 S_xy, scaled to the marker, is a
-# moment estimate of w. A composite keeps lavaan's starts when this is not
-# finite or runs beyond 100, and a weight with a start() of the user's keeps
-# that value.
+# there the optimiser can settle in a poor local mode when the best weights have
+# signs opposite to the marker's. Under the composite model, with x the
+# indicators and y every other observed variable, T^-1 Cov(x, y) = w a', so the
+# first left singular vector of T^-1 S_xy, scaled to the marker, is a moment
+# estimate of w. A composite keeps lavaan's starts when this is not finite or
+# runs beyond 100, and a weight with a start() of the user's keeps that value.
 composite_start_weights <- function(pt, lavsamplestats, lavdata) {
   parstart <- pt$parstart
   is_w <- pt$op == "<~"

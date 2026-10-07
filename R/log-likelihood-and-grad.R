@@ -60,8 +60,8 @@ inlav_model_grad <- function(
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
 
-  # Gradient of fit function F_ML (not loglik yet). lavaan weights each group
-  # by its share of the sample only where the fit function averages over the
+  # Gradient of fit function F_ML (not loglik yet). lavaan weights each group by
+  # its share of the sample only where the fit function averages over the
   # groups. Under FIML and PML, and in two-level models, it already sums them
   # (the rule in lav_model_estimate()).
   group_weight <- !(isTRUE(lavsamplestats@missing.flag) ||

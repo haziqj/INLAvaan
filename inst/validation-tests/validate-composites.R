@@ -57,9 +57,9 @@ truth_composite <- function(a, g, rho_e = 0.3) {
 }
 
 # compare_mcmc() scores the densities on INLAvaan's grid (the mode plus or minus
-# four Laplace SDs), so it misses MCMC mass in a heavy tail. This table puts
-# the moments and the 95% limits of both posteriors side by side, with the
-# share of MCMC draws outside INLAvaan's grid.
+# four Laplace SDs), so it misses MCMC mass in a heavy tail. This table puts the
+# moments and the 95% limits of both posteriors side by side, with the share of
+# MCMC draws outside INLAvaan's grid.
 quantile_table <- function(fit_blav, fit_inl) {
   draws <- do.call("rbind", blavInspect(fit_blav, "mcmc"))
   int <- get_inlavaan_internal(fit_inl)

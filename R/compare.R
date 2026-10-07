@@ -232,10 +232,10 @@ compare_impl <- function(
   }
 
   # The composite indicator (co)variances that lavaan fixes at their sample
-  # values are a plug-in of the data, not parameters, so the marginal
-  # likelihood and the DIC of a fit with composites condition on them. That
-  # cancels only between fits that fix the same ones. The LOO recomputes them
-  # without each unit, so it compares across such fits.
+  # values are a plug-in of the data, not parameters, so the marginal likelihood
+  # and the DIC of a fit with composites condition on them. That cancels only
+  # between fits that fix the same ones. The LOO recomputes them without each
+  # unit, so it compares across such fits.
   t_keys <- lapply(internals, composite_t_key)
   if (length(unique(t_keys)) > 1L) {
     hint <- if (isTRUE(loo)) {

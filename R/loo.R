@@ -1449,7 +1449,7 @@ inlav_loo <- function(
     )
   }
   unit_group <- NULL # group of each scored unit; multigroup LOSO only
-  t_delta <- NULL # T-deletion term; single-level LOSO with composites only
+  t_delta <- NULL # T-deletion term, single-level LOSO with composites only
   if (type == "loso" && two_level && isTRUE(int$lavsamplestats@missing.flag)) {
     # Per-row deletion under FIML: each row's conditional density via the
     # missing kernel, dropping the raw row and rebuilding its pattern object

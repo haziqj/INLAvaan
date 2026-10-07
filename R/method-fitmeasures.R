@@ -455,8 +455,8 @@ bfit_indices <- function(
     x_samp_null <- samp_null$x_samp
     n_use <- min(nrow(x_samp), nrow(x_samp_null))
 
-    # The baseline's own moment count, which is larger than the model's when
-    # the model fixes composite indicator (co)variances at their sample values.
+    # The baseline's own moment count, which is larger than the model's when the
+    # model fixes composite indicator (co)variances at their sample values.
     rq_null <- compute_rescaled_quantities(
       baseline.model,
       x_samp_null[seq_len(n_use), , drop = FALSE],

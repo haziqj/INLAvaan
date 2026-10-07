@@ -26,10 +26,10 @@ pars_to_x <- function(theta, pt) {
   is_copy <- pt$free > 0L & duplicated(pt$free)
   owner[is_copy] <- match(pt$free[is_copy], pt$free)
 
-  # A composite's ~~ row is not a parameter: its variance is w'Tw at the
-  # current weights. For an endogenous composite that total variance bounds the
-  # residual variance lavaan derives, so a covariance scaled by it can still
-  # reach every admissible value.
+  # A composite's ~~ row is not a parameter: its variance is w'Tw at the current
+  # weights. For an endogenous composite that total variance bounds the residual
+  # variance lavaan derives, so a covariance scaled by it can still reach every
+  # admissible value.
   comp <- attr(pt, "composites")
   if (is.null(comp) && any(pt$op == "<~")) {
     comp <- composite_blocks(pt)
