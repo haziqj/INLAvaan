@@ -296,5 +296,9 @@ inlavaanify_partable <- function(
   }
 
   # FIXME: Perhaps add a 'inlavaan_partable' class to this object
-  as.list(pt)
+  pt <- as.list(pt)
+  if (any(pt$op == "<~")) {
+    attr(pt, "composites") <- composite_blocks(pt)
+  }
+  pt
 }

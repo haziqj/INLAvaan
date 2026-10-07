@@ -26,6 +26,22 @@ pars_to_x <- function(theta, pt) {
   is_copy <- pt$free > 0L & duplicated(pt$free)
   owner[is_copy] <- match(pt$free[is_copy], pt$free)
 
+  # A composite's ~~ row is not a parameter: its variance is w'Tw at the
+  # current weights. For an endogenous composite that total variance bounds the
+  # residual variance lavaan derives, so a covariance scaled by it can still
+  # reach every admissible value.
+  comp <- attr(pt, "composites")
+  if (is.null(comp) && any(pt$op == "<~")) {
+    comp <- composite_blocks(pt)
+  }
+  comp_tw <- list()
+  for (cb in comp) {
+    w <- x[cb$wrows]
+    tw <- as.numeric(cb$tmat %*% w)
+    x[cb$vrow] <- sum(w * tw)
+    comp_tw[[paste(cb$name, cb$group)]] <- list(wrows = cb$wrows, tw = tw)
+  }
+
   # Now deal with covariances
   for (g in seq_len(nG)) {
     idxcov <- which(grepl("cov", pt$mat) & pt$group == g)
@@ -50,6 +66,19 @@ pars_to_x <- function(theta, pt) {
       thidx3 <- thidx[j]
       jcb_mat <- rbind(jcb_mat, c(thidx1, thidx3, 0.5 * rho * sd1 * sd2))
       jcb_mat <- rbind(jcb_mat, c(thidx2, thidx3, 0.5 * rho * sd1 * sd2))
+      # A composite's sd moves with its weights: d sd(C) / d w = T w / sd(C)
+      for (side in 1:2) {
+        ct <- comp_tw[[paste(c(X1, X2)[side], pt$group[k])]]
+        if (is.null(ct)) {
+          next
+        }
+        sd_this <- c(sd1, sd2)[side]
+        sd_other <- c(sd2, sd1)[side]
+        jcb_mat <- rbind(
+          jcb_mat,
+          cbind(thidx[ct$wrows], thidx3, rho * sd_other * ct$tw / sd_this)
+        )
+      }
       sd1sd2[j] <- sd1 * sd2
     }
   }
