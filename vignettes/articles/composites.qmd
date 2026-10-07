@@ -100,7 +100,8 @@ round(cbind(INLAvaan = coef(fit), lavaan = coef(fit_ml)), 3)
   indicators are fixed at their sample values, so marginal likelihoods and the
   DIC compare only models with the same composites.
 - **Limits.** Composites are supported in single-level models with continuous
-  data, in one or more groups. Two-level models, ordinal data and
-  `composites.cov = "free"` stop with an error.
+  data, in one or more groups. Two-level models, ordinal data,
+  `composites.cov = "free"` and covariances between the indicators of a
+  composite and other variables stop with an error.
 
 ## References
