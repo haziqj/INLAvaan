@@ -13,6 +13,59 @@ composite_derived_rows <- function(pt, include_free = FALSE) {
   )
 }
 
+# Var(C) = w'Tw of each composite at the current x, for pars_to_x(). T entries
+# that are free take their current values, fixed ones their start values. Each
+# free entry also gives the derivative of w'Tw with respect to the internal
+# parameters it depends on (t_th, t_d): its own, and for a covariance the log
+# variances of its two ends.
+composite_variances <- function(comp, x, pars, pt, thidx, sd1sd2, var_rows) {
+  out <- list()
+  for (cb in comp) {
+    w <- x[cb$wrows]
+    tmat <- cb$tmat
+    trow <- if (is.null(cb$trow)) {
+      matrix(NA_integer_, nrow(tmat), ncol(tmat))
+    } else {
+      cb$trow
+    }
+    t_th <- integer(0)
+    t_d <- numeric(0)
+    for (a in seq_len(nrow(tmat))) {
+      for (b in seq_len(a)) {
+        r <- trow[a, b]
+        if (is.na(r) || pt$free[r] == 0L) {
+          next
+        }
+        tmat[a, b] <- tmat[b, a] <- x[r]
+        mult <- w[a] * w[b] * (if (a == b) 1 else 2)
+        if (a == b) {
+          t_th <- c(t_th, thidx[r])
+          t_d <- c(t_d, mult * pt$ginv_prime[[r]](pars[r]))
+        } else {
+          vr <- var_rows[r, ]
+          t_th <- c(t_th, thidx[r], thidx[vr])
+          t_d <- c(
+            t_d,
+            mult * pt$ginv_prime[[r]](pars[r]) * sd1sd2[r],
+            mult * 0.5 * x[r],
+            mult * 0.5 * x[r]
+          )
+        }
+      }
+    }
+    tw <- as.numeric(tmat %*% w)
+    out[[paste(cb$name, cb$group)]] <- list(
+      wrows = cb$wrows,
+      vrow = cb$vrow,
+      tw = tw,
+      var = sum(w * tw),
+      t_th = t_th,
+      t_d = t_d
+    )
+  }
+  out
+}
+
 # Posterior draws of the derived composite rows, one column per row, from the
 # draws of the lavaan-side parameters. lavaan derives these rows inside
 # lav_model_set_parameters(), so each draw goes through it.
@@ -37,9 +90,9 @@ composite_derived_draws <- function(x_samp, pt, lavmodel) {
 
 # The weight rows and the indicator covariance block T of each composite, per
 # group (or level), so that pars_to_x() can scale a covariance with a composite
-# by Var(C) = w'Tw at the current weights. lavaan fixes T at the sample
-# covariances, which are the start values of its rows, and leaves the entry of a
-# pair without a row at zero.
+# by Var(C) = w'Tw at the current weights and T. tmat holds the start values,
+# which are the sample covariances where lavaan fixes T, and trow the row of
+# each entry (NA for a pair without a row, whose entry is zero).
 composite_blocks <- function(pt) {
   grp <- if ("level" %in% names(pt)) partable_level_index(pt) else pt$group
   is_w <- pt$op == "<~"
@@ -49,6 +102,7 @@ composite_blocks <- function(pt) {
       wrows <- which(is_w & pt$lhs == cname & grp == g)
       ind <- pt$rhs[wrows]
       tmat <- matrix(0, length(ind), length(ind))
+      trow <- matrix(NA_integer_, length(ind), length(ind))
       for (a in seq_along(ind)) {
         for (b in seq_len(a)) {
           r <- which(
@@ -59,6 +113,7 @@ composite_blocks <- function(pt) {
           )
           if (length(r) > 0L) {
             tmat[a, b] <- tmat[b, a] <- pt$start[r[1L]]
+            trow[a, b] <- trow[b, a] <- r[1L]
           }
         }
       }
@@ -67,6 +122,7 @@ composite_blocks <- function(pt) {
         group = g,
         wrows = wrows,
         tmat = tmat,
+        trow = trow,
         vrow = which(
           pt$lhs == cname & pt$op == "~~" & pt$rhs == cname & grp == g
         )
