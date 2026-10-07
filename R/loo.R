@@ -1039,6 +1039,125 @@ loso_fixedx_const_units <- function(int, uv, dv, mom) {
   out
 }
 
+# The T-deletion term of a fit with composites, per unit. lavaan fixes the
+# (co)variances T of the composite indicators at their sample values, a plug-in
+# of the data with no posterior spread, so the Taylor terms cannot see that
+# leaving a unit out changes them too. Scored against a T that contains it, each
+# unit is predicted too well, by about one nat per fixed moment over the sample.
+# The term
+#   delta_u = l_u(theta; T) - l_u(theta; T^(-u)),
+# with T^(-u) the plug-in without unit u (exact for complete data, to first
+# order under missing data), moves the unit's log CPO to the one of a refit on
+# the other units, which re-fixes T from them. inlav_loo() subtracts it from the
+# log CPO terms, so it joins p_loo, and waic_from_taylor() adds it to p_waic. It
+# is evaluated on the data view of l_u, whose constants cancel. The covariate
+# part of a conditional score does not involve T, so the joint kernel suffices.
+# NULL for a fit without such entries.
+loso_t_deletion_units <- function(int, uv, dv, cache) {
+  t_fixed <- composite_fixed_t(int$lavmodel, int$partable, int$lavdata)
+  if (is.null(t_fixed)) {
+    return(NULL)
+  }
+  lavmodel <- int$lavmodel
+  out <- numeric(uv$n)
+  for (g in seq_along(dv$Y)) {
+    rows <- uv$rows[[g]]
+    e <- t_fixed[[g]]
+    if (length(rows) == 0L || length(e$pos) == 0L) {
+      next
+    }
+    pos <- uv$pos[[g]]
+    X <- int$lavdata@X[[g]]
+    t_full <- lavmodel@GLIST[[e$mm]][e$pos]
+    t_minus <- if (anyNA(X)) {
+      loso_t_jackknife(X, int$lavsamplestats@missing.h1[[g]], t_full, e$rc, pos)
+    } else {
+      loso_t_downdates(X, t_full, e$rc, pos)
+    }
+    if (is.null(t_minus)) {
+      # nocov start
+      cli_warn(c(
+        "Could not recompute the fixed covariances of the composite indicators
+         without each unit.",
+        "i" = "The LOO and WAIC treat them as known, which makes them optimistic
+               by about one nat per fixed (co)variance."
+      ))
+      return(NULL)
+      # nocov end
+    }
+    Yg <- dv$Y[[g]][pos, , drop = FALSE]
+    l_minus <- vapply(
+      seq_along(pos),
+      function(r) {
+        lavmodel_u <- lavmodel
+        lavmodel_u@GLIST[[e$mm]][e$pos] <- t_minus[r, ]
+        lavmodel_u <- lavaan::lav_model_set_parameters(lavmodel_u, cache$x)
+        loso_loglik_all(
+          Yg[r, , drop = FALSE],
+          loo_implied_moments(lavmodel_u)[[g]]
+        )
+      },
+      numeric(1)
+    )
+    out[rows] <- loso_loglik_all(Yg, cache$mom[[g]]) - l_minus
+  }
+  out
+}
+
+# The fixed composite indicator entries t_full of a group without each of its
+# units at rows pos of its data X, one row per unit. t_full is the sample
+# covariance at the positions rc (divisor n, as lavaan fixes it), so dropping a
+# unit is a rank-one downdate to the sample covariance of the other n - 1.
+loso_t_downdates <- function(X, t_full, rc, pos) {
+  n <- nrow(X)
+  D <- sweep(X[pos, , drop = FALSE], 2L, colMeans(X), "-")
+  dd <- D[, rc[, 1L], drop = FALSE] * D[, rc[, 2L], drop = FALSE]
+  sweep(-n / (n - 1) * dd, 2L, n * t_full, "+") / (n - 1)
+}
+
+# loso_t_downdates() for a group with missing values. lavaan then fixes the
+# entries from its saturated estimates, whose change without a unit has no
+# closed form, so the change is taken as one Newton step from the EM estimate h1
+# (the jackknife to first order): theta_(-u) = theta + n / (n - 1) H^-1 s_u,
+# with s_u the unit's observed-data score and H the Hessian of the saturated
+# log-likelihood over the n units, both in (mu, vech Sigma) coordinates, and
+# (n - 1) / n H standing in for the Hessian without the unit. The step is added
+# to the fixed entries. Returns NULL when H is not negative definite.
+loso_t_jackknife <- function(X, h1, t_full, rc, pos) {
+  if (is.null(h1$sigma)) {
+    return(NULL) # nocov
+  }
+  p <- ncol(X)
+  n_par <- p + p * (p + 1L) / 2L
+  as_mom <- function(th) {
+    list(
+      mu = th[seq_len(p)],
+      Sigma = lavaan::lav_matrix_vech_reverse(th[-seq_len(p)])
+    )
+  }
+  # Rows with nothing observed add nothing to the likelihood
+  X_obs <- X[rowSums(!is.na(X)) > 0L, , drop = FALSE]
+  n <- nrow(X_obs)
+  total_score <- function(th) colSums(fiml_scores_mu_vech(X_obs, as_mom(th)))
+  th <- c(h1$mu, lavaan::lav_matrix_vech(h1$sigma))
+  H <- matrix(0, n_par, n_par)
+  for (k in seq_len(n_par)) {
+    h <- 1e-5 * max(1, abs(th[k]))
+    th_plus <- th_minus <- th
+    th_plus[k] <- th[k] + h
+    th_minus[k] <- th[k] - h
+    H[, k] <- (total_score(th_plus) - total_score(th_minus)) / (2 * h)
+  }
+  neg_H_chol <- tryCatch(chol(-0.5 * (H + t(H))), error = function(e) NULL)
+  if (is.null(neg_H_chol)) {
+    return(NULL)
+  }
+  scores <- fiml_scores_mu_vech(X[pos, , drop = FALSE], as_mom(th))
+  step <- -n / (n - 1) * scores %*% chol2inv(neg_H_chol)
+  cols <- p + vech_idx(rc[, 1L], rc[, 2L], p)
+  sweep(step[, cols, drop = FALSE], 2L, t_full, "+")
+}
+
 # Positions and frozen blocks needed for the two-level covariate marginal:
 # z = cluster-level (between-only) covariates, v = within-side covariates
 # (with or without a between presence). Each v column is handled on its own:
@@ -1330,6 +1449,7 @@ inlav_loo <- function(
     )
   }
   unit_group <- NULL # group of each scored unit; multigroup LOSO only
+  t_delta <- NULL # T-deletion term; single-level LOSO with composites only
   if (type == "loso" && two_level && isTRUE(int$lavsamplestats@missing.flag)) {
     # Per-row deletion under FIML: each row's conditional density via the
     # missing kernel, dropping the raw row and rebuilding its pattern object
@@ -1405,6 +1525,7 @@ inlav_loo <- function(
     if (flavour == "conditional") {
       l_star <- l_star - loso_fixedx_const_units(int, uv, dv, cache$mom)
     }
+    t_delta <- loso_t_deletion_units(int, uv, dv, cache)
     s_mat <- loso_scores_units(theta, uv, dv, lavmodel, pt, cache = cache)
     score_fn <- function(th_act) {
       th <- theta
@@ -1522,6 +1643,12 @@ inlav_loo <- function(
     k_ssq = vapply(raw, `[[`, numeric(1), "k_ssq"),
     ok = vapply(raw, `[[`, logical(1), "ok")
   )
+  # Composite indicator (co)variances re-fixed without each unit
+  if (!is.null(t_delta)) {
+    per_unit$log_cpo_1 <- per_unit$log_cpo_1 - t_delta
+    per_unit$log_cpo_2 <- per_unit$log_cpo_2 - t_delta
+    per_unit$t_delta <- t_delta
+  }
   per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
 
   # loo-style SE of a total: sqrt(n * var(pointwise)), with n the number of
@@ -1742,6 +1869,11 @@ waic_from_taylor <- function(res) {
   } else {
     p_waic <- quad
     lpd <- pu$lpd_1
+  }
+  # The T-deletion term of a composite fit (see loso_t_deletion_units()). It
+  # keeps lpd_1 - p_waic_1 = log_cpo_1.
+  if (!is.null(pu$t_delta)) {
+    p_waic <- p_waic + pu$t_delta
   }
   elpd_waic_u <- lpd - p_waic
 
