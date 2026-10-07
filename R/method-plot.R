@@ -51,6 +51,16 @@ plot.inlavaan_internal <- function(
         "i" = "Its draws are constant or could not be computed."
       ))
     }
+    # Fixed rows, and those lavaan derives from the free parameters such as the
+    # variance and intercept of a composite.
+    not_free <- intersect(bad, pt$names[pt$free == 0L])
+    if (length(not_free) > 0) {
+      cli_abort(c(
+        "No posterior density to plot for {.code {not_free}}.",
+        "i" = "{cli::qty(length(not_free))}{?It is/They are} fixed or derived
+               from the free parameters."
+      ))
+    }
     if (length(bad) > 0) {
       # nocov start
       stop(
