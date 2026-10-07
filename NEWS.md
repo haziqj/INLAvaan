@@ -22,6 +22,12 @@
 
 * Multigroup models with `missing = "ml"` gave wrong posteriors.
 
+* `loo()` and `waic()` gave wrong values for complete-data two-level models in
+  which the two levels list the variables in different orders, for example
+  when a regression appears at one level only.
+
+* `compare()` failed when a model was given as a long call.
+
 * `sampling(prior = TRUE)` with `type = "observed"` or `type = "all"` rejected
   every draw in models with an observed outcome or covariate.
 
