@@ -187,7 +187,8 @@ check_composite_derived <- function(pt) {
 # fixes the free rows that share the label, and a constraint that uses it would
 # hold a parameter at the value of the start weights. lavaan ties rows by their
 # effective label, the user's label or else lhs op rhs (with .gN in a later
-# group), so equal("C~~C") on another row ties it as well.
+# group and .lN, or .lname, in a later level), so equal("C~~C") on another row
+# ties it as well.
 check_composite_labels <- function(pt) {
   rows <- composite_derived_rows(pt)
   if (length(rows) == 0L) {
@@ -195,13 +196,13 @@ check_composite_labels <- function(pt) {
   }
   is_con <- pt$op %in% c("==", "<", ">", ":=")
   group <- if (is.null(pt$group)) rep(1L, length(pt$lhs)) else pt$group
+  suffix <- ifelse(group > 1L, paste0(".g", group), "")
+  if (!is.null(pt$level)) {
+    later <- partable_level_index(pt) > 1L
+    suffix[later] <- paste0(suffix[later], ".l", pt$level[later])
+  }
   eff <- pt$label
-  default <- paste0(
-    pt$lhs,
-    pt$op,
-    pt$rhs,
-    ifelse(group > 1L, paste0(".g", group), "")
-  )
+  default <- paste0(pt$lhs, pt$op, pt$rhs, suffix)
   eff[!nzchar(eff)] <- default[!nzchar(eff)]
   others <- setdiff(which(!is_con), rows)
   tied <- intersect(eff[rows], eff[others])
