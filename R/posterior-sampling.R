@@ -370,14 +370,14 @@ ppp_composite_draw <- function(
   }
   # lavaan re-derives the composite variances from the replaced block, and the
   # draw is rescaled to follow them.
-  x_rep <- composite_rescale_x(
+  x_rows <- composite_rescale_x(
     xx,
     lavmodel_x,
     lavaan::lav_model_set_parameters(lavmodel_rep, xx),
     scale_plan
   )
   implied_rep <- lavaan::lav_model_implied(
-    lavaan::lav_model_set_parameters(lavmodel_rep, x_rep)
+    composite_set_rows(lavmodel_rep, x_rows, scale_plan)
   )
 
   Trep <- 0
@@ -408,7 +408,8 @@ ppp_composite_draw <- function(
 # set by a fixed loading (its marker) takes the marker's scale, which then
 # reaches its variance, its other loadings, its covariances and the paths out of
 # it. Observed variables keep their scale. lavmodel_x and lavmodel_rep_x are the
-# model at xx with the observed and the replicate blocks.
+# model at xx with the observed and the replicate blocks. Returns the rescaled
+# draw by parameter table row (see composite_set_rows()).
 composite_rescale_x <- function(xx, lavmodel_x, lavmodel_rep_x, scale_plan) {
   s <- composite_scales(lavmodel_x, lavmodel_rep_x, scale_plan)
   s_lhs <- s[scale_plan$lhs]
@@ -421,9 +422,18 @@ composite_rescale_x <- function(xx, lavmodel_x, lavmodel_rep_x, scale_plan) {
   mult[op == "~~"] <- (s_lhs * s_rhs)[op == "~~"]
   mult[op == "=~"] <- (s_rhs / s_lhs)[op == "=~"]
   mult[op == "~"] <- (s_lhs / s_from)[op == "~"]
-  x_rep <- xx
-  x_rep[scale_plan$x_idx] <- xx[scale_plan$x_idx] * mult
-  x_rep
+  x_rows <- numeric(scale_plan$n_rows)
+  x_rows[scale_plan$rows] <- xx[scale_plan$x_idx] * mult
+  x_rows
+}
+
+# lavmodel at a draw given by parameter table row (x_rows) instead of the packed
+# x. Rows held equal share a free index and so one entry of x, but the rescaled
+# draw can need a different value for each, as for a covariance held equal
+# across groups whose composites change scale by different amounts.
+composite_set_rows <- function(lavmodel, x_rows, scale_plan) {
+  lavmodel@x.free.idx <- scale_plan$x_free_rows
+  lavaan::lav_model_set_parameters(lavmodel, x_rows)
 }
 
 # The scale in a replicate of each composite, sqrt(w'T_rep w / w'T w) at the
@@ -466,11 +476,9 @@ composite_scales <- function(lavmodel_x, lavmodel_rep_x, scale_plan) {
 # block: the GLIST indices of wmat and theta, the composites and their columns
 # in wmat, and each factor whose scale is set by a fixed loading (its marker)
 # because its (residual) variance is free. A factor with a fixed variance (as
-# under std.lv) keeps its scale. Then, for each entry of the packed x, the
-# parameter table row that owns it. Parameters held equal share a free index and
-# so one entry of x, which takes the multiplier of its owner (the first row)
-# even when the other rows would need another one, as for a covariance held
-# equal across groups. `pt` is lavaan's parameter table.
+# under std.lv) keeps its scale. Then the free rows of the parameter table with
+# their entries in the packed x, and the row of each free position in GLIST
+# (x_free_rows, for composite_set_rows()). `pt` is lavaan's parameter table.
 composite_scale_plan <- function(lavmodel, pt) {
   nmat <- lavmodel@nmat
   offset <- cumsum(c(0L, nmat))
@@ -498,20 +506,27 @@ composite_scale_plan <- function(lavmodel, pt) {
       markers = pt$rhs[marker]
     )
   })
-  own <- which(pt$free > 0L & !duplicated(pt$free))
+  rows <- which(pt$free > 0L)
   comp_keys <- unlist(lapply(seq_along(blocks), function(b) {
     paste(blocks[[b]]$comps, b)
   }))
-  lhs <- paste(pt$lhs[own], pt$block[own])
-  rhs <- paste(pt$rhs[own], pt$block[own])
+  lhs <- paste(pt$lhs[rows], pt$block[rows])
+  rhs <- paste(pt$rhs[rows], pt$block[rows])
   list(
     blocks = blocks,
-    x_idx = pt$free[own],
-    op = pt$op[own],
+    rows = rows,
+    n_rows = length(pt$lhs),
+    x_idx = pt$free[rows],
+    op = pt$op[rows],
     lhs = lhs,
     rhs = rhs,
     lhs_comp = lhs %in% comp_keys,
-    rhs_comp = rhs %in% comp_keys
+    rhs_comp = rhs %in% comp_keys,
+    x_free_rows = lapply(seq_along(lavmodel@GLIST), function(mm) {
+      lavmodel@x.user.idx[[mm]][
+        match(lavmodel@m.free.idx[[mm]], lavmodel@m.user.idx[[mm]])
+      ]
+    })
   )
 }
 

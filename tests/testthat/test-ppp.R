@@ -185,13 +185,14 @@ replicate_moments <- function(fit, s_rep) {
   lavmodel_rep <- lavmodel
   lavmodel_rep@GLIST[[e$mm]][e$pos] <- s_rep[e$rc]
   x <- lavaan::lav_model_get_parameters(lavmodel)
-  x_rep <- composite_rescale_x(
+  plan <- composite_scale_plan(lavmodel, fit@ParTable)
+  x_rows <- composite_rescale_x(
     x,
     lavaan::lav_model_set_parameters(lavmodel, x),
     lavaan::lav_model_set_parameters(lavmodel_rep, x),
-    composite_scale_plan(lavmodel, fit@ParTable)
+    plan
   )
-  m_rep <- lavaan::lav_model_set_parameters(lavmodel_rep, x_rep)
+  m_rep <- composite_set_rows(lavmodel_rep, x_rows, plan)
   psi <- m_rep@GLIST$psi
   ib_inv <- solve(diag(nrow(psi)) - m_rep@GLIST$beta)
   list(
