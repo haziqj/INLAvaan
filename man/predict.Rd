@@ -22,15 +22,18 @@
 \item{type}{Character string specifying the type of prediction:
 \describe{
 \item{\code{"lv"}}{(default) Posterior draws of latent variable scores
-\eqn{\eta | y, \theta}.}
+\eqn{\eta | y, \theta}. A composite (\code{<~}) score is the weighted
+sum of its indicators (centred without a mean structure).}
 \item{\code{"yhat"}, \code{"ov"}}{Predicted means for observed variables
 \eqn{E(y | \eta, \theta) = \nu + \Lambda \eta}; no residual noise. An
-observed outcome is predicted from its regressors.}
+observed outcome is predicted from its regressors, and an indicator of
+a composite from the composite.}
 \item{\code{"ypred"}, \code{"ydist"}}{Predicted observed values including
 residual noise \eqn{y = \nu + \Lambda \eta + \varepsilon},
 \eqn{\varepsilon \sim N(0, \Theta)}, with the residual variances that
 \code{lavInspect(fit, "theta")} reports (observed outcomes included,
-observed covariates excluded).}
+observed covariates excluded). The drawn indicators of a composite
+keep its weighted sum.}
 \item{\code{"ymis"}, \code{"ovmis"}}{Imputed values for missing
 observations, drawn from the conditional distribution
 \eqn{y_{mis} | y_{obs}, \theta}.}
