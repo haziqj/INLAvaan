@@ -69,6 +69,8 @@ navbar:
         href: articles/cfa.html
       - text: Structural equation modelling
         href: articles/sem.html
+      - text: Composites
+        href: articles/composites.html
       - text: Latent growth curve models
         href: articles/growth.html
       - text: Equality constraints

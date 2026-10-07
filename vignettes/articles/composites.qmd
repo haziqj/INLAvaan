@@ -1,0 +1,106 @@
+---
+title: 'Composites'
+description: >
+  Composite variables with lavaan's `<~` operator: what they are, how they
+  differ from defined parameters, and how INLAvaan fits them.
+vignette: >
+  %\VignetteIndexEntry{Composites}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+bibliography: ../refs.bib
+toc: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(INLAvaan)
+library(lavaan)
+set.seed(2026)
+```
+
+## What is a composite?
+
+A composite is a weighted sum of observed variables. In lavaan syntax,
+`C <~ x1 + x2 + x3` defines
+$$
+C_i = w_1 x_{i1} + w_2 x_{i2} + w_3 x_{i3} = \mathbf w^\top \mathbf x_i ,
+$$
+with the weights estimated and the first fixed at 1 to set the scale. Unlike a
+common factor, a composite has no disturbance term. That is, it summarises its
+indicators instead of explaining them.
+
+A composite is not a defined parameter either. A `:=` parameter such as
+`ind := a*b` is a function of the parameters---one value per posterior draw,
+with no effect on the likelihood. A composite has a value for every person,
+and it changes the model-implied covariance matrix
+$\boldsymbol\Sigma(\boldsymbol\theta)$ through its weights.
+
+## One outcome or several
+
+With a single outcome, the composite model is a regression in disguise:
+`C <~ x1 + x2 + x3; x4 ~ C` fits exactly as `x4 ~ x1 + x2 + x3` does, with
+slope $\gamma_1$ on $C$ and weights $w_j = \gamma_j / \gamma_1$. Further
+outcomes see the indicators only through $C$, so their regression coefficients
+on the indicators must be proportional. Each extra outcome adds $p - 1$
+degrees of freedom for $p$ indicators, and the model below has two.
+
+## Not PLS-SEM
+
+Partial least squares path modelling (PLS-SEM) is Wold's iterative estimation
+algorithm, which has no likelihood. lavaan instead fits the composite model of
+@dijkstra2017perfect by maximum likelihood, the same model that the
+Henseler--Ogasawara specification [@schuberth2023henselerogasawara] reaches
+through latent variables. INLAvaan puts priors on this likelihood, so the
+result is Bayesian composite SEM, not Bayesian PLS.
+
+## An example
+
+We regress two verbal tests of the Holzinger and Swineford data (`x4` and
+`x5`) on a composite of the three visual tests (`x1` to `x3`).
+
+```{r}
+model <- "
+  C <~ x1 + x2 + x3
+  x4 ~ C
+  x5 ~ C
+  x4 ~~ x5
+"
+utils::data("HolzingerSwineford1939", package = "lavaan")
+
+fit <- asem(model, HolzingerSwineford1939)
+summary(fit)
+```
+
+The marker `x1` is fixed at 1. The variance of `C` is not a parameter but the
+sample variance of $\mathbf w^\top \mathbf x$ at the posterior means, so it has
+no posterior SD. The posterior means sit close to lavaan's maximum likelihood
+estimates.
+
+```{r}
+fit_ml <- sem(model, HolzingerSwineford1939)
+round(cbind(INLAvaan = coef(fit), lavaan = coef(fit_ml)), 3)
+```
+
+## Practical notes
+
+- **Order the indicators.** The other weights are ratios to the marker, so
+  list first the indicator with the largest expected weight. A marker with a
+  weight near zero leaves the rest poorly determined.
+- **Higher-order means.** A composite's mean is fixed by the means of its
+  indicators, so a latent variable measured only through composites needs its
+  mean fixed at zero; INLAvaan stops with an error otherwise. For growth
+  models on composites, use `asem()` with `meanstructure = TRUE` instead of
+  `agrowth()`.
+- **Model comparison.** As in lavaan, the covariances of each composite's
+  indicators are fixed at their sample values, so marginal likelihoods and the
+  DIC compare only models with the same composites.
+- **Limits.** Composites are supported in single-level models with continuous
+  data, in one or more groups. Two-level models, ordinal data and
+  `composites.cov = "free"` stop with an error.
+
+## References
