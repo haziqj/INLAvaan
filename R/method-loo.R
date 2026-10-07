@@ -56,6 +56,10 @@
 #' `flavour` field), and the two flavours are never comparable ([compare()]
 #' refuses to mix them).
 #'
+#' For composites (`<~`), lavaan fixes the (co)variances of the indicators at
+#' their sample values. Each unit is scored with them recomputed without it (to
+#' first order under missing data), so `p_loo` counts them as parameters.
+#'
 #' Supplying `theta`/`Omega` evaluates the LOO at an arbitrary Gaussian
 #' posterior summary (a singular `Omega` is restricted to its non-degenerate
 #' block), the building block for refit-free submodel scoring. `Sigma` is
@@ -120,6 +124,9 @@
 #'           the closed-form [waic()] penalty.}
 #'         \item{`ok`}{Whether the second-order \eqn{\log \mathrm{CPO}}
 #'           exists.}
+#'         \item{`t_delta`}{Composite fits only: the drop in \eqn{\ell_u}
+#'           when the fixed indicator (co)variances are recomputed without the
+#'           unit, already subtracted from the log CPO terms.}
 #'       }}
 #'     \item{`estimates`}{Matrix with rows `elpd_loo`, `p_loo`, `looic` and
 #'       columns `Estimate`, `SE`, at the highest order available to each.}

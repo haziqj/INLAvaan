@@ -45,6 +45,8 @@
 #' The same model restrictions as [loo()] apply, and so does the flavour
 #' rule: fits with `fixed.x = TRUE` are scored conditionally on the
 #' exogenous covariates, fits with `fixed.x = FALSE` jointly (see [loo()]).
+#' For composites, \eqn{p_{\mathrm{waic}}} also counts the indicator
+#' (co)variances that lavaan fixes at their sample values, as `p_loo` does.
 #'
 #' **Marginal vs conditional WAIC (two-level models).** The default
 #' per-cluster scoring is the *marginal* WAIC, which corresponds to

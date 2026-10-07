@@ -118,6 +118,8 @@ existence is the only condition the package acts on.
 The same model restrictions as \code{\link[=loo]{loo()}} apply, and so does the flavour
 rule: fits with \code{fixed.x = TRUE} are scored conditionally on the
 exogenous covariates, fits with \code{fixed.x = FALSE} jointly (see \code{\link[=loo]{loo()}}).
+For composites, \eqn{p_{\mathrm{waic}}} also counts the indicator
+(co)variances that lavaan fixes at their sample values, as \code{p_loo} does.
 
 \strong{Marginal vs conditional WAIC (two-level models).} The default
 per-cluster scoring is the \emph{marginal} WAIC, which corresponds to

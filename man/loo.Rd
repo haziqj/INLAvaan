@@ -99,6 +99,9 @@ Details).}
 the closed-form \code{\link[=waic]{waic()}} penalty.}
 \item{\code{ok}}{Whether the second-order \eqn{\log \mathrm{CPO}}
 exists.}
+\item{\code{t_delta}}{Composite fits only: the drop in \eqn{\ell_u}
+when the fixed indicator (co)variances are recomputed without the
+unit, already subtracted from the log CPO terms.}
 }}
 \item{\code{estimates}}{Matrix with rows \code{elpd_loo}, \code{p_loo}, \code{looic} and
 columns \code{Estimate}, \code{SE}, at the highest order available to each.}
@@ -176,6 +179,10 @@ covariates, i.e. joint under \code{fixed.x = FALSE}, conditional under
 \code{fixed.x = TRUE} (recorded as \code{"joint"} or \code{"conditional"} in the result's
 \code{flavour} field), and the two flavours are never comparable (\code{\link[=compare]{compare()}}
 refuses to mix them).
+
+For composites (\verb{<~}), lavaan fixes the (co)variances of the indicators at
+their sample values. Each unit is scored with them recomputed without it (to
+first order under missing data), so \code{p_loo} counts them as parameters.
 
 Supplying \code{theta}/\code{Omega} evaluates the LOO at an arbitrary Gaussian
 posterior summary (a singular \code{Omega} is restricted to its non-degenerate
