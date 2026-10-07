@@ -107,9 +107,9 @@ round(cbind(INLAvaan = coef(fit), lavaan = coef(fit_ml)), 3)
   default, with $\boldsymbol\Theta_x$ fixed at the sample covariances. Every
   posterior is then conditional on it, and marginal likelihoods and the DIC
   compare only models with the same composites.
-- **Limits.** Composites are supported in single-level models with continuous
-  data, in one or more groups. Two-level models, ordinal data and covariances
-  between the indicators of a composite and other variables stop with an
-  error.
+- **Limits.** Composites are supported with continuous data, in one or more
+  groups or at either level of a two-level model. Two-level models need the
+  default `composites.cov = "free"`. Ordinal data and covariances between the
+  indicators of a composite and other variables stop with an error.
 
 ## References

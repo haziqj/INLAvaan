@@ -3,7 +3,8 @@
 ## New features
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
-  in single-level models with continuous data and one or more groups. They work
+  with continuous data, in one or more groups or at either level of a two-level
+  model. They work
   with the fit measures, `loo()`, `compare()`, `predict()` and `sampling()`,
   and `summary()` gives posterior summaries for the variance and intercept of
   each composite. Free weights have the new default prior
@@ -12,8 +13,8 @@
   `composites.cov = "fixed"` fixes them at their sample values. See the new
   article on composites.
 
-* Composite models that INLAvaan cannot fit yet stop with an error: two-level
-  models and ordinal data. So do composite
+* Composite models that INLAvaan cannot fit yet stop with an error: ordinal
+  data, and `composites.cov = "fixed"` in two-level models. So do composite
   specifications that cannot be estimated as written, such as a free latent
   mean that only composites measure (as in `agrowth()` on composites).
 
