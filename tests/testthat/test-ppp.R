@@ -240,3 +240,42 @@ test_that("Replicates keep the standardised relations of composites", {
     tolerance = 1e-5
   )
 })
+
+# A covariance held equal across groups has one entry in the packed x, but the
+# composites change scale by different amounts in each group.
+test_that("Replicates keep each group's correlation of composites", {
+  dat_mg <- dat_two
+  dat_mg$g <- rep(1:2, each = 150)
+  fit <- lavaan::sem(
+    mod_two,
+    dat_mg,
+    group = "g",
+    group.equal = "lv.covariances",
+    ceq.simple = TRUE
+  )
+  lavmodel <- fit@Model
+  t_fixed <- composite_fixed_t(lavmodel, fit@ParTable, fit@Data)
+  lavmodel_rep <- lavmodel
+  set.seed(4)
+  for (g in 1:2) {
+    s_rep <- stats::rWishart(1, 149, fit@SampleStats@cov[[g]])[,, 1] / 149
+    e <- t_fixed[[g]]
+    lavmodel_rep@GLIST[[e$mm]][e$pos] <- s_rep[e$rc]
+  }
+  x <- lavaan::lav_model_get_parameters(lavmodel)
+  plan <- composite_scale_plan(lavmodel, fit@ParTable)
+  m_obs <- lavaan::lav_model_set_parameters(lavmodel, x)
+  x_rows <- composite_rescale_x(
+    x,
+    m_obs,
+    lavaan::lav_model_set_parameters(lavmodel_rep, x),
+    plan
+  )
+  m_rep <- composite_set_rows(lavmodel_rep, x_rows, plan)
+  composite_cor <- function(m, g) {
+    cov2cor(m@GLIST[names(m@GLIST) == "psi"][[g]])[1:2, 1:2]
+  }
+  for (g in 1:2) {
+    expect_equal(composite_cor(m_rep, g), composite_cor(m_obs, g))
+  }
+})
