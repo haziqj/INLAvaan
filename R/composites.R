@@ -224,3 +224,48 @@ check_composite_means <- function(pt, lavoptions = NULL) {
     hint
   ))
 }
+
+# Start values for the free weights. lavaan starts every weight at 1, and from
+# there the optimiser can settle in a poor local mode when the best weights
+# have signs opposite to the marker's. Under the composite model
+# T^-1 Cov(x, y) = w a' for the indicators x and every other observed variable
+# y, so the first left singular vector of T^-1 S_xy, scaled to the marker, is a
+# moment estimate of w. A composite keeps lavaan's starts when this is not
+# finite or runs beyond 100.
+composite_start_weights <- function(pt, lavsamplestats, lavdata) {
+  parstart <- pt$parstart
+  is_w <- pt$op == "<~"
+  if (!any(is_w) || lavdata@nlevels > 1L) {
+    return(parstart)
+  }
+  for (g in seq_len(lavdata@ngroups)) {
+    S <- lavsamplestats@cov[[g]]
+    h1 <- lavsamplestats@missing.h1
+    if (length(h1) >= g && !is.null(h1[[g]]$sigma)) {
+      S <- h1[[g]]$sigma
+    }
+    ovn <- lavdata@ov.names[[g]]
+    for (cname in unique(pt$lhs[is_w & pt$group == g])) {
+      wrows <- which(is_w & pt$lhs == cname & pt$group == g)
+      ind <- match(pt$rhs[wrows], ovn)
+      others <- setdiff(seq_along(ovn), ind)
+      marker <- which(pt$free[wrows] == 0L & pt$ustart[wrows] %in% 1)[1L]
+      if (length(others) == 0L || anyNA(ind) || is.na(marker)) {
+        next
+      }
+      u <- tryCatch(
+        svd(solve(S[ind, ind], S[ind, others, drop = FALSE]))$u[, 1L],
+        error = function(e) NULL
+      )
+      if (is.null(u)) {
+        next
+      }
+      w <- u / u[marker]
+      free <- pt$free[wrows] > 0L
+      if (all(is.finite(w)) && max(abs(w)) <= 100) {
+        parstart[wrows[free]] <- w[free]
+      }
+    }
+  }
+  parstart
+}

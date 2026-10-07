@@ -308,6 +308,7 @@ inlavaan <- function(
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
   check_packed_kinds(pt)
   check_composite_means(pt, lavoptions)
+  pt$parstart <- composite_start_weights(pt, lavsamplestats, lavdata)
   PTFREEIDX <- which(pt$free > 0L)
   if (isTRUE(ceq.simple)) {
     # Note: Always work in the reduced space
