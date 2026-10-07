@@ -19,6 +19,7 @@ get_SEM_param_matrix <- function(x, mat, lavmodel) {
     idx <- ((g - 1) * k + 1):(g * k)
     out[[g]] <- GLIST[idx]
     names(out[[g]]) <- uniq_names
+    out[[g]] <- composite_as_lisrel(out[[g]])
   }
 
   if (mat == "all" | mat == "GLIST") {
@@ -26,6 +27,42 @@ get_SEM_param_matrix <- function(x, mat, lavmodel) {
   } else {
     return(lapply(out, function(glist) glist[[mat]]))
   }
+}
+
+# lavaan keeps a composite C <~ w'x outside the LISREL formulas: its column of
+# Lambda is zero, its weights are in wmat, and the covariance T of its
+# indicators is in Theta. Each composite becomes an ordinary latent variable
+# here, so that the usual formulas give lavaan's implied moments. Its indicators
+# load A = T W (W'TW)^-1 on it and keep the residual covariance T - A W'T, which
+# is singular along W, so W'x is the composite exactly. Their intercepts drop by
+# A E(C), which keeps the implied means. The composite columns are returned in
+# attribute "composite_idx".
+composite_as_lisrel <- function(glist) {
+  W <- glist$wmat
+  glist$wmat <- NULL
+  if (is.null(W) || all(W == 0)) {
+    return(glist)
+  }
+  ind_idx <- which(rowSums(W != 0) > 0L)
+  comp_idx <- which(colSums(W != 0) > 0L)
+  W <- W[, comp_idx, drop = FALSE]
+  TW <- matrix(0, nrow(W), ncol(W))
+  TW[ind_idx, ] <- glist$theta[ind_idx, ind_idx, drop = FALSE] %*%
+    W[ind_idx, , drop = FALSE]
+  A <- TW %*% solve(crossprod(W, TW))
+  glist$lambda[, comp_idx] <- glist$lambda[, comp_idx] + A
+  theta <- glist$theta - tcrossprod(A, TW)
+  glist$theta[] <- (theta + t(theta)) / 2
+  if (!is.null(glist$nu) && !is.null(glist$alpha)) {
+    eeta <- if (is.null(glist$beta)) {
+      glist$alpha
+    } else {
+      solve(diag(nrow(glist$beta)) - glist$beta, glist$alpha)
+    }
+    glist$nu[] <- glist$nu - A %*% eeta[comp_idx, , drop = FALSE]
+  }
+  attr(glist, "composite_idx") <- comp_idx
+  glist
 }
 
 # For factor scores, there is the plugin marginal_method and sampling
@@ -66,11 +103,14 @@ eta_intercepts <- function(alpha, glist, front, dummy, ybar) {
 # succeeds. A zero variance, such as a residual variance fixed to zero or a
 # latent variable pinned down by its indicators, makes S singular, and then L
 # comes from the eigendecomposition with negligible or negative eigenvalues set
-# to zero.
-psd_root <- function(S, tol = sqrt(.Machine$double.eps)) {
-  L <- tryCatch(t(chol(S)), error = function(e) NULL)
-  if (!is.null(L)) {
-    return(L)
+# to zero. A matrix that is singular by design (singular = TRUE) skips chol(),
+# which can succeed after rounding and then leak noise into the null space.
+psd_root <- function(S, tol = sqrt(.Machine$double.eps), singular = FALSE) {
+  if (!singular) {
+    L <- tryCatch(t(chol(S)), error = function(e) NULL)
+    if (!is.null(L)) {
+      return(L)
+    }
   }
   e <- eigen((S + t(S)) / 2, symmetric = TRUE)
   d <- e$values
@@ -79,10 +119,12 @@ psd_root <- function(S, tol = sqrt(.Machine$double.eps)) {
 }
 
 # Draw each row of eta | y from N(mu_eta, V_eta). A dummy latent variable is its
-# observed variable, so it has zero conditional variance. Only the other columns
-# are drawn, and the dummy columns take the data values, as in lavaan.
-draw_eta <- function(mu_eta, V_eta, y, dummy) {
-  keep <- setdiff(seq_len(ncol(mu_eta)), dummy$lv)
+# observed variable, and a composite (columns `composite`) is a weighted sum of
+# its indicators, so both have zero conditional variance. Only the other columns
+# are drawn. The composites keep their conditional mean and the dummy columns
+# take the data values, as in lavaan.
+draw_eta <- function(mu_eta, V_eta, y, dummy, composite = NULL) {
+  keep <- setdiff(seq_len(ncol(mu_eta)), c(dummy$lv, composite))
   out <- mu_eta
   if (length(keep) > 0L) {
     chol_V <- psd_root(V_eta[keep, keep, drop = FALSE])
@@ -101,11 +143,13 @@ draw_eta <- function(mu_eta, V_eta, y, dummy) {
 # observed variable of the block. lavaan keeps the residual variance of an
 # observed outcome in Psi of its dummy latent variable, with zero Theta, so the
 # indicators draw from Theta and the observed outcomes from Psi. Observed
-# covariates get none.
-draw_residuals <- function(n, Theta, Psi, lavmodel, b) {
-  draw <- function(S) {
+# covariates get none. Theta is singular by design when it holds composite
+# indicators (see composite_as_lisrel()).
+draw_residuals <- function(n, Theta, Psi, lavmodel, b, singular = FALSE) {
+  draw <- function(S, singular = FALSE) {
     k <- nrow(S)
-    t(psd_root(S) %*% matrix(rnorm(n * k), nrow = k, ncol = n))
+    L <- psd_root(S, singular = singular)
+    t(L %*% matrix(rnorm(n * k), nrow = k, ncol = n))
   }
   ov_y <- lavmodel@ov.y.dummy.ov.idx[[b]]
   lv_y <- lavmodel@ov.y.dummy.lv.idx[[b]]
@@ -113,7 +157,7 @@ draw_residuals <- function(n, Theta, Psi, lavmodel, b) {
   ind <- setdiff(seq_len(nrow(Theta)), c(ov_y, ov_x))
   eps <- matrix(0, n, nrow(Theta))
   if (length(ind) > 0L) {
-    eps[, ind] <- draw(Theta[ind, ind, drop = FALSE])
+    eps[, ind] <- draw(Theta[ind, ind, drop = FALSE], singular)
   }
   if (length(lv_y) > 0L) {
     eps[, ov_y] <- draw(Psi[lv_y, lv_y, drop = FALSE])
@@ -572,7 +616,13 @@ predict.inlavaan_internal <- function(
           }
 
           V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
-          outg <- draw_eta(mu_eta, V_eta, y[[g]], dummy)
+          outg <- draw_eta(
+            mu_eta,
+            V_eta,
+            y[[g]],
+            dummy,
+            attr(glist, "composite_idx")
+          )
 
           out[[g]] <- outg
         }
@@ -767,7 +817,13 @@ predict.inlavaan_internal <- function(
             mu_eta <- mu_eta + eta_x
           }
           V_eta <- Phi - PhiLtSinv %*% Lambda %*% Phi
-          eta_draw <- draw_eta(mu_eta, V_eta, y[[g]], dummy)
+          eta_draw <- draw_eta(
+            mu_eta,
+            V_eta,
+            y[[g]],
+            dummy,
+            attr(glist, "composite_idx")
+          )
           n_obs <- nrow(mu_eta)
 
           # An observed endogenous variable carried as a dummy latent variable
@@ -790,7 +846,15 @@ predict.inlavaan_internal <- function(
 
           # Residual noise for ypred
           if (add_noise) {
-            yhat <- yhat + draw_residuals(n_obs, Theta, Psi, lavmodel, g)
+            yhat <- yhat +
+              draw_residuals(
+                n_obs,
+                Theta,
+                Psi,
+                lavmodel,
+                g,
+                singular = !is.null(attr(glist, "composite_idx"))
+              )
           }
 
           out[[g]] <- yhat

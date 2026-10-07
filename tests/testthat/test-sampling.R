@@ -248,6 +248,40 @@ test_that("Prior observed draws work with an observed outcome", {
   expect_error(theta_root(diag(c(2, -1)), strict = TRUE))
 })
 
+test_that("Composite draws are the weighted sums of their indicators", {
+  # Regression test: the implied moments and the observed draws ignored the
+  # composite weights, so the indicators of a composite were uncorrelated with
+  # everything else, and w'x of an observed draw did not match its C.
+  fit_c <- asem(
+    "C <~ x1 + x2 + x3\n x4 ~ C\n x5 ~ C\n x4 ~~ x5",
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 5,
+    vb_correction = FALSE,
+    test = "none",
+    marginal_method = "marggaus"
+  )
+  int <- get_inlavaan_internal(fit_c)
+  for (prior in c(FALSE, TRUE)) {
+    s <- sampling(fit_c, type = "all", nsamp = 5, prior = prior, silent = TRUE)
+    for (i in 1:5) {
+      implied <- lavaan::lav_model_implied(
+        lavaan::lav_model_set_parameters(int$lavmodel, s$lavaan[i, ])
+      )
+      expect_equal(s$implied[[i]]$cov, implied$cov[[1]], ignore_attr = TRUE)
+      expect_equal(
+        s$implied[[i]]$mean,
+        as.numeric(implied$mean[[1]]),
+        ignore_attr = TRUE
+      )
+    }
+    w <- cbind(1, s$lavaan[, c("C<~x2", "C<~x3")])
+    wx <- rowSums(w * s$observed[, c("x1", "x2", "x3")])
+    expect_equal(wx, s$latent[, "C"], tolerance = 1e-8, ignore_attr = TRUE)
+  }
+})
+
 ## ----- Two-level fits --------------------------------------------------------
 mod_ml <- "
   level: 1

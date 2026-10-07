@@ -233,16 +233,17 @@ chol_cov_block <- function(S, strict = FALSE) {
 
 # Root of the residual covariance Theta, which may be singular: an observed
 # outcome keeps its residual variance in Psi of its dummy latent variable, so
-# its row of Theta is zero. With strict = TRUE a Theta with a negative
-# eigenvalue throws, so that prior rejection sampling rejects the draw.
-theta_root <- function(Theta, strict = FALSE) {
+# its row of Theta is zero. Theta is singular by design when it holds composite
+# indicators (see composite_as_lisrel()). With strict = TRUE a Theta with a
+# negative eigenvalue throws, so that prior rejection sampling rejects the draw.
+theta_root <- function(Theta, strict = FALSE, singular = FALSE) {
   if (strict) {
     d <- eigen(Theta, symmetric = TRUE, only.values = TRUE)$values
     if (min(d) < -sqrt(.Machine$double.eps) * max(d, 0)) {
       stop("Theta is not positive semi-definite.")
     }
   }
-  psd_root(Theta)
+  psd_root(Theta, singular = singular)
 }
 
 # Whether the model-implied covariance matrix of every block is positive
@@ -339,7 +340,11 @@ draw_observed_block <- function(glist, eta, strict = FALSE) {
 
   lv <- seq_len(ncol(Lambda))
   mu_y <- as.numeric(Lambda %*% eta[lv] + nu)
-  root_Theta <- theta_root(Theta, strict)
+  root_Theta <- theta_root(
+    Theta,
+    strict,
+    singular = !is.null(attr(glist, "composite_idx"))
+  )
   y <- mu_y + as.numeric(root_Theta %*% stats::rnorm(length(mu_y)))
   y <- c(y, unname(eta[-lv]))
   names(y) <- block_ov_names(glist)

@@ -386,3 +386,58 @@ test_that("predict(type = 'ymis') imputes conditional.x fits", {
   # Imputations sit on the scale of x2, not that of the covariates
   expect_lt(abs(mean(v) - mean(dat_mis$x2, na.rm = TRUE)), 1)
 })
+
+# ---- Composites ----------------------------------------------------------
+
+# predict() with the posterior draws pinned at the rows of x_draws
+predict_with <- function(fit, x_draws, type = "lv") {
+  local_mocked_bindings(
+    sample_params_posterior = function(int, nsamp, ...) {
+      list(x_samp = x_draws[seq_len(nsamp), , drop = FALSE])
+    }
+  )
+  predict(fit, type = type, nsamp = nrow(x_draws))
+}
+
+test_that("Composite scores are the weighted sums of their indicators", {
+  # Regression test: predict() ignored the composite weights, so it predicted
+  # a composite from its outcomes, with noise. Each draw of C must be w'x for
+  # the weights w of that draw (centred without a mean structure), and the
+  # fitted and predicted indicators must keep w'x.
+  comp_mod <- "C <~ x1 + x2 + x3\n x4 ~ C\n x5 ~ C\n x4 ~~ x5"
+  X <- as.matrix(dat[, c("x1", "x2", "x3")])
+  for (ms in c(TRUE, FALSE)) {
+    fit <- fit_quick(comp_mod, meanstructure = ms)
+    draws <- rbind(coef(fit), coef(fit), coef(fit))
+    draws[2, "C<~x2"] <- 0.5
+    draws[3, "C<~x3"] <- -0.4
+    lv <- predict_with(fit, draws, "lv")
+    yhat <- predict_with(fit, draws, "yhat")
+    ypred <- predict_with(fit, draws, "ypred")
+    for (s in 1:3) {
+      w <- c(1, draws[s, c("C<~x2", "C<~x3")])
+      Xw <- as.numeric(X %*% w)
+      score <- if (ms) Xw else Xw - mean(Xw)
+      expect_equal(lv[[s]][, "C"], score, tolerance = 1e-8)
+      expect_equal(as.numeric(yhat[[s]][, 1:3] %*% w), Xw, tolerance = 1e-8)
+      expect_equal(as.numeric(ypred[[s]][, 1:3] %*% w), Xw, tolerance = 1e-8)
+    }
+  }
+})
+
+test_that("Scores of a factor linked to a composite match lavaan", {
+  comp_mod <- "C <~ x1 + x2 + x3\n F =~ x4 + x5 + x6\n F ~ C"
+  fit <- fit_quick(comp_mod, meanstructure = TRUE)
+  fit_lav <- lavaan::sem(comp_mod, dat, meanstructure = TRUE)
+  expect_equal(names(coef(fit)), names(coef(fit_lav)))
+  x_lav <- lavaan::lav_model_get_parameters(fit_lav@Model)
+  fs <- predict_at(fit, x_lav)
+  yhat <- predict_at(fit, x_lav, "yhat")
+  fs_lav <- lavaan::lavPredict(fit_lav)
+  yhat_lav <- lavaan::lavPredict(fit_lav, type = "ov")
+  expect_equal(fs[, "C"], fs_lav[, "C"], tolerance = 1e-8)
+  expect_lt(rel_err(fs[, "F"], fs_lav[, "F"]), 0.25)
+  for (v in c("x4", "x5", "x6")) {
+    expect_lt(rel_err(yhat[, v], yhat_lav[, v]), 0.25)
+  }
+})
