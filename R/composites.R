@@ -13,6 +13,28 @@ composite_derived_rows <- function(pt, include_free = FALSE) {
   )
 }
 
+# Posterior draws of the derived composite rows, one column per row, from the
+# draws of the lavaan-side parameters. lavaan derives these rows inside
+# lav_model_set_parameters(), so each draw goes through it.
+composite_derived_draws <- function(x_samp, pt, lavmodel) {
+  rows <- composite_derived_rows(pt)
+  draws <- vapply(
+    seq_len(nrow(x_samp)),
+    function(i) {
+      lavmodel_i <- lavaan::lav_model_set_parameters(lavmodel, x_samp[i, ])
+      lavaan::lav_model_get_parameters(
+        lavmodel_i,
+        type = "user",
+        extra = FALSE
+      )[rows]
+    },
+    numeric(length(rows))
+  )
+  draws <- matrix(draws, ncol = length(rows), byrow = TRUE)
+  colnames(draws) <- pt$names[rows]
+  draws
+}
+
 # The weight rows and the indicator covariance block T of each composite, per
 # group (or level), so that pars_to_x() can scale a covariance with a composite
 # by Var(C) = w'Tw at the current weights. lavaan fixes T at the sample

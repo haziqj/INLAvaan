@@ -1230,6 +1230,27 @@ inlavaan <- function(
       pdf_data[[def_name]] <- defpars[[def_name]]$pdf_data
     }
   }
+
+  # Composite variances and intercepts are functions of the weights, so their
+  # posteriors come from the draws in the same way.
+  if (length(composite_derived_rows(pt)) > 0L) {
+    comp_draws <- composite_derived_draws(x_samp, pt, lavmodel)
+    use_sn <- marginal_method == "skewnorm" && isTRUE(sn_fit_sample)
+    summarise <- if (use_sn) summarise_samples_sn else summarise_samples
+    comp_summ <- lapply(seq_len(ncol(comp_draws)), function(j) {
+      summarise(comp_draws[, j])
+    })
+    names(comp_summ) <- colnames(comp_draws)
+    if (use_sn) {
+      sn_rows <- do.call(rbind, lapply(comp_summ, `[[`, "sn_params"))
+      approx_data <- rbind(approx_data, sn_rows)
+    }
+    for (comp_name in names(comp_summ)) {
+      tmp_new_summ <- comp_summ[[comp_name]]$summary
+      summ[comp_name, names(tmp_new_summ)] <- tmp_new_summ
+      pdf_data[[comp_name]] <- comp_summ[[comp_name]]$pdf_data
+    }
+  }
   timing <- add_timing(timing, "definedpars")
 
   # For binary and ordinal data, sample the deltas

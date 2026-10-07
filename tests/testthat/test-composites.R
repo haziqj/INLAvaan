@@ -68,7 +68,7 @@ test_that("The posterior mode is close to the ML estimates", {
   )
 })
 
-test_that("Composite variances and intercepts are reported at the estimates", {
+test_that("Composite variances and intercepts have posterior summaries", {
   fit_m <- fit_quiet(mod, meanstructure = TRUE)
   pt <- lavaan::parTable(fit_m)
   w <- c(1, coef(fit_m)[c("C<~x2", "C<~x3")])
@@ -79,6 +79,18 @@ test_that("Composite variances and intercepts are reported at the estimates", {
   mrow <- pt$lhs == "C" & pt$op == "~1"
   nu <- coef(fit_m)[paste0(ind, "~1")]
   expect_equal(pt$est[mrow], sum(w * nu), tolerance = 1e-6)
+
+  # The parameter table keeps the values at the posterior-mean weights above,
+  # while the summary reports the posterior of these functions of the weights
+  summ <- get_inlavaan_internal(fit_m)$summary
+  expect_gt(summ["C~~C", "SD"], 0)
+  expect_equal(pt$se[vrow], summ["C~~C", "SD"])
+  out <- capture.output(summary(fit_m))
+  expect_true(any(grepl(sprintf("%.3f", summ["C~~C", "Mean"]), out)))
+  summ_sum <- get_inlavaan_internal(
+    fit_quiet("C <~ 1*x1 + 1*x2 + 1*x3\n x4 ~ C")
+  )$summary
+  expect_equal(summ_sum["C~~C", "SD"], 0)
 
   std <- standardisedsolution(fit_m, nsamp = 5)
   expect_equal(std$est.std[std$lhs == "C" & std$op == "~~"], 1)
@@ -362,6 +374,9 @@ test_that("Latent means absorbed by composites stop the fit", {
   )
 })
 
-test_that("plot() explains that derived rows have no density", {
-  expect_error(plot(fit, params = "C~~C"), "fixed or derived")
+test_that("plot() draws derived rows and explains fixed ones", {
+  grDevices::pdf(NULL)
+  on.exit(grDevices::dev.off())
+  expect_no_error(plot(fit, params = "C~~C", use_ggplot = FALSE))
+  expect_error(plot(fit, params = "C<~x1"), "fixed")
 })

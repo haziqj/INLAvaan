@@ -24,7 +24,9 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
 
   # Composite variances and intercepts are functions of the weights, which the
   # model matrices already hold at x. Read them back, as lavaan does after its
-  # own fit, so that the parameter table and the model matrices agree.
+  # own fit, so that the parameter table and the model matrices agree (lavaan's
+  # standardisation and R-square divide one by the other). Their posterior SDs
+  # come from the draws.
   comp_rows <- composite_derived_rows(pt)
   if (length(comp_rows) > 0L) {
     est_user <- lavaan::lav_model_get_parameters(
@@ -33,6 +35,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
       extra = FALSE
     )
     pt$est[comp_rows] <- est_user[comp_rows]
+    pt$se[comp_rows] <- fit_inlv$summary[pt$names[comp_rows], "SD"]
   }
 
   pt$par <- pt$parstart

@@ -126,11 +126,13 @@ summary_inlavaan <- function(
 
   # Now need to put information into PE from pt and summary
   pt <- object@ParTable
+  summ <- object@external$inlavaan_internal$summary
   ptfreeidx <- which(pt$free > 0)
   ptdefidx <- which(pt$op == ":=")
   ptdeltaidx <- which(pt$op == "~*~")
-  ptidx <- c(ptfreeidx, ptdefidx, ptdeltaidx)
-  summ <- object@external$inlavaan_internal$summary
+  ptcompidx <- composite_derived_rows(pt)
+  ptcompidx <- ptcompidx[pt$names[ptcompidx] %in% rownames(summ)]
+  ptidx <- c(ptfreeidx, ptdefidx, ptdeltaidx, ptcompidx)
   peidx <- match(
     paste0(
       pt$lhs[ptidx],
@@ -144,8 +146,14 @@ summary_inlavaan <- function(
   # summary row. Defined and delta rows by name.
   summidx <- c(
     pt$free[ptfreeidx],
-    match(pt$names[c(ptdefidx, ptdeltaidx)], rownames(summ))
+    match(pt$names[c(ptdefidx, ptdeltaidx, ptcompidx)], rownames(summ))
   )
+  # The parameter table keeps a composite's variance and intercept at the
+  # posterior means of the weights, but the summary reports their posterior
+  # means.
+  compidx <- tail(seq_along(ptidx), length(ptcompidx))
+  compidx <- compidx[!is.na(peidx[compidx])]
+  PE$est[peidx[compidx]] <- summ$Mean[summidx[compidx]]
 
   char.format <- paste("%", max(8, nd + 5), "s", sep = "")
   PE$SD <- ""
