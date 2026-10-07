@@ -184,7 +184,8 @@ implied_bound <- function(pt, op, lhs, rhs) {
 # has the same kind of transformation.
 check_packed_kinds <- function(pt) {
   kind <- rep(NA_character_, length(pt$mat))
-  kind[pt$mat %in% c("lambda", "beta", "nu", "alpha", "tau")] <- "identity"
+  kind[pt$mat %in% c("lambda", "beta", "wmat", "nu", "alpha", "tau")] <-
+    "identity"
   kind[pt$mat %in% c("theta_var", "psi_var")] <- "variance"
   kind[pt$mat %in% c("theta_cor", "psi_cor")] <- "correlation"
   kind[pt$mat %in% c("theta_cov", "psi_cov")] <- "covariance"
@@ -202,9 +203,9 @@ check_packed_kinds <- function(pt) {
     cli_abort(c(
       "INLAvaan cannot hold these parameters equal.",
       bullets,
-      "i" = "Equal parameters must all be loadings, regressions, intercepts or
-             thresholds (in any mix), or else all variances, all
-             correlations or all covariances."
+      "i" = "Equal parameters must all be loadings, regressions, composite
+             weights, intercepts or thresholds (in any mix), or else all
+             variances, all correlations or all covariances."
     ))
   }
   invisible(pt)

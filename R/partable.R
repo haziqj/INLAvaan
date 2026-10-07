@@ -13,6 +13,10 @@ partable_classify_sem_matrix <- function(
     return("lambda")
   }
 
+  if (op == "<~") {
+    return("wmat")
+  }
+
   if (op == "~~") {
     if (lhs_is_ov & rhs_is_ov) {
       if (lhs == rhs) {
@@ -86,6 +90,9 @@ partable_prior_from_row <- function(matrix, lhs, rhs, op, dp) {
   }
   if (matrix == "beta") {
     return(dp[["beta"]])
+  }
+  if (matrix == "wmat") {
+    return(dp[["wmat"]])
   }
 
   if (grepl("theta", matrix)) {

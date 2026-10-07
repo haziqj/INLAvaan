@@ -33,6 +33,7 @@ The parameter names, and default settings, are:
 \item \code{alpha = "normal(0,10)"}: Latent variable intercepts
 \item \code{lambda = "normal(0,10)"}: Factor loadings
 \item \code{beta = "normal(0,10)"}: Regression coefficients
+\item \code{wmat = "normal(0,10)"}: Composite weights (\code{<~})
 \item \code{theta = "gamma(1,.5)[sd]"}: Residual precisions
 \item \code{psi = "gamma(1,.5)[sd]"}: Latent variable precisions
 \item \code{rho = "beta(1,1)"}: Correlations (both latent and observed)
