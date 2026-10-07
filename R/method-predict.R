@@ -242,12 +242,14 @@ psd_solve <- function(S) {
 }
 
 # Moments of the latent variables by block, with the raw loadings (dummy latent
-# variables loading 1 on their observed variables), for drawing eta | y.
+# variables loading 1 on their observed variables), for drawing eta | y. A
+# composite's indicators load on it as in composite_as_lisrel().
 ml_moments <- function(lavmodel_x, lavsamplestats) {
   list(
     lambda = lavaan___lav_model_lambda(
       lavmodel = lavmodel_x,
-      handle_dummy_lv = FALSE
+      handle_dummy_lv = FALSE,
+      use_wmat = TRUE
     ),
     veta = lavaan___lav_model_veta(lavmodel = lavmodel_x),
     eeta = lavaan___lav_model_eeta(

@@ -449,7 +449,7 @@ get_block_param_matrix <- function(x_row, lavmodel) {
       lavmodel_x@dimNames[mm]
     )
     names(glist) <- names(lavmodel_x@GLIST)[mm]
-    glist
+    composite_as_lisrel(glist)
   })
 }
 
