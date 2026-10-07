@@ -288,6 +288,7 @@ inlavaan <- function(
       do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
     )
   }
+  check_composite_weights(fit0@ParTable)
   lavmodel <- fit0@Model
   lavsamplestats <- fit0@SampleStats
   lavdata <- fit0@Data

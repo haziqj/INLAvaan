@@ -82,3 +82,45 @@ check_composite_scope <- function(fit0) {
   }
   invisible(NULL)
 }
+
+# lavaan scales a composite by a weight fixed at 1 and finds that weight by its
+# value. Without one it fixes Var(C) at 1, so the composite is no longer w'x
+# and the scale of its weights is not identified. lavaan also accepts an
+# indicator shared by two composites, but does not represent it consistently.
+check_composite_weights <- function(pt) {
+  is_w <- pt$op == "<~"
+  if (!any(is_w)) {
+    return(invisible(NULL))
+  }
+  block <- if (is.null(pt$block)) pt$group else pt$block
+  comp_key <- paste(pt$lhs, block)
+  marked <- comp_key[is_w & pt$free == 0L & pt$ustart %in% 1]
+  unmarked <- unique(pt$lhs[is_w & !comp_key %in% marked])
+  if (length(unmarked) > 0L) {
+    ind <- pt$rhs[is_w & pt$lhs == unmarked[1L]]
+    ind <- unique(ind)
+    example <- paste0(
+      unmarked[1L],
+      " <~ 1*",
+      paste(ind, collapse = " + ")
+    )
+    cli_abort(c(
+      "Each composite needs one weight fixed at 1.",
+      "x" = "{cli::qty(length(unmarked))}Composite{?s} {.code {unmarked}}
+             ha{?s/ve} none.",
+      "i" = "Fix the weight of the indicator with the largest expected weight,
+             for example {.code {example}}."
+    ))
+  }
+  ind_key <- paste(pt$rhs, block)[is_w]
+  n_owner <- tapply(pt$lhs[is_w], ind_key, function(l) length(unique(l)))
+  shared <- unique(pt$rhs[is_w][ind_key %in% names(n_owner)[n_owner > 1L]])
+  if (length(shared) > 0L) {
+    cli_abort(c(
+      "An observed variable can be an indicator of one composite only.",
+      "x" = "{.code {shared}} {cli::qty(length(shared))}form{?s/} more than
+             one composite."
+    ))
+  }
+  invisible(NULL)
+}
