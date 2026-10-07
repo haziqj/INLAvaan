@@ -256,6 +256,7 @@ inlavaan <- function(
   fit0 <- muffle_nan_warnings(
     do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
   )
+  check_composite_scope(fit0)
   # Ordinal variables come from `ordered =`, threshold syntax or ordered-factor
   # columns. Name exactly those the model uses, so that the PML refit (and its
   # kappa scaling) sees all of them and nothing else.

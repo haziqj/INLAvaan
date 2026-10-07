@@ -52,3 +52,33 @@ composite_blocks <- function(pt) {
   }
   out
 }
+
+# Composite models INLAvaan cannot fit yet. Two-level models come first,
+# because lavaan estimates the indicator covariances there (composites.cov =
+# "free"). Ordinal data must stop before the PML refit, whose theta
+# parameterisation lavaan rejects for composites.
+check_composite_scope <- function(fit0) {
+  if (!any(fit0@ParTable$op == "<~")) {
+    return(invisible(NULL))
+  }
+  if (fit0@Data@nlevels > 1L) {
+    cli_abort(
+      "INLAvaan does not support composites ({.code <~}) in two-level models
+       yet."
+    )
+  }
+  if (identical(fit0@Options$composites.cov, "free")) {
+    cli_abort(c(
+      "INLAvaan does not support {.code composites.cov = \"free\"} yet.",
+      "i" = "Use the default, which fixes the covariances of each composite's
+             indicators at their sample values."
+    ))
+  }
+  if (length(lavaan::lavNames(fit0, "ov.ord")) > 0L) {
+    cli_abort(
+      "INLAvaan does not support composites ({.code <~}) with ordinal data
+       yet."
+    )
+  }
+  invisible(NULL)
+}
