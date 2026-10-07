@@ -1,12 +1,13 @@
 # Rows that lavaan derives from the composite weights inside
 # lav_model_set_parameters(): the variance of each composite (its residual
-# variance when the composite is endogenous) and its intercept. They are never
-# free, and their values in a parameter table built with do.fit = FALSE are
-# those at the start weights.
-composite_derived_rows <- function(pt) {
+# variance when the composite is endogenous) and its intercept. lavaan keeps
+# them fixed unless the syntax frees one with NA*, which INLAvaan refuses (see
+# check_composite_derived()). Their values in a parameter table built with
+# do.fit = FALSE are those at the start weights.
+composite_derived_rows <- function(pt, include_free = FALSE) {
   comp <- unique(pt$lhs[pt$op == "<~"])
   which(
-    pt$free == 0L &
+    (include_free | pt$free == 0L) &
       pt$lhs %in% comp &
       ((pt$op == "~~" & pt$lhs == pt$rhs) | pt$op == "~1")
   )
@@ -81,6 +82,25 @@ check_composite_scope <- function(fit0) {
     )
   }
   invisible(NULL)
+}
+
+# lavaan overwrites a freed composite variance or intercept with its derived
+# value, so the likelihood is flat along that parameter while lavaan's gradient
+# for it is not zero.
+check_composite_derived <- function(pt) {
+  rows <- composite_derived_rows(pt, include_free = TRUE)
+  rows <- rows[pt$free[rows] > 0L]
+  if (length(rows) == 0L) {
+    return(invisible(NULL))
+  }
+  bullets <- paste0("{.code ", cli_escape(partable_row_name(pt, rows)), "}")
+  names(bullets) <- rep("x", length(bullets))
+  cli_abort(c(
+    "The variance and intercept of a composite are set by its weights, so they
+     cannot be free:",
+    bullets,
+    "i" = "Remove the {.code NA*} modifier."
+  ))
 }
 
 # A label on a derived composite row cannot tie it to anything: lavaan then

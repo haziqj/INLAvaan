@@ -218,6 +218,23 @@ test_that("Each composite needs a unit marker and its own indicators", {
   )
 })
 
+test_that("Freed composite variances and intercepts stop the fit", {
+  expect_error(
+    fit_quiet("C <~ x1 + x2 + x3\n x4 ~ C\n x5 ~ C\n C ~~ NA*C"),
+    "cannot be free"
+  )
+  expect_error(
+    fit_quiet("C <~ x1 + x2 + x3\n x4 ~ C\n C ~ NA*1", meanstructure = TRUE),
+    "cannot be free"
+  )
+  expect_no_error(
+    fit_quiet(
+      "C <~ x1 + x2 + x3\n x4 ~ C\n C ~~ C\n C ~ 1",
+      meanstructure = TRUE
+    )
+  )
+})
+
 test_that("Labels on derived composite rows cannot be shared or constrained", {
   expect_error(
     fit_quiet("C <~ x1 + x2 + x3\n C ~~ vc*C\n x4 ~ b4*C\n x5 ~ C\n vc == b4"),

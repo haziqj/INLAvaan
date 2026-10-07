@@ -283,9 +283,10 @@ inlavaan <- function(
              model."
     ))
   }
+  check_composite_derived(fit0@ParTable)
+  check_composite_labels(fit0@ParTable)
   # Rebuild from a table where explicit constraints are shared free indices or
   # fixed values (see pack_constraints()).
-  check_composite_labels(fit0@ParTable)
   pt_packed <- pack_constraints(fit0@ParTable, fit0@Options$effect.coding)
   if (!is.null(pt_packed)) {
     lavargs$model <- pt_packed
