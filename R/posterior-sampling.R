@@ -411,7 +411,10 @@ composite_t_rows <- function(pt, b) {
 # for a fit without them. Composites are single-level, so the blocks are the
 # groups. `pt` is lavaan's parameter table or INLAvaan's (same rows).
 composite_fixed_t <- function(lavmodel, pt, lavdata) {
-  if (!isTRUE(lavmodel@composites) || is.null(pt) || lavdata@nlevels > 1L) {
+  # A fit saved under a lavaan without composites lacks the slot
+  has_composites <- .hasSlot(lavmodel, "composites") &&
+    isTRUE(lavmodel@composites)
+  if (!has_composites || is.null(pt) || lavdata@nlevels > 1L) {
     return(NULL)
   }
   nmat <- lavmodel@nmat
