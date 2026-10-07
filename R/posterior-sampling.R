@@ -231,6 +231,11 @@ get_ppp <- function(
     )
   }
 
+  # Composite indicator (co)variances fixed at the sample covariance change
+  # with the data, so they must change with each replicate too (see
+  # ppp_composite_draw()).
+  t_fixed <- composite_fixed_t(lavmodel, lavpartable, lavdata)
+
   res <- vector("numeric", length = nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
     if (!is.null(cli_env)) {
@@ -240,6 +245,11 @@ get_ppp <- function(
     xx <- x_samp[i, ]
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
     lavimplied <- lavaan::lav_model_implied(lavmodel_x)
+
+    if (!is.null(t_fixed)) {
+      res[i] <- ppp_composite_draw(xx, lavimplied, lavmodel, t_fixed, block_obs)
+      next
+    }
 
     Tobs <- 0
     Trep <- 0
@@ -298,7 +308,132 @@ get_ppp <- function(
     res[i] <- as.numeric(Trep >= Tobs)
   }
 
-  mean(res)
+  # A composite draw whose replicate moments are not a covariance is NA
+  mean(res, na.rm = TRUE)
+}
+
+# One posterior draw of the PPP for a fit with composites. lavaan fixes the
+# (co)variances of the composite indicators at the sample covariance of the data
+# it is given, so the observed data have no misfit in that block. A replicate is
+# therefore scored against the moments implied with its own sample covariance
+# there (divisor n, as lavaan uses), which is what lavaan would fix had it been
+# given the replicate. Scored against the observed values instead, every
+# replicate would carry a misfit in that block that the observed data cannot
+# have, and the PPP would drift towards 1. Composites are single-level, so the
+# blocks are the groups. Returns 1 when Trep >= Tobs, 0 otherwise, and NA when
+# the replicate moments are not a covariance matrix.
+ppp_composite_draw <- function(xx, lavimplied, lavmodel, t_fixed, block_obs) {
+  n_blocks <- length(block_obs)
+  Tobs <- 0
+  Srep <- vector("list", n_blocks)
+  for (b in seq_len(n_blocks)) {
+    x_idx <- block_obs[[b]]$x_idx
+    Sigma <- implied_joint_moments(lavimplied, b, x_idx)$cov
+    if (is_bad_cov(Sigma)) {
+      next
+    }
+    n <- block_obs[[b]]$n
+    W <- stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1]
+    Srep[[b]] <- matrix(W, nrow(Sigma)) / (n - 1)
+    Tobs <- Tobs + ppp_discrepancy(block_obs[[b]]$S, Sigma, x_idx)
+  }
+
+  lavmodel_rep <- lavmodel
+  for (b in seq_len(n_blocks)) {
+    e <- t_fixed[[b]]
+    if (is.null(Srep[[b]]) || length(e$pos) == 0L) {
+      next
+    }
+    n <- block_obs[[b]]$n
+    lavmodel_rep@GLIST[[e$mm]][e$pos] <- Srep[[b]][e$rc] * (n - 1) / n
+  }
+  # lavaan re-derives the composite variances from the replaced block
+  implied_rep <- lavaan::lav_model_implied(
+    lavaan::lav_model_set_parameters(lavmodel_rep, xx)
+  )
+
+  Trep <- 0
+  for (b in seq_len(n_blocks)) {
+    if (is.null(Srep[[b]])) {
+      next
+    }
+    x_idx <- block_obs[[b]]$x_idx
+    Sigma_rep <- implied_joint_moments(implied_rep, b, x_idx)$cov
+    if (is_bad_cov(Sigma_rep)) {
+      return(NA_real_) # nocov
+    }
+    Trep <- Trep + ppp_discrepancy(Srep[[b]], Sigma_rep, x_idx)
+  }
+  as.numeric(Trep >= Tobs)
+}
+
+# F(S, Sigma) of the outcomes given the fixed covariates at x_idx, which is F
+# less its covariate block, as in get_ppp().
+ppp_discrepancy <- function(S, Sigma, x_idx) {
+  out <- ml_discrepancy(S, Sigma)
+  if (length(x_idx) > 0L) {
+    out <- out -
+      ml_discrepancy(
+        S[x_idx, x_idx, drop = FALSE],
+        Sigma[x_idx, x_idx, drop = FALSE]
+      )
+  }
+  out
+}
+
+# Rows of block b of a parameter table that hold a composite indicator
+# (co)variance fixed at its sample value (lavaan's composites.cov = "fixed").
+# Such a row joins two indicators of the same composite, and lavaan leaves its
+# value to the data (ustart NA). A (co)variance the user fixes at a value of
+# their own is a constraint, not a plug-in of the data, so it is not included.
+composite_t_rows <- function(pt, b) {
+  in_b <- pt$block == b
+  is_weight <- in_b & pt$op == "<~"
+  composite_of <- stats::setNames(pt$lhs[is_weight], pt$rhs[is_weight])
+  comp_lhs <- unname(composite_of[pt$lhs])
+  comp_rhs <- unname(composite_of[pt$rhs])
+  which(
+    in_b &
+      pt$op == "~~" &
+      pt$free == 0L &
+      is.na(pt$ustart) &
+      !is.na(comp_lhs) &
+      !is.na(comp_rhs) &
+      comp_lhs == comp_rhs
+  )
+}
+
+# The composite indicator (co)variances fixed at the sample covariance, per
+# block: the index of the block's theta matrix in GLIST (mm), their positions in
+# it (pos, both triangles), the matching rows and columns of the block's
+# observed covariance (rc, one row per position) and their parameter-table rows
+# (rows). These entries are a plug-in of the data rather than parameters. NULL
+# for a fit without them. Composites are single-level, so the blocks are the
+# groups. `pt` is lavaan's parameter table or INLAvaan's (same rows).
+composite_fixed_t <- function(lavmodel, pt, lavdata) {
+  if (!isTRUE(lavmodel@composites) || is.null(pt) || lavdata@nlevels > 1L) {
+    return(NULL)
+  }
+  nmat <- lavmodel@nmat
+  offset <- cumsum(c(0L, nmat))
+  out <- lapply(seq_len(lavmodel@nblocks), function(b) {
+    mm_b <- offset[b] + seq_len(nmat[b])
+    mm <- mm_b[names(lavmodel@GLIST)[mm_b] == "theta"]
+    user_idx <- lavmodel@x.user.idx[[mm]]
+    keep <- user_idx %in% composite_t_rows(pt, b)
+    rows <- user_idx[keep]
+    ov <- lavdata@ov.names[[b]]
+    list(
+      mm = mm,
+      pos = lavmodel@m.user.idx[[mm]][keep],
+      rc = cbind(match(pt$lhs[rows], ov), match(pt$rhs[rows], ov)),
+      rows = unique(rows)
+    )
+  })
+  if (all(vapply(out, function(e) length(e$pos) == 0L, logical(1)))) {
+    return(NULL)
+  }
+  out
 }
 
 # Variables at both levels whose between-level variance is under a quarter of

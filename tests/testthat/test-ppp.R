@@ -68,3 +68,69 @@ test_that("Fixed covariates add no misfit to the PPP", {
   expect_gt(ppp, 0.2)
   expect_lt(ppp, 0.8)
 })
+
+## ----- Composites ------------------------------------------------------------
+
+mod_comp <- "
+  C <~ x1 + x2 + x3
+  x4 ~ C
+  x5 ~ C
+  x4 ~~ x5
+"
+
+test_that("composite_fixed_t() finds each group's fixed indicator block", {
+  fit_lav <- lavaan::sem(mod_comp, dat, group = "school", do.fit = FALSE)
+  t_fixed <- composite_fixed_t(fit_lav@Model, fit_lav@ParTable, fit_lav@Data)
+  expect_length(t_fixed, 2L)
+  for (g in 1:2) {
+    e <- t_fixed[[g]]
+    # Three variances and three covariances, the covariances in both triangles
+    expect_length(e$rows, 6L)
+    expect_length(e$pos, 9L)
+    expect_true(all(fit_lav@ParTable$group[e$rows] == g))
+    expect_equal(
+      fit_lav@Model@GLIST[[e$mm]][e$pos],
+      fit_lav@SampleStats@cov[[g]][e$rc]
+    )
+  }
+
+  # A covariance fixed by the user is a constraint, not a plug-in
+  fit_user <- lavaan::sem(
+    paste(mod_comp, "x1 ~~ 0*x2"),
+    dat,
+    do.fit = FALSE
+  )
+  t_user <- composite_fixed_t(fit_user@Model, fit_user@ParTable, fit_user@Data)
+  expect_length(t_user[[1]]$rows, 5L)
+
+  # Nothing to find without composites
+  fit_cfa <- lavaan::cfa(mod, dat, do.fit = FALSE)
+  expect_null(composite_fixed_t(fit_cfa@Model, fit_cfa@ParTable, fit_cfa@Data))
+})
+
+# lavaan fixes the covariances of the composite indicators at their sample
+# values, so the observed data have no misfit there. Replicates that kept the
+# observed values would carry misfit in that block and push the PPP to about
+# 0.8. The phantom specification of the same model conditions on the indicators
+# as fixed covariates instead, and its PPP is about 0.45.
+test_that("Fixed composite indicator covariances add no misfit to the PPP", {
+  mod_phantom <- "
+    C =~ 0
+    C ~ 1*x1 + x2 + x3
+    C ~~ 0*C
+    x4 ~ C
+    x5 ~ C
+    x4 ~~ x5
+  "
+  ppp <- vapply(
+    c(mod_comp, mod_phantom),
+    function(m) {
+      set.seed(1)
+      fit <- asem(m, dat, nsamp = 500, test = "ppp", verbose = FALSE)
+      get_inlavaan_internal(fit, "ppp")
+    },
+    numeric(1)
+  )
+  expect_lt(ppp[[1]], 0.65)
+  expect_lt(abs(ppp[[1]] - ppp[[2]]), 0.1)
+})
