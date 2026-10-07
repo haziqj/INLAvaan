@@ -134,3 +134,108 @@ test_that("Fixed composite indicator covariances add no misfit to the PPP", {
   expect_lt(ppp[[1]], 0.65)
   expect_lt(abs(ppp[[1]] - ppp[[2]]), 0.1)
 })
+
+# Two composites of three indicators each with corr(C1, C2) = 0.85, and two
+# outcomes regressed on both. The rest of the data relate to the indicators only
+# through C = w'x.
+composite_sigma <- function(r = 0.85) {
+  tm <- matrix(0.4, 3, 3)
+  diag(tm) <- 1
+  w <- c(1, 0.8, 0.6)
+  v <- drop(crossprod(w, tm %*% w))
+  wm <- cbind(c(w, 0, 0, 0), c(0, 0, 0, w))
+  sxx <- kronecker(diag(2), tm)
+  sxx[1:3, 4:6] <- tcrossprod(tm %*% w) * r / v
+  sxx[4:6, 1:3] <- t(sxx[1:3, 4:6])
+  b <- rbind(c(0.15, 0.1), c(0.05, 0.15))
+  sxy <- sxx %*% wm %*% t(b)
+  syy <- b %*% crossprod(wm, sxx %*% wm) %*% t(b) + diag(2)
+  rbind(cbind(sxx, sxy), cbind(t(sxy), syy))
+}
+set.seed(2)
+dat_two <- as.data.frame(
+  matrix(rnorm(300 * 8), 300) %*% chol(composite_sigma())
+)
+names(dat_two) <- c(paste0("x", 1:6), "y1", "y2")
+mod_two <- "
+  C1 <~ x1 + x2 + x3
+  C2 <~ x4 + x5 + x6
+  y1 ~ C1 + C2
+  y2 ~ C1 + C2
+"
+
+# A replicate's own indicator blocks move each w'Tw. Were the covariance of the
+# composites kept at its raw value, their correlation would move with every
+# replicate and add misfit that the observed data cannot have. The PPP of this
+# correct model would then be about 0.87, where lavaan's p-value is 0.51.
+test_that("PPP replicates keep the correlation of two composites", {
+  set.seed(1)
+  fit <- asem(mod_two, dat_two, nsamp = 500, test = "ppp", verbose = FALSE)
+  ppp <- get_inlavaan_internal(fit, "ppp")
+  expect_lt(ppp, 0.75)
+  expect_gt(ppp, 0.25)
+})
+
+# Moments of a lavaan fit at its estimates in a replicate whose composite
+# indicator blocks come from s_rep, with the correlations of the latent
+# variables and the paths among them.
+replicate_moments <- function(fit, s_rep) {
+  lavmodel <- fit@Model
+  e <- composite_fixed_t(lavmodel, fit@ParTable, fit@Data)[[1L]]
+  lavmodel_rep <- lavmodel
+  lavmodel_rep@GLIST[[e$mm]][e$pos] <- s_rep[e$rc]
+  x <- lavaan::lav_model_get_parameters(lavmodel)
+  x_rep <- composite_rescale_x(
+    x,
+    lavaan::lav_model_set_parameters(lavmodel, x),
+    lavaan::lav_model_set_parameters(lavmodel_rep, x),
+    composite_scale_plan(lavmodel, fit@ParTable)
+  )
+  m_rep <- lavaan::lav_model_set_parameters(lavmodel_rep, x_rep)
+  psi <- m_rep@GLIST$psi
+  ib_inv <- solve(diag(nrow(psi)) - m_rep@GLIST$beta)
+  list(
+    cov = lavaan::lav_model_implied(m_rep)$cov[[1L]],
+    lv_cor = cov2cor(ib_inv %*% psi %*% t(ib_inv)),
+    beta = m_rep@GLIST$beta
+  )
+}
+
+test_that("Replicates keep the standardised relations of composites", {
+  fit_cov <- lavaan::sem(mod_two, dat_two)
+  s_obs <- fit_cov@SampleStats@cov[[1L]]
+  set.seed(3)
+  s_rep <- stats::rWishart(1, 299, s_obs)[,, 1] / 299
+  obs <- replicate_moments(fit_cov, s_obs)
+  rep_cov <- replicate_moments(fit_cov, s_rep)
+  # The correlation of the composites stays, and so do the paths out of them
+  expect_equal(rep_cov$lv_cor[1:2, 1:2], obs$lv_cor[1:2, 1:2])
+  expect_equal(rep_cov$beta, obs$beta)
+  # C2 ~ C1 is the same model as C1 ~~ C2
+  fit_reg <- lavaan::sem(sub("y1 ~", "C2 ~ C1\n  y1 ~", mod_two), dat_two)
+  expect_equal(
+    replicate_moments(fit_reg, s_rep)$cov,
+    rep_cov$cov,
+    tolerance = 1e-5
+  )
+
+  # A factor on composites, scaled by the loading on C1 or by std.lv
+  mod_ho <- "
+    C1 <~ x1 + x2 + x3
+    C2 <~ x4 + x5 + x6
+    C3 <~ x9 + x7 + x8
+    F =~ C1 + C2 + C3
+    ageyr ~ F
+  "
+  fit_mk <- lavaan::sem(mod_ho, dat)
+  fit_sl <- lavaan::sem(mod_ho, dat, std.lv = TRUE)
+  s_obs <- fit_mk@SampleStats@cov[[1L]]
+  s_rep <- stats::rWishart(1, nrow(dat) - 1, s_obs)[,, 1] / (nrow(dat) - 1)
+  rep_mk <- replicate_moments(fit_mk, s_rep)
+  expect_equal(rep_mk$lv_cor, replicate_moments(fit_mk, s_obs)$lv_cor)
+  expect_equal(
+    replicate_moments(fit_sl, s_rep)$cov,
+    rep_mk$cov,
+    tolerance = 1e-5
+  )
+})
