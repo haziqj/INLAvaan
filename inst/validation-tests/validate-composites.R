@@ -3,7 +3,9 @@
 # Validation: composites (<~) against MCMC (blavaan). blavaan has no <~, so the
 # MCMC side fits the phantom specification C =~ 0, C ~ 1*x1 + w2*x2 + w3*x3,
 # C ~~ 0*C, which reproduces lavaan's <~ fit exactly when the composite's
-# indicators are exogenous observed variables. With two or more composites the
+# indicators are exogenous observed variables. The phantom is fitted with
+# fixed.x = FALSE, so that the indicator covariances are estimated as under
+# INLAvaan's default composites.cov = "free". With two or more composites the
 # phantom is a different model, so every section has a single composite. Both
 # models carry the same labels so that compare_mcmc() matches the parameters.
 # Requires: blavaan.
@@ -44,7 +46,7 @@ sim_composite <- function(n, a, g, rho_x = 0.3, rho_e = 0.3, seed = 1) {
   dat
 }
 
-truth_composite <- function(a, g, rho_e = 0.3) {
+truth_composite <- function(a, g, rho_x = 0.3, rho_e = 0.3) {
   c(
     w2 = a[2] / a[1],
     w3 = a[3] / a[1],
@@ -52,7 +54,13 @@ truth_composite <- function(a, g, rho_e = 0.3) {
     b2 = g[2] * a[1],
     "y1~~y2" = rho_e,
     "y1~~y1" = 1,
-    "y2~~y2" = 1
+    "y2~~y2" = 1,
+    "x1~~x1" = 1,
+    "x1~~x2" = rho_x,
+    "x1~~x3" = rho_x,
+    "x2~~x2" = 1,
+    "x2~~x3" = rho_x,
+    "x3~~x3" = 1
   )
 }
 
@@ -84,6 +92,39 @@ quantile_table <- function(fit_blav, fit_inl) {
     },
     numeric(9)
   ))
+  round(out, 3)
+}
+
+# Posterior of the composite variance Var(C) = w'Tw. blavaan has no such
+# parameter, so it is computed draw by draw from the weights and the indicator
+# covariances T. The marker weight is fixed at 1, and suffix picks a later group
+# (".g2").
+var_c_table <- function(fit_blav, fit_inl, w_labels, suffix = "") {
+  draws <- do.call("rbind", blavInspect(fit_blav, "mcmc"))
+  ind <- paste0("x", seq_len(length(w_labels) + 1L))
+  w <- cbind(1, draws[, w_labels, drop = FALSE])
+  var_c <- 0
+  for (i in seq_along(ind)) {
+    for (j in seq_len(i)) {
+      t_ij <- draws[, paste0(ind[j], "~~", ind[i], suffix)]
+      var_c <- var_c + (if (i == j) 1 else 2) * w[, i] * w[, j] * t_ij
+    }
+  }
+  summ <- get_inlavaan_internal(fit_inl)$summary[paste0("C~~C", suffix), ]
+  out <- rbind(
+    mcmc = c(
+      mean = mean(var_c),
+      sd = sd(var_c),
+      quantile(var_c, c(0.025, 0.5, 0.975))
+    ),
+    inla = c(
+      summ[["Mean"]],
+      summ[["SD"]],
+      summ[["2.5%"]],
+      summ[["50%"]],
+      summ[["97.5%"]]
+    )
+  )
   round(out, 3)
 }
 
@@ -126,6 +167,7 @@ set.seed(1)
 fit_blav <- bsem(
   mod_phantom,
   dat,
+  fixed.x = FALSE,
   n.chains = n_chains,
   burnin = n_burnin,
   sample = n_sample,
@@ -137,6 +179,7 @@ res_ref <- compare_mcmc(fit_blav, skewnorm = fit_inl)
 print(res_ref$p_compare)
 print(res_ref$metrics_df)
 print(quantile_table(fit_blav, fit_inl))
+print(var_c_table(fit_blav, fit_inl, c("w2", "w3")))
 
 ## =============================================================================
 ## Composite predicting a factor --- HolzingerSwineford1939
@@ -159,6 +202,7 @@ set.seed(1)
 fit_blav_fac <- bsem(
   mod_fac_phantom,
   dat,
+  fixed.x = FALSE,
   n.chains = n_chains,
   burnin = n_burnin,
   sample = n_sample,
@@ -170,6 +214,7 @@ res_fac <- compare_mcmc(fit_blav_fac, skewnorm = fit_inl_fac)
 print(res_fac$p_compare)
 print(res_fac$metrics_df)
 print(quantile_table(fit_blav_fac, fit_inl_fac))
+print(var_c_table(fit_blav_fac, fit_inl_fac, c("w2", "w3")))
 
 ## =============================================================================
 ## Weak marker --- small true weight on the indicator fixed to 1
@@ -183,6 +228,7 @@ set.seed(1)
 fit_blav_marker <- bsem(
   mod_sim_phantom,
   dat_marker,
+  fixed.x = FALSE,
   n.chains = n_chains,
   burnin = n_burnin,
   sample = n_sample,
@@ -198,6 +244,7 @@ res_marker <- compare_mcmc(
 print(res_marker$p_compare)
 print(res_marker$metrics_df)
 print(quantile_table(fit_blav_marker, fit_inl_marker))
+print(var_c_table(fit_blav_marker, fit_inl_marker, c("w2", "w3")))
 
 ## =============================================================================
 ## Weak paths --- the composite barely predicts the outcomes
@@ -211,6 +258,7 @@ set.seed(1)
 fit_blav_paths <- bsem(
   mod_sim_phantom,
   dat_paths,
+  fixed.x = FALSE,
   n.chains = n_chains,
   burnin = n_burnin,
   sample = n_sample,
@@ -226,6 +274,7 @@ res_paths <- compare_mcmc(
 print(res_paths$p_compare)
 print(res_paths$metrics_df)
 print(quantile_table(fit_blav_paths, fit_inl_paths))
+print(var_c_table(fit_blav_paths, fit_inl_paths, c("w2", "w3")))
 
 ## =============================================================================
 ## Two groups --- HolzingerSwineford1939 by school
@@ -251,6 +300,7 @@ fit_blav_mg <- bsem(
   mod_mg_phantom,
   dat,
   group = "school",
+  fixed.x = FALSE,
   n.chains = n_chains,
   burnin = n_burnin,
   sample = n_sample,
@@ -258,9 +308,11 @@ fit_blav_mg <- bsem(
 )
 fit_inl_mg <- asem(mod_mg, dat, group = "school", test = "none")
 
-# INLAvaan also reports the indicator intercepts (x1 ~ 1 and so on), which the
-# phantom model fixes at the sample means, so they have no MCMC counterpart.
+# The composite intercepts (C ~ 1) have no MCMC counterpart, and
+# var_c_table() covers the composite variances.
 res_mg <- compare_mcmc(fit_blav_mg, skewnorm = fit_inl_mg)
 print(res_mg$p_compare)
 print(res_mg$metrics_df)
 print(quantile_table(fit_blav_mg, fit_inl_mg))
+print(var_c_table(fit_blav_mg, fit_inl_mg, c("w2a", "w3a")))
+print(var_c_table(fit_blav_mg, fit_inl_mg, c("w2b", "w3b"), ".g2"))
