@@ -1,6 +1,7 @@
 url: https://inlavaan.haziqj.ml
 template:
   bootstrap: 5
+  math-rendering: mathjax
 
 authors:
   Haziq Jamil:
