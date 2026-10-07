@@ -105,21 +105,32 @@ check_composite_derived <- function(pt) {
 
 # A label on a derived composite row cannot tie it to anything: lavaan then
 # fixes the free rows that share the label, and a constraint that uses it would
-# hold a parameter at the value of the start weights.
+# hold a parameter at the value of the start weights. lavaan ties rows by their
+# effective label, the user's label or else lhs op rhs (with .gN in a later
+# group), so equal("C~~C") on another row ties it as well.
 check_composite_labels <- function(pt) {
   rows <- composite_derived_rows(pt)
-  user_labels <- pt$label[rows][nzchar(pt$label[rows])]
-  shared <- pt$label %in% user_labels & !seq_along(pt$lhs) %in% rows
-  is_con <- pt$op %in% c("==", "<", ">")
+  if (length(rows) == 0L) {
+    return(invisible(NULL))
+  }
+  is_con <- pt$op %in% c("==", "<", ">", ":=")
+  group <- if (is.null(pt$group)) rep(1L, length(pt$lhs)) else pt$group
+  eff <- pt$label
+  default <- paste0(
+    pt$lhs,
+    pt$op,
+    pt$rhs,
+    ifelse(group > 1L, paste0(".g", group), "")
+  )
+  eff[!nzchar(eff)] <- default[!nzchar(eff)]
+  others <- setdiff(which(!is_con), rows)
+  tied <- intersect(eff[rows], eff[others])
   con_names <- unlist(lapply(
-    c(pt$lhs[is_con], pt$rhs[is_con]),
+    c(pt$lhs[is_con & pt$op != ":="], pt$rhs[is_con & pt$op != ":="]),
     function(e) tryCatch(all.vars(str2lang(e)), error = function(err) e)
   ))
-  derived_names <- c(user_labels, pt$plabel[rows])
-  bad <- unique(c(
-    pt$label[shared],
-    intersect(derived_names[nzchar(derived_names)], con_names)
-  ))
+  constrained <- intersect(c(eff[rows], pt$plabel[rows]), con_names)
+  bad <- unique(c(tied, constrained))
   if (length(bad) == 0L) {
     return(invisible(NULL))
   }
@@ -127,9 +138,10 @@ check_composite_labels <- function(pt) {
     "The variances and intercepts of composites are set by the weights, so
      their labels cannot be shared with other parameters or used in
      constraints.",
-    "x" = "{cli::qty(length(bad))}Label{?s} {.code {bad}} name{?s/} such a
-           row.",
-    "i" = "Remove the label, or the constraint that uses it."
+    "x" = "{cli::qty(length(bad))}Label{?s} {.code {bad}} name{?s/}
+           {?such a row/such rows}.",
+    "i" = "{cli::qty(length(bad))}Remove the label{?s}, or any constraint that
+           uses {?it/them}."
   ))
 }
 

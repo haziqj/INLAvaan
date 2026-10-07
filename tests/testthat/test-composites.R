@@ -244,6 +244,11 @@ test_that("Labels on derived composite rows cannot be shared or constrained", {
     fit_quiet("C <~ x1 + x2 + x3\n C ~~ v*C\n x4 ~ C\n x5 ~ C\n x4 ~~ v*x4"),
     "labels cannot be shared"
   )
+  # lavaan also ties rows through its default labels
+  expect_error(
+    fit_quiet("C <~ x1 + x2 + x3\n x4 ~ C\n x5 ~ C\n x4 ~~ equal('C~~C')*x4"),
+    "labels cannot be shared"
+  )
   expect_no_error(
     fit_quiet("C <~ x1 + w2*x2 + w3*x3\n x4 ~ C\n x5 ~ C\n w2 == w3")
   )
