@@ -163,10 +163,19 @@ has_composite_syntax <- function(model) {
 # Composite models INLAvaan cannot fit yet. In a two-level model lavaan builds
 # the fixed indicator covariances from the wrong moments, so only free ones are
 # allowed there. Ordinal data must stop before the PML refit, whose theta
-# parameterisation lavaan rejects for composites.
+# parameterisation lavaan rejects for composites. lavaan's random-slope
+# likelihood does not match a composite model: with the slope variance fixed at
+# zero, it differs from the fixed-slope fit.
 check_composite_scope <- function(fit0) {
   if (!any(fit0@ParTable$op == "<~")) {
     return(invisible(NULL))
+  }
+  if (has_random_slopes(fit0@Model)) {
+    cli_abort(
+      "INLAvaan does not support composites ({.code <~}) in random-slope
+       models yet.",
+      class = "inlavaan_rs_composite"
+    )
   }
   if (
     fit0@Data@nlevels > 1L && identical(fit0@Options$composites.cov, "fixed")

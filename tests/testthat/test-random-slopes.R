@@ -714,3 +714,25 @@ test_that("Random slopes: a zero slope variance is refused on the quadrature rou
     class = "inlavaan_rs_zero_var"
   )
 })
+
+test_that("Random slopes: composites are refused", {
+  mod_comp <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+    level: 2
+      cb <~ y1 + y2 + y3
+      cb ~ w1
+  "
+  expect_error(
+    asem(
+      mod_comp,
+      d_rs,
+      cluster = "cluster",
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3
+    ),
+    class = "inlavaan_rs_composite"
+  )
+})
