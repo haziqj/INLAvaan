@@ -2,15 +2,16 @@
 
 ## New features
 
-* INLAvaan now fits two-level models with random slopes, which lavaan
-  specifies with the `rv()` modifier. They work with `compare()`, `loo()`,
-  `waic()`, `logLik()` and `predict(type = "lv")`, and `summary()` marks the
-  rows that carry a random slope. Outputs that need a single implied
-  covariance matrix, such as the posterior predictive p-value, `fitted()` and
-  `simulate()`, give an error. A random slope on a latent or split covariate
-  uses lavaan's quadrature, which is slower, and `integration.ngh` sets its
-  number of nodes. Composites cannot be combined with random slopes yet. See
-  the multilevel article.
+* INLAvaan now fits two-level models with random slopes, which lavaan specifies
+  with the `rv()` modifier. They work with `compare()`, `loo()`, `waic()`,
+  `logLik()` and `predict(type = "lv")`, and `summary()` marks the rows that
+  carry a random slope. `fitted()`, `residuals()` and the standardised estimates
+  use the implied moments averaged over the covariates, and `per_cluster = TRUE`
+  gives those of each cluster. The posterior predictive p-value and `simulate()`
+  give an error. A random slope on a latent or split covariate uses lavaan's
+  quadrature, which is slower, and `integration.ngh` sets its number of nodes.
+  Composites cannot be combined with random slopes yet. See the multilevel
+  article.
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
   with continuous data, in one or more groups or at either level of a two-level
@@ -29,6 +30,9 @@
   mean that only composites measure (as in `agrowth()` on composites).
 
 ## Bug fixes
+
+* `standardisedsolution()` ignored its `nsamp` argument and summarised as many
+  posterior draws as the fit itself had used.
 
 * Multigroup models with `missing = "ml"` gave wrong posteriors.
 

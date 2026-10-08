@@ -6,9 +6,9 @@
 \alias{resid,INLAvaan-method}
 \title{Model Residuals for INLAvaan Models}
 \usage{
-\S4method{residuals}{INLAvaan}(object, type = "raw", labels = TRUE, ...)
+\S4method{residuals}{INLAvaan}(object, type = "raw", labels = TRUE, ..., per_cluster = FALSE)
 
-\S4method{resid}{INLAvaan}(object, type = "raw", ...)
+\S4method{resid}{INLAvaan}(object, type = "raw", ..., per_cluster = FALSE)
 }
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
@@ -28,6 +28,9 @@ for each observation.}
 \code{TRUE}.}
 
 \item{...}{Currently unused.}
+
+\item{per_cluster}{Logical. For a random-slope model, return the residuals
+of each cluster instead of the averaged ones. Default \code{FALSE}.}
 }
 \value{
 For moment-based \code{type}s, a list with elements
@@ -48,6 +51,13 @@ posterior means as the point estimates of the fitted object, the residuals
 are the observed statistics minus the posterior-mean model-implied
 statistics (mirroring \pkg{blavaan}, which likewise inherits lavaan's
 \code{residuals()} without overriding it).
+
+For a model with random slopes (lavaan's \code{rv()}), the residuals
+compare the sample moments with the averaged moments of \code{\link[=fitted]{fitted()}}. With
+\code{per_cluster = TRUE}, they compare each cluster's sample mean and
+within-cluster covariance with its expected ones. A covariance of two
+variables observed together in fewer than two rows of a cluster is
+\code{NA}. Only the raw and correlation types are available.
 }
 \examples{
 \donttest{

@@ -6,9 +6,15 @@
 \alias{fitted.values,INLAvaan-method}
 \title{Model-Implied Moments for INLAvaan Models}
 \usage{
-\S4method{fitted}{INLAvaan}(object, type = "moments", labels = TRUE, ...)
+\S4method{fitted}{INLAvaan}(object, type = "moments", labels = TRUE, ..., per_cluster = FALSE)
 
-\S4method{fitted.values}{INLAvaan}(object, type = "moments", labels = TRUE, ...)
+\S4method{fitted.values}{INLAvaan}(
+  object,
+  type = "moments",
+  labels = TRUE,
+  ...,
+  per_cluster = FALSE
+)
 }
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
@@ -22,12 +28,16 @@ thresholds for ordinal data). \code{"casewise"} (aliases \code{"obs"},
 \code{TRUE}.}
 
 \item{...}{Currently unused.}
+
+\item{per_cluster}{Logical. For a random-slope model, return the moments
+of each cluster instead of their average. Default \code{FALSE}.}
 }
 \value{
 For \code{type = "moments"}, a list (or list of lists, for
 multiple groups) with elements such as \code{cov}, \code{mean}, and
 \code{th}. For \code{type = "casewise"}, a numeric matrix of predicted
-observed-variable values.
+observed-variable values. With \code{per_cluster = TRUE}, a list with one
+element per cluster, each holding \code{cov} and \code{mean}.
 }
 \description{
 Extract the model-implied (fitted) sample statistics from a fitted
@@ -40,6 +50,15 @@ This delegates to \pkg{lavaan}'s own \code{fitted()} machinery, so the return
 structure matches lavaan exactly. Because INLAvaan stores the posterior means
 as the point estimates of the fitted object, the implied moments are the
 posterior-mean model-implied moments (mirroring \pkg{blavaan}).
+
+For a model with random slopes (lavaan's \code{rv()}), the moments are
+averaged over the covariates and include the mean and the variance of each
+slope. With \code{per_cluster = TRUE}, each cluster gets the expected
+cluster mean and within-cluster covariance (divisor \eqn{n_j}) of its
+outcomes and covariates at its own covariate values, and the mean also holds
+the expected values of any between-only outcomes. This is not available for
+a slope on a latent or split covariate. \code{type = "casewise"} is not
+available for random-slope models.
 }
 \examples{
 \donttest{

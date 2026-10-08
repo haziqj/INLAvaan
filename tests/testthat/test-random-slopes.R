@@ -221,8 +221,6 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(bfit_indices(fit_rs), class = "inlavaan_rs_bfit")
   expect_error(simulate(fit_rs, nsim = 1), class = "inlavaan_rs_simulate")
   expect_error(predict(fit_rs, type = "yhat"), class = "inlavaan_rs_predict")
-  expect_error(fitted(fit_rs), class = "inlavaan_rs_moments")
-  expect_error(residuals(fit_rs), class = "inlavaan_rs_moments")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
   for (tp in c("latent", "observed", "implied", "all")) {
     expect_error(
@@ -232,15 +230,6 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   }
   # Parameter draws never touch the implied moments and stay available
   expect_equal(dim(sampling(fit_rs, type = "lavaan", nsamp = 4)), c(4L, 19L))
-})
-
-test_that("Random slopes: standardised estimates are refused", {
-  expect_error(standardisedsolution(fit_rs), class = "inlavaan_rs_std")
-  expect_warning(
-    out <- capture.output(summary(fit_rs, standardized = TRUE)),
-    class = "inlavaan_rs_std"
-  )
-  expect_false(any(grepl("Std.all", out, fixed = TRUE)))
 })
 
 test_that("Random slopes: summary() marks the carrier row", {
@@ -435,6 +424,27 @@ test_that("Random slopes: comparing quadrature fits needs one node count", {
   expect_no_error(cmp <- compare(fit_b5, fit_b5b))
   expect_named(cmp, c("Model", "npar", "Marg.Loglik", "logBF"))
   expect_equal(diff(cmp$Marg.Loglik), 0, tolerance = 1e-4)
+})
+
+test_that("Random slopes: the quadrature route has averaged moments only", {
+  skip_on_cran()
+  fit_b <- fit_route_b(5)
+  # The averaged moments need only second moments, which are exact here
+  f <- fitted(fit_b)
+  expect_true(all(is.finite(f$within$cov)))
+  expect_true(all(is.finite(residuals(fit_b)$within$cov)))
+  set.seed(3)
+  std <- standardisedsolution(fit_b, nsamp = 10)
+  expect_true(all(is.finite(std$est.std)))
+  # Each cluster is a mixture over the quadrature nodes
+  expect_error(
+    fitted(fit_b, per_cluster = TRUE),
+    class = "inlavaan_rs_per_cluster"
+  )
+  expect_error(
+    residuals(fit_b, per_cluster = TRUE),
+    class = "inlavaan_rs_per_cluster"
+  )
 })
 
 ## ----- Equality constraints --------------------------------------------------

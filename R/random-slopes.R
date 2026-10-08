@@ -182,42 +182,80 @@ check_rs_zero_var <- function(lavpartable, lavmodel) {
   )
 }
 
-# Gate for the moment-based methods. Both report a single model-implied
-# covariance matrix per level, which a random-slope model does not have.
-check_rs_moments <- function(object, fn) {
+# Gate for what the moment-based methods still cannot give a random-slope
+# fit: casewise values, which would need the predicted outcomes lavaan does
+# not provide, and the residual types scaled by asymptotic standard errors,
+# which need the model's derivatives of the moments.
+check_rs_moments <- function(object, fn, type) {
   if (!has_random_slopes(object@external$inlavaan_internal$lavmodel)) {
     return(invisible(NULL))
   }
+  is_fitted <- fn %in% c("fitted", "fitted.values")
+  ok <- if (is_fitted) type == "moments" else !is.na(rs_residual_type(type))
+  if (ok) {
+    return(invisible(NULL))
+  }
+  hint <- if (is_fitted) {
+    "Use the default {.code type = \"moments\"}."
+  } else {
+    "Use {.code type = \"raw\"}, {.code \"cor\"} or {.code \"cor.bentler\"}."
+  }
   cli_abort(
     c(
-      "{.fn {fn}} has no model-implied moments for a random-slope model.",
-      "x" = "The covariance of y depends on the covariate values, so there
-             is no single within-cluster covariance matrix, and
-             {.pkg lavaan}'s implied moments silently drop the slope
-             variance -- the residuals would report it as misfit.",
-      "i" = "Use {.code predict(object, type = \"lv\", level = 2)} for the
-             cluster-level slopes."
+      "{.fn {fn}} with {.code type = \"{type}\"} is not available for a
+       random-slope model.",
+      "i" = hint
     ),
     class = "inlavaan_rs_moments"
   )
 }
 
-# Gate for the standardised solution, which scales by lavaan's implied
-# variances. Those leave out the variance a random slope adds.
-rs_std_reason <- "They are scaled by model-implied variances, which leave out
-  the variance the random slope adds."
-
-check_rs_std <- function(object) {
-  if (!has_random_slopes(object@external$inlavaan_internal$lavmodel)) {
-    return(invisible(NULL))
-  }
-  cli_abort(
-    c(
-      "Standardised estimates are not available for a random-slope model.",
-      "x" = rs_std_reason
-    ),
-    class = "inlavaan_rs_std"
+# The residual types a random-slope fit supports, in lavaan's canonical
+# spelling, and NA for the others. As in lavaan, "cor" means "cor.bentler"
+# for a fit that mimics EQS and "cor.bollen" otherwise.
+rs_residual_type <- function(type, mimic = "lavaan") {
+  type <- gsub("_", ".", type)
+  alias <- c(
+    raw = "raw",
+    rmr = "raw",
+    cor = if (identical(mimic, "EQS")) "cor.bentler" else "cor.bollen",
+    cor.bollen = "cor.bollen",
+    crmr = "cor.bollen",
+    cor.bentler = "cor.bentler",
+    cor.eqs = "cor.bentler",
+    srmr = "cor.bentler"
   )
+  unname(alias[type])
+}
+
+# `per_cluster = TRUE` needs the per-cluster kernel of a random-slope fit
+check_per_cluster <- function(object, per_cluster) {
+  if (!isTRUE(per_cluster)) {
+    return(invisible(FALSE))
+  }
+  if (!has_random_slopes(object@external$inlavaan_internal$lavmodel)) {
+    cli_abort(
+      "{.code per_cluster = TRUE} is available for random-slope models
+       only.",
+      class = "inlavaan_per_cluster"
+    )
+  }
+  invisible(TRUE)
+}
+
+# summary() leaves out what the averaged moments cannot give, rather than
+# stopping halfway through the table. Returns NULL for the caller to test.
+warn_rs_left_out <- function(what) {
+  cli_warn(
+    c(
+      "Leaving out the {what} of this random-slope model.",
+      "x" = "An outcome observed at level 1 only has no place for the
+             between-cluster variance its random slope adds.",
+      "i" = "Run {.fn fitted} for the details."
+    ),
+    class = "inlavaan_rs_within_only"
+  )
+  NULL
 }
 
 # Route B (a random slope on a latent or split covariate) replaces the
