@@ -98,10 +98,10 @@ reused.
 
 When any of the models has random slopes (lavaan's \code{rv()} modifier; see
 \code{\link[=inlavaan]{inlavaan()}}), \code{compare()} aborts unless all the models were fitted with
-\code{fixed.x = TRUE}, condition on the same covariates, score the same
-outcome variables, and share one \code{integration.ngh} on the quadrature
-route. The fixed-slope model (the same path without \code{rv()}) is a valid
-comparator for testing a random slope.
+\code{fixed.x = TRUE}, score the same outcome variables, and share one
+\code{integration.ngh} on the quadrature route. Their covariates may differ. The
+fixed-slope model (the same path without \code{rv()}) is a valid comparator for
+testing a random slope.
 
 \code{anova()} is disabled for \code{INLAvaan} fits -- there is no direct Bayesian
 analogue of the classical likelihood-ratio test -- and points here instead.

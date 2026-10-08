@@ -62,10 +62,10 @@
 #'
 #' When any of the models has random slopes (lavaan's `rv()` modifier; see
 #' [inlavaan()]), `compare()` aborts unless all the models were fitted with
-#' `fixed.x = TRUE`, condition on the same covariates, score the same
-#' outcome variables, and share one `integration.ngh` on the quadrature
-#' route. The fixed-slope model (the same path without `rv()`) is a valid
-#' comparator for testing a random slope.
+#' `fixed.x = TRUE`, score the same outcome variables, and share one
+#' `integration.ngh` on the quadrature route. Their covariates may differ. The
+#' fixed-slope model (the same path without `rv()`) is a valid comparator for
+#' testing a random slope.
 #'
 #' `anova()` is disabled for `INLAvaan` fits -- there is no direct Bayesian
 #' analogue of the classical likelihood-ratio test -- and points here instead.

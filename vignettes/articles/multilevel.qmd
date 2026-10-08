@@ -253,10 +253,10 @@ cmp
 bf <- stats::setNames(cmp$logBF, cmp$Model)
 ```
 
-Because a random-slope likelihood is the density of the outcomes *given* the covariates, a table like this one only says something when every fit conditions on the same covariates in the same way.
-`compare()` checks that, and aborts otherwise; the three models here all condition on `x1` and `w1`, the last two keeping `w1` through `fb ~ w1`.
-It checks the other side of the split as well: the variables the kernel *scores* -- the outcomes, plus any between-level variable the model explains rather than regresses on -- must also match across the table.
-The plain fixed-slope model written out directly (`fw ~ x1` at Level 1) is an equally valid member of the table whenever it conditions on the same covariates, and it fits a good deal faster.
+Because a random-slope likelihood is the density of the outcomes *given* the covariates, every fit in a table like this one must score the same variables: the outcomes, plus any between-level variable the model explains rather than regresses on.
+`compare()` checks that, and aborts otherwise.
+The covariates themselves may differ, as for any fit with `fixed.x = TRUE`: a model without `w1` says that the outcomes do not depend on it, so dropping a covariate is a fair comparison too.
+The plain fixed-slope model written out directly (`fw ~ x1` at Level 1) is an equally valid member of the table, and it fits a good deal faster.
 
 On `Demo.twolevel` the maximum-likelihood estimate of the slope variance is slightly negative, so there is no slope variation in these data to find, and the models without it are duly preferred: a log Bayes factor of `r fmt(bf["fit_cli"])` for the cross-level-interaction model and `r fmt(bf["fit_rs"])` for the full random-slope model, both against the fixed-slope fit, with the DIC ordering the three the same way.
 

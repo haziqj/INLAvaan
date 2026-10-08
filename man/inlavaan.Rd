@@ -302,12 +302,11 @@ slopes alongside the other level-2 latent variables; and \code{\link[=fitmeasure
 keeps \code{npar}, \code{margloglik}, \code{dic} and \code{p_dic}.
 
 To ask whether there is a random slope at all, compare the fit with the
-fixed-slope model (\code{fw ~ x1} at level 1), which \code{\link[=compare]{compare()}} accepts
-whenever it has the same covariates. On the closed-form route, fixing the
-slope variance at zero (\code{s1 ~~ 0*s1}) and dropping any cross-level
-regression on the slope gives the same model. Keeping \code{s1 ~ w1} gives a
-cross-level interaction model instead. The quadrature route refuses a
-slope variance fixed at zero.
+fixed-slope model (\code{fw ~ x1} at level 1) using \code{\link[=compare]{compare()}}. On the
+closed-form route, fixing the slope variance at zero (\code{s1 ~~ 0*s1}) and
+dropping any cross-level regression on the slope gives the same model.
+Keeping \code{s1 ~ w1} gives a cross-level interaction model instead. The
+quadrature route refuses a slope variance fixed at zero.
 }
 
 \examples{

@@ -230,12 +230,11 @@
 #' keeps `npar`, `margloglik`, `dic` and `p_dic`.
 #'
 #' To ask whether there is a random slope at all, compare the fit with the
-#' fixed-slope model (`fw ~ x1` at level 1), which [compare()] accepts
-#' whenever it has the same covariates. On the closed-form route, fixing the
-#' slope variance at zero (`s1 ~~ 0*s1`) and dropping any cross-level
-#' regression on the slope gives the same model. Keeping `s1 ~ w1` gives a
-#' cross-level interaction model instead. The quadrature route refuses a
-#' slope variance fixed at zero.
+#' fixed-slope model (`fw ~ x1` at level 1) using [compare()]. On the
+#' closed-form route, fixing the slope variance at zero (`s1 ~~ 0*s1`) and
+#' dropping any cross-level regression on the slope gives the same model.
+#' Keeping `s1 ~ w1` gives a cross-level interaction model instead. The
+#' quadrature route refuses a slope variance fixed at zero.
 #'
 #' @seealso Typically, users will interact with the specific latent variable
 #'   model functions instead, including [acfa()], [asem()], and [agrowth()].
