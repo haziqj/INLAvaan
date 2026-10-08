@@ -60,6 +60,19 @@ rs_spec <- function(int) {
   )
 }
 
+# The covariates a random-slope fit's evidence and LOO condition on, and the
+# variables they score. The kernel scores a covariate observed at both levels
+# with the outcomes, but the fixed.x shift on the marginal likelihood and DIC,
+# and loco_rs_split_const() in the LOO, take its frozen density out again. So
+# every observed exogenous covariate ends up conditioned on.
+rs_scored_sets <- function(int, spec) {
+  ov_x <- unlist(int$lavdata@ov.names.x)
+  list(
+    cond = union(spec$cond, intersect(spec$resp, ov_x)),
+    resp = setdiff(spec$resp, ov_x)
+  )
+}
+
 # lavaan builds a random-slope derivative from the packed free parameters
 # (`lavmodel@nx.free`, one entry per equality group), where every other
 # model hands back one entry per free partable row (`lavmodel@nx.unco`,

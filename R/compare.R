@@ -413,9 +413,7 @@ compare_impl <- function(
     score_vars <- lapply(internals, function(m) {
       spec <- rs_spec(m)
       if (!is.null(spec)) {
-        # A random-slope kernel scores its own response set, which on the
-        # quadrature route holds the split covariates as well
-        return(sort(unique(spec$resp)))
+        return(sort(unique(rs_scored_sets(m, spec)$resp)))
       }
       ov <- sort(unique(unlist(m$lavdata@ov.names)))
       if (flavs[1L] == "conditional") {
@@ -549,7 +547,7 @@ composite_t_key <- function(int) {
 # A random-slope likelihood is the density of the outcomes *given* the
 # exogenous covariates, so its marginal log-likelihood and DIC only mean the
 # same thing as another fit's when the two condition on the same covariates
-# in the same way. The three conditions below are what puts a table of such
+# in the same way. The conditions below are what puts a table of such
 # fits on one scale, and each of them aborts: a Bayes factor between
 # quantities on different scales is not a weaker statement but a meaningless
 # one. A comparison of ordinary fits is untouched.
@@ -588,14 +586,13 @@ check_rs_comparable <- function(internals, modnames) {
     )
   }
 
-  # (b) Which covariates? A random-slope fit conditions on the covariates its
-  # kernel carries. An ordinary fixed.x fit conditions on its exogenous
-  # variables.
+  # (b) Which covariates? A fixed.x fit, with random slopes or without,
+  # conditions on its observed exogenous variables (see rs_scored_sets()).
   cond <- lapply(seq_along(internals), function(k) {
     v <- if (is.null(specs[[k]])) {
       unlist(internals[[k]]$lavdata@ov.names.x)
     } else {
-      specs[[k]]$cond
+      rs_scored_sets(internals[[k]], specs[[k]])$cond
     }
     sort(unique(v[nzchar(v)]))
   })
@@ -609,19 +606,16 @@ check_rs_comparable <- function(internals, modnames) {
                {.val {modnames[k]}} on {.val {cond[[k]]}}, and marginal
                log-likelihoods and DICs under different conditioning sets are
                densities of different things.",
-        "i" = "Keep the same covariates in every model: to test a path, drop
-               the regression but keep the variable, or fix the slope
-               variance to zero with {.code s1 ~~ 0*s1}."
+        "i" = "Keep the same covariates in every model. To test a random
+               slope, compare with the fixed-slope model (the same path
+               without {.code rv()})."
       ),
       class = "inlavaan_rs_compare_cond"
     )
   }
 
-  # (c) Which variables are scored? A random-slope fit scores the response
-  # set its kernel carries -- the outcomes, the between-only endogenous
-  # variables it models, and, on the quadrature route, the split covariates
-  # that sit in the response vector. An ordinary fixed.x fit scores
-  # everything it does not condition on.
+  # (c) Which variables are scored? Everything a fit does not condition on:
+  # the outcomes, and the between-only endogenous variables it models.
   resp <- lapply(seq_along(internals), function(k) {
     v <- if (is.null(specs[[k]])) {
       setdiff(
@@ -629,7 +623,7 @@ check_rs_comparable <- function(internals, modnames) {
         unlist(internals[[k]]$lavdata@ov.names.x)
       )
     } else {
-      specs[[k]]$resp
+      rs_scored_sets(internals[[k]], specs[[k]])$resp
     }
     sort(unique(v[nzchar(v)]))
   })
@@ -640,13 +634,10 @@ check_rs_comparable <- function(internals, modnames) {
       c(
         "Cannot compare fits that score different variables.",
         "x" = "{.val {modnames[1L]}} scores {.val {resp[[1L]]}} but
-               {.val {modnames[k]}} scores {.val {resp[[k]]}}, and the
-               kernels give these variables a joint density, so the
+               {.val {modnames[k]}} scores {.val {resp[[k]]}}, so the
                marginal log-likelihoods and DICs are densities of different
                things.",
-        "i" = "Keep the same variables in every model: to test a path, drop
-               the regression but keep the variable, or fix the slope
-               variance to zero with {.code s1 ~~ 0*s1}."
+        "i" = "Keep the same outcome variables in every model."
       ),
       class = "inlavaan_rs_compare_resp"
     )

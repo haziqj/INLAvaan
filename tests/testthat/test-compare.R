@@ -499,7 +499,7 @@ test_that("comparing across conditioning sets aborts", {
     class = "inlavaan_rs_compare_cond"
   )
   expect_match(conditionMessage(err), "w1")
-  expect_match(conditionMessage(err), "s1 ~~ 0\\*s1")
+  expect_match(conditionMessage(err), "fixed-slope model")
 })
 
 test_that("compare(loo = TRUE) works across random-slope fits", {
@@ -570,10 +570,11 @@ test_that("a between-level factor is compared on the kernel's own sets", {
   )
 })
 
-test_that("quadrature fits scoring different covariates are refused", {
+test_that("quadrature fits are compared on the covariates they condition on", {
   skip_on_cran()
-  # A covariate that lives at both levels is part of the kernel's response
-  # vector, so a second one adds log p(x2) to the marginal likelihood
+  # The quadrature kernel scores a covariate that lives at both levels with
+  # the outcomes, and the fixed.x shift takes its density out again, so
+  # these fits condition on their covariates like any fixed.x fit
   set.seed(2)
   J <- 12
   n <- 6
@@ -629,10 +630,65 @@ test_that("quadrature fits scoring different covariates are refused", {
   spec1 <- rs_spec(get_inlavaan_internal(fit_b1))
   expect_setequal(spec1$resp, c("y1", "x1"))
   expect_length(spec1$cond, 0L)
+  sets1 <- rs_scored_sets(get_inlavaan_internal(fit_b1), spec1)
+  expect_equal(sets1$cond, "x1")
+  expect_equal(sets1$resp, "y1")
 
+  # A second covariate is a different conditioning set
   err <- expect_error(
     compare(fit_b1, fit_b2),
-    class = "inlavaan_rs_compare_resp"
+    class = "inlavaan_rs_compare_cond"
   )
   expect_match(conditionMessage(err), "x2")
+
+  # The fixed-slope model is the comparator, here where a zero slope variance
+  # is not available
+  fit_bfx <- fit_b(
+    "
+    level: 1
+      y1 ~ x1
+    level: 2
+      y1 ~ x1
+      y1 ~~ y1
+  "
+  )
+  expect_no_error(cmp <- compare(fit_b1, fit_bfx))
+  expect_true(all(is.finite(cmp$Marg.Loglik)))
+  cmp_loo <- expect_warning(
+    compare(fit_b1, fit_bfx, loo = TRUE),
+    class = "inlavaan_rs_route_b"
+  )
+  expect_true(all(is.finite(cmp_loo$ELPD)))
+})
+
+test_that("a zero slope variance matches the fixed slope with a split covariate", {
+  skip_on_cran()
+  # x2 varies at both levels and carries no slope. lavaan's kernel scores it
+  # with the outcomes, and the evidence and the LOO both take its density
+  # out (about 423 here), so the comparison with the fixed-slope fit is on
+  # one scale. The two kernels treat x2 slightly differently, by 0.11 at the
+  # same parameter values on this subset, which bounds what remains.
+  mod_split0 <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1 + x2
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ x2 + w1
+      s1 ~~ 0*s1
+  "
+  mod_split_fx <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1 + x2
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ x2 + w1
+  "
+  fit_split0 <- suppressWarnings(fit_twolevel(mod_split0))
+  fit_split_fx <- suppressWarnings(fit_twolevel(mod_split_fx))
+  cmp <- compare(fit_split0, fit_split_fx)
+  expect_lt(abs(diff(cmp$Marg.Loglik)), 0.25)
+  cmp_loo <- compare(fit_split0, fit_split_fx, loo = TRUE)
+  expect_lt(abs(diff(cmp_loo$ELPD)), 0.25)
 })
