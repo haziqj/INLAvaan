@@ -158,6 +158,30 @@ check_rs_ceq <- function(pt, lavmodel) {
   )
 }
 
+# lavaan's quadrature route integrates over the distribution of each slope,
+# and its kernel is not finite when a slope variance is fixed at zero.
+check_rs_zero_var <- function(lavpartable, lavmodel) {
+  pt <- lavpartable
+  slopes <- c(names(lavmodel@rv.ov), names(lavmodel@rv.lv))
+  zero <- pt$op == "~~" &
+    pt$lhs == pt$rhs &
+    pt$lhs %in% slopes &
+    pt$free == 0L &
+    pt$start == 0
+  if (!any(zero)) {
+    return(invisible(NULL))
+  }
+  cli_abort(
+    c(
+      "A random slope on a latent or split covariate cannot have its
+       variance fixed at zero: {.val {unique(pt$lhs[zero])}}.",
+      "i" = "Fit the fixed-slope model instead (the same path without
+             {.code rv()})."
+    ),
+    class = "inlavaan_rs_zero_var"
+  )
+}
+
 # Gate for the moment-based methods. Both report a single model-implied
 # covariance matrix per level, which a random-slope model does not have.
 check_rs_moments <- function(object, fn) {

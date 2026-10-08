@@ -661,3 +661,29 @@ test_that("Random slopes: an inexact equality group is refused", {
     class = "inlavaan_rs_ceq"
   )
 })
+
+test_that("Random slopes: a zero slope variance is refused on the quadrature route", {
+  # The slope's covariate x1 enters at both levels, so the slope is
+  # integrated by quadrature, which cannot handle a zero variance
+  mod_zero <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ x1 + w1
+      s1 ~~ 0*s1
+  "
+  expect_error(
+    asem(
+      mod_zero,
+      d_rs,
+      cluster = "cluster",
+      integration.ngh = 3,
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3
+    ),
+    class = "inlavaan_rs_zero_var"
+  )
+})

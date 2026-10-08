@@ -487,6 +487,7 @@ inlavaan <- function(
     # cluster kernel with Gauss-Hermite quadrature, which is worth saying
     # whatever `verbose` asks for.
     if (isTRUE(lavcache[[1L]]$rs$info$nl.flag)) {
+      check_rs_zero_var(lavpartable, lavmodel)
       warn_rs_route_b(list(ngh = lavcache[[1L]]$rs$info$ngh))
     }
     # Equality constraints lavaan's packed random-slope gradient cannot be
