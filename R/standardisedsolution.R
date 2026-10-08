@@ -67,6 +67,8 @@ standardisedsolution <- function(
   fit_inlv <- get_inlavaan_internal(object)
   pt <- fit_inlv$partable
 
+  # The fit stores its own `nsamp`, which with() would find first
+  n_draws <- nsamp
   samp <- with(
     fit_inlv,
     sample_params(
@@ -76,7 +78,7 @@ standardisedsolution <- function(
       approx_data = approx_data,
       pt = partable,
       lavmodel = lavmodel,
-      nsamp = nsamp
+      nsamp = n_draws
     )
   )
   x_samp <- samp$x_samp

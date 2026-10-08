@@ -55,3 +55,19 @@ test_that("standardisedsolution handles := defined parameters", {
   out <- standardisedsolution(fit)
   expect_s3_class(out, "data.frame")
 })
+
+test_that("standardisedsolution() draws nsamp samples, not the fit's number", {
+  utils::data("HolzingerSwineford1939", package = "lavaan")
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    data = HolzingerSwineford1939,
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  )
+  set.seed(1)
+  few <- standardisedsolution(fit, nsamp = 5)
+  set.seed(1)
+  many <- standardisedsolution(fit, nsamp = 200)
+  expect_false(isTRUE(all.equal(few$se, many$se)))
+})

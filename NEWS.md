@@ -31,6 +31,9 @@
 
 ## Bug fixes
 
+* `standardisedsolution()` ignored its `nsamp` argument and summarised as many
+  posterior draws as the fit itself had used.
+
 * Multigroup models with `missing = "ml"` gave wrong posteriors.
 
 * `loo()` and `waic()` gave wrong values for complete-data two-level models in
