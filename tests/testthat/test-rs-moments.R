@@ -680,6 +680,19 @@ test_that("Standardised estimates of a random-slope fit", {
   expect_true(any(grepl("Std.all", out, fixed = TRUE)))
 })
 
+test_that("summary() takes the R-square from the averaged variances", {
+  info <- rs_spec(get_inlavaan_internal(fit_rs))$rs$info
+  r2 <- rs_rsquare(fit_rs, info)
+  r2_fw <- r2$r2[r2$resvar & r2$lhs == "fw" & r2$block == 1L]
+  expect_gt(r2_fw, 0.05)
+  out <- capture.output(summary(fit_rs, rsquare = TRUE))
+  fw_line <- grep("^\\s+fw\\s+[0-9.]+$", out, value = TRUE)
+  expect_equal(
+    as.numeric(sub(".*\\s", "", fw_line)),
+    round(r2_fw, 3)
+  )
+})
+
 test_that("Constraints, FIML, two slopes and named levels work together", {
   skip_on_cran()
   # One fit with an equality constraint, two slopes and their covariance,

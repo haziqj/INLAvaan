@@ -431,6 +431,29 @@ rs_std_values <- function(
   out
 }
 
+# R-squares of the endogenous variables of a random-slope model, from the
+# averaged implied variances at the fit's own estimates. lavaan's rule is
+# kept: one minus the standardised residual variance, in the ordinary
+# (scale-free) metric, so a slope's R-square is that of its cross-level
+# regression.
+rs_rsquare <- function(object, info) {
+  pt <- object@ParTable
+  std <- rs_std_values(
+    object,
+    object@Model,
+    pt$est,
+    info,
+    type = "std.all",
+    slope_metric = FALSE
+  )
+  data.frame(
+    lhs = pt$lhs,
+    block = pt$block,
+    resvar = pt$op == "~~" & pt$lhs == pt$rhs,
+    r2 = 1 - std
+  )
+}
+
 ## ----- fitted() and residuals() ----------------------------------------------
 
 # A lavaan copy of the fit whose implied moments are the averaged ones, so

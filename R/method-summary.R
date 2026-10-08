@@ -118,6 +118,17 @@ summary_inlavaan <- function(
     PE$block <- 1
     PE$block[PE$op == ":="] <- 0
   }
+  # lavaan's R-square of a random-slope model leaves the slope out of the
+  # outcome's variance, so take it from the averaged implied variances
+  r2_idx <- which(PE$op == "r2")
+  if (length(r2_idx) > 0L && has_random_slopes(object@Model)) {
+    r2 <- rs_rsquare(object, rs_spec(get_inlavaan_internal(object))$rs$info)
+    r2 <- r2[r2$resvar, ]
+    PE$est[r2_idx] <- r2$r2[match(
+      paste(PE$lhs[r2_idx], PE$block[r2_idx]),
+      paste(r2$lhs, r2$block)
+    )]
+  }
 
   # # If PML, remove intercepts when not estimated
   # if (object@Model@estimator == "PML") {
