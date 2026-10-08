@@ -145,12 +145,28 @@ rs_avg_implied <- function(lavmodel, info, glist = lavmodel@GLIST) {
 
 ## ----- Per-cluster moments ---------------------------------------------------
 
+# lavaan's own pieces of the per-cluster kernel. lavaan 0.7-2 spelled three
+# of them with dots, later versions with underscores, so both are accepted.
+rs_implied_pieces <- function(lavmodel, info, glist = lavmodel@GLIST) {
+  imp <- lavaan___lav_mvn_cl_rs_implied(
+    lavmodel = lavmodel,
+    glist = glist,
+    rs_info = info
+  )
+  for (nm in c("mu_y", "sigma_w", "mu_z")) {
+    if (is.null(imp[[nm]])) {
+      imp[[nm]] <- imp[[sub("_", ".", nm)]]
+    }
+  }
+  imp
+}
+
 # The stacked mean and covariance of one cluster's outcomes given its own
 # covariates, as the closed-form kernel has them: for observation i,
 #   y_i = mu_y + P x_i + Q_i v + e_i,  Q_i = q0 + sum_p lmat[, p] x_ip e_z(p)',
 # with v ~ N(d, Sigma_v), d = mu_v + cc (w - mu_exo) and e_i ~ N(0, Sigma_w).
 # Rows run observation by observation, (y_1, ..., y_n), and then the
-# between-only outcomes. `imp` is lavaan's lav_mvn_cl_rs_implied() output,
+# between-only outcomes. `imp` holds lavaan's pieces from rs_implied_pieces(),
 # `X` the cluster's covariates (columns in `info$x.names` order) and `exo_b`
 # its between-level covariates.
 rs_cluster_moments <- function(imp, info, X, exo_b) {
@@ -275,11 +291,7 @@ rs_per_cluster <- function(object, observed = FALSE) {
   }
   info <- spec$rs$info
   lavmodel <- object@Model
-  imp <- lavaan___lav_mvn_cl_rs_implied(
-    lavmodel = lavmodel,
-    glist = lavmodel@GLIST,
-    rs_info = info
-  )
+  imp <- rs_implied_pieces(lavmodel, info)
   ov_w <- lavmodel@dimNames[[1L]][[1L]]
   vars <- c(info$y.names, info$x.names)
   ord <- match(intersect(ov_w, vars), vars)

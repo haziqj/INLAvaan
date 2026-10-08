@@ -27,11 +27,7 @@ fit_rs <- asem(
 # missing outcome drops out of the stacked vector, which is the FIML
 # marginal.
 rs_stacked_loglik <- function(lavmodel, rs, lavdata) {
-  imp <- lavaan___lav_mvn_cl_rs_implied(
-    lavmodel = lavmodel,
-    glist = lavmodel@GLIST,
-    rs_info = rs$info
-  )
+  imp <- rs_implied_pieces(lavmodel, rs$info)
   vapply(
     rs_cluster_data(lavdata, rs),
     function(cl) {
@@ -208,11 +204,7 @@ test_that("Averaged moments are the covariate average of the cluster ones", {
   ))
   rs <- fit@Cache[[1L]]$rs
   info <- rs$info
-  imp <- lavaan___lav_mvn_cl_rs_implied(
-    lavmodel = fit@Model,
-    glist = fit@Model@GLIST,
-    rs_info = info
-  )
+  imp <- rs_implied_pieces(fit@Model, info)
   # Every observed covariate row crossed with every cluster's w1: the
   # within-only and between-only covariates independent, each with its own
   # sample distribution, as in lavaan's two-level layout
@@ -390,11 +382,7 @@ test_that("Monte Carlo: the per-cluster moments", {
     do.fit = FALSE
   ))
   rs <- fit@Cache[[1L]]$rs
-  imp <- lavaan___lav_mvn_cl_rs_implied(
-    lavmodel = fit@Model,
-    glist = fit@Model@GLIST,
-    rs_info = rs$info
-  )
+  imp <- rs_implied_pieces(fit@Model, rs$info)
   cl <- rs_cluster_data(fit@Data, rs)[[7L]]
   mom <- rs_cluster_moments(imp, rs$info, cl$X, cl$exo_b)
   n_rep <- 20000
