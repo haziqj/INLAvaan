@@ -85,7 +85,7 @@ standardisedsolution <- function(
   comp_rows <- composite_derived_rows(pt)
 
   # A random-slope model is scaled by its averaged implied variances, which
-  # rs_std_values() gives for every partable row
+  # rs_std_values() gives for every partable row.
   spec <- rs_spec(fit_inlv)
   rs_shared <- character(0)
 

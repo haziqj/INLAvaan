@@ -42,9 +42,9 @@ rs_eta_moments <- function(mats) {
 # x = E[x] + d, a slope term s x splits into E[s] x, a within disturbance u d
 # with variance Var(s) Var(x), and a between term u E[x]:
 #
-#   - within block: the carrier cell of each path gets the mean slope, and
-#     the disturbance of its outcome gets Cov(s_p, s_k) Cov(x_p, x_k);
-#   - between block: each both-level outcome loads on the slope through its
+#   - Within block. The carrier cell of each path gets the mean slope, and
+#     the disturbance of its outcome gets Cov(s_p, s_k) Cov(x_p, x_k).
+#   - Between block. Each both-level outcome loads on the slope through its
 #     within reduced form times E[x], and its intercept gives back the
 #     E[s] E[x] part that the within mean already holds.
 #
@@ -73,7 +73,7 @@ rs_avg_glist <- function(lavmodel, glist = lavmodel@GLIST, info) {
   }
 
   # The carrier cells sit in covariate columns, which no path points into,
-  # so the reduced form of the outcomes is the same before and after
+  # so the reduced form of the outcomes is the same before and after.
   nlv_w <- ncol(w$mats$lambda)
   ib_w <- if (is.null(w$mats$beta)) {
     diag(nlv_w)
@@ -135,7 +135,7 @@ check_rs_within_only <- function(rf_w, paths, mu_x, s_x, info) {
 }
 
 # The averaged moments in lavaan's own implied-moment layout, ready to stand
-# in for `@implied` of a lavaan object
+# in for `@implied` of a lavaan object.
 rs_avg_implied <- function(lavmodel, info, glist = lavmodel@GLIST) {
   lavaan::lav_model_implied(
     lavmodel,
@@ -203,7 +203,7 @@ rs_cluster_moments <- function(imp, info, X, exo_b) {
 }
 
 # The rows, outcomes, covariates and between-level values of every cluster,
-# in lavaan's cluster order
+# in lavaan's cluster order.
 rs_cluster_data <- function(lavdata, rs) {
   info <- rs$info
   X <- lavdata@X[[1L]]
@@ -345,15 +345,16 @@ rs_row_key <- function(df) {
 # runs on the averaged GLIST, so every row is scaled by the averaged implied
 # variances. Two kinds of row are then put right:
 #
-#   - the level-1 carrier `y ~ x (s)` holds the standardised mean slope
+#   - The level-1 carrier `y ~ x (s)` holds the standardised mean slope
 #     E[s] k, with k = sd(x) / sd(y) the factor lavaan applies to that path
-#     under `type`;
-#   - with `slope_metric = TRUE`, the slope's own rows are put on the scale
-#     of the standardised slope k s: `s ~1` becomes alpha k, `s ~~ s`
-#     becomes psi k^2 (the share of the outcome's within variance that
-#     slope variation brings, and the square of the SD of the standardised
-#     slopes), and `s ~ w` becomes g k times the scale lavaan gives w. A
-#     covariance with the slope stays a correlation under `cov_std`.
+#     under `type`.
+#   - With `slope_metric = TRUE`, the slope's own rows are put on the scale
+#     of the standardised slope k s. `s ~1` becomes alpha k, and `s ~ w`
+#     becomes g k times the scale lavaan gives w. `s ~~ s` becomes psi k^2,
+#     the share of the outcome's within variance that the slope's
+#     (residual) variation brings. Without predictors of the slope, it is
+#     also the square of the SD of the standardised slopes. A covariance
+#     with the slope stays a correlation under `cov_std`.
 #
 # Rows where the slope is a predictor are scale free and stay as they are.
 # A slope label shared by paths with different k has no single metric, so
@@ -387,13 +388,13 @@ rs_std_values <- function(
   own_reg <- which(pt$block == 2L & pt$op == "~" & pt$lhs %in% slopes)
 
   # A unit estimate on the carrier and on the slope's regressions makes
-  # lavaan return the bare scale factor of each row
+  # lavaan return the bare scale factor of each row.
   est1 <- est
   est1[c(carrier, own_reg)] <- 1
   # The caller's own output switches would collide with the ones set here
   dots <- list(...)
-  dots[c("se", "zstat", "pvalue", "ci", "remove_eq", "remove_ineq")] <- NULL
-  dots["remove_def"] <- NULL
+  own <- c("se", "zstat", "pvalue", "ci", "remove_eq", "remove_ineq")
+  dots[c(own, "remove_def")] <- NULL
   ss <- muffle_nan_warnings(do.call(
     lavaan::standardizedSolution,
     c(
@@ -440,7 +441,7 @@ rs_std_values <- function(
         } else if (pt$op[r] == "~~" && pt$lhs[r] == z && pt$rhs[r] == z) {
           out[r] <- est[r] * kz^2
         } else if (pt$op[r] == "~~" && !cov_std) {
-          # lavaan divides by both implied SDs; put the slope's back as k
+          # lavaan divides by both implied SDs. Put the slope's back as k.
           out[r] <- out[r] * sd_z * kz
         }
       }
@@ -448,7 +449,7 @@ rs_std_values <- function(
   }
 
   # Defined parameters and constraints are functions of the standardised
-  # free parameters, re-evaluated as lavaan does
+  # free parameters, re-evaluated as lavaan does.
   x_std <- out[pt$free > 0L & !duplicated(pt$free)]
   if (any(pt$op == ":=")) {
     out[pt$op == ":="] <- lavmodel@def.function(x_std)
@@ -489,7 +490,7 @@ rs_rsquare <- function(object, info) {
 ## ----- fitted() and residuals() ----------------------------------------------
 
 # A lavaan copy of the fit whose implied moments are the averaged ones, so
-# that lavaan's own fitted() and residuals() do the labelling and scaling
+# that lavaan's own fitted() and residuals() do the labelling and scaling.
 rs_avg_object <- function(object) {
   info <- rs_spec(get_inlavaan_internal(object))$rs$info
   obj <- as(object, "lavaan")
@@ -500,7 +501,7 @@ rs_avg_object <- function(object) {
 rs_fitted <- function(object, labels = TRUE, per_cluster = FALSE) {
   if (!isTRUE(per_cluster)) {
     # Built first, so that a refusal keeps its class instead of surfacing
-    # through S4 dispatch as a plain error
+    # through S4 dispatch as a plain error.
     obj <- rs_avg_object(object)
     return(lavaan::fitted(obj, type = "moments", labels = labels))
   }
@@ -550,7 +551,7 @@ rs_residuals <- function(
       names(mean_res) <- names(cl$mean_obs)
     }
     # A pair observed together in fewer than two rows has no within-cluster
-    # covariance, observed or expected
+    # covariance, observed or expected.
     cov_res[cl$n_pair < 2] <- NA
     list(type = type, cov = cov_res, mean = mean_res)
   })
