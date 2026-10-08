@@ -665,6 +665,8 @@ test_that("Standardised estimates of a random-slope fit", {
   expect_true(all(is.finite(std$est.std)))
   carrier <- std$lhs == "fw" & std$op == "~" & std$rhs == "x1"
   expect_gt(std$est.std[carrier], 0)
+  # lavaan's own output switches pass through
+  expect_no_error(standardisedsolution(fit_rs, nsamp = 3, zstat = TRUE))
 
   out <- capture.output(summary(fit_rs, standardized = TRUE, nsamp = 5))
   expect_true(any(grepl("Std.all", out, fixed = TRUE)))

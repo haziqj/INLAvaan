@@ -379,20 +379,29 @@ rs_std_values <- function(
   # lavaan return the bare scale factor of each row
   est1 <- est
   est1[c(carrier, own_reg)] <- 1
-  ss <- muffle_nan_warnings(lavaan::standardizedSolution(
-    object,
-    type = type,
-    est = est1,
-    glist = rs_avg_glist(lavmodel, lavmodel@GLIST, info),
-    cov_std = cov_std,
-    se = FALSE,
-    zstat = FALSE,
-    pvalue = FALSE,
-    ci = FALSE,
-    remove_eq = FALSE,
-    remove_ineq = FALSE,
-    remove_def = FALSE,
-    ...
+  # The caller's own output switches would collide with the ones set here
+  dots <- list(...)
+  dots[c("se", "zstat", "pvalue", "ci", "remove_eq", "remove_ineq")] <- NULL
+  dots["remove_def"] <- NULL
+  ss <- muffle_nan_warnings(do.call(
+    lavaan::standardizedSolution,
+    c(
+      list(
+        object,
+        type = type,
+        est = est1,
+        glist = rs_avg_glist(lavmodel, lavmodel@GLIST, info),
+        cov_std = cov_std,
+        se = FALSE,
+        zstat = FALSE,
+        pvalue = FALSE,
+        ci = FALSE,
+        remove_eq = FALSE,
+        remove_ineq = FALSE,
+        remove_def = FALSE
+      ),
+      dots
+    )
   ))
   out <- ss$est.std[match(rs_row_key(pt), rs_row_key(ss))]
   k <- out[carrier]
