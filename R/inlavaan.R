@@ -200,22 +200,31 @@
 #' cannot be held equal. Composites (`<~`) cannot be combined with random
 #' slopes yet.
 #'
-#' A random-slope model implies no single within-cluster covariance matrix
-#' -- the covariance of the outcomes depends on the covariate values -- so
-#' everything resting on a comparison with one aborts with an explanation
-#' rather than returning a plausible wrong number:
+#' A random-slope model implies no single within-cluster covariance matrix:
+#' the covariance of the outcomes depends on the covariate values.
+#' [fitted()] and [residuals()] therefore use the implied moments averaged
+#' over the covariates, which include the mean and the variance of each
+#' slope, or with `per_cluster = TRUE` the moments of each cluster at its
+#' own covariate values (closed-form route only). [standardisedsolution()]
+#' and the standardised columns and R-square of [summary()] are scaled by
+#' the averaged variances. The carrier row `x1 (s1)` then gives the
+#' standardised mean slope, and the slope's own rows are on the same
+#' standardised scale. An outcome observed at level 1 only, whose slope
+#' covariate has a non-zero mean, has no place in lavaan's two-level layout,
+#' and these outputs abort for it.
+#'
+#' Everything resting on a comparison with a single implied matrix aborts
+#' with an explanation rather than returning a plausible wrong number:
 #'
 #'   - the posterior predictive p-value (`test = "ppp"`) and the Bayesian
 #'     fit indices from [bfit_indices()] (BRMSEA, BGammaHat, adjBGammaHat,
 #'     BMc), which are built on a chi-square against a saturated
 #'     log-likelihood that is on a different scale here;
-#'   - [fitted()] and [residuals()], whose implied moments silently drop
-#'     the slope variance and would report it as misfit;
-#'   - [standardisedsolution()] and the standardised columns of [summary()],
-#'     which are scaled by those same implied moments;
+#'   - casewise values from [fitted()] and [residuals()], and the residual
+#'     types scaled by standard errors;
 #'   - [simulate()], lavaan having no random-slope data generator;
 #'   - the latent, observed and implied draws of [sampling()], which are
-#'     built from those same implied moments (parameter draws are
+#'     built from lavaan's implied moments (parameter draws are
 #'     unaffected);
 #'   - [predict()] for anything but `type = "lv"`;
 #'   - `loo(type = "loso")`, which would need a cluster's sufficient

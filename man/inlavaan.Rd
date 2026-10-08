@@ -271,22 +271,31 @@ Equality constraints work as for other models, except that covariances
 cannot be held equal. Composites (\verb{<~}) cannot be combined with random
 slopes yet.
 
-A random-slope model implies no single within-cluster covariance matrix
--- the covariance of the outcomes depends on the covariate values -- so
-everything resting on a comparison with one aborts with an explanation
-rather than returning a plausible wrong number:
+A random-slope model implies no single within-cluster covariance matrix:
+the covariance of the outcomes depends on the covariate values.
+\code{\link[=fitted]{fitted()}} and \code{\link[=residuals]{residuals()}} therefore use the implied moments averaged
+over the covariates, which include the mean and the variance of each
+slope, or with \code{per_cluster = TRUE} the moments of each cluster at its
+own covariate values (closed-form route only). \code{\link[=standardisedsolution]{standardisedsolution()}}
+and the standardised columns and R-square of \code{\link[=summary]{summary()}} are scaled by
+the averaged variances. The carrier row \code{x1 (s1)} then gives the
+standardised mean slope, and the slope's own rows are on the same
+standardised scale. An outcome observed at level 1 only, whose slope
+covariate has a non-zero mean, has no place in lavaan's two-level layout,
+and these outputs abort for it.
+
+Everything resting on a comparison with a single implied matrix aborts
+with an explanation rather than returning a plausible wrong number:
 \itemize{
 \item the posterior predictive p-value (\code{test = "ppp"}) and the Bayesian
 fit indices from \code{\link[=bfit_indices]{bfit_indices()}} (BRMSEA, BGammaHat, adjBGammaHat,
 BMc), which are built on a chi-square against a saturated
 log-likelihood that is on a different scale here;
-\item \code{\link[=fitted]{fitted()}} and \code{\link[=residuals]{residuals()}}, whose implied moments silently drop
-the slope variance and would report it as misfit;
-\item \code{\link[=standardisedsolution]{standardisedsolution()}} and the standardised columns of \code{\link[=summary]{summary()}},
-which are scaled by those same implied moments;
+\item casewise values from \code{\link[=fitted]{fitted()}} and \code{\link[=residuals]{residuals()}}, and the residual
+types scaled by standard errors;
 \item \code{\link[=simulate]{simulate()}}, lavaan having no random-slope data generator;
 \item the latent, observed and implied draws of \code{\link[=sampling]{sampling()}}, which are
-built from those same implied moments (parameter draws are
+built from lavaan's implied moments (parameter draws are
 unaffected);
 \item \code{\link[=predict]{predict()}} for anything but \code{type = "lv"};
 \item \code{loo(type = "loso")}, which would need a cluster's sufficient

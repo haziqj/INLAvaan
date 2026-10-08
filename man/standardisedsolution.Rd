@@ -136,6 +136,15 @@ A \code{data.frame} containing standardised model parameters.
 \description{
 Standardised solution of a latent variable model
 }
+\details{
+For a model with random slopes (lavaan's \code{rv()}), the estimates are scaled
+by the implied variances averaged over the covariates, which include the
+mean and the variance of each slope. The level-1 row that carries a slope
+gives the standardised mean slope. The slope's own rows are on the same
+standardised-slope scale: its intercept is a standardised slope, and its
+variance is the share of the outcome's level-1 variance that slope
+variation adds.
+}
 \examples{
 HS.model <- "
   visual  =~ x1 + x2 + x3

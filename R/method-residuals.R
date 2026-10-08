@@ -18,6 +18,8 @@
 #'   for each observation.
 #' @param labels Logical. Attach variable names to the output. Default
 #'   \code{TRUE}.
+#' @param per_cluster Logical. For a random-slope model, return the residuals
+#'   of each cluster instead of the averaged ones. Default \code{FALSE}.
 #' @param ... Currently unused.
 #'
 #' @returns For moment-based \code{type}s, a list with elements
@@ -32,6 +34,13 @@
 #' are the observed statistics minus the posterior-mean model-implied
 #' statistics (mirroring \pkg{blavaan}, which likewise inherits lavaan's
 #' \code{residuals()} without overriding it).
+#'
+#' For a model with random slopes (lavaan's \code{rv()}), the residuals
+#' compare the sample moments with the averaged moments of [fitted()]. With
+#' \code{per_cluster = TRUE}, they compare each cluster's sample mean and
+#' within-cluster covariance with its expected ones. A covariance of two
+#' variables observed together in fewer than two rows of a cluster is
+#' \code{NA}. Only the raw and correlation types are available.
 #'
 #' @seealso [fitted()], [predict()], [fitMeasures()][lavaan::fitMeasures]
 #'
