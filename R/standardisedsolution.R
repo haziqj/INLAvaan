@@ -52,6 +52,7 @@ standardisedsolution <- function(
     return(blavaan::standardizedPosterior(object))
   }
 
+  check_rs_std(object)
   if (!isTRUE(nsamp >= 2)) {
     cli_abort("{.arg nsamp} must be at least 2 to summarise posterior draws.")
   }

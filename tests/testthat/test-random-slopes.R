@@ -234,6 +234,15 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   expect_equal(dim(sampling(fit_rs, type = "lavaan", nsamp = 4)), c(4L, 19L))
 })
 
+test_that("Random slopes: standardised estimates are refused", {
+  expect_error(standardisedsolution(fit_rs), class = "inlavaan_rs_std")
+  expect_warning(
+    out <- capture.output(summary(fit_rs, standardized = TRUE)),
+    class = "inlavaan_rs_std"
+  )
+  expect_false(any(grepl("Std.all", out, fixed = TRUE)))
+})
+
 test_that("Random slopes: summary() marks the carrier row", {
   out <- capture.output(summary(fit_rs))
 
