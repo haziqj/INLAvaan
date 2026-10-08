@@ -12,6 +12,17 @@ mod_rs <- "
     fb ~ w1
     s1 ~ w1
 "
+fit_rs <- asem(
+  mod_rs,
+  d_rs,
+  cluster = "cluster",
+  verbose = FALSE,
+  test = "none",
+  marginal_correction = "none",
+  vb_correction = FALSE,
+  nsamp = 3
+)
+
 # The Gaussian log-density of every cluster under its stacked moments. A
 # missing outcome drops out of the stacked vector, which is the FIML
 # marginal.
@@ -448,4 +459,96 @@ test_that("Monte Carlo: the averaged moments", {
   # lavaan's own moments are off by far more
   lav <- lavaan::lav_model_implied(fit@Model)
   expect_gt(max(abs(lav$cov[[1]][1:3, 1:3] - h1$within$cov[ys, ys])), 0.3)
+})
+
+## ----- Methods on a fit ------------------------------------------------------
+
+test_that("fitted() and residuals() give the averaged moments", {
+  info <- rs_spec(get_inlavaan_internal(fit_rs))$rs$info
+  avg <- rs_avg_implied(fit_rs@Model, info)
+  f <- fitted(fit_rs)
+  expect_named(f, c("within", "cluster"))
+  expect_equal(
+    unclass(f$within$cov)[1:4, 1:4],
+    avg$cov[[1]],
+    ignore_attr = TRUE
+  )
+  expect_equal(
+    unclass(f$cluster$mean),
+    as.numeric(avg$mean[[2]]),
+    ignore_attr = TRUE
+  )
+  expect_equal(fitted.values(fit_rs), f)
+  # The slope adds to the within variance of the outcomes
+  lav <- lavaan::lav_model_implied(fit_rs@Model)
+  expect_true(all(diag(f$within$cov)[1:3] > diag(lav$cov[[1]])[1:3]))
+
+  r <- residuals(fit_rs)
+  obs <- lavaan::lavInspect(fit_rs, "sampstat")
+  expect_equal(
+    unclass(r$within$cov),
+    unclass(obs$within$cov) - unclass(f$within$cov),
+    ignore_attr = TRUE
+  )
+  expect_equal(resid(fit_rs), r)
+  expect_named(residuals(fit_rs, type = "cor.bentler"), c("within", "cluster"))
+})
+
+test_that("Per-cluster moments and residuals", {
+  f <- fitted(fit_rs, per_cluster = TRUE)
+  r <- residuals(fit_rs, per_cluster = TRUE)
+  ids <- as.character(unique(d_rs$cluster))
+  expect_length(f, 24L)
+  expect_setequal(names(f), ids)
+  expect_named(f[[1]], c("cov", "mean"))
+  expect_equal(rownames(f[[1]]$cov), c("y1", "y2", "y3", "x1"))
+  # Complete data: residual = the cluster's sample moments minus fitted
+  d1 <- d_rs[d_rs$cluster == as.numeric(names(f)[1]), c("y1", "y2", "y3", "x1")]
+  s1 <- stats::cov(d1) * (nrow(d1) - 1) / nrow(d1)
+  expect_equal(r[[1]]$cov, s1 - f[[1]]$cov, ignore_attr = TRUE)
+  expect_equal(r[[1]]$mean, colMeans(d1) - f[[1]]$mean, ignore_attr = TRUE)
+  # The covariates are held at their values
+  expect_equal(unname(r[[1]]$cov[4, 4]), 0)
+
+  rc <- residuals(fit_rs, per_cluster = TRUE, type = "cor")
+  expect_equal(rc[[1]]$type, "cor.bollen")
+  expect_equal(unname(diag(rc[[1]]$cov)), rep(0, 4))
+  expect_equal(
+    residuals(fit_rs, per_cluster = TRUE, type = "srmr")[[1]]$type,
+    "cor.bentler"
+  )
+})
+
+test_that("The outputs a random-slope fit cannot give are refused", {
+  expect_error(fitted(fit_rs, type = "casewise"), class = "inlavaan_rs_moments")
+  expect_error(
+    residuals(fit_rs, type = "normalized"),
+    class = "inlavaan_rs_moments"
+  )
+  expect_error(
+    residuals(fit_rs, type = "standardized"),
+    class = "inlavaan_rs_moments"
+  )
+  fit_fx <- asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    d_rs,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  )
+  expect_error(
+    fitted(fit_fx, per_cluster = TRUE),
+    class = "inlavaan_per_cluster"
+  )
+  expect_error(
+    residuals(fit_fx, per_cluster = TRUE),
+    class = "inlavaan_per_cluster"
+  )
 })

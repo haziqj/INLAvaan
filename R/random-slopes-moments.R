@@ -306,3 +306,83 @@ rs_per_cluster <- function(object, observed = FALSE) {
   names(out) <- object@Data@Lp[[1L]]$cluster.id[[2L]]
   out
 }
+
+## ----- fitted() and residuals() ----------------------------------------------
+
+# A lavaan copy of the fit whose implied moments are the averaged ones, so
+# that lavaan's own fitted() and residuals() do the labelling and scaling
+rs_avg_object <- function(object) {
+  info <- rs_spec(get_inlavaan_internal(object))$rs$info
+  obj <- as(object, "lavaan")
+  obj@implied <- rs_avg_implied(object@Model, info)
+  obj
+}
+
+rs_fitted <- function(object, labels = TRUE, per_cluster = FALSE) {
+  if (!isTRUE(per_cluster)) {
+    return(lavaan::fitted(
+      rs_avg_object(object),
+      type = "moments",
+      labels = labels
+    ))
+  }
+  out <- lapply(rs_per_cluster(object, observed = FALSE), function(cl) {
+    list(cov = cl$cov_imp, mean = cl$mean_imp)
+  })
+  if (!isTRUE(labels)) {
+    out <- lapply(unname(out), function(cl) lapply(cl, unname))
+  }
+  out
+}
+
+rs_residuals <- function(
+  object,
+  type = "raw",
+  labels = TRUE,
+  per_cluster = FALSE
+) {
+  if (!isTRUE(per_cluster)) {
+    return(lavaan::residuals(
+      rs_avg_object(object),
+      type = type,
+      labels = labels
+    ))
+  }
+  type <- rs_residual_type(type)
+  out <- lapply(rs_per_cluster(object, observed = TRUE), function(cl) {
+    cov_res <- cl$cov_obs - cl$cov_imp
+    mean_res <- cl$mean_obs - cl$mean_imp
+    if (type != "raw") {
+      sd_obs <- sqrt(diag(cl$cov_obs))
+      sd_obs[!is.finite(sd_obs) | sd_obs < sqrt(.Machine$double.eps)] <- NA
+      sd_imp <- sd_obs
+      if (type == "cor.bollen") {
+        sd_imp <- sqrt(diag(cl$cov_imp))
+        sd_imp[!is.finite(sd_imp) | sd_imp < sqrt(.Machine$double.eps)] <- NA
+      }
+      cov_res <- cl$cov_obs /
+        tcrossprod(sd_obs) -
+        cl$cov_imp / tcrossprod(sd_imp)
+      if (type == "cor.bollen") {
+        diag(cov_res)[!is.na(diag(cov_res))] <- 0
+      }
+      # A between-only outcome has no within-cluster spread to scale by
+      nv <- length(sd_obs)
+      mean_res <- c(
+        mean_res[seq_len(nv)] / sd_obs,
+        rep(NA_real_, length(mean_res) - nv)
+      )
+      names(mean_res) <- names(cl$mean_obs)
+    }
+    # A pair observed together in fewer than two rows has no within-cluster
+    # covariance, observed or expected
+    cov_res[cl$n_pair < 2] <- NA
+    list(type = type, cov = cov_res, mean = mean_res)
+  })
+  if (!isTRUE(labels)) {
+    out <- lapply(unname(out), function(cl) {
+      list(type = cl$type, cov = unname(cl$cov), mean = unname(cl$mean))
+    })
+  }
+  out
+}

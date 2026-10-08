@@ -221,8 +221,6 @@ test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(bfit_indices(fit_rs), class = "inlavaan_rs_bfit")
   expect_error(simulate(fit_rs, nsim = 1), class = "inlavaan_rs_simulate")
   expect_error(predict(fit_rs, type = "yhat"), class = "inlavaan_rs_predict")
-  expect_error(fitted(fit_rs), class = "inlavaan_rs_moments")
-  expect_error(residuals(fit_rs), class = "inlavaan_rs_moments")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
   for (tp in c("latent", "observed", "implied", "all")) {
     expect_error(

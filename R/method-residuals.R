@@ -63,8 +63,17 @@
 setMethod(
   "residuals",
   "INLAvaan",
-  function(object, type = "raw", labels = TRUE, ...) {
-    check_rs_moments(object, "residuals")
+  function(object, type = "raw", labels = TRUE, per_cluster = FALSE, ...) {
+    check_rs_moments(object, "residuals", type)
+    check_per_cluster(object, per_cluster)
+    if (has_random_slopes(object@Model)) {
+      return(rs_residuals(
+        object,
+        type = type,
+        labels = labels,
+        per_cluster = per_cluster
+      ))
+    }
     # Delegate to lavaan's implementation so the output structure (moments,
     # casewise) stays identical; the posterior means already live in the object.
     lavaan::residuals(as(object, "lavaan"), type = type, labels = labels, ...)
@@ -75,7 +84,15 @@ setMethod(
 #' @rdname residuals
 #' @aliases resid,INLAvaan-method
 #' @export
-setMethod("resid", "INLAvaan", function(object, type = "raw", ...) {
-  check_rs_moments(object, "resid")
-  lavaan::resid(as(object, "lavaan"), type = type, ...)
-})
+setMethod(
+  "resid",
+  "INLAvaan",
+  function(object, type = "raw", per_cluster = FALSE, ...) {
+    check_rs_moments(object, "resid", type)
+    check_per_cluster(object, per_cluster)
+    if (has_random_slopes(object@Model)) {
+      return(rs_residuals(object, type = type, per_cluster = per_cluster))
+    }
+    lavaan::resid(as(object, "lavaan"), type = type, ...)
+  }
+)
