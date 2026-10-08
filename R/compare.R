@@ -534,12 +534,12 @@ composite_t_key <- function(int) {
 # ---- Random-slope comparability ----------------------------------------------
 
 # A random-slope likelihood is the density of the outcomes *given* the
-# exogenous covariates, so its marginal log-likelihood and DIC only mean the
-# same thing as another fit's when the two condition on the same covariates
-# in the same way. The conditions below are what puts a table of such
-# fits on one scale, and each of them aborts: a Bayes factor between
-# quantities on different scales is not a weaker statement but a meaningless
-# one. A comparison of ordinary fits is untouched.
+# exogenous covariates, as for any fixed.x fit (see rs_scored_sets()), so fits
+# may differ in their covariates as they may without random slopes. The
+# conditions below are what puts a table of such fits on one scale, and each
+# of them aborts: a Bayes factor between quantities on different scales is not
+# a weaker statement but a meaningless one. A comparison of ordinary fits is
+# untouched.
 check_rs_comparable <- function(internals, modnames) {
   specs <- lapply(internals, rs_spec)
   if (all(vapply(specs, is.null, logical(1)))) {
@@ -575,35 +575,7 @@ check_rs_comparable <- function(internals, modnames) {
     )
   }
 
-  # (b) Which covariates? A fixed.x fit, with random slopes or without,
-  # conditions on its observed exogenous variables (see rs_scored_sets()).
-  cond <- lapply(seq_along(internals), function(k) {
-    v <- if (is.null(specs[[k]])) {
-      unlist(internals[[k]]$lavdata@ov.names.x)
-    } else {
-      rs_scored_sets(internals[[k]], specs[[k]])$cond
-    }
-    sort(unique(v[nzchar(v)]))
-  })
-  same <- vapply(cond, identical, logical(1), y = cond[[1L]])
-  if (!all(same)) {
-    k <- which(!same)[1L]
-    cli_abort(
-      c(
-        "Cannot compare fits that condition on different covariates.",
-        "x" = "{.val {modnames[1L]}} conditions on {.val {cond[[1L]]}} but
-               {.val {modnames[k]}} on {.val {cond[[k]]}}, and marginal
-               log-likelihoods and DICs under different conditioning sets are
-               densities of different things.",
-        "i" = "Keep the same covariates in every model. To test a random
-               slope, compare with the fixed-slope model (the same path
-               without {.code rv()})."
-      ),
-      class = "inlavaan_rs_compare_cond"
-    )
-  }
-
-  # (c) Which variables are scored? Everything a fit does not condition on:
+  # (b) Which variables are scored? Everything a fit does not condition on:
   # the outcomes, and the between-only endogenous variables it models.
   resp <- lapply(seq_along(internals), function(k) {
     v <- if (is.null(specs[[k]])) {
@@ -632,7 +604,7 @@ check_rs_comparable <- function(internals, modnames) {
     )
   }
 
-  # (d) How accurately is the slope integrated out? Route B replaces the
+  # (c) How accurately is the slope integrated out? Route B replaces the
   # closed form with Gauss-Hermite quadrature, whose error moves the
   # log-likelihood by an amount comparable with the differences being read
   # off the table.

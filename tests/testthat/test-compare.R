@@ -483,23 +483,28 @@ test_that("comparing a random-slope fit with a fixed.x = FALSE fit aborts", {
   )
 })
 
-test_that("comparing across conditioning sets aborts", {
-  # Without `fb ~ w1` this fit conditions on x1 alone, so its marginal
-  # log-likelihood is a density of different things
+test_that("random-slope fits may differ in their covariates", {
+  # Without w1 the outcomes cannot depend on it, so this fit's density of the
+  # outcomes given x1 is also its density given x1 and w1. It is the same
+  # model as one that keeps w1 with its effects fixed at zero.
   mod_nw <- "
     level: 1
       fw =~ y1 + y2 + y3
-      fw ~ x1
+      fw ~ rv('s1')*x1
     level: 2
       fb =~ y1 + y2 + y3
   "
+  mod_w0 <- paste0(mod_nw, "    fb ~ 0*w1\n    s1 ~ 0*w1\n")
   fit_nw <- fit_twolevel(mod_nw)
-  err <- expect_error(
-    compare(fit_rs, fit_nw),
-    class = "inlavaan_rs_compare_cond"
-  )
-  expect_match(conditionMessage(err), "w1")
-  expect_match(conditionMessage(err), "fixed-slope model")
+  fit_w0 <- fit_twolevel(mod_w0)
+  cmp <- compare(fit_nw, fit_w0)
+  expect_equal(diff(cmp$Marg.Loglik), 0, tolerance = 1e-6)
+  cmp_loo <- compare(fit_nw, fit_w0, loo = TRUE)
+  expect_equal(diff(cmp_loo$ELPD), 0, tolerance = 1e-3)
+
+  # Against fits where w1 has effects, random slope or fixed
+  expect_no_error(cmp_w <- compare(fit_rs, fit_nw, fit_fx))
+  expect_true(all(is.finite(cmp_w$Marg.Loglik)))
 })
 
 test_that("compare(loo = TRUE) works across random-slope fits", {
@@ -548,8 +553,8 @@ test_that("a between-level factor is compared on the kernel's own sets", {
   expect_no_error(cmp <- compare(fit_zb, fit_zb_fx))
   expect_true(all(is.finite(cmp$Marg.Loglik)))
 
-  # Regressing on w1 and w2 instead conditions on them, which is a
-  # different scale again -- the conditioning check is the first to fire
+  # Regressing on w1 and w2 instead conditions on them, so they are no longer
+  # scored and the two fits score different variables
   mod_exo <- "
     level: 1
       fw =~ y1 + y2 + y3
@@ -566,7 +571,7 @@ test_that("a between-level factor is compared on the kernel's own sets", {
   )
   expect_error(
     compare(fit_zb, fit_exo),
-    class = "inlavaan_rs_compare_cond"
+    class = "inlavaan_rs_compare_resp"
   )
 })
 
@@ -634,12 +639,9 @@ test_that("quadrature fits are compared on the covariates they condition on", {
   expect_equal(sets1$cond, "x1")
   expect_equal(sets1$resp, "y1")
 
-  # A second covariate is a different conditioning set
-  err <- expect_error(
-    compare(fit_b1, fit_b2),
-    class = "inlavaan_rs_compare_cond"
-  )
-  expect_match(conditionMessage(err), "x2")
+  # A second covariate is covariate selection, as for any fixed.x fit
+  expect_no_error(cmp_b <- compare(fit_b1, fit_b2))
+  expect_true(all(is.finite(cmp_b$Marg.Loglik)))
 
   # The fixed-slope model is the comparator, here where a zero slope variance
   # is not available
