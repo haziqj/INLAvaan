@@ -243,6 +243,14 @@ rs_cluster_compare <- function(mom, Y, X, all_rows = FALSE) {
       if (n_ab == 0L) {
         next
       }
+      # One row has no spread, observed or expected, so set it exactly
+      if (n_ab == 1L) {
+        cov_imp[a, b] <- cov_imp[b, a] <- 0
+        if (!all_rows) {
+          cov_obs[a, b] <- cov_obs[b, a] <- 0
+        }
+        next
+      }
       ma <- M[w, a]
       mb <- M[w, b]
       if (a <= p1 && b <= p1) {
@@ -259,8 +267,11 @@ rs_cluster_compare <- function(mom, Y, X, all_rows = FALSE) {
       }
     }
   }
-  mean_imp <- vapply(seq_len(p), function(a) mean(M[obs[, a], a]), numeric(1))
-  mean_obs <- vapply(seq_len(p), function(a) mean(Z[obs[, a], a]), numeric(1))
+  col_mean <- function(A, a) {
+    if (any(obs[, a])) mean(A[obs[, a], a]) else NA_real_
+  }
+  mean_imp <- vapply(seq_len(p), function(a) col_mean(M, a), numeric(1))
+  mean_obs <- vapply(seq_len(p), function(a) col_mean(Z, a), numeric(1))
   list(
     mean_obs = mean_obs,
     mean_imp = mean_imp,

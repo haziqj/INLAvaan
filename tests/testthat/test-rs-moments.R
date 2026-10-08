@@ -699,6 +699,8 @@ test_that("Constraints, FIML, two slopes and named levels work together", {
     d_mix[[v]][stats::runif(nrow(d_mix)) < 0.05] <- NA
   }
   d_mix[d_mix$cluster == 1, "y2"] <- d_rs$y2[d_rs$cluster == 1][1]
+  # An outcome never observed in one cluster
+  d_mix[d_mix$cluster == 3, "y3"] <- NA
   mod_mix <- "
     level: within
       fw =~ y1 + a*y2 + a*y3
@@ -735,6 +737,12 @@ test_that("Constraints, FIML, two slopes and named levels work together", {
   expect_true(all(is.na(one$cov[1:3, 1:3])))
   expect_true(all(is.finite(one$mean)))
   expect_true(all(is.finite(r[["2"]]$cov)))
+  # A single row has exactly no within-cluster spread
+  expect_true(all(fitted(fit, per_cluster = TRUE)[["1"]]$cov == 0))
+  expect_no_warning(residuals(fit, per_cluster = TRUE, type = "cor"))
+  # A variable never observed in a cluster is missing, not undefined
+  y3 <- r[["3"]]$mean[["y3"]]
+  expect_true(is.na(y3) && !is.nan(y3))
   set.seed(2)
   std <- standardisedsolution(fit, nsamp = 10)
   expect_true(all(is.finite(std$est.std)))
