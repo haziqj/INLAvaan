@@ -1,13 +1,8 @@
 ################################################################################
 #
 # Validate Taylor-approximated leave-one-cluster-out (LOCO) cross-validation
-# against brute-force deleted-cluster refits, for a random-slope model.
-#
-# loo() does not yet support random-slope fits in this worktree -- support is
-# landing separately -- so only the data generation and the full-data fit run
-# today. The LOCO comparison below is written and guarded to run once loo()
-# lands. Until then it prints a message and the script still finishes
-# cleanly. Run after devtools::load_all(".").
+# against brute-force deleted-cluster refits, for a random-slope model. Run
+# after devtools::load_all(".").
 ################################################################################
 
 ## ----- Configuration ---------------------------------------------------------
@@ -56,20 +51,17 @@ print(round(int_full$summary[, c("Mean", "2.5%", "97.5%")], 3))
 ## =============================================================================
 ## Leave-one-cluster-out comparison
 ## =============================================================================
-# loo() aborts on a random-slope fit with class "inlavaan_rs_loo" (see
-# R/loo.R, check_loo_model()). The guard below lets this script finish
-# cleanly until that support lands, while the brute-force machinery it will
-# need is still written and exercised below.
-loo_try <- if (exists("loo")) try(loo(fit), silent = TRUE) else NULL
-loo_ready <- !is.null(loo_try) && !inherits(loo_try, "try-error")
+# The guard below reports a failing loo() instead of stopping the script.
+loo_try <- try(loo(fit), silent = TRUE)
+loo_ready <- !inherits(loo_try, "try-error")
 
 if (!loo_ready) {
   cat(
-    "\nloo() does not yet support random-slope fits; skipping the LOCO",
-    "comparison.\nData generation and the full-data fit above still ran.\n"
+    "\nloo() failed; skipping the LOCO comparison.\n",
+    conditionMessage(attr(loo_try, "condition")),
+    "\n"
   )
 } else {
-  # Exercised once loo() supports random-slope fits.
   clusters_loco <- sort(sample(seq_len(J), n_loco))
 
   # Brute force: refit with cluster j held out, draw from its posterior, and
