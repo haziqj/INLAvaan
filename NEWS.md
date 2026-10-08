@@ -2,6 +2,15 @@
 
 ## New features
 
+* INLAvaan now fits two-level models with random slopes, which lavaan
+  specifies with the `rv()` modifier. They work with `compare()`, `loo()`,
+  `waic()`, `logLik()` and `predict(type = "lv")`, and `summary()` marks the
+  rows that carry a random slope. Outputs that need a single implied
+  covariance matrix, such as the posterior predictive p-value, `fitted()` and
+  `simulate()`, give an error. A random slope on a latent or split covariate
+  uses lavaan's quadrature, which is slower, and `integration.ngh` sets its
+  number of nodes. See the multilevel article.
+
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
   with continuous data, in one or more groups or at either level of a two-level
   model. They work

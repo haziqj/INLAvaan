@@ -49,16 +49,31 @@
 #' @name fitted
 #' @aliases fitted,INLAvaan-method
 #' @export
-setMethod("fitted", "INLAvaan", function(object, type = "moments", labels = TRUE, ...) {
-  # Delegate to lavaan's implementation so the output structure (moments,
-  # casewise) stays identical; the posterior means already live in the object.
-  lavaan::fitted(as(object, "lavaan"), type = type, labels = labels, ...)
-})
+setMethod(
+  "fitted",
+  "INLAvaan",
+  function(object, type = "moments", labels = TRUE, ...) {
+    check_rs_moments(object, "fitted")
+    # Delegate to lavaan's implementation so the output structure (moments,
+    # casewise) stays identical; the posterior means already live in the object.
+    lavaan::fitted(as(object, "lavaan"), type = type, labels = labels, ...)
+  }
+)
 
 #' @importFrom stats fitted.values
 #' @rdname fitted
 #' @aliases fitted.values,INLAvaan-method
 #' @export
-setMethod("fitted.values", "INLAvaan", function(object, type = "moments", labels = TRUE, ...) {
-  lavaan::fitted.values(as(object, "lavaan"), type = type, labels = labels, ...)
-})
+setMethod(
+  "fitted.values",
+  "INLAvaan",
+  function(object, type = "moments", labels = TRUE, ...) {
+    check_rs_moments(object, "fitted.values")
+    lavaan::fitted.values(
+      as(object, "lavaan"),
+      type = type,
+      labels = labels,
+      ...
+    )
+  }
+)

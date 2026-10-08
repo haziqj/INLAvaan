@@ -60,6 +60,24 @@
 #' results (`test` including `"loo"` or `"full"`, or [add_loo()]) are
 #' reused.
 #'
+#' When any of the models has random slopes (lavaan's `rv()` modifier; see
+#' [inlavaan()]), its marginal log-likelihood and DIC are densities of the
+#' outcomes *given* the exogenous covariates, so a table of such fits says
+#' something only when every fit conditions in the same way. `compare()`
+#' therefore aborts unless all the models were fitted with
+#' `fixed.x = TRUE`, all condition on the same covariates, all score the
+#' same variables, and all Gauss-Hermite fits share one `integration.ngh`:
+#' a Bayes factor between quantities on different scales is not a weaker
+#' statement but a meaningless one. The conditioning and response sets are
+#' the kernel's own: a between-level variable the model regresses on is
+#' conditioned on, one the model explains is scored, and on the
+#' Gauss-Hermite route a covariate split across the two levels is scored
+#' jointly with the outcomes. The same response set governs the variable
+#' check under `loo = TRUE`. To test the slope itself, keep the covariates
+#' and fix the variance instead -- `s1 ~~ 0*s1`, with any cross-level
+#' regression on the slope dropped, is the exact fixed-slope comparator.
+#' Comparisons of ordinary fits are untouched.
+#'
 #' `anova()` is disabled for `INLAvaan` fits -- there is no direct Bayesian
 #' analogue of the classical likelihood-ratio test -- and points here instead.
 #'
@@ -185,6 +203,8 @@ compare_impl <- function(
   marg_ll <- vapply(internals, function(m) m$mloglik, numeric(1))
   DIC_vec <- vapply(internals, function(m) m$DIC$dic %||% NA_real_, numeric(1))
   pD_vec <- vapply(internals, function(m) m$DIC$pD %||% NA_real_, numeric(1))
+
+  check_rs_comparable(internals, modnames)
 
   # Marginal likelihoods, Bayes factors, and DIC are only comparable
   # between fits with the same mean treatment: without a mean structure
@@ -391,6 +411,12 @@ compare_impl <- function(
     # variable sets must match; conditional scores are densities over the
     # outcomes only, so covariate sets may differ but the outcomes must match
     score_vars <- lapply(internals, function(m) {
+      spec <- rs_spec(m)
+      if (!is.null(spec)) {
+        # A random-slope kernel scores its own response set, which on the
+        # quadrature route holds the split covariates as well
+        return(sort(unique(spec$resp)))
+      }
       ov <- sort(unique(unlist(m$lavdata@ov.names)))
       if (flavs[1L] == "conditional") {
         setdiff(ov, unlist(m$lavdata@ov.names.x))
@@ -516,6 +542,136 @@ composite_t_key <- function(int) {
     )
   })
   sort(unique(unlist(keys)))
+}
+
+# ---- Random-slope comparability ----------------------------------------------
+
+# A random-slope likelihood is the density of the outcomes *given* the
+# exogenous covariates, so its marginal log-likelihood and DIC only mean the
+# same thing as another fit's when the two condition on the same covariates
+# in the same way. The three conditions below are what puts a table of such
+# fits on one scale, and each of them aborts: a Bayes factor between
+# quantities on different scales is not a weaker statement but a meaningless
+# one. A comparison of ordinary fits is untouched.
+check_rs_comparable <- function(internals, modnames) {
+  specs <- lapply(internals, rs_spec)
+  if (all(vapply(specs, is.null, logical(1)))) {
+    return(invisible(NULL))
+  }
+
+  # (a) Are the covariates conditioned on, or modelled? A fixed.x = FALSE fit
+  # scores them as outcomes, so its log-likelihood covers more variables.
+  # As at fit time, a model with no observed exogenous variables carries
+  # `fixed.x = FALSE` without anyone having asked for it, so the syntax-level
+  # set decides. The stored partable is lavaan's own with extra columns,
+  # which lavNames() reads unchanged.
+  fixed_x <- vapply(
+    internals,
+    function(m) {
+      isTRUE(m$lavmodel@fixed.x) ||
+        length(lavaan::lavNames(m$partable, "ov.x")) == 0L
+    },
+    logical(1)
+  )
+  if (!all(fixed_x)) {
+    cli_abort(
+      c(
+        "Cannot compare a random-slope fit with a {.code fixed.x = FALSE}
+         fit: {.val {modnames[!fixed_x]}}.",
+        "x" = "The random-slope likelihood conditions on the exogenous
+               covariates, while a {.code fixed.x = FALSE} fit scores them as
+               outcomes, so the marginal log-likelihoods and DICs are not on
+               one scale.",
+        "i" = "Refit with {.code fixed.x = TRUE}."
+      ),
+      class = "inlavaan_rs_compare_fixedx"
+    )
+  }
+
+  # (b) Which covariates? A random-slope fit conditions on the covariates its
+  # kernel carries. An ordinary fixed.x fit conditions on its exogenous
+  # variables.
+  cond <- lapply(seq_along(internals), function(k) {
+    v <- if (is.null(specs[[k]])) {
+      unlist(internals[[k]]$lavdata@ov.names.x)
+    } else {
+      specs[[k]]$cond
+    }
+    sort(unique(v[nzchar(v)]))
+  })
+  same <- vapply(cond, identical, logical(1), y = cond[[1L]])
+  if (!all(same)) {
+    k <- which(!same)[1L]
+    cli_abort(
+      c(
+        "Cannot compare fits that condition on different covariates.",
+        "x" = "{.val {modnames[1L]}} conditions on {.val {cond[[1L]]}} but
+               {.val {modnames[k]}} on {.val {cond[[k]]}}, and marginal
+               log-likelihoods and DICs under different conditioning sets are
+               densities of different things.",
+        "i" = "Keep the same covariates in every model: to test a path, drop
+               the regression but keep the variable, or fix the slope
+               variance to zero with {.code s1 ~~ 0*s1}."
+      ),
+      class = "inlavaan_rs_compare_cond"
+    )
+  }
+
+  # (c) Which variables are scored? A random-slope fit scores the response
+  # set its kernel carries -- the outcomes, the between-only endogenous
+  # variables it models, and, on the quadrature route, the split covariates
+  # that sit in the response vector. An ordinary fixed.x fit scores
+  # everything it does not condition on.
+  resp <- lapply(seq_along(internals), function(k) {
+    v <- if (is.null(specs[[k]])) {
+      setdiff(
+        unlist(internals[[k]]$lavdata@ov.names),
+        unlist(internals[[k]]$lavdata@ov.names.x)
+      )
+    } else {
+      specs[[k]]$resp
+    }
+    sort(unique(v[nzchar(v)]))
+  })
+  same <- vapply(resp, identical, logical(1), y = resp[[1L]])
+  if (!all(same)) {
+    k <- which(!same)[1L]
+    cli_abort(
+      c(
+        "Cannot compare fits that score different variables.",
+        "x" = "{.val {modnames[1L]}} scores {.val {resp[[1L]]}} but
+               {.val {modnames[k]}} scores {.val {resp[[k]]}}, and the
+               kernels give these variables a joint density, so the
+               marginal log-likelihoods and DICs are densities of different
+               things.",
+        "i" = "Keep the same variables in every model: to test a path, drop
+               the regression but keep the variable, or fix the slope
+               variance to zero with {.code s1 ~~ 0*s1}."
+      ),
+      class = "inlavaan_rs_compare_resp"
+    )
+  }
+
+  # (d) How accurately is the slope integrated out? Route B replaces the
+  # closed form with Gauss-Hermite quadrature, whose error moves the
+  # log-likelihood by an amount comparable with the differences being read
+  # off the table.
+  ngh <- unlist(lapply(specs, function(s) {
+    if (is.null(s) || s$route != "B") NULL else as.integer(s$ngh)
+  }))
+  if (length(unique(ngh)) > 1L) {
+    cli_abort(
+      c(
+        "Cannot compare Gauss-Hermite random-slope fits integrated with
+         different node counts: {.val {sort(unique(ngh))}}.",
+        "x" = "The quadrature error moves the log-likelihood by an amount
+               comparable with the differences being interpreted.",
+        "i" = "Give every fit the same {.arg integration.ngh}."
+      ),
+      class = "inlavaan_rs_compare_ngh"
+    )
+  }
+  invisible(NULL)
 }
 
 #' @exportS3Method print compare.inlavaan_internal

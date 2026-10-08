@@ -4,7 +4,7 @@ inlav_model_loglik <- function(
   lavsamplestats,
   lavdata,
   lavoptions,
-  lavcache,
+  lavcache = NULL,
   marginalise_means = TRUE
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
@@ -14,15 +14,25 @@ inlav_model_loglik <- function(
   out <- -1e40
   if (!is_bad_cov(Sigma)) {
     if (lavmodel@estimator == "ML") {
-      # Multivariate normal log-likelihood
+      # Multivariate normal log-likelihood. A random-slope model is scored
+      # from the GLIST of `lavmodel` and from the per-cluster statistics in
+      # `lavcache`, not from `lavimplied`, so both have to be the updated
+      # ones -- otherwise the log-likelihood is constant in `x`. Passing
+      # `lavmodel_x` is inert for every other model, which reads
+      # `lavimplied`, itself already built from `lavmodel_x`.
       out <- lavaan___lav_model_loglik(
         lavdata = lavdata,
         lavsamplestats = lavsamplestats,
         lavimplied = lavimplied,
-        lavmodel = lavmodel,
-        lavoptions = lavoptions
+        lavmodel = lavmodel_x,
+        lavoptions = lavoptions,
+        lavcache = lavcache
       )$loglik
-      if (is.na(out)) out <- -1e40
+      # is_bad_cov() above only inspects the fixed-slope implied covariance,
+      # so a random-slope kernel can still return a non-finite value.
+      if (!is.finite(out)) {
+        out <- -1e40
+      }
       if (
         out != -1e40 &&
           isTRUE(marginalise_means) &&
@@ -74,6 +84,14 @@ inlav_model_grad <- function(
     lavcache = lavcache,
     group_weight = group_weight
   )
+
+  # lavaan takes an early return for random-slope models and builds the
+  # gradient from the packed free parameters, one entry per equality group,
+  # where every other model returns one entry per free partable row. The
+  # chain rule downstream expects the unpacked convention.
+  if (rs_grad_is_packed(length(grad_F), lavmodel)) {
+    grad_F <- rs_unpack_grad(grad_F, lavmodel)
+  }
 
   out <-
     if (lavmodel@estimator == "ML") {

@@ -39,7 +39,10 @@
 #'   requested and what was computed (`get_inlavaan_internal(fit, "test")`);
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
 #'   report only what was computed. [add_loo()] stores the LOO and WAIC
-#'   post hoc; [loo()] and [waic()] compute on demand.
+#'   post hoc; [loo()] and [waic()] compute on demand. For a random-slope
+#'   model `"ppp"` is dropped, with a message saying why (see the Random
+#'   slopes section of [inlavaan()]); `"dic"`, `"loo"` and `"waic"` are
+#'   unaffected.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
@@ -154,6 +157,92 @@
 #'   `vb_method = "gauss_hermite"` removes the random node set altogether; see
 #'   the `vb_method` argument.
 #'
+#' @section Random slopes:
+#' Wrapping a level-1 regression coefficient in lavaan's `rv()` modifier
+#' turns it into a level-2 latent variable -- a random slope -- which can
+#' then be given a mean, a variance and cross-level regressions like any
+#' other level-2 latent variable:
+#'
+#' ```
+#' level: 1
+#'   fw =~ y1 + y2 + y3
+#'   fw ~ rv('s1')*x1
+#' level: 2
+#'   fb =~ y1 + y2 + y3
+#'   s1 ~ w1
+#'   s1 ~~ s1
+#'   s1 ~ 1
+#' ```
+#'
+#' The slope's variance and intercept are added automatically, so in
+#' practice only the cross-level regression `s1 ~ w1` need be written out.
+#' [summary()] marks the level-1 carrier row as `x1 (s1)`: that row is
+#' fixed at zero, the slope itself being reported under Level 2.
+#'
+#' The likelihood takes one of two routes. When the covariate carrying the
+#' slope is observed and purely within-cluster, the slope integrates out in
+#' closed form. When it is latent, or split across both levels (the same
+#' variable entering at level 1 and at level 2), the integral is done by
+#' Gauss-Hermite quadrature instead; that route warns at fit time and is
+#' governed by `integration.ngh`, passed through to lavaan. The node count
+#' is an accuracy setting as much as a cost setting, so give every fit that
+#' is to be compared with another the same `integration.ngh`.
+#'
+#' A model with observed exogenous covariates requires `fixed.x = TRUE`
+#' (the default): the likelihood is the density of the outcomes *given*
+#' those covariates, so their own means and (co)variances are unidentified
+#' and would be reported back as their priors. A `fixed.x = FALSE` fit is
+#' refused. A model whose covariates are all latent or modelled has nothing
+#' to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own
+#' accord; such a fit is accepted as it stands.
+#'
+#' Equality constraints are supported among parameters that share a
+#' transformation: loadings, regressions and intercepts may be tied to one
+#' another, and variances to one another. A constraint that mixes the two,
+#' or that ties a covariance, is refused -- lavaan returns the random-slope
+#' gradient summed over the constrained parameters, and that sum can only
+#' be split back exactly when every parameter in the group is on the same
+#' scale.
+#'
+#' A random-slope model implies no single within-cluster covariance matrix
+#' -- the covariance of the outcomes depends on the covariate values -- so
+#' everything resting on a comparison with one aborts with an explanation
+#' rather than returning a plausible wrong number:
+#'
+#'   - the posterior predictive p-value (`test = "ppp"`) and the Bayesian
+#'     fit indices from [bfit_indices()] (BRMSEA, BGammaHat, adjBGammaHat,
+#'     BMc), which are built on a chi-square against a saturated
+#'     log-likelihood that is on a different scale here;
+#'   - [fitted()] and [residuals()], whose implied moments silently drop
+#'     the slope variance and would report it as misfit;
+#'   - [simulate()], lavaan having no random-slope data generator;
+#'   - the latent, observed and implied draws of [sampling()], which are
+#'     built from those same implied moments (parameter draws are
+#'     unaffected);
+#'   - [predict()] for anything but `type = "lv"`;
+#'   - `loo(type = "loso")`, which would need a cluster's sufficient
+#'     statistics downdated by one row, something the random-slope kernel
+#'     has no analogue for.
+#'
+#' The model-comparison side works throughout. [compare()] reports the
+#' marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}; [loo()]
+#' and [waic()] score the fit leave-one-cluster-out on the conditional
+#' likelihood; `predict(type = "lv", level = 2)` returns the cluster-level
+#' slopes alongside the other level-2 latent variables; and [fitmeasures()]
+#' keeps `npar`, `margloglik`, `dic` and `p_dic`.
+#'
+#' To ask whether there is a random slope at all, compare the fit with one
+#' in which the slope variance is fixed at zero, `s1 ~~ 0*s1`, *and* any
+#' cross-level regression on the slope is dropped. That model has the same
+#' log-likelihood and the same number of parameters as the plain
+#' fixed-slope model (`fw ~ x1` at level 1, `fb ~ w1` at level 2) and
+#' conditions on the same covariates. Keeping `s1 ~ w1` while fixing
+#' `s1 ~~ 0*s1` gives a third, intermediate model -- a cross-level
+#' interaction with a deterministic cluster-varying slope -- which is
+#' equally a member of the comparison. The plain fixed-slope model may also
+#' be used directly whenever it conditions on the same covariates
+#' ([compare()] checks), and it fits far faster.
+#'
 #' @seealso Typically, users will interact with the specific latent variable
 #'   model functions instead, including [acfa()], [asem()], and [agrowth()].
 #'
@@ -225,6 +314,10 @@ inlavaan <- function(
   }
   dp_default <- priors_for()
   dp <- c(dp, dp_default[setdiff(names(dp_default), names(dp))])
+  # What the user asked for, kept for the `test` record below: `test_req`
+  # itself loses any atom that does not exist for this model class (see the
+  # random-slope checks further down).
+  test_requested <- test_req
 
   lavargs <- list(...)
   lavargs$model <- split_modifiers(model)
@@ -272,9 +365,9 @@ inlavaan <- function(
   ## ----- Initialise lavaan object --------------------------------------------
   # lavaan evaluates the := parameters at the start values, where they may be
   # undefined. Any draws where they are undefined are reported later.
-  fit0 <- muffle_nan_warnings(
+  fit0 <- muffle_nan_warnings(muffle_rs_test_warning(
     do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
-  )
+  ))
   check_composite_scope(fit0)
   # Ordinal variables come from `ordered =`, threshold syntax or ordered-factor
   # columns. Name exactly those the model uses, so that the PML refit (and its
@@ -305,9 +398,9 @@ inlavaan <- function(
   pt_packed <- pack_constraints(fit0@ParTable, fit0@Options$effect.coding)
   if (!is.null(pt_packed)) {
     lavargs$model <- pt_packed
-    fit0 <- muffle_nan_warnings(
+    fit0 <- muffle_nan_warnings(muffle_rs_test_warning(
       do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
-    )
+    ))
   }
   check_composite_weights(fit0@ParTable)
   check_composite_covariances(fit0@ParTable)
@@ -321,11 +414,87 @@ inlavaan <- function(
   ceq.simple <- lavmodel@ceq.simple.only
   ceq.K <- lavmodel@ceq.simple.K # used to pack params/grads
 
-  # Partable and check for equality constraints
+  # Partable. Built here rather than with the rest of the optimisation
+  # bookkeeping below because the random-slope checks read the
+  # transformation each free parameter carries.
   pt <- inlavaanify_partable(lavpartable, dp, lavdata, lavoptions)
   check_packed_kinds(pt)
   check_composite_means(pt, lavoptions)
   pt$parstart <- composite_start_weights(pt, lavsamplestats, lavdata)
+
+  ## ----- Random-slope checks -------------------------------------------------
+  # A random-slope likelihood is a per-cluster kernel conditional on the
+  # covariates, which rules out two things the rest of the pipeline would
+  # otherwise do. Everything here is a no-op without an `rv()` modifier.
+  rs_skipped <- character(0)
+  if (has_random_slopes(lavmodel)) {
+    # lavaan reports `fixed.x = FALSE` of its own accord for a model with
+    # no observed exogenous variables at all -- a slope on a latent
+    # covariate, say -- so the slot alone would refuse such a fit over an
+    # argument the user never passed. The syntax-level set decides.
+    if (
+      !isTRUE(lavmodel@fixed.x) &&
+        length(lavaan::lavNames(lavpartable, "ov.x")) > 0L
+    ) {
+      cli_abort(
+        c(
+          "Random-slope models require {.code fixed.x = TRUE}.",
+          "x" = "The likelihood conditions on the exogenous covariates, so
+                 their means and (co)variances are unidentified and would be
+                 reported back as their priors.",
+          "i" = "Refit with {.code fixed.x = TRUE}."
+        ),
+        class = "inlavaan_rs_fixedx"
+      )
+    }
+    if ("ppp" %in% test_req) {
+      test_req <- setdiff(test_req, "ppp")
+      # Collapsed to one line because the reason is handed back to the
+      # user through `test$skipped`, where the source indentation of a
+      # wrapped string would show through
+      rs_skipped <- c(
+        ppp = gsub(
+          "\\s+",
+          " ",
+          "A posterior predictive p-value compares the observed
+           within-cluster covariance with the model-implied one, and a
+           random-slope model implies no single within-cluster covariance:
+           the covariance of y depends on the covariate values."
+        )
+      )
+      if (any(c("ppp", "full") %in% test)) {
+        cli_warn(
+          c(
+            "Dropping {.val ppp} from {.arg test}: a posterior predictive
+             p-value does not exist for a random-slope model.",
+            "x" = "Its discrepancy compares the observed within-cluster
+                   covariance with the model-implied one, and a random-slope
+                   model implies no single within-cluster covariance -- the
+                   covariance of y depends on the covariate values.",
+            "i" = "Use {.fn compare} (marginal likelihood, Bayes factors,
+                   DIC) or {.fn loo} instead."
+          ),
+          class = "inlavaan_rs_ppp"
+        )
+      } else if (isTRUE(verbose)) {
+        # Kept to one source line: cli_alert_info() does not re-wrap
+        cli_alert_info(
+          "No PPP: no single within-cluster covariance to compare with."
+        )
+      }
+    }
+    # A slope on a latent or split covariate replaces the closed-form
+    # cluster kernel with Gauss-Hermite quadrature, which is worth saying
+    # whatever `verbose` asks for.
+    if (isTRUE(lavcache[[1L]]$rs$info$nl.flag)) {
+      warn_rs_route_b(list(ngh = lavcache[[1L]]$rs$info$ngh))
+    }
+    # Equality constraints lavaan's packed random-slope gradient cannot be
+    # redistributed over exactly (see rs_unpack_grad())
+    check_rs_ceq(pt, lavmodel)
+  }
+
+  # Free parameters, always in the reduced space under equality constraints
   PTFREEIDX <- which(pt$free > 0L)
   if (isTRUE(ceq.simple)) {
     # Note: Always work in the reduced space
@@ -1277,7 +1446,7 @@ inlavaan <- function(
 
   ## ----- Compute ppp and dic -------------------------------------------------
   ppp <- dic_list <- NULL
-  skipped <- character(0)
+  skipped <- rs_skipped
   if (any(c("ppp", "dic") %in% test_req)) {
     if (isTRUE(verbose)) {
       samp_stage <- paste0(
@@ -1342,6 +1511,7 @@ inlavaan <- function(
     partable = pt,
     lavmodel = lavmodel,
     lavdata = lavdata,
+    lavcache = if (has_random_slopes(lavmodel)) lavcache else NULL,
     lavsamplestats = lavsamplestats,
     theta_star = as.numeric(theta_star_vbc),
     Sigma_theta = Sigma_theta,
@@ -1366,7 +1536,8 @@ inlavaan <- function(
       inlav_loo(
         int = int_fit,
         eff_cores = resolve_loo_cores(cores),
-        verbose = FALSE
+        verbose = FALSE,
+        warn_route_b = FALSE
       ),
       error = function(e) e
     )
@@ -1393,7 +1564,11 @@ inlavaan <- function(
     !is.null(loo_res),
     !is.null(waic_res)
   )]
-  test_rec <- list(requested = test_req, computed = computed, skipped = skipped)
+  test_rec <- list(
+    requested = test_requested,
+    computed = computed,
+    skipped = skipped
+  )
 
   if (isTRUE(verbose)) {
     # Close the sampling step with an overview; the specific fit measures
@@ -1450,6 +1625,7 @@ inlavaan <- function(
     lavmodel = lavmodel,
     lavsamplestats = lavsamplestats,
     lavdata = lavdata,
+    lavcache = if (has_random_slopes(lavmodel)) lavcache else NULL,
     opt = opt,
     timing = timing[-1], # remove start.time
     visual_debug = visual_debug,

@@ -828,6 +828,32 @@ sampling_impl <- function(
 ) {
   type <- match.arg(type)
 
+  # The generative types are built from the model-implied moments, which
+  # for a random-slope model silently drop the slope variance. Parameter
+  # draws do not touch them and stay available.
+  if (
+    type %in%
+      c("latent", "observed", "implied", "all") &&
+      has_random_slopes(int$lavmodel)
+  ) {
+    cli_abort(
+      c(
+        "{.code sampling(type = \"{type}\")} is not available for a
+         random-slope model.",
+        "x" = "Latent, observed and implied draws are generated from the
+               model-implied moments, and a random-slope model implies no
+               single within-cluster covariance: the covariance of y depends
+               on the covariate values, so the slope variance would be
+               silently dropped.",
+        "i" = "Parameter draws ({.code type = \"lavaan\"} or
+               {.code \"theta\"}) are unaffected, and
+               {.code predict(object, type = \"lv\", level = 2)} gives the
+               cluster-level slopes."
+      ),
+      class = "inlavaan_rs_sampling"
+    )
+  }
+
   # For prior sampling with generative draws, use reject-and-redraw to preserve
   # the exact prior (no silent PD projection).
   if (isTRUE(prior) && type %in% c("latent", "observed", "implied", "all")) {

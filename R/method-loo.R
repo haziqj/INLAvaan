@@ -60,6 +60,10 @@
 #' their sample values. Each unit is scored with them recomputed without it (to
 #' first order under missing data), so `p_loo` counts them as parameters.
 #'
+#' A random-slope fit (lavaan's `rv()` modifier; see [inlavaan()]) is scored
+#' leave-one-cluster-out only, conditional on the exogenous covariates
+#' (`flavour` is `"conditional"`).
+#'
 #' Supplying `theta`/`Omega` evaluates the LOO at an arbitrary Gaussian
 #' posterior summary (a singular `Omega` is restricted to its non-degenerate
 #' block), the building block for refit-free submodel scoring. `Sigma` is
@@ -87,7 +91,9 @@
 #'   see Details).
 #' @param units Optional integer vector of unit indices to score; defaults
 #'   to all units. For LOSO these are case numbers (row numbers of the
-#'   analysed dataset); for LOCO, cluster positions.
+#'   analysed dataset); for LOCO, cluster positions. For a random-slope fit
+#'   the per-cluster kernels return every cluster on each call, so this
+#'   trims the reported table rather than the work.
 #' @param second_order Logical; compute the second-order correction
 #'   (default `TRUE`). `FALSE` skips the Hessian stage and reports
 #'   first-order estimates, which cannot be compared across models of

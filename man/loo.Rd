@@ -56,7 +56,9 @@ see Details).}
 
 \item{units}{Optional integer vector of unit indices to score; defaults
 to all units. For LOSO these are case numbers (row numbers of the
-analysed dataset); for LOCO, cluster positions.}
+analysed dataset); for LOCO, cluster positions. For a random-slope fit
+the per-cluster kernels return every cluster on each call, so this
+trims the reported table rather than the work.}
 
 \item{second_order}{Logical; compute the second-order correction
 (default \code{TRUE}). \code{FALSE} skips the Hessian stage and reports
@@ -183,6 +185,10 @@ refuses to mix them).
 For composites (\verb{<~}), lavaan fixes the (co)variances of the indicators at
 their sample values. Each unit is scored with them recomputed without it (to
 first order under missing data), so \code{p_loo} counts them as parameters.
+
+A random-slope fit (lavaan's \code{rv()} modifier; see \code{\link[=inlavaan]{inlavaan()}}) is scored
+leave-one-cluster-out only, conditional on the exogenous covariates
+(\code{flavour} is \code{"conditional"}).
 
 Supplying \code{theta}/\code{Omega} evaluates the LOO at an arbitrary Gaussian
 posterior summary (a singular \code{Omega} is restricted to its non-degenerate

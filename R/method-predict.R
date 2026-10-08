@@ -471,7 +471,22 @@ predict.inlavaan_internal <- function(
     if (!level %in% c(1L, 2L)) {
       cli_abort("{.arg level} must be {.val 1} or {.val 2}.")
     }
-  } # nocov end
+    # nocov end
+    if (has_random_slopes(lavmodel) && type != "lv") {
+      cli_abort(
+        c(
+          "{.fn predict} has no {.val {type}} values for a random-slope
+           model.",
+          "x" = "They would be built from the model-implied moments, which
+                 ignore the random slope entirely.",
+          "i" = "{.code predict(object, type = \"lv\", level = 2)} returns the
+                 cluster-level slope estimates alongside the other level-2
+                 latent variables."
+        ),
+        class = "inlavaan_rs_predict"
+      )
+    }
+  }
 
   # Handle newdata: rebuild lavdata matrices
   if (!is.null(newdata)) {
@@ -511,6 +526,23 @@ predict.inlavaan_internal <- function(
       # nocov start
       # ---- Multilevel path: use lavaan internals ----
       lavsamplestats <- object$lavsamplestats
+
+      # A random-slope model has no single implied within-cluster
+      # covariance to condition on, so its scores come from lavaan's own
+      # empirical Bayes kernel, which returns both levels at once and
+      # carries the slopes among the level-2 latent variables.
+      spec <- rs_spec(object)
+      sample_lv_rs <- function(xx) {
+        lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
+        eb <- lavaan___lav_mvn_cl_rs_eb(
+          lavmodel = lavmodel_x,
+          lavdata = lavdata,
+          lavcache = object$lavcache
+        )
+        FS <- if (level == 1L) eb$l1 else eb$l2
+        rownames(FS) <- NULL
+        FS
+      }
 
       # Helper: get LV names from the psi dimNames for a given block
       get_lv_names <- function(lavmodel_x, block) {
@@ -554,6 +586,7 @@ predict.inlavaan_internal <- function(
         out
       }
 
+      draw_lv <- if (is.null(spec)) sample_lv_ml else sample_lv_rs
       out <- vector("list", nsamp)
       cli_progress_bar(
         "Sampling latent variables (multilevel)",
@@ -561,7 +594,7 @@ predict.inlavaan_internal <- function(
         clear = FALSE
       )
       for (i in seq_len(nsamp)) {
-        out[[i]] <- sample_lv_ml(x_samp[i, ])
+        out[[i]] <- draw_lv(x_samp[i, ])
         cli_progress_update()
       }
       cli_progress_done()
