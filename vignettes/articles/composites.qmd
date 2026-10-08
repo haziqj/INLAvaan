@@ -109,7 +109,8 @@ round(cbind(INLAvaan = coef(fit), lavaan = coef(fit_ml)), 3)
   compare only models with the same composites.
 - **Limits.** Composites are supported with continuous data, in one or more
   groups or at either level of a two-level model. Two-level models need the
-  default `composites.cov = "free"`. Ordinal data and covariances between the
-  indicators of a composite and other variables stop with an error.
+  default `composites.cov = "free"`. Ordinal data, random slopes (`rv()`) and
+  covariances between the indicators of a composite and other variables stop
+  with an error.
 
 ## References

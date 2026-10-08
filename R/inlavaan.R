@@ -197,7 +197,8 @@
 #' accord; such a fit is accepted as it stands.
 #'
 #' Equality constraints work as for other models, except that covariances
-#' cannot be held equal.
+#' cannot be held equal. Composites (`<~`) cannot be combined with random
+#' slopes yet.
 #'
 #' A random-slope model implies no single within-cluster covariance matrix
 #' -- the covariance of the outcomes depends on the covariate values -- so

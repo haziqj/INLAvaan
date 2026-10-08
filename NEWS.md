@@ -9,7 +9,8 @@
   covariance matrix, such as the posterior predictive p-value, `fitted()` and
   `simulate()`, give an error. A random slope on a latent or split covariate
   uses lavaan's quadrature, which is slower, and `integration.ngh` sets its
-  number of nodes. See the multilevel article.
+  number of nodes. Composites cannot be combined with random slopes yet. See
+  the multilevel article.
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
   with continuous data, in one or more groups or at either level of a two-level
