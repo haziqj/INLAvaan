@@ -67,9 +67,10 @@ test_that("LOCO scores a random-slope fit cluster by cluster", {
 test_that("the random-slope kernel is scored conditionally", {
   expect_equal(res$flavour, "conditional")
 
-  # The cluster contributions sum to the fitted log-likelihood exactly: the
-  # kernel is already the conditional density of the outcomes given the
-  # covariates, so nothing is subtracted from it.
+  # The cluster contributions sum to the fitted log-likelihood exactly: with
+  # every covariate within-only or between-only, the kernel is already the
+  # conditional density of the outcomes given the covariates, so nothing is
+  # subtracted from it.
   ll <- rs_model_loglik(fit_rs)
   expect_equal(sum(res$per_unit$l_star), ll, tolerance = 1e-6)
 
@@ -93,6 +94,74 @@ test_that("the random-slope kernel is scored conditionally", {
     sum(res$per_unit$l_star),
     ll - sum(fx_const)
   )))
+})
+
+test_that("a covariate at both levels is conditioned on, as in the evidence", {
+  # The kernel scores x2, which varies at both levels, jointly with the
+  # outcomes. LOCO takes its frozen density back out, by exactly the amount
+  # the fixed.x shift takes out of the marginal likelihood.
+  mod_split <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1 + x2
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ x2 + w1
+      s1 ~ w1
+  "
+  # The marginal-fit diagnostic flags a level-2 variance of this small fit,
+  # which has nothing to do with what is checked here
+  fit_split <- suppressWarnings(asem(
+    mod_split,
+    d_rs,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    nsamp = 3
+  ))
+  int_split <- get_inlavaan_internal(fit_split)
+  spec_split <- INLAvaan:::rs_spec(int_split)
+  expect_true("x2" %in% spec_split$resp)
+  cache <- INLAvaan:::loo_grad_cache(
+    int_split$theta_star,
+    int_split$lavmodel,
+    int_split$partable,
+    two_level = TRUE
+  )
+  split_const <- INLAvaan:::loco_rs_split_const(
+    int_split,
+    spec_split,
+    seq_len(24L),
+    cache$mom
+  )
+  adj <- INLAvaan:::twolevel_fixedx_loglik_adj(
+    int_split$lavmodel,
+    cache$x,
+    int_split$lavdata,
+    int_split$lavsamplestats
+  )
+  expect_gt(abs(adj), 1)
+  expect_equal(sum(split_const), -adj, tolerance = 1e-8)
+  res_split <- loo(fit_split)
+  expect_equal(
+    sum(res_split$per_unit$l_star),
+    rs_model_loglik(fit_split) + adj,
+    tolerance = 1e-6
+  )
+
+  # Nothing is taken out when every covariate is conditioned on
+  cache_base <- INLAvaan:::loo_grad_cache(
+    int$theta_star,
+    int$lavmodel,
+    int$partable,
+    two_level = TRUE
+  )
+  expect_equal(
+    INLAvaan:::loco_rs_split_const(int, spec, seq_len(24L), cache_base$mom),
+    rep(0, 24L)
+  )
 })
 
 test_that("the per-cluster scores are lavaan's analytic scores", {

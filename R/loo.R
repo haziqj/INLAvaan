@@ -493,10 +493,11 @@ loco_scores_theta <- function(theta, css, lavmodel, pt, units, cache = NULL) {
 # ingredients the Taylor expansion needs. The chain rule and everything
 # downstream then apply verbatim.
 #
-# Two properties of these kernels shape the branch in inlav_loo(). They score
-# the outcomes conditionally on the exogenous covariates by construction, so
-# no frozen-covariate constant is ever subtracted from their values; and they
-# handle missing data themselves, so the FIML path is the same code.
+# Two properties of these kernels shape the branch in inlav_loo(). They
+# condition on the covariates that are within-only or between-only, but score
+# a covariate observed at both levels jointly with the outcomes, so its frozen
+# density is subtracted (loco_rs_split_const()). And they handle missing data
+# themselves, so the FIML path is the same code.
 #
 # Both return every cluster on every call, so a `units` subset trims the
 # result without trimming the work.
@@ -532,6 +533,45 @@ loco_rs_scores_theta <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
     G_x <- rs_unpack_grad(G_x, lavmodel)
   }
   loo_chain_rule(G_x[units, , drop = FALSE], cache)
+}
+
+# Frozen log-density of the covariates a random-slope kernel scores with the
+# outcomes (those observed at both levels, such as a covariate carrying no
+# slope, or the one carrying it on the quadrature route) given the covariates
+# it conditions on. Subtracting it from each cluster's kernel value leaves the
+# outcomes given every covariate, the score of an ordinary fixed.x fit. Zero
+# when the kernel conditions on every covariate.
+loco_rs_split_const <- function(int, spec, units, mom) {
+  ovn <- int$lavdata@ov.names[[1L]]
+  x_idx <- int$lavsamplestats@x.idx[[1L]]
+  cond_idx <- x_idx[ovn[x_idx] %in% spec$cond]
+  if (length(cond_idx) == length(x_idx)) {
+    return(numeric(length(units)))
+  }
+  Lp <- int$lavdata@Lp[[1L]]
+  X <- int$lavdata@X[[1L]]
+  Y2 <- int$lavsamplestats@YLp[[1L]][[2L]]$Y2
+  cl <- Lp$cluster.idx[[2L]]
+  frozen <- function(idx) {
+    if (length(idx) == 0L) {
+      return(numeric(length(units)))
+    }
+    int_sub <- int
+    int_sub$lavsamplestats@x.idx[[1L]] <- idx
+    info <- loo_fixedx_info_loco(int_sub, list(Lp = Lp), mom)
+    vapply(
+      units,
+      function(j) {
+        loo_fixedx_const_raw(
+          X[cl == j, , drop = FALSE],
+          Y2[j, , drop = FALSE],
+          info
+        )
+      },
+      numeric(1)
+    )
+  }
+  frozen(x_idx) - frozen(cond_idx)
 }
 
 # ---- LOCO under missing data (two-level FIML) ------------------------------
@@ -1631,10 +1671,8 @@ inlav_loo <- function(
     }
     units <- check_loo_units(units, spec$ncl, "clusters")
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
-    # No frozen-covariate constant is subtracted here, unlike the
-    # complete-data branch below: the kernel is already the conditional
-    # likelihood of the outcomes given the exogenous covariates.
-    l_star <- loco_rs_loglik_all(theta, spec$rs, lavmodel, pt, units, cache)
+    l_star <- loco_rs_loglik_all(theta, spec$rs, lavmodel, pt, units, cache) -
+      loco_rs_split_const(int, spec, units, cache$mom)
     s_mat <- loco_rs_scores_theta(theta, spec$rs, lavmodel, pt, units, cache)
     score_fn <- function(th_act) {
       th <- theta
