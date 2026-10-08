@@ -285,13 +285,38 @@ Even when the variance is small, posterior draws of the school-specific slopes a
 predict(fit_rs, type = "lv", level = 2, summary = TRUE)
 ```
 
+### Implied Moments and Standardised Estimates
+
+A random-slope model has no single within-cluster covariance matrix, and lavaan's own implied moments simply leave the slope out.
+INLAvaan's `fitted()` instead averages the implied moments over the covariates, holding them at their sample moments as `fixed.x = TRUE` does.
+Each slope then contributes its mean, as a fixed slope would, and its variance times the variance of its covariate, which is the random-slope component of the within-cluster variance in the framework of @rights2019quantifying.
+With the slope variance at zero, these are exactly the moments of the fixed-slope model.
+
+```{r}
+fitted(fit_rs)$within
+```
+
+`residuals()` compares these with the sample moments as usual.
+With `per_cluster = TRUE`, both functions work school by school instead: the expected mean and within-school covariance of each school at its own covariate values, against that school's own sample moments.
+
+```{r}
+residuals(fit_rs, per_cluster = TRUE)[["1"]]
+```
+
+Standardised estimates are scaled by the averaged variances.
+The Level 1 carrier row `x1 (s1)` then shows the standardised mean slope, and the Level 2 rows of `s1` are on the same standardised-slope scale: the intercept of `s1` is a standardised slope, and its variance is the share of the within-school variance of `fw` that slope variation adds (its square root is the standard deviation of the standardised slopes across schools).
+
+```{r}
+std <- standardisedsolution(fit_rs)
+std[std$lhs %in% c("fw", "s1"), ]
+```
+
 ### What Is Not Available
 
 INLAvaan prefers an error that explains itself to a plausible wrong number, so the following raise one on a random-slope fit:
 
 - the posterior predictive p-value and the Bayesian fit indices from `bfit_indices()`, as described above;
-- `fitted()` and `residuals()`, whose implied moments silently drop the slope variance and would report it as misfit;
-- standardised estimates (`standardisedsolution()` and `summary(standardized = TRUE)`), which are scaled by the same implied moments;
+- casewise values from `fitted()` and `residuals()`, and residuals scaled by standard errors;
 - `simulate()`, lavaan having no random-slope data generator;
 - `predict()` for anything other than `type = "lv"`;
 - `loo(type = "loso")`.
@@ -306,5 +331,6 @@ When the covariate is latent, or split across both levels (the same variable ent
 INLAvaan takes that route automatically and warns when it does.
 The argument `integration.ngh` sets the number of nodes per dimension; because it is an accuracy setting as much as a cost setting, every fit that is to appear in the same `compare()` table must use the same value, which `compare()` also checks.
 A split covariate is conditioned on just as a purely within-cluster one is, so the plain fixed-slope model with the same covariates is the comparator to use; fixing the slope variance at zero is not possible on this route.
+The averaged moments and the standardised estimates are available on this route too, but `per_cluster = TRUE` is not, because each school's outcomes are then a mixture over the quadrature nodes.
 
 ## References
