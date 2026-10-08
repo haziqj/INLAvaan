@@ -612,7 +612,8 @@ test_that("Random slopes: constrained variances and shared slope labels fit", {
 
 test_that("Random slopes: an inexact equality group is refused", {
   # A loading and a variance under one label: the two carry different
-  # transformations, so the group total cannot be split between them
+  # transformations, so the group total cannot be split between them. The
+  # general check refuses this for every model, before the random-slope one.
   mod_mix <- "
     level: 1
       fw =~ y1 + a*y2 + y3
@@ -632,7 +633,7 @@ test_that("Random slopes: an inexact equality group is refused", {
       test = "none",
       nsamp = 3
     ),
-    class = "inlavaan_rs_ceq"
+    "cannot hold these parameters equal"
   )
 
   # A covariance in the group: its Jacobian carries the two standard

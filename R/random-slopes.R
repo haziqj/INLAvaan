@@ -112,8 +112,8 @@ rs_transform_class <- function(mat) {
 }
 
 # Fit-time gate for the equality constraints rs_unpack_grad() cannot
-# redistribute exactly: a group whose members carry different
-# transformations, or one holding a covariance.
+# redistribute exactly. check_packed_kinds() has already refused groups that
+# mix kinds of parameter, which leaves groups of covariances or correlations.
 check_rs_ceq <- function(pt, lavmodel) {
   if (!isTRUE(lavmodel@ceq.simple.only)) {
     return(invisible(NULL)) # nocov -- general constraints never reach here
@@ -126,10 +126,7 @@ check_rs_ceq <- function(pt, lavmodel) {
   cls <- rs_transform_class(pt$mat)
   bad <- vapply(
     groups,
-    function(gr) {
-      k <- which(pt$free == gr)
-      length(unique(cls[k])) > 1L || any(cls[k] == "atanh")
-    },
+    function(gr) any(cls[pt$free == gr] == "atanh"),
     logical(1)
   )
   if (!any(bad)) {
@@ -139,16 +136,10 @@ check_rs_ceq <- function(pt, lavmodel) {
   bad_names <- unique(pt$names[rows])
   cli_abort(
     c(
-      "Random-slope models do not support this equality constraint:
+      "Random-slope models cannot hold covariances equal:
        {.val {bad_names}}.",
-      "x" = "{.pkg lavaan} returns the random-slope gradient summed over
-             the parameters a constraint ties together, and INLAvaan can
-             redistribute that sum exactly only when every parameter in
-             the group carries the same transformation and none of them is
-             a covariance.",
-      "i" = "Constrain loadings, regressions and intercepts among
-             themselves, or variances among themselves, or drop the
-             constraint."
+      "i" = "Hold loadings, regressions, intercepts or variances equal
+             instead, or drop the constraint."
     ),
     class = "inlavaan_rs_ceq"
   )
