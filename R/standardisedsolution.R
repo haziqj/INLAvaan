@@ -52,7 +52,6 @@ standardisedsolution <- function(
     return(blavaan::standardizedPosterior(object))
   }
 
-  check_rs_std(object)
   if (!isTRUE(nsamp >= 2)) {
     cli_abort("{.arg nsamp} must be at least 2 to summarise posterior draws.")
   }
@@ -74,6 +73,11 @@ standardisedsolution <- function(
   x_samp <- samp$x_samp
   comp_rows <- composite_derived_rows(pt)
 
+  # A random-slope model is scaled by its averaged implied variances, which
+  # rs_std_values() gives for every partable row
+  spec <- rs_spec(fit_inlv)
+  rs_shared <- character(0)
+
   xstd_samp <- vector("list", nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
     xi <- x_samp[i, ]
@@ -94,6 +98,20 @@ standardisedsolution <- function(
       pt_def_rows <- which(pt$op == ":=")
       def_names <- pt$names[pt_def_rows]
       esti[pt_def_rows] <- fit_inlv$summary[def_names, "Mean"]
+    }
+    if (!is.null(spec)) {
+      std_i <- rs_std_values(
+        object,
+        lavmodel,
+        esti,
+        spec$rs$info,
+        type = type,
+        cov_std = cov.std,
+        ...
+      )
+      rs_shared <- union(rs_shared, attr(std_i, "shared"))
+      xstd_samp[[i]] <- std_i
+      next
     }
     xstd_samp[[i]] <- muffle_nan_warnings(lavaan::standardizedSolution(
       object = object,
@@ -119,6 +137,23 @@ standardisedsolution <- function(
     remove_def = remove.def,
     ...
   ))
+  if (!is.null(spec)) {
+    xstd_samp <- xstd_samp[,
+      match(rs_row_key(out), rs_row_key(pt)),
+      drop = FALSE
+    ]
+  }
+  if (length(rs_shared) > 0L) {
+    cli_warn(
+      c(
+        "The random slope{?s} {.val {rs_shared}} carr{?ies/y} paths with
+         different scales, so {?its/their} own rows have no single
+         standardised value and are {.code NA}.",
+        "i" = "Give each path its own slope label to standardise them."
+      ),
+      class = "inlavaan_rs_std_shared"
+    )
+  }
 
   # Summarise each row over its finite draws, since a := parameter can be
   # undefined for part of the posterior. Warn about := rows that the fit did not

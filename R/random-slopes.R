@@ -242,24 +242,6 @@ check_per_cluster <- function(object, per_cluster) {
   invisible(TRUE)
 }
 
-# Gate for the standardised solution, which scales by lavaan's implied
-# variances. Those leave out the variance a random slope adds.
-rs_std_reason <- "They are scaled by model-implied variances, which leave out
-  the variance the random slope adds."
-
-check_rs_std <- function(object) {
-  if (!has_random_slopes(object@external$inlavaan_internal$lavmodel)) {
-    return(invisible(NULL))
-  }
-  cli_abort(
-    c(
-      "Standardised estimates are not available for a random-slope model.",
-      "x" = rs_std_reason
-    ),
-    class = "inlavaan_rs_std"
-  )
-}
-
 # Route B (a random slope on a latent or split covariate) replaces the
 # closed-form cluster kernel with Gauss-Hermite quadrature, so it is both
 # slower and less accurate. Warn once wherever that route is entered.

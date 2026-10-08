@@ -461,6 +461,122 @@ test_that("Monte Carlo: the averaged moments", {
   expect_gt(max(abs(lav$cov[[1]][1:3, 1:3] - h1$within$cov[ys, ys])), 0.3)
 })
 
+## ----- Standardised values ---------------------------------------------------
+
+test_that("Standardised values match a hand derivation", {
+  # y1 = (nu + u0_j) + s_j x1 + e, s_j ~ N(mu_s, sig_s2), x1 off centre
+  th_w <- 0.8
+  th_b <- 0.3
+  nu_b <- 0.2
+  mu_s <- 0.6
+  sig_s2 <- 0.25
+  d_shift <- d_rs
+  d_shift$x1 <- d_shift$x1 + 1.5
+  fit <- lavaan::sem(
+    sprintf(
+      "
+      level: 1
+        y1 ~ rv('s1')*x1
+        y1 ~~ %g*y1
+      level: 2
+        y1 ~ %g*1
+        y1 ~~ %g*y1
+        s1 ~ %g*1
+        s1 ~~ %g*s1
+      ",
+      th_w,
+      nu_b,
+      th_b,
+      mu_s,
+      sig_s2
+    ),
+    d_shift,
+    cluster = "cluster",
+    do.fit = FALSE
+  )
+  # lavaan's fixed.x moments of a within-only covariate: total, ML divisor
+  x <- d_shift$x1
+  s2_x <- mean((x - mean(x))^2)
+  var_w <- th_w + (mu_s^2 + sig_s2) * s2_x
+  var_b <- th_b + sig_s2 * mean(x)^2
+  hand <- c(
+    "y1 ~ x1 1" = mu_s * sqrt(s2_x / var_w),
+    "y1 ~~ y1 1" = th_w / var_w,
+    "y1 ~1  2" = nu_b / sqrt(var_b),
+    "y1 ~~ y1 2" = th_b / var_b,
+    "s1 ~1  2" = mu_s * sqrt(s2_x / var_w),
+    "s1 ~~ s1 2" = sig_s2 * s2_x / var_w
+  )
+  pt <- fit@ParTable
+  std <- rs_std_values(fit, fit@Model, pt$est, fit@Cache[[1L]]$rs$info)
+  got <- std[match(names(hand), paste(pt$lhs, pt$op, pt$rhs, pt$block))]
+  expect_equal(unname(got), unname(hand), tolerance = 1e-10)
+  # The within R-square splits into the mean slope and the slope variance
+  expect_equal(
+    unname(got[1]^2 + got[6]),
+    unname(1 - got[2]),
+    tolerance = 1e-10
+  )
+})
+
+test_that("A zero slope variance gives the fixed-slope standardised values", {
+  fit_rs0 <- suppressWarnings(lavaan::sem(mod_rs0, d_rs, cluster = "cluster"))
+  fit_fx <- suppressWarnings(lavaan::sem(mod_fx, d_rs, cluster = "cluster"))
+  fit_rs0 <- move_to_fixed_slope(fit_rs0, fit_fx)
+  info <- fit_rs0@Cache[[1L]]$rs$info
+  pt0 <- fit_rs0@ParTable
+  ptf <- lavaan::parTable(fit_fx)
+  key0 <- paste(pt0$lhs, pt0$op, pt0$rhs, pt0$block)
+  keyf <- paste(ptf$lhs, ptf$op, ptf$rhs, ptf$block)
+  common <- intersect(key0, keyf)
+  for (tp in c("std.lv", "std.all", "std.nox")) {
+    a <- rs_std_values(fit_rs0, fit_rs0@Model, pt0$est, info, type = tp)
+    b <- lavaan::standardizedSolution(
+      fit_fx,
+      type = tp,
+      remove_eq = FALSE,
+      remove_ineq = FALSE,
+      remove_def = FALSE
+    )$est.std
+    expect_false(anyNA(a[match(common, key0)]))
+    expect_lt(max(abs(a[match(common, key0)] - b[match(common, keyf)])), 1e-8)
+  }
+})
+
+test_that("Defined parameters are re-evaluated on the slope metric", {
+  fit <- suppressWarnings(lavaan::sem(
+    paste(mod_rs, "s1 ~ a*1\n twice := 2*a"),
+    d_rs,
+    cluster = "cluster"
+  ))
+  pt <- fit@ParTable
+  std <- rs_std_values(fit, fit@Model, pt$est, fit@Cache[[1L]]$rs$info)
+  expect_equal(
+    std[pt$op == ":="],
+    2 * std[pt$lhs == "s1" & pt$op == "~1"]
+  )
+})
+
+test_that("A slope shared by paths on different scales has no metric", {
+  fit <- suppressWarnings(lavaan::sem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1 + rv('s1')*x2
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    d_rs,
+    cluster = "cluster"
+  ))
+  pt <- fit@ParTable
+  std <- rs_std_values(fit, fit@Model, pt$est, fit@Cache[[1L]]$rs$info)
+  expect_equal(attr(std, "shared"), "s1")
+  expect_true(is.na(std[pt$lhs == "s1" & pt$op == "~1"]))
+  # The two carriers still hold their own standardised mean slopes
+  expect_true(all(is.finite(std[nzchar(pt$rv) & pt$op == "~"])))
+})
+
 ## ----- Methods on a fit ------------------------------------------------------
 
 test_that("fitted() and residuals() give the averaged moments", {
@@ -551,4 +667,66 @@ test_that("The outputs a random-slope fit cannot give are refused", {
     residuals(fit_fx, per_cluster = TRUE),
     class = "inlavaan_per_cluster"
   )
+})
+
+test_that("Standardised estimates of a random-slope fit", {
+  set.seed(1)
+  std <- standardisedsolution(fit_rs, nsamp = 20)
+  expect_true(all(is.finite(std$est.std)))
+  carrier <- std$lhs == "fw" & std$op == "~" & std$rhs == "x1"
+  expect_gt(std$est.std[carrier], 0)
+
+  out <- capture.output(summary(fit_rs, standardized = TRUE, nsamp = 5))
+  expect_true(any(grepl("Std.all", out, fixed = TRUE)))
+})
+
+test_that("Constraints, FIML, two slopes and named levels work together", {
+  skip_on_cran()
+  # One fit with an equality constraint, two slopes and their covariance,
+  # named levels, missing outcomes, and a cluster cut down to a single row
+  d_mix <- d_rs[-which(d_rs$cluster == 1)[-1], ]
+  set.seed(5)
+  for (v in c("y1", "y2", "y3")) {
+    d_mix[[v]][stats::runif(nrow(d_mix)) < 0.05] <- NA
+  }
+  d_mix[d_mix$cluster == 1, "y2"] <- d_rs$y2[d_rs$cluster == 1][1]
+  mod_mix <- "
+    level: within
+      fw =~ y1 + a*y2 + a*y3
+      fw ~ rv('s1')*x1 + rv('s2')*x2
+    level: between
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      s1 ~~ s2
+  "
+  fit <- asem(
+    mod_mix,
+    d_mix,
+    cluster = "cluster",
+    missing = "ml",
+    verbose = FALSE,
+    test = "none",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  spec <- rs_spec(get_inlavaan_internal(fit))
+  expect_lt(
+    max(abs(
+      rs_stacked_loglik(fit@Model, spec$rs, fit@Data) -
+        rs_kernel_loglik(fit@Model, spec$rs)
+    )),
+    1e-8
+  )
+  f <- fitted(fit)
+  expect_named(f, c("within", "cluster"))
+  expect_true(all(is.finite(f$within$cov)))
+  r <- residuals(fit, per_cluster = TRUE)
+  one <- r[["1"]]
+  expect_true(all(is.na(one$cov[1:3, 1:3])))
+  expect_true(all(is.finite(one$mean)))
+  expect_true(all(is.finite(r[["2"]]$cov)))
+  set.seed(2)
+  std <- standardisedsolution(fit, nsamp = 10)
+  expect_true(all(is.finite(std$est.std)))
 })

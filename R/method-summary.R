@@ -206,19 +206,6 @@ summary_inlavaan <- function(
   }
 
   # Standardised solution?
-  if (
-    isTRUE(standardised) &&
-      has_random_slopes(object@external$inlavaan_internal$lavmodel)
-  ) {
-    cli_warn(
-      c(
-        "Leaving out the standardised estimates of a random-slope model.",
-        "x" = rs_std_reason
-      ),
-      class = "inlavaan_rs_std"
-    )
-    standardised <- FALSE
-  }
   if (isTRUE(standardised)) {
     stdlv <- standardisedsolution(object, type = "std.lv", ...)
     stdall <- standardisedsolution(object, type = "std.all", ...)

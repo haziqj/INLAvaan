@@ -307,6 +307,130 @@ rs_per_cluster <- function(object, observed = FALSE) {
   out
 }
 
+## ----- Standardised solution -------------------------------------------------
+
+# Match the rows of a lavaan output table to partable rows by lhs/op/rhs and
+# order of occurrence, both being in partable order. standardizedSolution()
+# has no block column and drops the `s =~ s` marker rows.
+rs_row_key <- function(df) {
+  k <- paste(df$lhs, df$op, df$rhs)
+  paste(k, stats::ave(seq_along(k), k, FUN = seq_along))
+}
+
+# Standardised values of a random-slope model at one parameter vector, one
+# per partable row (NA on the marker rows). lavaan's standardizedSolution()
+# runs on the averaged GLIST, so every row is scaled by the averaged implied
+# variances. Two kinds of row are then put right:
+#
+#   - the level-1 carrier `y ~ x (s)` holds the standardised mean slope
+#     E[s] k, with k = sd(x) / sd(y) the factor lavaan applies to that path
+#     under `type`;
+#   - with `slope_metric = TRUE`, the slope's own rows are put on the scale
+#     of the standardised slope k s: `s ~1` becomes alpha k, `s ~~ s`
+#     becomes psi k^2 (the share of the outcome's within variance that
+#     slope variation brings, and the square of the SD of the standardised
+#     slopes), and `s ~ w` becomes g k times the scale lavaan gives w. A
+#     covariance with the slope stays a correlation under `cov_std`.
+#
+# Rows where the slope is a predictor are scale free and stay as they are.
+# A slope label shared by paths with different k has no single metric, so
+# its own rows are NA, and the attribute "shared" names it.
+rs_std_values <- function(
+  object,
+  lavmodel,
+  est,
+  info,
+  type = "std.all",
+  cov_std = TRUE,
+  slope_metric = TRUE,
+  ...
+) {
+  pt <- object@ParTable
+  paths <- info$path.tab
+  slopes <- info$z.names
+  eta_b <- rs_eta_moments(rs_glist_block(lavmodel, lavmodel@GLIST, 2L)$mats)
+  carrier <- vapply(
+    seq_len(nrow(paths)),
+    function(p) {
+      which(
+        pt$op == "~" &
+          pt$lhs == paths$lhs[p] &
+          pt$rhs == paths$rhs[p] &
+          pt$block == 1L
+      )[1L]
+    },
+    integer(1)
+  )
+  own_reg <- which(pt$block == 2L & pt$op == "~" & pt$lhs %in% slopes)
+
+  # A unit estimate on the carrier and on the slope's regressions makes
+  # lavaan return the bare scale factor of each row
+  est1 <- est
+  est1[c(carrier, own_reg)] <- 1
+  ss <- muffle_nan_warnings(lavaan::standardizedSolution(
+    object,
+    type = type,
+    est = est1,
+    glist = rs_avg_glist(lavmodel, lavmodel@GLIST, info),
+    cov_std = cov_std,
+    se = FALSE,
+    zstat = FALSE,
+    pvalue = FALSE,
+    ci = FALSE,
+    remove_eq = FALSE,
+    remove_ineq = FALSE,
+    remove_def = FALSE,
+    ...
+  ))
+  out <- ss$est.std[match(rs_row_key(pt), rs_row_key(ss))]
+  k <- out[carrier]
+  out[carrier] <- k * eta_b$mean[paths$rv]
+  factor_reg <- out[own_reg]
+  out[own_reg] <- est[own_reg] * factor_reg
+
+  shared <- character(0)
+  if (slope_metric) {
+    for (z in slopes) {
+      kz <- unique(signif(k[paths$rv == z], 10))
+      if (length(kz) > 1L) {
+        shared <- c(shared, z)
+        kz <- NA_real_
+      }
+      sd_z <- sqrt(max(eta_b$cov[z, z], 0))
+      rows <- which(pt$block == 2L & (pt$lhs == z | pt$rhs == z))
+      for (r in rows) {
+        if (pt$op[r] == "~1" && pt$lhs[r] == z) {
+          out[r] <- est[r] * kz
+        } else if (pt$op[r] == "~" && pt$lhs[r] == z) {
+          # lavaan's factor here is (scale of the predictor) / sd(s)
+          f <- factor_reg[match(r, own_reg)] * sd_z
+          out[r] <- if (is.finite(f)) est[r] * f * kz else NA_real_
+        } else if (pt$op[r] == "~~" && pt$lhs[r] == z && pt$rhs[r] == z) {
+          out[r] <- est[r] * kz^2
+        } else if (pt$op[r] == "~~" && !cov_std) {
+          # lavaan divides by both implied SDs; put the slope's back as k
+          out[r] <- out[r] * sd_z * kz
+        }
+      }
+    }
+  }
+
+  # Defined parameters and constraints are functions of the standardised
+  # free parameters, re-evaluated as lavaan does
+  x_std <- out[pt$free > 0L & !duplicated(pt$free)]
+  if (any(pt$op == ":=")) {
+    out[pt$op == ":="] <- lavmodel@def.function(x_std)
+  }
+  if (any(pt$op == "==")) {
+    out[pt$op == "=="] <- lavmodel@ceq.function(x_std)
+  }
+  if (any(pt$op %in% c("<", ">"))) {
+    out[pt$op %in% c("<", ">")] <- lavmodel@cin.function(x_std)
+  }
+  attr(out, "shared") <- shared
+  out
+}
+
 ## ----- fitted() and residuals() ----------------------------------------------
 
 # A lavaan copy of the fit whose implied moments are the averaged ones, so
