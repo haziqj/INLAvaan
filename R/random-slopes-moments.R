@@ -516,7 +516,7 @@ rs_residuals <- function(
       labels = labels
     ))
   }
-  type <- rs_residual_type(type)
+  type <- rs_residual_type(type, object@Options$mimic)
   out <- lapply(rs_per_cluster(object, observed = TRUE), function(cl) {
     cov_res <- cl$cov_obs - cl$cov_imp
     mean_res <- cl$mean_obs - cl$mean_imp

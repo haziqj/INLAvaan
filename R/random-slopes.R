@@ -211,13 +211,14 @@ check_rs_moments <- function(object, fn, type) {
 }
 
 # The residual types a random-slope fit supports, in lavaan's canonical
-# spelling (NA for the others)
-rs_residual_type <- function(type) {
+# spelling (NA for the others). As in lavaan, "cor" means "cor.bentler" for a
+# fit that mimics EQS and "cor.bollen" otherwise.
+rs_residual_type <- function(type, mimic = "lavaan") {
   type <- gsub("_", ".", type)
   alias <- c(
     raw = "raw",
     rmr = "raw",
-    cor = "cor.bollen",
+    cor = if (identical(mimic, "EQS")) "cor.bentler" else "cor.bollen",
     cor.bollen = "cor.bollen",
     crmr = "cor.bollen",
     cor.bentler = "cor.bentler",

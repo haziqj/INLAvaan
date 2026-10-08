@@ -621,6 +621,10 @@ test_that("Per-cluster moments and residuals", {
     residuals(fit_rs, per_cluster = TRUE, type = "srmr")[[1]]$type,
     "cor.bentler"
   )
+  # As in lavaan, "cor" follows the fit's mimic option
+  expect_equal(rs_residual_type("cor", "EQS"), "cor.bentler")
+  expect_equal(rs_residual_type("cor_bollen"), "cor.bollen")
+  expect_true(is.na(rs_residual_type("normalized")))
 })
 
 test_that("The outputs a random-slope fit cannot give are refused", {
