@@ -48,7 +48,10 @@ whether level 1 or level 2 latent variables are desired (default \code{1L}).
 Other types ignore it: for two-level models, \code{"yhat"} and
 \code{"ypred"} give the total within plus between prediction, and a
 \code{"ypred"} draw keeps its cluster's between-level values, so only the
-observation-level residuals are new.}
+observation-level residuals are new. For a random-slope model (see
+\code{\link[=inlavaan]{inlavaan()}}), each level 2 latent variable, slopes included, is drawn on
+its own, so draws of different variables are independent given the
+parameters, and level 1 values are conditional means.}
 
 \item{nsamp}{Integer; number of posterior samples to use for prediction.
 Defaults to \code{1000}.}

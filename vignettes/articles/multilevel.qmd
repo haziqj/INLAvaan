@@ -279,7 +279,7 @@ The paired standard error is the right uncertainty for a nested comparison like 
 
 ### School-Level Slopes
 
-Even when the variance is small, the empirical Bayes estimates of the school-specific slopes are available, alongside the other Level 2 latent variables.
+Even when the variance is small, posterior draws of the school-specific slopes are available, alongside the other Level 2 latent variables.
 
 ```{r}
 predict(fit_rs, type = "lv", level = 2, summary = TRUE)
@@ -291,6 +291,7 @@ INLAvaan prefers an error that explains itself to a plausible wrong number, so t
 
 - the posterior predictive p-value and the Bayesian fit indices from `bfit_indices()`, as described above;
 - `fitted()` and `residuals()`, whose implied moments silently drop the slope variance and would report it as misfit;
+- standardised estimates (`standardisedsolution()` and `summary(standardized = TRUE)`), which are scaled by the same implied moments;
 - `simulate()`, lavaan having no random-slope data generator;
 - `predict()` for anything other than `type = "lv"`;
 - `loo(type = "loso")`.
@@ -304,6 +305,6 @@ Everything above uses a covariate that is observed and purely within-cluster, fo
 When the covariate is latent, or split across both levels (the same variable entering at Level 1 and at Level 2), the integral has to be done by Gauss-Hermite quadrature instead [@rockwood2020maximum].
 INLAvaan takes that route automatically and warns when it does.
 The argument `integration.ngh` sets the number of nodes per dimension; because it is an accuracy setting as much as a cost setting, every fit that is to appear in the same `compare()` table must use the same value, which `compare()` also checks.
-A split covariate is part of what the quadrature kernel scores rather than something it conditions on, so two such fits are comparable only when they split the same covariates.
+A split covariate is conditioned on just as a purely within-cluster one is, so the plain fixed-slope model with the same covariates is the comparator to use; fixing the slope variance at zero is not possible on this route.
 
 ## References

@@ -196,13 +196,8 @@
 #' to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own
 #' accord; such a fit is accepted as it stands.
 #'
-#' Equality constraints are supported among parameters that share a
-#' transformation: loadings, regressions and intercepts may be tied to one
-#' another, and variances to one another. A constraint that mixes the two,
-#' or that ties a covariance, is refused -- lavaan returns the random-slope
-#' gradient summed over the constrained parameters, and that sum can only
-#' be split back exactly when every parameter in the group is on the same
-#' scale.
+#' Equality constraints work as for other models, except that covariances
+#' cannot be held equal.
 #'
 #' A random-slope model implies no single within-cluster covariance matrix
 #' -- the covariance of the outcomes depends on the covariate values -- so
@@ -215,6 +210,8 @@
 #'     log-likelihood that is on a different scale here;
 #'   - [fitted()] and [residuals()], whose implied moments silently drop
 #'     the slope variance and would report it as misfit;
+#'   - [standardisedsolution()] and the standardised columns of [summary()],
+#'     which are scaled by those same implied moments;
 #'   - [simulate()], lavaan having no random-slope data generator;
 #'   - the latent, observed and implied draws of [sampling()], which are
 #'     built from those same implied moments (parameter draws are
@@ -231,17 +228,13 @@
 #' slopes alongside the other level-2 latent variables; and [fitmeasures()]
 #' keeps `npar`, `margloglik`, `dic` and `p_dic`.
 #'
-#' To ask whether there is a random slope at all, compare the fit with one
-#' in which the slope variance is fixed at zero, `s1 ~~ 0*s1`, *and* any
-#' cross-level regression on the slope is dropped. That model has the same
-#' log-likelihood and the same number of parameters as the plain
-#' fixed-slope model (`fw ~ x1` at level 1, `fb ~ w1` at level 2) and
-#' conditions on the same covariates. Keeping `s1 ~ w1` while fixing
-#' `s1 ~~ 0*s1` gives a third, intermediate model -- a cross-level
-#' interaction with a deterministic cluster-varying slope -- which is
-#' equally a member of the comparison. The plain fixed-slope model may also
-#' be used directly whenever it conditions on the same covariates
-#' ([compare()] checks), and it fits far faster.
+#' To ask whether there is a random slope at all, compare the fit with the
+#' fixed-slope model (`fw ~ x1` at level 1), which [compare()] accepts
+#' whenever it has the same covariates. On the closed-form route, fixing the
+#' slope variance at zero (`s1 ~~ 0*s1`) and dropping any cross-level
+#' regression on the slope gives the same model. Keeping `s1 ~ w1` gives a
+#' cross-level interaction model instead. The quadrature route refuses a
+#' slope variance fixed at zero.
 #'
 #' @seealso Typically, users will interact with the specific latent variable
 #'   model functions instead, including [acfa()], [asem()], and [agrowth()].

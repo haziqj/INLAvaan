@@ -97,22 +97,11 @@ results (\code{test} including \code{"loo"} or \code{"full"}, or \code{\link[=ad
 reused.
 
 When any of the models has random slopes (lavaan's \code{rv()} modifier; see
-\code{\link[=inlavaan]{inlavaan()}}), its marginal log-likelihood and DIC are densities of the
-outcomes \emph{given} the exogenous covariates, so a table of such fits says
-something only when every fit conditions in the same way. \code{compare()}
-therefore aborts unless all the models were fitted with
-\code{fixed.x = TRUE}, all condition on the same covariates, all score the
-same variables, and all Gauss-Hermite fits share one \code{integration.ngh}:
-a Bayes factor between quantities on different scales is not a weaker
-statement but a meaningless one. The conditioning and response sets are
-the kernel's own: a between-level variable the model regresses on is
-conditioned on, one the model explains is scored, and on the
-Gauss-Hermite route a covariate split across the two levels is scored
-jointly with the outcomes. The same response set governs the variable
-check under \code{loo = TRUE}. To test the slope itself, keep the covariates
-and fix the variance instead -- \code{s1 ~~ 0*s1}, with any cross-level
-regression on the slope dropped, is the exact fixed-slope comparator.
-Comparisons of ordinary fits are untouched.
+\code{\link[=inlavaan]{inlavaan()}}), \code{compare()} aborts unless all the models were fitted with
+\code{fixed.x = TRUE}, condition on the same covariates, score the same
+outcome variables, and share one \code{integration.ngh} on the quadrature
+route. The fixed-slope model (the same path without \code{rv()}) is a valid
+comparator for testing a random slope.
 
 \code{anova()} is disabled for \code{INLAvaan} fits -- there is no direct Bayesian
 analogue of the classical likelihood-ratio test -- and points here instead.

@@ -61,22 +61,11 @@
 #' reused.
 #'
 #' When any of the models has random slopes (lavaan's `rv()` modifier; see
-#' [inlavaan()]), its marginal log-likelihood and DIC are densities of the
-#' outcomes *given* the exogenous covariates, so a table of such fits says
-#' something only when every fit conditions in the same way. `compare()`
-#' therefore aborts unless all the models were fitted with
-#' `fixed.x = TRUE`, all condition on the same covariates, all score the
-#' same variables, and all Gauss-Hermite fits share one `integration.ngh`:
-#' a Bayes factor between quantities on different scales is not a weaker
-#' statement but a meaningless one. The conditioning and response sets are
-#' the kernel's own: a between-level variable the model regresses on is
-#' conditioned on, one the model explains is scored, and on the
-#' Gauss-Hermite route a covariate split across the two levels is scored
-#' jointly with the outcomes. The same response set governs the variable
-#' check under `loo = TRUE`. To test the slope itself, keep the covariates
-#' and fix the variance instead -- `s1 ~~ 0*s1`, with any cross-level
-#' regression on the slope dropped, is the exact fixed-slope comparator.
-#' Comparisons of ordinary fits are untouched.
+#' [inlavaan()]), `compare()` aborts unless all the models were fitted with
+#' `fixed.x = TRUE`, condition on the same covariates, score the same
+#' outcome variables, and share one `integration.ngh` on the quadrature
+#' route. The fixed-slope model (the same path without `rv()`) is a valid
+#' comparator for testing a random slope.
 #'
 #' `anova()` is disabled for `INLAvaan` fits -- there is no direct Bayesian
 #' analogue of the classical likelihood-ratio test -- and points here instead.
