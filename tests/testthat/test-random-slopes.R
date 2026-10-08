@@ -271,6 +271,24 @@ test_that("Random slopes: latent variables come from the EB kernel", {
     unname(eb$l2),
     tolerance = 1e-10
   )
+
+  # Level 2 draws carry each cluster's conditional spread, not only the
+  # parameter uncertainty. The spread is taken at the posterior mode, where
+  # the slope variance is positive (its MLE on this subset is not).
+  set.seed(4)
+  p2_many <- predict(fit_rs, type = "lv", level = 2L, nsamp = 200)
+  s1_draws <- vapply(p2_many, function(fs) fs[, "s1"], numeric(24L))
+  eb_se <- lavaan___lav_mvn_cl_rs_eb(
+    lavmodel = lavaan::lav_model_set_parameters(
+      int$lavmodel,
+      pars_to_x(int$theta_star, int$partable)
+    ),
+    lavdata = int$lavdata,
+    lavcache = int$lavcache,
+    se = TRUE
+  )$se2[, "s1"]
+  expect_true(all(eb_se > 0))
+  expect_gt(stats::median(apply(s1_draws, 1L, stats::sd) / eb_se), 0.9)
 })
 
 ## ----- Route B (Gauss-Hermite quadrature) ------------------------------------

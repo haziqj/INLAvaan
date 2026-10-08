@@ -529,17 +529,24 @@ predict.inlavaan_internal <- function(
 
       # A random-slope model has no single implied within-cluster
       # covariance to condition on, so its scores come from lavaan's own
-      # empirical Bayes kernel, which returns both levels at once and
-      # carries the slopes among the level-2 latent variables.
+      # empirical Bayes kernel, which carries the slopes among the level-2
+      # latent variables. It gives the level-2 conditional means and
+      # standard deviations, from which each level-2 variable is drawn on
+      # its own. At level 1 it gives only the conditional means.
       spec <- rs_spec(object)
       sample_lv_rs <- function(xx) {
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
         eb <- lavaan___lav_mvn_cl_rs_eb(
           lavmodel = lavmodel_x,
           lavdata = lavdata,
-          lavcache = object$lavcache
+          lavcache = object$lavcache,
+          se = level == 2L
         )
-        FS <- if (level == 1L) eb$l1 else eb$l2
+        FS <- if (level == 1L) {
+          eb$l1
+        } else {
+          eb$l2 + eb$se2 * stats::rnorm(length(eb$l2))
+        }
         rownames(FS) <- NULL
         FS
       }
@@ -1316,7 +1323,10 @@ print.summary.predict.inlavaan_internal <- function(
 #'   Other types ignore it: for two-level models, \code{"yhat"} and
 #'   \code{"ypred"} give the total within plus between prediction, and a
 #'   \code{"ypred"} draw keeps its cluster's between-level values, so only the
-#'   observation-level residuals are new.
+#'   observation-level residuals are new. For a random-slope model (see
+#'   [inlavaan()]), each level 2 latent variable, slopes included, is drawn on
+#'   its own, so draws of different variables are independent given the
+#'   parameters, and level 1 values are conditional means.
 #' @param nsamp Integer; number of posterior samples to use for prediction.
 #'   Defaults to \code{1000}.
 #' @param ymis_only Logical; only applies when \code{type = "ymis"}. When
