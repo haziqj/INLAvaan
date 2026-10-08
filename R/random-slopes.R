@@ -243,6 +243,21 @@ check_per_cluster <- function(object, per_cluster) {
   invisible(TRUE)
 }
 
+# summary() leaves out what the averaged moments cannot give, rather than
+# stopping halfway through the table. Returns NULL for the caller to test.
+warn_rs_left_out <- function(what) {
+  cli_warn(
+    c(
+      "Leaving out the {what} of this random-slope model.",
+      "x" = "An outcome observed at level 1 only has no place for the
+             between-cluster variance its random slope adds.",
+      "i" = "Run {.fn fitted} for the details."
+    ),
+    class = "inlavaan_rs_within_only"
+  )
+  NULL
+}
+
 # Route B (a random slope on a latent or split covariate) replaces the
 # closed-form cluster kernel with Gauss-Hermite quadrature, so it is both
 # slower and less accurate. Warn once wherever that route is entered.

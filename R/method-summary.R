@@ -122,12 +122,19 @@ summary_inlavaan <- function(
   # outcome's variance, so take it from the averaged implied variances
   r2_idx <- which(PE$op == "r2")
   if (length(r2_idx) > 0L && has_random_slopes(object@Model)) {
-    r2 <- rs_rsquare(object, rs_spec(get_inlavaan_internal(object))$rs$info)
-    r2 <- r2[r2$resvar, ]
-    PE$est[r2_idx] <- r2$r2[match(
-      paste(PE$lhs[r2_idx], PE$block[r2_idx]),
-      paste(r2$lhs, r2$block)
-    )]
+    r2 <- tryCatch(
+      rs_rsquare(object, rs_spec(get_inlavaan_internal(object))$rs$info),
+      inlavaan_rs_within_only = function(cond) warn_rs_left_out("R-square")
+    )
+    if (is.null(r2)) {
+      PE <- PE[-r2_idx, , drop = FALSE]
+    } else {
+      r2 <- r2[r2$resvar, ]
+      PE$est[r2_idx] <- r2$r2[match(
+        paste(PE$lhs[r2_idx], PE$block[r2_idx]),
+        paste(r2$lhs, r2$block)
+      )]
+    }
   }
 
   # # If PML, remove intercepts when not estimated
@@ -218,7 +225,15 @@ summary_inlavaan <- function(
 
   # Standardised solution?
   if (isTRUE(standardised)) {
-    stdlv <- standardisedsolution(object, type = "std.lv", ...)
+    stdlv <- tryCatch(
+      standardisedsolution(object, type = "std.lv", ...),
+      inlavaan_rs_within_only = function(cond) {
+        warn_rs_left_out("standardised estimates")
+      }
+    )
+    standardised <- !is.null(stdlv)
+  }
+  if (isTRUE(standardised)) {
     stdall <- standardisedsolution(object, type = "std.all", ...)
     stdidx <- match_partable_rows(PE, stdlv)
     PE$std.lv <- format_pe_col(stdlv$est.std[stdidx], nd)

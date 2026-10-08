@@ -499,11 +499,10 @@ rs_avg_object <- function(object) {
 
 rs_fitted <- function(object, labels = TRUE, per_cluster = FALSE) {
   if (!isTRUE(per_cluster)) {
-    return(lavaan::fitted(
-      rs_avg_object(object),
-      type = "moments",
-      labels = labels
-    ))
+    # Built first, so that a refusal keeps its class instead of surfacing
+    # through S4 dispatch as a plain error
+    obj <- rs_avg_object(object)
+    return(lavaan::fitted(obj, type = "moments", labels = labels))
   }
   out <- lapply(rs_per_cluster(object, observed = FALSE), function(cl) {
     list(cov = cl$cov_imp, mean = cl$mean_imp)
@@ -521,11 +520,8 @@ rs_residuals <- function(
   per_cluster = FALSE
 ) {
   if (!isTRUE(per_cluster)) {
-    return(lavaan::residuals(
-      rs_avg_object(object),
-      type = type,
-      labels = labels
-    ))
+    obj <- rs_avg_object(object)
+    return(lavaan::residuals(obj, type = type, labels = labels))
   }
   type <- rs_residual_type(type, object@Options$mimic)
   out <- lapply(rs_per_cluster(object, observed = TRUE), function(cl) {

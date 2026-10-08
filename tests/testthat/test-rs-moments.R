@@ -270,6 +270,32 @@ test_that("A within-only outcome with a shifted covariate is refused", {
     rs_avg_implied(fit@Model, fit@Cache[[1L]]$rs$info),
     class = "inlavaan_rs_within_only"
   )
+
+  # summary() leaves out what it cannot give and prints the rest
+  fit_wo <- asem(
+    "
+    level: 1
+      y1 ~ rv('s1')*x1
+      y2 ~ x2
+    level: 2
+      y2 ~~ y2
+    ",
+    d_shift,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  expect_error(fitted(fit_wo), class = "inlavaan_rs_within_only")
+  expect_error(residuals(fit_wo), class = "inlavaan_rs_within_only")
+  expect_warning(
+    out <- capture.output(summary(fit_wo, rsquare = TRUE, nsamp = 3)),
+    class = "inlavaan_rs_within_only"
+  )
+  expect_false(any(grepl("R-Square", out, fixed = TRUE)))
+  expect_true(any(grepl("Variances", out, fixed = TRUE)))
 })
 
 ## ----- Monte Carlo -----------------------------------------------------------
