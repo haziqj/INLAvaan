@@ -6,9 +6,9 @@
 \alias{resid,INLAvaan-method}
 \title{Model Residuals for INLAvaan Models}
 \usage{
-\S4method{residuals}{INLAvaan}(object, type = "raw", labels = TRUE, per_cluster = FALSE, ...)
+\S4method{residuals}{INLAvaan}(object, type = "raw", labels = TRUE, ..., per_cluster = FALSE)
 
-\S4method{resid}{INLAvaan}(object, type = "raw", per_cluster = FALSE, ...)
+\S4method{resid}{INLAvaan}(object, type = "raw", ..., per_cluster = FALSE)
 }
 \arguments{
 \item{object}{An object of class \link{INLAvaan}.}
@@ -27,10 +27,10 @@ for each observation.}
 \item{labels}{Logical. Attach variable names to the output. Default
 \code{TRUE}.}
 
+\item{...}{Currently unused.}
+
 \item{per_cluster}{Logical. For a random-slope model, return the residuals
 of each cluster instead of the averaged ones. Default \code{FALSE}.}
-
-\item{...}{Currently unused.}
 }
 \value{
 For moment-based \code{type}s, a list with elements

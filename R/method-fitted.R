@@ -63,7 +63,7 @@
 setMethod(
   "fitted",
   "INLAvaan",
-  function(object, type = "moments", labels = TRUE, per_cluster = FALSE, ...) {
+  function(object, type = "moments", labels = TRUE, ..., per_cluster = FALSE) {
     check_rs_moments(object, "fitted", type)
     check_per_cluster(object, per_cluster)
     if (has_random_slopes(object@Model)) {
@@ -82,7 +82,7 @@ setMethod(
 setMethod(
   "fitted.values",
   "INLAvaan",
-  function(object, type = "moments", labels = TRUE, per_cluster = FALSE, ...) {
+  function(object, type = "moments", labels = TRUE, ..., per_cluster = FALSE) {
     check_rs_moments(object, "fitted.values", type)
     check_per_cluster(object, per_cluster)
     if (has_random_slopes(object@Model)) {

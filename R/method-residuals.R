@@ -72,7 +72,7 @@
 setMethod(
   "residuals",
   "INLAvaan",
-  function(object, type = "raw", labels = TRUE, per_cluster = FALSE, ...) {
+  function(object, type = "raw", labels = TRUE, ..., per_cluster = FALSE) {
     check_rs_moments(object, "residuals", type)
     check_per_cluster(object, per_cluster)
     if (has_random_slopes(object@Model)) {
@@ -96,7 +96,7 @@ setMethod(
 setMethod(
   "resid",
   "INLAvaan",
-  function(object, type = "raw", per_cluster = FALSE, ...) {
+  function(object, type = "raw", ..., per_cluster = FALSE) {
     check_rs_moments(object, "resid", type)
     check_per_cluster(object, per_cluster)
     if (has_random_slopes(object@Model)) {

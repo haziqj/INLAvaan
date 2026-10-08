@@ -655,6 +655,8 @@ test_that("The outputs a random-slope fit cannot give are refused", {
     residuals(fit_fx, per_cluster = TRUE),
     class = "inlavaan_per_cluster"
   )
+  # Only a named argument reaches per_cluster
+  expect_no_error(suppressWarnings(resid(fit_fx, "raw", TRUE)))
 })
 
 test_that("Standardised estimates of a random-slope fit", {

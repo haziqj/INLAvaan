@@ -6,14 +6,14 @@
 \alias{fitted.values,INLAvaan-method}
 \title{Model-Implied Moments for INLAvaan Models}
 \usage{
-\S4method{fitted}{INLAvaan}(object, type = "moments", labels = TRUE, per_cluster = FALSE, ...)
+\S4method{fitted}{INLAvaan}(object, type = "moments", labels = TRUE, ..., per_cluster = FALSE)
 
 \S4method{fitted.values}{INLAvaan}(
   object,
   type = "moments",
   labels = TRUE,
-  per_cluster = FALSE,
-  ...
+  ...,
+  per_cluster = FALSE
 )
 }
 \arguments{
@@ -27,10 +27,10 @@ thresholds for ordinal data). \code{"casewise"} (aliases \code{"obs"},
 \item{labels}{Logical. Attach variable names to the output. Default
 \code{TRUE}.}
 
+\item{...}{Currently unused.}
+
 \item{per_cluster}{Logical. For a random-slope model, return the moments
 of each cluster instead of their average. Default \code{FALSE}.}
-
-\item{...}{Currently unused.}
 }
 \value{
 For \code{type = "moments"}, a list (or list of lists, for
