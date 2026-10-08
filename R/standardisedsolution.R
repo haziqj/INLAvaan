@@ -31,8 +31,8 @@
 #' mean and the variance of each slope. The level-1 row that carries a slope
 #' gives the standardised mean slope. The slope's own rows are on the same
 #' standardised-slope scale: its intercept is a standardised slope, and its
-#' variance is the share of the outcome's level-1 variance that slope
-#' variation adds.
+#' (residual) variance is the share of the outcome's level-1 variance that the
+#' slope's (residual) variation adds.
 #'
 #' @seealso [summary()], [coef()], [vcov()]
 #'

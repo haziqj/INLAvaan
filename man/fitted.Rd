@@ -55,8 +55,9 @@ For a model with random slopes (lavaan's \code{rv()}), the moments are
 averaged over the covariates and include the mean and the variance of each
 slope. With \code{per_cluster = TRUE}, each cluster gets the expected
 cluster mean and within-cluster covariance (divisor \eqn{n_j}) of its
-outcomes and covariates at its own covariate values. This is not available
-for a slope on a latent or split covariate. \code{type = "casewise"} is not
+outcomes and covariates at its own covariate values, and the mean also holds
+the expected values of any between-only outcomes. This is not available for
+a slope on a latent or split covariate. \code{type = "casewise"} is not
 available for random-slope models.
 }
 \examples{
