@@ -203,7 +203,7 @@ fitmeasures(fit_rs)
 ```
 
 The posterior predictive p-value is missing.
-For an ordinary two-level model it scores replicate data sets against a saturated model fitted to each one, as blavaan does, but a random-slope model has no saturated model: the covariance of the outcomes depends on the values the covariates happen to take, so an unrestricted model would need its own covariance matrix for every school.
+For an ordinary two-level model it scores replicate data sets against the saturated model, as blavaan does (by default with one Fisher-scoring step towards the saturated fit of each replicate; `ppp_method = "em"` gives blavaan's full EM fit), but a random-slope model has no saturated model: the covariance of the outcomes depends on the values the covariates happen to take, so an unrestricted model would need its own covariance matrix for every school.
 INLAvaan therefore drops `"ppp"` from the default `test` (the message printed above the fit).
 
 The Bayesian fit indices are present, on a different footing.
