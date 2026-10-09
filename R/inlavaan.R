@@ -40,9 +40,9 @@
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
 #'   report only what was computed. [add_loo()] stores the LOO and WAIC
 #'   post hoc; [loo()] and [waic()] compute on demand. For a random-slope
-#'   model `"ppp"` is dropped, with a message saying why (see the Random
-#'   slopes section of [inlavaan()]); `"dic"`, `"loo"` and `"waic"` are
-#'   unaffected.
+#'   model `"ppp"` is dropped, with a warning when it was asked for and a
+#'   message otherwise (see the Random slopes section of [inlavaan()]).
+#'   `"dic"`, `"loo"` and `"waic"` are unaffected.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
@@ -224,11 +224,11 @@
 #' because a saturated model does not exist here. This reference is
 #' INLAvaan's own construction (closed-form route only).
 #'
-#' What aborts with an explanation: the posterior predictive p-value
-#' (`test = "ppp"`), which has no saturated model to score replicate data
-#' against; the residual types scaled by standard errors; `predict(type =
-#' "ymis")`; and `loo(type = "loso")`, which would need a cluster's sufficient
-#' statistics downdated by one row.
+#' The posterior predictive p-value (`test = "ppp"`) is dropped, because a
+#' random-slope model has no saturated model to score replicate data against.
+#' What aborts with an explanation: the residual types scaled by standard
+#' errors, `predict(type = "ymis")`, and `loo(type = "loso")`, which would
+#' need a cluster's sufficient statistics downdated by one row.
 #'
 #' The model-comparison side works throughout. [compare()] reports the
 #' marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}, and [loo()]
@@ -455,10 +455,9 @@ inlavaan <- function(
         ppp = gsub(
           "\\s+",
           " ",
-          "A posterior predictive p-value compares the observed
-           within-cluster covariance with the model-implied one, and a
-           random-slope model implies no single within-cluster covariance:
-           the covariance of y depends on the covariate values."
+          "A posterior predictive p-value scores replicate data against a
+           saturated model, and a random-slope model has none. Each cluster
+           has its own covariance, which depends on its covariate values."
         )
       )
       if (any(c("ppp", "full") %in% test)) {
@@ -466,10 +465,10 @@ inlavaan <- function(
           c(
             "Dropping {.val ppp} from {.arg test}: a posterior predictive
              p-value does not exist for a random-slope model.",
-            "x" = "Its discrepancy compares the observed within-cluster
-                   covariance with the model-implied one, and a random-slope
-                   model implies no single within-cluster covariance -- the
-                   covariance of y depends on the covariate values.",
+            "x" = "Its discrepancy scores replicate data against a saturated
+                   model, and a random-slope model has none. Each cluster has
+                   its own covariance, which depends on its covariate
+                   values.",
             "i" = "Use {.fn compare} (marginal likelihood, Bayes factors,
                    DIC) or {.fn loo} instead."
           ),
@@ -478,7 +477,7 @@ inlavaan <- function(
       } else if (isTRUE(verbose)) {
         # Kept to one source line: cli_alert_info() does not re-wrap
         cli_alert_info(
-          "No PPP: no single within-cluster covariance to compare with."
+          "No PPP: a random-slope model has no saturated model."
         )
       }
     }

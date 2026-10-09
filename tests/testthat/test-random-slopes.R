@@ -174,7 +174,7 @@ test_that("Random slopes: PPP is dropped from the default test", {
   expect_true("dic" %in% rec$computed)
   expect_true("ppp" %in% rec$requested)
   expect_true("ppp" %in% names(rec$skipped))
-  expect_match(rec$skipped[["ppp"]], "within-cluster covariance")
+  expect_match(rec$skipped[["ppp"]], "no saturated model|has none")
 
   # Naming ppp explicitly is worth a warning
   expect_warning(

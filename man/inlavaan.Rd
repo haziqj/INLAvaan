@@ -77,9 +77,9 @@ requested and what was computed (\code{get_inlavaan_internal(fit, "test")});
 \code{\link[=summary]{summary()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
 report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO and WAIC
 post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand. For a random-slope
-model \code{"ppp"} is dropped, with a message saying why (see the Random
-slopes section of \code{\link[=inlavaan]{inlavaan()}}); \code{"dic"}, \code{"loo"} and \code{"waic"} are
-unaffected.}
+model \code{"ppp"} is dropped, with a warning when it was asked for and a
+message otherwise (see the Random slopes section of \code{\link[=inlavaan]{inlavaan()}}).
+\code{"dic"}, \code{"loo"} and \code{"waic"} are unaffected.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
@@ -295,10 +295,11 @@ unrestricted random-coefficient model with the same random-effects design,
 because a saturated model does not exist here. This reference is
 INLAvaan's own construction (closed-form route only).
 
-What aborts with an explanation: the posterior predictive p-value
-(\code{test = "ppp"}), which has no saturated model to score replicate data
-against; the residual types scaled by standard errors; \code{predict(type = "ymis")}; and \code{loo(type = "loso")}, which would need a cluster's sufficient
-statistics downdated by one row.
+The posterior predictive p-value (\code{test = "ppp"}) is dropped, because a
+random-slope model has no saturated model to score replicate data against.
+What aborts with an explanation: the residual types scaled by standard
+errors, \code{predict(type = "ymis")}, and \code{loo(type = "loso")}, which would
+need a cluster's sufficient statistics downdated by one row.
 
 The model-comparison side works throughout. \code{\link[=compare]{compare()}} reports the
 marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}, and \code{\link[=loo]{loo()}}
