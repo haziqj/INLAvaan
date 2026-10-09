@@ -1325,7 +1325,10 @@ print.summary.predict.inlavaan_internal <- function(
 #'   observation-level residuals are new. For a random-slope model (see
 #'   [inlavaan()]), each level 2 latent variable, slopes included, is drawn on
 #'   its own, so draws of different variables are independent given the
-#'   parameters, and level 1 values are conditional means.
+#'   parameters, and level 1 values are conditional means. Its
+#'   \code{"yhat"} and \code{"ypred"} use these empirical Bayes values
+#'   (closed-form route only), and \code{"ypred"} adds the level-1 and
+#'   between-level residuals.
 #' @param nsamp Integer; number of posterior samples to use for prediction.
 #'   Defaults to \code{1000}.
 #' @param ymis_only Logical; only applies when \code{type = "ymis"}. When

@@ -70,9 +70,9 @@ and the WAIC come from one Taylor pass, so asking for either stores
 both. They run only when asked for, with no time budget. On a model
 the casewise machinery does not support (PML or ordinal data,
 \code{conditional.x = TRUE}, multigroup two-level) they are skipped with a
-warning and the rest of the fit proceeds. The PPP is skipped the same way
-for a two-level model in which a variable at both levels has almost no
-between-level variance. The fit records what was
+warning and the rest of the fit proceeds. For a two-level model the PPP
+follows blavaan: each posterior draw generates replicate data, which are
+scored against their own saturated fit. The fit records what was
 requested and what was computed (\code{get_inlavaan_internal(fit, "test")});
 \code{\link[=summary]{summary()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
 report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO and WAIC
@@ -284,31 +284,26 @@ standardised scale. An outcome observed at level 1 only, whose slope
 covariate has a non-zero mean, has no place in lavaan's two-level layout,
 and these outputs abort for it.
 
-Everything resting on a comparison with a single implied matrix aborts
-with an explanation rather than returning a plausible wrong number:
-\itemize{
-\item the posterior predictive p-value (\code{test = "ppp"}) and the Bayesian
-fit indices from \code{\link[=bfit_indices]{bfit_indices()}} (BRMSEA, BGammaHat, adjBGammaHat,
-BMc), which are built on a chi-square against a saturated
-log-likelihood that is on a different scale here;
-\item casewise values from \code{\link[=fitted]{fitted()}} and \code{\link[=residuals]{residuals()}}, and the residual
-types scaled by standard errors;
-\item \code{\link[=simulate]{simulate()}}, lavaan having no random-slope data generator;
-\item the latent, observed and implied draws of \code{\link[=sampling]{sampling()}}, which are
-built from lavaan's implied moments (parameter draws are
-unaffected);
-\item \code{\link[=predict]{predict()}} for anything but \code{type = "lv"};
-\item \code{loo(type = "loso")}, which would need a cluster's sufficient
-statistics downdated by one row, something the random-slope kernel
-has no analogue for.
-}
+\code{\link[=simulate]{simulate()}} draws each cluster's slopes and other level-2 effects and
+then its outcomes, at the cluster's own covariates (closed-form route
+only). \code{\link[=sampling]{sampling()}} gives latent, observed and implied draws. \code{\link[=predict]{predict()}}
+gives \code{type = "lv"} and, on the closed-form route, the cluster-specific
+\code{"yhat"} and \code{"ypred"} from the empirical Bayes random effects, while
+\code{fitted(type = "casewise")} gives the outcomes' means given the
+covariates. \code{\link[=bfit_indices]{bfit_indices()}} scales the Bayesian fit indices against the
+unrestricted random-coefficient model with the same random-effects design,
+because a saturated model does not exist here. This reference is
+INLAvaan's own construction (closed-form route only).
+
+What aborts with an explanation: the posterior predictive p-value
+(\code{test = "ppp"}), which has no saturated model to score replicate data
+against; the residual types scaled by standard errors; \code{predict(type = "ymis")}; and \code{loo(type = "loso")}, which would need a cluster's sufficient
+statistics downdated by one row.
 
 The model-comparison side works throughout. \code{\link[=compare]{compare()}} reports the
-marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}; \code{\link[=loo]{loo()}}
+marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}, and \code{\link[=loo]{loo()}}
 and \code{\link[=waic]{waic()}} score the fit leave-one-cluster-out on the conditional
-likelihood; \code{predict(type = "lv", level = 2)} returns the cluster-level
-slopes alongside the other level-2 latent variables; and \code{\link[=fitmeasures]{fitmeasures()}}
-keeps \code{npar}, \code{margloglik}, \code{dic} and \code{p_dic}.
+likelihood.
 
 To ask whether there is a random slope at all, compare the fit with the
 fixed-slope model (\code{fw ~ x1} at level 1) using \code{\link[=compare]{compare()}}. On the

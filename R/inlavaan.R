@@ -33,9 +33,9 @@
 #'   both. They run only when asked for, with no time budget. On a model
 #'   the casewise machinery does not support (PML or ordinal data,
 #'   `conditional.x = TRUE`, multigroup two-level) they are skipped with a
-#'   warning and the rest of the fit proceeds. The PPP is skipped the same way
-#'   for a two-level model in which a variable at both levels has almost no
-#'   between-level variance. The fit records what was
+#'   warning and the rest of the fit proceeds. For a two-level model the PPP
+#'   follows blavaan: each posterior draw generates replicate data, which are
+#'   scored against their own saturated fit. The fit records what was
 #'   requested and what was computed (`get_inlavaan_internal(fit, "test")`);
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
 #'   report only what was computed. [add_loo()] stores the LOO and WAIC
@@ -213,30 +213,27 @@
 #' covariate has a non-zero mean, has no place in lavaan's two-level layout,
 #' and these outputs abort for it.
 #'
-#' Everything resting on a comparison with a single implied matrix aborts
-#' with an explanation rather than returning a plausible wrong number:
+#' [simulate()] draws each cluster's slopes and other level-2 effects and
+#' then its outcomes, at the cluster's own covariates (closed-form route
+#' only). [sampling()] gives latent, observed and implied draws. [predict()]
+#' gives `type = "lv"` and, on the closed-form route, the cluster-specific
+#' `"yhat"` and `"ypred"` from the empirical Bayes random effects, while
+#' `fitted(type = "casewise")` gives the outcomes' means given the
+#' covariates. [bfit_indices()] scales the Bayesian fit indices against the
+#' unrestricted random-coefficient model with the same random-effects design,
+#' because a saturated model does not exist here. This reference is
+#' INLAvaan's own construction (closed-form route only).
 #'
-#'   - the posterior predictive p-value (`test = "ppp"`) and the Bayesian
-#'     fit indices from [bfit_indices()] (BRMSEA, BGammaHat, adjBGammaHat,
-#'     BMc), which are built on a chi-square against a saturated
-#'     log-likelihood that is on a different scale here;
-#'   - casewise values from [fitted()] and [residuals()], and the residual
-#'     types scaled by standard errors;
-#'   - [simulate()], lavaan having no random-slope data generator;
-#'   - the latent, observed and implied draws of [sampling()], which are
-#'     built from lavaan's implied moments (parameter draws are
-#'     unaffected);
-#'   - [predict()] for anything but `type = "lv"`;
-#'   - `loo(type = "loso")`, which would need a cluster's sufficient
-#'     statistics downdated by one row, something the random-slope kernel
-#'     has no analogue for.
+#' What aborts with an explanation: the posterior predictive p-value
+#' (`test = "ppp"`), which has no saturated model to score replicate data
+#' against; the residual types scaled by standard errors; `predict(type =
+#' "ymis")`; and `loo(type = "loso")`, which would need a cluster's sufficient
+#' statistics downdated by one row.
 #'
 #' The model-comparison side works throughout. [compare()] reports the
-#' marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}; [loo()]
+#' marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}, and [loo()]
 #' and [waic()] score the fit leave-one-cluster-out on the conditional
-#' likelihood; `predict(type = "lv", level = 2)` returns the cluster-level
-#' slopes alongside the other level-2 latent variables; and [fitmeasures()]
-#' keeps `npar`, `margloglik`, `dic` and `p_dic`.
+#' likelihood.
 #'
 #' To ask whether there is a random slope at all, compare the fit with the
 #' fixed-slope model (`fw ~ x1` at level 1) using [compare()]. On the

@@ -95,6 +95,11 @@ parameter draw) — for example, for simulation-based calibration (SBC) — use
 This is distinct from \code{\link[=predict]{predict()}}, which computes individual-specific
 factor scores \eqn{\boldsymbol\eta \mid \mathbf{y},\boldsymbol\theta}
 conditional on observed data.
+
+For a random-slope model, each draw takes the level-2 variables, slopes
+included, first and puts the drawn slopes into their level-1 paths, and
+\code{type = "implied"} gives the moments averaged over the covariates (see
+\code{\link[=fitted]{fitted()}}).
 }
 \examples{
 utils::data("HolzingerSwineford1939", package = "lavaan")

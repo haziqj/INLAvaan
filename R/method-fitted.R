@@ -34,8 +34,8 @@
 #' cluster mean and within-cluster covariance (divisor \eqn{n_j}) of its
 #' outcomes and covariates at its own covariate values, and the mean also holds
 #' the expected values of any between-only outcomes. This is not available for
-#' a slope on a latent or split covariate. \code{type = "casewise"} is not
-#' available for random-slope models.
+#' a slope on a latent or split covariate. \code{type = "casewise"} gives the
+#' outcomes' means given the covariates (closed-form route only).
 #'
 #' @seealso [predict()], [coef()], [fitMeasures()][lavaan::fitMeasures]
 #'

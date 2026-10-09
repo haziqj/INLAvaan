@@ -25,6 +25,11 @@
 #' factor scores \eqn{\boldsymbol\eta \mid \mathbf{y},\boldsymbol\theta}
 #' conditional on observed data.
 #'
+#' For a random-slope model, each draw takes the level-2 variables, slopes
+#' included, first and puts the drawn slopes into their level-1 paths, and
+#' `type = "implied"` gives the moments averaged over the covariates (see
+#' [fitted()]).
+#'
 #' @param object An object of class [INLAvaan] (or `inlavaan_internal`).
 #' @param type Character string specifying what to sample:
 #'   \describe{

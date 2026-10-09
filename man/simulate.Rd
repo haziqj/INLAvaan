@@ -76,6 +76,12 @@ If it is not positive-definite, reject and redraw.
 Parameter draws reuse the same internal machinery as \code{\link[=sampling]{sampling()}}
 (\code{sample_params_prior} / \code{sample_params_posterior}), so the prior
 specification is consistent.
+
+A two-level dataset keeps the cluster sizes of the data unless
+\code{sample.nobs} is given. For a random-slope model (closed-form route only),
+each cluster keeps its own covariates and size, its slopes and other
+level-2 effects are drawn first, and then its outcomes. \code{sample.nobs} is
+not available.
 }
 \examples{
 utils::data("HolzingerSwineford1939", package = "lavaan")
