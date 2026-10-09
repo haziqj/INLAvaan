@@ -624,10 +624,29 @@ inlav_fit_measures <- function(
     baseline.model <- FALSE
   }
 
-  # Bayesian fit indices (BRMSEA, BGammaHat, etc.)
+  # Bayesian fit indices (BRMSEA, BGammaHat, etc.). A random-slope fit that
+  # cannot have them says why when one is asked for by name.
   bfi <- tryCatch(
     bfit_indices(object, baseline.model, rescale),
-    error = function(e) NULL
+    error = function(e) {
+      bfit_names <- c(
+        "BRMSEA",
+        "BGammaHat",
+        "adjBGammaHat",
+        "BMc",
+        "BCFI",
+        "BTLI",
+        "BNFI"
+      )
+      if (
+        inherits(e, "inlavaan_rs_bfit") &&
+          !identical(fit.measures, "all") &&
+          any(bfit_names %in% fit.measures)
+      ) {
+        stop(e)
+      }
+      NULL
+    }
   )
   if (!is.null(bfi)) {
     for (nm in names(bfi$indices)) {

@@ -426,6 +426,8 @@ test_that("Random slopes: the quadrature route has averaged moments only", {
     bfit_indices(fit_b, rescale = "MCMC", nsamp = 5),
     class = "inlavaan_rs_bfit"
   )
+  expect_false("BRMSEA" %in% names(fitMeasures(fit_b)))
+  expect_error(fitMeasures(fit_b, "BRMSEA"), class = "inlavaan_rs_bfit")
   expect_error(fitted(fit_b, type = "casewise"), class = "inlavaan_rs_casewise")
   expect_error(predict(fit_b, type = "yhat"), class = "inlavaan_rs_casewise")
   # Each cluster is a mixture over the quadrature nodes
