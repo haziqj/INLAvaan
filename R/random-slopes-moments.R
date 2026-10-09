@@ -498,6 +498,18 @@ rs_avg_object <- function(object) {
   obj
 }
 
+# Casewise values are one row per observation, so per_cluster has no meaning
+# for them
+check_casewise_per_cluster <- function(per_cluster) {
+  if (isTRUE(per_cluster)) {
+    cli_abort(
+      "{.code per_cluster = TRUE} does not apply to casewise values, which
+       have one row per observation.",
+      class = "inlavaan_per_cluster"
+    )
+  }
+}
+
 rs_fitted <- function(
   object,
   type = "moments",
@@ -505,6 +517,7 @@ rs_fitted <- function(
   per_cluster = FALSE
 ) {
   if (rs_is_casewise(type, TRUE)) {
+    check_casewise_per_cluster(per_cluster)
     out <- rs_casewise(object)
     if (!isTRUE(labels)) {
       colnames(out) <- NULL
@@ -533,6 +546,7 @@ rs_residuals <- function(
   per_cluster = FALSE
 ) {
   if (rs_is_casewise(type, FALSE)) {
+    check_casewise_per_cluster(per_cluster)
     out <- rs_casewise(object, residual = TRUE)
     if (!isTRUE(labels)) {
       colnames(out) <- NULL

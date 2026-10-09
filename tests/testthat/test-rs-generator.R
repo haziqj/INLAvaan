@@ -136,6 +136,14 @@ test_that("Casewise fitted values are the outcomes' means given the covariates",
   expect_equal(r[, "y1"], d_rs$y1 - f[, "y1"])
   expect_equal(unname(r[, "x1"]), rep(0, nrow(d_rs)))
   expect_equal(unname(fitted(fit_rs, type = "ov")), unname(f))
+  expect_error(
+    fitted(fit_rs, type = "casewise", per_cluster = TRUE),
+    class = "inlavaan_per_cluster"
+  )
+  expect_error(
+    residuals(fit_rs, type = "casewise", per_cluster = TRUE),
+    class = "inlavaan_per_cluster"
+  )
 })
 
 test_that("predict() gives cluster-specific yhat and ypred", {
