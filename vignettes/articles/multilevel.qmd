@@ -317,9 +317,9 @@ std[std$lhs %in% c("fw", "s1"), ]
 
 ### What Is Not Available
 
-INLAvaan prefers an error that explains itself to a plausible wrong number, so the following raise one on a random-slope fit:
+INLAvaan prefers an error that explains itself to a plausible wrong number.
+The posterior predictive p-value is dropped, as described above, and the following raise an error on a random-slope fit:
 
-- the posterior predictive p-value, as described above;
 - residuals scaled by standard errors (`type = "normalized"` or `"standardized"`);
 - `predict(type = "ymis")`;
 - `loo(type = "loso")`.
