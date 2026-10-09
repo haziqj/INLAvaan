@@ -129,9 +129,6 @@ The summary output provides Bayesian estimates (posterior means, standard deviat
 summary(fit)
 ```
 
-The header reports the DIC but no posterior predictive p-value.
-For a two-level model the PPP fits a saturated model to a replicate data set for every posterior draw, which takes several times as long as the fit, so it runs only when asked for with `test = "ppp"` (or `"full"`).
-
 Notice that, the mean structure is automatically included at both levels, so intercepts for all observed variables are estimated by default.
 This is required because the 'between' component specifically models the variation of the cluster means; without estimating these means (intercepts), it is impossible to decompose the variance into within and between levels.
 Looking at the output above, we can draw substantive conclusions based on our educational scenario:
@@ -206,9 +203,8 @@ fitmeasures(fit_rs)
 ```
 
 The posterior predictive p-value is missing.
-For an ordinary two-level model it scores replicate data sets against a saturated model fitted to each one, as blavaan does, and INLAvaan computes it only when asked for (`test = "ppp"` or `"full"`), because that costs several times the fit itself.
-A random-slope model has no saturated model at all: the covariance of the outcomes depends on the values the covariates happen to take, so an unrestricted model would need its own covariance matrix for every school.
-Asking for `"ppp"` on a random-slope fit therefore drops it with a warning.
+For an ordinary two-level model it scores replicate data sets against a saturated model fitted to each one, as blavaan does, but a random-slope model has no saturated model: the covariance of the outcomes depends on the values the covariates happen to take, so an unrestricted model would need its own covariance matrix for every school.
+INLAvaan therefore drops `"ppp"` from the default `test` (the message printed above the fit).
 
 The Bayesian fit indices are present, on a different footing.
 Their chi-square is taken against the most general model with the same random effects -- every outcome with its own random intercept and its own random slope on `x1`, all freely correlated and all regressed on `w1`, and an unrestricted within-school residual covariance -- in which the fitted model is nested.
