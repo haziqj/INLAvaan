@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -29,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,13 +102,13 @@
 
     <section class="level2"><h2 id="what-is-a-composite">What is a composite?<a class="anchor" aria-label="anchor" href="#what-is-a-composite"></a>
 </h2>
-<p>A composite is a weighted sum of observed variables. In lavaan syntax, <code>C &lt;~ x1 + x2 + x3</code> defines <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>C</mi><mi>i</mi></msub><mo>=</mo><msub><mi>w</mi><mn>1</mn></msub><msub><mi>x</mi><mrow><mi>i</mi><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>w</mi><mn>2</mn></msub><msub><mi>x</mi><mrow><mi>i</mi><mn>2</mn></mrow></msub><mo>+</mo><msub><mi>w</mi><mn>3</mn></msub><msub><mi>x</mi><mrow><mi>i</mi><mn>3</mn></mrow></msub><mo>=</mo><msup><mi mathvariant="bold-italic">𝒘</mi><mi>⊤</mi></msup><msub><mi mathvariant="bold-italic">𝒙</mi><mi>i</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p>A composite is a weighted sum of observed variables. In lavaan syntax, <code>C &lt;~ x1 + x2 + x3</code> defines <span class="math display">\[
 C_i = w_1 x_{i1} + w_2 x_{i2} + w_3 x_{i3} = \mathbf w^\top \mathbf x_i ,
-</annotation></semantics></math> with the weights estimated and the first fixed at 1 to set the scale. Unlike a common factor, a composite has no disturbance term. That is, it summarises its indicators instead of explaining them.</p>
-<p>A composite is not a defined parameter either. A <code>:=</code> parameter such as <code>ind := a*b</code> is a function of the parameters—one value per posterior draw, with no effect on the likelihood. A composite has a value for every person, and it changes the model-implied covariance matrix <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold">𝚺</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝜽</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\boldsymbol\Sigma(\boldsymbol\theta)</annotation></semantics></math> through its weights.</p>
+\]</span> with the weights estimated and the first fixed at 1 to set the scale. Unlike a common factor, a composite has no disturbance term. That is, it summarises its indicators instead of explaining them.</p>
+<p>A composite is not a defined parameter either. A <code>:=</code> parameter such as <code>ind := a*b</code> is a function of the parameters—one value per posterior draw, with no effect on the likelihood. A composite has a value for every person, and it changes the model-implied covariance matrix <span class="math inline">\(\boldsymbol\Sigma(\boldsymbol\theta)\)</span> through its weights.</p>
 </section><section class="level2"><h2 id="one-outcome-or-several">One outcome or several<a class="anchor" aria-label="anchor" href="#one-outcome-or-several"></a>
 </h2>
-<p>With a single outcome, the composite model is a regression in disguise: <code>C &lt;~ x1 + x2 + x3; x4 ~ C</code> fits exactly as <code>x4 ~ x1 + x2 + x3</code> does, with slope <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\gamma_1</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math> and weights <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>j</mi></msub><mo>=</mo><msub><mi>γ</mi><mi>j</mi></msub><mi>/</mi><msub><mi>γ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">w_j = \gamma_j / \gamma_1</annotation></semantics></math>. Further outcomes see the indicators only through <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>, so their regression coefficients on the indicators must be proportional. Each extra outcome adds <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">p - 1</annotation></semantics></math> degrees of freedom for <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math> indicators, and the model below has two.</p>
+<p>With a single outcome, the composite model is a regression in disguise: <code>C &lt;~ x1 + x2 + x3; x4 ~ C</code> fits exactly as <code>x4 ~ x1 + x2 + x3</code> does, with slope <span class="math inline">\(\gamma_1\)</span> on <span class="math inline">\(C\)</span> and weights <span class="math inline">\(w_j = \gamma_j / \gamma_1\)</span>. Further outcomes see the indicators only through <span class="math inline">\(C\)</span>, so their regression coefficients on the indicators must be proportional. Each extra outcome adds <span class="math inline">\(p - 1\)</span> degrees of freedom for <span class="math inline">\(p\)</span> indicators, and the model below has two.</p>
 </section><section class="level2"><h2 id="not-pls-sem">Not PLS-SEM<a class="anchor" aria-label="anchor" href="#not-pls-sem"></a>
 </h2>
 <p>Partial least squares path modelling (PLS-SEM) is Wold’s iterative estimation algorithm, which has no likelihood. lavaan instead fits the composite model of <span class="citation" data-cites="dijkstra2017perfect">Dijkstra (<a href="#ref-dijkstra2017perfect" role="doc-biblioref">2017</a>)</span> by maximum likelihood, the same model that the Henseler–Ogasawara specification <span class="citation" data-cites="schuberth2023henselerogasawara">(<a href="#ref-schuberth2023henselerogasawara" role="doc-biblioref">Schuberth 2023</a>)</span> reaches through latent variables. INLAvaan puts priors on this likelihood, so the result is Bayesian composite SEM, not Bayesian PLS.</p>
@@ -121,38 +127,38 @@ C_i = w_1 x_{i1} + w_2 x_{i2} + w_3 x_{i3} = \mathbf w^\top \mathbf x_i ,
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [578ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [1.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.150σ. [1.6s]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.110σ. [2.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Fitting 0/7 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 1/7 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 7/7 skew-normal marginals. [1s]</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 4/13 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 12/13 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [5.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [3s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.2.9003 ended normally after 29 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.2.9006 ended normally after 40 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
-<span><span class="co">#&gt;   Number of model parameters                         7</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        13</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Number of observations                           301</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Marginal log-likelihood                   -2232.252 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.449 </span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                   -2251.062 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.451 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             4419.930 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                     6.972 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             4431.835 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    12.898 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -176,35 +182,41 @@ C_i = w_1 x_{i1} + w_2 x_{i2} + w_3 x_{i3} = \mathbf w^\top \mathbf x_i ,
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
 <span><span class="co">#&gt;  .x4 ~~                                                                        </span></span>
-<span><span class="co">#&gt;    .x5                0.946    0.098    0.766    1.149    0.002       beta(1,1)</span></span>
+<span><span class="co">#&gt;    .x5                0.944    0.098    0.762    1.148    0.002       beta(1,1)</span></span>
 <span><span class="co">#&gt;   x1 ~~                                                                        </span></span>
-<span><span class="co">#&gt;     x2                0.407                                                    </span></span>
-<span><span class="co">#&gt;     x3                0.580                                                    </span></span>
+<span><span class="co">#&gt;     x2                0.409    0.085    0.247    0.581    0.003       beta(1,1)</span></span>
+<span><span class="co">#&gt;     x3                0.585    0.081    0.431    0.749    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt;   x2 ~~                                                                        </span></span>
-<span><span class="co">#&gt;     x3                0.451                                                    </span></span>
+<span><span class="co">#&gt;     x3                0.454    0.081    0.295    0.613    0.003       beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;     x1                1.358                                                    </span></span>
-<span><span class="co">#&gt;     x2                1.382                                                    </span></span>
-<span><span class="co">#&gt;     x3                1.275                                                    </span></span>
+<span><span class="co">#&gt;     x1                1.379    0.113    1.174    1.619    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     x2                1.404    0.116    1.195    1.648    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     x3                1.293    0.106    1.101    1.519    0.003 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x4                1.184    0.098    1.008    1.391    0.002 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x5                1.535    0.127    1.307    1.804    0.003 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     C                 1.521    0.262    1.141    2.136</span></span></code></pre></div>
+<span><span class="co">#&gt;     C                 1.548    0.296    1.112    2.239</span></span></code></pre></div>
 </div>
-<p>The marker <code>x1</code> is fixed at 1. The variance of <code>C</code> is not a free parameter but the sample variance of the scores <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="bold-italic">𝒘</mi><mi>⊤</mi></msup><msub><mi mathvariant="bold-italic">𝒙</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf w^\top \mathbf x_i</annotation></semantics></math>, so its posterior comes from that of the weights, much as the Bayesian <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>R</mi><mn>2</mn></msup><annotation encoding="application/x-tex">R^2</annotation></semantics></math> of <span class="citation" data-cites="gelman2019rsquared">Gelman et al. (<a href="#ref-gelman2019rsquared" role="doc-biblioref">2019</a>)</span> is computed draw by draw with the predictors held fixed. With the indicators’ covariances fixed at their sample values, it reflects uncertainty in the weights only. The posterior means sit close to lavaan’s maximum likelihood estimates.</p>
+<p>The marker <code>x1</code> is fixed at 1. The variance of <code>C</code> is not a free parameter but the sample variance of the scores <span class="math inline">\(\mathbf w^\top \mathbf x_i\)</span>. It is still uncertain, and lavaan merely does not report a standard error for it. Its posterior follows draw by draw from those of the weights and of the indicators’ variances and covariances (the <span class="math inline">\(\boldsymbol\Theta_x\)</span> block of lavaan’s <code>theta</code> matrix), without the normal approximation of the delta method. lavaan fixes <span class="math inline">\(\boldsymbol\Theta_x\)</span> at the sample covariances by default, which is what maximum likelihood would estimate anyway. INLAvaan estimates it with priors instead (lavaan’s <code>composites.cov = "free"</code>), so that its uncertainty carries through. The posterior means sit close to lavaan’s maximum likelihood estimates.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_ml</span> <span class="op">&lt;-</span> <span class="fu">sem</span><span class="op">(</span><span class="va">model</span>, <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">fit_ml</span> <span class="op">&lt;-</span> <span class="fu">sem</span><span class="op">(</span><span class="va">model</span>, <span class="va">HolzingerSwineford1939</span>, composites.cov <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>INLAvaan <span class="op">=</span> <span class="fu"><a href="../reference/INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>, lavaan <span class="op">=</span> <span class="fu"><a href="../reference/INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit_ml</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        INLAvaan lavaan</span></span>
 <span><span class="co">#&gt; C&lt;~x2     0.169  0.151</span></span>
 <span><span class="co">#&gt; C&lt;~x3    -0.069 -0.086</span></span>
 <span><span class="co">#&gt; x4~C      0.351  0.367</span></span>
 <span><span class="co">#&gt; x5~C      0.313  0.328</span></span>
-<span><span class="co">#&gt; x4~~x5    0.946  0.928</span></span>
+<span><span class="co">#&gt; x4~~x5    0.944  0.928</span></span>
+<span><span class="co">#&gt; x1~~x1    1.379  1.358</span></span>
+<span><span class="co">#&gt; x2~~x2    1.404  1.382</span></span>
+<span><span class="co">#&gt; x3~~x3    1.293  1.275</span></span>
 <span><span class="co">#&gt; x4~~x4    1.184  1.160</span></span>
-<span><span class="co">#&gt; x5~~x5    1.535  1.508</span></span></code></pre></div>
+<span><span class="co">#&gt; x5~~x5    1.535  1.508</span></span>
+<span><span class="co">#&gt; x1~~x2    0.409  0.407</span></span>
+<span><span class="co">#&gt; x1~~x3    0.585  0.580</span></span>
+<span><span class="co">#&gt; x2~~x3    0.454  0.451</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="practical-notes">Practical notes<a class="anchor" aria-label="anchor" href="#practical-notes"></a>
 </h2>
@@ -214,17 +226,14 @@ C_i = w_1 x_{i1} + w_2 x_{i2} + w_3 x_{i3} = \mathbf w^\top \mathbf x_i ,
 <li>
 <strong>Higher-order means.</strong> A composite’s mean is fixed by the means of its indicators, so a latent variable measured only through composites needs its mean fixed at zero; INLAvaan stops with an error otherwise. For growth models on composites, use <code><a href="../reference/asem.html">asem()</a></code> with <code>meanstructure = TRUE</code> instead of <code><a href="../reference/agrowth.html">agrowth()</a></code>.</li>
 <li>
-<strong>Model comparison.</strong> As in lavaan, the covariances of each composite’s indicators are fixed at their sample values, so marginal likelihoods and the DIC compare only models with the same composites.</li>
+<strong>Fixed indicator covariances.</strong> <code>composites.cov = "fixed"</code> gives lavaan’s default, with <span class="math inline">\(\boldsymbol\Theta_x\)</span> fixed at the sample covariances. Every posterior is then conditional on it, and marginal likelihoods and the DIC compare only models with the same composites.</li>
 <li>
-<strong>Limits.</strong> Composites are supported in single-level models with continuous data, in one or more groups. Two-level models, ordinal data, <code>composites.cov = "free"</code> and covariances between the indicators of a composite and other variables stop with an error.</li>
+<strong>Limits.</strong> Composites are supported with continuous data, in one or more groups or at either level of a two-level model. Two-level models need the default <code>composites.cov = "free"</code>. Ordinal data, random slopes (<code>rv()</code>) and covariances between the indicators of a composite and other variables stop with an error.</li>
 </ul></section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-dijkstra2017perfect" class="csl-entry" role="listitem">
 Dijkstra, Theo K. 2017. <span>“A <span>Perfect Match Between</span> a <span>Model</span> and a <span>Mode</span>.”</span> In <em>Partial <span>Least Squares Path Modeling</span></em>. Springer International Publishing. <a href="https://doi.org/10.1007/978-3-319-64069-3_4" class="external-link">https://doi.org/10.1007/978-3-319-64069-3_4</a>.
-</div>
-<div id="ref-gelman2019rsquared" class="csl-entry" role="listitem">
-Gelman, Andrew, Ben Goodrich, Jonah Gabry, and Aki Vehtari. 2019. <span>“R-Squared for <span>Bayesian</span> Regression Models.”</span> <em>The American Statistician</em> 73 (3): 307–9. <a href="https://doi.org/10.1080/00031305.2018.1549100" class="external-link">https://doi.org/10.1080/00031305.2018.1549100</a>.
 </div>
 <div id="ref-schuberth2023henselerogasawara" class="csl-entry" role="listitem">
 Schuberth, Florian. 2023. <span>“The <span>Henseler-Ogasawara</span> Specification of Composites in Structural Equation Modeling: <span>A</span> Tutorial.”</span> <em>Psychological Methods</em> 28 (4): 843–59. <a href="https://doi.org/10.1037/met0000432" class="external-link">https://doi.org/10.1037/met0000432</a>.

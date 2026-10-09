@@ -73,7 +73,9 @@ summary(object, ...)
 
   Optional integer vector of unit indices to score; defaults to all
   units. For LOSO these are case numbers (row numbers of the analysed
-  dataset); for LOCO, cluster positions.
+  dataset); for LOCO, cluster positions. For a random-slope fit the
+  per-cluster kernels return every cluster on each call, so this trims
+  the reported table rather than the work.
 
 - second_order:
 
@@ -250,6 +252,11 @@ at their sample values. Each unit is scored with them recomputed without
 it (to first order under missing data), so `p_loo` counts them as
 parameters.
 
+A random-slope fit (lavaan's `rv()` modifier; see
+[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)) is
+scored leave-one-cluster-out only, conditional on the exogenous
+covariates (`flavour` is `"conditional"`).
+
 Supplying `theta`/`Omega` evaluates the LOO at an arbitrary Gaussian
 posterior summary (a singular `Omega` is restricted to its
 non-degenerate block), the building block for refit-free submodel
@@ -300,17 +307,17 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [171ms]
+#> ✔ Posterior mode and Hessian. [179ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [214ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [222ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 7/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [939ms]
+#> ⠹ Fitting 6/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [972ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [753ms]
+#> ✔ Summarise 1000 posterior draws. [774ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -388,21 +395,23 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [1.1s]
+#> ✔ Posterior mode and Hessian. [1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.050σ. [930ms]
+#> ✔ VB correction; mean |δ| = 0.050σ. [893ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 9/34 skew-normal marginals.
+#> ⠹ Fitting 10/34 skew-normal marginals.
 #> ⠸ Fitting 24/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [7.1s]
+#> ✔ Fit 34/34 skew-normal marginals. [6.9s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.9s]
+#> ✔ Summarise 1000 posterior draws. [3.4s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
+#> ℹ The two-level PPP is experimental.
+#> ℹ Please report any bugs at <https://github.com/haziqj/INLAvaan/issues>.
 loo(fit2l)
 #> ── Leave-one-cluster-out ───────────────────────── 200 clusters, second-order ──
 #> 

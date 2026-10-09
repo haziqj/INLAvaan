@@ -87,6 +87,15 @@ Use
 obtain a table of posterior summaries (Mean, SD, quantiles, Mode) for
 each index.
 
+## Details
+
+For a random-slope model, which has no saturated model, the chi-square
+and the number of sample moments come from the unrestricted
+random-coefficient model with the same random-effects design, fitted by
+maximum likelihood. This reference is INLAvaan's own construction. It is
+available on the closed-form route only, for models without between-only
+outcomes, and needs enough clusters for its parameters.
+
 ## See also
 
 [`lavaan::fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html),

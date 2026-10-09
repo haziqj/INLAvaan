@@ -10,10 +10,16 @@ means.
 
 ``` r
 # S4 method for class 'INLAvaan'
-fitted(object, type = "moments", labels = TRUE, ...)
+fitted(object, type = "moments", labels = TRUE, ..., per_cluster = FALSE)
 
 # S4 method for class 'INLAvaan'
-fitted.values(object, type = "moments", labels = TRUE, ...)
+fitted.values(
+  object,
+  type = "moments",
+  labels = TRUE,
+  ...,
+  per_cluster = FALSE
+)
 ```
 
 ## Arguments
@@ -38,11 +44,18 @@ fitted.values(object, type = "moments", labels = TRUE, ...)
 
   Currently unused.
 
+- per_cluster:
+
+  Logical. For a random-slope model, return the moments of each cluster
+  instead of their average. Default `FALSE`.
+
 ## Value
 
 For `type = "moments"`, a list (or list of lists, for multiple groups)
 with elements such as `cov`, `mean`, and `th`. For `type = "casewise"`,
-a numeric matrix of predicted observed-variable values.
+a numeric matrix of predicted observed-variable values. With
+`per_cluster = TRUE`, a list with one element per cluster, each holding
+`cov` and `mean`.
 
 ## Details
 
@@ -50,6 +63,16 @@ This delegates to lavaan's own `fitted()` machinery, so the return
 structure matches lavaan exactly. Because INLAvaan stores the posterior
 means as the point estimates of the fitted object, the implied moments
 are the posterior-mean model-implied moments (mirroring blavaan).
+
+For a model with random slopes (lavaan's `rv()`), the moments are
+averaged over the covariates and include the mean and the variance of
+each slope. With `per_cluster = TRUE`, each cluster gets the expected
+cluster mean and within-cluster covariance (divisor \\n_j\\) of its
+outcomes and covariates at its own covariate values, and the mean also
+holds the expected values of any between-only outcomes. This is not
+available for a slope on a latent or split covariate.
+`type = "casewise"` gives the outcomes' means given the covariates
+(closed-form route only).
 
 ## See also
 

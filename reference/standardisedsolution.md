@@ -79,21 +79,23 @@ standardizedSolution(
 
 - type:
 
-  If `"std.lv"`, the standardized estimates are based on the variances
-  of the (continuous) latent variables only. If `"std.all"`, the
-  standardized estimates are based on the variances of both (continuous)
-  observed and latent variables. If `"std.nox"`, the standardized
-  estimates are based on the variances of both (continuous) observed and
-  latent variables, but not the variances of exogenous covariates. Note
-  that `"std.nox"` only differs from `"std.all"` if `fixed.x = TRUE`; if
-  `fixed.x = FALSE`, the exogenous covariates are treated as random
-  variables (and standardized) just like any other variable, and a
-  warning is issued. Alternatively, `type` may be a vector of (observed)
-  variable names (for example `type = c("x1", "x2")`); in that case only
-  the parameters involving these variables are standardized (the other
-  observed variables are left unstandardized). This is a generalization
-  of `"std.nox"`, where the (observed) exogenous `x` variables are the
-  ones left unstandardized.
+  Character (dots and underscores are interchangeable: `"std.all"` and
+  `"std_all"` are the same type). If `"std_lv"`, the standardized
+  estimates are based on the variances of the (continuous) latent
+  variables only. If `"std_all"`, the standardized estimates are based
+  on the variances of both (continuous) observed and latent variables.
+  If `"std_nox"`, the standardized estimates are based on the variances
+  of both (continuous) observed and latent variables, but not the
+  variances of exogenous covariates. Note that `"std_nox"` only differs
+  from `"std_all"` if `fixed_x = TRUE`; if `fixed_x = FALSE`, the
+  exogenous covariates are treated as random variables (and
+  standardized) just like any other variable, and a warning is issued.
+  Alternatively, `type` may be a vector of (observed) variable names
+  (for example `type = c("x1", "x2")`); in that case only the parameters
+  involving these variables are standardized (the other observed
+  variables are left unstandardized). This is a generalization of
+  `"std_nox"`, where the (observed) exogenous `x` variables are the ones
+  left unstandardized.
 
 - se:
 
@@ -158,6 +160,16 @@ standardizedSolution(
 
 A `data.frame` containing standardised model parameters.
 
+## Details
+
+For a model with random slopes (lavaan's `rv()`), the estimates are
+scaled by the implied variances averaged over the covariates, which
+include the mean and the variance of each slope. The level-1 row that
+carries a slope gives the standardised mean slope. The slope's own rows
+are on the same standardised-slope scale: its intercept is a
+standardised slope, and its (residual) variance is the share of the
+outcome's level-1 variance that the slope's (residual) variation adds.
+
 ## See also
 
 [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
@@ -184,19 +196,19 @@ fit <- acfa(
 )
 standardisedsolution(fit, nsamp = 10, se = FALSE, ci = FALSE)
 #>        lhs op     rhs est.std
-#> 1   visual =~      x1   0.769
-#> 2   visual =~      x2   0.428
-#> 3   visual =~      x3   0.575
-#> 4  textual =~      x4   0.847
-#> 5  textual =~      x5   0.854
-#> 6  textual =~      x6   0.844
-#> 7       x1 ~~      x1   0.404
-#> 8       x2 ~~      x2   0.813
-#> 9       x3 ~~      x3   0.668
-#> 10      x4 ~~      x4   0.282
-#> 11      x5 ~~      x5   0.270
-#> 12      x6 ~~      x6   0.287
+#> 1   visual =~      x1   0.739
+#> 2   visual =~      x2   0.449
+#> 3   visual =~      x3   0.601
+#> 4  textual =~      x4   0.851
+#> 5  textual =~      x5   0.842
+#> 6  textual =~      x6   0.836
+#> 7       x1 ~~      x1   0.450
+#> 8       x2 ~~      x2   0.794
+#> 9       x3 ~~      x3   0.636
+#> 10      x4 ~~      x4   0.276
+#> 11      x5 ~~      x5   0.291
+#> 12      x6 ~~      x6   0.301
 #> 13  visual ~~  visual   1.000
 #> 14 textual ~~ textual   1.000
-#> 15  visual ~~ textual   0.428
+#> 15  visual ~~ textual   0.457
 ```

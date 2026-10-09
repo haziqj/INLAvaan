@@ -112,6 +112,14 @@ sets may differ, which is the covariate-selection setting. Stored LOO
 results (`test` including `"loo"` or `"full"`, or
 [`add_loo()`](https://inlavaan.haziqj.ml/reference/loo.md)) are reused.
 
+When any of the models has random slopes (lavaan's `rv()` modifier; see
+[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)),
+`compare()` aborts unless all the models were fitted with
+`fixed.x = TRUE`, score the same outcome variables, and share one
+`integration.ngh` on the quadrature route. Their covariates may differ.
+The fixed-slope model (the same path without `rv()`) is a valid
+comparator for testing a random slope.
+
 `anova()` is disabled for `INLAvaan` fits – there is no direct Bayesian
 analogue of the classical likelihood-ratio test – and points here
 instead.
@@ -140,19 +148,19 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [475ms]
+#> ✔ Posterior mode and Hessian. [469ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.125σ. [922ms]
+#> ✔ VB correction; mean |δ| = 0.125σ. [924ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 1/60 skew-normal marginals.
-#> ⠸ Fitting 26/60 skew-normal marginals.
-#> ⠼ Fitting 51/60 skew-normal marginals.
-#> ✔ Fit 60/60 skew-normal marginals. [7.3s]
+#> ⠹ Fitting 20/60 skew-normal marginals.
+#> ⠸ Fitting 45/60 skew-normal marginals.
+#> ✔ Fit 60/60 skew-normal marginals. [7.1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.4s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -164,15 +172,15 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [443ms]
+#> ✔ Posterior mode and Hessian. [428ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [290ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [270ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 25/54 skew-normal marginals.
-#> ⠸ Fitting 49/54 skew-normal marginals.
-#> ✔ Fit 54/54 skew-normal marginals. [6.4s]
+#> ⠹ Fitting 19/54 skew-normal marginals.
+#> ⠸ Fitting 47/54 skew-normal marginals.
+#> ✔ Fit 54/54 skew-normal marginals. [5.9s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.1s]
@@ -187,15 +195,15 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [416ms]
+#> ✔ Posterior mode and Hessian. [403ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.077σ. [336ms]
+#> ✔ VB correction; mean |δ| = 0.077σ. [322ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 4/48 skew-normal marginals.
-#> ⠸ Fitting 34/48 skew-normal marginals.
-#> ✔ Fit 48/48 skew-normal marginals. [4.8s]
+#> ⠹ Fitting 2/48 skew-normal marginals.
+#> ⠸ Fitting 32/48 skew-normal marginals.
+#> ✔ Fit 48/48 skew-normal marginals. [4.7s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ✔ Summarise 1000 posterior draws. [1.1s]

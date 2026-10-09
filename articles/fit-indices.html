@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -29,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,50 +114,50 @@
 </h2>
 <section class="level3"><h3 id="deviance-and-chi-square">Deviance and chi-square<a class="anchor" aria-label="anchor" href="#deviance-and-chi-square"></a>
 </h3>
-<p>Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> denote the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>-th posterior draw of the model parameters (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">s = 1, \dots, S</annotation></semantics></math>). The per-sample deviance chi-square is <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>χ</mi><mi>s</mi><mn>2</mn></msubsup><mo>=</mo><mn>2</mn><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">[</mo><msub><mi>ℓ</mi><mtext mathvariant="normal">sat</mtext></msub><mo>−</mo><mi>ℓ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">]</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+<p>Let <span class="math inline">\(\boldsymbol\theta^{(s)}\)</span> denote the <span class="math inline">\(s\)</span>-th posterior draw of the model parameters (<span class="math inline">\(s = 1, \dots, S\)</span>). The per-sample deviance chi-square is <span class="math display">\[
   \chi^2_s = 2 \bigl[\ell_{\text{sat}} - \ell(\boldsymbol\theta^{(s)})\bigr],
-</annotation></semantics></math> where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ℓ</mi><mtext mathvariant="normal">sat</mtext></msub><annotation encoding="application/x-tex">\ell_{\text{sat}}</annotation></semantics></math> is the log-likelihood of the saturated model (sample moments equal model moments) and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ℓ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\ell(\boldsymbol\theta^{(s)})</annotation></semantics></math> is the log-likelihood evaluated at the <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>-th draw. This equals <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mspace width="0.167em"></mspace><msub><mi>F</mi><mtext mathvariant="normal">ML</mtext></msub><mo stretchy="false" form="prefix">(</mo><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">N \, F_{\text{ML}}(\boldsymbol\theta^{(s)})</annotation></semantics></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mtext mathvariant="normal">ML</mtext></msub><annotation encoding="application/x-tex">F_{\text{ML}}</annotation></semantics></math> is the ML discrepancy function.</p>
+\]</span> where <span class="math inline">\(\ell_{\text{sat}}\)</span> is the log-likelihood of the saturated model (sample moments equal model moments) and <span class="math inline">\(\ell(\boldsymbol\theta^{(s)})\)</span> is the log-likelihood evaluated at the <span class="math inline">\(s\)</span>-th draw. This equals <span class="math inline">\(N \, F_{\text{ML}}(\boldsymbol\theta^{(s)})\)</span>, where <span class="math inline">\(F_{\text{ML}}\)</span> is the ML discrepancy function.</p>
 </section><section class="level3"><h3 id="rescaling">Rescaling<a class="anchor" aria-label="anchor" href="#rescaling"></a>
 </h3>
 <p>INLAvaan supports two rescaling methods, controlled by the <code>rescale</code> argument:</p>
-<p><strong><code>"devM"</code> (default).</strong> Uses the DIC-based effective number of parameters <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math>. <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mi>s</mi></msub><mo>=</mo><msubsup><mi>χ</mi><mi>s</mi><mn>2</mn></msubsup><mo>−</mo><msub><mi>p</mi><mi>D</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow><mo>=</mo><mi>p</mi><mo>−</mo><msub><mi>p</mi><mi>D</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>N</mi><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">j</mi></mrow></msub><mo>=</mo><mi>N</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p><strong><code>"devM"</code> (default).</strong> Uses the DIC-based effective number of parameters <span class="math inline">\(p_D\)</span>. <span class="math display">\[
   d_s = \chi^2_s - p_D, \qquad
   \mathrm{df} = p - p_D, \qquad
   N_{\mathrm{adj}} = N.
-</annotation></semantics></math> If <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math> is unreasonable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>D</mi></msub><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">p_D \leq 0</annotation></semantics></math> or <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>D</mi></msub><mo>≥</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">p_D \geq p</annotation></semantics></math>), INLAvaan falls back to using <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>D</mi></msub><mo>=</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">p_D = q</annotation></semantics></math> (the number of free parameters).</p>
-<p><strong><code>"MCMC"</code>.</strong> Uses the classical chi-square with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N - 1</annotation></semantics></math> scaling. <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mi>s</mi></msub><mo>=</mo><mfrac><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><mi>N</mi></mfrac><msubsup><mi>χ</mi><mi>s</mi><mn>2</mn></msubsup><mo>,</mo><mspace width="2.0em"></mspace><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow><mo>=</mo><mi>p</mi><mo>−</mo><mi>q</mi><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>N</mi><mrow><mi mathvariant="normal">a</mi><mi mathvariant="normal">d</mi><mi mathvariant="normal">j</mi></mrow></msub><mo>=</mo><mi>N</mi><mo>−</mo><mi>G</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">
+\]</span> If <span class="math inline">\(p_D\)</span> is unreasonable (<span class="math inline">\(p_D \leq 0\)</span> or <span class="math inline">\(p_D \geq p\)</span>), INLAvaan falls back to using <span class="math inline">\(p_D = q\)</span> (the number of free parameters).</p>
+<p><strong><code>"MCMC"</code>.</strong> Uses the classical chi-square with <span class="math inline">\(N - 1\)</span> scaling. <span class="math display">\[
   d_s = \frac{N - 1}{N} \chi^2_s, \qquad
   \mathrm{df} = p - q, \qquad
   N_{\mathrm{adj}} = N - G,
-</annotation></semantics></math> where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math> is the number of free parameters and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math> is the number of groups.</p>
-<p>In both cases the per-sample noncentrality parameter is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>λ</mi><mo accent="true">̂</mo></mover><mi>s</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>d</mi><mi>s</mi></msub><mo>−</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow><mo>,</mo><mspace width="0.167em"></mspace><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat\lambda_s = \max(d_s - \mathrm{df},\, 0)</annotation></semantics></math>.</p>
+\]</span> where <span class="math inline">\(q\)</span> is the number of free parameters and <span class="math inline">\(G\)</span> is the number of groups.</p>
+<p>In both cases the per-sample noncentrality parameter is <span class="math inline">\(\hat\lambda_s = \max(d_s - \mathrm{df},\, 0)\)</span>.</p>
 </section><section class="level3"><h3 id="absolute-fit-indices">Absolute fit indices<a class="anchor" aria-label="anchor" href="#absolute-fit-indices"></a>
 </h3>
-<p>The following indices are computed at <strong>each</strong> posterior draw <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>, generating a posterior distribution.</p>
-<p><strong>BRMSEA (Bayesian RMSEA).</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">BRMSEA</mtext><mi>s</mi></msub><mo>=</mo><msqrt><mfrac><msub><mover><mi>λ</mi><mo accent="true">̂</mo></mover><mi>s</mi></msub><mrow><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow><mo>⋅</mo><msub><mi>N</mi><mtext mathvariant="normal">adj</mtext></msub></mrow></mfrac></msqrt><mo>⋅</mo><msqrt><mi>G</mi></msqrt><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p>The following indices are computed at <strong>each</strong> posterior draw <span class="math inline">\(s\)</span>, generating a posterior distribution.</p>
+<p><strong>BRMSEA (Bayesian RMSEA).</strong> <span class="math display">\[
   \text{BRMSEA}_s = \sqrt{\frac{\hat\lambda_s}{\mathrm{df} \cdot N_\text{adj}}} \cdot \sqrt{G}.
-</annotation></semantics></math></p>
-<p><strong>BGammaHat.</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">BGammaHat</mtext><mi>s</mi></msub><mo>=</mo><mfrac><mi>v</mi><mrow><mi>v</mi><mo>+</mo><mn>2</mn><msub><mover><mi>λ</mi><mo accent="true">̂</mo></mover><mi>s</mi></msub><mi>/</mi><msub><mi>N</mi><mtext mathvariant="normal">adj</mtext></msub></mrow></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">
+\]</span></p>
+<p><strong>BGammaHat.</strong> <span class="math display">\[
   \text{BGammaHat}_s = \frac{v}{v + 2\hat\lambda_s / N_\text{adj}},
-</annotation></semantics></math> where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><msub><mo>∑</mo><mi>g</mi></msub><msub><mi>p</mi><mi>g</mi></msub></mrow><annotation encoding="application/x-tex">v = \sum_g p_g</annotation></semantics></math> is the total number of observed variables across groups.</p>
-<p><strong>Adjusted BGammaHat.</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">adjBGammaHat</mtext><mi>s</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><mfrac><mi>p</mi><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow></mfrac><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mtext mathvariant="normal">BGammaHat</mtext><mi>s</mi></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\]</span> where <span class="math inline">\(v = \sum_g p_g\)</span> is the total number of observed variables across groups.</p>
+<p><strong>Adjusted BGammaHat.</strong> <span class="math display">\[
   \text{adjBGammaHat}_s = 1 - \frac{p}{\mathrm{df}} \bigl(1 - \text{BGammaHat}_s\bigr).
-</annotation></semantics></math></p>
-<p><strong>BMc (McDonald’s centrality index).</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">BMc</mtext><mi>s</mi></msub><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mspace width="-0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mo>−</mo><mstyle displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><msub><mover><mi>λ</mi><mo accent="true">̂</mo></mover><mi>s</mi></msub><mi>/</mi><msub><mi>N</mi><mtext mathvariant="normal">adj</mtext></msub><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\]</span></p>
+<p><strong>BMc (McDonald’s centrality index).</strong> <span class="math display">\[
   \text{BMc}_s = \exp\!\bigl(-\tfrac{1}{2}\hat\lambda_s / N_\text{adj}\bigr).
-</annotation></semantics></math></p>
+\]</span></p>
 </section><section class="level3"><h3 id="incremental-fit-indices">Incremental fit indices<a class="anchor" aria-label="anchor" href="#incremental-fit-indices"></a>
 </h3>
-<p>Incremental indices compare the target model against a <strong>baseline</strong> (null) model. Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>d</mi><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">d_s^{(0)}</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\mathrm{df}^{(0)}</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>λ</mi><mo accent="true">̂</mo></mover><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><annotation encoding="application/x-tex">\hat\lambda_s^{(0)}</annotation></semantics></math> denote the corresponding quantities for the baseline model.</p>
-<p><strong>BCFI (Bayesian CFI).</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">BCFI</mtext><mi>s</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><mfrac><msub><mover><mi>λ</mi><mo accent="true">̂</mo></mover><mi>s</mi></msub><msubsup><mover><mi>λ</mi><mo accent="true">̂</mo></mover><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p>Incremental indices compare the target model against a <strong>baseline</strong> (null) model. Let <span class="math inline">\(d_s^{(0)}\)</span>, <span class="math inline">\(\mathrm{df}^{(0)}\)</span>, and <span class="math inline">\(\hat\lambda_s^{(0)}\)</span> denote the corresponding quantities for the baseline model.</p>
+<p><strong>BCFI (Bayesian CFI).</strong> <span class="math display">\[
   \text{BCFI}_s = 1 - \frac{\hat\lambda_s}{\hat\lambda_s^{(0)}}.
-</annotation></semantics></math></p>
-<p><strong>BTLI (Bayesian TLI).</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">BTLI</mtext><mi>s</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>d</mi><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msup><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><msub><mi>d</mi><mi>s</mi></msub><mi>/</mi><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow></mrow><mrow><msubsup><mi>d</mi><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mi>/</mi><msup><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">f</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>−</mo><mn>1</mn></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\]</span></p>
+<p><strong>BTLI (Bayesian TLI).</strong> <span class="math display">\[
   \text{BTLI}_s = \frac{d_s^{(0)} / \mathrm{df}^{(0)} - d_s / \mathrm{df}}{d_s^{(0)} / \mathrm{df}^{(0)} - 1}.
-</annotation></semantics></math></p>
-<p><strong>BNFI (Bayesian NFI).</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">BNFI</mtext><mi>s</mi></msub><mo>=</mo><mfrac><mrow><msubsup><mi>d</mi><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msub><mi>d</mi><mi>s</mi></msub></mrow><msubsup><mi>d</mi><mi>s</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\]</span></p>
+<p><strong>BNFI (Bayesian NFI).</strong> <span class="math display">\[
   \text{BNFI}_s = \frac{d_s^{(0)} - d_s}{d_s^{(0)}}.
-</annotation></semantics></math></p>
+\]</span></p>
 <p>The posterior expectations (EAP), standard deviations, quantile-based credible intervals, and modes of these distributions are reported by the <code><a href="../reference/INLAvaan-class.html">summary()</a></code> method.</p>
 </section></section><section class="level2"><h2 id="example-three-factor-cfa">Example: three-factor CFA<a class="anchor" aria-label="anchor" href="#example-three-factor-cfa"></a>
 </h2>
@@ -173,9 +179,9 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">fitMeasures</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         npar   margloglik          ppp          dic        p_dic       BRMSEA </span></span>
-<span><span class="co">#&gt;           21    -3830.509        0.000     7552.610       20.645        0.091 </span></span>
+<span><span class="co">#&gt;           21    -3830.509        0.000     7552.752       20.716        0.092 </span></span>
 <span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI </span></span>
-<span><span class="co">#&gt;        0.957        0.920        0.903        0.931        0.897        0.907</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.956        0.919        0.902        0.930        0.897        0.906</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="posterior-distributions-of-fit-indices">Posterior distributions of fit indices<a class="anchor" aria-label="anchor" href="#posterior-distributions-of-fit-indices"></a>
 </h3>
@@ -187,7 +193,7 @@
 <span><span class="co">#&gt; Posterior summary of devM-based Bayesian fit indices (nsamp = 1000): </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;       BRMSEA    BGammaHat adjBGammaHat          BMc         BCFI         BTLI </span></span>
-<span><span class="co">#&gt;        0.092        0.957        0.920        0.903        0.930        0.896 </span></span>
+<span><span class="co">#&gt;        0.091        0.957        0.920        0.903        0.931        0.897 </span></span>
 <span><span class="co">#&gt;         BNFI </span></span>
 <span><span class="co">#&gt;        0.907</span></span></code></pre></div>
 </div>
@@ -199,13 +205,13 @@
 <span><span class="co">#&gt; Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode</span></span>
-<span><span class="co">#&gt; BRMSEA       0.092 0.005 0.083 0.088 0.091 0.094  0.102 0.091</span></span>
-<span><span class="co">#&gt; BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.964 0.957</span></span>
-<span><span class="co">#&gt; adjBGammaHat 0.920 0.008 0.901 0.915 0.920 0.926  0.934 0.921</span></span>
-<span><span class="co">#&gt; BMc          0.903 0.010 0.880 0.897 0.904 0.910  0.919 0.904</span></span>
-<span><span class="co">#&gt; BCFI         0.930 0.008 0.913 0.926 0.931 0.936  0.943 0.931</span></span>
-<span><span class="co">#&gt; BTLI         0.896 0.011 0.871 0.890 0.897 0.905  0.915 0.898</span></span>
-<span><span class="co">#&gt; BNFI         0.907 0.007 0.890 0.902 0.907 0.912  0.919 0.907</span></span></code></pre></div>
+<span><span class="co">#&gt; BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.102 0.090</span></span>
+<span><span class="co">#&gt; BGammaHat    0.957 0.005 0.947 0.954 0.957 0.960  0.964 0.958</span></span>
+<span><span class="co">#&gt; adjBGammaHat 0.920 0.008 0.901 0.915 0.921 0.926  0.934 0.923</span></span>
+<span><span class="co">#&gt; BMc          0.903 0.010 0.881 0.898 0.905 0.911  0.920 0.906</span></span>
+<span><span class="co">#&gt; BCFI         0.931 0.008 0.913 0.926 0.932 0.936  0.943 0.933</span></span>
+<span><span class="co">#&gt; BTLI         0.897 0.011 0.871 0.890 0.898 0.905  0.915 0.900</span></span>
+<span><span class="co">#&gt; BNFI         0.907 0.007 0.890 0.903 0.908 0.912  0.919 0.909</span></span></code></pre></div>
 </div>
 <p>You can also access the raw per-sample vectors for custom analysis:</p>
 <div class="cell">
@@ -243,9 +249,9 @@
 <div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">fitMeasures</span><span class="op">(</span><span class="va">fit</span>, baseline.model <span class="op">=</span> <span class="va">fit_null</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         npar   margloglik          ppp          dic        p_dic       BRMSEA </span></span>
-<span><span class="co">#&gt;           21    -3830.509        0.000     7552.610       20.645        0.091 </span></span>
+<span><span class="co">#&gt;           21    -3830.509        0.000     7552.752       20.716        0.091 </span></span>
 <span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI </span></span>
-<span><span class="co">#&gt;        0.957        0.920        0.904        0.931        0.897        0.907</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.957        0.920        0.904        0.931        0.898        0.907</span></span></code></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
@@ -255,18 +261,18 @@
 <span><span class="co">#&gt; Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode</span></span>
-<span><span class="co">#&gt; BRMSEA       0.091 0.005 0.083 0.088 0.091 0.094  0.102 0.089</span></span>
-<span><span class="co">#&gt; BGammaHat    0.957 0.004 0.947 0.954 0.957 0.960  0.964 0.959</span></span>
-<span><span class="co">#&gt; adjBGammaHat 0.920 0.008 0.901 0.915 0.921 0.926  0.933 0.924</span></span>
-<span><span class="co">#&gt; BMc          0.903 0.010 0.881 0.897 0.904 0.910  0.919 0.908</span></span>
-<span><span class="co">#&gt; BCFI         0.930 0.007 0.914 0.926 0.931 0.936  0.942 0.934</span></span>
-<span><span class="co">#&gt; BTLI         0.896 0.011 0.871 0.890 0.897 0.904  0.914 0.902</span></span>
-<span><span class="co">#&gt; BNFI         0.907 0.007 0.891 0.903 0.907 0.912  0.918 0.910</span></span></code></pre></div>
+<span><span class="co">#&gt; BRMSEA       0.092 0.005 0.083 0.088 0.091 0.095  0.103 0.089</span></span>
+<span><span class="co">#&gt; BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.964 0.959</span></span>
+<span><span class="co">#&gt; adjBGammaHat 0.920 0.008 0.900 0.914 0.921 0.926  0.933 0.924</span></span>
+<span><span class="co">#&gt; BMc          0.903 0.010 0.879 0.897 0.904 0.910  0.919 0.909</span></span>
+<span><span class="co">#&gt; BCFI         0.930 0.008 0.912 0.926 0.931 0.936  0.943 0.935</span></span>
+<span><span class="co">#&gt; BTLI         0.896 0.011 0.869 0.889 0.898 0.904  0.915 0.903</span></span>
+<span><span class="co">#&gt; BNFI         0.907 0.007 0.889 0.902 0.907 0.912  0.919 0.911</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="rescaling-devm-vs-mcmc">Rescaling: <code>"devM"</code> vs <code>"MCMC"</code>
 <a class="anchor" aria-label="anchor" href="#rescaling-devm-vs-mcmc"></a>
 </h2>
-<p>The <code>rescale</code> argument controls how the chi-square and degrees of freedom are computed. The default is <code>"devM"</code>, which subtracts the DIC-based <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math> from the deviance. To use the classical <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N - 1</annotation></semantics></math> scaling instead, set <code>rescale = "MCMC"</code>:</p>
+<p>The <code>rescale</code> argument controls how the chi-square and degrees of freedom are computed. The default is <code>"devM"</code>, which subtracts the DIC-based <span class="math inline">\(p_D\)</span> from the deviance. To use the classical <span class="math inline">\(N - 1\)</span> scaling instead, set <code>rescale = "MCMC"</code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bfi_mcmc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bfit_indices.html">bfit_indices</a></span><span class="op">(</span><span class="va">fit</span>, rescale <span class="op">=</span> <span class="st">"MCMC"</span><span class="op">)</span></span>
@@ -275,15 +281,15 @@
 <span><span class="co">#&gt; Posterior summary of MCMC-based Bayesian fit indices (nsamp = 1000):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode</span></span>
-<span><span class="co">#&gt; BRMSEA       0.107 0.004 0.099 0.104 0.106 0.109  0.115 0.105</span></span>
-<span><span class="co">#&gt; BGammaHat    0.943 0.004 0.934 0.940 0.943 0.946  0.950 0.944</span></span>
-<span><span class="co">#&gt; adjBGammaHat 0.893 0.008 0.876 0.888 0.894 0.899  0.906 0.895</span></span>
-<span><span class="co">#&gt; BMc          0.873 0.010 0.853 0.867 0.874 0.879  0.888 0.876</span></span>
-<span><span class="co">#&gt; BCFI         0.908 0.007 0.892 0.904 0.909 0.913  0.920 0.910</span></span>
-<span><span class="co">#&gt; BTLI         0.862 0.011 0.838 0.855 0.863 0.870  0.880 0.866</span></span>
-<span><span class="co">#&gt; BNFI         0.886 0.007 0.870 0.881 0.886 0.891  0.897 0.888</span></span></code></pre></div>
+<span><span class="co">#&gt; BRMSEA       0.106 0.004 0.100 0.103 0.106 0.109  0.116 0.104</span></span>
+<span><span class="co">#&gt; BGammaHat    0.943 0.004 0.933 0.940 0.943 0.946  0.950 0.945</span></span>
+<span><span class="co">#&gt; adjBGammaHat 0.893 0.008 0.874 0.888 0.894 0.899  0.906 0.897</span></span>
+<span><span class="co">#&gt; BMc          0.873 0.010 0.850 0.867 0.874 0.879  0.888 0.877</span></span>
+<span><span class="co">#&gt; BCFI         0.908 0.007 0.891 0.904 0.909 0.913  0.920 0.912</span></span>
+<span><span class="co">#&gt; BTLI         0.862 0.011 0.836 0.856 0.863 0.870  0.880 0.868</span></span>
+<span><span class="co">#&gt; BNFI         0.886 0.007 0.869 0.882 0.886 0.891  0.897 0.889</span></span></code></pre></div>
 </div>
-<p>The two methods will generally produce different results, especially with informative priors or when <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math> deviates substantially from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.</p>
+<p>The two methods will generally produce different results, especially with informative priors or when <span class="math inline">\(p_D\)</span> deviates substantially from <span class="math inline">\(q\)</span>.</p>
 </section><section class="level2"><h2 id="sec-differences">Differences from blavaan<a class="anchor" aria-label="anchor" href="#sec-differences"></a>
 </h2>
 <p>INLAvaan’s Bayesian fit indices follow the same mathematical framework as <a href="https://blavaan.org" class="external-link">blavaan</a> <span class="citation" data-cites="merkle2021blavaan">(<a href="#ref-merkle2021blavaan" role="doc-biblioref">Merkle et al. 2021</a>)</span>, with a few implementation differences:</p>
@@ -314,10 +320,10 @@
 </td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Effective parameters (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math>)<a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;The three are not interchangeable. &lt;math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;semantics&gt;&lt;msub&gt;&lt;mi&gt;p&lt;/mi&gt;&lt;mi&gt;D&lt;/mi&gt;&lt;/msub&gt;&lt;annotation encoding="application/x-tex"&gt;p_D&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt; and &lt;math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;semantics&gt;&lt;msub&gt;&lt;mi&gt;p&lt;/mi&gt;&lt;mtext mathvariant="normal"&gt;waic&lt;/mtext&gt;&lt;/msub&gt;&lt;annotation encoding="application/x-tex"&gt;p_{\text{waic}}&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt; estimate the second-derivative form of the information, &lt;math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;semantics&gt;&lt;msub&gt;&lt;mi&gt;p&lt;/mi&gt;&lt;mtext mathvariant="normal"&gt;loo&lt;/mtext&gt;&lt;/msub&gt;&lt;annotation encoding="application/x-tex"&gt;p_{\text{loo}}&lt;/annotation&gt;&lt;/semantics&gt;&lt;/math&gt; the cross-product form; they share a limit but differ in a finite sample, and agree only if the model is correct. See &lt;code&gt;&lt;a href="../reference/loo.html"&gt;?loo&lt;/a&gt;&lt;/code&gt;.&lt;/p&gt;'><sup>1</sup></a>
+<td style="text-align: left;">Effective parameters (<span class="math inline">\(p_D\)</span>)<a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;The three are not interchangeable. &lt;span class="math inline"&gt;\(p_D\)&lt;/span&gt; and &lt;span class="math inline"&gt;\(p_{\text{waic}}\)&lt;/span&gt; estimate the second-derivative form of the information, &lt;span class="math inline"&gt;\(p_{\text{loo}}\)&lt;/span&gt; the cross-product form; they share a limit but differ in a finite sample, and agree only if the model is correct. See &lt;code&gt;&lt;a href="../reference/loo.html"&gt;?loo&lt;/a&gt;&lt;/code&gt;.&lt;/p&gt;'><sup>1</sup></a>
 </td>
-<td style="text-align: left;">DIC-based <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math> only</td>
-<td style="text-align: left;">DIC-based <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math>, LOOIC-based <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mtext mathvariant="normal">loo</mtext></msub><annotation encoding="application/x-tex">p_{\text{loo}}</annotation></semantics></math>, or WAIC-based <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mtext mathvariant="normal">waic</mtext></msub><annotation encoding="application/x-tex">p_{\text{waic}}</annotation></semantics></math>
+<td style="text-align: left;">DIC-based <span class="math inline">\(p_D\)</span> only</td>
+<td style="text-align: left;">DIC-based <span class="math inline">\(p_D\)</span>, LOOIC-based <span class="math inline">\(p_{\text{loo}}\)</span>, or WAIC-based <span class="math inline">\(p_{\text{waic}}\)</span>
 </td>
 </tr>
 <tr class="even">
@@ -340,7 +346,7 @@
 </tr>
 </tbody>
 </table>
-<p>Currently, INLAvaan only supports <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>D</mi></msub><annotation encoding="application/x-tex">p_D</annotation></semantics></math> from the DIC (i.e., <code>p_dic</code>). The <code>"ppmc"</code> rescaling method (which computes replicated data under the posterior predictive) is not yet available.</p>
+<p>Currently, INLAvaan only supports <span class="math inline">\(p_D\)</span> from the DIC (i.e., <code>p_dic</code>). The <code>"ppmc"</code> rescaling method (which computes replicated data under the posterior predictive) is not yet available.</p>
 </section><section class="level2"><h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">

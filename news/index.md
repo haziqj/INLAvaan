@@ -4,9 +4,34 @@
 
 ### New features
 
+- INLAvaan now fits two-level models with random slopes, which lavaan
+  specifies with the `rv()` modifier. They work with
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md),
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md),
+  [`logLik()`](https://inlavaan.haziqj.ml/reference/logLik.md),
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md),
+  [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) and
+  [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md), and
+  [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  marks the rows that carry a random slope.
+  [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md),
+  [`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md) and
+  the standardised estimates use the implied moments averaged over the
+  covariates, and `per_cluster = TRUE` gives those of each cluster. The
+  Bayesian fit indices are scaled against an unrestricted
+  random-coefficient model. The posterior predictive p-value is not
+  available and is dropped from `test`. A random slope on a latent or
+  split covariate uses lavaan’s quadrature, which is slower, and
+  `integration.ngh` sets its number of nodes. Such fits have no
+  [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md),
+  casewise values, `predict(type = "yhat")`, `per_cluster = TRUE` or
+  Bayesian fit indices. Composites cannot be combined with random slopes
+  yet. See the multilevel article.
+
 - INLAvaan now fits composites, which lavaan specifies with the `<~`
-  operator, in single-level models with continuous data and one or more
-  groups. They work with the fit measures,
+  operator, with continuous data, in one or more groups or at either
+  level of a two-level model. They work with the fit measures,
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
   [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md),
   [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) and
@@ -16,18 +41,49 @@
   composite. Free weights have the new default prior
   `wmat = "normal(0,10)"` in
   [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
-  See the new article on composites.
+  Unlike lavaan, INLAvaan estimates the (co)variances of the indicators
+  by default (`composites.cov = "free"`); `composites.cov = "fixed"`
+  fixes them at their sample values. See the new article on composites.
 
 - Composite models that INLAvaan cannot fit yet stop with an error:
-  two-level models, ordinal data and `composites.cov = "free"`. So do
-  composite specifications that cannot be estimated as written, such as
-  a free latent mean that only composites measure (as in
+  ordinal data, and `composites.cov = "fixed"` in two-level models. So
+  do composite specifications that cannot be estimated as written, such
+  as a free latent mean that only composites measure (as in
   [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md) on
   composites).
 
 ### Bug fixes
 
+- The posterior predictive p-value of two-level models was often close
+  to 0 for models that fit. It now follows blavaan’s two-level PPP: each
+  posterior draw generates replicate data, which are scored against the
+  saturated model. The new arguments `ppp_method` and `ppp_nsamp` set
+  how the data are scored (by default one Fisher-scoring step towards
+  the saturated fit) and how many draws are used (250). The two-level
+  PPP is experimental.
+
+- [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) on a
+  two-level fit now keeps the clusters of the data, with their labels
+  and sizes, and no longer warns on every data set.
+
+- `BCFI` was `-Inf` or `NaN` for posterior draws whose independence
+  model fits within its degrees of freedom. Such draws now follow
+  lavaan’s CFI convention.
+
+- [`standardisedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
+  ignored its `nsamp` argument and summarised as many posterior draws as
+  the fit itself had used.
+
 - Multigroup models with `missing = "ml"` gave wrong posteriors.
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) gave wrong
+  values for complete-data two-level models in which the two levels list
+  the variables in different orders, for example when a regression
+  appears at one level only.
+
+- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) failed
+  when a model was given as a long call.
 
 - `sampling(prior = TRUE)` with `type = "observed"` or `type = "all"`
   rejected every draw in models with an observed outcome or covariate.
@@ -177,10 +233,6 @@
 - [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) for
   `conditional.x = TRUE` fits now draws the covariates too, as for other
   fits. Previously it left out their effects.
-
-- The PPP of a two-level model is skipped, with a warning, when a
-  variable at both levels has almost no between-level variance. It was 0
-  in such models.
 
 - Models with a free covariance above 1 at its starting value, such as
   covariances between covariates under `fixed.x = FALSE`, no longer

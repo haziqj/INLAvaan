@@ -36,6 +36,8 @@ inlavaan(
   numerical_grad = FALSE,
   start = NULL,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 )
 ```
@@ -91,10 +93,11 @@ inlavaan(
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
   data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. The PPP is skipped
-  the same way for a two-level model in which a variable at both levels
-  has almost no between-level variance. The fit records what was
-  requested and what was computed
+  with a warning and the rest of the fit proceeds. For a two-level model
+  the PPP follows blavaan: each of `ppp_nsamp` posterior draws generates
+  replicate data, which are scored against the saturated model (see
+  `ppp_method`). The two-level PPP is experimental. The fit records what
+  was requested and what was computed
   (`get_inlavaan_internal(fit, "test")`);
   [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
@@ -106,7 +109,10 @@ inlavaan(
   LOO and WAIC post hoc;
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
   [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) compute on
-  demand.
+  demand. For a random-slope model `"ppp"` is dropped, with a warning
+  when it was asked for and a message otherwise (see the Random slopes
+  section of `inlavaan()`). `"dic"`, `"loo"` and `"waic"` are
+  unaffected.
 
 - vb_correction:
 
@@ -274,6 +280,24 @@ inlavaan(
   where that is safe, or over a PSOCK cluster (separate R processes)
   inside IDE R sessions (RStudio, Positron) and on Windows.
 
+- ppp_method:
+
+  How the PPP of a two-level model scores the observed and the replicate
+  data against the saturated model. `"onestep"` (default) takes one
+  Fisher-scoring step from the moments of each posterior draw towards
+  the saturated fit, and fits by EM where the step would leave the valid
+  covariance matrices (with few clusters or a small between variance).
+  `"em"` always fits the saturated model by EM, as blavaan does. Fits
+  with `missing = "ml"` always use `"em"`. Ignored for single-level
+  models.
+
+- ppp_nsamp:
+
+  The number of posterior draws, each with one replicate data set, that
+  the PPP of a two-level model uses. Defaults to `250`, and is capped at
+  `nsamp`. Draws that cannot be scored are left out, with a warning.
+  Ignored for single-level models.
+
 - ...:
 
   Additional arguments to be passed to the
@@ -298,6 +322,103 @@ reports the realised error per fit as `vb_mcse_sigma` per parameter and
 `vb_mcse_max` globally, both in posterior-SD units. Setting
 `vb_method = "gauss_hermite"` removes the random node set altogether;
 see the `vb_method` argument.
+
+## Random slopes
+
+Wrapping a level-1 regression coefficient in lavaan's `rv()` modifier
+turns it into a level-2 latent variable – a random slope – which can
+then be given a mean, a variance and cross-level regressions like any
+other level-2 latent variable:
+
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      s1 ~ w1
+      s1 ~~ s1
+      s1 ~ 1
+
+The slope's variance and intercept are added automatically, so in
+practice only the cross-level regression `s1 ~ w1` need be written out.
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+marks the level-1 carrier row as `x1 (s1)`: that row is fixed at zero,
+the slope itself being reported under Level 2.
+
+The likelihood takes one of two routes. When the covariate carrying the
+slope is observed and purely within-cluster, the slope integrates out in
+closed form. When it is latent, or split across both levels (the same
+variable entering at level 1 and at level 2), the integral is done by
+Gauss-Hermite quadrature instead; that route warns at fit time and is
+governed by `integration.ngh`, passed through to lavaan. The node count
+is an accuracy setting as much as a cost setting, so give every fit that
+is to be compared with another the same `integration.ngh`.
+
+A model with observed exogenous covariates requires `fixed.x = TRUE`
+(the default): the likelihood is the density of the outcomes *given*
+those covariates, so their own means and (co)variances are unidentified
+and would be reported back as their priors. A `fixed.x = FALSE` fit is
+refused. A model whose covariates are all latent or modelled has nothing
+to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own
+accord; such a fit is accepted as it stands.
+
+Equality constraints work as for other models, except that covariances
+cannot be held equal. Composites (`<~`) cannot be combined with random
+slopes yet.
+
+A random-slope model implies no single within-cluster covariance matrix:
+the covariance of the outcomes depends on the covariate values.
+[`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md) and
+[`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md)
+therefore use the implied moments averaged over the covariates, which
+include the mean and the variance of each slope, or with
+`per_cluster = TRUE` the moments of each cluster at its own covariate
+values (closed-form route only).
+[`standardisedsolution()`](https://inlavaan.haziqj.ml/reference/standardisedsolution.md)
+and the standardised columns and R-square of
+[`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+are scaled by the averaged variances. The carrier row `x1 (s1)` then
+gives the standardised mean slope, and the slope's own rows are on the
+same standardised scale. An outcome observed at level 1 only, whose
+slope covariate has a non-zero mean, has no place in lavaan's two-level
+layout, and these outputs abort for it.
+
+[`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) draws
+each cluster's slopes and other level-2 effects and then its outcomes,
+at the cluster's own covariates (closed-form route only).
+[`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) gives
+latent, observed and implied draws.
+[`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) gives
+`type = "lv"` and, on the closed-form route, the cluster-specific
+`"yhat"` and `"ypred"` from the empirical Bayes random effects, while
+`fitted(type = "casewise")` gives the outcomes' means given the
+covariates.
+[`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+scales the Bayesian fit indices against the unrestricted
+random-coefficient model with the same random-effects design, because a
+saturated model does not exist here. This reference is INLAvaan's own
+construction (closed-form route only).
+
+The posterior predictive p-value (`test = "ppp"`) is dropped, because a
+random-slope model has no saturated model to score replicate data
+against. What aborts with an explanation: the residual types scaled by
+standard errors, `predict(type = "ymis")`, and `loo(type = "loso")`,
+which would need a cluster's sufficient statistics downdated by one row.
+
+The model-comparison side works throughout.
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) reports
+the marginal likelihood, Bayes factors, the DIC and its \\p_D\\, and
+[`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) score the fit
+leave-one-cluster-out on the conditional likelihood.
+
+To ask whether there is a random slope at all, compare the fit with the
+fixed-slope model (`fw ~ x1` at level 1) using
+[`compare()`](https://inlavaan.haziqj.ml/reference/compare.md). On the
+closed-form route, fixing the slope variance at zero (`s1 ~~ 0*s1`) and
+dropping any cross-level regression on the slope gives the same model.
+Keeping `s1 ~ w1` gives a cross-level interaction model instead. The
+quadrature route refuses a slope variance fixed at zero.
 
 ## See also
 
@@ -326,21 +447,20 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [182ms]
+#> ✔ Posterior mode and Hessian. [167ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [350ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [335ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
 #> ✔ Fit 21/21 skew-normal marginals. [1.1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [710ms]
+#> ✔ Summarise 1000 posterior draws. [725ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9003 ended normally after 65 iterations
+#> INLAvaan 0.3.2.9006 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -355,8 +475,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.671 
-#>    Effective parameters (pD)                    20.675 
+#>    Deviance (DIC)                             7552.912 
+#>    Effective parameters (pD)                    20.796 
 #> 
 #> Parameter Estimates:
 #> 
@@ -381,10 +501,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.397    0.077    0.246    0.548    0.001       beta(1,1)
-#>     speed             0.250    0.051    0.156    0.355    0.011       beta(1,1)
+#>     textual           0.396    0.077    0.254    0.555    0.001       beta(1,1)
+#>     speed             0.248    0.053    0.144    0.351    0.011       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.165    0.047    0.078    0.264    0.003       beta(1,1)
+#>     speed             0.167    0.047    0.077    0.263    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

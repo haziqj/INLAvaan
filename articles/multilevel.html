@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -30,7 +36,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -225,20 +231,22 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [763ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [740ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.054σ. [962ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.054σ. [941ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/20 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 3/20 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 4/20 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fit 20/20 skew-normal marginals. [2.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.6s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [3.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
+<span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
+<span><span class="co">#&gt; ℹ The two-level PPP is experimental.</span></span>
+<span><span class="co">#&gt; ℹ Please report any bugs at &lt;https://github.com/haziqj/INLAvaan/issues&gt;.</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
 </h2>
@@ -246,7 +254,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.2.9003 ended normally after 108 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.2.9006 ended normally after 108 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -258,12 +266,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                  -12175.615 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.110 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square, experimental)                0.540 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            24192.794 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    19.800 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24192.544 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    19.676 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -339,13 +347,438 @@
 </li>
 <li>
 <p><strong>Level 2 [cluster] Regressions</strong></p>
-<p>The path <code>fb ~ w1</code> is 0.164 This suggests a positive relationship between school-level factors (like Teacher Experience) and the overall School Quality (<code>fb</code>), though the standard deviation is wider here due to the smaller sample size at Level 2 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>200</mn></mrow><annotation encoding="application/x-tex">n=200</annotation></semantics></math> schools vs <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>2500</mn></mrow><annotation encoding="application/x-tex">n=2500</annotation></semantics></math> students).</p>
+<p>The path <code>fb ~ w1</code> is 0.164 This suggests a positive relationship between school-level factors (like Teacher Experience) and the overall School Quality (<code>fb</code>), though the standard deviation is wider here due to the smaller sample size at Level 2 (<span class="math inline">\(n=200\)</span> schools vs <span class="math inline">\(n=2500\)</span> students).</p>
 </li>
 <li>
 <p><strong>Latent Variables:</strong></p>
 <p>The loadings for <code>y1</code>, <code>y2</code>, and <code>y3</code> on both <code>fw</code> and <code>fb</code> are significant (0 not included in credible interval) and thus confirm that these survey items effectively measure both individual ability and school-level quality.</p>
 </li>
-</ul></section><script id="quarto-html-after-body" type="application/javascript">
+</ul></section><section class="level2"><h2 id="random-slopes">Random Slopes<a class="anchor" aria-label="anchor" href="#random-slopes"></a>
+</h2>
+<p>The model above lets every school have its own average performance, but it forces the <em>effect</em> of study hours to be identical in all 200 schools. Often that is exactly the question of interest: does an extra hour of study buy more in some schools than in others? A <strong>random slope</strong> answers it by promoting a Level 1 regression coefficient to a Level 2 latent variable, with a mean, a variance, and cluster-level predictors of its own.</p>
+<p>In lavaan syntax a slope is made random by wrapping it in the <code>rv()</code> modifier, which gives it a name. That name is then an ordinary Level 2 latent variable, so it can be regressed on school-level predictors – here on teacher experience <code>w1</code>, asking whether the study-hours effect is larger in schools with more experienced teachers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mod_rs</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  level: 1</span></span>
+<span><span class="st">      # Measurement model (Within-student)</span></span>
+<span><span class="st">      fw =~ y1 + y2 + y3</span></span>
+<span><span class="st">      # The effect of x1 is now a latent variable called s1</span></span>
+<span><span class="st">      fw ~ rv('s1')*x1</span></span>
+<span><span class="st"></span></span>
+<span><span class="st">  level: 2</span></span>
+<span><span class="st">      # Measurement model (Between-school)</span></span>
+<span><span class="st">      fb =~ y1 + y2 + y3</span></span>
+<span><span class="st">      fb ~ w1</span></span>
+<span><span class="st">      # s1 behaves like any other Level 2 latent variable</span></span>
+<span><span class="st">      s1 ~ w1</span></span>
+<span><span class="st">"</span></span></code></pre></div>
+</div>
+<p>The mean and variance of <code>s1</code> are added automatically, so only the cross-level regression has to be written out. The fit is requested exactly as before.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod_rs</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [12s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.092σ. [29.7s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Fitting 0/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 1/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 2/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 3/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 4/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting 5/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting 6/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting 7/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠏ Fitting 8/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠋ Fitting 10/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 11/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 12/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 13/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 14/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 15/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting 16/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting 17/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting 18/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 19/19 skew-normal marginals. [51.4s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [13.9s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.2.9006 ended normally after 115 iterations</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
+<span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
+<span><span class="co">#&gt;   Number of model parameters                        19</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Number of observations                          2500</span></span>
+<span><span class="co">#&gt;   Number of clusters [cluster]                     200</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Test (User Model):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Marginal log-likelihood                  -12385.741 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Information Criteria:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24627.450 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    18.115 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Parameter Estimates:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Marginalisation method                     SKEWNORM</span></span>
+<span><span class="co">#&gt;    VB correction                                  TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Level 1 [within]:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Latent Variables:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
+<span><span class="co">#&gt;   fw =~                                                                        </span></span>
+<span><span class="co">#&gt;     y1                1.000                                                    </span></span>
+<span><span class="co">#&gt;     y2                0.777    0.038    0.704    0.854    0.003    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y3                0.737    0.037    0.667    0.812    0.003    normal(0,10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Regressions:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
+<span><span class="co">#&gt;   fw ~                                                                         </span></span>
+<span><span class="co">#&gt;     x1        (s1)    0.000                                                    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Intercepts:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
+<span><span class="co">#&gt;    .y1                0.000                                                    </span></span>
+<span><span class="co">#&gt;    .y2                0.000                                                    </span></span>
+<span><span class="co">#&gt;    .y3                0.000                                                    </span></span>
+<span><span class="co">#&gt;    .fw                0.000                                                    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variances:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
+<span><span class="co">#&gt;    .y1                0.992    0.052    0.891    1.095    0.002 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y2                1.070    0.042    0.990    1.154    0.000 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y3                1.009    0.039    0.934    1.087    0.000 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .fw                0.758    0.054    0.655    0.867    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Level 2 [cluster]:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Latent Variables:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
+<span><span class="co">#&gt;   fb =~                                                                        </span></span>
+<span><span class="co">#&gt;     y1                1.000                                                    </span></span>
+<span><span class="co">#&gt;     y2                0.707    0.051    0.610    0.809    0.019    normal(0,10)</span></span>
+<span><span class="co">#&gt;     y3                0.580    0.048    0.488    0.677    0.008    normal(0,10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Regressions:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
+<span><span class="co">#&gt;   fb ~                                                                         </span></span>
+<span><span class="co">#&gt;     w1                0.160    0.077    0.009    0.312    0.000    normal(0,10)</span></span>
+<span><span class="co">#&gt;   s1 ~                                                                         </span></span>
+<span><span class="co">#&gt;     w1                0.008    0.024   -0.040    0.055    0.000    normal(0,10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Intercepts:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
+<span><span class="co">#&gt;    .y1                0.013    0.074   -0.132    0.158    0.000    normal(0,32)</span></span>
+<span><span class="co">#&gt;    .y2               -0.024    0.059   -0.141    0.092    0.000    normal(0,32)</span></span>
+<span><span class="co">#&gt;    .y3               -0.049    0.054   -0.155    0.056    0.000    normal(0,32)</span></span>
+<span><span class="co">#&gt;    .fb                0.000                                                    </span></span>
+<span><span class="co">#&gt;    .s1                0.504    0.026    0.453    0.555    0.001    normal(0,10)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variances:</span></span>
+<span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
+<span><span class="co">#&gt;    .y1                0.066    0.037    0.012    0.150    0.019 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y2                0.127    0.031    0.072    0.192    0.006 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .y3                0.158    0.029    0.107    0.221    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .fb                0.883    0.117    0.672    1.132    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;    .s1                0.005    0.006    0.000    0.020    0.056 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   (s1)  random slope: mean, variance and regressions appear as s1 at Level 2</span></span></code></pre></div>
+</div>
+<p>Two things in that output are specific to random slopes. At Level 1 the carrier row for <code>x1</code> is tagged <code>(s1)</code> and fixed at zero: the slope is no longer a Level 1 parameter, so there is nothing to report there. At Level 2 the slope appears in its own right – its mean under <em>Intercepts</em> (<code>.s1</code>, the average study-hours effect across schools), its variance under <em>Variances</em> (<code>.s1</code>, how much that effect varies between schools), and its regression on <code>w1</code> under <em>Regressions</em>.</p>
+<section class="level3"><h3 id="fit-measures">Fit Measures<a class="anchor" aria-label="anchor" href="#fit-measures"></a>
+</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fitmeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         npar   margloglik          dic        p_dic       BRMSEA    BGammaHat </span></span>
+<span><span class="co">#&gt;           19   -12385.741    24627.450       18.115        0.003        1.000 </span></span>
+<span><span class="co">#&gt; adjBGammaHat          BMc         BCFI         BTLI         BNFI </span></span>
+<span><span class="co">#&gt;        1.000        1.000        0.999        1.002        0.990</span></span></code></pre></div>
+</div>
+<p>The posterior predictive p-value is missing. For an ordinary two-level model it scores replicate data sets against the saturated model, as blavaan does (by default with one Fisher-scoring step towards the saturated fit of each replicate; <code>ppp_method = "em"</code> gives blavaan’s full EM fit), but a random-slope model has no saturated model: the covariance of the outcomes depends on the values the covariates happen to take, so an unrestricted model would need its own covariance matrix for every school. INLAvaan therefore drops <code>"ppp"</code> from the default <code>test</code> (the message printed above the fit).</p>
+<p>The Bayesian fit indices are present, on a different footing. Their chi-square is taken against the most general model with the same random effects – every outcome with its own random intercept and its own random slope on <code>x1</code>, all freely correlated and all regressed on <code>w1</code>, and an unrestricted within-school residual covariance – in which the fitted model is nested. That reference is INLAvaan’s own construction rather than an established standard, so the indices say how close the model comes to it, and it needs enough schools to estimate its parameters. It cannot be built for a model with a between-only outcome, because lavaan’s random-slope kernel allows such an outcome only as an indicator of a latent variable. The model-comparison machinery below is what answers the substantive question.</p>
+</section><section class="level3"><h3 id="is-there-a-random-slope-at-all">Is There a Random Slope at All?<a class="anchor" aria-label="anchor" href="#is-there-a-random-slope-at-all"></a>
+</h3>
+<p>The Bayesian answer is a model comparison. The natural comparator fixes the slope variance at zero <strong>and</strong> drops the cross-level regression on the slope: what is left is a slope that is one constant shared by every school, which is exactly the fixed-slope model, with the same log-likelihood and the same number of parameters. Keeping <code>s1 ~ w1</code> while fixing the variance gives a useful model in between – a slope that varies from school to school, but deterministically, as a cross-level interaction with teacher experience.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mod_cli</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  level: 1</span></span>
+<span><span class="st">      fw =~ y1 + y2 + y3</span></span>
+<span><span class="st">      fw ~ rv('s1')*x1</span></span>
+<span><span class="st"></span></span>
+<span><span class="st">  level: 2</span></span>
+<span><span class="st">      fb =~ y1 + y2 + y3</span></span>
+<span><span class="st">      fb ~ w1</span></span>
+<span><span class="st">      s1 ~ w1</span></span>
+<span><span class="st">      # A school-varying slope, but with no variance of its own</span></span>
+<span><span class="st">      s1 ~~ 0*s1</span></span>
+<span><span class="st">"</span></span>
+<span></span>
+<span><span class="va">mod_fx</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  level: 1</span></span>
+<span><span class="st">      fw =~ y1 + y2 + y3</span></span>
+<span><span class="st">      fw ~ rv('s1')*x1</span></span>
+<span><span class="st"></span></span>
+<span><span class="st">  level: 2</span></span>
+<span><span class="st">      fb =~ y1 + y2 + y3</span></span>
+<span><span class="st">      fb ~ w1</span></span>
+<span><span class="st">      # One constant slope shared by every school</span></span>
+<span><span class="st">      s1 ~~ 0*s1</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">fit_cli</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod_cli</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [11.1s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.061σ. [20.7s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Fitting 0/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 1/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 2/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 3/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 4/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting 5/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting 6/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting 7/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠏ Fitting 9/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠋ Fitting 10/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 11/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 12/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 13/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 14/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 15/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting 17/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting 18/18 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 18/18 skew-normal marginals. [47.1s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠦ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [14.3s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span>
+<span><span class="va">fit_fx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod_fx</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [9.3s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.048σ. [20.3s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Fitting 0/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 1/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 2/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 4/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 5/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting 6/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting 7/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting 9/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠏ Fitting 10/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠋ Fitting 11/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 12/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 13/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 15/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 16/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 17/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 17/17 skew-normal marginals. [41.8s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠦ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [14.1s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit_rs</span>, <span class="va">fit_cli</span>, <span class="va">fit_fx</span><span class="op">)</span></span>
+<span><span class="va">cmp</span></span>
+<span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
+<span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    Model npar Marg.Loglik  logBF      DIC     pD</span></span>
+<span><span class="co">#&gt;   fit_fx   17   -12376.97  0.000 24624.13 16.485</span></span>
+<span><span class="co">#&gt;  fit_cli   18   -12382.90 -5.930 24626.70 17.821</span></span>
+<span><span class="co">#&gt;   fit_rs   19   -12385.74 -8.769 24627.45 18.115</span></span></code></pre></div>
+</div>
+<p>Because a random-slope likelihood is the density of the outcomes <em>given</em> the covariates, every fit in a table like this one must score the same variables: the outcomes, plus any between-level variable the model explains rather than regresses on. <code><a href="../reference/compare.html">compare()</a></code> checks that, and aborts otherwise. The covariates themselves may differ, as for any fit with <code>fixed.x = TRUE</code>: a model without <code>w1</code> says that the outcomes do not depend on it, so dropping a covariate is a fair comparison too. The plain fixed-slope model written out directly (<code>fw ~ x1</code> at Level 1) is an equally valid member of the table, and it fits a good deal faster.</p>
+<p>On <code>Demo.twolevel</code> the maximum-likelihood estimate of the slope variance is slightly negative, so there is no slope variation in these data to find, and the models without it are duly preferred: a log Bayes factor of -5.930 for the cross-level-interaction model and -8.769 for the full random-slope model, both against the fixed-slope fit, with the DIC ordering the three the same way.</p>
+</section><section class="level3"><h3 id="cross-validation">Cross-Validation<a class="anchor" aria-label="anchor" href="#cross-validation"></a>
+</h3>
+<p><code><a href="../reference/loo.html">loo()</a></code> and <code><a href="../reference/waic.html">waic()</a></code> work on random-slope fits too.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/loo.html">loo</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ── Leave-one-cluster-out ───────────────────────── 200 clusters, second-order ──</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          Estimate    SE</span></span>
+<span><span class="co">#&gt; elpd_loo -12314.5 394.4</span></span>
+<span><span class="co">#&gt; p_loo        19.6   2.1</span></span>
+<span><span class="co">#&gt; looic     24628.9 788.8</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── Curvature check ─────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   first-to-second-order gap         9.5</span></span>
+<span><span class="co">#&gt;   pD/2 (trace)                      8.9</span></span>
+<span><span class="co">#&gt;   excess over pD/2 (trace)        +6.9%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ The gap approaches pD/2 (trace) from above. A large excess says the</span></span>
+<span><span class="co">#&gt;   second-order expansion has not settled over the sample.</span></span></code></pre></div>
+</div>
+<p>The units are always clusters (leave-one-cluster-out), and the score is always the <em>conditional</em> flavour: the likelihood is the density of the outcomes given the covariates, so what is cross-validated is the prediction of a new school’s outcomes from its covariates. Leave-one-observation-out is not available here, because deleting a single row would need a school’s sufficient statistics downdated by one row and the random-slope likelihood is not built from such statistics.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit_rs</span>, <span class="va">fit_fx</span>, loo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Bayesian Model Comparison (INLAvaan)</span></span>
+<span><span class="co">#&gt; Models ordered by ELPD (Taylor LOO, second-order)</span></span>
+<span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Model npar Marg.Loglik  logBF      DIC     pD      ELPD      SE  p_loo</span></span>
+<span><span class="co">#&gt;  fit_fx   17   -12376.97  0.000 24624.13 16.485 -12313.27 394.398 18.703</span></span>
+<span><span class="co">#&gt;  fit_rs   19   -12385.74 -8.769 24627.45 18.115 -12314.46 394.413 19.640</span></span>
+<span><span class="co">#&gt;  elpd_diff se_diff</span></span>
+<span><span class="co">#&gt;      0.000    0.00</span></span>
+<span><span class="co">#&gt;     -1.187    0.44</span></span></code></pre></div>
+</div>
+<p>The paired standard error is the right uncertainty for a nested comparison like this one, and it confirms the reading above: the fixed-slope model predicts a held-out school slightly better, by about one elpd unit.</p>
+</section><section class="level3"><h3 id="school-level-slopes">School-Level Slopes<a class="anchor" aria-label="anchor" href="#school-level-slopes"></a>
+</h3>
+<p>Even when the variance is small, posterior draws of the school-specific slopes are available, alongside the other Level 2 latent variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_rs</span>, type <span class="op">=</span> <span class="st">"lv"</span>, level <span class="op">=</span> <span class="fl">2</span>, summary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■                                7% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■                             13% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■                       34% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■                56% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■          78% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | …</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Mean of predicted values from inlavaan model</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         fb    s1</span></span>
+<span><span class="co">#&gt; 1   0.1033 0.496</span></span>
+<span><span class="co">#&gt; 2  -0.0183 0.481</span></span>
+<span><span class="co">#&gt; 3  -1.8863 0.481</span></span>
+<span><span class="co">#&gt; 4  -0.7094 0.479</span></span>
+<span><span class="co">#&gt; 5   0.1531 0.490</span></span>
+<span><span class="co">#&gt; 6  -0.0992 0.484</span></span>
+<span><span class="co">#&gt; 7   0.7945 0.503</span></span>
+<span><span class="co">#&gt; 8  -0.1581 0.517</span></span>
+<span><span class="co">#&gt; 9  -1.0044 0.492</span></span>
+<span><span class="co">#&gt; 10  1.4110 0.532</span></span>
+<span><span class="co">#&gt; # ℹ 190 more rows</span></span></code></pre></div>
+</div>
+</section><section class="level3"><h3 id="implied-moments-and-standardised-estimates">Implied Moments and Standardised Estimates<a class="anchor" aria-label="anchor" href="#implied-moments-and-standardised-estimates"></a>
+</h3>
+<p>A random-slope model has no single within-cluster covariance matrix, and lavaan’s own implied moments simply leave the slope out. INLAvaan’s <code><a href="../reference/fitted.html">fitted()</a></code> instead averages the implied moments over the covariates, holding them at their sample moments as <code>fixed.x = TRUE</code> does. Each slope then contributes its mean, as a fixed slope would, and its variance times the variance of its covariate, which is the random-slope component of the within-cluster variance in the framework of <span class="citation" data-cites="rights2019quantifying">Rights and Sterba (<a href="#ref-rights2019quantifying" role="doc-biblioref">2019</a>)</span>. With the slope variance at zero and no cross-level regression on the slope, these are exactly the moments of the fixed-slope model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fitted.html">fitted</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span><span class="op">$</span><span class="va">within</span></span>
+<span><span class="co">#&gt; $cov</span></span>
+<span><span class="co">#&gt;       y1    y2    y3    x1</span></span>
+<span><span class="co">#&gt; y1 2.005                  </span></span>
+<span><span class="co">#&gt; y2 0.786 1.681            </span></span>
+<span><span class="co">#&gt; y3 0.747 0.580 1.560      </span></span>
+<span><span class="co">#&gt; x1 0.495 0.385 0.365 0.982</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $mean</span></span>
+<span><span class="co">#&gt;     y1     y2     y3     x1 </span></span>
+<span><span class="co">#&gt; -0.004 -0.003 -0.003 -0.007</span></span></code></pre></div>
+</div>
+<p><code><a href="../reference/residuals.html">residuals()</a></code> compares these with the sample moments as usual. With <code>per_cluster = TRUE</code>, both functions work school by school instead: the expected mean and within-school covariance of each school at its own covariate values, against that school’s own sample moments.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/residuals.html">residuals</a></span><span class="op">(</span><span class="va">fit_rs</span>, per_cluster <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co">#&gt; $type</span></span>
+<span><span class="co">#&gt; [1] "raw"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $cov</span></span>
+<span><span class="co">#&gt;            y1          y2          y3          x1</span></span>
+<span><span class="co">#&gt; y1 -1.4520679 -0.64137510 -0.53708325 -0.40964736</span></span>
+<span><span class="co">#&gt; y2 -0.6413751 -0.09674992 -0.18851401  0.54035998</span></span>
+<span><span class="co">#&gt; y3 -0.5370833 -0.18851401 -0.36290558 -0.04056382</span></span>
+<span><span class="co">#&gt; x1 -0.4096474  0.54035998 -0.04056382  0.00000000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $mean</span></span>
+<span><span class="co">#&gt;         y1         y2         y3         x1 </span></span>
+<span><span class="co">#&gt;  0.6960681 -0.4650172 -0.5509242  0.0000000</span></span></code></pre></div>
+</div>
+<p>Standardised estimates are scaled by the averaged variances. The Level 1 carrier row <code>x1 (s1)</code> then shows the standardised mean slope, and the Level 2 rows of <code>s1</code> are on the same standardised-slope scale: the intercept of <code>s1</code> is a standardised slope, and its residual variance is the share of the within-school variance of <code>fw</code> that the slope’s variation adds beyond what <code>w1</code> explains. Without a cross-level regression on the slope, its square root is the standard deviation of the standardised slopes across schools.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">std</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/standardisedsolution.html">standardisedsolution</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
+<span><span class="va">std</span><span class="op">[</span><span class="va">std</span><span class="op">$</span><span class="va">lhs</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fw"</span>, <span class="st">"s1"</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;    lhs op rhs est.std    se ci.lower ci.upper</span></span>
+<span><span class="co">#&gt; 1   fw =~  y1   0.710 0.019    0.673    0.747</span></span>
+<span><span class="co">#&gt; 2   fw =~  y2   0.602 0.019    0.566    0.638</span></span>
+<span><span class="co">#&gt; 3   fw =~  y3   0.592 0.019    0.553    0.628</span></span>
+<span><span class="co">#&gt; 4   fw  ~  x1   0.498 0.021    0.454    0.542</span></span>
+<span><span class="co">#&gt; 8   fw ~~  fw   0.746 0.022    0.699    0.790</span></span>
+<span><span class="co">#&gt; 14  fw ~1       0.000 0.000    0.000    0.000</span></span>
+<span><span class="co">#&gt; 19  s1  ~  w1   0.005 0.024   -0.045    0.051</span></span>
+<span><span class="co">#&gt; 25  s1 ~~  s1   0.005 0.006    0.000    0.020</span></span>
+<span><span class="co">#&gt; 32  s1 ~1       0.497 0.022    0.453    0.543</span></span></code></pre></div>
+</div>
+</section><section class="level3"><h3 id="what-is-not-available">What Is Not Available<a class="anchor" aria-label="anchor" href="#what-is-not-available"></a>
+</h3>
+<p>INLAvaan prefers an error that explains itself to a plausible wrong number. The posterior predictive p-value is dropped, as described above, and the following raise an error on a random-slope fit:</p>
+<ul>
+<li>residuals scaled by standard errors (<code>type = "normalized"</code> or <code>"standardized"</code>);</li>
+<li>
+<code>predict(type = "ymis")</code>;</li>
+<li>
+<code>loo(type = "loso")</code>.</li>
+</ul>
+<p>Everything else works. <code><a href="../reference/simulate.html">simulate()</a></code> draws replicate data sets in which every school keeps its own covariates and size, <code><a href="../reference/sampling.html">sampling()</a></code> gives latent, observed and implied draws, <code>predict(type = "yhat")</code> gives each student’s predicted outcomes from the school’s own random effects, and <code>fitted(type = "casewise")</code> gives the outcomes’ means given the covariates alone.</p>
+<p>A random-slope model with observed exogenous covariates also requires <code>fixed.x = TRUE</code> (lavaan’s default): the likelihood conditions on those covariates, so their means and (co)variances are unidentified and would simply be reported back as their priors. A model whose covariates are all latent or modelled has nothing to hold fixed, and lavaan reports <code>fixed.x = FALSE</code> for it of its own accord; such a fit is accepted as it stands.</p>
+</section><section class="level3"><h3 id="latent-and-split-covariates">Latent and Split Covariates<a class="anchor" aria-label="anchor" href="#latent-and-split-covariates"></a>
+</h3>
+<p>Everything above uses a covariate that is observed and purely within-cluster, for which the random slope integrates out in closed form. When the covariate is latent, or split across both levels (the same variable entering at Level 1 and at Level 2), the integral has to be done by Gauss-Hermite quadrature instead <span class="citation" data-cites="rockwood2020maximum">(<a href="#ref-rockwood2020maximum" role="doc-biblioref">Rockwood 2020</a>)</span>. INLAvaan takes that route automatically and warns when it does. The argument <code>integration.ngh</code> sets the number of nodes per dimension; because it is an accuracy setting as much as a cost setting, every fit that is to appear in the same <code><a href="../reference/compare.html">compare()</a></code> table must use the same value, which <code><a href="../reference/compare.html">compare()</a></code> also checks. A split covariate is conditioned on just as a purely within-cluster one is, so the plain fixed-slope model with the same covariates is the comparator to use; fixing the slope variance at zero is not possible on this route. The averaged moments, the standardised estimates and the <code><a href="../reference/sampling.html">sampling()</a></code> draws are available on this route too. The data generator of <code><a href="../reference/simulate.html">simulate()</a></code>, <code>per_cluster = TRUE</code>, the casewise and <code>yhat</code> values and the Bayesian fit indices are not, because each school’s outcomes are then a mixture over the quadrature nodes.</p>
+</section></section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-rights2019quantifying" class="csl-entry" role="listitem">
+Rights, Jason D., and Sonya K. Sterba. 2019. <span>“Quantifying Explained Variance in Multilevel Models: <span>An</span> Integrative Framework for Defining <span>R</span>-Squared Measures.”</span> <em>Psychological Methods</em> 24 (3): 309–38. <a href="https://doi.org/10.1037/met0000184" class="external-link">https://doi.org/10.1037/met0000184</a>.
+</div>
+<div id="ref-rockwood2020maximum" class="csl-entry" role="listitem">
+Rockwood, Nicholas J. 2020. <span>“Maximum <span>Likelihood Estimation</span> of <span>Multilevel Structural Equation Models</span> with <span>Random Slopes</span> for <span>Latent Covariates</span>.”</span> <em>Psychometrika</em> 85 (2): 275–300. <a href="https://doi.org/10.1007/s11336-020-09702-9" class="external-link">https://doi.org/10.1007/s11336-020-09702-9</a>.
+</div>
+</div>
+</section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);

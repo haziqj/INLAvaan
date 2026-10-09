@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -30,7 +36,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,13 +101,13 @@
 
 
 
-    <p>Mediation analysis <span class="citation" data-cites="yuan2009bayesian">(<a href="#ref-yuan2009bayesian" role="doc-biblioref">Yuan and MacKinnon 2009</a>)</span> allows researchers to investigate the mechanism by which an independent variable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>) influences a dependent variable (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>). Rather than just asking “Does X affect Y?”, mediation asks “Does X affect Y through an intermediate variable M?”</p>
+    <p>Mediation analysis <span class="citation" data-cites="yuan2009bayesian">(<a href="#ref-yuan2009bayesian" role="doc-biblioref">Yuan and MacKinnon 2009</a>)</span> allows researchers to investigate the mechanism by which an independent variable (<span class="math inline">\(X\)</span>) influences a dependent variable (<span class="math inline">\(Y\)</span>). Rather than just asking “Does X affect Y?”, mediation asks “Does X affect Y through an intermediate variable M?”</p>
 <p>Common examples include:</p>
 <ul>
 <li>
-<strong>Psychology:</strong> Does a therapy (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>) reduce anxiety (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>), which in turn improves sleep quality (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>)?</li>
+<strong>Psychology:</strong> Does a therapy (<span class="math inline">\(X\)</span>) reduce anxiety (<span class="math inline">\(M\)</span>), which in turn improves sleep quality (<span class="math inline">\(Y\)</span>)?</li>
 <li>
-<strong>Medicine:</strong> Does a new drug (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>) lower blood pressure (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>), thereby decreasing the risk of heart attack (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>)?</li>
+<strong>Medicine:</strong> Does a new drug (<span class="math inline">\(X\)</span>) lower blood pressure (<span class="math inline">\(M\)</span>), thereby decreasing the risk of heart attack (<span class="math inline">\(Y\)</span>)?</li>
 </ul>
 <p>In this vignette, we demonstrate how to estimate a simple mediation model using <a href="https://inlavaan.haziqj.ml/">INLAvaan</a>. We will fit a standard three-variable mediation model:</p>
 <div class="cell" data-layout-align="center">
@@ -122,27 +128,27 @@
 </div>
 <ul>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>: The effect of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>.</li>
+<span class="math inline">\(a\)</span>: The effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(M\)</span>.</li>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>: The effect of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</li>
+<span class="math inline">\(b\)</span>: The effect of <span class="math inline">\(M\)</span> on <span class="math inline">\(Y\)</span>.</li>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>: The direct effect of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</li>
+<span class="math inline">\(c\)</span>: The direct effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>.</li>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>×</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">a \times b</annotation></semantics></math>: The indirect effect (the mediation effect).</li>
+<span class="math inline">\(a \times b\)</span>: The indirect effect (the mediation effect).</li>
 </ul>
-<p>In a mediation model, the <em>Total Effect</em> represents the overall impact of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>, ignoring the specific pathway. It answers the question: “If I change <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>, how much does <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> change in <em>total</em>, regardless of whether it goes through <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> or not?”.</p>
+<p>In a mediation model, the <em>Total Effect</em> represents the overall impact of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>, ignoring the specific pathway. It answers the question: “If I change <span class="math inline">\(X\)</span>, how much does <span class="math inline">\(Y\)</span> change in <em>total</em>, regardless of whether it goes through <span class="math inline">\(M\)</span> or not?”.</p>
 <section class="level2"><h2 id="data-simulation">Data Simulation<a class="anchor" aria-label="anchor" href="#data-simulation"></a>
 </h2>
 <p>To verify that <a href="https://inlavaan.haziqj.ml/">INLAvaan</a> recovers the correct parameters, we simulate data where the “truth” is known. The logic is as follows: Generate…</p>
 <ol type="1">
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> normally;</li>
+<span class="math inline">\(X\)</span> normally;</li>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> dependent on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> with a coefficient of 0.5; and</li>
+<span class="math inline">\(M\)</span> dependent on <span class="math inline">\(X\)</span> with a coefficient of 0.5; and</li>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math> dependent only on <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> with a coefficient of 0.7.</li>
+<span class="math inline">\(Y\)</span> dependent only on <span class="math inline">\(M\)</span> with a coefficient of 0.7.</li>
 </ol>
-<p>Critically, we do not add <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> to the generation of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>. This means the true direct effect (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>) is 0, and the relationship is fully mediated. We expect our model to estimate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>≈</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">a \approx 0.5</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>≈</mo><mn>0.7</mn></mrow><annotation encoding="application/x-tex">b \approx 0.7</annotation></semantics></math>, and the indirect effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi><mo>≈</mo><mn>0.35</mn></mrow><annotation encoding="application/x-tex">ab \approx 0.35</annotation></semantics></math>. The direct effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math> should be close to zero.</p>
+<p>Critically, we do not add <span class="math inline">\(X\)</span> to the generation of <span class="math inline">\(Y\)</span>. This means the true direct effect (<span class="math inline">\(c\)</span>) is 0, and the relationship is fully mediated. We expect our model to estimate <span class="math inline">\(a \approx 0.5\)</span>, <span class="math inline">\(b \approx 0.7\)</span>, and the indirect effect <span class="math inline">\(ab \approx 0.35\)</span>. The direct effect <span class="math inline">\(c\)</span> should be close to zero.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
@@ -185,16 +191,16 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://inlavaan.haziqj.ml/">INLAvaan</a></span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [82ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [154ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.074σ. [258ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.074σ. [185ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/7 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 7/7 skew-normal marginals. [172ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 7/7 skew-normal marginals. [175ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [746ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [768ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
 </div>
@@ -205,7 +211,7 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.2.9003 ended normally after 5 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.2.9006 ended normally after 5 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -255,16 +261,16 @@
 <p>Looking at the Regressions and Defined Parameters sections of the output:</p>
 <ul>
 <li>Both intercepts are non-significant, since we simulated data with true means of zero.</li>
-<li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math> (<code>M ~ X</code>) estimated at 0.525 (true value 0.5).</li>
-<li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math> (<code>Y ~ M</code>) estimated at 0.771 (true value 0.7).</li>
-<li>Path <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math> (<code>Y ~ X</code>) estimated at -0.060. The 95% Credible Interval [-0.291, 0.171] includes zero, correctly identifying that there is no direct effect.</li>
-<li>Indirect Effect <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">ab</annotation></semantics></math> estimated at 0.406 (true value 0.35). The interval [0.227, 0.609] does not cross zero, indicating significant mediation.</li>
+<li>Path <span class="math inline">\(a\)</span> (<code>M ~ X</code>) estimated at 0.525 (true value 0.5).</li>
+<li>Path <span class="math inline">\(b\)</span> (<code>Y ~ M</code>) estimated at 0.771 (true value 0.7).</li>
+<li>Path <span class="math inline">\(c\)</span> (<code>Y ~ X</code>) estimated at -0.060. The 95% Credible Interval [-0.291, 0.171] includes zero, correctly identifying that there is no direct effect.</li>
+<li>Indirect Effect <span class="math inline">\(ab\)</span> estimated at 0.406 (true value 0.35). The interval [0.227, 0.609] does not cross zero, indicating significant mediation.</li>
 <li>Total Effect estimated at 0.349.
 <ul>
-<li>This is the sum of the direct and indirect effects (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>+</mo><mi>a</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">c + ab</annotation></semantics></math>).</li>
-<li>It tells us that a 1-unit increase in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> leads to a total increase of roughly 0.349 in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>.</li>
+<li>This is the sum of the direct and indirect effects (<span class="math inline">\(c + ab\)</span>).</li>
+<li>It tells us that a 1-unit increase in <span class="math inline">\(X\)</span> leads to a total increase of roughly 0.349 in <span class="math inline">\(Y\)</span>.</li>
 <li>
-<strong>Note:</strong> In this simulation, even though the <em>direct</em> effect is non-significant (close to zero), the <em>total</em> effect is significant because the mechanism via <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math> is strong. This illustrates a “full mediation” scenario: <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math> affects <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Y</mi><annotation encoding="application/x-tex">Y</annotation></semantics></math>, but <em>only</em> because of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>.</li>
+<strong>Note:</strong> In this simulation, even though the <em>direct</em> effect is non-significant (close to zero), the <em>total</em> effect is significant because the mechanism via <span class="math inline">\(M\)</span> is strong. This illustrates a “full mediation” scenario: <span class="math inline">\(X\)</span> affects <span class="math inline">\(Y\)</span>, but <em>only</em> because of <span class="math inline">\(M\)</span>.</li>
 </ul>
 </li>
 </ul></section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

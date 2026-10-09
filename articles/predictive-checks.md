@@ -12,11 +12,11 @@ before the data have any say.
 A predictive check compares the observed *dataset* against replicate
 datasets, so it calls for
 [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md): each
-replicate holds one parameter draw $`\boldsymbol\theta^{(s)}`$ fixed
-across its $`n`$ rows, which is what makes the observed data
+replicate holds one parameter draw \\\boldsymbol\theta^{(s)}\\ fixed
+across its \\n\\ rows, which is what makes the observed data
 exchangeable with the replicates. Its sibling
 [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
-refreshes $`\boldsymbol\theta`$ at every draw—the right tool for
+refreshes \\\boldsymbol\theta\\ at every draw—the right tool for
 distributions of *quantities* (parameters, model-implied moments) rather
 than data, and we use it that way in the last section. Both accept
 `prior = TRUE`; the [sampling
@@ -75,7 +75,7 @@ clearest misfit is `x3`: the observed density has a second bump on the
 right that no Gaussian replicate reproduces—a feature of the data the
 model cannot generate. This is what a PPC is for: it points at *where*
 the model fails, not just *whether* it fails. For a single-number
-summary of the same idea (the posterior predictive $`p`$-value), see the
+summary of the same idea (the posterior predictive \\p\\-value), see the
 [Bayesian fit indices
 article](https://inlavaan.haziqj.ml/articles/fit-indices.md).
 
@@ -133,12 +133,12 @@ Two things stand out, and **neither is a bug**:
   has no location—replicates are placed at zero by convention. Compare
   **shape, scale, and correlation only**, not location. (Posterior
   replicates do not have this issue: there the means have a proper
-  posterior $`N(\bar{\mathbf{y}}, \boldsymbol\Sigma/n)`$, and
+  posterior \\N(\bar{\mathbf{y}}, \boldsymbol\Sigma/n)\\, and
   [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) and
   [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) draw
   from it to put replicates on the data scale.)
 
-- **With a mean structure, replicates wander over roughly $`\pm 100`$.**
+- **With a mean structure, replicates wander over roughly \\\pm 100\\.**
   The default intercept prior is `normal(0,32)`—deliberately vague so it
   barely influences the posterior, but generatively very spread out. If
   a realistic prior predictive matters to you, tighten it, e.g.
@@ -148,7 +148,7 @@ Two things stand out, and **neither is a bug**:
 ## Checking the implied covariance with `sampling()`
 
 Sometimes the question is not “what does replicate *data* look like” but
-“what does the model-implied $`\boldsymbol\Sigma(\boldsymbol\theta)`$
+“what does the model-implied \\\boldsymbol\Sigma(\boldsymbol\theta)\\
 look like under the prior?”—a quantity, so this is a job for
 [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md). With
 `type = "implied"` each draw returns the implied moments directly. Here
@@ -189,7 +189,7 @@ Figure 3: Prior distribution of the model-implied correlation between x1
 and x2, under the default loading prior (teal) and a tighter one
 (orange).
 
-The vague default piles prior mass at $`\pm 1`$: a `normal(0,10)`
+The vague default piles prior mass at \\\pm 1\\: a `normal(0,10)`
 loading is usually huge, and a huge loading forces the indicators it
 connects into near-perfect correlation. The tighter prior concentrates
 mass around zero with a much thinner tail at the extremes. Neither is
@@ -208,4 +208,4 @@ means via `m$mean` when `meanstructure = TRUE`.
   with one, expect huge spread from the vague default intercept prior.
 - **Quantities, not data:** use
   `sampling(type = "implied", prior = TRUE)` to see what your priors say
-  about $`\boldsymbol\Sigma(\boldsymbol\theta)`$ itself.
+  about \\\boldsymbol\Sigma(\boldsymbol\theta)\\ itself.

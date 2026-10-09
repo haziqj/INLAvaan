@@ -9,10 +9,10 @@ posterior means – not as a posterior distribution over residuals.
 
 ``` r
 # S4 method for class 'INLAvaan'
-residuals(object, type = "raw", labels = TRUE, ...)
+residuals(object, type = "raw", labels = TRUE, ..., per_cluster = FALSE)
 
 # S4 method for class 'INLAvaan'
-resid(object, type = "raw", ...)
+resid(object, type = "raw", ..., per_cluster = FALSE)
 ```
 
 ## Arguments
@@ -42,6 +42,11 @@ resid(object, type = "raw", ...)
 
   Currently unused.
 
+- per_cluster:
+
+  Logical. For a random-slope model, return the residuals of each
+  cluster instead of the averaged ones. Default `FALSE`.
+
 ## Value
 
 For moment-based `type`s, a list with elements `type`, `cov`, and (when
@@ -56,6 +61,16 @@ means as the point estimates of the fitted object, the residuals are the
 observed statistics minus the posterior-mean model-implied statistics
 (mirroring blavaan, which likewise inherits lavaan's `residuals()`
 without overriding it).
+
+For a model with random slopes (lavaan's `rv()`), the residuals compare
+the sample moments with the averaged moments of
+[`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md). With
+`per_cluster = TRUE`, they compare each cluster's sample mean and
+within-cluster covariance with its expected ones. A covariance of two
+variables observed together in fewer than two rows of a cluster is `NA`.
+The raw and correlation types are available, and `type = "casewise"`
+gives the observed values minus the outcomes' means given the covariates
+(closed-form route only).
 
 ## See also
 

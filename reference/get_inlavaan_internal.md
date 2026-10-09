@@ -60,8 +60,9 @@ names(int)
 #> [13] "theta_star_novbc" "theta_star"       "Sigma_theta"      "R_star"          
 #> [17] "vcov_x"           "theta_star_trans" "approx_data"      "nsamp"           
 #> [21] "pdf_data"         "def_undefined"    "partable"         "lavmodel"        
-#> [25] "lavsamplestats"   "lavdata"          "opt"              "timing"          
-#> [29] "visual_debug"     "vb"               "call"             "version"         
+#> [25] "lavsamplestats"   "lavdata"          "lavcache"         "opt"             
+#> [29] "timing"           "visual_debug"     "vb"               "call"            
+#> [33] "version"         
 
 # Extract a specific element
 get_inlavaan_internal(fit, "coefficients")

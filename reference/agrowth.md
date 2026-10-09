@@ -30,6 +30,8 @@ agrowth(
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 )
 ```
@@ -73,10 +75,11 @@ agrowth(
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
   data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. The PPP is skipped
-  the same way for a two-level model in which a variable at both levels
-  has almost no between-level variance. The fit records what was
-  requested and what was computed
+  with a warning and the rest of the fit proceeds. For a two-level model
+  the PPP follows blavaan: each of `ppp_nsamp` posterior draws generates
+  replicate data, which are scored against the saturated model (see
+  `ppp_method`). The two-level PPP is experimental. The fit records what
+  was requested and what was computed
   (`get_inlavaan_internal(fit, "test")`);
   [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md),
   [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md),
@@ -88,7 +91,11 @@ agrowth(
   LOO and WAIC post hoc;
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
   [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) compute on
-  demand.
+  demand. For a random-slope model `"ppp"` is dropped, with a warning
+  when it was asked for and a message otherwise (see the Random slopes
+  section of
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)).
+  `"dic"`, `"loo"` and `"waic"` are unaffected.
 
 - vb_correction:
 
@@ -246,6 +253,24 @@ agrowth(
   where that is safe, or over a PSOCK cluster (separate R processes)
   inside IDE R sessions (RStudio, Positron) and on Windows.
 
+- ppp_method:
+
+  How the PPP of a two-level model scores the observed and the replicate
+  data against the saturated model. `"onestep"` (default) takes one
+  Fisher-scoring step from the moments of each posterior draw towards
+  the saturated fit, and fits by EM where the step would leave the valid
+  covariance matrices (with few clusters or a small between variance).
+  `"em"` always fits the saturated model by EM, as blavaan does. Fits
+  with `missing = "ml"` always use `"em"`. Ignored for single-level
+  models.
+
+- ppp_nsamp:
+
+  The number of posterior draws, each with one replicate data set, that
+  the PPP of a two-level model uses. Defaults to `250`, and is capped at
+  `nsamp`. Draws that cannot be scored are left out, with a warning.
+  Ignored for single-level models.
+
 - ...:
 
   Additional arguments to be passed to the
@@ -329,21 +354,21 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [324ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [313ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [351ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [326ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 3/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.5s]
+#> ✔ Fit 17/17 skew-normal marginals. [1.2s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [175ms]
+#> ✔ Summarise 100 posterior draws. [200ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9003 ended normally after 83 iterations
+#> INLAvaan 0.3.2.9006 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

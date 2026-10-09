@@ -41,23 +41,23 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [295ms]
+#> ✔ Posterior mode and Hessian. [430ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [937ms]
+#> ✔ VB correction; mean |δ| = 0.190σ. [812ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
 #> ⠹ Fitting 14/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.4s]
+#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.2.9003 ended normally after 71 iterations
+#> INLAvaan 0.3.2.9006 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -93,23 +93,24 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [593ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [601ms]
 #> 
 #> ℹ Performing VB correction.
 #> ✔ VB correction; mean |δ| = 0.164σ. [1.4s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 9/42 skew-normal marginals.
-#> ⠸ Fitting 28/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [6.7s]
+#> ⠹ Fitting 8/42 skew-normal marginals.
+#> ⠸ Fitting 26/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [6.8s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.8s]
+#> ✔ Summarise 1000 posterior draws. [1.7s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)
-#> INLAvaan 0.3.2.9003 ended normally after 91 iterations
+#> INLAvaan 0.3.2.9006 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -157,9 +158,9 @@ abline(0, 1)
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
 [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) work directly
 on a FIML fit. Each unit is scored on the entries it actually has – the
-observed-data predictive $`\log p(y_{i,\text{obs}} \mid D_{-i})`$, with
-the full row deleted from the conditioning set – so a case with more
-missing entries contributes a smaller log-likelihood term *and* a
+observed-data predictive \\\log p(y\_{i,\text{obs}} \mid D\_{-i})\\,
+with the full row deleted from the conditioning set – so a case with
+more missing entries contributes a smaller log-likelihood term *and* a
 smaller score, self-weighting in the expected log predictive density.
 The missing-at-random assumption that justifies FIML estimation also
 justifies this predictive score.

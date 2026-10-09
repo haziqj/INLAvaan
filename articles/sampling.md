@@ -9,19 +9,16 @@ parameter values. The
 function does exactly this: it propagates parameter draws through the
 full generative chain
 
-``` math
-\underbrace{\boldsymbol\theta}_{\text{parameters}}
-\;\longrightarrow\;
-\underbrace{\boldsymbol\eta}_{\text{latent variables}}
-\;\longrightarrow\;
-\underbrace{\mathbf{y}^*}_{\text{observed variables}}
-```
+\\ \underbrace{\boldsymbol\theta}\_{\text{parameters}}
+\\\longrightarrow\\ \underbrace{\boldsymbol\eta}\_{\text{latent
+variables}} \\\longrightarrow\\
+\underbrace{\mathbf{y}^\*}\_{\text{observed variables}} \\
 
 producing samples that are **not tied to any individual observation**.
 This is distinct from
 [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md), which
-returns individual-specific factor scores
-$`\boldsymbol\eta \mid \mathbf{y}, \boldsymbol\theta`$.
+returns individual-specific factor scores \\\boldsymbol\eta \mid
+\mathbf{y}, \boldsymbol\theta\\.
 
 Typical use cases include **posterior predictive checks** (PPCs) and
 **prior predictive checks**; the [predictive checks
@@ -35,15 +32,15 @@ difference is *what varies between draws*:
 
 |  | One draw is | Returns | Use for |
 |----|----|----|----|
-| [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) | one $`\boldsymbol\theta^{(s)}`$ → **one observation** $`\mathbf{y}^{*(s)}`$ | a matrix (or list) | distributions of *quantities*: parameters, implied moments |
-| [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) | one $`\boldsymbol\theta^{(s)}`$ → a **whole dataset** of $`n`$ rows | a list of data frames | *replicate datasets*: PPC overlays, test statistics, SBC |
+| [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) | one \\\boldsymbol\theta^{(s)}\\ → **one observation** \\\mathbf{y}^{\*(s)}\\ | a matrix (or list) | distributions of *quantities*: parameters, implied moments |
+| [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) | one \\\boldsymbol\theta^{(s)}\\ → a **whole dataset** of \\n\\ rows | a list of data frames | *replicate datasets*: PPC overlays, test statistics, SBC |
 
 [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
-refreshes $`\boldsymbol\theta`$ at every draw, pooling parameter
+refreshes \\\boldsymbol\theta\\ at every draw, pooling parameter
 uncertainty and sampling variability into a single marginal predictive
 distribution.
 [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) holds
-each $`\boldsymbol\theta^{(s)}`$ fixed for a whole dataset, so variation
+each \\\boldsymbol\theta^{(s)}\\ fixed for a whole dataset, so variation
 *across* replicates reflects parameter uncertainty while variation
 *within* a replicate reflects sampling variability—which is what makes
 replicates exchangeable with the observed data, and hence the right tool
@@ -53,37 +50,23 @@ accept `prior = TRUE`. The rest of this article covers
 
 ## The generative model
 
-Let $`\boldsymbol\theta^{(s)}`$ ($`s = 1, \dots, S`$) denote one
-parameter draw. From this draw the SEM matrices $`\boldsymbol\Lambda`$,
-$`\boldsymbol\Psi`$, $`\mathbf{B}`$, $`\boldsymbol\alpha`$,
-$`\boldsymbol\nu`$, and $`\boldsymbol\Theta`$ are constructed. The
+Let \\\boldsymbol\theta^{(s)}\\ (\\s = 1, \dots, S\\) denote one
+parameter draw. From this draw the SEM matrices \\\boldsymbol\Lambda\\,
+\\\boldsymbol\Psi\\, \\\mathbf{B}\\, \\\boldsymbol\alpha\\,
+\\\boldsymbol\nu\\, and \\\boldsymbol\Theta\\ are constructed. The
 generative chain is:
 
-**1. Latent variables.**
-``` math
-\boldsymbol\eta^{(s)}
-\sim
-\mathcal{N}\!\bigl(
-  (\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\alpha,\;
-  \boldsymbol\Phi
-\bigr),
-\qquad
-\boldsymbol\Phi
-= (\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\Psi\,
-  [(\mathbf{I} - \mathbf{B})^{-1}]'.
-```
+**1. Latent variables.** \\ \boldsymbol\eta^{(s)} \sim
+\mathcal{N}\\\bigl( (\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\alpha,\\
+\boldsymbol\Phi \bigr), \qquad \boldsymbol\Phi = (\mathbf{I} -
+\mathbf{B})^{-1}\boldsymbol\Psi\\ \[(\mathbf{I} - \mathbf{B})^{-1}\]'.
+\\
 
-**2. Observed variables.**
-``` math
-\mathbf{y}^{*(s)}
-\sim
-\mathcal{N}\!\bigl(
-  \boldsymbol\Lambda\,\boldsymbol\eta^{(s)} + \boldsymbol\nu,\;
-  \boldsymbol\Theta
-\bigr).
-```
+**2. Observed variables.** \\ \mathbf{y}^{\*(s)} \sim
+\mathcal{N}\\\bigl( \boldsymbol\Lambda\\\boldsymbol\eta^{(s)} +
+\boldsymbol\nu,\\ \boldsymbol\Theta \bigr). \\
 
-When `prior = FALSE` (default), $`\boldsymbol\theta^{(s)}`$ comes from
+When `prior = FALSE` (default), \\\boldsymbol\theta^{(s)}\\ comes from
 the posterior; when `prior = TRUE`, each parameter is drawn
 independently from its prior.
 
@@ -102,7 +85,7 @@ fit <- acfa(mod, dat, verbose = FALSE)
 
 ### Parameter samples
 
-The default type `"lavaan"` returns an $`S \times p`$ matrix of
+The default type `"lavaan"` returns an \\S \times p\\ matrix of
 lavaan-side (constrained) parameter draws:
 
 ``` r

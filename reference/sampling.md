@@ -136,6 +136,15 @@ This is distinct from
 computes individual-specific factor scores \\\boldsymbol\eta \mid
 \mathbf{y},\boldsymbol\theta\\ conditional on observed data.
 
+For a random-slope model, each draw takes the level-2 variables, slopes
+included, first and puts the drawn slopes into their level-1 paths, and
+`type = "implied"` gives the moments averaged over the covariates (see
+[`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md)). As for
+other models, the covariates of a latent or observed draw come from
+their fitted moments, whereas
+[`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) keeps
+the observed covariates of a random-slope model.
+
 ## See also
 
 [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) for
@@ -154,26 +163,26 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ✔ Posterior mode and Hessian. [53ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [270ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [272ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [122ms]
+#> ✔ Fit 6/6 skew-normal marginals. [148ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [500ms]
+#> ✔ Summarise 1000 posterior draws. [518ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
 # Posterior samples of lavaan-side parameters
 samps <- sampling(fit, nsamp = 500)
 head(samps)
-#>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  0.7477399  0.8877891 0.7998267 1.0448873 0.6585890      0.6717765
-#> [2,]  0.7021235  0.9840182 0.9117030 0.8236839 0.6799073      0.6488450
-#> [3,]  0.8859716  0.9864082 0.7467865 1.0081880 0.7717786      0.4905924
-#> [4,]  0.5868180  0.7294134 0.6228251 1.1087883 0.8004732      1.0150505
-#> [5,]  0.6556735  0.8717570 0.7179963 0.9392806 0.6986852      0.5676588
-#> [6,]  1.1547926  1.7145797 1.1559026 1.2681746 0.3197285      0.3187415
+#>      visual=~x2 visual=~x3    x1~~x1   x2~~x2    x3~~x3 visual~~visual
+#> [1,]  1.1926685  1.6569140 1.1595538 1.073682 0.4866329      0.2607632
+#> [2,]  0.7666483  1.5703139 0.9254137 1.233297 0.4807911      0.3599290
+#> [3,]  0.7406369  0.9541111 0.7554769 1.109193 0.8180625      0.5322786
+#> [4,]  0.8425679  1.6685363 1.0732579 1.175925 0.3132956      0.4212003
+#> [5,]  0.8181815  1.1650122 0.8351979 1.111821 0.6378685      0.4649971
+#> [6,]  0.7772747  1.0808871 0.6825584 1.169309 0.5949492      0.5787656
 
 # Compare copula vs Gaussian sampling
 s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)

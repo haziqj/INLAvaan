@@ -6,14 +6,12 @@ How well would my model predict *new* data? Leave-one-out (LOO)
 cross-validation answers this by holding out one unit at a time,
 refitting the model to the remaining data, and scoring the held-out unit
 under the refitted posterior. The total score is the expected log
-predictive density,
-``` math
-  \mathrm{elpd}_{\mathrm{loo}} = \sum_{u=1}^n \log p(y_u \mid y_{-u}),
-```
-which rewards models that predict well and automatically penalises
-overfitting, making it a natural criterion for comparing models.
+predictive density, \\ \mathrm{elpd}\_{\mathrm{loo}} = \sum\_{u=1}^n
+\log p(y_u \mid y\_{-u}), \\ which rewards models that predict well and
+automatically penalises overfitting, making it a natural criterion for
+comparing models.
 
-Computed naively, LOO needs $`n`$ refits. MCMC-based packages such as
+Computed naively, LOO needs \\n\\ refits. MCMC-based packages such as
 [blavaan](https://blavaan.org) avoid this by importance-sampling over
 posterior draws ([Vehtari et al. 2017](#ref-vehtari2017practical)), but
 this still requires the full set of MCMC draws. INLAvaan instead
@@ -34,35 +32,29 @@ Two unit types are scored, resolved automatically from the model:
 ## Technical details in brief
 
 [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) computes
-everything from the fit’s Laplace summary
-$`\mathcal{N}(\theta^*, \Omega)`$. An exact identity turns each held-out
-predictive density into an expectation under the *full-data* posterior,
-evaluated in closed form by Taylor-expanding the unit’s log-likelihood
-$`\ell_u(\theta) = \log p(y_u \mid \theta)`$ about $`\theta^*`$. With
-$`s_u`$ and $`H_u`$ the gradient and Hessian of $`\ell_u`$ there, the
-two orders are
-``` math
-\begin{aligned}
-  \log \mathrm{CPO}_u^{(1)} &= \ell_u - \tfrac12 s_u^\top \Omega\, s_u, \\
-  \log \mathrm{CPO}_u^{(2)} &= \ell_u
-    - \tfrac12 s_u^\top (\Omega^{-1} + H_u)^{-1} s_u
-    + \tfrac12 \log \lvert I + \Omega H_u \rvert ,
-\end{aligned}
-```
-the second order additionally handing back the information the unit
-itself lent to the posterior. The headline `elpd_loo` is the sum of the
-second-order terms, with standard error
-$`\sqrt{n \, \widehat{\mathrm{var}}(\log \mathrm{CPO}_u)}`$; `looic`
-$`= -2\,\mathrm{elpd}_{\mathrm{loo}}`$, and `p_loo` (the **loo**
+everything from the fit’s Laplace summary \\\mathcal{N}(\theta^\*,
+\Omega)\\. An exact identity turns each held-out predictive density into
+an expectation under the *full-data* posterior, evaluated in closed form
+by Taylor-expanding the unit’s log-likelihood \\\ell_u(\theta) = \log
+p(y_u \mid \theta)\\ about \\\theta^\*\\. With \\s_u\\ and \\H_u\\ the
+gradient and Hessian of \\\ell_u\\ there, the two orders are \\
+\begin{aligned} \log \mathrm{CPO}\_u^{(1)} &= \ell_u - \tfrac12 s_u^\top
+\Omega\\ s_u, \\ \log \mathrm{CPO}\_u^{(2)} &= \ell_u - \tfrac12
+s_u^\top (\Omega^{-1} + H_u)^{-1} s_u + \tfrac12 \log \lvert I + \Omega
+H_u \rvert , \end{aligned} \\ the second order additionally handing back
+the information the unit itself lent to the posterior. The headline
+`elpd_loo` is the sum of the second-order terms, with standard error
+\\\sqrt{n \\ \widehat{\mathrm{var}}(\log \mathrm{CPO}\_u)}\\; `looic`
+\\= -2\\\mathrm{elpd}\_{\mathrm{loo}}\\, and `p_loo` (the **loo**
 package’s effective number of parameters, matching
 [`loo::loo()`](https://mc-stan.org/loo/reference/loo.html)) comes from
 the analogous expansion of the pointwise predictive density.
 
 Two checks, both free with the result, tell you whether to trust the
 expansion. The first is an existence condition and is enforced
-automatically: $`\log \mathrm{CPO}_u^{(2)}`$ exists exactly when
-$`\Omega^{-1} + H_u \succ 0`$, equivalently when the unit’s *leverage*
-`k_max` (the largest eigenvalue of $`-\Omega H_u`$, reported in
+automatically: \\\log \mathrm{CPO}\_u^{(2)}\\ exists exactly when
+\\\Omega^{-1} + H_u \succ 0\\, equivalently when the unit’s *leverage*
+`k_max` (the largest eigenvalue of \\-\Omega H_u\\, reported in
 `per_unit`) stays below 1. A unit at or above 1 carries as much
 curvature as the whole posterior in some direction, so its true LOO term
 genuinely is extreme. In such cases, the whole result then reverts to
@@ -70,9 +62,9 @@ first order, with a warning naming the units to inspect.
 
 The second is a gap check, printed with every second-order result. The
 first- and second-order totals of a settled expansion differ by
-$`p_D/2`$, approached *from above*, so the printout reports the gap, the
-reference $`p_D/2`$ (`pd_trace`, the trace form
-$`\operatorname{tr}(-\Omega \sum_u H_u)`$), and the excess of one over
+\\p_D/2\\, approached *from above*, so the printout reports the gap, the
+reference \\p_D/2\\ (`pd_trace`, the trace form
+\\\operatorname{tr}(-\Omega \sum_u H_u)\\), and the excess of one over
 the other. A large positive excess says the expansion has not settled
 over the sample. No threshold is applied, and the reading is left to the
 user, but in our validation the gap was always within a few elpd units
@@ -155,8 +147,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3870.099    0.000 7534.856 29.501 -3769.163 42.996 32.597
-#>  fit1f   27   -3976.901 -106.802 7757.150 26.935 -3878.041 46.738 27.377
+#>    fit   30   -3870.099    0.000 7534.041 29.094 -3769.163 42.996 32.597
+#>  fit1f   27   -3976.901 -106.802 7755.782 26.251 -3878.041 46.738 27.377
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -108.878  17.009
@@ -290,7 +282,7 @@ fitmeasures(fit, c("elpd_loo", "se_loo", "p_loo", "looic"))
 ## Scoring submodels without refitting
 
 The `theta` and `Omega` arguments evaluate the LOO at an *arbitrary*
-Gaussian posterior summary $`(\theta^*, \Omega)`$ instead of the fit’s
+Gaussian posterior summary \\(\theta^\*, \Omega)\\ instead of the fit’s
 own. Combined with Gaussian conditioning, this scores a constrained
 submodel from the encompassing fit alone. For example, to score the
 submodel with the `visual ~~ speed` covariance fixed to zero, condition
@@ -338,7 +330,7 @@ the search logic is yours to design.
 ## Practical considerations
 
 - **Compare models at second order only** (the default). The first-order
-  score overstates the elpd by $`p_D/2`$, which grows with model
+  score overstates the elpd by \\p_D/2\\, which grows with model
   dimension; in our validation the second-order score tracks brute-force
   refits to within about one elpd unit, while first order can be off by
   tens. [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md)

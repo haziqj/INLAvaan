@@ -2,16 +2,16 @@
 
 Mediation analysis ([Yuan and MacKinnon 2009](#ref-yuan2009bayesian))
 allows researchers to investigate the mechanism by which an independent
-variable ($`X`$) influences a dependent variable ($`Y`$). Rather than
+variable (\\X\\) influences a dependent variable (\\Y\\). Rather than
 just asking “Does X affect Y?”, mediation asks “Does X affect Y through
 an intermediate variable M?”
 
 Common examples include:
 
-- **Psychology:** Does a therapy ($`X`$) reduce anxiety ($`M`$), which
-  in turn improves sleep quality ($`Y`$)?
-- **Medicine:** Does a new drug ($`X`$) lower blood pressure ($`M`$),
-  thereby decreasing the risk of heart attack ($`Y`$)?
+- **Psychology:** Does a therapy (\\X\\) reduce anxiety (\\M\\), which
+  in turn improves sleep quality (\\Y\\)?
+- **Medicine:** Does a new drug (\\X\\) lower blood pressure (\\M\\),
+  thereby decreasing the risk of heart attack (\\Y\\)?
 
 In this vignette, we demonstrate how to estimate a simple mediation
 model using [INLAvaan](https://inlavaan.haziqj.ml/). We will fit a
@@ -24,15 +24,15 @@ graph LR
     X -->|c| Y
 ```
 
-- $`a`$: The effect of $`X`$ on $`M`$.
-- $`b`$: The effect of $`M`$ on $`Y`$.
-- $`c`$: The direct effect of $`X`$ on $`Y`$.
-- $`a \times b`$: The indirect effect (the mediation effect).
+- \\a\\: The effect of \\X\\ on \\M\\.
+- \\b\\: The effect of \\M\\ on \\Y\\.
+- \\c\\: The direct effect of \\X\\ on \\Y\\.
+- \\a \times b\\: The indirect effect (the mediation effect).
 
 In a mediation model, the *Total Effect* represents the overall impact
-of $`X`$ on $`Y`$, ignoring the specific pathway. It answers the
-question: “If I change $`X`$, how much does $`Y`$ change in *total*,
-regardless of whether it goes through $`M`$ or not?”.
+of \\X\\ on \\Y\\, ignoring the specific pathway. It answers the
+question: “If I change \\X\\, how much does \\Y\\ change in *total*,
+regardless of whether it goes through \\M\\ or not?”.
 
 ## Data Simulation
 
@@ -40,15 +40,15 @@ To verify that [INLAvaan](https://inlavaan.haziqj.ml/) recovers the
 correct parameters, we simulate data where the “truth” is known. The
 logic is as follows: Generate…
 
-1.  $`X`$ normally;
-2.  $`M`$ dependent on $`X`$ with a coefficient of 0.5; and
-3.  $`Y`$ dependent only on $`M`$ with a coefficient of 0.7.
+1.  \\X\\ normally;
+2.  \\M\\ dependent on \\X\\ with a coefficient of 0.5; and
+3.  \\Y\\ dependent only on \\M\\ with a coefficient of 0.7.
 
-Critically, we do not add $`X`$ to the generation of $`Y`$. This means
-the true direct effect ($`c`$) is 0, and the relationship is fully
-mediated. We expect our model to estimate $`a \approx 0.5`$,
-$`b \approx 0.7`$, and the indirect effect $`ab \approx 0.35`$. The
-direct effect $`c`$ should be close to zero.
+Critically, we do not add \\X\\ to the generation of \\Y\\. This means
+the true direct effect (\\c\\) is 0, and the relationship is fully
+mediated. We expect our model to estimate \\a \approx 0.5\\, \\b \approx
+0.7\\, and the indirect effect \\ab \approx 0.35\\. The direct effect
+\\c\\ should be close to zero.
 
 ``` r
 
@@ -101,16 +101,16 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [82ms]
+#> ✔ Posterior mode and Hessian. [154ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.074σ. [258ms]
+#> ✔ VB correction; mean |δ| = 0.074σ. [185ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [172ms]
+#> ✔ Fit 7/7 skew-normal marginals. [175ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [746ms]
+#> ✔ Summarise 1000 posterior draws. [768ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -128,7 +128,7 @@ The summary output provides the posterior mean, standard deviation, and
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.2.9003 ended normally after 5 iterations
+#> INLAvaan 0.3.2.9006 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -181,23 +181,23 @@ output:
 
 - Both intercepts are non-significant, since we simulated data with true
   means of zero.
-- Path $`a`$ (`M ~ X`) estimated at 0.525 (true value 0.5).
-- Path $`b`$ (`Y ~ M`) estimated at 0.771 (true value 0.7).
-- Path $`c`$ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
+- Path \\a\\ (`M ~ X`) estimated at 0.525 (true value 0.5).
+- Path \\b\\ (`Y ~ M`) estimated at 0.771 (true value 0.7).
+- Path \\c\\ (`Y ~ X`) estimated at -0.060. The 95% Credible Interval
   \[-0.291, 0.171\] includes zero, correctly identifying that there is
   no direct effect.
-- Indirect Effect $`ab`$ estimated at 0.406 (true value 0.35). The
+- Indirect Effect \\ab\\ estimated at 0.406 (true value 0.35). The
   interval \[0.227, 0.609\] does not cross zero, indicating significant
   mediation.
 - Total Effect estimated at 0.349.
-  - This is the sum of the direct and indirect effects ($`c + ab`$).
-  - It tells us that a 1-unit increase in $`X`$ leads to a total
-    increase of roughly 0.349 in $`Y`$.
+  - This is the sum of the direct and indirect effects (\\c + ab\\).
+  - It tells us that a 1-unit increase in \\X\\ leads to a total
+    increase of roughly 0.349 in \\Y\\.
   - **Note:** In this simulation, even though the *direct* effect is
     non-significant (close to zero), the *total* effect is significant
-    because the mechanism via $`M`$ is strong. This illustrates a “full
-    mediation” scenario: $`X`$ affects $`Y`$, but *only* because of
-    $`M`$.
+    because the mechanism via \\M\\ is strong. This illustrates a “full
+    mediation” scenario: \\X\\ affects \\Y\\, but *only* because of
+    \\M\\.
 
 ## References
 

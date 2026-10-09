@@ -27,21 +27,21 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [430ms]
+#> ✔ Posterior mode and Hessian. [449ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.163σ. [453ms]
+#> ✔ VB correction; mean |δ| = 0.163σ. [461ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
 #> ⠹ Fitting 18/28 skew-normal marginals.
 #> ✔ Fit 28/28 skew-normal marginals. [2.4s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [934ms]
+#> ✔ Summarise 1000 posterior draws. [963ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9003 ended normally after 82 iterations
+#> INLAvaan 0.3.2.9006 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -52,12 +52,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -1638.467 
-#>    PPP (Chi-square)                              0.535 
+#>    PPP (Chi-square)                              0.520 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             3170.440 
-#>    Effective parameters (pD)                    27.497 
+#>    Deviance (DIC)                             3170.300 
+#>    Effective parameters (pD)                    27.427 
 #> 
 #> Parameter Estimates:
 #> 
@@ -92,16 +92,16 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .y1 ~~                                                                        
-#>    .y5                0.653    0.395   -0.055    1.498    0.003       beta(1,1)
+#>    .y5                0.645    0.407   -0.063    1.531    0.003       beta(1,1)
 #>  .y2 ~~                                                                        
-#>    .y4                1.445    0.705    0.165    2.935    0.007       beta(1,1)
-#>    .y6                2.249    0.754    0.900    3.858    0.012       beta(1,1)
+#>    .y4                1.470    0.744    0.190    3.102    0.007       beta(1,1)
+#>    .y6                2.234    0.787    0.870    3.954    0.012       beta(1,1)
 #>  .y3 ~~                                                                        
-#>    .y7                0.814    0.635   -0.393    2.103    0.006       beta(1,1)
+#>    .y7                0.845    0.626   -0.329    2.129    0.006       beta(1,1)
 #>  .y4 ~~                                                                        
-#>    .y8                0.405    0.478   -0.464    1.416    0.004       beta(1,1)
+#>    .y8                0.390    0.481   -0.470    1.417    0.004       beta(1,1)
 #>  .y6 ~~                                                                        
-#>    .y8                1.369    0.639    0.244    2.749    0.005       beta(1,1)
+#>    .y8                1.333    0.583    0.284    2.573    0.005       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

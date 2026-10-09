@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -29,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,9 +141,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;      fit_scalar   48   -3889.782   0.000 7508.662 47.665</span></span>
-<span><span class="co">#&gt;      fit_metric   54   -3907.506 -17.725 7479.381 53.019</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3926.952 -37.170 7481.634 57.831</span></span></code></pre></div>
+<span><span class="co">#&gt;      fit_scalar   48   -3889.782   0.000 7508.973 47.821</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3907.506 -17.725 7480.906 53.781</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3926.952 -37.170 7483.208 58.617</span></span></code></pre></div>
 </div>
 <p>These are within-flavour comparisons (all three fits model the means with proper priors), so the Bayes factors are meaningful here. But marginal likelihoods answer a prior-sensitive question – “which model gave these data the highest prior predictive density?” – and for invariance testing we usually want the predictive one: <em>which rung of the ladder predicts new children best?</em></p>
 <p><code>compare(..., loo = TRUE)</code> answers that with leave-one-out cross-validation computed from each single fit – no refitting, no sampling (see the <a href="loo.html">LOO article</a> for the machinery). Groups are independent, so every child is scored against their own school’s implied moments, and the expected log predictive density (ELPD) sums over both schools. Differences come with <em>paired</em> standard errors, since the same children are scored under every model:</p>
@@ -149,9 +155,9 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
-<span><span class="co">#&gt;      fit_metric   54   -3907.506 -17.725 7479.381 53.019 -3743.342 44.489</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3926.952 -37.170 7481.634 57.831 -3746.122 44.544</span></span>
-<span><span class="co">#&gt;      fit_scalar   48   -3889.782   0.000 7508.662 47.665 -3757.531 43.779</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3907.506 -17.725 7480.906 53.781 -3743.342 44.489</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3926.952 -37.170 7483.208 58.617 -3746.122 44.544</span></span>
+<span><span class="co">#&gt;      fit_scalar   48   -3889.782   0.000 7508.973 47.821 -3757.531 43.779</span></span>
 <span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;  57.802     0.000   0.000</span></span>
 <span><span class="co">#&gt;  68.479    -2.780   3.512</span></span>
@@ -171,8 +177,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3926.952 -56.853 7481.634 57.831 -3746.122 44.544</span></span>
-<span><span class="co">#&gt;      fit_pooled   30   -3870.099   0.000 7534.236 29.192 -3769.163 42.996</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3926.952 -56.853 7483.208 58.617 -3746.122 44.544</span></span>
+<span><span class="co">#&gt;      fit_pooled   30   -3870.099   0.000 7534.998 29.572 -3769.163 42.996</span></span>
 <span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;  68.479     0.000   0.000</span></span>
 <span><span class="co">#&gt;  32.597   -23.041  11.558</span></span></code></pre></div>

@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -29,7 +35,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,14 +103,14 @@
     <section class="level2"><h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
 </h2>
 <p>After fitting a Bayesian SEM with INLAvaan, we often want to <strong>draw samples from the model</strong> itself—either using posterior or prior parameter values. The <code><a href="../reference/sampling.html">sampling()</a></code> function does exactly this: it propagates parameter draws through the full generative chain</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><munder><mi mathvariant="bold-italic">𝜽</mi><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">parameters</mtext></munder><mspace width="0.278em"></mspace><mo>→</mo><mspace width="0.278em"></mspace><munder><munder><mi mathvariant="bold-italic">𝜼</mi><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">latent variables</mtext></munder><mspace width="0.278em"></mspace><mo>→</mo><mspace width="0.278em"></mspace><munder><munder><msup><mi mathvariant="bold-italic">𝒚</mi><mo>*</mo></msup><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">observed variables</mtext></munder></mrow><annotation encoding="application/x-tex">
+<p><span class="math display">\[
 \underbrace{\boldsymbol\theta}_{\text{parameters}}
 \;\longrightarrow\;
 \underbrace{\boldsymbol\eta}_{\text{latent variables}}
 \;\longrightarrow\;
 \underbrace{\mathbf{y}^*}_{\text{observed variables}}
-</annotation></semantics></math></p>
-<p>producing samples that are <strong>not tied to any individual observation</strong>. This is distinct from <code><a href="../reference/predict.html">predict()</a></code>, which returns individual-specific factor scores <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝜼</mi><mo>∣</mo><mi mathvariant="bold-italic">𝒚</mi><mo>,</mo><mi mathvariant="bold-italic">𝜽</mi></mrow><annotation encoding="application/x-tex">\boldsymbol\eta \mid \mathbf{y}, \boldsymbol\theta</annotation></semantics></math>.</p>
+\]</span></p>
+<p>producing samples that are <strong>not tied to any individual observation</strong>. This is distinct from <code><a href="../reference/predict.html">predict()</a></code>, which returns individual-specific factor scores <span class="math inline">\(\boldsymbol\eta \mid \mathbf{y}, \boldsymbol\theta\)</span>.</p>
 <p>Typical use cases include <strong>posterior predictive checks</strong> (PPCs) and <strong>prior predictive checks</strong>; the <a href="predictive-checks.html">predictive checks article</a> walks through that workflow.</p>
 </section><section class="level2"><h2 id="sampling-versus-simulate">
 <code>sampling()</code> versus <code>simulate()</code>
@@ -127,25 +133,25 @@
 <tbody>
 <tr class="odd">
 <td><code><a href="../reference/sampling.html">sampling()</a></code></td>
-<td>one <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> → <strong>one observation</strong> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="bold-italic">𝒚</mi><mrow><mi>*</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\mathbf{y}^{*(s)}</annotation></semantics></math>
+<td>one <span class="math inline">\(\boldsymbol\theta^{(s)}\)</span> → <strong>one observation</strong> <span class="math inline">\(\mathbf{y}^{*(s)}\)</span>
 </td>
 <td>a matrix (or list)</td>
 <td>distributions of <em>quantities</em>: parameters, implied moments</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/simulate.html">simulate()</a></code></td>
-<td>one <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> → a <strong>whole dataset</strong> of <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> rows</td>
+<td>one <span class="math inline">\(\boldsymbol\theta^{(s)}\)</span> → a <strong>whole dataset</strong> of <span class="math inline">\(n\)</span> rows</td>
 <td>a list of data frames</td>
 <td>
 <em>replicate datasets</em>: PPC overlays, test statistics, SBC</td>
 </tr>
 </tbody>
 </table>
-<p><code><a href="../reference/sampling.html">sampling()</a></code> refreshes <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝜽</mi><annotation encoding="application/x-tex">\boldsymbol\theta</annotation></semantics></math> at every draw, pooling parameter uncertainty and sampling variability into a single marginal predictive distribution. <code><a href="../reference/simulate.html">simulate()</a></code> holds each <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> fixed for a whole dataset, so variation <em>across</em> replicates reflects parameter uncertainty while variation <em>within</em> a replicate reflects sampling variability—which is what makes replicates exchangeable with the observed data, and hence the right tool for predictive checks and simulation-based calibration. Both functions accept <code>prior = TRUE</code>. The rest of this article covers <code><a href="../reference/sampling.html">sampling()</a></code>.</p>
+<p><code><a href="../reference/sampling.html">sampling()</a></code> refreshes <span class="math inline">\(\boldsymbol\theta\)</span> at every draw, pooling parameter uncertainty and sampling variability into a single marginal predictive distribution. <code><a href="../reference/simulate.html">simulate()</a></code> holds each <span class="math inline">\(\boldsymbol\theta^{(s)}\)</span> fixed for a whole dataset, so variation <em>across</em> replicates reflects parameter uncertainty while variation <em>within</em> a replicate reflects sampling variability—which is what makes replicates exchangeable with the observed data, and hence the right tool for predictive checks and simulation-based calibration. Both functions accept <code>prior = TRUE</code>. The rest of this article covers <code><a href="../reference/sampling.html">sampling()</a></code>.</p>
 </section><section class="level2"><h2 id="the-generative-model">The generative model<a class="anchor" aria-label="anchor" href="#the-generative-model"></a>
 </h2>
-<p>Let <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">s = 1, \dots, S</annotation></semantics></math>) denote one parameter draw. From this draw the SEM matrices <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold">𝚲</mi><annotation encoding="application/x-tex">\boldsymbol\Lambda</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold">𝚿</mi><annotation encoding="application/x-tex">\boldsymbol\Psi</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝑩</mi><annotation encoding="application/x-tex">\mathbf{B}</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝜶</mi><annotation encoding="application/x-tex">\boldsymbol\alpha</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝝂</mi><annotation encoding="application/x-tex">\boldsymbol\nu</annotation></semantics></math>, and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold">𝚯</mi><annotation encoding="application/x-tex">\boldsymbol\Theta</annotation></semantics></math> are constructed. The generative chain is:</p>
-<p><strong>1. Latent variables.</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="bold-italic">𝜼</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>∼</mo><mi mathvariant="script">𝒩</mi><mspace width="-0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑰</mi><mo>−</mo><mi mathvariant="bold-italic">𝑩</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi mathvariant="bold-italic">𝜶</mi><mo>,</mo><mspace width="0.278em"></mspace><mi mathvariant="bold">𝚽</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi mathvariant="bold">𝚽</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑰</mi><mo>−</mo><mi mathvariant="bold-italic">𝑩</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><mi mathvariant="bold">𝚿</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝑰</mi><mo>−</mo><mi mathvariant="bold-italic">𝑩</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mo stretchy="false" form="postfix">]</mo><mo>′</mo></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">
+<p>Let <span class="math inline">\(\boldsymbol\theta^{(s)}\)</span> (<span class="math inline">\(s = 1, \dots, S\)</span>) denote one parameter draw. From this draw the SEM matrices <span class="math inline">\(\boldsymbol\Lambda\)</span>, <span class="math inline">\(\boldsymbol\Psi\)</span>, <span class="math inline">\(\mathbf{B}\)</span>, <span class="math inline">\(\boldsymbol\alpha\)</span>, <span class="math inline">\(\boldsymbol\nu\)</span>, and <span class="math inline">\(\boldsymbol\Theta\)</span> are constructed. The generative chain is:</p>
+<p><strong>1. Latent variables.</strong> <span class="math display">\[
 \boldsymbol\eta^{(s)}
 \sim
 \mathcal{N}\!\bigl(
@@ -156,16 +162,16 @@
 \boldsymbol\Phi
 = (\mathbf{I} - \mathbf{B})^{-1}\boldsymbol\Psi\,
   [(\mathbf{I} - \mathbf{B})^{-1}]'.
-</annotation></semantics></math></p>
-<p><strong>2. Observed variables.</strong> <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="bold-italic">𝒚</mi><mrow><mi>*</mi><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>∼</mo><mi mathvariant="script">𝒩</mi><mspace width="-0.167em"></mspace><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mi mathvariant="bold">𝚲</mi><mspace width="0.167em"></mspace><msup><mi mathvariant="bold-italic">𝜼</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><mo>+</mo><mi mathvariant="bold-italic">𝝂</mi><mo>,</mo><mspace width="0.278em"></mspace><mi mathvariant="bold">𝚯</mi><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+\]</span></p>
+<p><strong>2. Observed variables.</strong> <span class="math display">\[
 \mathbf{y}^{*(s)}
 \sim
 \mathcal{N}\!\bigl(
   \boldsymbol\Lambda\,\boldsymbol\eta^{(s)} + \boldsymbol\nu,\;
   \boldsymbol\Theta
 \bigr).
-</annotation></semantics></math></p>
-<p>When <code>prior = FALSE</code> (default), <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="bold-italic">𝜽</mi><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">\boldsymbol\theta^{(s)}</annotation></semantics></math> comes from the posterior; when <code>prior = TRUE</code>, each parameter is drawn independently from its prior.</p>
+\]</span></p>
+<p>When <code>prior = FALSE</code> (default), <span class="math inline">\(\boldsymbol\theta^{(s)}\)</span> comes from the posterior; when <code>prior = TRUE</code>, each parameter is drawn independently from its prior.</p>
 </section><section class="level2"><h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <div class="cell">
@@ -180,7 +186,7 @@
 </div>
 <section class="level3"><h3 id="parameter-samples">Parameter samples<a class="anchor" aria-label="anchor" href="#parameter-samples"></a>
 </h3>
-<p>The default type <code>"lavaan"</code> returns an <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>×</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">S \times p</annotation></semantics></math> matrix of lavaan-side (constrained) parameter draws:</p>
+<p>The default type <code>"lavaan"</code> returns an <span class="math inline">\(S \times p\)</span> matrix of lavaan-side (constrained) parameter draws:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">theta_post</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sampling.html">sampling</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"lavaan"</span>, nsamp <span class="op">=</span> <span class="fl">2000</span><span class="op">)</span></span>
