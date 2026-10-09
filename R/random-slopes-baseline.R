@@ -226,6 +226,9 @@ rs_baseline_fit <- function(object) {
     }
     -out
   }
+  # With few clusters the maximum can sit on the edge of the region where the
+  # level-2 covariance is positive definite. nlminb() then stops close to it
+  # without a convergence code, and the value it reaches is used as it is.
   theta0 <- pt$parstart[free]
   opt <- stats::nlminb(
     theta0,
