@@ -137,3 +137,25 @@ test_that("Casewise fitted values are the outcomes' means given the covariates",
   expect_equal(unname(r[, "x1"]), rep(0, nrow(d_rs)))
   expect_equal(unname(fitted(fit_rs, type = "ov")), unname(f))
 })
+
+test_that("predict() gives cluster-specific yhat and ypred", {
+  set.seed(6)
+  yhat <- predict(fit_rs, type = "yhat", nsamp = 40)
+  expect_length(yhat, 40L)
+  expect_equal(colnames(yhat[[1]]), c("y1", "y2", "y3", "x1", "w1"))
+  expect_equal(unname(yhat[[1]][, "w1"]), d_rs$w1)
+  # The cluster's own random effects make yhat much closer to y than the
+  # population-average fitted values
+  m <- Reduce(`+`, yhat) / length(yhat)
+  f <- fitted(fit_rs, type = "casewise")
+  expect_gt(cor(m[, "y1"], d_rs$y1), cor(f[, "y1"], d_rs$y1) + 0.3)
+  # ypred adds the level-1 residual
+  set.seed(6)
+  ypred <- predict(fit_rs, type = "ypred", nsamp = 40)
+  spread <- function(draws, v) {
+    mean(apply(sapply(draws, function(z) z[, v]), 1, stats::var))
+  }
+  theta_w <- lavaan::lavInspect(fit_rs, "theta")$within["y1", "y1"]
+  expect_gt(spread(ypred, "y1") - spread(yhat, "y1"), 0.6 * theta_w)
+  expect_error(predict(fit_rs, type = "ymis"), class = "inlavaan_rs_predict")
+})

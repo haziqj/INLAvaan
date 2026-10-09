@@ -219,7 +219,7 @@ test_that("Random slopes: fitmeasures keeps only what exists", {
 
 test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(bfit_indices(fit_rs), class = "inlavaan_rs_bfit")
-  expect_error(predict(fit_rs, type = "yhat"), class = "inlavaan_rs_predict")
+  expect_error(predict(fit_rs, type = "ymis"), class = "inlavaan_rs_predict")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
   expect_equal(dim(sampling(fit_rs, type = "lavaan", nsamp = 4)), c(4L, 19L))
 })
@@ -433,6 +433,7 @@ test_that("Random slopes: the quadrature route has averaged moments only", {
   expect_equal(dim(sampling(fit_b, type = "observed", nsamp = 2)), c(2L, 2L))
   expect_error(simulate(fit_b, nsim = 1), class = "inlavaan_rs_simulate")
   expect_error(fitted(fit_b, type = "casewise"), class = "inlavaan_rs_casewise")
+  expect_error(predict(fit_b, type = "yhat"), class = "inlavaan_rs_casewise")
   # Each cluster is a mixture over the quadrature nodes
   expect_error(
     fitted(fit_b, per_cluster = TRUE),
