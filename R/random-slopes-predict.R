@@ -72,13 +72,91 @@ rs_casewise <- function(object, residual = FALSE) {
   out
 }
 
+# The within-level parts that predict() needs. Given v and the covariates, the
+# outcomes are y = E[y | v, x] + e, with e ~ N(0, Sigma_w) and
+# e = Lambda (eta - E[eta | v, x]) + epsilon. For the latent variables `r` that
+# have empirical Bayes values, C = Cov(e, eta_r), K = C Phi_rr^-1 carries
+# eta_r - E[eta_r | v, x] to the outcomes, and H = K C' is the part of Sigma_w
+# that runs through eta_r. Observed covariates are fixed, so they carry no
+# variance here.
+rs_within_parts <- function(w, info, r) {
+  lv <- colnames(w$lambda)
+  nlv <- length(lv)
+  B <- if (is.null(w$beta)) matrix(0, nlv, nlv) else w$beta
+  dimnames(B) <- list(lv, lv)
+  alpha <- if (is.null(w$alpha)) numeric(nlv) else w$alpha[, 1L]
+  names(alpha) <- lv
+  xv <- intersect(info$x.names, lv)
+  psi <- w$psi
+  psi[xv, ] <- 0
+  psi[, xv] <- 0
+  ib <- solve(diag(nlv) - B)
+  phi <- ib %*% psi %*% t(ib)
+  dimnames(phi) <- list(lv, lv)
+  p1 <- length(info$y.names)
+  K <- matrix(0, p1, length(r), dimnames = list(info$y.names, r))
+  H <- matrix(0, p1, p1)
+  if (length(r) > 0L) {
+    C <- w$lambda[info$y.names, , drop = FALSE] %*% phi[, r, drop = FALSE]
+    K <- C %*% solve(phi[r, r, drop = FALSE])
+    H <- K %*% t(C)
+  }
+  list(B = B, alpha = alpha, xv = xv, K = K, H = (H + t(H)) / 2)
+}
+
+# The means of the latent variables `r` given the covariates and the level-2
+# vectors `V`, one row per observation
+rs_eta_mean <- function(parts, info, imp, X1, cl, V, r) {
+  B <- parts$B
+  xv <- parts$xv
+  n <- setdiff(rownames(B), xv)
+  paths <- info$path.tab
+  zcol <- imp$z.v.idx[paths$z.idx]
+  base <- matrix(parts$alpha[n], nrow(X1), length(n), byrow = TRUE) +
+    X1[, info$x.data.idx[match(xv, info$x.names)], drop = FALSE] %*%
+      t(B[n, xv, drop = FALSE])
+  colnames(base) <- n
+  for (p in which(paths$lhs %in% n)) {
+    base[, paths$lhs[p]] <- base[, paths$lhs[p]] +
+      X1[, info$x.data.idx[paths$x.idx[p]]] * V[cl, zcol[p]]
+  }
+  m <- base %*% t(solve(diag(length(n)) - B[n, n, drop = FALSE]))
+  colnames(m) <- n
+  m[, r, drop = FALSE]
+}
+
+# Draws of the within residual that "ypred" adds, given each row's empirical
+# Bayes latent values. For a row with observed outcomes o, the residual has
+# covariance Sigma_w - H[, o] Sigma_w[o, o]^-1 H[o, ]: the residual itself
+# plus the uncertainty of the latent values.
+rs_draw_within <- function(Y, sigma_w, H) {
+  out <- matrix(0, nrow(Y), ncol(Y))
+  obs <- !is.na(Y)
+  key <- apply(obs, 1L, function(z) paste(which(z), collapse = ","))
+  for (k in unique(key)) {
+    rows <- which(key == k)
+    o <- which(obs[rows[1L], ])
+    R <- sigma_w
+    if (length(o) > 0L) {
+      R <- R -
+        H[, o, drop = FALSE] %*%
+          solve(sigma_w[o, o, drop = FALSE], H[o, , drop = FALSE])
+    }
+    out[rows, ] <- matrix(
+      stats::rnorm(length(rows) * ncol(R)),
+      length(rows)
+    ) %*%
+      rs_psd_root(R)
+  }
+  out
+}
+
 # predict(type = "yhat" or "ypred") at each row of `x_samp`. The level-2
 # latent variables are drawn from their empirical Bayes means and standard
 # deviations, as for predict(type = "lv"), and the between residuals stay at
 # their means. The level-1 latent variables enter at their empirical Bayes
-# means, through Lambda_w (l1 - E[eta_w | v, x]). "ypred" adds draws of the
-# level-1 residuals, the between residuals and the between-only outcomes'
-# residuals.
+# means. "ypred" adds draws of the within residual given those values, of the
+# between residuals and of the between-only outcomes' residuals.
 rs_predict_y <- function(object, lavmodel, lavdata, x_samp, type) {
   spec <- rs_spec(object)
   check_rs_casewise(spec, "{.code predict(type = \"{type}\")}")
@@ -86,7 +164,6 @@ rs_predict_y <- function(object, lavmodel, lavdata, x_samp, type) {
   X1 <- lavdata@X[[1L]]
   cl <- lavdata@Lp[[1L]]$cluster.idx[[2L]]
   J <- spec$rs$stats$nclusters
-  paths <- info$path.tab
   lapply(seq_len(nrow(x_samp)), function(i) {
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_samp[i, ])
     imp <- rs_implied_pieces(lavmodel_x, info)
@@ -100,32 +177,20 @@ rs_predict_y <- function(object, lavmodel, lavdata, x_samp, type) {
     lat <- seq_len(imp$meta)
     V[, lat] <- eb$l2 + eb$se2 * stats::rnorm(length(eb$l2))
     Y <- rs_y_given_v(imp, info, X1, cl, V)
-    # Level-1 latent variables: their empirical Bayes means less their means
-    # given v and x, through the within loadings
     w <- rs_glist_block(lavmodel_x, lavmodel_x@GLIST, 1L)$mats
     r <- colnames(eb$l1)
+    parts <- rs_within_parts(w, info, r)
     if (length(r) > 0L) {
-      lv <- colnames(w$lambda)
-      xv <- intersect(info$x.names, lv)
-      B <- if (is.null(w$beta)) matrix(0, length(lv), length(lv)) else w$beta
-      dimnames(B) <- list(lv, lv)
-      alpha <- if (is.null(w$alpha)) numeric(length(lv)) else w$alpha[, 1L]
-      names(alpha) <- lv
-      base <- matrix(alpha[r], nrow(X1), length(r), byrow = TRUE) +
-        X1[, match(xv, lavdata@ov.names[[1L]]), drop = FALSE] %*%
-          t(B[r, xv, drop = FALSE])
-      colnames(base) <- r
-      zcol <- imp$z.v.idx[paths$z.idx]
-      for (p in which(paths$lhs %in% r)) {
-        base[, paths$lhs[p]] <- base[, paths$lhs[p]] +
-          X1[, info$x.data.idx[paths$x.idx[p]]] * V[cl, zcol[p]]
-      }
-      m <- base %*% t(solve(diag(length(r)) - B[r, r, drop = FALSE]))
-      Y <- Y + (eb$l1 - m) %*% t(w$lambda[info$y.names, r, drop = FALSE])
+      m <- rs_eta_mean(parts, info, imp, X1, cl, V, r)
+      Y <- Y + (eb$l1 - m) %*% t(parts$K)
     }
     if (type == "ypred") {
-      th <- w$theta[info$y.names, info$y.names, drop = FALSE]
-      Y <- Y + matrix(stats::rnorm(length(Y)), nrow(Y)) %*% rs_psd_root(th)
+      Y <- Y +
+        rs_draw_within(
+          X1[, info$y.data.idx, drop = FALSE],
+          imp$sigma_w,
+          parts$H
+        )
       eps <- setdiff(seq_len(imp$pv), lat)
       if (length(eps) > 0L) {
         e_b <- matrix(stats::rnorm(J * length(eps)), J) %*%

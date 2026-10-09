@@ -160,6 +160,68 @@ test_that("predict() gives cluster-specific yhat and ypred", {
   expect_error(predict(fit_rs, type = "ymis"), class = "inlavaan_rs_predict")
 })
 
+test_that("ypred draws the within residual given the latent values", {
+  int <- get_inlavaan_internal(fit_rs)
+  info <- rs_spec(int)$rs$info
+  imp <- rs_implied_pieces(fit_rs@Model, info)
+  w <- rs_glist_block(fit_rs@Model, fit_rs@Model@GLIST, 1L)$mats
+  # With no latent values, the residual is the whole within covariance
+  parts <- rs_within_parts(w, info, character(0))
+  expect_equal(parts$H, matrix(0, 3, 3))
+  # With the factor's values, the residual covariance shrinks by the part
+  # that runs through the factor, Lambda psi Lambda'
+  parts <- rs_within_parts(w, info, "fw")
+  lam <- w$lambda[info$y.names, "fw"]
+  expect_equal(
+    unname(parts$H),
+    unname(outer(lam, lam) * w$psi["fw", "fw"])
+  )
+  Y <- fit_rs@Data@X[[1]][, info$y.data.idx]
+  Y[1:150, 2] <- NA
+  set.seed(3)
+  E <- do.call(
+    rbind,
+    lapply(1:20, function(k) {
+      rs_draw_within(Y, imp$sigma_w, parts$H)
+    })
+  )
+  rows <- rep(seq_len(nrow(Y)), 20) > 150
+  R <- imp$sigma_w - parts$H %*% solve(imp$sigma_w, parts$H)
+  expect_equal(unname(cov(E[rows, ])), unname(R), tolerance = 0.1)
+  o <- c(1L, 3L)
+  R_o <- imp$sigma_w -
+    parts$H[, o] %*% solve(imp$sigma_w[o, o], parts$H[o, ])
+  expect_equal(unname(cov(E[!rows, ])), unname(R_o), tolerance = 0.1)
+})
+
+test_that("ypred adds the residual of an observed outcome", {
+  skip_on_cran()
+  # lavaan keeps an observed outcome's residual in Psi, with zero Theta
+  fit <- asem(
+    "level: 1
+       y1 ~ rv('s1')*x1
+     level: 2
+       y1 ~ w1
+       s1 ~ w1",
+    d_rs,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  )
+  int <- get_inlavaan_internal(fit)
+  x <- lavaan::lav_model_get_parameters(fit@Model)
+  xs <- matrix(x, 300, length(x), byrow = TRUE)
+  set.seed(4)
+  yhat <- rs_predict_y(int, int$lavmodel, int$lavdata, xs, "yhat")
+  ypred <- rs_predict_y(int, int$lavmodel, int$lavdata, xs, "ypred")
+  spread <- function(draws) {
+    mean(apply(sapply(draws, function(z) z[, "y1"]), 1, stats::var))
+  }
+  psi <- lavaan::lavInspect(fit, "est")$within$psi["y1", "y1"]
+  expect_equal(spread(ypred) - spread(yhat), psi, tolerance = 0.1)
+})
+
 ## ----- B-indices ------------------------------------------------------------------
 
 test_that("The B-index reference starts at the fitted model", {
