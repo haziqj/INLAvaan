@@ -734,3 +734,26 @@ test_that("A one-step that does not raise the log-likelihood is refused", {
   })
   expect_true(is.na(ppp2l_onestep(ylp, imp, lp, info)))
 })
+
+test_that("A two-level fit says that its PPP is experimental", {
+  fit_with <- function(test) {
+    asem(
+      "
+      level: 1
+        fw =~ y1 + y2 + y3
+      level: 2
+        fb =~ y1 + y2 + y3
+      ",
+      lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
+      cluster = "cluster",
+      test = test,
+      nsamp = 10,
+      ppp_nsamp = 10
+    )
+  }
+  expect_message(fit_with("standard"), "two-level PPP is experimental")
+  expect_no_message(
+    fit_with("dic"),
+    message = "two-level PPP is experimental"
+  )
+})

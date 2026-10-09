@@ -36,6 +36,7 @@
 #'   warning and the rest of the fit proceeds. For a two-level model the PPP
 #'   follows blavaan: each of `ppp_nsamp` posterior draws generates replicate
 #'   data, which are scored against the saturated model (see `ppp_method`).
+#'   The two-level PPP is experimental.
 #'   The fit records what was requested and what was computed
 #'   (`get_inlavaan_internal(fit, "test")`);
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
@@ -1631,6 +1632,9 @@ inlavaan <- function(
       cli_alert_info(
         paste0("Fit measures: ", paste(fit_measures, collapse = ", "), ".")
       )
+    }
+    if ("ppp" %in% computed && lavdata@nlevels > 1L) {
+      cli_alert_info("The two-level PPP is experimental.")
     }
   }
 

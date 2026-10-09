@@ -65,6 +65,7 @@ the casewise machinery does not support (PML or ordinal data,
 warning and the rest of the fit proceeds. For a two-level model the PPP
 follows blavaan: each of \code{ppp_nsamp} posterior draws generates replicate
 data, which are scored against the saturated model (see \code{ppp_method}).
+The two-level PPP is experimental.
 The fit records what was requested and what was computed
 (\code{get_inlavaan_internal(fit, "test")});
 \code{\link[=summary]{summary()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
