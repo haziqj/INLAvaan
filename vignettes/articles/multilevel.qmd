@@ -209,6 +209,7 @@ INLAvaan therefore drops `"ppp"` from the default `test` (the message printed ab
 The Bayesian fit indices are present, on a different footing.
 Their chi-square is taken against the most general model with the same random effects -- every outcome with its own random intercept and its own random slope on `x1`, all freely correlated and all regressed on `w1`, and an unrestricted within-school residual covariance -- in which the fitted model is nested.
 That reference is INLAvaan's own construction rather than an established standard, so the indices say how close the model comes to it, and it needs enough schools to estimate its parameters.
+It cannot be built for a model with a between-only outcome, because lavaan's random-slope kernel allows such an outcome only as an indicator of a latent variable.
 The model-comparison machinery below is what answers the substantive question.
 
 ### Is There a Random Slope at All?
