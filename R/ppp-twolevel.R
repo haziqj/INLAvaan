@@ -349,9 +349,12 @@ ppp2l_m2ll <- function(ylp, imp, lp) {
 }
 
 # T_1 for the data with cluster statistics `ylp`, at the moments `imp` of one
-# group, with the information `info` from ppp2l_info(). A step that leaves the
-# region of positive-definite moments is halved, up to ten times. NA when no
-# step is usable.
+# group, with the information `info` from ppp2l_info(). The saturated maximum
+# keeps the within covariance positive definite and the between covariance
+# positive semi-definite, and with few clusters or a small between variance it
+# lies on that boundary. A step that leaves the region is outside the reach
+# of the quadratic approximation, so NA tells the caller to fit the saturated
+# model by EM instead.
 ppp2l_onestep <- function(ylp, imp, lp, info) {
   g <- lavaan___lav_mvn_cl_dlogl_2l_samp(
     ylp = ylp,
@@ -361,23 +364,21 @@ ppp2l_onestep <- function(ylp, imp, lp, info) {
     mu_b = imp$mean[[2L]],
     sigma_b = imp$cov[[2L]]
   )
-  step <- as.numeric(info$inv %*% (-g[info$keep] / 2))
-  psi_s <- ppp2l_pack(imp)
-  f_s <- ppp2l_m2ll(ylp, imp, lp)
-  for (h in 0:10) {
-    psi_1 <- psi_s
-    psi_1[info$keep] <- psi_1[info$keep] + step / 2^h
-    f_1 <- tryCatch(
-      ppp2l_m2ll(ylp, ppp2l_unpack(psi_1, imp), lp),
-      error = function(e) NA_real_
-    )
-    # Moments that are not positive definite give NA, Inf or a failure value
-    # of the order of 1e40.
-    if (is.finite(f_1) && abs(f_1) < 1e30) {
-      return(f_s - f_1)
-    }
+  psi_1 <- ppp2l_pack(imp)
+  psi_1[info$keep] <- psi_1[info$keep] +
+    as.numeric(info$inv %*% (-g[info$keep] / 2))
+  imp_1 <- ppp2l_unpack(psi_1, imp)
+  min_eigen <- function(S) {
+    min(eigen(S, symmetric = TRUE, only.values = TRUE)$values)
   }
-  NA_real_
+  if (min_eigen(imp_1$cov[[1L]]) <= 0 || min_eigen(imp_1$cov[[2L]]) < 0) {
+    return(NA_real_)
+  }
+  f_1 <- tryCatch(ppp2l_m2ll(ylp, imp_1, lp), error = function(e) NA_real_)
+  if (!is.finite(f_1)) {
+    return(NA_real_) # nocov
+  }
+  ppp2l_m2ll(ylp, imp, lp) - f_1
 }
 
 ## ----- PPP -------------------------------------------------------------------
@@ -398,6 +399,7 @@ get_ppp_twolevel <- function(
   method = "onestep",
   cli_env = NULL
 ) {
+  method <- match.arg(method, c("onestep", "em"))
   missing <- isTRUE(lavsamplestats@missing.flag)
   if (missing) {
     method <- "em"
@@ -407,26 +409,30 @@ get_ppp_twolevel <- function(
   ylp_obs <- lapply(groups, function(g) {
     if (!missing) ppp2l_cluster_stats(lavdata@X[[g]], lavdata@Lp[[g]])
   })
-  # The saturated log-likelihood of the observed data, once
-  sat_obs <- NA_real_
-  if (method == "em") {
-    lavimplied0 <- lavaan::lav_model_implied(lavmodel)
-    sat_obs <- sum(vapply(
-      groups,
-      function(g) {
-        ppp2l_loglik(
-          lavdata@X[[g]],
-          g,
-          lavdata,
-          lavimplied0,
-          missing,
-          ppp2l_em_obs,
-          ylp = ylp_obs[[g]]
-        )[["sat"]]
-      },
-      numeric(1)
-    ))
-  }
+  # The saturated log-likelihood of the observed data, once per group
+  lavimplied0 <- lavaan::lav_model_implied(lavmodel)
+  sat_obs_g <- vapply(
+    groups,
+    function(g) {
+      ppp2l_loglik(
+        lavdata@X[[g]],
+        g,
+        lavdata,
+        lavimplied0,
+        missing,
+        ppp2l_em_obs,
+        ylp = ylp_obs[[g]]
+      )[["sat"]]
+    },
+    numeric(1)
+  )
+  sat_obs <- sum(sat_obs_g)
+  # The covariates the replicates hold at their observed values. A covariate
+  # at both levels is drawn, so its moments are free in the saturated fit.
+  x_fixed <- lapply(groups, function(g) {
+    lp <- lavdata@Lp[[g]]
+    unique(c(lp$ov.x.idx[[1L]], lp$ov.x.idx[[2L]]))
+  })
   # The statistic of the observed and of the replicate data at one draw
   stat_em <- function(lavimplied, reps) {
     fit_obs <- fit_rep <- sat_rep <- 0
@@ -446,23 +452,41 @@ get_ppp_twolevel <- function(
     }
     c(-2 * (fit_obs - sat_obs), -2 * (fit_rep - sat_rep))
   }
-  # The covariates the replicates hold at their observed values. A covariate
-  # at both levels is drawn, so its moments are free in the saturated fit.
-  x_fixed <- lapply(groups, function(g) {
-    lp <- lavdata@Lp[[g]]
-    unique(c(lp$ov.x.idx[[1L]], lp$ov.x.idx[[2L]]))
-  })
+  # One Fisher-scoring step, or the EM fit where the step leaves the region of
+  # valid moments (see ppp2l_onestep())
   stat_onestep <- function(lavimplied, reps) {
     out <- c(0, 0)
     for (g in groups) {
       lp <- lavdata@Lp[[g]]
       imp <- ppp2l_group_moments(lavimplied, g)
       info <- ppp2l_info(imp, lp, x_fixed[[g]])
-      out <- out +
-        c(
-          ppp2l_onestep(ylp_obs[[g]], imp, lp, info),
-          ppp2l_onestep(ppp2l_cluster_stats(reps[[g]], lp), imp, lp, info)
+      t_obs <- ppp2l_onestep(ylp_obs[[g]], imp, lp, info)
+      if (is.na(t_obs)) {
+        fit <- ppp2l_loglik(
+          lavdata@X[[g]],
+          g,
+          lavdata,
+          lavimplied,
+          FALSE,
+          ylp = ylp_obs[[g]]
+        )[["fit"]]
+        t_obs <- -2 * (fit - sat_obs_g[g])
+      }
+      ylp_rep <- ppp2l_cluster_stats(reps[[g]], lp)
+      t_rep <- ppp2l_onestep(ylp_rep, imp, lp, info)
+      if (is.na(t_rep)) {
+        ll <- ppp2l_loglik(
+          reps[[g]],
+          g,
+          lavdata,
+          lavimplied,
+          FALSE,
+          ppp2l_em,
+          ylp = ylp_rep
         )
+        t_rep <- -2 * (ll[["fit"]] - ll[["sat"]])
+      }
+      out <- out + c(t_obs, t_rep)
     }
     out
   }

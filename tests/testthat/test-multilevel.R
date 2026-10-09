@@ -635,3 +635,67 @@ test_that("The one-step PPP frees a covariate the replicates draw", {
   }
   expect_lt(abs(ppp_with("onestep") - ppp_with("em")), 0.06)
 })
+
+test_that("The one-step PPP falls back to EM at the boundary", {
+  # A small between variance puts the saturated maximum on the boundary of
+  # positive semi-definite between covariances
+  set.seed(1)
+  J <- 40
+  dat <- do.call(
+    rbind,
+    lapply(seq_len(J), function(j) {
+      yb <- c(1, 0.9, 0.8) *
+        stats::rnorm(1, sd = 0.15) +
+        stats::rnorm(3, sd = 0.05)
+      fw <- stats::rnorm(8)
+      y <- matrix(yb, 8, 3, byrow = TRUE) +
+        outer(fw, c(1, 0.9, 0.8)) +
+        matrix(stats::rnorm(24, sd = 0.7), 8)
+      data.frame(cluster = j, y1 = y[, 1], y2 = y[, 2], y3 = y[, 3])
+    })
+  )
+  fit <- suppressWarnings(asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    dat,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  ))
+  int <- get_inlavaan_internal(fit)
+  lp <- int$lavdata@Lp[[1]]
+  set.seed(2)
+  xs <- sample_params_posterior(int, 60, TRUE)$x_samp
+  # Some draws step outside the region and are scored by EM instead
+  n_out <- sum(vapply(
+    seq_len(nrow(xs)),
+    function(s) {
+      imp_all <- lavaan::lav_model_implied(lavaan::lav_model_set_parameters(
+        int$lavmodel,
+        xs[s, ]
+      ))
+      imp <- ppp2l_group_moments(imp_all, 1L)
+      X <- ppp2l_draw(int$lavdata, imp_all)[[1]]
+      info <- ppp2l_info(imp, lp, integer(0))
+      is.na(ppp2l_onestep(ppp2l_cluster_stats(X, lp), imp, lp, info))
+    },
+    logical(1)
+  ))
+  expect_gt(n_out, 0)
+  ppp_with <- function(method) {
+    set.seed(3)
+    get_ppp_twolevel(
+      xs,
+      int$lavmodel,
+      int$lavsamplestats,
+      int$lavdata,
+      method = method
+    )
+  }
+  expect_lt(abs(ppp_with("onestep") - ppp_with("em")), 0.06)
+})
