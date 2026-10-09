@@ -325,7 +325,8 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
 #' the number of sample moments come from the unrestricted random-coefficient
 #' model with the same random-effects design, fitted by maximum likelihood.
 #' This reference is INLAvaan's own construction. It is available on the
-#' closed-form route only, and needs enough clusters for its parameters.
+#' closed-form route only, for models without between-only outcomes, and
+#' needs enough clusters for its parameters.
 #'
 #' @param object An object of class [INLAvaan].
 #' @param baseline.model The baseline (null) model that the incremental fit
