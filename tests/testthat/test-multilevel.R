@@ -757,3 +757,29 @@ test_that("A two-level fit says that its PPP is experimental", {
     message = "two-level PPP is experimental"
   )
 })
+
+test_that("The printed two-level PPP is marked experimental", {
+  fit <- asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
+    cluster = "cluster",
+    verbose = FALSE,
+    nsamp = 10,
+    ppp_nsamp = 10
+  )
+  expect_true(any(grepl(
+    "PPP (Chi-square, experimental)",
+    capture.output(fit),
+    fixed = TRUE
+  )))
+  expect_true(any(grepl(
+    "PPP (Chi-square, experimental)",
+    capture.output(summary(fit)),
+    fixed = TRUE
+  )))
+})
