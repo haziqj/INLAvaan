@@ -65,3 +65,56 @@ test_that("simulate() keeps the covariates and the clusters", {
     class = "inlavaan_rs_simulate"
   )
 })
+
+## ----- sampling() -----------------------------------------------------------------
+
+test_that("sampling() gives implied, latent and observed draws", {
+  set.seed(3)
+  im <- sampling(fit_rs, type = "implied", nsamp = 2)
+  expect_named(im[[1]], c("within", "cluster"))
+  # The implied draws are the averaged moments at each draw
+  set.seed(3)
+  x <- sampling(fit_rs, type = "lavaan", nsamp = 2)
+  info <- rs_spec(get_inlavaan_internal(fit_rs))$rs$info
+  avg <- rs_avg_implied(
+    lavaan::lav_model_set_parameters(fit_rs@Model, x[1, ]),
+    info
+  )
+  expect_equal(unname(im[[1]]$within$cov), unname(avg$cov[[1]]))
+
+  la <- sampling(fit_rs, type = "latent", nsamp = 3)
+  expect_true(all(c("fw", "fb", "s1") %in% colnames(la)))
+  ob <- sampling(fit_rs, type = "observed", nsamp = 3)
+  expect_equal(colnames(ob), c("y1", "y2", "y3", "x1", "w1"))
+  expect_named(
+    sampling(fit_rs, type = "all", nsamp = 2),
+    c("lavaan", "theta", "latent", "observed", "implied")
+  )
+  expect_equal(
+    dim(sampling(fit_rs, "observed", nsamp = 2, prior = TRUE)),
+    c(2L, 5L)
+  )
+})
+
+test_that("Observed draws carry the slope variance", {
+  skip_on_cran()
+  # Every parameter at the posterior mean, so the draws share one model
+  int <- get_inlavaan_internal(fit_rs)
+  x <- lavaan::lav_model_get_parameters(fit_rs@Model)
+  set.seed(5)
+  ob <- t(vapply(
+    1:6000,
+    function(i) {
+      sample_generative_ml(
+        x,
+        int$lavmodel,
+        int$lavdata,
+        rs_paths = rs_info_of(int)$path.tab
+      )$observed
+    },
+    numeric(5)
+  ))
+  avg <- rs_avg_implied(fit_rs@Model, rs_info_of(int))
+  total <- avg$cov[[1]][1:3, 1:3] + avg$cov[[2]][1:3, 1:3]
+  expect_lt(max(abs(stats::cov(ob)[1:3, 1:3] - total)), 0.15)
+})

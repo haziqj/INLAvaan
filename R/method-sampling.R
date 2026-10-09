@@ -484,7 +484,8 @@ sample_generative_ml <- function(
   lavdata,
   need_obs = TRUE,
   strict = FALSE,
-  level_labels = seq_len(lavdata@nlevels)
+  level_labels = seq_len(lavdata@nlevels),
+  rs_paths = NULL
 ) {
   GLIST <- get_block_param_matrix(x_row, lavmodel)
   nG <- lavmodel@ngroups
@@ -498,8 +499,22 @@ sample_generative_ml <- function(
     names(y_g) <- ov_names
     eta_g <- vector("list", nlevels)
 
-    for (l in seq_len(nlevels)) {
+    # A random slope is a level-2 latent variable that multiplies a level-1
+    # path, so the between level is drawn first and each drawn slope is put
+    # in its level-1 carrier cell
+    level_order <- if (is.null(rs_paths)) {
+      seq_len(nlevels)
+    } else {
+      rev(seq_len(nlevels))
+    }
+    for (l in level_order) {
       glist <- GLIST[[(g - 1) * nlevels + l]]
+      if (!is.null(rs_paths) && l == 1L) {
+        for (p in seq_len(nrow(rs_paths))) {
+          glist$beta[rs_paths$lhs[p], rs_paths$rhs[p]] <-
+            eta_g[[2L]][[rs_paths$rv[p]]]
+        }
+      }
       eta_g[[l]] <- draw_latent_block(glist, strict = strict)
       if (need_obs) {
         y_l <- draw_observed_block(glist, eta_g[[l]], strict = strict)
@@ -529,9 +544,20 @@ sample_generative_ml <- function(
 
 # Model-implied moments of a two-level model, one within/between pair per
 # group, named and ordered as lavInspect(object, "implied") reports them.
-compute_implied_moments_ml <- function(x_row, lavmodel, lavdata) {
+compute_implied_moments_ml <- function(
+  x_row,
+  lavmodel,
+  lavdata,
+  rs_info = NULL
+) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_row)
-  implied <- lavaan::lav_model_implied(lavmodel_x)
+  # A random-slope model's moments are averaged over the covariates, since
+  # lavaan's own leave the slopes out (see rs_avg_glist())
+  implied <- if (is.null(rs_info)) {
+    lavaan::lav_model_implied(lavmodel_x)
+  } else {
+    rs_avg_implied(lavmodel_x, rs_info)
+  }
   nG <- lavmodel@ngroups
   nlevels <- lavdata@nlevels
   out_list <- vector("list", nG)
@@ -569,7 +595,12 @@ sampling_generative_ml <- function(int, samp, type, nsamp) {
   implied_list <- NULL
   if (type == "implied" || type == "all") {
     implied_list <- lapply(seq_len(nsamp), function(i) {
-      compute_implied_moments_ml(samp$x_samp[i, ], lavmodel, lavdata)
+      compute_implied_moments_ml(
+        samp$x_samp[i, ],
+        lavmodel,
+        lavdata,
+        rs_info_of(int)
+      )
     })
     if (type == "implied") {
       return(implied_list)
@@ -584,6 +615,7 @@ sampling_generative_ml <- function(int, samp, type, nsamp) {
       lavmodel,
       lavdata,
       need_obs = need_obs,
+      rs_paths = rs_info_of(int)$path.tab,
       level_labels = level_labels
     )
   })
@@ -637,7 +669,12 @@ sampling_prior_generative <- function(
     colnames(samp$x_samp) <- xnames
     return(lapply(seq_len(nsamp), function(i) {
       if (two_level) {
-        compute_implied_moments_ml(samp$x_samp[i, ], lavmodel, lavdata)
+        compute_implied_moments_ml(
+          samp$x_samp[i, ],
+          lavmodel,
+          lavdata,
+          rs_info_of(int)
+        )
       } else {
         compute_implied_moments(samp$x_samp[i, ], lavmodel, meanstructure)
       }
@@ -654,6 +691,7 @@ sampling_prior_generative <- function(
       samp0$x_samp[1, ],
       lavmodel,
       lavdata,
+      rs_paths = rs_info_of(int)$path.tab,
       level_labels = partable_level_labels(pt)
     )
     eta_cn <- names(draw0$latent)
@@ -720,6 +758,7 @@ sampling_prior_generative <- function(
             lavdata,
             need_obs = need_obs,
             strict = TRUE,
+            rs_paths = rs_info_of(int)$path.tab,
             level_labels = partable_level_labels(pt)
           ),
           error = function(e) NULL
@@ -765,7 +804,7 @@ sampling_prior_generative <- function(
 
       if (need_implied) {
         implied_list[[collected]] <- if (two_level) {
-          compute_implied_moments_ml(x1, lavmodel, lavdata) # nocov
+          compute_implied_moments_ml(x1, lavmodel, lavdata, rs_info_of(int)) # nocov
         } else {
           compute_implied_moments(x1, lavmodel, meanstructure)
         }
@@ -834,32 +873,6 @@ sampling_impl <- function(
   ...
 ) {
   type <- match.arg(type)
-
-  # The generative types are built from the model-implied moments, which
-  # for a random-slope model silently drop the slope variance. Parameter
-  # draws do not touch them and stay available.
-  if (
-    type %in%
-      c("latent", "observed", "implied", "all") &&
-      has_random_slopes(int$lavmodel)
-  ) {
-    cli_abort(
-      c(
-        "{.code sampling(type = \"{type}\")} is not available for a
-         random-slope model.",
-        "x" = "Latent, observed and implied draws are generated from the
-               model-implied moments, and a random-slope model implies no
-               single within-cluster covariance: the covariance of y depends
-               on the covariate values, so the slope variance would be
-               silently dropped.",
-        "i" = "Parameter draws ({.code type = \"lavaan\"} or
-               {.code \"theta\"}) are unaffected, and
-               {.code predict(object, type = \"lv\", level = 2)} gives the
-               cluster-level slopes."
-      ),
-      class = "inlavaan_rs_sampling"
-    )
-  }
 
   # For prior sampling with generative draws, use reject-and-redraw to preserve
   # the exact prior (no silent PD projection).
@@ -1029,4 +1042,9 @@ sampling_impl <- function(
     observed = y_mat,
     implied = implied_list
   )
+}
+
+# The random-slope description of a fit, or NULL without random slopes
+rs_info_of <- function(int) {
+  if (has_random_slopes(int$lavmodel)) int$lavcache[[1L]]$rs$info
 }
