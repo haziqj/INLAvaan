@@ -478,3 +478,54 @@ test_that("The two-level PPP warns about draws that give no replicate", {
   )
   expect_true(ppp %in% c(0, 0.5, 1))
 })
+
+## ----- One-step two-level PPP ------------------------------------------------------
+
+test_that("The one-step information equals lavaan's expected information", {
+  info_lav <- getFromNamespace("lav_mvn_cl_info_expected", "lavaan")
+  kdh_lav <- getFromNamespace("lav_mvn_kron_dup_half", "lavaan")
+  A <- crossprod(matrix(stats::rnorm(36), 6))
+  expect_equal(ppp2l_kron_dup_half(A), kdh_lav(A), tolerance = 1e-12)
+  int <- get_inlavaan_internal(fit_ml)
+  lp <- int$lavdata@Lp[[1]]
+  x_idx <- int$lavsamplestats@x.idx[[1]]
+  imp <- ppp2l_group_moments(lavaan::lav_model_implied(fit_ml@Model), 1L)
+  I0 <- info_lav(
+    lp = lp,
+    mu_w = imp$mean[[1]],
+    sigma_w = imp$cov[[1]],
+    mu_b = imp$mean[[2]],
+    sigma_b = imp$cov[[2]],
+    x_idx = x_idx
+  )
+  keep <- which(diag(I0) != 0)
+  info <- ppp2l_info(imp, lp, x_idx)
+  expect_identical(info$keep, keep)
+  expect_equal(
+    info$inv,
+    solve(lp$nclusters[[2]] * I0[keep, keep]),
+    tolerance = 1e-8
+  )
+})
+
+test_that("One Fisher-scoring step reproduces the EM likelihood ratio", {
+  int <- get_inlavaan_internal(fit_ml)
+  lavdata <- int$lavdata
+  lp <- lavdata@Lp[[1]]
+  imp_all <- lavaan::lav_model_implied(fit_ml@Model)
+  imp <- ppp2l_group_moments(imp_all, 1L)
+  info <- ppp2l_info(imp, lp, int$lavsamplestats@x.idx[[1]])
+  set.seed(8)
+  out <- t(vapply(
+    1:20,
+    function(r) {
+      X <- ppp2l_draw(lavdata, imp_all)[[1]]
+      ylp <- ppp2l_cluster_stats(X, lp)
+      ll <- ppp2l_loglik(X, 1L, lavdata, imp_all, FALSE, ppp2l_em, ylp = ylp)
+      c(-2 * (ll[["fit"]] - ll[["sat"]]), ppp2l_onestep(ylp, imp, lp, info))
+    },
+    numeric(2)
+  ))
+  expect_gt(stats::cor(out[, 1], out[, 2]), 0.99)
+  expect_lt(max(abs(out[, 1] - out[, 2]) / out[, 1]), 0.1)
+})
