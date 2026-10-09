@@ -112,9 +112,24 @@ test_that("sampling() gives implied, latent and observed draws", {
 
 test_that("Observed draws carry the slope variance", {
   skip_on_cran()
-  # Every parameter at the posterior mean, so the draws share one model
+  # Every parameter at the posterior mean, so the draws share one model, but
+  # with a slope variance large enough for the test to see it
   int <- get_inlavaan_internal(fit_rs)
   x <- lavaan::lav_model_get_parameters(fit_rs@Model)
+  pt <- lavaan::parTable(fit_rs)
+  k <- pt$free[pt$lhs == "s1" & pt$op == "~~" & pt$rhs == "s1"]
+  x[k] <- 1
+  total_at <- function(x) {
+    avg <- rs_avg_implied(
+      lavaan::lav_model_set_parameters(fit_rs@Model, x),
+      rs_info_of(int)
+    )
+    avg$cov[[1]][1:3, 1:3] + avg$cov[[2]][1:3, 1:3]
+  }
+  total <- total_at(x)
+  x0 <- x
+  x0[k] <- 0
+  expect_gt(max(abs(total - total_at(x0))), 0.5)
   set.seed(5)
   ob <- t(vapply(
     1:6000,
@@ -128,8 +143,6 @@ test_that("Observed draws carry the slope variance", {
     },
     numeric(5)
   ))
-  avg <- rs_avg_implied(fit_rs@Model, rs_info_of(int))
-  total <- avg$cov[[1]][1:3, 1:3] + avg$cov[[2]][1:3, 1:3]
   expect_lt(max(abs(stats::cov(ob)[1:3, 1:3] - total)), 0.15)
 })
 
