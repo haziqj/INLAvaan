@@ -99,11 +99,9 @@ setMethod(
 
     xnames <- pt$names[pt$free > 0 & !duplicated(pt$free)]
     # A two-level fit keeps its own cluster design unless a sample size is
-    # given. Without a cluster index lavaan invents a balanced one. lavaan's
-    # multilevel generator also warns on every call unless `mass = TRUE`.
+    # given. Without a cluster index lavaan invents a balanced one.
     sim_ml_args <- list()
     if (int$lavdata@nlevels > 1L) {
-      sim_ml_args$mass <- TRUE
       if (is.null(sample.nobs)) {
         cl_idx <- lapply(int$lavdata@Lp, function(lp) lp$cluster.idx[[2L]])
         sim_ml_args$cluster_idx <- if (length(cl_idx) == 1L) {
@@ -194,10 +192,10 @@ setMethod(
       # The := rows play no part in the data, so a draw where one is undefined
       # is fine.
       dat <- tryCatch(
-        muffle_nan_warnings(do.call(
+        muffle_ml_sim_warning(muffle_nan_warnings(do.call(
           lavaan::simulateData,
           c(list(pt_sim, sample.nobs = n), sim_ml_args)
-        )),
+        ))),
         error = function(e) NULL
       )
       if (is.null(dat)) {
@@ -281,4 +279,14 @@ relabel_clusters <- function(dat, lavdata) {
     out[rows] <- lavdata@Lp[[g]]$cluster.id[[2L]][dat$cluster[rows]]
   }
   out
+}
+
+# Some lavaan versions warn on every multilevel call that options INLAvaan
+# never sets (mass, skewness and others) are ignored.
+muffle_ml_sim_warning <- function(expr) {
+  withCallingHandlers(expr, warning = function(w) {
+    if (grepl("not supported for multilevel data", conditionMessage(w))) {
+      invokeRestart("muffleWarning")
+    }
+  })
 }
