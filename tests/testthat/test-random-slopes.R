@@ -154,8 +154,8 @@ test_that("Random slopes: a latent covariate keeps lavaan's own fixed.x", {
 
 test_that("Random slopes: PPP is dropped from the default test", {
   # Two warnings must stay inside: lavaan's "test statistics are not
-  # available ... test set to none" and the silent PPP drop under the
-  # default `test`
+  # available ... test set to none" and a PPP drop under the default `test`,
+  # which leaves the PPP of every two-level fit out
   expect_no_warning(
     fit_std <- asem(
       mod_rs,
@@ -172,13 +172,12 @@ test_that("Random slopes: PPP is dropped from the default test", {
   rec <- get_inlavaan_internal(fit_std, "test")
   expect_false("ppp" %in% rec$computed)
   expect_true("dic" %in% rec$computed)
-  expect_true("ppp" %in% rec$requested)
-  expect_true("ppp" %in% names(rec$skipped))
-  expect_match(rec$skipped[["ppp"]], "no saturated model|has none")
+  expect_false("ppp" %in% rec$requested)
+  expect_length(rec$skipped, 0L)
 
-  # Naming ppp explicitly is worth a warning
+  # Naming ppp explicitly is worth a warning, and the record says why
   expect_warning(
-    asem(
+    fit_ppp <- asem(
       mod_rs,
       d_rs,
       cluster = "cluster",
@@ -190,6 +189,9 @@ test_that("Random slopes: PPP is dropped from the default test", {
     ),
     class = "inlavaan_rs_ppp"
   )
+  rec <- get_inlavaan_internal(fit_ppp, "test")
+  expect_true("ppp" %in% rec$requested)
+  expect_match(rec$skipped[["ppp"]], "has none")
 })
 
 test_that("Random slopes: fitmeasures keeps only what exists", {
