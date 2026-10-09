@@ -12,8 +12,8 @@
   predictive p-value is not available and is dropped from `test`. A random
   slope on a latent or split covariate uses lavaan's quadrature, which is
   slower, and `integration.ngh` sets its number of nodes. Such fits have no
-  `simulate()`, casewise values, `predict(type = "yhat")` or Bayesian fit
-  indices. Composites cannot be combined with random slopes yet. See the
+  `simulate()`, casewise values, `predict(type = "yhat")`,
+  `per_cluster = TRUE` or Bayesian fit indices. Composites cannot be combined with random slopes yet. See the
   multilevel article.
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
@@ -40,6 +40,10 @@
 
 * `simulate()` on a two-level fit now keeps the clusters of the data, with
   their labels and sizes, and no longer warns on every data set.
+
+* `BCFI` was `-Inf` or `NaN` for posterior draws whose independence model
+  fits within its degrees of freedom. Such draws now follow lavaan's CFI
+  convention.
 
 * `standardisedsolution()` ignored its `nsamp` argument and summarised as many
   posterior draws as the fit itself had used.
