@@ -352,9 +352,9 @@ ppp2l_m2ll <- function(ylp, imp, lp) {
 # group, with the information `info` from ppp2l_info(). The saturated maximum
 # keeps the within covariance positive definite and the between covariance
 # positive semi-definite, and with few clusters or a small between variance it
-# lies on that boundary. A step that leaves the region is outside the reach
-# of the quadratic approximation, so NA tells the caller to fit the saturated
-# model by EM instead.
+# lies on that boundary. A step that leaves the region, or that does not raise
+# the log-likelihood, is outside the reach of the quadratic approximation, so
+# NA tells the caller to fit the saturated model by EM instead.
 ppp2l_onestep <- function(ylp, imp, lp, info) {
   g <- lavaan___lav_mvn_cl_dlogl_2l_samp(
     ylp = ylp,
@@ -375,10 +375,11 @@ ppp2l_onestep <- function(ylp, imp, lp, info) {
     return(NA_real_)
   }
   f_1 <- tryCatch(ppp2l_m2ll(ylp, imp_1, lp), error = function(e) NA_real_)
-  if (!is.finite(f_1)) {
-    return(NA_real_) # nocov
+  t_1 <- ppp2l_m2ll(ylp, imp, lp) - f_1
+  if (!is.finite(t_1) || t_1 <= 0) {
+    return(NA_real_)
   }
-  ppp2l_m2ll(ylp, imp, lp) - f_1
+  t_1
 }
 
 ## ----- PPP -------------------------------------------------------------------

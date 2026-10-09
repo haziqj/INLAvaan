@@ -718,3 +718,19 @@ test_that("A two-level PPP with no scored draw is recorded as skipped", {
   expect_false("ppp" %in% rec$computed)
   expect_match(rec$skipped[["ppp"]], "could be scored")
 })
+
+test_that("A one-step that does not raise the log-likelihood is refused", {
+  int <- get_inlavaan_internal(fit_ml)
+  lp <- int$lavdata@Lp[[1]]
+  imp <- ppp2l_group_moments(lavaan::lav_model_implied(fit_ml@Model), 1L)
+  info <- ppp2l_info(imp, lp, integer(0))
+  ylp <- ppp2l_cluster_stats(int$lavdata@X[[1]], lp)
+  expect_gt(ppp2l_onestep(ylp, imp, lp, info), 0)
+  # -2 loglik at the step (first call) above its value at the start
+  calls <- 0
+  local_mocked_bindings(ppp2l_m2ll = function(ylp, imp, lp) {
+    calls <<- calls + 1
+    if (calls == 1) 10 else 5
+  })
+  expect_true(is.na(ppp2l_onestep(ylp, imp, lp, info)))
+})
