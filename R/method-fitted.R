@@ -34,8 +34,8 @@
 #' cluster mean and within-cluster covariance (divisor \eqn{n_j}) of its
 #' outcomes and covariates at its own covariate values, and the mean also holds
 #' the expected values of any between-only outcomes. This is not available for
-#' a slope on a latent or split covariate. \code{type = "casewise"} is not
-#' available for random-slope models.
+#' a slope on a latent or split covariate. \code{type = "casewise"} gives the
+#' outcomes' means given the covariates (closed-form route only).
 #'
 #' @seealso [predict()], [coef()], [fitMeasures()][lavaan::fitMeasures]
 #'
@@ -68,7 +68,12 @@ setMethod(
     check_rs_moments(object, "fitted", type)
     check_per_cluster(object, per_cluster)
     if (has_random_slopes(object@Model)) {
-      return(rs_fitted(object, labels = labels, per_cluster = per_cluster))
+      return(rs_fitted(
+        object,
+        type = type,
+        labels = labels,
+        per_cluster = per_cluster
+      ))
     }
     # Delegate to lavaan's implementation so the output structure (moments,
     # casewise) stays identical; the posterior means already live in the object.
@@ -87,7 +92,12 @@ setMethod(
     check_rs_moments(object, "fitted.values", type)
     check_per_cluster(object, per_cluster)
     if (has_random_slopes(object@Model)) {
-      return(rs_fitted(object, labels = labels, per_cluster = per_cluster))
+      return(rs_fitted(
+        object,
+        type = type,
+        labels = labels,
+        per_cluster = per_cluster
+      ))
     }
     lavaan::fitted.values(
       as(object, "lavaan"),

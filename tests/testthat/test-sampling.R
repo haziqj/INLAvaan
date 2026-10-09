@@ -432,3 +432,12 @@ test_that("Single-level draws are unchanged by the two-level path", {
   expect_equal(colnames(im[[1]]$cov), paste0("x", 1:6))
   expect_null(im[[1]]$mean)
 })
+
+test_that("sampling() dispatches on the internal list as on the fit", {
+  int <- get_inlavaan_internal(fit)
+  set.seed(1)
+  from_int <- sampling(int, type = "implied", nsamp = 2)
+  set.seed(1)
+  from_fit <- sampling(fit, type = "implied", nsamp = 2)
+  expect_identical(from_int, from_fit)
+})

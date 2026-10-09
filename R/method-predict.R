@@ -472,16 +472,13 @@ predict.inlavaan_internal <- function(
       cli_abort("{.arg level} must be {.val 1} or {.val 2}.")
     }
     # nocov end
-    if (has_random_slopes(lavmodel) && type != "lv") {
+    if (has_random_slopes(lavmodel) && !type %in% c("lv", "yhat", "ypred")) {
       cli_abort(
         c(
           "{.fn predict} has no {.val {type}} values for a random-slope
            model.",
-          "x" = "They would be built from the model-implied moments, which
-                 ignore the random slope entirely.",
-          "i" = "{.code predict(object, type = \"lv\", level = 2)} returns the
-                 cluster-level slope estimates alongside the other level-2
-                 latent variables."
+          "i" = "Use {.code type = \"lv\"}, {.code \"yhat\"} or
+                 {.code \"ypred\"}."
         ),
         class = "inlavaan_rs_predict"
       )
@@ -698,6 +695,8 @@ predict.inlavaan_internal <- function(
 
     # ---- type = "yhat": Predicted means E(y | eta, theta) ----
     # ---- type = "ypred": Predicted values y = E(y|eta,theta) + eps ----
+  } else if (type %in% c("yhat", "ypred") && has_random_slopes(lavmodel)) {
+    out <- rs_predict_y(object, lavmodel, lavdata, x_samp, type)
   } else if (type %in% c("yhat", "ypred")) {
     add_noise <- (type == "ypred")
 
@@ -1326,7 +1325,10 @@ print.summary.predict.inlavaan_internal <- function(
 #'   observation-level residuals are new. For a random-slope model (see
 #'   [inlavaan()]), each level 2 latent variable, slopes included, is drawn on
 #'   its own, so draws of different variables are independent given the
-#'   parameters, and level 1 values are conditional means.
+#'   parameters, and level 1 values are conditional means. Its
+#'   \code{"yhat"} and \code{"ypred"} use these empirical Bayes values
+#'   (closed-form route only), and \code{"ypred"} adds the level-1 and
+#'   between-level residuals.
 #' @param nsamp Integer; number of posterior samples to use for prediction.
 #'   Defaults to \code{1000}.
 #' @param ymis_only Logical; only applies when \code{type = "ymis"}. When

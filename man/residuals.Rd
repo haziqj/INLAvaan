@@ -57,7 +57,9 @@ compare the sample moments with the averaged moments of \code{\link[=fitted]{fit
 \code{per_cluster = TRUE}, they compare each cluster's sample mean and
 within-cluster covariance with its expected ones. A covariance of two
 variables observed together in fewer than two rows of a cluster is
-\code{NA}. Only the raw and correlation types are available.
+\code{NA}. The raw and correlation types are available, and
+\code{type = "casewise"} gives the observed values minus the outcomes'
+means given the covariates (closed-form route only).
 }
 \examples{
 \donttest{

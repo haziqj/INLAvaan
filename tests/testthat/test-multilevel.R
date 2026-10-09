@@ -402,41 +402,522 @@ test_that("Two-level ypred keeps covariates and draws outcome residuals", {
   expect_gt(spread(ypred, "y4") - spread(yhat, "y4"), 0.8 * theta_w)
 })
 
-test_that("The two-level PPP is skipped for a variable with no between variance", {
+test_that("The two-level PPP holds for a covariate with little between variance", {
   # x1 in Demo.twolevel varies almost only within clusters. As a covariate at
-  # both levels it would take the PPP to 0 for a model that fits.
+  # both levels it took the old Wishart-based PPP to 0 for a model that fits.
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
-  fit_x <- function(model) {
-    asem(
-      model,
-      dat,
-      cluster = "cluster",
-      nsamp = 3,
-      test = "ppp",
-      verbose = FALSE
-    )
-  }
-  expect_warning(
-    fit <- fit_x("
-      level: 1
-        fw =~ y1 + y2 + y3
-        fw ~ x1
-      level: 2
-        fb =~ y1 + y2 + y3
-        fb ~ x1
-    "),
-    "Skipping the PPP"
-  )
-  rec <- get_inlavaan_internal(fit, "test")
-  expect_null(get_inlavaan_internal(fit, "ppp"))
-  expect_match(rec$skipped[["ppp"]], "x1")
-
-  fit <- fit_x("
+  set.seed(4)
+  fit <- asem(
+    "
     level: 1
       fw =~ y1 + y2 + y3
       fw ~ x1
     level: 2
       fb =~ y1 + y2 + y3
-  ")
-  expect_false(is.null(get_inlavaan_internal(fit, "ppp")))
+      fb ~ x1
+    ",
+    dat,
+    cluster = "cluster",
+    nsamp = 200,
+    test = "ppp",
+    verbose = FALSE
+  )
+  expect_gt(get_inlavaan_internal(fit, "ppp"), 0.05)
+})
+
+test_that("The two-level PPP replicate keeps the covariates and the design", {
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  dat$y2[c(3, 40, 77)] <- NA
+  fit0 <- suppressWarnings(lavaan::sem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+    ",
+    dat,
+    cluster = "cluster",
+    missing = "ml"
+  ))
+  lavdata <- fit0@Data
+  set.seed(1)
+  rep <- ppp2l_draw(lavdata, lavaan::lav_model_implied(fit0@Model))[[1]]
+  X <- lavdata@X[[1]]
+  ov <- lavdata@ov.names[[1]]
+  # Fixed covariates at their observed values, missing cells where they were
+  expect_equal(rep[, ov == "x1"], X[, ov == "x1"])
+  expect_equal(rep[, ov == "w1"], X[, ov == "w1"])
+  expect_identical(is.na(rep), is.na(X))
+  # A between-only covariate is constant within each cluster
+  cl <- lavdata@Lp[[1]]$cluster.idx[[2]]
+  expect_true(all(tapply(rep[, ov == "w1"], cl, stats::sd) == 0))
+  expect_false(isTRUE(all.equal(rep[, ov == "y1"], X[, ov == "y1"])))
+})
+
+test_that("The two-level PPP warns about draws that give no replicate", {
+  int <- get_inlavaan_internal(fit_ml)
+  x <- lavaan::lav_model_get_parameters(int$lavmodel)
+  bad <- matrix(NA_real_, 3, length(x))
+  expect_warning(
+    ppp <- get_ppp_twolevel(bad, int$lavmodel, int$lavsamplestats, int$lavdata),
+    "No posterior draw could be scored"
+  )
+  expect_identical(ppp, NA_real_)
+  set.seed(2)
+  some <- rbind(bad[1, ], x, x)
+  expect_warning(
+    ppp <- get_ppp_twolevel(
+      some,
+      int$lavmodel,
+      int$lavsamplestats,
+      int$lavdata
+    ),
+    "1 of 3 posterior draws could not be scored"
+  )
+  expect_true(ppp %in% c(0, 0.5, 1))
+})
+
+## ----- One-step two-level PPP ------------------------------------------------
+
+test_that("The one-step information equals lavaan's expected information", {
+  info_lav <- getFromNamespace("lav_mvn_cl_info_expected", "lavaan")
+  kdh_lav <- getFromNamespace("lav_mvn_kron_dup_half", "lavaan")
+  A <- crossprod(matrix(stats::rnorm(36), 6))
+  expect_equal(ppp2l_kron_dup_half(A), kdh_lav(A), tolerance = 1e-12)
+  int <- get_inlavaan_internal(fit_ml)
+  lp <- int$lavdata@Lp[[1]]
+  x_idx <- int$lavsamplestats@x.idx[[1]]
+  imp <- ppp2l_group_moments(lavaan::lav_model_implied(fit_ml@Model), 1L)
+  I0 <- info_lav(
+    lp = lp,
+    mu_w = imp$mean[[1]],
+    sigma_w = imp$cov[[1]],
+    mu_b = imp$mean[[2]],
+    sigma_b = imp$cov[[2]],
+    x_idx = x_idx
+  )
+  keep <- which(diag(I0) != 0)
+  info <- ppp2l_info(imp, lp, x_idx)
+  expect_identical(info$keep, keep)
+  expect_equal(
+    info$inv,
+    solve(lp$nclusters[[2]] * I0[keep, keep]),
+    tolerance = 1e-8
+  )
+})
+
+test_that("One Fisher-scoring step reproduces the EM likelihood ratio", {
+  int <- get_inlavaan_internal(fit_ml)
+  lavdata <- int$lavdata
+  lp <- lavdata@Lp[[1]]
+  imp_all <- lavaan::lav_model_implied(fit_ml@Model)
+  imp <- ppp2l_group_moments(imp_all, 1L)
+  info <- ppp2l_info(imp, lp, int$lavsamplestats@x.idx[[1]])
+  set.seed(8)
+  out <- t(vapply(
+    1:20,
+    function(r) {
+      X <- ppp2l_draw(lavdata, imp_all)[[1]]
+      ylp <- ppp2l_cluster_stats(X, lp)
+      ll <- ppp2l_loglik(X, 1L, lavdata, imp_all, FALSE, ppp2l_em, ylp = ylp)
+      c(-2 * (ll[["fit"]] - ll[["sat"]]), ppp2l_onestep(ylp, imp, lp, info))
+    },
+    numeric(2)
+  ))
+  expect_gt(stats::cor(out[, 1], out[, 2]), 0.99)
+  expect_lt(max(abs(out[, 1] - out[, 2]) / out[, 1]), 0.1)
+})
+
+test_that("The one-step and EM PPPs agree, and ppp_nsamp sets the draws", {
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 40, ]
+  fit_with <- function(...) {
+    asem(
+      "
+      level: 1
+        fw =~ y1 + y2 + y3
+        fw ~ x1
+      level: 2
+        fb =~ y1 + y2 + y3
+        fb ~ w1
+      ",
+      dat,
+      cluster = "cluster",
+      verbose = FALSE,
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      ...
+    )
+  }
+  set.seed(5)
+  fit_one <- fit_with(test = "ppp", nsamp = 200, ppp_nsamp = 200)
+  set.seed(5)
+  fit_em <- fit_with(
+    test = "ppp",
+    nsamp = 200,
+    ppp_nsamp = 200,
+    ppp_method = "em"
+  )
+  p_one <- get_inlavaan_internal(fit_one, "ppp")
+  p_em <- get_inlavaan_internal(fit_em, "ppp")
+  expect_lt(abs(p_one - p_em), 0.06)
+  # Seven draws give a PPP in sevenths
+  p7 <- get_inlavaan_internal(
+    fit_with(test = "ppp", nsamp = 50, ppp_nsamp = 7),
+    "ppp"
+  )
+  expect_equal(p7 * 7, round(p7 * 7))
+  # The two-level PPP is in the default test
+  rec <- get_inlavaan_internal(fit_with(nsamp = 20, ppp_nsamp = 20), "test")
+  expect_true("ppp" %in% rec$computed)
+  expect_error(fit_with(ppp_nsamp = 0), "ppp_nsamp")
+  # Inf takes every draw
+  p_inf <- get_inlavaan_internal(
+    fit_with(test = "ppp", nsamp = 9, ppp_nsamp = Inf),
+    "ppp"
+  )
+  expect_equal(p_inf * 9, round(p_inf * 9))
+})
+
+test_that("Incomplete two-level data use the EM PPP", {
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  dat$y2[c(3, 40, 77)] <- NA
+  fit <- suppressWarnings(asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    dat,
+    cluster = "cluster",
+    missing = "ml",
+    test = "ppp",
+    verbose = FALSE,
+    nsamp = 30,
+    ppp_nsamp = 30
+  ))
+  ppp <- get_inlavaan_internal(fit, "ppp")
+  expect_true(ppp >= 0 && ppp <= 1)
+})
+
+test_that("The one-step PPP frees a covariate the replicates draw", {
+  # x1 at both levels is drawn in the replicates, so its moments must be free
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 60, ]
+  fit <- suppressWarnings(asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ x1
+    ",
+    dat,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  ))
+  int <- get_inlavaan_internal(fit)
+  set.seed(7)
+  xs <- sample_params_posterior(int, 100, TRUE)$x_samp
+  ppp_with <- function(method) {
+    set.seed(8)
+    get_ppp_twolevel(
+      xs,
+      int$lavmodel,
+      int$lavsamplestats,
+      int$lavdata,
+      method = method
+    )
+  }
+  expect_lt(abs(ppp_with("onestep") - ppp_with("em")), 0.06)
+})
+
+test_that("The one-step PPP falls back to EM at the boundary", {
+  # A small between variance puts the saturated maximum on the boundary of
+  # positive semi-definite between covariances
+  set.seed(1)
+  J <- 40
+  dat <- do.call(
+    rbind,
+    lapply(seq_len(J), function(j) {
+      yb <- c(1, 0.9, 0.8) *
+        stats::rnorm(1, sd = 0.15) +
+        stats::rnorm(3, sd = 0.05)
+      fw <- stats::rnorm(8)
+      y <- matrix(yb, 8, 3, byrow = TRUE) +
+        outer(fw, c(1, 0.9, 0.8)) +
+        matrix(stats::rnorm(24, sd = 0.7), 8)
+      data.frame(cluster = j, y1 = y[, 1], y2 = y[, 2], y3 = y[, 3])
+    })
+  )
+  fit <- suppressWarnings(asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    dat,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  ))
+  int <- get_inlavaan_internal(fit)
+  lp <- int$lavdata@Lp[[1]]
+  set.seed(2)
+  xs <- sample_params_posterior(int, 60, TRUE)$x_samp
+  # Some draws step outside the region and are scored by EM instead
+  n_out <- sum(vapply(
+    seq_len(nrow(xs)),
+    function(s) {
+      imp_all <- lavaan::lav_model_implied(lavaan::lav_model_set_parameters(
+        int$lavmodel,
+        xs[s, ]
+      ))
+      imp <- ppp2l_group_moments(imp_all, 1L)
+      X <- ppp2l_draw(int$lavdata, imp_all)[[1]]
+      info <- ppp2l_info(imp, lp, integer(0))
+      is.na(ppp2l_onestep(ppp2l_cluster_stats(X, lp), imp, lp, info))
+    },
+    logical(1)
+  ))
+  expect_gt(n_out, 0)
+  ppp_with <- function(method) {
+    set.seed(3)
+    get_ppp_twolevel(
+      xs,
+      int$lavmodel,
+      int$lavsamplestats,
+      int$lavdata,
+      method = method
+    )
+  }
+  expect_lt(abs(ppp_with("onestep") - ppp_with("em")), 0.06)
+})
+
+test_that("A two-level PPP with no scored draw is recorded as skipped", {
+  local_mocked_bindings(get_ppp_twolevel = function(...) NA_real_)
+  fit <- asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
+    cluster = "cluster",
+    verbose = FALSE,
+    nsamp = 5
+  )
+  rec <- get_inlavaan_internal(fit, "test")
+  expect_false("ppp" %in% rec$computed)
+  expect_match(rec$skipped[["ppp"]], "could be scored")
+})
+
+test_that("A one-step that does not raise the log-likelihood is refused", {
+  int <- get_inlavaan_internal(fit_ml)
+  lp <- int$lavdata@Lp[[1]]
+  imp <- ppp2l_group_moments(lavaan::lav_model_implied(fit_ml@Model), 1L)
+  info <- ppp2l_info(imp, lp, integer(0))
+  ylp <- ppp2l_cluster_stats(int$lavdata@X[[1]], lp)
+  expect_gt(ppp2l_onestep(ylp, imp, lp, info), 0)
+  # -2 loglik at the step (first call) above its value at the start
+  calls <- 0
+  local_mocked_bindings(ppp2l_m2ll = function(ylp, imp, lp) {
+    calls <<- calls + 1
+    if (calls == 1) 10 else 5
+  })
+  expect_true(is.na(ppp2l_onestep(ylp, imp, lp, info)))
+})
+
+test_that("A two-level fit says that its PPP is experimental", {
+  fit_with <- function(test) {
+    asem(
+      "
+      level: 1
+        fw =~ y1 + y2 + y3
+      level: 2
+        fb =~ y1 + y2 + y3
+      ",
+      lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
+      cluster = "cluster",
+      test = test,
+      nsamp = 10,
+      ppp_nsamp = 10
+    )
+  }
+  expect_message(fit_with("standard"), "two-level PPP is experimental")
+  expect_no_message(
+    fit_with("dic"),
+    message = "two-level PPP is experimental"
+  )
+  expect_no_message(
+    asem(
+      "
+      level: 1
+        fw =~ y1 + y2 + y3
+      level: 2
+        fb =~ y1 + y2 + y3
+      ",
+      lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
+      cluster = "cluster",
+      verbose = FALSE,
+      nsamp = 10,
+      ppp_nsamp = 10
+    ),
+    message = "experimental"
+  )
+})
+
+test_that("The printed two-level PPP is marked experimental", {
+  fit <- asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
+    cluster = "cluster",
+    verbose = FALSE,
+    nsamp = 10,
+    ppp_nsamp = 10
+  )
+  expect_true(any(grepl(
+    "PPP (Chi-square, experimental)",
+    capture.output(fit),
+    fixed = TRUE
+  )))
+  expect_true(any(grepl(
+    "PPP (Chi-square, experimental)",
+    capture.output(summary(fit)),
+    fixed = TRUE
+  )))
+})
+
+test_that("Replicate cluster statistics match those of replicate rows", {
+  int <- get_inlavaan_internal(fit_ml)
+  lavdata <- int$lavdata
+  lp <- lavdata@Lp[[1]]
+  imp <- lavaan::lav_model_implied(fit_ml@Model)
+  ylp_obs <- ppp2l_cluster_stats(lavdata@X[[1]], lp)
+  des <- ppp2l_design(lavdata, 1L)
+  one <- ppp2l_draw_stats(des, imp, 1L, ylp_obs)[[2]]
+  # The fixed covariates keep their observed statistics
+  x <- lp$ov.x.idx[[1]]
+  expect_equal(one$Sigma.W[x, x], ylp_obs[[2]]$Sigma.W[x, x])
+  expect_equal(one$loglik.x, ylp_obs[[2]]$loglik.x)
+  read <- c("Y1Y1", "Y2", "Sigma.W", "loglik.x", "mean.d", "cov.d")
+  expect_true(all(read %in% names(one)))
+  # Monte Carlo means of the statistics lavaan reads
+  flat <- function(y) {
+    c(y[[2]]$Sigma.W, unlist(y[[2]]$mean.d), unlist(y[[2]]$cov.d))
+  }
+  set.seed(4)
+  rows <- replicate(
+    300,
+    flat(ppp2l_cluster_stats(ppp2l_draw(lavdata, imp)[[1]], lp))
+  )
+  stats <- replicate(300, flat(ppp2l_draw_stats(des, imp, 1L, ylp_obs)))
+  se <- sqrt((apply(rows, 1, stats::var) + apply(stats, 1, stats::var)) / 300)
+  ok <- se > 0
+  z <- (rowMeans(rows) - rowMeans(stats))[ok] / se[ok]
+  expect_lt(max(abs(z)), 4.5)
+})
+
+test_that("A single-level PPP is not marked experimental", {
+  utils::data("HolzingerSwineford1939", package = "lavaan")
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    HolzingerSwineford1939,
+    verbose = FALSE,
+    nsamp = 20
+  )
+  out <- capture.output(fit)
+  expect_true(any(grepl("PPP (Chi-square)", out, fixed = TRUE)))
+  expect_false(any(grepl("experimental", out)))
+})
+
+test_that("Replicate statistics split the within cross-products correctly", {
+  # Few within degrees of freedom: 32 singleton clusters and 8 pairs, with
+  # three fixed within covariates. The residual of the outcomes given the
+  # covariates is Wishart(N - J - k, V), which a wrong split of C and W
+  # would miss.
+  d <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 40, ]
+  d <- d[
+    ave(seq_len(nrow(d)), d$cluster, FUN = seq_along) <=
+      ifelse(d$cluster <= 8, 2, 1),
+  ]
+  fit0 <- suppressWarnings(lavaan::sem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1 + x2 + x3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    d,
+    cluster = "cluster",
+    do.fit = FALSE
+  ))
+  lavdata <- fit0@Data
+  lp <- lavdata@Lp[[1]]
+  imp <- lavaan::lav_model_implied(fit0@Model)
+  ylp_obs <- ppp2l_cluster_stats(lavdata@X[[1]], lp)
+  des <- ppp2l_design(lavdata, 1L)
+  expect_equal(des$N - des$J - length(des$f1), 5)
+  f <- des$cols1[des$f1]
+  r <- des$cols1[des$r1]
+  S <- imp$cov[[1]]
+  V <- S[des$r1, des$r1] -
+    S[des$r1, des$f1] %*% solve(S[des$f1, des$f1], S[des$f1, des$r1])
+  set.seed(6)
+  schur <- t(replicate(3000, {
+    cp <- ppp2l_draw_stats(des, imp, 1L, ylp_obs)[[2]]$Sigma.W *
+      (des$N - des$J)
+    rr <- cp[r, r] - cp[r, f] %*% solve(cp[f, f], cp[f, r])
+    diag(rr)
+  }))
+  ratio <- apply(schur, 2, stats::var) / (2 * 5 * diag(V)^2)
+  expect_true(all(ratio > 0.8 & ratio < 1.25))
+})
+
+test_that("Replicate statistics fall back to rows when D'D is singular", {
+  # w1 is constant within clusters, so as a level-1 covariate it has no
+  # within-cluster variation
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 40, ]
+  fit <- suppressWarnings(asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1 + w1
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    dat,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  ))
+  int <- get_inlavaan_internal(fit)
+  des <- ppp2l_design(int$lavdata, 1L)
+  expect_false(des$ok)
+  imp <- lavaan::lav_model_implied(fit@Model)
+  ylp_obs <- ppp2l_cluster_stats(int$lavdata@X[[1]], int$lavdata@Lp[[1]])
+  expect_null(ppp2l_draw_stats(des, imp, 1L, ylp_obs))
+  set.seed(2)
+  xs <- sample_params_posterior(int, 30, TRUE)$x_samp
+  ppp <- suppressWarnings(get_ppp_twolevel(
+    xs,
+    int$lavmodel,
+    int$lavsamplestats,
+    int$lavdata
+  ))
+  expect_false(is.na(ppp))
 })

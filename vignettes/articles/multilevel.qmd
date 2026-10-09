@@ -202,11 +202,15 @@ At Level 2 the slope appears in its own right -- its mean under *Intercepts* (`.
 fitmeasures(fit_rs)
 ```
 
-Four numbers, and no more.
-A random-slope model implies no single within-cluster covariance matrix -- the covariance of the outcomes depends on the values the covariates happen to take -- so there is nothing for an observed covariance matrix to be compared against.
-That removes the posterior predictive p-value and every index built on a chi-square against a saturated model (BRMSEA, BGammaHat, adjBGammaHat, BMc).
-Each of them would still return a number, but it would be a number about the wrong comparison, so INLAvaan drops `"ppp"` from the default `test` (the message printed above the fit) and raises an explanatory error for the indices.
-What remains is the model-comparison machinery, and that is enough to answer the substantive question.
+The posterior predictive p-value is missing.
+For an ordinary two-level model it scores replicate data sets against the saturated model, as blavaan does (by default with one Fisher-scoring step towards the saturated fit of each replicate; `ppp_method = "em"` gives blavaan's full EM fit), but a random-slope model has no saturated model: the covariance of the outcomes depends on the values the covariates happen to take, so an unrestricted model would need its own covariance matrix for every school.
+INLAvaan therefore drops `"ppp"` from the default `test` (the message printed above the fit).
+
+The Bayesian fit indices are present, on a different footing.
+Their chi-square is taken against the most general model with the same random effects -- every outcome with its own random intercept and its own random slope on `x1`, all freely correlated and all regressed on `w1`, and an unrestricted within-school residual covariance -- in which the fitted model is nested.
+That reference is INLAvaan's own construction rather than an established standard, so the indices say how close the model comes to it, and it needs enough schools to estimate its parameters.
+It cannot be built for a model with a between-only outcome, because lavaan's random-slope kernel allows such an outcome only as an indicator of a latent variable.
+The model-comparison machinery below is what answers the substantive question.
 
 ### Is There a Random Slope at All?
 
@@ -314,13 +318,15 @@ std[std$lhs %in% c("fw", "s1"), ]
 
 ### What Is Not Available
 
-INLAvaan prefers an error that explains itself to a plausible wrong number, so the following raise one on a random-slope fit:
+INLAvaan prefers an error that explains itself to a plausible wrong number.
+The posterior predictive p-value is dropped, as described above, and the following raise an error on a random-slope fit:
 
-- the posterior predictive p-value and the Bayesian fit indices from `bfit_indices()`, as described above;
-- casewise values from `fitted()` and `residuals()`, and residuals scaled by standard errors;
-- `simulate()`, lavaan having no random-slope data generator;
-- `predict()` for anything other than `type = "lv"`;
+- residuals scaled by standard errors (`type = "normalized"` or `"standardized"`);
+- `predict(type = "ymis")`;
 - `loo(type = "loso")`.
+
+Everything else works.
+`simulate()` draws replicate data sets in which every school keeps its own covariates and size, `sampling()` gives latent, observed and implied draws, `predict(type = "yhat")` gives each student's predicted outcomes from the school's own random effects, and `fitted(type = "casewise")` gives the outcomes' means given the covariates alone.
 
 A random-slope model with observed exogenous covariates also requires `fixed.x = TRUE` (lavaan's default): the likelihood conditions on those covariates, so their means and (co)variances are unidentified and would simply be reported back as their priors.
 A model whose covariates are all latent or modelled has nothing to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own accord; such a fit is accepted as it stands.
@@ -332,6 +338,7 @@ When the covariate is latent, or split across both levels (the same variable ent
 INLAvaan takes that route automatically and warns when it does.
 The argument `integration.ngh` sets the number of nodes per dimension; because it is an accuracy setting as much as a cost setting, every fit that is to appear in the same `compare()` table must use the same value, which `compare()` also checks.
 A split covariate is conditioned on just as a purely within-cluster one is, so the plain fixed-slope model with the same covariates is the comparator to use; fixing the slope variance at zero is not possible on this route.
-The averaged moments and the standardised estimates are available on this route too, but `per_cluster = TRUE` is not, because each school's outcomes are then a mixture over the quadrature nodes.
+The averaged moments, the standardised estimates and the `sampling()` draws are available on this route too.
+The data generator of `simulate()`, `per_cluster = TRUE`, the casewise and `yhat` values and the Bayesian fit indices are not, because each school's outcomes are then a mixture over the quadrature nodes.
 
 ## References

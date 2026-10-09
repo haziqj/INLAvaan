@@ -31,8 +31,13 @@ show_inlavaan <- function(object) {
   )
 
   if (isTRUE(show_ppp)) {
+    ppp_label <- if (object@Data@nlevels > 1L) {
+      "PPP (Chi-square, experimental)"
+    } else {
+      "PPP (Chi-square)"
+    }
     cat(
-      sprintf("   %-38s", "PPP (Chi-square)"),
+      sprintf("   %-38s", ppp_label),
       sprintf("  %10.3f", object@Fit@test$ppp$stat),
       "\n"
     )

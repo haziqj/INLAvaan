@@ -4,14 +4,17 @@
 
 * INLAvaan now fits two-level models with random slopes, which lavaan specifies
   with the `rv()` modifier. They work with `compare()`, `loo()`, `waic()`,
-  `logLik()` and `predict(type = "lv")`, and `summary()` marks the rows that
-  carry a random slope. `fitted()`, `residuals()` and the standardised estimates
-  use the implied moments averaged over the covariates, and `per_cluster = TRUE`
-  gives those of each cluster. The posterior predictive p-value and `simulate()`
-  give an error. A random slope on a latent or split covariate uses lavaan's
-  quadrature, which is slower, and `integration.ngh` sets its number of nodes.
-  Composites cannot be combined with random slopes yet. See the multilevel
-  article.
+  `logLik()`, `predict()`, `simulate()` and `sampling()`, and `summary()` marks
+  the rows that carry a random slope. `fitted()`, `residuals()` and the
+  standardised estimates use the implied moments averaged over the covariates,
+  and `per_cluster = TRUE` gives those of each cluster. The Bayesian fit indices
+  are scaled against an unrestricted random-coefficient model. The posterior
+  predictive p-value is not available and is dropped from `test`. A random
+  slope on a latent or split covariate uses lavaan's quadrature, which is
+  slower, and `integration.ngh` sets its number of nodes. Such fits have no
+  `simulate()`, casewise values, `predict(type = "yhat")`,
+  `per_cluster = TRUE` or Bayesian fit indices. Composites cannot be combined with random slopes yet. See the
+  multilevel article.
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
   with continuous data, in one or more groups or at either level of a two-level
@@ -30,6 +33,20 @@
   mean that only composites measure (as in `agrowth()` on composites).
 
 ## Bug fixes
+
+* The posterior predictive p-value of two-level models was often close to 0
+  for models that fit. It now follows blavaan's two-level PPP: each posterior
+  draw generates replicate data, which are scored against the saturated model.
+  The new arguments `ppp_method` and `ppp_nsamp` set how the data are scored
+  (by default one Fisher-scoring step towards the saturated fit) and how many
+  draws are used (250). The two-level PPP is experimental.
+
+* `simulate()` on a two-level fit now keeps the clusters of the data, with
+  their labels and sizes, and no longer warns on every data set.
+
+* `BCFI` was `-Inf` or `NaN` for posterior draws whose independence model
+  fits within its degrees of freedom. Such draws now follow lavaan's CFI
+  convention.
 
 * `standardisedsolution()` ignored its `nsamp` argument and summarised as many
   posterior draws as the fit itself had used.
@@ -163,9 +180,6 @@
 
 * `sampling()` for `conditional.x = TRUE` fits now draws the covariates too,
   as for other fits. Previously it left out their effects.
-
-* The PPP of a two-level model is skipped, with a warning, when a variable at
-  both levels has almost no between-level variance. It was 0 in such models.
 
 * Models with a free covariance above 1 at its starting value, such as
   covariances between covariates under `fixed.x = FALSE`, no longer fail.

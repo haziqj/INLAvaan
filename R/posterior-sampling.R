@@ -150,84 +150,34 @@ get_ppp <- function(
   h1 = NULL,
   cli_env = NULL
 ) {
+  # Single-level fits only: two-level fits go through get_ppp_twolevel()
   n_blocks <- lavmodel@nblocks
-  n_levels <- lavdata@nlevels
   has_missing <- isTRUE(lavsamplestats@missing.flag)
-  # lavaan's saturated (h1) covariance blocks. They are the observed
-  # covariance that the discrepancy must use whenever the plain sample
-  # statistics are not: under FIML the sample covariance is not the
-  # saturated estimate, and the two-level cluster statistics (YLp) are
-  # computed without regard to missing cells.
-  h1_cov <- h1$implied$cov
-
-  # Pre-compute per-block observed variable names (needed for alignment)
-  ov_names_block <- vector("list", n_blocks)
-  for (b in seq_len(n_blocks)) {
-    g <- ceiling(b / n_levels)
-    ov_all <- lavdata@ov.names[[g]]
-    if (!is.null(lavpartable)) {
-      ov_names_block[[b]] <- unique(
-        lavpartable$lhs[
-          lavpartable$block == b &
-            lavpartable$op == "~~" &
-            lavpartable$lhs == lavpartable$rhs &
-            lavpartable$lhs %in% ov_all
-        ]
-      )
-    }
-  }
 
   # Pre-compute per-block observed stats (S, n, logdet_S) — invariant across
   # samples, so we avoid redundant extraction and determinant calls in the loop.
   block_obs <- vector("list", n_blocks)
   for (b in seq_len(n_blocks)) {
-    g <- ceiling(b / n_levels)
-    l <- (b - 1) %% n_levels + 1
-
-    if (n_levels > 1) {
-      # nocov start
-      n <- if (l == 1) {
-        lavdata@nobs[[g]]
-      } else {
-        lavdata@Lp[[g]]$nclusters[[l]]
-      }
-      if (!is.null(h1_cov) && length(h1_cov) >= b) {
-        # Saturated within- and between-level covariances, named by the
-        # variables of that level
-        S <- h1_cov[[b]]
-        ov_l <- lavdata@ov.names.l[[g]][[l]]
-        if (nrow(S) == length(ov_l)) {
-          rownames(S) <- colnames(S) <- ov_l
-        }
-      } else {
-        cluster_stats <- lavsamplestats@YLp[[g]][[2]]
-        S <- if (l == 1) cluster_stats$Sigma.W else cluster_stats$Sigma.B
-        rownames(S) <- colnames(S) <- lavdata@ov.names[[g]]
-        keep <- rowSums(S != 0) > 0
-        S <- S[keep, keep, drop = FALSE]
-      }
-      # nocov end
+    g <- b
+    n <- lavsamplestats@nobs[[g]]
+    # The observed covariance: the EM (saturated) estimate under FIML,
+    # the plain sample covariance otherwise. Both have divisor n, and
+    # the replicates below are Wishart(n - 1, Sigma) / (n - 1) objects,
+    # so rescale to the unbiased (n - 1) form to match.
+    S <- if (has_missing && !is.null(lavsamplestats@missing.h1[[g]]$sigma)) {
+      lavsamplestats@missing.h1[[g]]$sigma
     } else {
-      n <- lavsamplestats@nobs[[g]]
-      # The observed covariance: the EM (saturated) estimate under FIML,
-      # the plain sample covariance otherwise. Both have divisor n, and
-      # the replicates below are Wishart(n - 1, Sigma) / (n - 1) objects,
-      # so rescale to the unbiased (n - 1) form to match
-      S <- if (has_missing && !is.null(lavsamplestats@missing.h1[[g]]$sigma)) {
-        lavsamplestats@missing.h1[[g]]$sigma
-      } else {
-        lavsamplestats@cov[[g]]
-      }
-      S <- S * n / (n - 1)
+      lavsamplestats@cov[[g]]
     }
+    S <- S * n / (n - 1)
 
     logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
     block_obs[[b]] <- list(
       S = S,
       n = n,
       logdet_S = logdet_S,
-      # Positions of the fixed covariates (single-level only)
-      x_idx = if (n_levels == 1) lavsamplestats@x.idx[[g]] else integer(0L)
+      # Positions of the fixed covariates
+      x_idx = lavsamplestats@x.idx[[g]]
     )
   }
 
@@ -271,19 +221,6 @@ get_ppp <- function(
       logdet_S <- block_obs[[b]]$logdet_S
 
       Sigma <- implied_joint_moments(lavimplied, b, block_obs[[b]]$x_idx)$cov
-
-      # Align dimensions for multilevel models
-      if (n_levels > 1 && length(ov_names_block[[b]]) == nrow(Sigma)) {
-        # nocov start
-        rownames(Sigma) <- colnames(Sigma) <- ov_names_block[[b]]
-        shared <- intersect(rownames(S), rownames(Sigma))
-        if (length(shared) > 0) {
-          S <- S[shared, shared, drop = FALSE]
-          Sigma <- Sigma[shared, shared, drop = FALSE]
-          logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
-        }
-        # nocov end
-      }
 
       if (!is_bad_cov(Sigma)) {
         p <- nrow(Sigma)
@@ -600,29 +537,6 @@ composite_fixed_t <- function(lavmodel, pt, lavdata) {
     return(NULL)
   }
   out
-}
-
-# Variables at both levels whose between-level variance is under a quarter of
-# the noise in a cluster mean (within variance over the mean cluster size). The
-# two-level PPP takes the replicate between covariance as Wishart around the
-# implied one, which leaves that noise out. For such a variable the reference
-# is far too tight, and the PPP falls to 0 for a model that fits.
-ppp_weak_between_vars <- function(lavdata, h1) {
-  h1_cov <- h1$implied$cov
-  if (lavdata@nlevels < 2L || is.null(h1_cov)) {
-    return(character(0L))
-  }
-  weak <- character(0L)
-  for (g in seq_len(lavdata@ngroups)) {
-    nm <- lavdata@ov.names.l[[g]]
-    both <- intersect(nm[[1L]], nm[[2L]])
-    Lp <- lavdata@Lp[[g]]
-    nbar <- Lp$nclusters[[1L]] / Lp$nclusters[[2L]]
-    var_w <- diag(h1_cov[[2L * g - 1L]])[match(both, nm[[1L]])]
-    var_b <- diag(h1_cov[[2L * g]])[match(both, nm[[2L]])]
-    weak <- c(weak, both[var_b < 0.25 * var_w / nbar])
-  }
-  unique(weak)
 }
 
 # F(S, Sigma) = log|Sigma| + tr(Sigma^{-1} S) - log|S| - p

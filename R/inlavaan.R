@@ -33,16 +33,18 @@
 #'   both. They run only when asked for, with no time budget. On a model
 #'   the casewise machinery does not support (PML or ordinal data,
 #'   `conditional.x = TRUE`, multigroup two-level) they are skipped with a
-#'   warning and the rest of the fit proceeds. The PPP is skipped the same way
-#'   for a two-level model in which a variable at both levels has almost no
-#'   between-level variance. The fit records what was
-#'   requested and what was computed (`get_inlavaan_internal(fit, "test")`);
+#'   warning and the rest of the fit proceeds. For a two-level model the PPP
+#'   follows blavaan: each of `ppp_nsamp` posterior draws generates replicate
+#'   data, which are scored against the saturated model (see `ppp_method`).
+#'   The two-level PPP is experimental.
+#'   The fit records what was requested and what was computed
+#'   (`get_inlavaan_internal(fit, "test")`);
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
 #'   report only what was computed. [add_loo()] stores the LOO and WAIC
 #'   post hoc; [loo()] and [waic()] compute on demand. For a random-slope
-#'   model `"ppp"` is dropped, with a message saying why (see the Random
-#'   slopes section of [inlavaan()]); `"dic"`, `"loo"` and `"waic"` are
-#'   unaffected.
+#'   model `"ppp"` is dropped, with a warning when it was asked for and a
+#'   message otherwise (see the Random slopes section of [inlavaan()]).
+#'   `"dic"`, `"loo"` and `"waic"` are unaffected.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
@@ -143,6 +145,18 @@
 #'   cores -- forked via [parallel::mclapply()] where that is safe, or over a
 #'   PSOCK cluster (separate R processes) inside IDE R sessions (RStudio,
 #'   Positron) and on Windows.
+#' @param ppp_method How the PPP of a two-level model scores the observed and
+#'   the replicate data against the saturated model. `"onestep"` (default)
+#'   takes one Fisher-scoring step from the moments of each posterior draw
+#'   towards the saturated fit, and fits by EM where the step would leave the
+#'   valid covariance matrices (with few clusters or a small between
+#'   variance). `"em"` always fits the saturated model by EM, as blavaan does.
+#'   Fits with `missing = "ml"` always use `"em"`. Ignored for single-level
+#'   models.
+#' @param ppp_nsamp The number of posterior draws, each with one replicate data
+#'   set, that the PPP of a two-level model uses. Defaults to `250`, and is
+#'   capped at `nsamp`. Draws that cannot be scored are left out, with a
+#'   warning. Ignored for single-level models.
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
 #'   function.
 #'
@@ -213,30 +227,27 @@
 #' covariate has a non-zero mean, has no place in lavaan's two-level layout,
 #' and these outputs abort for it.
 #'
-#' Everything resting on a comparison with a single implied matrix aborts
-#' with an explanation rather than returning a plausible wrong number:
+#' [simulate()] draws each cluster's slopes and other level-2 effects and
+#' then its outcomes, at the cluster's own covariates (closed-form route
+#' only). [sampling()] gives latent, observed and implied draws. [predict()]
+#' gives `type = "lv"` and, on the closed-form route, the cluster-specific
+#' `"yhat"` and `"ypred"` from the empirical Bayes random effects, while
+#' `fitted(type = "casewise")` gives the outcomes' means given the
+#' covariates. [bfit_indices()] scales the Bayesian fit indices against the
+#' unrestricted random-coefficient model with the same random-effects design,
+#' because a saturated model does not exist here. This reference is
+#' INLAvaan's own construction (closed-form route only).
 #'
-#'   - the posterior predictive p-value (`test = "ppp"`) and the Bayesian
-#'     fit indices from [bfit_indices()] (BRMSEA, BGammaHat, adjBGammaHat,
-#'     BMc), which are built on a chi-square against a saturated
-#'     log-likelihood that is on a different scale here;
-#'   - casewise values from [fitted()] and [residuals()], and the residual
-#'     types scaled by standard errors;
-#'   - [simulate()], lavaan having no random-slope data generator;
-#'   - the latent, observed and implied draws of [sampling()], which are
-#'     built from lavaan's implied moments (parameter draws are
-#'     unaffected);
-#'   - [predict()] for anything but `type = "lv"`;
-#'   - `loo(type = "loso")`, which would need a cluster's sufficient
-#'     statistics downdated by one row, something the random-slope kernel
-#'     has no analogue for.
+#' The posterior predictive p-value (`test = "ppp"`) is dropped, because a
+#' random-slope model has no saturated model to score replicate data against.
+#' What aborts with an explanation: the residual types scaled by standard
+#' errors, `predict(type = "ymis")`, and `loo(type = "loso")`, which would
+#' need a cluster's sufficient statistics downdated by one row.
 #'
 #' The model-comparison side works throughout. [compare()] reports the
-#' marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}; [loo()]
+#' marginal likelihood, Bayes factors, the DIC and its \eqn{p_D}, and [loo()]
 #' and [waic()] score the fit leave-one-cluster-out on the conditional
-#' likelihood; `predict(type = "lv", level = 2)` returns the cluster-level
-#' slopes alongside the other level-2 latent variables; and [fitmeasures()]
-#' keeps `npar`, `margloglik`, `dic` and `p_dic`.
+#' likelihood.
 #'
 #' To ask whether there is a random slope at all, compare the fit with the
 #' fixed-slope model (`fw ~ x1` at level 1) using [compare()]. On the
@@ -280,6 +291,8 @@ inlavaan <- function(
   numerical_grad = FALSE,
   start = NULL,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 ) {
   mc <- match.call()
@@ -294,6 +307,15 @@ inlavaan <- function(
     if (is.na(cores) || cores < 1L) cores <- 1L
   } # nocov end
   marginal_method <- match.arg(marginal_method)
+  ppp_method <- match.arg(ppp_method)
+  if (
+    !is.numeric(ppp_nsamp) ||
+      length(ppp_nsamp) != 1L ||
+      is.na(ppp_nsamp) ||
+      ppp_nsamp < 1
+  ) {
+    cli_abort("{.arg ppp_nsamp} must be a number of at least 1.")
+  }
   if (isFALSE(marginal_correction)) {
     marginal_correction <- "none"
   } else {
@@ -458,10 +480,9 @@ inlavaan <- function(
         ppp = gsub(
           "\\s+",
           " ",
-          "A posterior predictive p-value compares the observed
-           within-cluster covariance with the model-implied one, and a
-           random-slope model implies no single within-cluster covariance:
-           the covariance of y depends on the covariate values."
+          "A posterior predictive p-value scores replicate data against a
+           saturated model, and a random-slope model has none. Each cluster
+           has its own covariance, which depends on its covariate values."
         )
       )
       if (any(c("ppp", "full") %in% test)) {
@@ -469,10 +490,10 @@ inlavaan <- function(
           c(
             "Dropping {.val ppp} from {.arg test}: a posterior predictive
              p-value does not exist for a random-slope model.",
-            "x" = "Its discrepancy compares the observed within-cluster
-                   covariance with the model-implied one, and a random-slope
-                   model implies no single within-cluster covariance -- the
-                   covariance of y depends on the covariate values.",
+            "x" = "Its discrepancy scores replicate data against a saturated
+                   model, and a random-slope model has none. Each cluster has
+                   its own covariance, which depends on its covariate
+                   values.",
             "i" = "Use {.fn compare} (marginal likelihood, Bayes factors,
                    DIC) or {.fn loo} instead."
           ),
@@ -481,7 +502,7 @@ inlavaan <- function(
       } else if (isTRUE(verbose)) {
         # Kept to one source line: cli_alert_info() does not re-wrap
         cli_alert_info(
-          "No PPP: no single within-cluster covariance to compare with."
+          "No PPP: a random-slope model has no saturated model."
         )
       }
     }
@@ -1215,7 +1236,12 @@ inlavaan <- function(
           )
         )
         # Keep the z-space fit so visual_debug() can draw the smooth SN curve
-        attr(vd, "sn_params") <- unlist(fit_sn[c("xi", "omega", "alpha", "logC")])
+        attr(vd, "sn_params") <- unlist(fit_sn[c(
+          "xi",
+          "omega",
+          "alpha",
+          "logC"
+        )])
 
         # Adjust back to theta space
         fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
@@ -1459,13 +1485,15 @@ inlavaan <- function(
       )
       cli_progress_update(.envir = samp_env)
     }
-    weak <- ppp_weak_between_vars(lavdata, fit0@h1)
-    if ("ppp" %in% test_req && length(weak) > 0L) {
+    fixed_both <- if (lavdata@nlevels > 1L) ppp2l_fixed_both(lavdata)
+    if ("ppp" %in% test_req && length(fixed_both) > 0L) {
+      # nocov start -- lavaan models a covariate at both levels, so it does
+      # not mark one as fixed at both today.
       msg <- paste0(
-        "The between-level variance of ",
-        paste(weak, collapse = ", "),
-        " is too small next to the noise in its cluster means for the ",
-        "two-level PPP."
+        "The two-level PPP draws its replicate data given the fixed ",
+        "covariates of each level, and ",
+        paste(fixed_both, collapse = ", "),
+        " is fixed at both levels."
       )
       cli_warn(c(
         "Skipping the PPP requested through {.arg test}.",
@@ -1474,6 +1502,21 @@ inlavaan <- function(
                {.code get_inlavaan_internal(fit, \"test\")$skipped}."
       ))
       skipped <- c(skipped, ppp = msg)
+      # nocov end
+    } else if ("ppp" %in% test_req && lavdata@nlevels > 1L) {
+      n_ppp <- min(nrow(x_samp), floor(ppp_nsamp))
+      ppp <- get_ppp_twolevel(
+        x_samp = x_samp[seq_len(n_ppp), , drop = FALSE],
+        lavmodel = lavmodel,
+        lavsamplestats = lavsamplestats,
+        lavdata = lavdata,
+        method = ppp_method,
+        cli_env = samp_env
+      )
+      if (is.na(ppp)) {
+        skipped <- c(skipped, ppp = "No posterior draw could be scored.")
+        ppp <- NULL
+      }
     } else if ("ppp" %in% test_req) {
       ppp <- get_ppp(
         x_samp = x_samp,
@@ -1590,6 +1633,13 @@ inlavaan <- function(
         paste0("Fit measures: ", paste(fit_measures, collapse = ", "), ".")
       )
     }
+    if ("ppp" %in% computed && lavdata@nlevels > 1L) {
+      cli_alert_info("The two-level PPP is experimental.")
+      cli_alert_info(paste0(
+        "Please report any bugs at ",
+        "{.url https://github.com/haziqj/INLAvaan/issues}."
+      ))
+    }
   }
 
   ## ----- Output --------------------------------------------------------------
@@ -1698,6 +1748,8 @@ acfa <- function(
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 ) {
   sc <- sys.call()
@@ -1754,6 +1806,8 @@ asem <- function(
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 ) {
   sc <- sys.call()
@@ -1808,6 +1862,8 @@ agrowth <- function(
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 ) {
   sc <- sys.call()

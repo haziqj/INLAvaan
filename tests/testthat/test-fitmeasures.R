@@ -364,7 +364,8 @@ test_that("The baseline is scaled by its own moment count", {
       lavoptions,
       lavcache,
       p,
-      rescale
+      rescale,
+      loglik_sat = NULL
     ) {
       p_used <<- c(p_used, p)
       rescale_original(
@@ -376,7 +377,8 @@ test_that("The baseline is scaled by its own moment count", {
         lavoptions,
         lavcache,
         p,
-        rescale
+        rescale,
+        loglik_sat
       )
     }
   )
@@ -399,4 +401,8 @@ test_that("The baseline is scaled by its own moment count", {
   p_used <- numeric(0)
   bfit_indices(fit_test, baseline.model = fit_null)
   expect_equal(p_used, c(21, 21))
+})
+
+test_that("BCFI follows lavaan when the baseline has no noncentrality", {
+  expect_equal(compute_BCFI(c(1, 2, 0), c(4, 0, 0)), c(0.75, 0, 1))
 })

@@ -51,7 +51,10 @@ Other types ignore it: for two-level models, \code{"yhat"} and
 observation-level residuals are new. For a random-slope model (see
 \code{\link[=inlavaan]{inlavaan()}}), each level 2 latent variable, slopes included, is drawn on
 its own, so draws of different variables are independent given the
-parameters, and level 1 values are conditional means.}
+parameters, and level 1 values are conditional means. Its
+\code{"yhat"} and \code{"ypred"} use these empirical Bayes values
+(closed-form route only), and \code{"ypred"} adds the level-1 and
+between-level residuals.}
 
 \item{nsamp}{Integer; number of posterior samples to use for prediction.
 Defaults to \code{1000}.}

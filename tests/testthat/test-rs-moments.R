@@ -654,7 +654,7 @@ test_that("Per-cluster moments and residuals", {
 })
 
 test_that("The outputs a random-slope fit cannot give are refused", {
-  expect_error(fitted(fit_rs, type = "casewise"), class = "inlavaan_rs_moments")
+  expect_error(fitted(fit_rs, type = "raw"), class = "inlavaan_rs_moments")
   expect_error(
     residuals(fit_rs, type = "normalized"),
     class = "inlavaan_rs_moments"

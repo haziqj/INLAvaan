@@ -29,6 +29,8 @@ agrowth(
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 )
 }
@@ -60,16 +62,18 @@ and the WAIC come from one Taylor pass, so asking for either stores
 both. They run only when asked for, with no time budget. On a model
 the casewise machinery does not support (PML or ordinal data,
 \code{conditional.x = TRUE}, multigroup two-level) they are skipped with a
-warning and the rest of the fit proceeds. The PPP is skipped the same way
-for a two-level model in which a variable at both levels has almost no
-between-level variance. The fit records what was
-requested and what was computed (\code{get_inlavaan_internal(fit, "test")});
+warning and the rest of the fit proceeds. For a two-level model the PPP
+follows blavaan: each of \code{ppp_nsamp} posterior draws generates replicate
+data, which are scored against the saturated model (see \code{ppp_method}).
+The two-level PPP is experimental.
+The fit records what was requested and what was computed
+(\code{get_inlavaan_internal(fit, "test")});
 \code{\link[=summary]{summary()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
 report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO and WAIC
 post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand. For a random-slope
-model \code{"ppp"} is dropped, with a message saying why (see the Random
-slopes section of \code{\link[=inlavaan]{inlavaan()}}); \code{"dic"}, \code{"loo"} and \code{"waic"} are
-unaffected.}
+model \code{"ppp"} is dropped, with a warning when it was asked for and a
+message otherwise (see the Random slopes section of \code{\link[=inlavaan]{inlavaan()}}).
+\code{"dic"}, \code{"loo"} and \code{"waic"} are unaffected.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
@@ -184,6 +188,20 @@ serial execution. If \code{cores > 1}, marginal fits are distributed across
 cores -- forked via \code{\link[parallel:mclapply]{parallel::mclapply()}} where that is safe, or over a
 PSOCK cluster (separate R processes) inside IDE R sessions (RStudio,
 Positron) and on Windows.}
+
+\item{ppp_method}{How the PPP of a two-level model scores the observed and
+the replicate data against the saturated model. \code{"onestep"} (default)
+takes one Fisher-scoring step from the moments of each posterior draw
+towards the saturated fit, and fits by EM where the step would leave the
+valid covariance matrices (with few clusters or a small between
+variance). \code{"em"} always fits the saturated model by EM, as blavaan does.
+Fits with \code{missing = "ml"} always use \code{"em"}. Ignored for single-level
+models.}
+
+\item{ppp_nsamp}{The number of posterior draws, each with one replicate data
+set, that the PPP of a two-level model uses. Defaults to \code{250}, and is
+capped at \code{nsamp}. Draws that cannot be scored are left out, with a
+warning. Ignored for single-level models.}
 
 \item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan} model fitting
 function.}

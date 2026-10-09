@@ -174,7 +174,7 @@ test_that("Random slopes: PPP is dropped from the default test", {
   expect_true("dic" %in% rec$computed)
   expect_true("ppp" %in% rec$requested)
   expect_true("ppp" %in% names(rec$skipped))
-  expect_match(rec$skipped[["ppp"]], "within-cluster covariance")
+  expect_match(rec$skipped[["ppp"]], "no saturated model|has none")
 
   # Naming ppp explicitly is worth a warning
   expect_warning(
@@ -196,39 +196,21 @@ test_that("Random slopes: fitmeasures keeps only what exists", {
   fm <- fitMeasures(fit_rs_dic)
 
   expect_true(all(c("npar", "margloglik", "dic", "p_dic") %in% names(fm)))
-  gone <- c(
-    "ppp",
-    "BRMSEA",
-    "BGammaHat",
-    "adjBGammaHat",
-    "BMc",
-    "chisq",
-    "cfi",
-    "rmsea",
-    "aic",
-    "bic"
-  )
+  # The B-indices are scaled against the random-coefficient reference
+  expect_true(all(c("BRMSEA", "BGammaHat", "BCFI") %in% names(fm)))
+  gone <- c("ppp", "chisq", "cfi", "rmsea", "aic", "bic")
   expect_false(any(gone %in% names(fm)))
 
   # Asking for one of them by name says why nothing came back
   expect_error(
-    fitMeasures(fit_rs_dic, "BRMSEA"),
+    fitMeasures(fit_rs_dic, "chisq"),
     class = "inlavaan_rs_fitmeasures"
   )
 })
 
 test_that("Random slopes: the quantities that do not exist are gated", {
-  expect_error(bfit_indices(fit_rs), class = "inlavaan_rs_bfit")
-  expect_error(simulate(fit_rs, nsim = 1), class = "inlavaan_rs_simulate")
-  expect_error(predict(fit_rs, type = "yhat"), class = "inlavaan_rs_predict")
+  expect_error(predict(fit_rs, type = "ymis"), class = "inlavaan_rs_predict")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
-  for (tp in c("latent", "observed", "implied", "all")) {
-    expect_error(
-      sampling(fit_rs, type = tp, nsamp = 2),
-      class = "inlavaan_rs_sampling"
-    )
-  }
-  # Parameter draws never touch the implied moments and stay available
   expect_equal(dim(sampling(fit_rs, type = "lavaan", nsamp = 4)), c(4L, 19L))
 })
 
@@ -436,6 +418,18 @@ test_that("Random slopes: the quadrature route has averaged moments only", {
   set.seed(3)
   std <- standardisedsolution(fit_b, nsamp = 10)
   expect_true(all(is.finite(std$est.std)))
+  # The generative draws need no quadrature, the data generator does
+  expect_length(sampling(fit_b, type = "implied", nsamp = 2), 2L)
+  expect_equal(dim(sampling(fit_b, type = "observed", nsamp = 2)), c(2L, 2L))
+  expect_error(simulate(fit_b, nsim = 1), class = "inlavaan_rs_simulate")
+  expect_error(
+    bfit_indices(fit_b, rescale = "MCMC", nsamp = 5),
+    class = "inlavaan_rs_bfit"
+  )
+  expect_false("BRMSEA" %in% names(fitMeasures(fit_b)))
+  expect_error(fitMeasures(fit_b, "BRMSEA"), class = "inlavaan_rs_bfit")
+  expect_error(fitted(fit_b, type = "casewise"), class = "inlavaan_rs_casewise")
+  expect_error(predict(fit_b, type = "yhat"), class = "inlavaan_rs_casewise")
   # Each cluster is a mixture over the quadrature nodes
   expect_error(
     fitted(fit_b, per_cluster = TRUE),

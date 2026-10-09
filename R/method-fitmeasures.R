@@ -55,9 +55,12 @@ compute_chisq_dev <- function(
   lavsamplestats,
   lavdata,
   lavoptions,
-  lavcache
+  lavcache,
+  loglik_sat = NULL
 ) {
-  loglik_sat <- compute_loglik_sat(object, lavsamplestats, lavdata)
+  if (is.null(loglik_sat)) {
+    loglik_sat <- compute_loglik_sat(object, lavsamplestats, lavdata)
+  }
   vapply(
     seq_len(nrow(x_samp)),
     function(i) {
@@ -89,7 +92,14 @@ compute_adjBGammaHat <- function(BGammaHat, p, df) {
 compute_BMc <- function(nonc, N) exp(-0.5 * nonc / N)
 
 # Incremental fit indices (vectorised) ----------------------------------------
-compute_BCFI <- function(nonc, nonc_null) 1 - nonc / nonc_null
+compute_BCFI <- function(nonc, nonc_null) {
+  out <- 1 - nonc / nonc_null
+  # A baseline with no noncentrality leaves nothing to scale by. Such a draw
+  # takes lavaan's CFI convention: 1 when the model has none either, else 0.
+  zero <- !(nonc_null > 0)
+  out[zero] <- as.numeric(nonc[zero] <= 0)
+  out
+}
 compute_BTLI <- function(adj_dev, df, adj_dev_null, df_null) {
   tli_null <- adj_dev_null / df_null
   denom <- tli_null - 1
@@ -163,7 +173,8 @@ compute_rescaled_quantities <- function(
   lavoptions,
   lavcache,
   p,
-  rescale
+  rescale,
+  loglik_sat = NULL
 ) {
   N <- lavsamplestats@ntotal
   Ngr <- lavdata@ngroups
@@ -176,7 +187,8 @@ compute_rescaled_quantities <- function(
     lavsamplestats,
     lavdata,
     lavoptions,
-    lavcache
+    lavcache,
+    loglik_sat
   )
 
   if (rescale == "devM") {
@@ -309,6 +321,13 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
 #' Compute posterior distributions of Bayesian fit indices for an INLAvaan
 #' model, analogous to [blavaan::blavFitIndices()].
 #'
+#' For a random-slope model, which has no saturated model, the chi-square and
+#' the number of sample moments come from the unrestricted random-coefficient
+#' model with the same random-effects design, fitted by maximum likelihood.
+#' This reference is INLAvaan's own construction. It is available on the
+#' closed-form route only, for models without between-only outcomes, and
+#' needs enough clusters for its parameters.
+#'
 #' @param object An object of class [INLAvaan].
 #' @param baseline.model The baseline (null) model that the incremental fit
 #'   indices (BCFI, BTLI, BNFI) are scaled against. `NULL` (default) fits the
@@ -378,20 +397,11 @@ bfit_indices <- function(
   lavsamplestats <- int$lavsamplestats
   lavdata <- int$lavdata
 
+  # A random-slope fit has no saturated model, so it is scaled against the
+  # unrestricted random-coefficient model instead (see rs_baseline_fit()).
+  rs_ref <- NULL
   if (has_random_slopes(lavmodel)) {
-    cli_abort(
-      c(
-        "Bayesian fit indices do not exist for a random-slope model.",
-        "x" = "They rest on a chi-square against the saturated
-               log-likelihood, which for a random-slope model is the joint
-               (y, x) fit and not on the scale of the model's conditional
-               log-likelihood, so BRMSEA, BGammaHat, adjBGammaHat, BMc,
-               BCFI, BTLI and BNFI would be arbitrary numbers.",
-        "i" = "Use {.fn compare} (marginal likelihood, Bayes factors, DIC)
-               or {.fn loo}."
-      ),
-      class = "inlavaan_rs_bfit"
-    )
+    rs_ref <- rs_baseline_fit(object)
   }
 
   nsamp <- nsamp %||% int$nsamp %||% 500L
@@ -427,7 +437,11 @@ bfit_indices <- function(
   nvar <- lavmodel@nvar
   # Number of sample moments, counted as lavaan counts them for the model's
   # degrees of freedom (see count_sample_moments()).
-  p <- count_sample_moments(object@ParTable)
+  p <- if (is.null(rs_ref)) {
+    count_sample_moments(object@ParTable)
+  } else {
+    rs_ref$npar
+  }
 
   rq <- compute_rescaled_quantities(
     object,
@@ -438,7 +452,8 @@ bfit_indices <- function(
     lavoptions,
     lavcache,
     p,
-    rescale
+    rescale,
+    rs_ref$loglik
   )
 
   indices <- list()
@@ -481,8 +496,9 @@ bfit_indices <- function(
       bint$lavdata,
       reconstruct_lavoptions(baseline.model),
       baseline.model@Cache,
-      count_sample_moments(baseline.model@ParTable),
-      rescale
+      if (is.null(rs_ref)) count_sample_moments(baseline.model@ParTable) else p,
+      rescale,
+      rs_ref$loglik
     )
 
     adj_dev_use <- rq$adj_dev[seq_len(n_use)]
@@ -611,11 +627,32 @@ inlav_fit_measures <- function(
     baseline.model <- FALSE
   }
 
-  # Bayesian fit indices (BRMSEA, BGammaHat, etc.)
-  bfi <- tryCatch(
-    bfit_indices(object, baseline.model, rescale),
-    error = function(e) NULL
+  # Bayesian fit indices (BRMSEA, BGammaHat, etc.), only when wanted. A
+  # random-slope fit that cannot have them says why when one is asked for by
+  # name.
+  bfit_names <- c(
+    "BRMSEA",
+    "BGammaHat",
+    "adjBGammaHat",
+    "BMc",
+    "BCFI",
+    "BTLI",
+    "BNFI"
   )
+  named_bfit <- !identical(fit.measures, "all") &&
+    any(bfit_names %in% fit.measures)
+  bfi <- NULL
+  if (identical(fit.measures, "all") || named_bfit) {
+    bfi <- tryCatch(
+      bfit_indices(object, baseline.model, rescale),
+      error = function(e) {
+        if (inherits(e, "inlavaan_rs_bfit") && named_bfit) {
+          stop(e)
+        }
+        NULL
+      }
+    )
+  }
   if (!is.null(bfi)) {
     for (nm in names(bfi$indices)) {
       out[nm] <- mean(bfi$indices[[nm]], na.rm = TRUE)
