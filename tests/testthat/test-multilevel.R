@@ -462,7 +462,7 @@ test_that("The two-level PPP warns about draws that give no replicate", {
   bad <- matrix(NA_real_, 3, length(x))
   expect_warning(
     ppp <- get_ppp_twolevel(bad, int$lavmodel, int$lavsamplestats, int$lavdata),
-    "No posterior draw"
+    "No posterior draw could be scored"
   )
   expect_identical(ppp, NA_real_)
   set.seed(2)
@@ -474,12 +474,12 @@ test_that("The two-level PPP warns about draws that give no replicate", {
       int$lavsamplestats,
       int$lavdata
     ),
-    "1 of 3 posterior draws"
+    "1 of 3 posterior draws could not be scored"
   )
   expect_true(ppp %in% c(0, 0.5, 1))
 })
 
-## ----- One-step two-level PPP ------------------------------------------------------
+## ----- One-step two-level PPP ------------------------------------------------
 
 test_that("The one-step information equals lavaan's expected information", {
   info_lav <- getFromNamespace("lav_mvn_cl_info_expected", "lavaan")
@@ -572,6 +572,12 @@ test_that("The one-step and EM PPPs agree, and ppp_nsamp sets the draws", {
   rec <- get_inlavaan_internal(fit_with(nsamp = 20, ppp_nsamp = 20), "test")
   expect_true("ppp" %in% rec$computed)
   expect_error(fit_with(ppp_nsamp = 0), "ppp_nsamp")
+  # Inf takes every draw
+  p_inf <- get_inlavaan_internal(
+    fit_with(test = "ppp", nsamp = 9, ppp_nsamp = Inf),
+    "ppp"
+  )
+  expect_equal(p_inf * 9, round(p_inf * 9))
 })
 
 test_that("Incomplete two-level data use the EM PPP", {

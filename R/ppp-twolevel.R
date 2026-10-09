@@ -209,7 +209,7 @@ muffle_em_warnings <- function(expr) {
   })
 }
 
-## ----- One-step likelihood ratio --------------------------------------------------
+## ----- One-step likelihood ratio ---------------------------------------------
 
 # For the saturated two-level model with moments psi = (mu_w, Sigma_w, mu_b,
 # Sigma_b), one Fisher-scoring step from the draw's moments psi_s,
@@ -233,9 +233,10 @@ ppp2l_vech_rev <- function(v) {
   x + t(x) - diag(diag(x), p)
 }
 
-# 0.5 D' (A x A) D, with D the duplication matrix. For vech elements
-# k = (i, j) and l = (m, n) it is (A[i, m] A[j, n] + A[i, n] A[j, m]) w_k w_l,
-# with w = 1/2 on the diagonal and 1 off it.
+# The product 0.5 D' (A x A) D, with D the duplication matrix. For vech
+# elements k = (i, j) and l = (m, n) it is
+# (A[i, m] A[j, n] + A[i, n] A[j, m]) w_k w_l, with w = 1/2 on the diagonal
+# and 1 off it.
 ppp2l_kron_dup_half <- function(A) {
   ij <- which(lower.tri(A, diag = TRUE), arr.ind = TRUE)
   r <- ij[, 1L]
@@ -370,8 +371,8 @@ ppp2l_onestep <- function(ylp, imp, lp, info) {
       ppp2l_m2ll(ylp, ppp2l_unpack(psi_1, imp), lp),
       error = function(e) NA_real_
     )
-    # lavaan returns -2 times its failure value of -1e40 for a matrix that is
-    # not positive definite
+    # Moments that are not positive definite give NA, Inf or a failure value
+    # of the order of 1e40.
     if (is.finite(f_1) && abs(f_1) < 1e30) {
       return(f_s - f_1)
     }
@@ -379,7 +380,7 @@ ppp2l_onestep <- function(ylp, imp, lp, info) {
   NA_real_
 }
 
-## ----- PPP -----------------------------------------------------------------------
+## ----- PPP -------------------------------------------------------------------
 
 # The moments of group g from lavaan's implied moments, within block first
 ppp2l_group_moments <- function(lavimplied, g) {
@@ -477,12 +478,12 @@ get_ppp_twolevel <- function(
   }
   n_bad <- sum(is.na(hit))
   if (n_bad == length(hit)) {
-    cli_warn("No posterior draw gave a replicate, so the PPP is missing.")
+    cli_warn("No posterior draw could be scored, so the PPP is missing.")
     return(NA_real_)
   }
   if (n_bad > 0L) {
     cli_warn(
-      "{n_bad} of {length(hit)} posterior draws gave no replicate and are
+      "{n_bad} of {length(hit)} posterior draws could not be scored and are
        left out of the PPP."
     )
   }
