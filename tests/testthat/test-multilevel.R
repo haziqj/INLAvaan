@@ -455,3 +455,26 @@ test_that("The two-level PPP replicate keeps the covariates and the design", {
   expect_true(all(tapply(rep[, ov == "w1"], cl, stats::sd) == 0))
   expect_false(isTRUE(all.equal(rep[, ov == "y1"], X[, ov == "y1"])))
 })
+
+test_that("The two-level PPP warns about draws that give no replicate", {
+  int <- get_inlavaan_internal(fit_ml)
+  x <- lavaan::lav_model_get_parameters(int$lavmodel)
+  bad <- matrix(NA_real_, 3, length(x))
+  expect_warning(
+    ppp <- get_ppp_twolevel(bad, int$lavmodel, int$lavsamplestats, int$lavdata),
+    "No posterior draw"
+  )
+  expect_identical(ppp, NA_real_)
+  set.seed(2)
+  some <- rbind(bad[1, ], x, x)
+  expect_warning(
+    ppp <- get_ppp_twolevel(
+      some,
+      int$lavmodel,
+      int$lavsamplestats,
+      int$lavdata
+    ),
+    "1 of 3 posterior draws"
+  )
+  expect_true(ppp %in% c(0, 0.5, 1))
+})

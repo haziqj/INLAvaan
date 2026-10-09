@@ -13,9 +13,20 @@
 # replicate drawn that way rejects a correct model.
 
 # EM settings for the saturated fit of each replicate, as in pp_twolevel(),
-# and for the one fit of the observed data
-ppp2l_em <- list(tol = 1e-3, max_iter = 50L, acceleration = "squarem")
-ppp2l_em_obs <- list(tol = 1e-4, max_iter = 5000L, acceleration = "none")
+# and for the one fit of the observed data. The replicate fits stop at their
+# iteration cap on purpose, so their warnings are muffled.
+ppp2l_em <- list(
+  tol = 1e-3,
+  max_iter = 50L,
+  acceleration = "squarem",
+  quiet = TRUE
+)
+ppp2l_em_obs <- list(
+  tol = 1e-4,
+  max_iter = 5000L,
+  acceleration = "none",
+  quiet = FALSE
+)
 
 # A variable held fixed at both levels is outside what the generator can
 # condition on, as in blavaan. Returns its names (empty when none).
@@ -109,6 +120,7 @@ ppp2l_cluster_stats <- function(X, lp) {
 # Model and saturated log-likelihoods of one group's data, complete or not
 ppp2l_loglik <- function(X, g, lavdata, lavimplied, missing, em = NULL) {
   saturated <- !is.null(em)
+  run_em <- if (isTRUE(em$quiet)) muffle_em_warnings else identity
   lp <- lavdata@Lp[[g]]
   bw <- 2L * g - 1L
   bb <- 2L * g
@@ -129,7 +141,7 @@ ppp2l_loglik <- function(X, g, lavdata, lavimplied, missing, em = NULL) {
       minus_two = FALSE
     )
     sat <- if (saturated) {
-      muffle_em_warnings(
+      run_em(
         lavaan___lav_mvn_cl_mi_em_sat(
           y1 = X,
           y2 = y2,
@@ -156,7 +168,7 @@ ppp2l_loglik <- function(X, g, lavdata, lavimplied, missing, em = NULL) {
       minus_two = FALSE
     )
     sat <- if (saturated) {
-      muffle_em_warnings(
+      run_em(
         lavaan___lav_mvn_cl_em_sat(
           ylp = ylp,
           lp = lp,
@@ -171,7 +183,6 @@ ppp2l_loglik <- function(X, g, lavdata, lavimplied, missing, em = NULL) {
   c(fit = fit, sat = if (saturated) sat else NA_real_)
 }
 
-# The EM of a replicate's saturated fit stops at its iteration cap on purpose
 muffle_em_warnings <- function(expr) {
   withCallingHandlers(expr, warning = function(w) {
     invokeRestart("muffleWarning")
@@ -234,6 +245,17 @@ get_ppp_twolevel <- function(
         -2 * (fit_rep - sat_rep) > -2 * (fit_obs - sat_obs)
       },
       error = function(e) NA
+    )
+  }
+  n_bad <- sum(is.na(hit))
+  if (n_bad == length(hit)) {
+    cli_warn("No posterior draw gave a replicate, so the PPP is missing.")
+    return(NA_real_)
+  }
+  if (n_bad > 0L) {
+    cli_warn(
+      "{n_bad} of {length(hit)} posterior draws gave no replicate and are
+       left out of the PPP."
     )
   }
   mean(hit, na.rm = TRUE)
