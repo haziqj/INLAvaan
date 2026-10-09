@@ -446,12 +446,18 @@ get_ppp_twolevel <- function(
     }
     c(-2 * (fit_obs - sat_obs), -2 * (fit_rep - sat_rep))
   }
+  # The covariates the replicates hold at their observed values. A covariate
+  # at both levels is drawn, so its moments are free in the saturated fit.
+  x_fixed <- lapply(groups, function(g) {
+    lp <- lavdata@Lp[[g]]
+    unique(c(lp$ov.x.idx[[1L]], lp$ov.x.idx[[2L]]))
+  })
   stat_onestep <- function(lavimplied, reps) {
     out <- c(0, 0)
     for (g in groups) {
       lp <- lavdata@Lp[[g]]
       imp <- ppp2l_group_moments(lavimplied, g)
-      info <- ppp2l_info(imp, lp, lavsamplestats@x.idx[[g]])
+      info <- ppp2l_info(imp, lp, x_fixed[[g]])
       out <- out +
         c(
           ppp2l_onestep(ylp_obs[[g]], imp, lp, info),

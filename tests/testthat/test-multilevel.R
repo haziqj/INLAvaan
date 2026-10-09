@@ -601,3 +601,37 @@ test_that("Incomplete two-level data use the EM PPP", {
   ppp <- get_inlavaan_internal(fit, "ppp")
   expect_true(ppp >= 0 && ppp <= 1)
 })
+
+test_that("The one-step PPP frees a covariate the replicates draw", {
+  # x1 at both levels is drawn in the replicates, so its moments must be free
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 60, ]
+  fit <- suppressWarnings(asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ x1
+    ",
+    dat,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  ))
+  int <- get_inlavaan_internal(fit)
+  set.seed(7)
+  xs <- sample_params_posterior(int, 100, TRUE)$x_samp
+  ppp_with <- function(method) {
+    set.seed(8)
+    get_ppp_twolevel(
+      xs,
+      int$lavmodel,
+      int$lavsamplestats,
+      int$lavdata,
+      method = method
+    )
+  }
+  expect_lt(abs(ppp_with("onestep") - ppp_with("em")), 0.06)
+})
