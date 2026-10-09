@@ -38,8 +38,8 @@
   for models that fit. It now follows blavaan's two-level PPP: each posterior draw
   generates replicate data, which are scored against their own saturated fit.
 
-* `simulate()` on a two-level fit now keeps the cluster sizes of the data,
-  and no longer warns on every data set.
+* `simulate()` on a two-level fit now keeps the clusters of the data, with
+  their labels and sizes, and no longer warns on every data set.
 
 * `standardisedsolution()` ignored its `nsamp` argument and summarised as many
   posterior draws as the fit itself had used.
