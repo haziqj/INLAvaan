@@ -783,3 +783,32 @@ test_that("The printed two-level PPP is marked experimental", {
     fixed = TRUE
   )))
 })
+
+test_that("Replicate cluster statistics match those of replicate rows", {
+  int <- get_inlavaan_internal(fit_ml)
+  lavdata <- int$lavdata
+  lp <- lavdata@Lp[[1]]
+  imp <- lavaan::lav_model_implied(fit_ml@Model)
+  ylp_obs <- ppp2l_cluster_stats(lavdata@X[[1]], lp)
+  des <- ppp2l_design(lavdata, 1L)
+  one <- ppp2l_draw_stats(des, imp, 1L, ylp_obs)[[2]]
+  # The fixed covariates keep their observed statistics
+  x <- lp$ov.x.idx[[1]]
+  expect_equal(one$Sigma.W[x, x], ylp_obs[[2]]$Sigma.W[x, x])
+  expect_equal(one$loglik.x, ylp_obs[[2]]$loglik.x)
+  expect_named(one, c("Y1Y1", "Y2", "Sigma.W", "loglik.x", "mean.d", "cov.d"))
+  # Monte Carlo means of the statistics lavaan reads
+  flat <- function(y) {
+    c(y[[2]]$Sigma.W, unlist(y[[2]]$mean.d), unlist(y[[2]]$cov.d))
+  }
+  set.seed(4)
+  rows <- replicate(
+    300,
+    flat(ppp2l_cluster_stats(ppp2l_draw(lavdata, imp)[[1]], lp))
+  )
+  stats <- replicate(300, flat(ppp2l_draw_stats(des, imp, 1L, ylp_obs)))
+  se <- sqrt((apply(rows, 1, stats::var) + apply(stats, 1, stats::var)) / 300)
+  ok <- se > 0
+  z <- (rowMeans(rows) - rowMeans(stats))[ok] / se[ok]
+  expect_lt(max(abs(z)), 4.5)
+})
