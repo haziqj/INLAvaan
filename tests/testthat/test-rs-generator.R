@@ -279,3 +279,22 @@ test_that("The B-indices of a random-slope fit", {
   # The reference fits at least as well as every draw of the model
   expect_true(all(bf$details$chisq > 0))
 })
+
+test_that("The B-indices refuse a between-only outcome with between covariates", {
+  fit <- asem(
+    "level: 1
+       fw =~ y1 + y2 + y3
+       fw ~ rv('s1')*x1
+     level: 2
+       fb =~ y1 + y2 + y3 + w2
+       fb ~ w1",
+    d_rs,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  expect_error(rs_baseline_fit(fit), class = "inlavaan_rs_bfit")
+})
