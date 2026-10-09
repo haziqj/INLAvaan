@@ -432,6 +432,7 @@ test_that("Random slopes: the quadrature route has averaged moments only", {
   expect_length(sampling(fit_b, type = "implied", nsamp = 2), 2L)
   expect_equal(dim(sampling(fit_b, type = "observed", nsamp = 2)), c(2L, 2L))
   expect_error(simulate(fit_b, nsim = 1), class = "inlavaan_rs_simulate")
+  expect_error(fitted(fit_b, type = "casewise"), class = "inlavaan_rs_casewise")
   # Each cluster is a mixture over the quadrature nodes
   expect_error(
     fitted(fit_b, per_cluster = TRUE),

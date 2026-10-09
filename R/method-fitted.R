@@ -68,7 +68,12 @@ setMethod(
     check_rs_moments(object, "fitted", type)
     check_per_cluster(object, per_cluster)
     if (has_random_slopes(object@Model)) {
-      return(rs_fitted(object, labels = labels, per_cluster = per_cluster))
+      return(rs_fitted(
+        object,
+        type = type,
+        labels = labels,
+        per_cluster = per_cluster
+      ))
     }
     # Delegate to lavaan's implementation so the output structure (moments,
     # casewise) stays identical; the posterior means already live in the object.
@@ -87,7 +92,12 @@ setMethod(
     check_rs_moments(object, "fitted.values", type)
     check_per_cluster(object, per_cluster)
     if (has_random_slopes(object@Model)) {
-      return(rs_fitted(object, labels = labels, per_cluster = per_cluster))
+      return(rs_fitted(
+        object,
+        type = type,
+        labels = labels,
+        per_cluster = per_cluster
+      ))
     }
     lavaan::fitted.values(
       as(object, "lavaan"),

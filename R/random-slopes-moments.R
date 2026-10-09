@@ -498,7 +498,19 @@ rs_avg_object <- function(object) {
   obj
 }
 
-rs_fitted <- function(object, labels = TRUE, per_cluster = FALSE) {
+rs_fitted <- function(
+  object,
+  type = "moments",
+  labels = TRUE,
+  per_cluster = FALSE
+) {
+  if (rs_is_casewise(type, TRUE)) {
+    out <- rs_casewise(object)
+    if (!isTRUE(labels)) {
+      colnames(out) <- NULL
+    }
+    return(out)
+  }
   if (!isTRUE(per_cluster)) {
     # Built first, so that a refusal keeps its class instead of surfacing
     # through S4 dispatch as a plain error.
@@ -520,6 +532,13 @@ rs_residuals <- function(
   labels = TRUE,
   per_cluster = FALSE
 ) {
+  if (rs_is_casewise(type, FALSE)) {
+    out <- rs_casewise(object, residual = TRUE)
+    if (!isTRUE(labels)) {
+      colnames(out) <- NULL
+    }
+    return(out)
+  }
   if (!isTRUE(per_cluster)) {
     obj <- rs_avg_object(object)
     return(lavaan::residuals(obj, type = type, labels = labels))

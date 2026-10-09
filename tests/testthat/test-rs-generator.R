@@ -118,3 +118,22 @@ test_that("Observed draws carry the slope variance", {
   total <- avg$cov[[1]][1:3, 1:3] + avg$cov[[2]][1:3, 1:3]
   expect_lt(max(abs(stats::cov(ob)[1:3, 1:3] - total)), 0.15)
 })
+
+## ----- Casewise values ------------------------------------------------------------
+
+test_that("Casewise fitted values are the outcomes' means given the covariates", {
+  f <- fitted(fit_rs, type = "casewise")
+  expect_equal(colnames(f), c("y1", "y2", "y3", "x1"))
+  expect_equal(unname(f[, "x1"]), d_rs$x1)
+  # The same means from the stacked moments of each cluster
+  spec <- rs_spec(get_inlavaan_internal(fit_rs))
+  imp <- rs_implied_pieces(fit_rs@Model, spec$rs$info)
+  stacked <- unlist(lapply(rs_cluster_data(fit_rs@Data, spec$rs), function(cl) {
+    rs_cluster_moments(imp, spec$rs$info, cl$X, cl$exo_b)$mean
+  }))
+  expect_equal(as.numeric(t(f[, 1:3])), stacked)
+  r <- residuals(fit_rs, type = "casewise")
+  expect_equal(r[, "y1"], d_rs$y1 - f[, "y1"])
+  expect_equal(unname(r[, "x1"]), rep(0, nrow(d_rs)))
+  expect_equal(unname(fitted(fit_rs, type = "ov")), unname(f))
+})

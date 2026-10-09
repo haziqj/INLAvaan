@@ -183,22 +183,23 @@ check_rs_zero_var <- function(lavpartable, lavmodel) {
 }
 
 # Gate for what the moment-based methods still cannot give a random-slope
-# fit: casewise values, which would need the predicted outcomes lavaan does
-# not provide, and the residual types scaled by asymptotic standard errors,
-# which need the model's derivatives of the moments.
+# fit: the residual types scaled by asymptotic standard errors, which need
+# the model's derivatives of the moments.
 check_rs_moments <- function(object, fn, type) {
   if (!has_random_slopes(object@external$inlavaan_internal$lavmodel)) {
     return(invisible(NULL))
   }
   is_fitted <- fn %in% c("fitted", "fitted.values")
-  ok <- if (is_fitted) type == "moments" else !is.na(rs_residual_type(type))
+  ok <- rs_is_casewise(type, is_fitted) ||
+    if (is_fitted) type == "moments" else !is.na(rs_residual_type(type))
   if (ok) {
     return(invisible(NULL))
   }
   hint <- if (is_fitted) {
-    "Use the default {.code type = \"moments\"}."
+    "Use {.code type = \"moments\"} or {.code \"casewise\"}."
   } else {
-    "Use {.code type = \"raw\"}, {.code \"cor\"} or {.code \"cor.bentler\"}."
+    "Use {.code type = \"raw\"}, {.code \"cor\"}, {.code \"cor.bentler\"}
+     or {.code \"casewise\"}."
   }
   cli_abort(
     c(
@@ -226,6 +227,17 @@ rs_residual_type <- function(type, mimic = "lavaan") {
     srmr = "cor.bentler"
   )
   unname(alias[type])
+}
+
+# The casewise types and their aliases, as lavaan names them for fitted() and
+# for residuals()
+rs_is_casewise <- function(type, is_fitted) {
+  aliases <- if (is_fitted) {
+    c("casewise", "obs", "ov")
+  } else {
+    c("casewise", "case", "obs", "observations", "ov")
+  }
+  type %in% aliases
 }
 
 # `per_cluster = TRUE` needs the per-cluster kernel of a random-slope fit
