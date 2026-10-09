@@ -54,7 +54,11 @@ ppp2l_conditional_draw <- function(n, mu, S, r, f, x) {
   }
   out <- matrix(NA_real_, n, length(r))
   obs <- !is.na(x)
-  key <- apply(obs, 1L, function(z) paste(which(z), collapse = ","))
+  key <- if (all(obs)) {
+    rep.int("all", n)
+  } else {
+    apply(obs, 1L, function(z) paste(which(z), collapse = ","))
+  }
   for (k in unique(key)) {
     rows <- which(key == k)
     fo <- f[obs[rows[1L], ]]
@@ -117,8 +121,17 @@ ppp2l_cluster_stats <- function(X, lp) {
   f(y = X, lp = lp, conditional_x = FALSE)
 }
 
-# Model and saturated log-likelihoods of one group's data, complete or not
-ppp2l_loglik <- function(X, g, lavdata, lavimplied, missing, em = NULL) {
+# Model and saturated log-likelihoods of one group's data, complete or not.
+# `ylp` takes the cluster statistics of complete data when they are known.
+ppp2l_loglik <- function(
+  X,
+  g,
+  lavdata,
+  lavimplied,
+  missing,
+  em = NULL,
+  ylp = NULL
+) {
   saturated <- !is.null(em)
   run_em <- if (isTRUE(em$quiet)) muffle_em_warnings else identity
   lp <- lavdata@Lp[[g]]
@@ -156,7 +169,9 @@ ppp2l_loglik <- function(X, g, lavdata, lavimplied, missing, em = NULL) {
       )
     }
   } else {
-    ylp <- ppp2l_cluster_stats(X, lp)
+    if (is.null(ylp)) {
+      ylp <- ppp2l_cluster_stats(X, lp)
+    }
     fit <- lavaan___lav_mvn_cl_loglik_samp_2l(
       ylp = ylp,
       lp = lp,
@@ -199,6 +214,10 @@ get_ppp_twolevel <- function(
 ) {
   missing <- isTRUE(lavsamplestats@missing.flag)
   groups <- seq_len(lavdata@ngroups)
+  # The cluster statistics of the observed data, once
+  ylp_obs <- lapply(groups, function(g) {
+    if (!missing) ppp2l_cluster_stats(lavdata@X[[g]], lavdata@Lp[[g]])
+  })
   # The saturated log-likelihood of the observed data, once
   lavimplied0 <- lavaan::lav_model_implied(lavmodel)
   sat_obs <- sum(vapply(
@@ -210,7 +229,8 @@ get_ppp_twolevel <- function(
         lavdata,
         lavimplied0,
         missing,
-        ppp2l_em_obs
+        ppp2l_em_obs,
+        ylp = ylp_obs[[g]]
       )[["sat"]]
     },
     numeric(1)
@@ -228,9 +248,14 @@ get_ppp_twolevel <- function(
         fit_obs <- fit_rep <- sat_rep <- 0
         for (g in groups) {
           fit_obs <- fit_obs +
-            ppp2l_loglik(lavdata@X[[g]], g, lavdata, lavimplied, missing)[[
-              "fit"
-            ]]
+            ppp2l_loglik(
+              lavdata@X[[g]],
+              g,
+              lavdata,
+              lavimplied,
+              missing,
+              ylp = ylp_obs[[g]]
+            )[["fit"]]
           ll <- ppp2l_loglik(
             reps[[g]],
             g,
