@@ -173,14 +173,15 @@ rs_baseline_fit <- function(object) {
     )
   }
   info <- spec$rs$info
-  if (info$kz > 0L && info$nexo.b > 0L) {
+  if (info$kz > 0L) {
     cli_abort(
       c(
         "Bayesian fit indices are not available for a random-slope model
-         with a between-only outcome and between-level covariates.",
-        "i" = "Their reference model regresses every between-level variable
-               on the covariates, and lavaan does not allow a between-only
-               outcome in a regression of a random-slope model."
+         with a between-only outcome.",
+        "i" = "Their reference model gives the between-only outcome free
+               covariances, and lavaan allows such an outcome in a
+               random-slope model only as an indicator of a latent
+               variable."
       ),
       class = "inlavaan_rs_bfit"
     )

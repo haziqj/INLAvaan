@@ -315,14 +315,13 @@ test_that("The B-indices of a random-slope fit", {
   expect_true(all(bf$details$chisq > 0))
 })
 
-test_that("The B-indices refuse a between-only outcome with between covariates", {
+test_that("The B-indices refuse a between-only outcome", {
   fit <- asem(
     "level: 1
        fw =~ y1 + y2 + y3
        fw ~ rv('s1')*x1
      level: 2
-       fb =~ y1 + y2 + y3 + w2
-       fb ~ w1",
+       fb =~ y1 + y2 + y3 + w2",
     d_rs,
     cluster = "cluster",
     verbose = FALSE,
