@@ -174,3 +174,30 @@ test_that("simulate() works for conditional.x fits", {
   expect_length(sims, 2)
   expect_setequal(names(sims[[1]]), c("x1", "x2", "x3", "ageyr", "grade"))
 })
+
+test_that("simulate() keeps the cluster design of a two-level fit", {
+  d <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
+  fit <- asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+    ",
+    d,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  )
+  expect_no_warning(sims <- simulate(fit, nsim = 2, seed = 1))
+  expect_equal(
+    sort(as.numeric(table(sims[[1]]$cluster))),
+    sort(as.numeric(table(d$cluster)))
+  )
+  # A given sample size still lets lavaan choose the clusters
+  sims_n <- simulate(fit, nsim = 1, seed = 1, sample.nobs = 200)
+  expect_equal(nrow(sims_n[[1]]), 200L)
+})

@@ -31,6 +31,9 @@
 
 ## Bug fixes
 
+* `simulate()` on a two-level fit now keeps the cluster sizes of the data,
+  and no longer warns on every data set.
+
 * `standardisedsolution()` ignored its `nsamp` argument and summarised as many
   posterior draws as the fit itself had used.
 
