@@ -28,7 +28,9 @@
 #' For a random-slope model, each draw takes the level-2 variables, slopes
 #' included, first and puts the drawn slopes into their level-1 paths, and
 #' `type = "implied"` gives the moments averaged over the covariates (see
-#' [fitted()]).
+#' [fitted()]). As for other models, the covariates of a latent or observed
+#' draw come from their fitted moments, whereas [simulate()] keeps the
+#' observed covariates of a random-slope model.
 #'
 #' @param object An object of class [INLAvaan] (or `inlavaan_internal`).
 #' @param type Character string specifying what to sample:

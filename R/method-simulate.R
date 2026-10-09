@@ -29,7 +29,8 @@
 #' sizes, unless `sample.nobs` is given. For a random-slope model (closed-form route only),
 #' each cluster keeps its own covariates and size, its slopes and other
 #' level-2 effects are drawn first, and then its outcomes. `sample.nobs` is
-#' not available.
+#' not available. Other models draw their covariates from their fitted
+#' moments.
 #'
 #' @param object An object of class [INLAvaan].
 #' @param nsim Number of replicate datasets to generate (default 1).

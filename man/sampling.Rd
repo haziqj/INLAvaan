@@ -99,7 +99,9 @@ conditional on observed data.
 For a random-slope model, each draw takes the level-2 variables, slopes
 included, first and puts the drawn slopes into their level-1 paths, and
 \code{type = "implied"} gives the moments averaged over the covariates (see
-\code{\link[=fitted]{fitted()}}).
+\code{\link[=fitted]{fitted()}}). As for other models, the covariates of a latent or observed
+draw come from their fitted moments, whereas \code{\link[=simulate]{simulate()}} keeps the
+observed covariates of a random-slope model.
 }
 \examples{
 utils::data("HolzingerSwineford1939", package = "lavaan")
