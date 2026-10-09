@@ -699,3 +699,22 @@ test_that("The one-step PPP falls back to EM at the boundary", {
   }
   expect_lt(abs(ppp_with("onestep") - ppp_with("em")), 0.06)
 })
+
+test_that("A two-level PPP with no scored draw is recorded as skipped", {
+  local_mocked_bindings(get_ppp_twolevel = function(...) NA_real_)
+  fit <- asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
+    cluster = "cluster",
+    verbose = FALSE,
+    nsamp = 5
+  )
+  rec <- get_inlavaan_internal(fit, "test")
+  expect_false("ppp" %in% rec$computed)
+  expect_match(rec$skipped[["ppp"]], "could be scored")
+})

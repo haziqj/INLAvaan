@@ -1510,6 +1510,10 @@ inlavaan <- function(
         method = ppp_method,
         cli_env = samp_env
       )
+      if (is.na(ppp)) {
+        skipped <- c(skipped, ppp = "No posterior draw could be scored.")
+        ppp <- NULL
+      }
     } else if ("ppp" %in% test_req) {
       ppp <- get_ppp(
         x_samp = x_samp,
