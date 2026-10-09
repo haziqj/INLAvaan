@@ -35,8 +35,10 @@
 ## Bug fixes
 
 * The posterior predictive p-value of two-level models was often close to 0
-  for models that fit. It now follows blavaan's two-level PPP: each posterior draw
-  generates replicate data, which are scored against their own saturated fit.
+  for models that fit. It now follows blavaan's two-level PPP: each posterior
+  draw generates replicate data, which are scored against their own saturated
+  fit. As this takes several times as long as the fit, two-level fits compute
+  it only when asked for, with `test = "ppp"` or `"full"`.
 
 * `simulate()` on a two-level fit now keeps the clusters of the data, with
   their labels and sizes, and no longer warns on every data set.
