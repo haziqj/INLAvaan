@@ -756,6 +756,22 @@ test_that("A two-level fit says that its PPP is experimental", {
     fit_with("dic"),
     message = "two-level PPP is experimental"
   )
+  expect_no_message(
+    asem(
+      "
+      level: 1
+        fw =~ y1 + y2 + y3
+      level: 2
+        fb =~ y1 + y2 + y3
+      ",
+      lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
+      cluster = "cluster",
+      verbose = FALSE,
+      nsamp = 10,
+      ppp_nsamp = 10
+    ),
+    message = "experimental"
+  )
 })
 
 test_that("The printed two-level PPP is marked experimental", {
@@ -796,7 +812,8 @@ test_that("Replicate cluster statistics match those of replicate rows", {
   x <- lp$ov.x.idx[[1]]
   expect_equal(one$Sigma.W[x, x], ylp_obs[[2]]$Sigma.W[x, x])
   expect_equal(one$loglik.x, ylp_obs[[2]]$loglik.x)
-  expect_named(one, c("Y1Y1", "Y2", "Sigma.W", "loglik.x", "mean.d", "cov.d"))
+  read <- c("Y1Y1", "Y2", "Sigma.W", "loglik.x", "mean.d", "cov.d")
+  expect_true(all(read %in% names(one)))
   # Monte Carlo means of the statistics lavaan reads
   flat <- function(y) {
     c(y[[2]]$Sigma.W, unlist(y[[2]]$mean.d), unlist(y[[2]]$cov.d))
@@ -811,4 +828,96 @@ test_that("Replicate cluster statistics match those of replicate rows", {
   ok <- se > 0
   z <- (rowMeans(rows) - rowMeans(stats))[ok] / se[ok]
   expect_lt(max(abs(z)), 4.5)
+})
+
+test_that("A single-level PPP is not marked experimental", {
+  utils::data("HolzingerSwineford1939", package = "lavaan")
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    HolzingerSwineford1939,
+    verbose = FALSE,
+    nsamp = 20
+  )
+  out <- capture.output(fit)
+  expect_true(any(grepl("PPP (Chi-square)", out, fixed = TRUE)))
+  expect_false(any(grepl("experimental", out)))
+})
+
+test_that("Replicate statistics split the within cross-products correctly", {
+  # Few within degrees of freedom: 32 singleton clusters and 8 pairs, with
+  # three fixed within covariates. The residual of the outcomes given the
+  # covariates is Wishart(N - J - k, V), which a wrong split of C and W
+  # would miss.
+  d <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 40, ]
+  d <- d[
+    ave(seq_len(nrow(d)), d$cluster, FUN = seq_along) <=
+      ifelse(d$cluster <= 8, 2, 1),
+  ]
+  fit0 <- suppressWarnings(lavaan::sem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1 + x2 + x3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    d,
+    cluster = "cluster",
+    do.fit = FALSE
+  ))
+  lavdata <- fit0@Data
+  lp <- lavdata@Lp[[1]]
+  imp <- lavaan::lav_model_implied(fit0@Model)
+  ylp_obs <- ppp2l_cluster_stats(lavdata@X[[1]], lp)
+  des <- ppp2l_design(lavdata, 1L)
+  expect_equal(des$N - des$J - length(des$f1), 5)
+  f <- des$cols1[des$f1]
+  r <- des$cols1[des$r1]
+  S <- imp$cov[[1]]
+  V <- S[des$r1, des$r1] -
+    S[des$r1, des$f1] %*% solve(S[des$f1, des$f1], S[des$f1, des$r1])
+  set.seed(6)
+  schur <- t(replicate(3000, {
+    cp <- ppp2l_draw_stats(des, imp, 1L, ylp_obs)[[2]]$Sigma.W *
+      (des$N - des$J)
+    rr <- cp[r, r] - cp[r, f] %*% solve(cp[f, f], cp[f, r])
+    diag(rr)
+  }))
+  ratio <- apply(schur, 2, stats::var) / (2 * 5 * diag(V)^2)
+  expect_true(all(ratio > 0.8 & ratio < 1.25))
+})
+
+test_that("Replicate statistics fall back to rows when D'D is singular", {
+  # w1 is constant within clusters, so as a level-1 covariate it has no
+  # within-cluster variation
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 40, ]
+  fit <- suppressWarnings(asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1 + w1
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    dat,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    nsamp = 3
+  ))
+  int <- get_inlavaan_internal(fit)
+  des <- ppp2l_design(int$lavdata, 1L)
+  expect_false(des$ok)
+  imp <- lavaan::lav_model_implied(fit@Model)
+  ylp_obs <- ppp2l_cluster_stats(int$lavdata@X[[1]], int$lavdata@Lp[[1]])
+  expect_null(ppp2l_draw_stats(des, imp, 1L, ylp_obs))
+  set.seed(2)
+  xs <- sample_params_posterior(int, 30, TRUE)$x_samp
+  ppp <- suppressWarnings(get_ppp_twolevel(
+    xs,
+    int$lavmodel,
+    int$lavsamplestats,
+    int$lavdata
+  ))
+  expect_false(is.na(ppp))
 })

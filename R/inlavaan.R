@@ -1634,9 +1634,9 @@ inlavaan <- function(
       )
     }
     if ("ppp" %in% computed && lavdata@nlevels > 1L) {
-      # Kept to one output line: cli_alert_info() does not re-wrap
+      cli_alert_info("The two-level PPP is experimental.")
       cli_alert_info(paste0(
-        "The two-level PPP is experimental. Please report any bugs at ",
+        "Please report any bugs at ",
         "{.url https://github.com/haziqj/INLAvaan/issues}."
       ))
     }
