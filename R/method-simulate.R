@@ -25,8 +25,8 @@
 #' (`sample_params_prior` / `sample_params_posterior`), so the prior
 #' specification is consistent.
 #'
-#' A two-level dataset keeps the cluster sizes of the data unless
-#' `sample.nobs` is given. For a random-slope model (closed-form route only),
+#' A two-level dataset keeps the clusters of the data, with their labels and
+#' sizes, unless `sample.nobs` is given. For a random-slope model (closed-form route only),
 #' each cluster keeps its own covariates and size, its slopes and other
 #' level-2 effects are drawn first, and then its outcomes. `sample.nobs` is
 #' not available.
@@ -235,6 +235,10 @@ setMethod(
         }
       }
 
+      if (length(sim_ml_args$cluster_idx) > 0L) {
+        dat$cluster <- relabel_clusters(dat, int$lavdata)
+      }
+
       collected <- collected + 1L
       attr(dat, "truth") <- x_draw
       attr(dat, "truth_theta") <- theta_draw
@@ -266,3 +270,14 @@ setMethod(
     results
   }
 )
+
+# lavaan numbers simulated clusters 1, ..., J within each group. A replicate
+# that keeps the design of the data gets the data's cluster labels back.
+relabel_clusters <- function(dat, lavdata) {
+  out <- dat$cluster
+  for (g in seq_len(lavdata@ngroups)) {
+    rows <- if (lavdata@ngroups > 1L) dat$group == g else TRUE
+    out[rows] <- lavdata@Lp[[g]]$cluster.id[[2L]][dat$cluster[rows]]
+  }
+  out
+}

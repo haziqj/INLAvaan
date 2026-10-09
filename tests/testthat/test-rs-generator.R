@@ -60,6 +60,20 @@ test_that("simulate() keeps the covariates and the clusters", {
   expect_false(isTRUE(all.equal(sims[[1]]$y1, d_rs$y1)))
   expect_named(attr(sims[[1]], "truth"), names(attr(sims[[2]], "truth")))
   expect_length(simulate(fit_rs, nsim = 1, seed = 2, prior = TRUE), 1L)
+  # The clusters keep the labels of the data
+  d <- d_rs
+  d$cluster <- d$cluster * 10 + 3
+  fit <- asem(
+    mod_rs,
+    d,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "none",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  expect_equal(simulate(fit, nsim = 1, seed = 1)[[1]]$cluster, d$cluster)
   expect_error(
     simulate(fit_rs, sample.nobs = 100),
     class = "inlavaan_rs_simulate"

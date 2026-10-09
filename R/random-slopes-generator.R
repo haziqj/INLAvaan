@@ -124,7 +124,7 @@ rs_simulate <- function(object, nsim, sample.nobs, prior, samp_copula, silent) {
     }
     dat <- as.data.frame(X)
     names(dat) <- lavdata@ov.names[[1L]]
-    dat$cluster <- cl
+    dat$cluster <- lavdata@Lp[[1L]]$cluster.id[[2L]][cl]
     collected <- collected + 1L
     attr(dat, "truth") <- samp$x_samp[idx, ]
     attr(dat, "truth_theta") <- samp$theta_samp[idx, ]

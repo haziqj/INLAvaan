@@ -177,6 +177,7 @@ test_that("simulate() works for conditional.x fits", {
 
 test_that("simulate() keeps the cluster design of a two-level fit", {
   d <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
+  d$cluster <- d$cluster * 10 + 3
   fit <- asem(
     "
     level: 1
@@ -193,10 +194,7 @@ test_that("simulate() keeps the cluster design of a two-level fit", {
     nsamp = 3
   )
   expect_no_warning(sims <- simulate(fit, nsim = 2, seed = 1))
-  expect_equal(
-    sort(as.numeric(table(sims[[1]]$cluster))),
-    sort(as.numeric(table(d$cluster)))
-  )
+  expect_equal(sims[[1]]$cluster, d$cluster)
   # A given sample size still lets lavaan choose the clusters
   sims_n <- simulate(fit, nsim = 1, seed = 1, sample.nobs = 200)
   expect_equal(nrow(sims_n[[1]]), 200L)
