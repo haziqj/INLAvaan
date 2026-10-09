@@ -529,3 +529,69 @@ test_that("One Fisher-scoring step reproduces the EM likelihood ratio", {
   expect_gt(stats::cor(out[, 1], out[, 2]), 0.99)
   expect_lt(max(abs(out[, 1] - out[, 2]) / out[, 1]), 0.1)
 })
+
+test_that("The one-step and EM PPPs agree, and ppp_nsamp sets the draws", {
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 40, ]
+  fit_with <- function(...) {
+    asem(
+      "
+      level: 1
+        fw =~ y1 + y2 + y3
+        fw ~ x1
+      level: 2
+        fb =~ y1 + y2 + y3
+        fb ~ w1
+      ",
+      dat,
+      cluster = "cluster",
+      verbose = FALSE,
+      marginal_correction = "none",
+      vb_correction = FALSE,
+      ...
+    )
+  }
+  set.seed(5)
+  fit_one <- fit_with(test = "ppp", nsamp = 200, ppp_nsamp = 200)
+  set.seed(5)
+  fit_em <- fit_with(
+    test = "ppp",
+    nsamp = 200,
+    ppp_nsamp = 200,
+    ppp_method = "em"
+  )
+  p_one <- get_inlavaan_internal(fit_one, "ppp")
+  p_em <- get_inlavaan_internal(fit_em, "ppp")
+  expect_lt(abs(p_one - p_em), 0.06)
+  # Seven draws give a PPP in sevenths
+  p7 <- get_inlavaan_internal(
+    fit_with(test = "ppp", nsamp = 50, ppp_nsamp = 7),
+    "ppp"
+  )
+  expect_equal(p7 * 7, round(p7 * 7))
+  # The two-level PPP is in the default test
+  rec <- get_inlavaan_internal(fit_with(nsamp = 20, ppp_nsamp = 20), "test")
+  expect_true("ppp" %in% rec$computed)
+  expect_error(fit_with(ppp_nsamp = 0), "ppp_nsamp")
+})
+
+test_that("Incomplete two-level data use the EM PPP", {
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  dat$y2[c(3, 40, 77)] <- NA
+  fit <- suppressWarnings(asem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+    ",
+    dat,
+    cluster = "cluster",
+    missing = "ml",
+    test = "ppp",
+    verbose = FALSE,
+    nsamp = 30,
+    ppp_nsamp = 30
+  ))
+  ppp <- get_inlavaan_internal(fit, "ppp")
+  expect_true(ppp >= 0 && ppp <= 1)
+})

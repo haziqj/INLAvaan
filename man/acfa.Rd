@@ -9,6 +9,8 @@ acfa(
   data,
   dp = priors_for(),
   test = "standard",
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
@@ -61,8 +63,9 @@ both. They run only when asked for, with no time budget. On a model
 the casewise machinery does not support (PML or ordinal data,
 \code{conditional.x = TRUE}, multigroup two-level) they are skipped with a
 warning and the rest of the fit proceeds. For a two-level model the PPP
-follows blavaan: each posterior draw generates replicate data, which are
-scored against their own saturated fit. The fit records what was
+follows blavaan: each of \code{ppp_nsamp} posterior draws generates replicate
+data, which are scored against the saturated model (see \code{ppp_method}).
+The fit records what was
 requested and what was computed (\code{get_inlavaan_internal(fit, "test")});
 \code{\link[=summary]{summary()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
 report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO and WAIC
@@ -70,6 +73,16 @@ post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on d
 model \code{"ppp"} is dropped, with a warning when it was asked for and a
 message otherwise (see the Random slopes section of \code{\link[=inlavaan]{inlavaan()}}).
 \code{"dic"}, \code{"loo"} and \code{"waic"} are unaffected.}
+
+\item{ppp_method}{How a two-level model scores each replicate data set for
+the PPP. \code{"onestep"} (default) replaces the saturated two-level fit with
+one Fisher-scoring step from the moments of the posterior draw. \code{"em"}
+fits the saturated model by EM, as blavaan does. Incomplete data always
+use \code{"em"}.}
+
+\item{ppp_nsamp}{The number of posterior draws, each with one replicate data
+set, that the PPP of a two-level model uses (at most \code{nsamp}). Defaults to
+\code{250}.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}

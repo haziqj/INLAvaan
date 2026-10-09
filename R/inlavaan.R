@@ -34,8 +34,9 @@
 #'   the casewise machinery does not support (PML or ordinal data,
 #'   `conditional.x = TRUE`, multigroup two-level) they are skipped with a
 #'   warning and the rest of the fit proceeds. For a two-level model the PPP
-#'   follows blavaan: each posterior draw generates replicate data, which are
-#'   scored against their own saturated fit. The fit records what was
+#'   follows blavaan: each of `ppp_nsamp` posterior draws generates replicate
+#'   data, which are scored against the saturated model (see `ppp_method`).
+#'   The fit records what was
 #'   requested and what was computed (`get_inlavaan_internal(fit, "test")`);
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
 #'   report only what was computed. [add_loo()] stores the LOO and WAIC
@@ -43,6 +44,14 @@
 #'   model `"ppp"` is dropped, with a warning when it was asked for and a
 #'   message otherwise (see the Random slopes section of [inlavaan()]).
 #'   `"dic"`, `"loo"` and `"waic"` are unaffected.
+#' @param ppp_method How a two-level model scores each replicate data set for
+#'   the PPP. `"onestep"` (default) replaces the saturated two-level fit with
+#'   one Fisher-scoring step from the moments of the posterior draw. `"em"`
+#'   fits the saturated model by EM, as blavaan does. Incomplete data always
+#'   use `"em"`.
+#' @param ppp_nsamp The number of posterior draws, each with one replicate data
+#'   set, that the PPP of a two-level model uses (at most `nsamp`). Defaults to
+#'   `250`.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
@@ -256,6 +265,8 @@ inlavaan <- function(
   model.type = "sem",
   dp = priors_for(),
   test = "standard",
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
@@ -291,6 +302,15 @@ inlavaan <- function(
     if (is.na(cores) || cores < 1L) cores <- 1L
   } # nocov end
   marginal_method <- match.arg(marginal_method)
+  ppp_method <- match.arg(ppp_method)
+  if (
+    !is.numeric(ppp_nsamp) ||
+      length(ppp_nsamp) != 1L ||
+      is.na(ppp_nsamp) ||
+      ppp_nsamp < 1
+  ) {
+    cli_abort("{.arg ppp_nsamp} must be a positive number.")
+  }
   if (isFALSE(marginal_correction)) {
     marginal_correction <- "none"
   } else {
@@ -1479,11 +1499,13 @@ inlavaan <- function(
       skipped <- c(skipped, ppp = msg)
       # nocov end
     } else if ("ppp" %in% test_req && lavdata@nlevels > 1L) {
+      n_ppp <- min(nrow(x_samp), as.integer(ppp_nsamp))
       ppp <- get_ppp_twolevel(
-        x_samp = x_samp,
+        x_samp = x_samp[seq_len(n_ppp), , drop = FALSE],
         lavmodel = lavmodel,
         lavsamplestats = lavsamplestats,
         lavdata = lavdata,
+        method = ppp_method,
         cli_env = samp_env
       )
     } else if ("ppp" %in% test_req) {
@@ -1690,6 +1712,8 @@ acfa <- function(
   data,
   dp = priors_for(),
   test = "standard",
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
@@ -1746,6 +1770,8 @@ asem <- function(
   data,
   dp = priors_for(),
   test = "standard",
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
@@ -1800,6 +1826,8 @@ agrowth <- function(
   data,
   dp = priors_for(),
   test = "standard",
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
