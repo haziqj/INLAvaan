@@ -35,15 +35,14 @@
 #'   `conditional.x = TRUE`, multigroup two-level) they are skipped with a
 #'   warning and the rest of the fit proceeds. For a two-level model the PPP
 #'   follows blavaan: each posterior draw generates replicate data, which are
-#'   scored against their own saturated fit. This costs several times the fit
-#'   itself, so for a two-level model `"standard"` leaves the PPP out, and
-#'   `"ppp"` or `"full"` asks for it. The fit records what was
+#'   scored against their own saturated fit. The fit records what was
 #'   requested and what was computed (`get_inlavaan_internal(fit, "test")`);
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
 #'   report only what was computed. [add_loo()] stores the LOO and WAIC
 #'   post hoc; [loo()] and [waic()] compute on demand. For a random-slope
-#'   model `"ppp"` is dropped with a warning (see the Random slopes section
-#'   of [inlavaan()]). `"dic"`, `"loo"` and `"waic"` are unaffected.
+#'   model `"ppp"` is dropped, with a warning when it was asked for and a
+#'   message otherwise (see the Random slopes section of [inlavaan()]).
+#'   `"dic"`, `"loo"` and `"waic"` are unaffected.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
@@ -422,15 +421,6 @@ inlavaan <- function(
   check_composite_means(pt, lavoptions)
   pt$parstart <- composite_start_weights(pt, lavsamplestats, lavdata)
 
-  ## ----- Two-level default test ----------------------------------------------
-  # The two-level PPP refits a saturated model to a replicate data set for
-  # every posterior draw, which costs several times the fit itself. As in
-  # blavaan, it runs only when it is asked for by name ("ppp" or "full").
-  if (lavdata@nlevels > 1L && !any(c("ppp", "full") %in% test)) {
-    test_req <- setdiff(test_req, "ppp")
-    test_requested <- test_req
-  }
-
   ## ----- Random-slope checks -------------------------------------------------
   # A random-slope likelihood is a per-cluster kernel conditional on the
   # covariates, which rules out two things the rest of the pipeline would
@@ -470,20 +460,26 @@ inlavaan <- function(
            has its own covariance, which depends on its covariate values."
         )
       )
-      # Asked for by name, as the two-level default leaves it out
-      cli_warn(
-        c(
-          "Dropping {.val ppp} from {.arg test}: a posterior predictive
-           p-value does not exist for a random-slope model.",
-          "x" = "Its discrepancy scores replicate data against a saturated
-                 model, and a random-slope model has none. Each cluster has
-                 its own covariance, which depends on its covariate
-                 values.",
-          "i" = "Use {.fn compare} (marginal likelihood, Bayes factors,
-                 DIC) or {.fn loo} instead."
-        ),
-        class = "inlavaan_rs_ppp"
-      )
+      if (any(c("ppp", "full") %in% test)) {
+        cli_warn(
+          c(
+            "Dropping {.val ppp} from {.arg test}: a posterior predictive
+             p-value does not exist for a random-slope model.",
+            "x" = "Its discrepancy scores replicate data against a saturated
+                   model, and a random-slope model has none. Each cluster has
+                   its own covariance, which depends on its covariate
+                   values.",
+            "i" = "Use {.fn compare} (marginal likelihood, Bayes factors,
+                   DIC) or {.fn loo} instead."
+          ),
+          class = "inlavaan_rs_ppp"
+        )
+      } else if (isTRUE(verbose)) {
+        # Kept to one source line: cli_alert_info() does not re-wrap
+        cli_alert_info(
+          "No PPP: a random-slope model has no saturated model."
+        )
+      }
     }
     # A slope on a latent or split covariate replaces the closed-form
     # cluster kernel with Gauss-Hermite quadrature, which is worth saying

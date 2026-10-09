@@ -478,30 +478,3 @@ test_that("The two-level PPP warns about draws that give no replicate", {
   )
   expect_true(ppp %in% c(0, 0.5, 1))
 })
-
-test_that("Two-level fits leave the PPP out unless it is named", {
-  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
-  fit_with <- function(test) {
-    asem(
-      "
-      level: 1
-        fw =~ y1 + y2 + y3
-      level: 2
-        fb =~ y1 + y2 + y3
-      ",
-      dat,
-      cluster = "cluster",
-      test = test,
-      verbose = FALSE,
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 20
-    )
-  }
-  rec <- get_inlavaan_internal(fit_with("standard"), "test")
-  expect_identical(rec$requested, "dic")
-  expect_identical(rec$computed, "dic")
-  expect_length(rec$skipped, 0L)
-  rec <- get_inlavaan_internal(fit_with(c("standard", "ppp")), "test")
-  expect_identical(rec$computed, c("ppp", "dic"))
-})

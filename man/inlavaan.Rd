@@ -72,15 +72,14 @@ the casewise machinery does not support (PML or ordinal data,
 \code{conditional.x = TRUE}, multigroup two-level) they are skipped with a
 warning and the rest of the fit proceeds. For a two-level model the PPP
 follows blavaan: each posterior draw generates replicate data, which are
-scored against their own saturated fit. This costs several times the fit
-itself, so for a two-level model \code{"standard"} leaves the PPP out, and
-\code{"ppp"} or \code{"full"} asks for it. The fit records what was
+scored against their own saturated fit. The fit records what was
 requested and what was computed (\code{get_inlavaan_internal(fit, "test")});
 \code{\link[=summary]{summary()}}, \code{\link[=fitmeasures]{fitmeasures()}}, \code{\link[=deviance]{deviance()}}, \code{\link[=logLik]{logLik()}} and \code{\link[=timing]{timing()}}
 report only what was computed. \code{\link[=add_loo]{add_loo()}} stores the LOO and WAIC
 post hoc; \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} compute on demand. For a random-slope
-model \code{"ppp"} is dropped with a warning (see the Random slopes section
-of \code{\link[=inlavaan]{inlavaan()}}). \code{"dic"}, \code{"loo"} and \code{"waic"} are unaffected.}
+model \code{"ppp"} is dropped, with a warning when it was asked for and a
+message otherwise (see the Random slopes section of \code{\link[=inlavaan]{inlavaan()}}).
+\code{"dic"}, \code{"loo"} and \code{"waic"} are unaffected.}
 
 \item{vb_correction}{Logical indicating whether to apply a variational Bayes
 correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
