@@ -126,23 +126,26 @@ ppp2l_cluster_stats <- function(X, lp) {
   f(y = X, lp = lp, conditional_x = FALSE)
 }
 
-## ----- Replicate summaries -----------------------------------------------------
+## ----- Replicate summaries ---------------------------------------------------
 
 # The model log-likelihood, its gradient, the saturated EM and its E-step read
-# only these cluster statistics of complete data: the pooled within
-# cross-products, the cluster means, their summaries by cluster size, and the
-# log-likelihood of the fixed covariates. So a replicate can be drawn as those
-# statistics, without its rows. At the within level, with D the fixed
-# covariates centred at their cluster means (k columns), B the regression of
-# the other within variables on them and V their residual covariance, the
-# within deviations of those variables are B d + e, and
+# only these cluster statistics of complete data: the pooled within covariance,
+# the cluster means, their summaries by cluster size, the sum of the outer
+# products of the rows and the log-likelihood of the fixed covariates. So a
+# replicate can be drawn as those statistics, without its rows. At the within
+# level, with D the fixed covariates centred at their cluster means (k
+# columns), B the regression of the other within variables on them and V their
+# residual covariance, the within deviations of those variables are B d + e,
+# and
 #
 #   S_rf = B D'D + C,
 #   S_rr = B D'D B' + B C' + C B' + C (D'D)^-1 C' + W,
 #
-# with C = e'D matrix normal with covariances V and D'D, W ~ Wishart(N - J -
-# k, V), independent, and the residual cluster means N(0, V / n_j), independent
-# of both. The between level is drawn per cluster, as in ppp2l_draw().
+# with C = e'D matrix normal with covariances V and D'D and, independent of
+# it, W ~ Wishart(N - J - k, V). The residual cluster means are N(0, V / n_j),
+# independent of both. The between level is drawn per cluster, as in
+# ppp2l_draw(). A covariate without within-cluster variation makes D'D
+# singular, and then the rows are drawn instead.
 
 # What the draws of group g need from the observed data, once
 ppp2l_design <- function(lavdata, g) {
@@ -162,6 +165,7 @@ ppp2l_design <- function(lavdata, g) {
   between_idx <- lp$between.idx[[2L]]
   within_idx <- lp$within.idx[[2L]]
   all_idx <- seq_len(ncol(X))
+  dtd <- crossprod(D)
   both_idx <- if (length(within_idx) > 0L || length(between_idx) > 0L) {
     all_idx[-c(within_idx, between_idx)]
   } else {
@@ -176,7 +180,8 @@ ppp2l_design <- function(lavdata, g) {
     cols1 = cols1,
     f1 = f1,
     r1 = setdiff(seq_along(cols1), f1),
-    dtd = crossprod(D),
+    dtd = dtd,
+    ok = ncol(dtd) == 0L || rcond(dtd) > 1e-10,
     xbar = xbar,
     cols2 = cols2,
     f2 = f2,
@@ -188,12 +193,13 @@ ppp2l_design <- function(lavdata, g) {
 
 # One replicate of group g as cluster statistics, in the shape of
 # ppp2l_cluster_stats(). NULL when the within level has too few degrees of
-# freedom for the Wishart draw, so the caller draws the rows instead.
+# freedom for the Wishart draw, or a singular D'D, so the caller draws the
+# rows instead.
 ppp2l_draw_stats <- function(des, lavimplied, g, ylp_obs) {
   k <- length(des$f1)
   r <- des$r1
   df_w <- des$N - des$J - k
-  if (df_w < length(r)) {
+  if (df_w < length(r) || !des$ok) {
     return(NULL)
   }
   mu <- as.numeric(lavimplied$mean[[2L * g - 1L]])
@@ -267,17 +273,20 @@ ppp2l_draw_stats <- function(des, lavimplied, g, ylp_obs) {
     ns <- length(d_idx)
     cov_d[[k_s]] <- if (ns > 1L) stats::cov(tmp) * (ns - 1) / ns else 0
   }
-  list(
-    NULL,
-    list(
-      Y1Y1 = S_cp + crossprod(Y2 * sqrt(des$n_j)),
-      Y2 = Y2,
-      Sigma.W = S_cp / (des$N - des$J),
-      loglik.x = ylp_obs[[2L]]$loglik.x,
-      mean.d = mean_d,
-      cov.d = cov_d
-    )
-  )
+  # On top of the observed statistics, so that fields lavaan does not read
+  # here, and the fixed loglik.x, keep their names and values
+  out <- ylp_obs
+  set <- function(y, nm, value) {
+    alt <- gsub(".", "_", nm, fixed = TRUE)
+    y[[if (alt %in% names(y)) alt else nm]] <- value
+    y
+  }
+  out[[2L]] <- set(out[[2L]], "Y1Y1", S_cp + crossprod(Y2 * sqrt(des$n_j)))
+  out[[2L]] <- set(out[[2L]], "Y2", Y2)
+  out[[2L]] <- set(out[[2L]], "Sigma.W", S_cp / (des$N - des$J))
+  out[[2L]] <- set(out[[2L]], "mean.d", mean_d)
+  out[[2L]] <- set(out[[2L]], "cov.d", cov_d)
+  out
 }
 
 # Model and saturated log-likelihoods of one group's data, complete or not.
@@ -582,8 +591,6 @@ get_ppp_twolevel <- function(
     numeric(1)
   )
   sat_obs <- sum(sat_obs_g)
-  # The covariates the replicates hold at their observed values. A covariate
-  # at both levels is drawn, so its moments are free in the saturated fit.
   # Complete data draw each replicate as its cluster statistics (see
   # ppp2l_draw_stats()). Incomplete data draw its rows.
   design <- if (!missing) lapply(groups, function(g) ppp2l_design(lavdata, g))
@@ -598,10 +605,12 @@ get_ppp_twolevel <- function(
       reps[[g]] <- ppp2l_cluster_stats(
         ppp2l_draw(lavdata, lavimplied)[[g]],
         lavdata@Lp[[g]]
-      ) # nocov
+      )
     }
     reps
   }
+  # The covariates the replicates hold at their observed values. A covariate
+  # at both levels is drawn, so its moments are free in the saturated fit.
   x_fixed <- lapply(groups, function(g) {
     lp <- lavdata@Lp[[g]]
     unique(c(lp$ov.x.idx[[1L]], lp$ov.x.idx[[2L]]))
