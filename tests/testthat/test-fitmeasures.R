@@ -400,3 +400,7 @@ test_that("The baseline is scaled by its own moment count", {
   bfit_indices(fit_test, baseline.model = fit_null)
   expect_equal(p_used, c(21, 21))
 })
+
+test_that("BCFI is NA when the baseline has no noncentrality", {
+  expect_equal(compute_BCFI(c(1, 2, 0), c(4, 0, 0)), c(0.75, NA, NA))
+})

@@ -89,7 +89,12 @@ compute_adjBGammaHat <- function(BGammaHat, p, df) {
 compute_BMc <- function(nonc, N) exp(-0.5 * nonc / N)
 
 # Incremental fit indices (vectorised) ----------------------------------------
-compute_BCFI <- function(nonc, nonc_null) 1 - nonc / nonc_null
+compute_BCFI <- function(nonc, nonc_null) {
+  out <- 1 - nonc / nonc_null
+  # A baseline with no noncentrality leaves nothing to scale by
+  out[!(nonc_null > 0)] <- NA_real_
+  out
+}
 compute_BTLI <- function(adj_dev, df, adj_dev_null, df_null) {
   tli_null <- adj_dev_null / df_null
   denom <- tli_null - 1
