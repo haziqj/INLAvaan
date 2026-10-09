@@ -402,41 +402,56 @@ test_that("Two-level ypred keeps covariates and draws outcome residuals", {
   expect_gt(spread(ypred, "y4") - spread(yhat, "y4"), 0.8 * theta_w)
 })
 
-test_that("The two-level PPP is skipped for a variable with no between variance", {
+test_that("The two-level PPP holds for a covariate with little between variance", {
   # x1 in Demo.twolevel varies almost only within clusters. As a covariate at
-  # both levels it would take the PPP to 0 for a model that fits.
+  # both levels it took the old Wishart-based PPP to 0 for a model that fits.
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
-  fit_x <- function(model) {
-    asem(
-      model,
-      dat,
-      cluster = "cluster",
-      nsamp = 3,
-      test = "ppp",
-      verbose = FALSE
-    )
-  }
-  expect_warning(
-    fit <- fit_x("
-      level: 1
-        fw =~ y1 + y2 + y3
-        fw ~ x1
-      level: 2
-        fb =~ y1 + y2 + y3
-        fb ~ x1
-    "),
-    "Skipping the PPP"
-  )
-  rec <- get_inlavaan_internal(fit, "test")
-  expect_null(get_inlavaan_internal(fit, "ppp"))
-  expect_match(rec$skipped[["ppp"]], "x1")
-
-  fit <- fit_x("
+  set.seed(4)
+  fit <- asem(
+    "
     level: 1
       fw =~ y1 + y2 + y3
       fw ~ x1
     level: 2
       fb =~ y1 + y2 + y3
-  ")
-  expect_false(is.null(get_inlavaan_internal(fit, "ppp")))
+      fb ~ x1
+    ",
+    dat,
+    cluster = "cluster",
+    nsamp = 200,
+    test = "ppp",
+    verbose = FALSE
+  )
+  expect_gt(get_inlavaan_internal(fit, "ppp"), 0.05)
+})
+
+test_that("The two-level PPP replicate keeps the covariates and the design", {
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  dat$y2[c(3, 40, 77)] <- NA
+  fit0 <- suppressWarnings(lavaan::sem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+    ",
+    dat,
+    cluster = "cluster",
+    missing = "ml"
+  ))
+  lavdata <- fit0@Data
+  set.seed(1)
+  rep <- ppp2l_draw(lavdata, lavaan::lav_model_implied(fit0@Model))[[1]]
+  X <- lavdata@X[[1]]
+  ov <- lavdata@ov.names[[1]]
+  # Fixed covariates at their observed values, missing cells where they were
+  expect_equal(rep[, ov == "x1"], X[, ov == "x1"])
+  expect_equal(rep[, ov == "w1"], X[, ov == "w1"])
+  expect_identical(is.na(rep), is.na(X))
+  # A between-only covariate is constant within each cluster
+  cl <- lavdata@Lp[[1]]$cluster.idx[[2]]
+  expect_true(all(tapply(rep[, ov == "w1"], cl, stats::sd) == 0))
+  expect_false(isTRUE(all.equal(rep[, ov == "y1"], X[, ov == "y1"])))
 })

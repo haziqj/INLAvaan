@@ -1215,7 +1215,12 @@ inlavaan <- function(
           )
         )
         # Keep the z-space fit so visual_debug() can draw the smooth SN curve
-        attr(vd, "sn_params") <- unlist(fit_sn[c("xi", "omega", "alpha", "logC")])
+        attr(vd, "sn_params") <- unlist(fit_sn[c(
+          "xi",
+          "omega",
+          "alpha",
+          "logC"
+        )])
 
         # Adjust back to theta space
         fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
@@ -1459,13 +1464,15 @@ inlavaan <- function(
       )
       cli_progress_update(.envir = samp_env)
     }
-    weak <- ppp_weak_between_vars(lavdata, fit0@h1)
-    if ("ppp" %in% test_req && length(weak) > 0L) {
+    fixed_both <- if (lavdata@nlevels > 1L) ppp2l_fixed_both(lavdata)
+    if ("ppp" %in% test_req && length(fixed_both) > 0L) {
+      # nocov start -- lavaan models a covariate at both levels, so it does
+      # not mark one as fixed at both today
       msg <- paste0(
-        "The between-level variance of ",
-        paste(weak, collapse = ", "),
-        " is too small next to the noise in its cluster means for the ",
-        "two-level PPP."
+        "The two-level PPP draws its replicate data given the fixed ",
+        "covariates of each level, and ",
+        paste(fixed_both, collapse = ", "),
+        " is fixed at both levels."
       )
       cli_warn(c(
         "Skipping the PPP requested through {.arg test}.",
@@ -1474,6 +1481,15 @@ inlavaan <- function(
                {.code get_inlavaan_internal(fit, \"test\")$skipped}."
       ))
       skipped <- c(skipped, ppp = msg)
+      # nocov end
+    } else if ("ppp" %in% test_req && lavdata@nlevels > 1L) {
+      ppp <- get_ppp_twolevel(
+        x_samp = x_samp,
+        lavmodel = lavmodel,
+        lavsamplestats = lavsamplestats,
+        lavdata = lavdata,
+        cli_env = samp_env
+      )
     } else if ("ppp" %in% test_req) {
       ppp <- get_ppp(
         x_samp = x_samp,
