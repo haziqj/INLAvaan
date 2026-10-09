@@ -39,7 +39,7 @@
   draw generates replicate data, which are scored against the saturated model.
   The new arguments `ppp_method` and `ppp_nsamp` set how the data are scored
   (by default one Fisher-scoring step towards the saturated fit) and how many
-  draws are used (250).
+  draws are used (250). The two-level PPP is experimental.
 
 * `simulate()` on a two-level fit now keeps the clusters of the data, with
   their labels and sizes, and no longer warns on every data set.
