@@ -191,9 +191,11 @@ Positron) and on Windows.}
 \item{ppp_method}{How the PPP of a two-level model scores the observed and
 the replicate data against the saturated model. \code{"onestep"} (default)
 takes one Fisher-scoring step from the moments of each posterior draw
-towards the saturated fit. \code{"em"} fits the saturated model by EM, as
-blavaan does. Fits with \code{missing = "ml"} always use \code{"em"}. Ignored for
-single-level models.}
+towards the saturated fit, and fits by EM where the step would leave the
+valid covariance matrices (with few clusters or a small between
+variance). \code{"em"} always fits the saturated model by EM, as blavaan does.
+Fits with \code{missing = "ml"} always use \code{"em"}. Ignored for single-level
+models.}
 
 \item{ppp_nsamp}{The number of posterior draws, each with one replicate data
 set, that the PPP of a two-level model uses. Defaults to \code{250}, and is
