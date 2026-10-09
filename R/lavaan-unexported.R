@@ -26,7 +26,6 @@ lavaan___lav_mvn_cl_mi_loglik_samp_2l <- NULL
 lavaan___lav_mvn_cl_mi_dlogl_2l_samp <- NULL
 lavaan___lav_mvn_cl_em_sat <- NULL
 lavaan___lav_mvn_cl_mi_em_sat <- NULL
-lavaan___lav_samp_cl_patterns <- NULL
 lavaan___lav_mvn_cl_rs_m2ll <- NULL
 lavaan___lav_mvn_cl_rs_scores <- NULL
 lavaan___lav_mvn_cl_rs_eb <- NULL
@@ -53,7 +52,6 @@ lavaan_internal_names <- c(
   "lav_mvn_cl_mi_dlogl_2l_samp",
   "lav_mvn_cl_em_sat",
   "lav_mvn_cl_mi_em_sat",
-  "lav_samp_cl_patterns",
   "lav_mvn_cl_rs_m2ll",
   "lav_mvn_cl_rs_scores",
   "lav_mvn_cl_rs_eb",

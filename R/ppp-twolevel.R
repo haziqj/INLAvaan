@@ -97,6 +97,15 @@ ppp2l_draw <- function(lavdata, lavimplied) {
   })
 }
 
+# lavaan's cluster sample statistics of complete data. The function is looked
+# up at call time rather than bound in .onLoad(): a branch INLAvaan never takes
+# (conditional_x = TRUE) calls MASS, so a binding in the namespace would make
+# R CMD check ask for MASS as a dependency.
+ppp2l_cluster_stats <- function(X, lp) {
+  f <- utils::getFromNamespace("lav_samp_cl_patterns", "lavaan")
+  f(y = X, lp = lp, conditional_x = FALSE)
+}
+
 # Model and saturated log-likelihoods of one group's data, complete or not
 ppp2l_loglik <- function(X, g, lavdata, lavimplied, missing, em = NULL) {
   saturated <- !is.null(em)
@@ -135,7 +144,7 @@ ppp2l_loglik <- function(X, g, lavdata, lavimplied, missing, em = NULL) {
       )
     }
   } else {
-    ylp <- lavaan___lav_samp_cl_patterns(y = X, lp = lp, conditional_x = FALSE)
+    ylp <- ppp2l_cluster_stats(X, lp)
     fit <- lavaan___lav_mvn_cl_loglik_samp_2l(
       ylp = ylp,
       lp = lp,
