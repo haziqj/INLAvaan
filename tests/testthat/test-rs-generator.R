@@ -159,3 +159,61 @@ test_that("predict() gives cluster-specific yhat and ypred", {
   expect_gt(spread(ypred, "y1") - spread(yhat, "y1"), 0.6 * theta_w)
   expect_error(predict(fit_rs, type = "ymis"), class = "inlavaan_rs_predict")
 })
+
+## ----- B-indices ------------------------------------------------------------------
+
+test_that("The B-index reference starts at the fitted model", {
+  # The fixture's posterior means, whose variances are all positive
+  fit <- fit_rs
+  info <- rs_spec(get_inlavaan_internal(fit))$rs$info
+  syn <- rs_baseline_syntax(fit@Model, info)
+  b0 <- suppressWarnings(lavaan::sem(
+    syn,
+    d_rs,
+    cluster = "cluster",
+    do.fit = FALSE
+  ))
+  pt <- rs_baseline_start(fit@Model, info, lavaan::parTable(b0))
+  # Keep the start exactly at the nested point for this check
+  free <- pt$free > 0L
+  x <- pt$start[free][order(pt$free[free])]
+  ll_ref <- lavaan___lav_mvn_cl_rs_m2ll(
+    lavmodel = lavaan::lav_model_set_parameters(b0@Model, x),
+    rs = b0@Cache[[1L]]$rs,
+    log2pi = TRUE,
+    minus_two = FALSE
+  )
+  ll_model <- lavaan___lav_mvn_cl_rs_m2ll(
+    lavmodel = fit@Model,
+    rs = rs_spec(get_inlavaan_internal(fit))$rs,
+    log2pi = TRUE,
+    minus_two = FALSE
+  )
+  expect_equal(as.numeric(ll_ref), as.numeric(ll_model), tolerance = 1e-6)
+})
+
+test_that("The B-indices of a random-slope fit", {
+  skip_on_cran()
+  fit <- asem(
+    mod_rs,
+    d_rs,
+    cluster = "cluster",
+    verbose = FALSE,
+    test = "dic",
+    marginal_correction = "none",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  ref <- rs_baseline_fit(fit)
+  expect_gt(ref$npar, fit@Fit@npar)
+  set.seed(9)
+  bf <- bfit_indices(fit, nsamp = 40)
+  expect_true(all(
+    c("BRMSEA", "BGammaHat", "BMc", "BCFI") %in% names(bf$indices)
+  ))
+  expect_equal(bf$details$df, ref$npar - bf$details$pD)
+  expect_true(all(bf$indices$BRMSEA >= 0))
+  expect_true(all(bf$indices$BMc <= 1))
+  # The reference fits at least as well as every draw of the model
+  expect_true(all(bf$details$chisq > 0))
+})

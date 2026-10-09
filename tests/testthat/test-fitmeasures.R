@@ -364,7 +364,8 @@ test_that("The baseline is scaled by its own moment count", {
       lavoptions,
       lavcache,
       p,
-      rescale
+      rescale,
+      loglik_sat = NULL
     ) {
       p_used <<- c(p_used, p)
       rescale_original(
@@ -376,7 +377,8 @@ test_that("The baseline is scaled by its own moment count", {
         lavoptions,
         lavcache,
         p,
-        rescale
+        rescale,
+        loglik_sat
       )
     }
   )

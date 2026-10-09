@@ -55,9 +55,12 @@ compute_chisq_dev <- function(
   lavsamplestats,
   lavdata,
   lavoptions,
-  lavcache
+  lavcache,
+  loglik_sat = NULL
 ) {
-  loglik_sat <- compute_loglik_sat(object, lavsamplestats, lavdata)
+  if (is.null(loglik_sat)) {
+    loglik_sat <- compute_loglik_sat(object, lavsamplestats, lavdata)
+  }
   vapply(
     seq_len(nrow(x_samp)),
     function(i) {
@@ -168,7 +171,8 @@ compute_rescaled_quantities <- function(
   lavoptions,
   lavcache,
   p,
-  rescale
+  rescale,
+  loglik_sat = NULL
 ) {
   N <- lavsamplestats@ntotal
   Ngr <- lavdata@ngroups
@@ -181,7 +185,8 @@ compute_rescaled_quantities <- function(
     lavsamplestats,
     lavdata,
     lavoptions,
-    lavcache
+    lavcache,
+    loglik_sat
   )
 
   if (rescale == "devM") {
@@ -383,20 +388,11 @@ bfit_indices <- function(
   lavsamplestats <- int$lavsamplestats
   lavdata <- int$lavdata
 
+  # A random-slope fit has no saturated model, so it is scaled against the
+  # unrestricted random-coefficient model instead (see rs_baseline_fit())
+  rs_ref <- NULL
   if (has_random_slopes(lavmodel)) {
-    cli_abort(
-      c(
-        "Bayesian fit indices do not exist for a random-slope model.",
-        "x" = "They rest on a chi-square against the saturated
-               log-likelihood, which for a random-slope model is the joint
-               (y, x) fit and not on the scale of the model's conditional
-               log-likelihood, so BRMSEA, BGammaHat, adjBGammaHat, BMc,
-               BCFI, BTLI and BNFI would be arbitrary numbers.",
-        "i" = "Use {.fn compare} (marginal likelihood, Bayes factors, DIC)
-               or {.fn loo}."
-      ),
-      class = "inlavaan_rs_bfit"
-    )
+    rs_ref <- rs_baseline_fit(object)
   }
 
   nsamp <- nsamp %||% int$nsamp %||% 500L
@@ -432,7 +428,11 @@ bfit_indices <- function(
   nvar <- lavmodel@nvar
   # Number of sample moments, counted as lavaan counts them for the model's
   # degrees of freedom (see count_sample_moments()).
-  p <- count_sample_moments(object@ParTable)
+  p <- if (is.null(rs_ref)) {
+    count_sample_moments(object@ParTable)
+  } else {
+    rs_ref$npar
+  }
 
   rq <- compute_rescaled_quantities(
     object,
@@ -443,7 +443,8 @@ bfit_indices <- function(
     lavoptions,
     lavcache,
     p,
-    rescale
+    rescale,
+    rs_ref$loglik
   )
 
   indices <- list()
@@ -486,8 +487,9 @@ bfit_indices <- function(
       bint$lavdata,
       reconstruct_lavoptions(baseline.model),
       baseline.model@Cache,
-      count_sample_moments(baseline.model@ParTable),
-      rescale
+      if (is.null(rs_ref)) count_sample_moments(baseline.model@ParTable) else p,
+      rescale,
+      rs_ref$loglik
     )
 
     adj_dev_use <- rq$adj_dev[seq_len(n_use)]

@@ -196,29 +196,19 @@ test_that("Random slopes: fitmeasures keeps only what exists", {
   fm <- fitMeasures(fit_rs_dic)
 
   expect_true(all(c("npar", "margloglik", "dic", "p_dic") %in% names(fm)))
-  gone <- c(
-    "ppp",
-    "BRMSEA",
-    "BGammaHat",
-    "adjBGammaHat",
-    "BMc",
-    "chisq",
-    "cfi",
-    "rmsea",
-    "aic",
-    "bic"
-  )
+  # The B-indices are scaled against the random-coefficient reference
+  expect_true(all(c("BRMSEA", "BGammaHat", "BCFI") %in% names(fm)))
+  gone <- c("ppp", "chisq", "cfi", "rmsea", "aic", "bic")
   expect_false(any(gone %in% names(fm)))
 
   # Asking for one of them by name says why nothing came back
   expect_error(
-    fitMeasures(fit_rs_dic, "BRMSEA"),
+    fitMeasures(fit_rs_dic, "chisq"),
     class = "inlavaan_rs_fitmeasures"
   )
 })
 
 test_that("Random slopes: the quantities that do not exist are gated", {
-  expect_error(bfit_indices(fit_rs), class = "inlavaan_rs_bfit")
   expect_error(predict(fit_rs, type = "ymis"), class = "inlavaan_rs_predict")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
   expect_equal(dim(sampling(fit_rs, type = "lavaan", nsamp = 4)), c(4L, 19L))
@@ -432,6 +422,10 @@ test_that("Random slopes: the quadrature route has averaged moments only", {
   expect_length(sampling(fit_b, type = "implied", nsamp = 2), 2L)
   expect_equal(dim(sampling(fit_b, type = "observed", nsamp = 2)), c(2L, 2L))
   expect_error(simulate(fit_b, nsim = 1), class = "inlavaan_rs_simulate")
+  expect_error(
+    bfit_indices(fit_b, rescale = "MCMC", nsamp = 5),
+    class = "inlavaan_rs_bfit"
+  )
   expect_error(fitted(fit_b, type = "casewise"), class = "inlavaan_rs_casewise")
   expect_error(predict(fit_b, type = "yhat"), class = "inlavaan_rs_casewise")
   # Each cluster is a mixture over the quadrature nodes
