@@ -76,7 +76,13 @@
 #'
 #' @example inst/examples/ex-sampling.R
 #' @export
-setGeneric("sampling", function(object, ...) standardGeneric("sampling"))
+# The default hands anything that is not an S4 INLAvaan object to the S3
+# methods, so the internal list dispatches too
+setGeneric(
+  "sampling",
+  function(object, ...) standardGeneric("sampling"),
+  useAsDefault = function(object, ...) UseMethod("sampling")
+)
 
 #' @name sampling
 #' @rdname sampling
@@ -123,6 +129,7 @@ sampling.inlavaan_internal <- function(
     nsamp = nsamp,
     samp_copula = samp_copula,
     prior = prior,
+    meanstructure = isTRUE(object$lavmodel@meanstructure),
     silent = silent,
     ...
   )
