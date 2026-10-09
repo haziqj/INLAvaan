@@ -94,8 +94,10 @@ compute_BMc <- function(nonc, N) exp(-0.5 * nonc / N)
 # Incremental fit indices (vectorised) ----------------------------------------
 compute_BCFI <- function(nonc, nonc_null) {
   out <- 1 - nonc / nonc_null
-  # A baseline with no noncentrality leaves nothing to scale by
-  out[!(nonc_null > 0)] <- NA_real_
+  # A baseline with no noncentrality leaves nothing to scale by. Such a draw
+  # takes lavaan's CFI convention: 1 when the model has none either, else 0.
+  zero <- !(nonc_null > 0)
+  out[zero] <- as.numeric(nonc[zero] <= 0)
   out
 }
 compute_BTLI <- function(adj_dev, df, adj_dev_null, df_null) {
