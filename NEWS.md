@@ -4,14 +4,15 @@
 
 * INLAvaan now fits two-level models with random slopes, which lavaan specifies
   with the `rv()` modifier. They work with `compare()`, `loo()`, `waic()`,
-  `logLik()` and `predict(type = "lv")`, and `summary()` marks the rows that
-  carry a random slope. `fitted()`, `residuals()` and the standardised estimates
-  use the implied moments averaged over the covariates, and `per_cluster = TRUE`
-  gives those of each cluster. The posterior predictive p-value and `simulate()`
-  give an error. A random slope on a latent or split covariate uses lavaan's
-  quadrature, which is slower, and `integration.ngh` sets its number of nodes.
-  Composites cannot be combined with random slopes yet. See the multilevel
-  article.
+  `logLik()`, `predict()`, `simulate()` and `sampling()`, and `summary()` marks
+  the rows that carry a random slope. `fitted()`, `residuals()` and the
+  standardised estimates use the implied moments averaged over the covariates,
+  and `per_cluster = TRUE` gives those of each cluster. The Bayesian fit indices
+  are scaled against an unrestricted random-coefficient model. The posterior
+  predictive p-value gives an error. A random slope on a latent or split
+  covariate uses lavaan's quadrature, which is slower, and `integration.ngh`
+  sets its number of nodes. Composites cannot be combined with random slopes
+  yet. See the multilevel article.
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
   with continuous data, in one or more groups or at either level of a two-level
