@@ -219,7 +219,6 @@ test_that("Random slopes: fitmeasures keeps only what exists", {
 
 test_that("Random slopes: the quantities that do not exist are gated", {
   expect_error(bfit_indices(fit_rs), class = "inlavaan_rs_bfit")
-  expect_error(simulate(fit_rs, nsim = 1), class = "inlavaan_rs_simulate")
   expect_error(predict(fit_rs, type = "yhat"), class = "inlavaan_rs_predict")
   expect_error(loo(fit_rs, type = "loso"), class = "inlavaan_rs_loso")
   for (tp in c("latent", "observed", "implied", "all")) {
@@ -436,6 +435,8 @@ test_that("Random slopes: the quadrature route has averaged moments only", {
   set.seed(3)
   std <- standardisedsolution(fit_b, nsamp = 10)
   expect_true(all(is.finite(std$est.std)))
+  # The data generator needs the closed form
+  expect_error(simulate(fit_b, nsim = 1), class = "inlavaan_rs_simulate")
   # Each cluster is a mixture over the quadrature nodes
   expect_error(
     fitted(fit_b, per_cluster = TRUE),
