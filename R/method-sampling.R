@@ -84,7 +84,7 @@
 #' @example inst/examples/ex-sampling.R
 #' @export
 # The default hands anything that is not an S4 INLAvaan object to the S3
-# methods, so the internal list dispatches too
+# methods, so the internal list dispatches too.
 setGeneric(
   "sampling",
   function(object, ...) standardGeneric("sampling"),
@@ -508,7 +508,7 @@ sample_generative_ml <- function(
 
     # A random slope is a level-2 latent variable that multiplies a level-1
     # path, so the between level is drawn first and each drawn slope is put
-    # in its level-1 carrier cell
+    # in its level-1 carrier cell.
     level_order <- if (is.null(rs_paths)) {
       seq_len(nlevels)
     } else {
@@ -559,7 +559,7 @@ compute_implied_moments_ml <- function(
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_row)
   # A random-slope model's moments are averaged over the covariates, since
-  # lavaan's own leave the slopes out (see rs_avg_glist())
+  # lavaan's own leave the slopes out (see rs_avg_glist()).
   implied <- if (is.null(rs_info)) {
     lavaan::lav_model_implied(lavmodel_x)
   } else {

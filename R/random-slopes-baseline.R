@@ -4,10 +4,10 @@
 # unrestricted random-coefficient model with the same random-effects design,
 # in which the fitted model is nested:
 #
-#   - level 1: every outcome a slope reaches gets its own random slope on that
+#   - Level 1. Every outcome a slope reaches gets its own random slope on that
 #     covariate, every other covariate a free fixed slope, and the residual
-#     covariance of the outcomes is free;
-#   - level 2: the random intercepts, the random slopes and the between-only
+#     covariance of the outcomes is free.
+#   - Level 2. The random intercepts, the random slopes and the between-only
 #     outcomes have a free covariance and free means, and are all regressed
 #     on the between-level covariates.
 #
@@ -17,7 +17,7 @@
 # the unrestricted maximum sits next to the region where a cluster's
 # covariance is not positive definite and lavaan's own optimiser stalls there.
 
-## ----- Syntax and start ---------------------------------------------------------
+## ----- Syntax and start ------------------------------------------------------
 
 rs_baseline_slope <- function(y, x) paste0("rc_", y, "_", x)
 
@@ -146,14 +146,14 @@ rs_baseline_start <- function(lavmodel, info, pt) {
     }
   }
   # A random slope the model leaves without variance would start the
-  # reference on its boundary, where the log variance does not exist
+  # reference on its boundary, where the log variance does not exist.
   var_row <- pt$block == 2L & pt$op == "~~" & pt$lhs == pt$rhs & pt$free > 0L
   start[var_row] <- pmax(start[var_row], 1e-4)
   pt$start <- start
   pt
 }
 
-## ----- Fit ----------------------------------------------------------------------
+## ----- Fit -------------------------------------------------------------------
 
 # Maximum log-likelihood of the reference model, with its number of free
 # parameters. Errors when the reference cannot be fitted.
@@ -242,7 +242,7 @@ rs_baseline_fit <- function(object) {
     int$lavcache
   )
   # The model is nested in the reference, so a reference below the model's
-  # posterior mean has not been fitted
+  # posterior mean has not been fitted.
   if (!is.finite(ll_base) || ll_base < ll_model - 1e-6) {
     cli_abort(
       c(

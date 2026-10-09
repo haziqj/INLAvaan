@@ -395,7 +395,7 @@ bfit_indices <- function(
   lavdata <- int$lavdata
 
   # A random-slope fit has no saturated model, so it is scaled against the
-  # unrestricted random-coefficient model instead (see rs_baseline_fit())
+  # unrestricted random-coefficient model instead (see rs_baseline_fit()).
   rs_ref <- NULL
   if (has_random_slopes(lavmodel)) {
     rs_ref <- rs_baseline_fit(object)

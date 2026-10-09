@@ -499,7 +499,7 @@ rs_avg_object <- function(object) {
 }
 
 # Casewise values are one row per observation, so per_cluster has no meaning
-# for them
+# for them.
 check_casewise_per_cluster <- function(per_cluster) {
   if (isTRUE(per_cluster)) {
     cli_abort(

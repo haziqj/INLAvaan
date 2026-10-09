@@ -230,7 +230,7 @@ rs_residual_type <- function(type, mimic = "lavaan") {
 }
 
 # The casewise types and their aliases, as lavaan names them for fitted() and
-# for residuals()
+# for residuals().
 rs_is_casewise <- function(type, is_fitted) {
   aliases <- if (is_fitted) {
     c("casewise", "obs", "ov")

@@ -1,4 +1,4 @@
-## ----- Shared fixture ---------------------------------------------------------
+## ----- Shared fixture --------------------------------------------------------
 d_rs <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
 mod_rs <- "
   level: 1
@@ -20,7 +20,7 @@ fit_rs <- asem(
   nsamp = 3
 )
 
-## ----- Generator ------------------------------------------------------------------
+## ----- Generator -------------------------------------------------------------
 
 test_that("The generator draws each cluster from its own moments", {
   skip_on_cran()
@@ -80,7 +80,7 @@ test_that("simulate() keeps the covariates and the clusters", {
   )
 })
 
-## ----- sampling() -----------------------------------------------------------------
+## ----- sampling() ------------------------------------------------------------
 
 test_that("sampling() gives implied, latent and observed draws", {
   set.seed(3)
@@ -113,7 +113,7 @@ test_that("sampling() gives implied, latent and observed draws", {
 test_that("Observed draws carry the slope variance", {
   skip_on_cran()
   # Every parameter at the posterior mean, so the draws share one model, but
-  # with a slope variance large enough for the test to see it
+  # with a slope variance large enough for the test to see it.
   int <- get_inlavaan_internal(fit_rs)
   x <- lavaan::lav_model_get_parameters(fit_rs@Model)
   pt <- lavaan::parTable(fit_rs)
@@ -146,7 +146,7 @@ test_that("Observed draws carry the slope variance", {
   expect_lt(max(abs(stats::cov(ob)[1:3, 1:3] - total)), 0.15)
 })
 
-## ----- Casewise values ------------------------------------------------------------
+## ----- Casewise values -------------------------------------------------------
 
 test_that("Casewise fitted values are the outcomes' means given the covariates", {
   f <- fitted(fit_rs, type = "casewise")
@@ -180,7 +180,7 @@ test_that("predict() gives cluster-specific yhat and ypred", {
   expect_equal(colnames(yhat[[1]]), c("y1", "y2", "y3", "x1", "w1"))
   expect_equal(unname(yhat[[1]][, "w1"]), d_rs$w1)
   # The cluster's own random effects make yhat much closer to y than the
-  # population-average fitted values
+  # population-average fitted values.
   m <- Reduce(`+`, yhat) / length(yhat)
   f <- fitted(fit_rs, type = "casewise")
   expect_gt(cor(m[, "y1"], d_rs$y1), cor(f[, "y1"], d_rs$y1) + 0.3)
@@ -204,7 +204,7 @@ test_that("ypred draws the within residual given the latent values", {
   parts <- rs_within_parts(w, info, character(0))
   expect_equal(parts$H, matrix(0, 3, 3))
   # With the factor's values, the residual covariance shrinks by the part
-  # that runs through the factor, Lambda psi Lambda'
+  # that runs through the factor, Lambda psi Lambda'.
   parts <- rs_within_parts(w, info, "fw")
   lam <- w$lambda[info$y.names, "fw"]
   expect_equal(
@@ -257,7 +257,7 @@ test_that("ypred adds the residual of an observed outcome", {
   expect_equal(spread(ypred) - spread(yhat), psi, tolerance = 0.1)
 })
 
-## ----- B-indices ------------------------------------------------------------------
+## ----- B-indices -------------------------------------------------------------
 
 test_that("The B-index reference starts at the fitted model", {
   # The fixture's posterior means, whose variances are all positive

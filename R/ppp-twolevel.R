@@ -4,7 +4,7 @@
 # covariates of each level at their observed values. The discrepancy is the
 # likelihood-ratio statistic against the saturated two-level model,
 #
-#   T = -2 (loglik(theta; y) - loglik_sat(y)),
+#   T = -2 (loglik(y | theta) - loglik_sat(y)),
 #
 # with the saturated model refitted to each replicate by EM, and
 # PPP = Pr(T(y_rep) > T(y)). Scoring the replicate with its own saturated fit

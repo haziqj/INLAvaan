@@ -1463,7 +1463,7 @@ inlavaan <- function(
     fixed_both <- if (lavdata@nlevels > 1L) ppp2l_fixed_both(lavdata)
     if ("ppp" %in% test_req && length(fixed_both) > 0L) {
       # nocov start -- lavaan models a covariate at both levels, so it does
-      # not mark one as fixed at both today
+      # not mark one as fixed at both today.
       msg <- paste0(
         "The two-level PPP draws its replicate data given the fixed ",
         "covariates of each level, and ",

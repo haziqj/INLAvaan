@@ -163,7 +163,7 @@ get_ppp <- function(
     # The observed covariance: the EM (saturated) estimate under FIML,
     # the plain sample covariance otherwise. Both have divisor n, and
     # the replicates below are Wishart(n - 1, Sigma) / (n - 1) objects,
-    # so rescale to the unbiased (n - 1) form to match
+    # so rescale to the unbiased (n - 1) form to match.
     S <- if (has_missing && !is.null(lavsamplestats@missing.h1[[g]]$sigma)) {
       lavsamplestats@missing.h1[[g]]$sigma
     } else {

@@ -8,7 +8,7 @@
 # covariates and size.
 
 # A square root of a positive semi-definite matrix, or an error for a matrix
-# that is not
+# that is not.
 rs_psd_root <- function(S) {
   S <- (S + t(S)) / 2
   e <- eigen(S, symmetric = TRUE)
@@ -61,7 +61,7 @@ rs_draw_outcomes <- function(lavmodel, rs, lavdata) {
 }
 
 # simulate() for a random-slope fit: `nsim` data sets at posterior (or prior)
-# draws, each with the observed covariates and cluster sizes
+# draws, each with the observed covariates and cluster sizes.
 rs_simulate <- function(object, nsim, sample.nobs, prior, samp_copula, silent) {
   int <- object@external$inlavaan_internal
   spec <- rs_spec(int)

@@ -8,7 +8,7 @@
 # as predict() does for other two-level fits.
 
 # The rows of E[y | v, x] for every observation, with `V` one level-2 vector
-# per cluster
+# per cluster.
 rs_y_given_v <- function(imp, info, X1, cl, V) {
   paths <- info$path.tab
   zcol <- imp$z.v.idx[paths$z.idx]
@@ -24,7 +24,7 @@ rs_y_given_v <- function(imp, info, X1, cl, V) {
 }
 
 # The mean of the level-2 vector of each cluster given its between-level
-# covariates
+# covariates.
 rs_v_mean <- function(imp, info, rs) {
   J <- rs$stats$nclusters
   D <- matrix(imp$mu.v, J, imp$pv, byrow = TRUE)
@@ -50,7 +50,7 @@ check_rs_casewise <- function(spec, what) {
 
 # fitted(type = "casewise") and residuals(type = "casewise"): one row per
 # observation and one column per level-1 variable, the outcomes at their
-# expectation given the covariates and the covariates as observed
+# expectation given the covariates and the covariates as observed.
 rs_casewise <- function(object, residual = FALSE) {
   int <- get_inlavaan_internal(object)
   spec <- rs_spec(int)
@@ -105,7 +105,7 @@ rs_within_parts <- function(w, info, r) {
 }
 
 # The means of the latent variables `r` given the covariates and the level-2
-# vectors `V`, one row per observation
+# vectors `V`, one row per observation.
 rs_eta_mean <- function(parts, info, imp, X1, cl, V, r) {
   B <- parts$B
   xv <- parts$xv
