@@ -36,22 +36,14 @@
 #'   warning and the rest of the fit proceeds. For a two-level model the PPP
 #'   follows blavaan: each of `ppp_nsamp` posterior draws generates replicate
 #'   data, which are scored against the saturated model (see `ppp_method`).
-#'   The fit records what was
-#'   requested and what was computed (`get_inlavaan_internal(fit, "test")`);
+#'   The fit records what was requested and what was computed
+#'   (`get_inlavaan_internal(fit, "test")`);
 #'   [summary()], [fitmeasures()], [deviance()], [logLik()] and [timing()]
 #'   report only what was computed. [add_loo()] stores the LOO and WAIC
 #'   post hoc; [loo()] and [waic()] compute on demand. For a random-slope
 #'   model `"ppp"` is dropped, with a warning when it was asked for and a
 #'   message otherwise (see the Random slopes section of [inlavaan()]).
 #'   `"dic"`, `"loo"` and `"waic"` are unaffected.
-#' @param ppp_method How a two-level model scores each replicate data set for
-#'   the PPP. `"onestep"` (default) replaces the saturated two-level fit with
-#'   one Fisher-scoring step from the moments of the posterior draw. `"em"`
-#'   fits the saturated model by EM, as blavaan does. Incomplete data always
-#'   use `"em"`.
-#' @param ppp_nsamp The number of posterior draws, each with one replicate data
-#'   set, that the PPP of a two-level model uses (at most `nsamp`). Defaults to
-#'   `250`.
 #' @param vb_correction Logical indicating whether to apply a variational Bayes
 #'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
 #' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
@@ -152,6 +144,16 @@
 #'   cores -- forked via [parallel::mclapply()] where that is safe, or over a
 #'   PSOCK cluster (separate R processes) inside IDE R sessions (RStudio,
 #'   Positron) and on Windows.
+#' @param ppp_method How the PPP of a two-level model scores the observed and
+#'   the replicate data against the saturated model. `"onestep"` (default)
+#'   takes one Fisher-scoring step from the moments of each posterior draw
+#'   towards the saturated fit. `"em"` fits the saturated model by EM, as
+#'   blavaan does. Fits with `missing = "ml"` always use `"em"`. Ignored for
+#'   single-level models.
+#' @param ppp_nsamp The number of posterior draws, each with one replicate data
+#'   set, that the PPP of a two-level model uses. Defaults to `250`, and is
+#'   capped at `nsamp`. Draws that cannot be scored are left out, with a
+#'   warning. Ignored for single-level models.
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
 #'   function.
 #'
@@ -265,8 +267,6 @@ inlavaan <- function(
   model.type = "sem",
   dp = priors_for(),
   test = "standard",
-  ppp_method = c("onestep", "em"),
-  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
@@ -288,6 +288,8 @@ inlavaan <- function(
   numerical_grad = FALSE,
   start = NULL,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 ) {
   mc <- match.call()
@@ -309,7 +311,7 @@ inlavaan <- function(
       is.na(ppp_nsamp) ||
       ppp_nsamp < 1
   ) {
-    cli_abort("{.arg ppp_nsamp} must be a positive number.")
+    cli_abort("{.arg ppp_nsamp} must be a number of at least 1.")
   }
   if (isFALSE(marginal_correction)) {
     marginal_correction <- "none"
@@ -1499,7 +1501,7 @@ inlavaan <- function(
       skipped <- c(skipped, ppp = msg)
       # nocov end
     } else if ("ppp" %in% test_req && lavdata@nlevels > 1L) {
-      n_ppp <- min(nrow(x_samp), as.integer(ppp_nsamp))
+      n_ppp <- min(nrow(x_samp), floor(ppp_nsamp))
       ppp <- get_ppp_twolevel(
         x_samp = x_samp[seq_len(n_ppp), , drop = FALSE],
         lavmodel = lavmodel,
@@ -1712,8 +1714,6 @@ acfa <- function(
   data,
   dp = priors_for(),
   test = "standard",
-  ppp_method = c("onestep", "em"),
-  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
@@ -1734,6 +1734,8 @@ acfa <- function(
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 ) {
   sc <- sys.call()
@@ -1770,8 +1772,6 @@ asem <- function(
   data,
   dp = priors_for(),
   test = "standard",
-  ppp_method = c("onestep", "em"),
-  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
@@ -1792,6 +1792,8 @@ asem <- function(
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 ) {
   sc <- sys.call()
@@ -1826,8 +1828,6 @@ agrowth <- function(
   data,
   dp = priors_for(),
   test = "standard",
-  ppp_method = c("onestep", "em"),
-  ppp_nsamp = 250L,
   vb_correction = TRUE,
   n_qmc = 64L,
   vb_method = c("sobol", "gauss_hermite"),
@@ -1848,6 +1848,8 @@ agrowth <- function(
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
   cores = NULL,
+  ppp_method = c("onestep", "em"),
+  ppp_nsamp = 250L,
   ...
 ) {
   sc <- sys.call()
