@@ -258,6 +258,8 @@ ppp2l_info <- function(imp, lp, x_idx) {
     sigma_w = imp$cov[[1L]],
     sigma_b = imp$cov[[2L]]
   )
+  # lavaan 0.7-2 names these pieces with dots, later versions with underscores
+  names(out) <- sub(".", "_", names(out), fixed = TRUE)
   ov_idx <- lp$ov.idx
   p <- length(unique(c(ov_idx[[1L]], ov_idx[[2L]])))
   npar <- p + p * (p + 1) / 2
