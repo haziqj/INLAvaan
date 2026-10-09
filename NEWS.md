@@ -9,10 +9,12 @@
   standardised estimates use the implied moments averaged over the covariates,
   and `per_cluster = TRUE` gives those of each cluster. The Bayesian fit indices
   are scaled against an unrestricted random-coefficient model. The posterior
-  predictive p-value gives an error. A random slope on a latent or split
-  covariate uses lavaan's quadrature, which is slower, and `integration.ngh`
-  sets its number of nodes. Composites cannot be combined with random slopes
-  yet. See the multilevel article.
+  predictive p-value is not available and is dropped from `test`. A random
+  slope on a latent or split covariate uses lavaan's quadrature, which is
+  slower, and `integration.ngh` sets its number of nodes. Such fits have no
+  `simulate()`, casewise values, `predict(type = "yhat")` or Bayesian fit
+  indices. Composites cannot be combined with random slopes yet. See the
+  multilevel article.
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
   with continuous data, in one or more groups or at either level of a two-level
@@ -32,8 +34,8 @@
 
 ## Bug fixes
 
-* The posterior predictive p-value of two-level models was close to 0 for
-  models that fit. It now follows blavaan's two-level PPP: each posterior draw
+* The posterior predictive p-value of two-level models was often close to 0
+  for models that fit. It now follows blavaan's two-level PPP: each posterior draw
   generates replicate data, which are scored against their own saturated fit.
 
 * `simulate()` on a two-level fit now keeps the cluster sizes of the data,
@@ -171,9 +173,6 @@
 
 * `sampling()` for `conditional.x = TRUE` fits now draws the covariates too,
   as for other fits. Previously it left out their effects.
-
-* The PPP of a two-level model is skipped, with a warning, when a variable at
-  both levels has almost no between-level variance. It was 0 in such models.
 
 * Models with a free covariance above 1 at its starting value, such as
   covariances between covariates under `fixed.x = FALSE`, no longer fail.
