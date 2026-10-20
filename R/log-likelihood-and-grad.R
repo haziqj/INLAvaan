@@ -20,14 +20,18 @@ inlav_model_loglik <- function(
       # ones -- otherwise the log-likelihood is constant in `x`. Passing
       # `lavmodel_x` is inert for every other model, which reads
       # `lavimplied`, itself already built from `lavmodel_x`.
-      out <- lavaan___lav_model_loglik(
-        lavdata = lavdata,
-        lavsamplestats = lavsamplestats,
-        lavimplied = lavimplied,
-        lavmodel = lavmodel_x,
-        lavoptions = lavoptions,
-        lavcache = lavcache
-      )$loglik
+      out <- if (fiml_fast_path(lavmodel, lavsamplestats, lavdata)) {
+        fiml_loglik_samp(lavsamplestats, lavimplied)
+      } else {
+        lavaan___lav_model_loglik(
+          lavdata = lavdata,
+          lavsamplestats = lavsamplestats,
+          lavimplied = lavimplied,
+          lavmodel = lavmodel_x,
+          lavoptions = lavoptions,
+          lavcache = lavcache
+        )$loglik
+      }
       # is_bad_cov() above only inspects the fixed-slope implied covariance,
       # so a random-slope kernel can still return a non-finite value.
       if (!is.finite(out)) {
@@ -59,6 +63,51 @@ inlav_model_loglik <- function(
   }
 
   out
+}
+
+# lavaan scores each missing-data pattern with the inverse of its observed block
+# of Sigma, which it gets by downdating the full inverse once per missing
+# variable. That costs O(p^2) per missing variable and dominates when most items
+# are missing by design (planned missingness), so single-level fits without
+# covariates or weights score each pattern from the Cholesky factor of its
+# observed block instead. The two give the same log-likelihood.
+fiml_fast_path <- function(lavmodel, lavsamplestats, lavdata) {
+  isTRUE(lavsamplestats@missing.flag) &&
+    lavdata@nlevels == 1L &&
+    !isTRUE(lavmodel@conditional.x) &&
+    all(lengths(lavsamplestats@x.idx) == 0L) &&
+    all(vapply(lavdata@weights, is.null, logical(1))) &&
+    !has_random_slopes(lavmodel)
+}
+
+# Only the first group's Sigma is checked upstream, so a failed factorisation
+# in another group returns the optimiser's sentinel.
+fiml_loglik_samp <- function(lavsamplestats, lavimplied) {
+  log_2pi <- log(2 * pi)
+  tryCatch(
+    {
+      out <- 0
+      for (g in seq_along(lavsamplestats@missing)) {
+        mu <- as.numeric(lavimplied$mean[[g]])
+        Sigma <- lavimplied$cov[[g]]
+        for (pat in lavsamplestats@missing[[g]]) {
+          o <- pat$var.idx
+          L <- chol(Sigma[o, o, drop = FALSE])
+          z <- backsolve(L, pat$MY - mu[o], transpose = TRUE)
+          dist <- sum(z^2)
+          if (pat$freq > 1L) {
+            dist <- dist + sum(chol2inv(L) * pat$SY)
+          }
+          out <- out -
+            0.5 *
+              pat$freq *
+              (length(z) * log_2pi + 2 * sum(log(diag(L))) + dist)
+        }
+      }
+      out
+    },
+    error = function(e) -1e40
+  )
 }
 
 inlav_model_grad <- function(
