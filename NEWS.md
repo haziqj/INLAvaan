@@ -186,6 +186,15 @@
 
 ## Minor improvements and fixes
 
+* Models without a mean structure fit much faster. The gradient of their
+  marginalised log-likelihood is now lavaan's ML gradient for `n - 1`
+  observations and the unbiased sample covariance, where INLAvaan used to
+  rebuild lavaan's Jacobian of the implied covariance at every call. The
+  posterior is unchanged, and a 256-parameter factor model fits about ten
+  times faster. Such a model with sampling weights now gives an error when a
+  group's weights sum to 1 or less, where the marginalised likelihood is
+  unbounded.
+
 * Parameter types missing from `dp` take their default priors, and a `dp`
   without names gives an error.
 
