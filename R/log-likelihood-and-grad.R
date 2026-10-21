@@ -135,8 +135,8 @@ marginalised_means_active <- function(lavmodel) {
 # In theta, the marginalised log-likelihood of group g is
 #   -(n_g - 1)/2 [log|Sigma| + tr(Sigma^{-1} S*_g)],
 # with S*_g = n_g S_g / (n_g - 1). Up to a constant, this is the Wishart
-# likelihood of the sample covariance, which blavaan uses without a mean
-# structure, and lavaan's ML log-likelihood of n_g - 1 observations with
+# likelihood of the scatter matrix (n_g - 1) S*_g with n_g - 1 degrees of
+# freedom, and lavaan's ML log-likelihood of n_g - 1 observations with
 # covariance S*_g. So lavaan's ML gradient at these statistics is the gradient
 # of the marginalised log-likelihood, with no Delta matrix to build. Under
 # fixed.x the x block of S*_g differs from the fixed Sigma_xx, but only by a
