@@ -195,6 +195,13 @@
   group's weights sum to 1 or less, where the marginalised likelihood is
   unbounded.
 
+* `likelihood = "wishart"`, also the default under `mimic = "EQS"` or
+  `"LISREL"`, is now ignored with a message. lavaan then divides the sample
+  covariance by `n - 1`, but INLAvaan's likelihood assumes the divisor `n`, so
+  such fits overstated the sample covariance by `n / (n - 1)`. Without a mean
+  structure, integrating out the saturated means already gives the Wishart
+  likelihood.
+
 * Parameter types missing from `dp` take their default priors, and a `dp`
   without names gives an error.
 
