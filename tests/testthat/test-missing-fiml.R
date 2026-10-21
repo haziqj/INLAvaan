@@ -51,10 +51,23 @@ test_that("PPP under FIML tracks the complete-data PPP for the same data", {
   Ym$y1[sample(n, 100)] <- NA
   Ym$y2[sample(n, 100)] <- NA
   mod <- "f =~ y1 + y2 + y3 + y4 + y5"
-  fit_c <- acfa(mod, Y, verbose = FALSE, nsamp = 300,
-                marginal_method = "marggaus", vb_correction = FALSE)
-  fit_m <- acfa(mod, Ym, missing = "ml", verbose = FALSE, nsamp = 300,
-                marginal_method = "marggaus", vb_correction = FALSE)
+  fit_c <- acfa(
+    mod,
+    Y,
+    verbose = FALSE,
+    nsamp = 300,
+    marginal_method = "marggaus",
+    vb_correction = FALSE
+  )
+  fit_m <- acfa(
+    mod,
+    Ym,
+    missing = "ml",
+    verbose = FALSE,
+    nsamp = 300,
+    marginal_method = "marggaus",
+    vb_correction = FALSE
+  )
   ppp_c <- unname(fitmeasures(fit_c, "ppp"))
   ppp_m <- unname(fitmeasures(fit_m, "ppp"))
   # Before the fix the FIML value was 0.000 for every correct model
@@ -65,7 +78,9 @@ test_that("PPP under FIML tracks the complete-data PPP for the same data", {
 test_that("The FIML gradient is right with several groups", {
   dat <- lavaan::HolzingerSwineford1939
   set.seed(42)
-  for (v in paste0("x", 1:6)) dat[[v]][sample(nrow(dat), 25)] <- NA
+  for (v in paste0("x", 1:6)) {
+    dat[[v]][sample(nrow(dat), 25)] <- NA
+  }
   fit0 <- lavaan::cfa(
     "visual =~ x1 + x2 + x3\n textual =~ x4 + x5 + x6",
     dat,
@@ -101,4 +116,77 @@ test_that("The FIML gradient is right with several groups", {
     fit0@Cache
   )
   expect_equal(grad, grad_fd, tolerance = 1e-5)
+})
+
+# Pattern-wise FIML kernels against lavaan's, at the start values and at a
+# perturbed point, for several model shapes
+fiml_kernel_fits <- local({
+  dat <- lavaan::HolzingerSwineford1939
+  set.seed(1)
+  for (v in paste0("x", 1:9)) {
+    dat[[v]][runif(nrow(dat)) < 0.25] <- NA
+  }
+  mod <- "visual =~ x1 + x2 + x3\n textual =~ x4 + x5 + x6\n speed =~ x7 + x8 + x9"
+  list(
+    cfa = lavaan::cfa(mod, dat, missing = "ml", do.fit = FALSE),
+    std_lv = lavaan::cfa(
+      mod,
+      dat,
+      missing = "ml",
+      std.lv = TRUE,
+      do.fit = FALSE
+    ),
+    multigroup = lavaan::cfa(
+      mod,
+      dat,
+      missing = "ml",
+      group = "school",
+      group.equal = c("loadings", "intercepts"),
+      ceq.simple = TRUE,
+      do.fit = FALSE
+    ),
+    sem = lavaan::sem(
+      paste(mod, "\n speed ~ visual + textual\n x1 ~~ x4"),
+      dat,
+      missing = "ml",
+      do.fit = FALSE
+    )
+  )
+})
+
+fiml_kernel_points <- function(fit0) {
+  x0 <- lavaan::lav_model_get_parameters(fit0@Model)
+  list(x0, x0 * (1 + 0.05 * sin(seq_along(x0))))
+}
+
+test_that("the pattern-wise FIML log-likelihood equals lavaan's", {
+  for (fit0 in fiml_kernel_fits) {
+    expect_true(fiml_fast_path(fit0@Model, fit0@SampleStats, fit0@Data))
+    for (x in fiml_kernel_points(fit0)) {
+      lm <- lavaan::lav_model_set_parameters(fit0@Model, x)
+      imp <- lavaan::lav_model_implied(lm)
+      ref <- lavaan___lav_model_loglik(
+        lavdata = fit0@Data,
+        lavsamplestats = fit0@SampleStats,
+        lavimplied = imp,
+        lavmodel = lm,
+        lavoptions = fit0@Options,
+        lavcache = fit0@Cache
+      )$loglik
+      expect_equal(
+        fiml_loglik_samp(fit0@SampleStats, imp),
+        ref,
+        tolerance = 1e-10
+      )
+    }
+  }
+})
+
+test_that("the pattern-wise FIML log-likelihood stays off without missing data", {
+  fit0 <- lavaan::cfa(
+    "f =~ x1 + x2 + x3",
+    lavaan::HolzingerSwineford1939,
+    do.fit = FALSE
+  )
+  expect_false(fiml_fast_path(fit0@Model, fit0@SampleStats, fit0@Data))
 })
