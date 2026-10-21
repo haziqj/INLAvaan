@@ -418,3 +418,50 @@ test_that("Marginalised-means gradient is that of the marginalised loglik", {
     expect_equal(unname(grad), unname(fd), tolerance = 1e-5)
   }
 })
+
+test_that("Marginalised-means gradient handles small weighted groups", {
+  mod_hs <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+  "
+  hs <- lavaan::HolzingerSwineford1939
+  n_p <- sum(hs$school == "Pasteur")
+  n_gw <- sum(hs$school == "Grant-White")
+  # Under normalization "total" the group sums of the weights stay
+  # proportional to the raw ones, so a heavy Pasteur weight leaves Grant-White
+  # a sum of `gw_sum`, which lavaan takes as its sample size
+  fit_weighted <- function(gw_sum) {
+    hs$w <- ifelse(
+      hs$school == "Pasteur",
+      (n_gw * nrow(hs) / gw_sum - n_gw) / n_p,
+      1
+    )
+    suppressWarnings(lavaan::cfa(
+      mod_hs,
+      hs,
+      group = "school",
+      meanstructure = FALSE,
+      sampling.weights = "w",
+      sampling.weights.normalization = "total"
+    ))
+  }
+
+  fit <- fit_weighted(1.5)
+  expect_equal(min(unlist(fit@SampleStats@nobs)), 1.5)
+  set.seed(1)
+  x <- coef(fit) * (1 + 0.05 * stats::rnorm(length(coef(fit))))
+  grad <- inlav_model_grad(x, fit@Model, fit@SampleStats, fit@Data, fit@Cache)
+  expect_equal(unname(grad), unname(marg_grad_ref(x, fit)), tolerance = 1e-8)
+
+  fit <- fit_weighted(0.5)
+  expect_error(
+    inlav_model_grad(
+      coef(fit),
+      fit@Model,
+      fit@SampleStats,
+      fit@Data,
+      fit@Cache
+    ),
+    "sample size above 1"
+  )
+})

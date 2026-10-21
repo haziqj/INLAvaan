@@ -191,7 +191,9 @@
   observations and the unbiased sample covariance, the Wishart likelihood that
   blavaan also uses, where INLAvaan used to rebuild lavaan's Jacobian of the
   implied covariance at every call. The posterior is unchanged, and a
-  256-parameter factor model fits about ten times faster.
+  256-parameter factor model fits about ten times faster. Such a model with sampling weights now gives an error when a
+  group's weights sum to 1 or less, where the marginalised likelihood is
+  unbounded.
 
 * Parameter types missing from `dp` take their default priors, and a `dp`
   without names gives an error.

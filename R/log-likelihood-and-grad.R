@@ -141,15 +141,21 @@ marginalised_means_active <- function(lavmodel) {
 # of the marginalised log-likelihood, with no Delta matrix to build. Under
 # fixed.x the x block of S*_g differs from the fixed Sigma_xx, but only by a
 # constant in theta. The inverse and log-determinant of S*_g follow from those
-# of S_g in closed form.
+# of S_g in closed form. Under sampling weights lavaan's n_g is the sum of the
+# normalised weights, and the marginalised likelihood is unbounded in |Sigma|
+# when it is 1 or less.
 marginalised_samplestats <- function(lavsamplestats) {
   for (g in seq_len(lavsamplestats@ngroups)) {
     n_g <- lavsamplestats@nobs[[g]]
-    if (n_g < 2L) {
-      cli_abort(
-        "Marginalising the saturated means needs at least two observations
-         per group."
-      )
+    if (n_g <= 1) {
+      cli_abort(c(
+        "Marginalising the saturated means needs a sample size above 1 in
+         every group.",
+        "i" = "Group {g} has sample size {signif(n_g, 3)}, the sum of its
+               normalised sampling weights.",
+        "i" = "Use {.code sampling.weights.normalization = \"group\"}, the
+               default, or fit with {.code meanstructure = TRUE}."
+      ))
     }
     k <- n_g / (n_g - 1)
     lavsamplestats@cov[[g]] <- k * lavsamplestats@cov[[g]]
