@@ -336,3 +336,85 @@ test_that("Passing the lavaan cache leaves non-random-slope values alone", {
     tolerance = 1e-5
   )
 })
+
+# Gradient of the marginalised loglik from its definition: lavaan's profiled
+# ML gradient plus the gradient of the correction, (1/2) tr(Sigma^{-1}
+# dSigma/dx), assembled from lavaan's Delta matrices. Off-diagonal vech
+# elements are doubled to undo the half-vectorisation.
+marg_grad_ref <- function(x, fit) {
+  lavmodel_x <- lavaan::lav_model_set_parameters(fit@Model, x)
+  grad_F <- lavaan___lav_model_grad(
+    lavmodel = lavmodel_x,
+    lavsamplestats = fit@SampleStats,
+    lavdata = fit@Data,
+    lavcache = fit@Cache,
+    group_weight = TRUE
+  )
+  Sigma <- lavaan::lav_model_implied(lavmodel_x)$cov
+  Delta <- lavaan___lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST)
+  corr <- 0
+  for (g in seq_along(Delta)) {
+    Sigma_inv <- chol2inv(chol(Sigma[[g]]))
+    W <- 2 * Sigma_inv
+    diag(W) <- diag(Sigma_inv)
+    corr <- corr +
+      0.5 * as.numeric(crossprod(Delta[[g]], lavaan::lav_matrix_vech(W)))
+  }
+  -1 * fit@SampleStats@ntotal * grad_F + corr
+}
+
+test_that("Marginalised-means gradient is that of the marginalised loglik", {
+  mod_pd <- "
+    ind60 =~ x1 + x2 + x3
+    dem60 =~ y1 + y2 + y3 + y4
+    dem65 =~ y5 + y6 + y7 + y8
+    dem60 ~ ind60
+    dem65 ~ ind60 + dem60
+    y1 ~~ y5
+    y2 ~~ y4 + y6
+  "
+  mod_hs <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+  "
+  hs <- lavaan::HolzingerSwineford1939
+  fits <- list(
+    single = lavaan::sem(mod_pd, lavaan::PoliticalDemocracy),
+    multigroup = lavaan::cfa(
+      mod_hs,
+      hs,
+      group = "school",
+      meanstructure = FALSE
+    ),
+    fixed_x = lavaan::sem(paste(mod_hs, "visual ~ ageyr"), hs)
+  )
+  expect_true(isTRUE(fits$fixed_x@Model@fixed.x))
+
+  for (nm in names(fits)) {
+    fit <- fits[[nm]]
+    expect_true(marginalised_means_active(fit@Model))
+    set.seed(1)
+    x <- coef(fit) * (1 + 0.05 * stats::rnorm(length(coef(fit))))
+    grad <- inlav_model_grad(x, fit@Model, fit@SampleStats, fit@Data, fit@Cache)
+
+    # Exactly the gradient of the definition...
+    expect_equal(unname(grad), unname(marg_grad_ref(x, fit)), tolerance = 1e-8)
+
+    # ... and of the closed-form loglik, by central finite differences
+    ll_at <- function(xx) {
+      inlav_model_loglik(xx, fit@Model, fit@SampleStats, fit@Data, fit@Options)
+    }
+    h <- 1e-5
+    fd <- vapply(
+      seq_along(x),
+      function(j) {
+        xp <- xm <- x
+        xp[j] <- xp[j] + h
+        xm[j] <- xm[j] - h
+        (ll_at(xp) - ll_at(xm)) / (2 * h)
+      },
+      numeric(1)
+    )
+    expect_equal(unname(grad), unname(fd), tolerance = 1e-5)
+  }
+})

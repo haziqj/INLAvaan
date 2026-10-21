@@ -70,6 +70,13 @@ inlav_model_grad <- function(
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
 
+  # Without a mean structure, the gradient of the marginalised log-likelihood
+  # is lavaan's ML gradient at rescaled sample statistics (see
+  # marginalised_samplestats()), so it costs no more than the profiled one.
+  if (lavmodel@estimator == "ML" && marginalised_means_active(lavmodel)) {
+    lavsamplestats <- marginalised_samplestats(lavsamplestats)
+  }
+
   # Gradient of fit function F_ML (not loglik yet). lavaan weights each group by
   # its share of the sample only where the fit function averages over the
   # groups. Under FIML and PML, and in two-level models, it already sums them
@@ -105,10 +112,6 @@ inlav_model_grad <- function(
       0 * x
     } # nocov end
 
-  if (lavmodel@estimator == "ML" && marginalised_means_active(lavmodel)) {
-    out <- out + marginalised_means_grad_corr(lavmodel_x)
-  }
-
   out
 }
 
@@ -118,14 +121,45 @@ inlav_model_grad <- function(
 # and integrates them out; the integral is closed form and equals the
 # profiled log-likelihood plus, per group,
 #   (1/2) log|Sigma| + (p/2) log(2*pi/n).
-# The corrections below apply this at the loglik and gradient level so the
-# whole posterior (mode, Hessian, marginals, samples) is built from the
-# marginalised likelihood. Under fixed.x the likelihood is that of y given x,
-# so only the outcome intercepts are integrated and Sigma is replaced by the
-# conditional covariance, with log|Sigma_y.x| = log|Sigma| - log|Sigma_xx|.
-# Sigma_xx is fixed at the sample covariance, so the gradient is unchanged.
+# The correction below applies this to the loglik, and
+# marginalised_samplestats() to the gradient, so the whole posterior (mode,
+# Hessian, marginals, samples) is built from the marginalised likelihood.
+# Under fixed.x the likelihood is that of y given x, so only the outcome
+# intercepts are integrated and Sigma is replaced by the conditional
+# covariance, with log|Sigma_y.x| = log|Sigma| - log|Sigma_xx|. Sigma_xx is
+# fixed at the sample covariance, so it does not enter the gradient.
 marginalised_means_active <- function(lavmodel) {
   !isTRUE(lavmodel@meanstructure) && !isTRUE(lavmodel@conditional.x)
+}
+
+# In theta, the marginalised log-likelihood of group g is
+#   -(n_g - 1)/2 [log|Sigma| + tr(Sigma^{-1} S*_g)],
+# with S*_g = n_g S_g / (n_g - 1). Up to a constant, this is the Wishart
+# likelihood of the sample covariance, which blavaan uses without a mean
+# structure, and lavaan's ML log-likelihood of n_g - 1 observations with
+# covariance S*_g. So lavaan's ML gradient at these statistics is the gradient
+# of the marginalised log-likelihood, with no Delta matrix to build. Under
+# fixed.x the x block of S*_g differs from the fixed Sigma_xx, but only by a
+# constant in theta. The inverse and log-determinant of S*_g follow from those
+# of S_g in closed form.
+marginalised_samplestats <- function(lavsamplestats) {
+  for (g in seq_len(lavsamplestats@ngroups)) {
+    n_g <- lavsamplestats@nobs[[g]]
+    if (n_g < 2L) {
+      cli_abort(
+        "Marginalising the saturated means needs at least two observations
+         per group."
+      )
+    }
+    k <- n_g / (n_g - 1)
+    lavsamplestats@cov[[g]] <- k * lavsamplestats@cov[[g]]
+    lavsamplestats@icov[[g]] <- lavsamplestats@icov[[g]] / k
+    lavsamplestats@cov.log.det[[g]] <- lavsamplestats@cov.log.det[[g]] +
+      nrow(lavsamplestats@cov[[g]]) * log(k)
+    lavsamplestats@nobs[[g]] <- n_g - 1L
+  }
+  lavsamplestats@ntotal <- sum(unlist(lavsamplestats@nobs))
+  lavsamplestats
 }
 
 marginalised_means_loglik_corr <- function(lavimplied, lavsamplestats) {
@@ -211,27 +245,4 @@ twolevel_fixedx_loglik_adj <- function(lavmodel, x, lavdata, lavsamplestats) {
   ))
   loglik_x <- if (is.null(ylp$loglik.x)) 0 else ylp$loglik.x
   loglik_x - c_sum
-}
-
-# d corr / dx_j = (1/2) tr(Sigma^{-1} dSigma/dx_j), assembled from the same
-# Delta matrices (d vech(Sigma) / dx) the LOO machinery uses; off-diagonal
-# vech elements are doubled to undo the half-vectorisation.
-marginalised_means_grad_corr <- function(lavmodel_x) {
-  lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-  Delta <- lavaan___lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST)
-  out <- 0
-  for (g in seq_along(Delta)) {
-    Sigma_inv <- tryCatch(
-      chol2inv(chol(lavimplied$cov[[g]])),
-      error = function(e) NULL # nocov
-    )
-    if (is.null(Sigma_inv)) {
-      return(0) # nocov -- loglik is -1e40 here; gradient is moot
-    }
-    W <- 2 * Sigma_inv
-    diag(W) <- diag(Sigma_inv)
-    out <- out +
-      0.5 * as.numeric(crossprod(Delta[[g]], lavaan::lav_matrix_vech(W)))
-  }
-  out
 }
