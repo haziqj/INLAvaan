@@ -350,6 +350,25 @@ inlavaan <- function(
   lavargs$verbose <- FALSE # FIXME: Need some quiet mode maybe
   lavargs$do.fit <- FALSE
   lavargs$parser <- "old" # To get priors parsed
+  # lavaan's Wishart likelihood (likelihood = "wishart", the default under
+  # mimic = "EQS" or "LISREL") divides the sample covariance by n - 1. The
+  # likelihood here assumes lavaan's divisor-n covariance, and without a mean
+  # structure the saturated means are integrated out, which already gives the
+  # Wishart form. So the normal likelihood is always used.
+  likelihood_req <- tolower(lavargs$likelihood %||% "default")
+  mimic_req <- tolower(lavargs$mimic %||% "default")
+  if (
+    likelihood_req == "wishart" ||
+      (likelihood_req == "default" && mimic_req %in% c("eqs", "lisrel"))
+  ) {
+    cli_inform(c(
+      "i" = "INLAvaan always uses the normal likelihood, so
+             {.code likelihood = \"wishart\"} is ignored.",
+      " " = "Without a mean structure, integrating out the saturated means
+             already gives the Wishart likelihood."
+    ))
+  }
+  lavargs$likelihood <- "normal"
   # The (co)variances of a composite's indicators are parameters with priors,
   # unless the user fixes them at their sample values (composites.cov =
   # "fixed", lavaan's default).
