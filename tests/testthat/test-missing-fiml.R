@@ -182,11 +182,29 @@ test_that("the pattern-wise FIML log-likelihood equals lavaan's", {
   }
 })
 
-test_that("the pattern-wise FIML log-likelihood stays off without missing data", {
+test_that("the pattern-wise FIML gradient equals lavaan's", {
+  for (fit0 in fiml_kernel_fits) {
+    expect_true(fiml_grad_fast_path(fit0@Model, fit0@SampleStats, fit0@Data))
+    for (x in fiml_kernel_points(fit0)) {
+      lm <- lavaan::lav_model_set_parameters(fit0@Model, x)
+      ref <- lavaan___lav_model_grad(
+        lavmodel = lm,
+        lavsamplestats = fit0@SampleStats,
+        lavdata = fit0@Data,
+        lavcache = fit0@Cache,
+        group_weight = FALSE
+      )
+      expect_equal(fiml_grad_samp(lm, fit0@SampleStats), ref, tolerance = 1e-10)
+    }
+  }
+})
+
+test_that("the pattern-wise FIML kernels stay off without missing data", {
   fit0 <- lavaan::cfa(
     "f =~ x1 + x2 + x3",
     lavaan::HolzingerSwineford1939,
     do.fit = FALSE
   )
   expect_false(fiml_fast_path(fit0@Model, fit0@SampleStats, fit0@Data))
+  expect_false(fiml_grad_fast_path(fit0@Model, fit0@SampleStats, fit0@Data))
 })
