@@ -251,7 +251,7 @@ loo(fit2l)
 \references{
 Alhyari, M., Jamil, H., Montcho, H., & Rue, H. (2026). \emph{Deterministic
 leave-one-cluster-out cross-validation for multilevel Bayesian structural
-equation models}. arXiv. (Preprint forthcoming; placeholder.)
+equation models}. arXiv:2609.00670. \doi{10.48550/arXiv.2609.00670}
 
 Merkle, E. C., Furr, D., & Rabe-Hesketh, S. (2019). Bayesian comparison of
 latent variable models: Conditional versus marginal likelihoods.
