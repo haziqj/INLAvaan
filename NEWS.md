@@ -199,6 +199,13 @@
 
 * `predict(newdata = )` warns about ordinal values not seen when fitting.
 
+* Fits with missing data (`missing = "ml"`) are faster, most of all under
+  planned missingness: the log-likelihood and its gradient now factorise each
+  missing-data pattern directly.
+
+* The new `hessian_method = "forward"` builds the Hessian at the posterior mode
+  with about half the gradient evaluations, for large models.
+
 # INLAvaan 0.3.2
 
 ## Deprecations
