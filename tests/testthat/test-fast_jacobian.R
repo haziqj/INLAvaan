@@ -82,6 +82,53 @@ test_that("fast_jacobian produces a (near-)symmetric matrix", {
   expect_equal(H_fast, t(H_fast), tolerance = 1e-6)
 })
 
+# Test 5: Forward differences
+test_that("fast_jacobian forward differences recover the Hessian", {
+  set.seed(42)
+  m <- 10
+  Q <- crossprod(matrix(rnorm(m^2), m, m)) + diag(m)
+  gr_fn <- function(x) as.numeric(Q %*% x)
+  x0 <- rnorm(m)
+  expect_equal(
+    fast_jacobian(gr_fn, x0, method = "forward"),
+    Q,
+    tolerance = 1e-6
+  )
+
+  rosenbrock_grad <- function(x) {
+    n <- length(x)
+    g <- numeric(n)
+    for (i in 1:(n - 1)) {
+      g[i] <- g[i] - 2 * (1 - x[i]) - 400 * x[i] * (x[i + 1] - x[i]^2)
+      g[i + 1] <- g[i + 1] + 200 * (x[i + 1] - x[i]^2)
+    }
+    g
+  }
+  x1 <- rep(1.1, 5)
+  expect_equal(
+    fast_jacobian(rosenbrock_grad, x1, method = "forward"),
+    numDeriv::jacobian(rosenbrock_grad, x1),
+    tolerance = 1e-4
+  )
+})
+
+test_that("fast_jacobian forward differences need m + 1 gradient calls", {
+  calls <- 0L
+  gr_fn <- function(x) {
+    calls <<- calls + 1L
+    2 * x
+  }
+  fast_jacobian(gr_fn, c(1, 2, 3, 4), method = "forward")
+  expect_identical(calls, 5L)
+  calls <- 0L
+  fast_jacobian(gr_fn, c(1, 2, 3, 4))
+  expect_identical(calls, 8L)
+  # Columns outside `cols` stay zero
+  H <- fast_jacobian(gr_fn, c(1, 2, 3, 4), cols = 2:3, method = "forward")
+  expect_equal(H[, c(1, 4)], matrix(0, 4, 2))
+  expect_equal(diag(H)[2:3], c(2, 2), tolerance = 1e-6)
+})
+
 ## ---- Integration test: Hessian on an actual SEM model -----------------------
 
 dat <- lavaan::PoliticalDemocracy
@@ -176,6 +223,30 @@ test_that("fast_jacobian Hessian matches numDeriv on the PoliticalDemocracy SEM"
   se_fast <- sqrt(diag(Sigma_fast2))
   se_numD <- sqrt(diag(Sigma_numD))
   expect_equal(se_fast, se_numD, tolerance = 1e-3)
+})
+
+test_that("hessian_method = 'forward' gives the central posterior", {
+  skip_on_cran()
+  fit_c <- asem(mod, dat, test = "none", verbose = FALSE, nsamp = 3)
+  fit_f <- asem(
+    mod,
+    dat,
+    test = "none",
+    verbose = FALSE,
+    nsamp = 3,
+    hessian_method = "forward"
+  )
+  int_c <- get_inlavaan_internal(fit_c)
+  int_f <- get_inlavaan_internal(fit_f)
+  expect_equal(
+    sqrt(diag(int_f$Sigma_theta)),
+    sqrt(diag(int_c$Sigma_theta)),
+    tolerance = 1e-5
+  )
+  expect_equal(int_f$theta_star, int_c$theta_star, tolerance = 1e-5)
+  expect_error(
+    asem(mod, dat, test = "none", verbose = FALSE, hessian_method = "backward")
+  )
 })
 
 ## ---- Unit tests: fast_hessian -----------------------------------------------
