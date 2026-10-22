@@ -7,10 +7,12 @@ sobol_owen <- function(n, d) {
     return(SobolOwen[seq_len(n), seq_len(d), drop = FALSE])
   }
 
-  # Otherwise, fall back to qrng if available
+  # Otherwise, fall back to qrng if available. A fixed seed makes the scrambling
+  # the same on every run, as the stored table is; without one it ignores
+  # set.seed(). It also leaves R's random number stream untouched.
   # nocov start
   if (requireNamespace("qrng", quietly = TRUE)) {
-    return(qrng::sobol(n = n, d = d, randomize = "Owen"))
+    return(qrng::sobol(n = n, d = d, randomize = "Owen", seed = 1L))
   }
 
   # No fallback available — error with guidance
