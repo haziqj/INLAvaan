@@ -34,6 +34,9 @@
 
 ## Bug fixes
 
+* The VB correction of models with more than 300 free parameters changed from
+  run to run, even with `set.seed()`. It is now the same on every run.
+
 * The posterior predictive p-value of two-level models was often close to 0
   for models that fit. It now follows blavaan's two-level PPP: each posterior
   draw generates replicate data, which are scored against the saturated model.
