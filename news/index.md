@@ -271,6 +271,11 @@
 - `predict(newdata = )` warns about ordinal values not seen when
   fitting.
 
+- [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md),
+  [`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md),
+  the standardised estimates and the R-square of random-slope fits also
+  work with lavaan versions after 0.7-3.
+
 ## INLAvaan 0.3.2
 
 CRAN release: 2026-10-01

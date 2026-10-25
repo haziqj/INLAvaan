@@ -148,19 +148,18 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [514ms]
+#> ✔ Posterior mode and Hessian. [348ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.125σ. [973ms]
+#> ✔ VB correction; mean |δ| = 0.125σ. [738ms]
 #> 
 #> ⠙ Fitting 0/60 skew-normal marginals.
-#> ⠹ Fitting 10/60 skew-normal marginals.
-#> ⠸ Fitting 32/60 skew-normal marginals.
-#> ⠼ Fitting 54/60 skew-normal marginals.
-#> ✔ Fit 60/60 skew-normal marginals. [8s]
+#> ⠹ Fitting 8/60 skew-normal marginals.
+#> ⠸ Fitting 36/60 skew-normal marginals.
+#> ✔ Fit 60/60 skew-normal marginals. [5.9s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [706ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -172,19 +171,17 @@ fit2 <- acfa(
   group.equal = "loadings"
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [441ms]
+#> ✔ Posterior mode and Hessian. [293ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [292ms]
+#> ✔ VB correction; mean |δ| = 0.092σ. [217ms]
 #> 
 #> ⠙ Fitting 0/54 skew-normal marginals.
-#> ⠹ Fitting 1/54 skew-normal marginals.
-#> ⠸ Fitting 27/54 skew-normal marginals.
-#> ⠼ Fitting 53/54 skew-normal marginals.
-#> ✔ Fit 54/54 skew-normal marginals. [6.2s]
+#> ⠹ Fitting 29/54 skew-normal marginals.
+#> ✔ Fit 54/54 skew-normal marginals. [4.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [694ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -196,18 +193,18 @@ fit3 <- acfa(
   group.equal = c("intercepts", "loadings")
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [424ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [280ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.077σ. [342ms]
+#> ✔ VB correction; mean |δ| = 0.077σ. [278ms]
 #> 
 #> ⠙ Fitting 0/48 skew-normal marginals.
-#> ⠹ Fitting 8/48 skew-normal marginals.
-#> ⠸ Fitting 37/48 skew-normal marginals.
-#> ✔ Fit 48/48 skew-normal marginals. [5s]
+#> ⠹ Fitting 33/48 skew-normal marginals.
+#> ✔ Fit 48/48 skew-normal marginals. [3.7s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [703ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

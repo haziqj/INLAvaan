@@ -118,16 +118,16 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [261ms]
+#> ✔ Posterior mode and Hessian. [208ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.040σ. [171ms]
+#> ✔ VB correction; mean |δ| = 0.040σ. [124ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [334ms]
+#> ✔ Fit 13/13 skew-normal marginals. [223ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [654ms]
+#> ✔ Summarise 1000 posterior draws. [398ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -361,11 +361,11 @@ yrep <- simulate(fit, nsim = 1, seed = 1)
 head(yrep[[1]])
 #>          y1         y2          y3        y4         y5        y6
 #> 1 -0.247092 -1.5686457 -0.06714146 1.5618447 1.20561624 0.7941650
-#> 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380588 1.1356429
-#> 3  1.492414 -0.8458358  0.57549347 2.6692719 2.24473335 1.9629508
+#> 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380587 1.1356429
+#> 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473334 1.9629508
 #> 4  0.012789 -0.6156410 -0.21093715 2.7687469 0.23618624 0.3798649
-#> 5  2.888693  1.3165189  1.26488447 1.2994000 0.05916673 0.1433568
-#> 6  1.418953  1.5439697  1.42632696 1.6012381 0.82603880 1.0609389
+#> 5  2.888693  1.3165189  1.26488446 1.2994000 0.05916673 0.1433568
+#> 6  1.418953  1.5439697  1.42632695 1.6012381 0.82603880 1.0609389
 ```
 
 Comparing such replicates with the observed data is the basis of prior
@@ -433,7 +433,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.50 s
+#> 1.01 s
 ```
 
 ### Plot
@@ -467,16 +467,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [245ms]
+#> ✔ Posterior mode and Hessian. [220ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [140ms]
+#> ✔ VB correction; mean |δ| = 0.039σ. [106ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [274ms]
+#> ✔ Fit 12/12 skew-normal marginals. [203ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [589ms]
+#> ✔ Summarise 1000 posterior draws. [375ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
