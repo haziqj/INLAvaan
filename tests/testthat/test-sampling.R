@@ -173,6 +173,7 @@ test_that("Observed posterior draws are centred without a mean structure", {
 })
 
 test_that("conditional.x fits draw the covariates jointly", {
+  skip_on_cran()
   hs <- na.omit(lavaan::HolzingerSwineford1939)
   fit <- suppressWarnings(asem(
     "visual =~ x1 + x2 + x3; visual ~ ageyr + grade",
@@ -249,6 +250,7 @@ test_that("Prior observed draws work with an observed outcome", {
 })
 
 test_that("Composite draws are the weighted sums of their indicators", {
+  skip_on_cran()
   # Regression test: the implied moments and the observed draws ignored the
   # composite weights, so the indicators of a composite were uncorrelated with
   # everything else, and w'x of an observed draw did not match its C.

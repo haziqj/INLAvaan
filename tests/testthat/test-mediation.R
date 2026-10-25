@@ -39,6 +39,7 @@ test_that("Method: skewnorm", {
 })
 
 test_that("Defined parameters can use other defined parameters", {
+  skip_on_cran()
   set.seed(1234)
   mod <- "
     visual  =~ x1 + x2 + x3
@@ -90,6 +91,7 @@ test_that("Defined parameters can use other defined parameters", {
 })
 
 test_that("summary() matches defined parameters under equality constraints", {
+  skip_on_cran()
   set.seed(1234)
   mod <- "
     visual  =~ x1 + x2 + x3
@@ -118,6 +120,7 @@ test_that("summary() matches defined parameters under equality constraints", {
 })
 
 test_that("Defined parameters summarise the draws where they are defined", {
+  skip_on_cran()
   set.seed(1234)
   mod <- "
     visual  =~ x1 + x2 + x3
@@ -173,6 +176,7 @@ test_that("Defined parameters summarise the draws where they are defined", {
 })
 
 test_that("standardisedsolution() warns about := undefined only when standardised", {
+  skip_on_cran()
   set.seed(1234)
   # vs is about 0.4, but 1 on the standardised scale
   mod <- "

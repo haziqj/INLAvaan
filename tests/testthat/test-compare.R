@@ -465,6 +465,7 @@ test_that("random-slope fits are compared on marginal likelihood and DIC", {
 })
 
 test_that("a zero-variance slope is on the same scale as a fixed slope", {
+  skip_on_cran()
   # Fixing the slope variance at zero *and* dropping its level-2 regression
   # leaves exactly the fixed-slope model, so the two marginal likelihoods are
   # one number computed two ways -- the regression test that the random-slope
@@ -484,6 +485,7 @@ test_that("comparing a random-slope fit with a fixed.x = FALSE fit aborts", {
 })
 
 test_that("random-slope fits may differ in their covariates", {
+  skip_on_cran()
   # Without w1 the outcomes cannot depend on it, so this fit's density of the
   # outcomes given x1 is also its density given x1 and w1. It is the same
   # model as one that keeps w1 with its effects fixed at zero.
@@ -508,6 +510,7 @@ test_that("random-slope fits may differ in their covariates", {
 })
 
 test_that("compare(loo = TRUE) works across random-slope fits", {
+  skip_on_cran()
   cmp <- compare(fit_rs, fit_rs0, loo = TRUE)
   expect_true(all(
     c("ELPD", "SE", "p_loo", "elpd_diff", "se_diff") %in% names(cmp)

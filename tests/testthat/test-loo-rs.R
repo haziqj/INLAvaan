@@ -97,6 +97,7 @@ test_that("the random-slope kernel is scored conditionally", {
 })
 
 test_that("a covariate at both levels is conditioned on, as in the evidence", {
+  skip_on_cran()
   # The kernel scores x2, which varies at both levels, jointly with the
   # outcomes. LOCO takes its frozen density back out, by exactly the amount
   # the fixed.x shift takes out of the marginal likelihood.
@@ -253,6 +254,7 @@ test_that("leave-one-unit-out remains refused for random slopes", {
 })
 
 test_that("a level-2 covariance is carried through the chain rule", {
+  skip_on_cran()
   # `fb ~~ s1` adds a correlation parameter, whose theta -> x map has an
   # off-diagonal Jacobian block (cache$jcb_mat) that the plain diagonal
   # chain rule would miss
@@ -322,6 +324,7 @@ test_that("a level-2 covariance is carried through the chain rule", {
 })
 
 test_that("incomplete data goes through lavaan's own missing handling", {
+  skip_on_cran()
   # The random-slope kernels take FIML themselves, so this fit must not be
   # routed to the sufficient-statistic missing-data branch
   set.seed(4321)
@@ -355,6 +358,7 @@ test_that("incomplete data goes through lavaan's own missing handling", {
 })
 
 test_that("a full test set computes LOO and WAIC but still skips PPP", {
+  skip_on_cran()
   expect_warning(
     fit_full <- asem(
       mod_rs,

@@ -49,6 +49,7 @@ test_that("The generator draws each cluster from its own moments", {
 })
 
 test_that("simulate() keeps the covariates and the clusters", {
+  skip_on_cran()
   sims <- simulate(fit_rs, nsim = 2, seed = 1)
   expect_length(sims, 2L)
   expect_equal(sims[[1]]$x1, d_rs$x1)
@@ -316,6 +317,7 @@ test_that("The B-indices of a random-slope fit", {
 })
 
 test_that("The B-indices refuse a between-only outcome", {
+  skip_on_cran()
   fit <- asem(
     "level: 1
        fw =~ y1 + y2 + y3

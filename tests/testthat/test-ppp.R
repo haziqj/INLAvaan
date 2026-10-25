@@ -28,6 +28,7 @@ test_that("The joint moments are rebuilt from conditional.x moments", {
 })
 
 test_that("PPP agrees with and without conditional.x", {
+  skip_on_cran()
   ppp <- vapply(
     c(FALSE, TRUE),
     function(cx) {
@@ -114,6 +115,7 @@ test_that("composite_fixed_t() finds each group's fixed indicator block", {
 # 0.8. The phantom specification of the same model conditions on the indicators
 # as fixed covariates instead, and its PPP is about 0.45.
 test_that("Fixed composite indicator covariances add no misfit to the PPP", {
+  skip_on_cran()
   mod_phantom <- "
     C =~ 0
     C ~ 1*x1 + x2 + x3
@@ -169,6 +171,7 @@ mod_two <- "
 # replicate and add misfit that the observed data cannot have. The PPP of this
 # correct model would then be about 0.87, where lavaan's p-value is 0.51.
 test_that("PPP replicates keep the correlation of two composites", {
+  skip_on_cran()
   set.seed(1)
   fit <- asem(mod_two, dat_two, nsamp = 500, test = "ppp", verbose = FALSE)
   ppp <- get_inlavaan_internal(fit, "ppp")
@@ -203,6 +206,7 @@ replicate_moments <- function(fit, s_rep) {
 }
 
 test_that("Replicates keep the standardised relations of composites", {
+  skip_on_cran()
   fit_cov <- lavaan::sem(mod_two, dat_two)
   s_obs <- fit_cov@SampleStats@cov[[1L]]
   set.seed(3)
@@ -244,6 +248,7 @@ test_that("Replicates keep the standardised relations of composites", {
 # A covariance held equal across groups has one entry in the packed x, but the
 # composites change scale by different amounts in each group.
 test_that("Replicates keep each group's correlation of composites", {
+  skip_on_cran()
   dat_mg <- dat_two
   dat_mg$g <- rep(1:2, each = 150)
   fit <- lavaan::sem(

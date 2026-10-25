@@ -153,6 +153,7 @@ test_that("Random slopes: a latent covariate keeps lavaan's own fixed.x", {
 })
 
 test_that("Random slopes: PPP is dropped from the default test", {
+  skip_on_cran()
   # Two warnings must stay inside: lavaan's "test statistics are not
   # available ... test set to none" and the silent PPP drop under the
   # default `test`
@@ -193,6 +194,7 @@ test_that("Random slopes: PPP is dropped from the default test", {
 })
 
 test_that("Random slopes: fitmeasures keeps only what exists", {
+  skip_on_cran()
   fm <- fitMeasures(fit_rs_dic)
 
   expect_true(all(c("npar", "margloglik", "dic", "p_dic") %in% names(fm)))
@@ -274,6 +276,7 @@ test_that("Random slopes: latent variables come from the EB kernel", {
 ## ----- Route B (Gauss-Hermite quadrature) ------------------------------------
 
 test_that("Random slopes: the closed-form route is silent", {
+  skip_on_cran()
   expect_no_warning(
     asem(
       mod_rs,
@@ -499,6 +502,7 @@ ceq_theta_grad <- function(int, pars) {
 }
 
 test_that("Random slopes: a cross-level equality constraint fits", {
+  skip_on_cran()
   expect_no_warning(
     fit_ceq <<- asem(
       mod_ceq,
@@ -520,6 +524,7 @@ test_that("Random slopes: a cross-level equality constraint fits", {
 })
 
 test_that("Random slopes: the constrained gradient is the exact one", {
+  skip_on_cran()
   int <- get_inlavaan_internal(fit_ceq)
   opts <- fit_ceq@Options
   opts$estimator <- "ML"
@@ -544,6 +549,7 @@ test_that("Random slopes: the constrained gradient is the exact one", {
 })
 
 test_that("Random slopes: LOCO carries the constraint too", {
+  skip_on_cran()
   int <- get_inlavaan_internal(fit_ceq)
   spec <- rs_spec(int)
   opts <- fit_ceq@Options
@@ -584,6 +590,7 @@ test_that("Random slopes: LOCO carries the constraint too", {
 })
 
 test_that("Random slopes: constrained variances and shared slope labels fit", {
+  skip_on_cran()
   # Two residual variances tied together: one group, all of it on the log
   # scale, so the scatter is exact
   mod_var <- "

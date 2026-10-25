@@ -20,6 +20,7 @@ test_that("vcov(type = 'theta') returns Laplace covariance", {
 })
 
 test_that("vcov() lines up with coef() under equality constraints", {
+  skip_on_cran()
   mod3 <- "
     visual  =~ x1 + x2 + x3
     textual =~ x4 + x5 + x6

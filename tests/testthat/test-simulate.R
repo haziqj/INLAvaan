@@ -143,6 +143,7 @@ test_that("simulate() prior predictive replicates stay centred at zero", {
 })
 
 test_that("simulate() works for multigroup models", {
+  skip_on_cran()
   fit <- acfa(
     "visual =~ x1 + x2 + x3; textual =~ x4 + x5 + x6",
     lavaan::HolzingerSwineford1939,
@@ -161,6 +162,7 @@ test_that("simulate() works for multigroup models", {
 })
 
 test_that("simulate() works for conditional.x fits", {
+  skip_on_cran()
   fit <- suppressWarnings(asem(
     "visual =~ x1 + x2 + x3; visual ~ ageyr + grade",
     na.omit(lavaan::HolzingerSwineford1939),
@@ -176,6 +178,7 @@ test_that("simulate() works for conditional.x fits", {
 })
 
 test_that("simulate() keeps the cluster design of a two-level fit", {
+  skip_on_cran()
   d <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
   d$cluster <- d$cluster * 10 + 3
   fit <- asem(

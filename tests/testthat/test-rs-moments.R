@@ -96,6 +96,7 @@ mod_fx <- "
 ## ----- Per-cluster moments ---------------------------------------------------
 
 test_that("Per-cluster moments give lavaan's cluster kernel", {
+  skip_on_cran()
   mods <- list(
     mod_rs,
     "
@@ -170,6 +171,7 @@ test_that("Per-cluster moments give lavaan's cluster kernel", {
 ## ----- Averaged moments ------------------------------------------------------
 
 test_that("A zero slope variance gives the fixed-slope moments", {
+  skip_on_cran()
   fit_rs0 <- suppressWarnings(lavaan::sem(mod_rs0, d_rs, cluster = "cluster"))
   fit_fx <- suppressWarnings(lavaan::sem(mod_fx, d_rs, cluster = "cluster"))
   fit_rs0 <- move_to_fixed_slope(fit_rs0, fit_fx)
@@ -185,6 +187,7 @@ test_that("A zero slope variance gives the fixed-slope moments", {
 })
 
 test_that("Averaged moments are the covariate average of the cluster ones", {
+  skip_on_cran()
   # Shift x1 well away from zero so that the between-level slope term counts
   d_shift <- d_rs
   d_shift$x1 <- d_shift$x1 + 2
@@ -253,6 +256,7 @@ test_that("Averaged moments are the covariate average of the cluster ones", {
 })
 
 test_that("A within-only outcome with a shifted covariate is refused", {
+  skip_on_cran()
   d_shift <- d_rs
   d_shift$x1 <- d_shift$x1 + 1
   fit <- suppressWarnings(lavaan::sem(
@@ -534,6 +538,7 @@ test_that("Standardised values match a hand derivation", {
 })
 
 test_that("A zero slope variance gives the fixed-slope standardised values", {
+  skip_on_cran()
   fit_rs0 <- suppressWarnings(lavaan::sem(mod_rs0, d_rs, cluster = "cluster"))
   fit_fx <- suppressWarnings(lavaan::sem(mod_fx, d_rs, cluster = "cluster"))
   fit_rs0 <- move_to_fixed_slope(fit_rs0, fit_fx)
@@ -558,6 +563,7 @@ test_that("A zero slope variance gives the fixed-slope standardised values", {
 })
 
 test_that("Defined parameters are re-evaluated on the slope metric", {
+  skip_on_cran()
   fit <- suppressWarnings(lavaan::sem(
     paste(mod_rs, "s1 ~ a*1\n twice := 2*a"),
     d_rs,
@@ -572,6 +578,7 @@ test_that("Defined parameters are re-evaluated on the slope metric", {
 })
 
 test_that("A slope shared by paths on different scales has no metric", {
+  skip_on_cran()
   fit <- suppressWarnings(lavaan::sem(
     "
     level: 1
@@ -654,6 +661,7 @@ test_that("Per-cluster moments and residuals", {
 })
 
 test_that("The outputs a random-slope fit cannot give are refused", {
+  skip_on_cran()
   expect_error(fitted(fit_rs, type = "raw"), class = "inlavaan_rs_moments")
   expect_error(
     residuals(fit_rs, type = "normalized"),

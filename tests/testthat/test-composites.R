@@ -69,6 +69,7 @@ test_that("The posterior mode is close to the ML estimates", {
 })
 
 test_that("Composite variances and intercepts have posterior summaries", {
+  skip_on_cran()
   fit_m <- fit_quiet(mod, meanstructure = TRUE)
   pt <- lavaan::parTable(fit_m)
   w <- c(1, coef(fit_m)[c("C<~x2", "C<~x3")])
@@ -107,6 +108,7 @@ test_that("Composite variances and intercepts have posterior summaries", {
 })
 
 test_that("Mean structures, higher-order factors and groups fit", {
+  skip_on_cran()
   fit_m <- fit_quiet(mod, meanstructure = TRUE)
   fit_ml <- lavaan::sem(mod, dat, meanstructure = TRUE, composites.cov = "free")
   expect_equal(mode_x(fit_m), coef(fit_ml), tolerance = 0.01)
@@ -153,6 +155,7 @@ test_that("Mean structures, higher-order factors and groups fit", {
 })
 
 test_that("Covariances with a composite are scaled by its current variance", {
+  skip_on_cran()
   two <- "
     C1 <~ x1 + x2 + x3
     C2 <~ x4 + x5 + x6
@@ -231,6 +234,7 @@ test_that("Indicator covariances are free unless composites.cov fixes them", {
 })
 
 test_that("Two-level composites fit at either level", {
+  skip_on_cran()
   mod_2l <- "
     level: 1
       Cw <~ y1 + y2 + y3
@@ -289,6 +293,7 @@ test_that("Out-of-scope composite models stop early", {
 })
 
 test_that("Each composite needs a unit marker and its own indicators", {
+  skip_on_cran()
   expect_error(
     fit_quiet("C <~ 2*x1 + x2 + x3\n x4 ~ C\n x5 ~ C"),
     "one weight fixed at 1"
@@ -326,6 +331,7 @@ test_that("Each composite needs a unit marker and its own indicators", {
 })
 
 test_that("Freed composite variances and intercepts stop the fit", {
+  skip_on_cran()
   expect_error(
     fit_quiet("C <~ x1 + x2 + x3\n x4 ~ C\n x5 ~ C\n C ~~ NA*C"),
     "cannot be free"
@@ -362,6 +368,7 @@ test_that("Labels on derived composite rows cannot be shared or constrained", {
 })
 
 test_that("Latent means absorbed by composites stop the fit", {
+  skip_on_cran()
   ho <- "
     C1 <~ x1 + x2 + x3
     C2 <~ x4 + x5 + x6

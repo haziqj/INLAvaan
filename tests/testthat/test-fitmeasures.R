@@ -316,6 +316,7 @@ mod_comp <- "
 # fixed at their sample values, so they are not sample moments the model has to
 # fit
 test_that("Each group's fixed composite moments are removed once", {
+  skip_on_cran()
   fit_mg <- asem(
     mod_comp,
     dat,

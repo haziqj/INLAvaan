@@ -138,6 +138,7 @@ test_that("Gradients are correct (Finite Difference Check)", {
 })
 
 test_that("Covariances held equal have the right gradient", {
+  skip_on_cran()
   mod <- "
     visual  =~ x1 + x2 + x3
     textual =~ x4 + x5 + x6
@@ -162,6 +163,7 @@ test_that("Covariances held equal have the right gradient", {
 })
 
 test_that("sampling() works with equality constraints", {
+  skip_on_cran()
   fit <- acfa(
     "visual =~ x1 + x2 + x3; textual =~ x4 + x5 + x6",
     lavaan::HolzingerSwineford1939,
@@ -178,6 +180,7 @@ test_that("sampling() works with equality constraints", {
 })
 
 test_that("Covariances held equal across groups fit", {
+  skip_on_cran()
   fit <- acfa(
     "visual =~ x1 + x2 + x3; textual =~ x4 + x5 + x6",
     lavaan::HolzingerSwineford1939,

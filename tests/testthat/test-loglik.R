@@ -170,6 +170,7 @@ test_that("A zero-effect covariate leaves the evidence unchanged", {
 })
 
 test_that("Random slopes: value, dependence on x, FIML and gradient", {
+  skip_on_cran()
   d_rs <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
   mod_rs <- "
     level: 1
@@ -253,6 +254,7 @@ test_that("Random slopes: value, dependence on x, FIML and gradient", {
 })
 
 test_that("A zero-effect covariate at both levels leaves the evidence unchanged", {
+  skip_on_cran()
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
   without_x <- "
     level: 1

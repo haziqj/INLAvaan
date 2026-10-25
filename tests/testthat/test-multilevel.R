@@ -118,6 +118,7 @@ test_that("Multilevel predict ymis works", {
 
 ## ----- Named levels ----------------------------------------------------------
 test_that("Named levels give the same results as numbered levels", {
+  skip_on_cran()
   mod_num <- "
     level: 1
       f =~ y1 + a*y2 + y3
@@ -312,6 +313,7 @@ dense_cluster_1 <- function(fit, x) {
 }
 
 test_that("Two-level predict() draws match the exact conditional distribution", {
+  skip_on_cran()
   # Missing within values and a between-only indicator in cluster 1
   dat <- subset(lavaan::Demo.twolevel, cluster <= 10)
   dat$y1[c(2, 5)] <- NA
@@ -367,6 +369,7 @@ test_that("Two-level predict() draws match the exact conditional distribution", 
 })
 
 test_that("Two-level ypred keeps covariates and draws outcome residuals", {
+  skip_on_cran()
   dat <- subset(lavaan::Demo.twolevel, cluster <= 30)
   fit <- asem(
     "
@@ -403,6 +406,7 @@ test_that("Two-level ypred keeps covariates and draws outcome residuals", {
 })
 
 test_that("The two-level PPP holds for a covariate with little between variance", {
+  skip_on_cran()
   # x1 in Demo.twolevel varies almost only within clusters. As a covariate at
   # both levels it took the old Wishart-based PPP to 0 for a model that fits.
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
@@ -426,6 +430,7 @@ test_that("The two-level PPP holds for a covariate with little between variance"
 })
 
 test_that("The two-level PPP replicate keeps the covariates and the design", {
+  skip_on_cran()
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
   dat$y2[c(3, 40, 77)] <- NA
   fit0 <- suppressWarnings(lavaan::sem(
@@ -531,6 +536,7 @@ test_that("One Fisher-scoring step reproduces the EM likelihood ratio", {
 })
 
 test_that("The one-step and EM PPPs agree, and ppp_nsamp sets the draws", {
+  skip_on_cran()
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 40, ]
   fit_with <- function(...) {
     asem(
@@ -581,6 +587,7 @@ test_that("The one-step and EM PPPs agree, and ppp_nsamp sets the draws", {
 })
 
 test_that("Incomplete two-level data use the EM PPP", {
+  skip_on_cran()
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
   dat$y2[c(3, 40, 77)] <- NA
   fit <- suppressWarnings(asem(
@@ -603,6 +610,7 @@ test_that("Incomplete two-level data use the EM PPP", {
 })
 
 test_that("The one-step PPP frees a covariate the replicates draw", {
+  skip_on_cran()
   # x1 at both levels is drawn in the replicates, so its moments must be free
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 60, ]
   fit <- suppressWarnings(asem(
@@ -637,6 +645,7 @@ test_that("The one-step PPP frees a covariate the replicates draw", {
 })
 
 test_that("The one-step PPP falls back to EM at the boundary", {
+  skip_on_cran()
   # A small between variance puts the saturated maximum on the boundary of
   # positive semi-definite between covariances
   set.seed(1)
@@ -701,6 +710,7 @@ test_that("The one-step PPP falls back to EM at the boundary", {
 })
 
 test_that("A two-level PPP with no scored draw is recorded as skipped", {
+  skip_on_cran()
   local_mocked_bindings(get_ppp_twolevel = function(...) NA_real_)
   fit <- asem(
     "
@@ -736,6 +746,7 @@ test_that("A one-step that does not raise the log-likelihood is refused", {
 })
 
 test_that("A two-level fit says that its PPP is experimental", {
+  skip_on_cran()
   fit_with <- function(test) {
     asem(
       "
@@ -801,6 +812,7 @@ test_that("The printed two-level PPP is marked experimental", {
 })
 
 test_that("Replicate cluster statistics match those of replicate rows", {
+  skip_on_cran()
   int <- get_inlavaan_internal(fit_ml)
   lavdata <- int$lavdata
   lp <- lavdata@Lp[[1]]
@@ -844,6 +856,7 @@ test_that("A single-level PPP is not marked experimental", {
 })
 
 test_that("Replicate statistics split the within cross-products correctly", {
+  skip_on_cran()
   # Few within degrees of freedom: 32 singleton clusters and 8 pairs, with
   # three fixed within covariates. The residual of the outcomes given the
   # covariates is Wishart(N - J - k, V), which a wrong split of C and W
@@ -888,6 +901,7 @@ test_that("Replicate statistics split the within cross-products correctly", {
 })
 
 test_that("Replicate statistics fall back to rows when D'D is singular", {
+  skip_on_cran()
   # w1 is constant within clusters, so as a level-1 covariate it has no
   # within-cluster variation
   dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 40, ]

@@ -15,6 +15,7 @@ test_that("a == b gives the same fit as a shared label", {
 })
 
 test_that("Constraints keep shared labels and group.equal in force", {
+  skip_on_cran()
   mod <- "textual =~ x4 + x5 + x6\n x1 ~~ c(v1, v1b)*x1\n x2 ~~ c(v2, v2b)*x2"
   fit <- fit_with(
     paste0(mod, "\n v1 == v2"),
@@ -38,6 +39,7 @@ test_that("Constraints keep shared labels and group.equal in force", {
 })
 
 test_that("a == <value> fixes the parameter", {
+  skip_on_cran()
   fit <- fit_with("textual =~ x4 + a*x5 + x6\n a == 0.5")
   pt <- lavaan::parTable(fit)
   i <- which(pt$label == "a")
@@ -81,6 +83,7 @@ test_that("Unsupported constraints give an error", {
 })
 
 test_that("Two-level fits with a constraint keep working lavaan methods", {
+  skip_on_cran()
   set.seed(1)
   fit <- asem(
     "level: 1\n fw =~ y1 + a*y2 + y3\n level: 2\n fb =~ y1 + b*y2 + y3\n a == b",
@@ -96,6 +99,7 @@ test_that("Two-level fits with a constraint keep working lavaan methods", {
 })
 
 test_that("A := may use a parameter fixed by a constraint", {
+  skip_on_cran()
   fit <- fit_with("textual =~ x4 + c*x5 + x6\n c == 0.5\n e := c * 2")
   summ <- get_inlavaan_internal(fit)$summary
   expect_equal(summ["e", "Mean"], 1)
@@ -111,6 +115,7 @@ test_that("Fixing a parameter at two values names both constraints", {
 })
 
 test_that("A prior on any parameter held equal is used", {
+  skip_on_cran()
   fit <- suppressWarnings(fit_with(
     'textual =~ x4 + a*x5 + prior("normal(3,0.01)")*b*x6\n a == b'
   ))
@@ -125,6 +130,7 @@ test_that("A prior on any parameter held equal is used", {
 })
 
 test_that("plot() accepts every name of parameters held equal", {
+  skip_on_cran()
   fit <- fit_with("textual =~ x4 + a*x5 + b*x6\n a == b")
   pdf(NULL)
   on.exit(dev.off())

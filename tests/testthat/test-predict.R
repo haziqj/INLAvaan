@@ -367,6 +367,7 @@ test_that("predict() works when an observed outcome has no residual", {
 })
 
 test_that("predict(type = 'ymis') imputes conditional.x fits", {
+  skip_on_cran()
   dat_mis <- dat
   set.seed(1)
   dat_mis$x2[sample(nrow(dat_mis), 30)] <- NA
@@ -400,6 +401,7 @@ predict_with <- function(fit, x_draws, type = "lv") {
 }
 
 test_that("Composite scores are the weighted sums of their indicators", {
+  skip_on_cran()
   # Regression test: predict() ignored the composite weights, so it predicted
   # a composite from its outcomes, with noise. Each draw of C must be w'x for
   # the weights w of that draw (centred without a mean structure), and the
@@ -426,6 +428,7 @@ test_that("Composite scores are the weighted sums of their indicators", {
 })
 
 test_that("Scores of a factor linked to a composite match lavaan", {
+  skip_on_cran()
   comp_mod <- "C <~ x1 + x2 + x3\n F =~ x4 + x5 + x6\n F ~ C"
   fit <- fit_quick(comp_mod, meanstructure = TRUE)
   fit_lav <- lavaan::sem(

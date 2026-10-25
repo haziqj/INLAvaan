@@ -381,6 +381,7 @@ test_that("A := parameter cannot reuse a parameter label", {
 })
 
 test_that("Multigroup := parameters can be plotted by name", {
+  skip_on_cran()
   fit <- acfa(
     "visual =~ x1 + c(a1, a2)*x2 + x3\n d := a1 - a2",
     lavaan::HolzingerSwineford1939,
