@@ -1,27 +1,8 @@
 ## ----- Shared fixtures -------------------------------------------------------
-# The 24-cluster subset of Demo.twolevel used by the other random-slope tests.
-# The internal checks run on lavaan objects, which are fast, and the method
-# checks on one INLAvaan fit.
-d_rs <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
-mod_rs <- "
-  level: 1
-    fw =~ y1 + y2 + y3
-    fw ~ rv('s1')*x1
-  level: 2
-    fb =~ y1 + y2 + y3
-    fb ~ w1
-    s1 ~ w1
-"
-fit_rs <- asem(
-  mod_rs,
-  d_rs,
-  cluster = "cluster",
-  verbose = FALSE,
-  test = "none",
-  marginal_correction = "none",
-  vb_correction = FALSE,
-  nsamp = 3
-)
+# d_rs, mod_rs and the fit come from helper-random-slopes.R. The internal
+# checks run on lavaan objects, which are fast, and the method checks on the
+# shared INLAvaan fit.
+fit_rs <- shared_rs_fit()
 
 # The Gaussian log-density of every cluster under its stacked moments. A
 # missing outcome drops out of the stacked vector, which is the FIML

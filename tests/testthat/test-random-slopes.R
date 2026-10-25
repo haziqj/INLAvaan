@@ -1,28 +1,7 @@
 ## ----- Shared random-slope fixture (route A, 24 clusters) --------------------
-# The `rv()` modifier makes the level-1 slope of x1 a level-2 latent
-# variable. Twenty-four clusters (300 rows) keep every fit in this file to a
-# couple of seconds.
-d_rs <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
-mod_rs <- "
-  level: 1
-    fw =~ y1 + y2 + y3
-    fw ~ rv('s1')*x1
-  level: 2
-    fb =~ y1 + y2 + y3
-    fb ~ w1
-    s1 ~ w1
-"
+# d_rs, mod_rs and the fit come from helper-random-slopes.R
 fit0_rs <- lavaan::sem(mod_rs, d_rs, cluster = "cluster", do.fit = FALSE)
-fit_rs <- asem(
-  mod_rs,
-  d_rs,
-  cluster = "cluster",
-  verbose = FALSE,
-  test = "none",
-  marginal_correction = "none",
-  vb_correction = FALSE,
-  nsamp = 3
-)
+fit_rs <- shared_rs_fit()
 # A second fit carrying the one fit measure a random-slope model keeps
 fit_rs_dic <- asem(
   mod_rs,

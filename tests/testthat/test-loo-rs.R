@@ -1,30 +1,6 @@
 ## ----- Shared random-slope fixture (route A, 24 clusters) --------------------
-# Same 24-cluster subset of lavaan::Demo.twolevel as the other random-slope
-# tests: 300 rows, cluster sizes cycling 5/10/15/20, every fit a second or
-# two. `rv('s1')` makes the level-1 slope of x1 a level-2 latent variable,
-# so the likelihood comes from lavaan's per-cluster random-slope kernels
-# rather than from the model-implied moments.
-d_rs <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
-mod_rs <- "
-  level: 1
-    fw =~ y1 + y2 + y3
-    fw ~ rv('s1')*x1
-  level: 2
-    fb =~ y1 + y2 + y3
-    fb ~ w1
-    s1 ~ w1
-"
-
-fit_rs <- asem(
-  mod_rs,
-  d_rs,
-  cluster = "cluster",
-  verbose = FALSE,
-  test = "none",
-  marginal_correction = "none",
-  vb_correction = FALSE,
-  nsamp = 3
-)
+# d_rs, mod_rs and the fit come from helper-random-slopes.R
+fit_rs <- shared_rs_fit()
 res <- loo(fit_rs)
 int <- get_inlavaan_internal(fit_rs)
 spec <- INLAvaan:::rs_spec(int)
