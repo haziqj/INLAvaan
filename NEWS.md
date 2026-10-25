@@ -215,6 +215,9 @@
 
 * `predict(newdata = )` warns about ordinal values not seen when fitting.
 
+* `fitted()`, `residuals()`, the standardised estimates and the R-square of
+  random-slope fits also work with lavaan versions after 0.7-3.
+
 # INLAvaan 0.3.2
 
 ## Deprecations
