@@ -44,9 +44,11 @@ The parameter names, and default settings, are:
 
 - `wmat = "normal(0,10)"`: Composite weights (`<~`)
 
-- `theta = "gamma(1,.5)[sd]"`: Residual precisions
+- `theta = "gamma(1,.5)[sd]"`: Residual variances (prior on the standard
+  deviation)
 
-- `psi = "gamma(1,.5)[sd]"`: Latent variable precisions
+- `psi = "gamma(1,.5)[sd]"`: Latent variable variances (prior on the
+  standard deviation)
 
 - `rho = "beta(1,1)"`: Correlations (both latent and observed)
 

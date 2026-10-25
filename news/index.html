@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,15 +60,15 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="inlavaan-development-version">INLAvaan (development version)<a class="anchor" aria-label="anchor" href="#inlavaan-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.3" id="inlavaan-033">INLAvaan 0.3.3<a class="anchor" aria-label="anchor" href="#inlavaan-033"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-0-3-3">New features<a class="anchor" aria-label="anchor" href="#new-features-0-3-3"></a></h3>
 <ul><li><p>INLAvaan now fits two-level models with random slopes, which lavaan specifies with the <code>rv()</code> modifier. They work with <code><a href="../reference/compare.html">compare()</a></code>, <code><a href="../reference/loo.html">loo()</a></code>, <code><a href="../reference/waic.html">waic()</a></code>, <code><a href="../reference/logLik.html">logLik()</a></code>, <code><a href="../reference/predict.html">predict()</a></code>, <code><a href="../reference/simulate.html">simulate()</a></code> and <code><a href="../reference/sampling.html">sampling()</a></code>, and <code><a href="../reference/INLAvaan-class.html">summary()</a></code> marks the rows that carry a random slope. <code><a href="../reference/fitted.html">fitted()</a></code>, <code><a href="../reference/residuals.html">residuals()</a></code> and the standardised estimates use the implied moments averaged over the covariates, and <code>per_cluster = TRUE</code> gives those of each cluster. The Bayesian fit indices are scaled against an unrestricted random-coefficient model. The posterior predictive p-value is not available and is dropped from <code>test</code>. A random slope on a latent or split covariate uses lavaan’s quadrature, which is slower, and <code>integration.ngh</code> sets its number of nodes. Such fits have no <code><a href="../reference/simulate.html">simulate()</a></code>, casewise values, <code>predict(type = "yhat")</code>, <code>per_cluster = TRUE</code> or Bayesian fit indices. Composites cannot be combined with random slopes yet. See the multilevel article.</p></li>
 <li><p>INLAvaan now fits composites, which lavaan specifies with the <code>&lt;~</code> operator, with continuous data, in one or more groups or at either level of a two-level model. They work with the fit measures, <code><a href="../reference/loo.html">loo()</a></code>, <code><a href="../reference/compare.html">compare()</a></code>, <code><a href="../reference/predict.html">predict()</a></code> and <code><a href="../reference/sampling.html">sampling()</a></code>, and <code><a href="../reference/INLAvaan-class.html">summary()</a></code> gives posterior summaries for the variance and intercept of each composite. Free weights have the new default prior <code>wmat = "normal(0,10)"</code> in <code><a href="../reference/priors_for.html">priors_for()</a></code>. Unlike lavaan, INLAvaan estimates the (co)variances of the indicators by default (<code>composites.cov = "free"</code>); <code>composites.cov = "fixed"</code> fixes them at their sample values. See the new article on composites.</p></li>
 <li><p>Composite models that INLAvaan cannot fit yet stop with an error: ordinal data, and <code>composites.cov = "fixed"</code> in two-level models. So do composite specifications that cannot be estimated as written, such as a free latent mean that only composites measure (as in <code><a href="../reference/agrowth.html">agrowth()</a></code> on composites).</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-0-3-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-3"></a></h3>
 <ul><li><p>The posterior predictive p-value of two-level models was often close to 0 for models that fit. It now follows blavaan’s two-level PPP: each posterior draw generates replicate data, which are scored against the saturated model. The new arguments <code>ppp_method</code> and <code>ppp_nsamp</code> set how the data are scored (by default one Fisher-scoring step towards the saturated fit) and how many draws are used (250). The two-level PPP is experimental.</p></li>
 <li><p><code><a href="../reference/simulate.html">simulate()</a></code> on a two-level fit now keeps the clusters of the data, with their labels and sizes, and no longer warns on every data set.</p></li>
 <li><p><code>BCFI</code> was <code>-Inf</code> or <code>NaN</code> for posterior draws whose independence model fits within its degrees of freedom. Such draws now follow lavaan’s CFI convention.</p></li>
@@ -110,8 +110,10 @@
 <li><p>Models with a free covariance above 1 at its starting value, such as covariances between covariates under <code>fixed.x = FALSE</code>, no longer fail.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="minor-improvements-and-fixes-development-version">Minor improvements and fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-fixes-development-version"></a></h3>
-<ul><li><p>Parameter types missing from <code>dp</code> take their default priors, and a <code>dp</code> without names gives an error.</p></li>
+<h3 id="minor-improvements-and-fixes-0-3-3">Minor improvements and fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-fixes-0-3-3"></a></h3>
+<ul><li><p>Models without a mean structure fit much faster. The gradient of their marginalised log-likelihood is now lavaan’s ML gradient for <code>n - 1</code> observations and the unbiased sample covariance, where INLAvaan used to rebuild lavaan’s Jacobian of the implied covariance at every call. The posterior is unchanged, and a 256-parameter factor model fits about ten times faster. Such a model with sampling weights now gives an error when a group’s weights sum to 1 or less, where the marginalised likelihood is unbounded.</p></li>
+<li><p><code>likelihood = "wishart"</code>, also the default under <code>mimic = "EQS"</code> or <code>"LISREL"</code>, is now ignored with a message. lavaan then divides the sample covariance by <code>n - 1</code>, but INLAvaan’s likelihood assumes the divisor <code>n</code>, so such fits overstated the sample covariance by <code>n / (n - 1)</code>. Without a mean structure, integrating out the saturated means already gives the Wishart likelihood.</p></li>
+<li><p>Parameter types missing from <code>dp</code> take their default priors, and a <code>dp</code> without names gives an error.</p></li>
 <li><p>A Hessian that is not positive definite at the posterior mode gives a clear error.</p></li>
 <li><p><code><a href="../reference/plot.html">plot()</a></code> explains that fixed and derived parameters have no posterior density.</p></li>
 <li><p><code><a href="../reference/compare.html">compare()</a></code> warns when fits differ in <code>vb_correction</code>.</p></li>

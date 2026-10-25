@@ -21,7 +21,7 @@ two-level models are scored per cluster (leave-one-cluster-out, LOCO)."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -321,7 +321,7 @@ the <code>ML</code> estimator, single- or two-level, single-group or multigroup
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Alhyari, M., Jamil, H., Montcho, H., &amp; Rue, H. (2026). <em>Deterministic
 leave-one-cluster-out cross-validation for multilevel Bayesian structural
-equation models</em>. arXiv. (Preprint forthcoming; placeholder.)</p>
+equation models</em>. arXiv:2609.00670. <a href="https://doi.org/10.48550/arXiv.2609.00670" class="external-link">doi:10.48550/arXiv.2609.00670</a></p>
 <p>Merkle, E. C., Furr, D., &amp; Rabe-Hesketh, S. (2019). Bayesian comparison of
 latent variable models: Conditional versus marginal likelihoods.
 <em>Psychometrika</em>, <em>84</em>(3), 802–829.
@@ -343,17 +343,17 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[179ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[192ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.133σ. <span style="color: #B2B2B2;">[222ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.133σ. <span style="color: #B2B2B2;">[229ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/30 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 6/30 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 30/30 skew-normal marginals. <span style="color: #B2B2B2;">[972ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 5/30 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 30/30 skew-normal marginals. <span style="color: #B2B2B2;">[992ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[774ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[792ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -431,19 +431,21 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="va">fit2l</span> <span class="op">&lt;-</span> <span class="fu"><a href="asem.html">asem</a></span><span class="op">(</span><span class="va">model2l</span>, <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span>,</span></span>
 <span class="r-in"><span>              meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, fixed.x <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[1.1s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.050σ. <span style="color: #B2B2B2;">[893ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.050σ. <span style="color: #B2B2B2;">[936ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 10/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 24/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 34/34 skew-normal marginals. <span style="color: #B2B2B2;">[6.9s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 8/34 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 22/34 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 34/34 skew-normal marginals. <span style="color: #B2B2B2;">[7.2s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[3.4s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Computing fit indices (PPP/DIC).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[3.6s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The two-level PPP is experimental.</span>

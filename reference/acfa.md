@@ -136,12 +136,12 @@ acfa(
 - marginal_correction:
 
   Which type of correction to use when fitting the skew-normal or
-  two-piece Gaussian marginals. `"hessian"` computes the full
-  `"shortcut"` (default) computes only diagonals via central differences
-  (full z-trace plus Schur complement correction), `"shortcut_fd"` is
-  the same formula using forward differences (roughly half the cost,
-  less accurate), `"hessian"` computes the full Hessian-based correction
-  (slow), and `"none"` (or `FALSE`) applies no correction.
+  two-piece Gaussian marginals. `"shortcut"` (default) computes only
+  diagonals via central differences (full z-trace plus Schur complement
+  correction), `"shortcut_fd"` is the same formula using forward
+  differences (roughly half the cost, less accurate), `"hessian"`
+  computes the full Hessian-based correction (slow), and `"none"` (or
+  `FALSE`) applies no correction.
 
 - nsamp:
 
@@ -333,20 +333,20 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [155ms]
+#> ✔ Posterior mode and Hessian. [115ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [261ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [169ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [1.1s]
+#> ✔ Fit 21/21 skew-normal marginals. [686ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [72ms]
+#> ✔ Summarise 100 posterior draws. [78ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9006 ended normally after 66 iterations
+#> INLAvaan 0.3.3 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

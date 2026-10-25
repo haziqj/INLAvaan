@@ -136,12 +136,12 @@ asem(
 - marginal_correction:
 
   Which type of correction to use when fitting the skew-normal or
-  two-piece Gaussian marginals. `"hessian"` computes the full
-  `"shortcut"` (default) computes only diagonals via central differences
-  (full z-trace plus Schur complement correction), `"shortcut_fd"` is
-  the same formula using forward differences (roughly half the cost,
-  less accurate), `"hessian"` computes the full Hessian-based correction
-  (slow), and `"none"` (or `FALSE`) applies no correction.
+  two-piece Gaussian marginals. `"shortcut"` (default) computes only
+  diagonals via central differences (full z-trace plus Schur complement
+  correction), `"shortcut_fd"` is the same formula using forward
+  differences (roughly half the cost, less accurate), `"hessian"`
+  computes the full Hessian-based correction (slow), and `"none"` (or
+  `FALSE`) applies no correction.
 
 - nsamp:
 
@@ -345,19 +345,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [282ms]
+#> ✔ Posterior mode and Hessian. [222ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [698ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [271ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2.3s]
+#> ⠹ Fitting 10/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [1.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [369ms]
+#> ✔ Summarise 1000 posterior draws. [415ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.2.9006 ended normally after 82 iterations
+#> INLAvaan 0.3.3 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -133,18 +133,19 @@ the `cluster` argument to identify the grouping variable.
 
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [740ms]
+#> ✔ Posterior mode and Hessian. [823ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.054σ. [941ms]
+#> ✔ VB correction; mean |δ| = 0.054σ. [1s]
 #> 
 #> ⠙ Fitting 0/20 skew-normal marginals.
-#> ⠹ Fitting 4/20 skew-normal marginals.
-#> ✔ Fit 20/20 skew-normal marginals. [2.7s]
+#> ⠹ Fitting 2/20 skew-normal marginals.
+#> ✔ Fit 20/20 skew-normal marginals. [2.9s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [3.5s]
+#> ⠸ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [3.8s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> ℹ The two-level PPP is experimental.
@@ -159,7 +160,7 @@ standard deviations, and credible intervals) for *both levels*.
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.2.9006 ended normally after 108 iterations
+#> INLAvaan 0.3.3 ended normally after 108 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -171,12 +172,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12175.615 
-#>    PPP (Chi-square, experimental)                0.540 
+#>    PPP (Chi-square, experimental)                0.572 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24192.544 
-#>    Effective parameters (pD)                    19.676 
+#>    Deviance (DIC)                            24192.446 
+#>    Effective parameters (pD)                    19.626 
 #> 
 #> Parameter Estimates:
 #> 
@@ -318,10 +319,10 @@ fit_rs <- asem(mod_rs, data = Demo.twolevel, cluster = "cluster")
 #> ℹ No PPP: a random-slope model has no saturated model.
 #> ℹ Mode finding and Hessian computation.
 #> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [12s]
+#> ✔ Posterior mode and Hessian. [12.7s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.092σ. [29.7s]
+#> ✔ VB correction; mean |δ| = 0.092σ. [31s]
 #> 
 #> ⠙ Fitting 0/19 skew-normal marginals.
 #> ⠹ Fitting 1/19 skew-normal marginals.
@@ -332,23 +333,25 @@ fit_rs <- asem(mod_rs, data = Demo.twolevel, cluster = "cluster")
 #> ⠧ Fitting 6/19 skew-normal marginals.
 #> ⠇ Fitting 7/19 skew-normal marginals.
 #> ⠏ Fitting 8/19 skew-normal marginals.
-#> ⠋ Fitting 10/19 skew-normal marginals.
-#> ⠙ Fitting 11/19 skew-normal marginals.
-#> ⠹ Fitting 12/19 skew-normal marginals.
-#> ⠸ Fitting 13/19 skew-normal marginals.
-#> ⠼ Fitting 14/19 skew-normal marginals.
-#> ⠴ Fitting 15/19 skew-normal marginals.
-#> ⠦ Fitting 16/19 skew-normal marginals.
-#> ⠧ Fitting 17/19 skew-normal marginals.
-#> ⠇ Fitting 18/19 skew-normal marginals.
-#> ✔ Fit 19/19 skew-normal marginals. [51.4s]
+#> ⠋ Fitting 9/19 skew-normal marginals.
+#> ⠙ Fitting 10/19 skew-normal marginals.
+#> ⠹ Fitting 11/19 skew-normal marginals.
+#> ⠸ Fitting 12/19 skew-normal marginals.
+#> ⠼ Fitting 13/19 skew-normal marginals.
+#> ⠴ Fitting 14/19 skew-normal marginals.
+#> ⠦ Fitting 15/19 skew-normal marginals.
+#> ⠧ Fitting 16/19 skew-normal marginals.
+#> ⠇ Fitting 17/19 skew-normal marginals.
+#> ⠏ Fitting 19/19 skew-normal marginals.
+#> ✔ Fit 19/19 skew-normal marginals. [54.3s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (DIC).
 #> ⠸ Computing fit indices (DIC).
 #> ⠼ Computing fit indices (DIC).
 #> ⠴ Computing fit indices (DIC).
-#> ✔ Summarise 1000 posterior draws. [13.9s]
+#> ⠦ Computing fit indices (DIC).
+#> ✔ Summarise 1000 posterior draws. [14.8s]
 #> 
 #> ℹ Fit measures: DIC.
 ```
@@ -356,7 +359,7 @@ fit_rs <- asem(mod_rs, data = Demo.twolevel, cluster = "cluster")
 ``` r
 
 summary(fit_rs)
-#> INLAvaan 0.3.2.9006 ended normally after 115 iterations
+#> INLAvaan 0.3.3 ended normally after 115 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -371,8 +374,8 @@ summary(fit_rs)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24627.450 
-#>    Effective parameters (pD)                    18.115 
+#>    Deviance (DIC)                            24627.468 
+#>    Effective parameters (pD)                    18.123 
 #> 
 #> Parameter Estimates:
 #> 
@@ -459,7 +462,7 @@ and its regression on `w1` under *Regressions*.
 
 fitmeasures(fit_rs)
 #>         npar   margloglik          dic        p_dic       BRMSEA    BGammaHat 
-#>           19   -12385.741    24627.450       18.115        0.003        1.000 
+#>           19   -12385.741    24627.468       18.123        0.002        1.000 
 #> adjBGammaHat          BMc         BCFI         BTLI         BNFI 
 #>        1.000        1.000        0.999        1.002        0.990
 ```
@@ -531,61 +534,61 @@ fit_cli <- asem(mod_cli, data = Demo.twolevel, cluster = "cluster")
 #> ✔ Posterior mode and Hessian. [11.1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.061σ. [20.7s]
+#> ✔ VB correction; mean |δ| = 0.061σ. [21.4s]
 #> 
 #> ⠙ Fitting 0/18 skew-normal marginals.
-#> ⠹ Fitting 1/18 skew-normal marginals.
-#> ⠸ Fitting 2/18 skew-normal marginals.
-#> ⠼ Fitting 3/18 skew-normal marginals.
-#> ⠴ Fitting 4/18 skew-normal marginals.
-#> ⠦ Fitting 5/18 skew-normal marginals.
-#> ⠧ Fitting 6/18 skew-normal marginals.
-#> ⠇ Fitting 7/18 skew-normal marginals.
+#> ⠹ Fitting 2/18 skew-normal marginals.
+#> ⠸ Fitting 3/18 skew-normal marginals.
+#> ⠼ Fitting 4/18 skew-normal marginals.
+#> ⠴ Fitting 5/18 skew-normal marginals.
+#> ⠦ Fitting 6/18 skew-normal marginals.
+#> ⠧ Fitting 7/18 skew-normal marginals.
+#> ⠇ Fitting 8/18 skew-normal marginals.
 #> ⠏ Fitting 9/18 skew-normal marginals.
-#> ⠋ Fitting 10/18 skew-normal marginals.
-#> ⠙ Fitting 11/18 skew-normal marginals.
-#> ⠹ Fitting 12/18 skew-normal marginals.
-#> ⠸ Fitting 13/18 skew-normal marginals.
-#> ⠼ Fitting 14/18 skew-normal marginals.
-#> ⠴ Fitting 15/18 skew-normal marginals.
+#> ⠋ Fitting 11/18 skew-normal marginals.
+#> ⠙ Fitting 12/18 skew-normal marginals.
+#> ⠹ Fitting 13/18 skew-normal marginals.
+#> ⠸ Fitting 14/18 skew-normal marginals.
+#> ⠼ Fitting 15/18 skew-normal marginals.
+#> ⠴ Fitting 16/18 skew-normal marginals.
 #> ⠦ Fitting 17/18 skew-normal marginals.
 #> ⠧ Fitting 18/18 skew-normal marginals.
-#> ✔ Fit 18/18 skew-normal marginals. [47.1s]
+#> ✔ Fit 18/18 skew-normal marginals. [48.4s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (DIC).
 #> ⠸ Computing fit indices (DIC).
 #> ⠼ Computing fit indices (DIC).
 #> ⠴ Computing fit indices (DIC).
-#> ⠦ Computing fit indices (DIC).
-#> ✔ Summarise 1000 posterior draws. [14.3s]
+#> ✔ Summarise 1000 posterior draws. [14.5s]
 #> 
 #> ℹ Fit measures: DIC.
 fit_fx <- asem(mod_fx, data = Demo.twolevel, cluster = "cluster")
 #> ℹ No PPP: a random-slope model has no saturated model.
 #> ℹ Mode finding and Hessian computation.
 #> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [9.3s]
+#> ✔ Posterior mode and Hessian. [10.1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.048σ. [20.3s]
+#> ✔ VB correction; mean |δ| = 0.048σ. [21.9s]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
 #> ⠹ Fitting 1/17 skew-normal marginals.
 #> ⠸ Fitting 2/17 skew-normal marginals.
-#> ⠼ Fitting 4/17 skew-normal marginals.
-#> ⠴ Fitting 5/17 skew-normal marginals.
-#> ⠦ Fitting 6/17 skew-normal marginals.
+#> ⠼ Fitting 3/17 skew-normal marginals.
+#> ⠴ Fitting 4/17 skew-normal marginals.
+#> ⠦ Fitting 5/17 skew-normal marginals.
 #> ⠧ Fitting 7/17 skew-normal marginals.
-#> ⠇ Fitting 9/17 skew-normal marginals.
-#> ⠏ Fitting 10/17 skew-normal marginals.
-#> ⠋ Fitting 11/17 skew-normal marginals.
-#> ⠙ Fitting 12/17 skew-normal marginals.
-#> ⠹ Fitting 13/17 skew-normal marginals.
-#> ⠸ Fitting 15/17 skew-normal marginals.
-#> ⠼ Fitting 16/17 skew-normal marginals.
-#> ⠴ Fitting 17/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [41.8s]
+#> ⠇ Fitting 8/17 skew-normal marginals.
+#> ⠏ Fitting 9/17 skew-normal marginals.
+#> ⠋ Fitting 10/17 skew-normal marginals.
+#> ⠙ Fitting 11/17 skew-normal marginals.
+#> ⠹ Fitting 12/17 skew-normal marginals.
+#> ⠸ Fitting 14/17 skew-normal marginals.
+#> ⠼ Fitting 15/17 skew-normal marginals.
+#> ⠴ Fitting 16/17 skew-normal marginals.
+#> ⠦ Fitting 17/17 skew-normal marginals.
+#> ✔ Fit 17/17 skew-normal marginals. [43.7s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (DIC).
@@ -593,7 +596,7 @@ fit_fx <- asem(mod_fx, data = Demo.twolevel, cluster = "cluster")
 #> ⠼ Computing fit indices (DIC).
 #> ⠴ Computing fit indices (DIC).
 #> ⠦ Computing fit indices (DIC).
-#> ✔ Summarise 1000 posterior draws. [14.1s]
+#> ✔ Summarise 1000 posterior draws. [14.8s]
 #> 
 #> ℹ Fit measures: DIC.
 ```
@@ -606,9 +609,9 @@ cmp
 #> Models ordered by marginal log-likelihood
 #> 
 #>    Model npar Marg.Loglik  logBF      DIC     pD
-#>   fit_fx   17   -12376.97  0.000 24624.13 16.485
-#>  fit_cli   18   -12382.90 -5.930 24626.70 17.821
-#>   fit_rs   19   -12385.74 -8.769 24627.45 18.115
+#>   fit_fx   17   -12376.97  0.000 24624.07 16.456
+#>  fit_cli   18   -12382.90 -5.930 24625.87 17.407
+#>   fit_rs   19   -12385.74 -8.769 24627.47 18.123
 ```
 
 Because a random-slope likelihood is the density of the outcomes *given*
@@ -672,8 +675,8 @@ compare(fit_rs, fit_fx, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>   Model npar Marg.Loglik  logBF      DIC     pD      ELPD      SE  p_loo
-#>  fit_fx   17   -12376.97  0.000 24624.13 16.485 -12313.27 394.398 18.703
-#>  fit_rs   19   -12385.74 -8.769 24627.45 18.115 -12314.46 394.413 19.640
+#>  fit_fx   17   -12376.97  0.000 24624.07 16.456 -12313.27 394.398 18.703
+#>  fit_rs   19   -12385.74 -8.769 24627.47 18.123 -12314.46 394.413 19.640
 #>  elpd_diff se_diff
 #>      0.000    0.00
 #>     -1.187    0.44
@@ -693,26 +696,25 @@ slopes are available, alongside the other Level 2 latent variables.
 
 predict(fit_rs, type = "lv", level = 2, summary = TRUE)
 #> Sampling latent variables (multilevel) ■■■                                7% | …
-#> Sampling latent variables (multilevel) ■■■■■                             13% | …
-#> Sampling latent variables (multilevel) ■■■■■■■■■■■                       34% | …
-#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■                56% | …
-#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■          78% | …
-#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% | …
+#> Sampling latent variables (multilevel) ■■■■■■■■■                         27% | …
+#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■                   46% | …
+#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■             68% | …
+#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■       88% | …
 #> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | …
 #> 
 #> Mean of predicted values from inlavaan model
 #> 
 #>         fb    s1
-#> 1   0.1033 0.496
-#> 2  -0.0183 0.481
-#> 3  -1.8863 0.481
-#> 4  -0.7094 0.479
-#> 5   0.1531 0.490
-#> 6  -0.0992 0.484
-#> 7   0.7945 0.503
-#> 8  -0.1581 0.517
-#> 9  -1.0044 0.492
-#> 10  1.4110 0.532
+#> 1   0.1255 0.499
+#> 2   0.0156 0.473
+#> 3  -1.9029 0.482
+#> 4  -0.7170 0.483
+#> 5   0.1627 0.491
+#> 6  -0.0764 0.488
+#> 7   0.7795 0.498
+#> 8  -0.1533 0.519
+#> 9  -1.0287 0.493
+#> 10  1.4172 0.538
 #> # ℹ 190 more rows
 ```
 
@@ -783,15 +785,15 @@ the standardised slopes across schools.
 std <- standardisedsolution(fit_rs)
 std[std$lhs %in% c("fw", "s1"), ]
 #>    lhs op rhs est.std    se ci.lower ci.upper
-#> 1   fw =~  y1   0.710 0.019    0.673    0.747
-#> 2   fw =~  y2   0.602 0.019    0.566    0.638
-#> 3   fw =~  y3   0.592 0.019    0.553    0.628
-#> 4   fw  ~  x1   0.498 0.021    0.454    0.542
-#> 8   fw ~~  fw   0.746 0.022    0.699    0.790
+#> 1   fw =~  y1   0.712 0.019    0.676    0.745
+#> 2   fw =~  y2   0.602 0.019    0.566    0.640
+#> 3   fw =~  y3   0.595 0.020    0.557    0.637
+#> 4   fw  ~  x1   0.498 0.020    0.456    0.535
+#> 8   fw ~~  fw   0.746 0.020    0.707    0.788
 #> 14  fw ~1       0.000 0.000    0.000    0.000
-#> 19  s1  ~  w1   0.005 0.024   -0.045    0.051
-#> 25  s1 ~~  s1   0.005 0.006    0.000    0.020
-#> 32  s1 ~1       0.497 0.022    0.453    0.543
+#> 19  s1  ~  w1   0.007 0.023   -0.035    0.051
+#> 25  s1 ~~  s1   0.005 0.005    0.000    0.018
+#> 32  s1 ~1       0.498 0.020    0.457    0.534
 ```
 
 ### What Is Not Available

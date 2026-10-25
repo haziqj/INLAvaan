@@ -136,12 +136,12 @@ agrowth(
 - marginal_correction:
 
   Which type of correction to use when fitting the skew-normal or
-  two-piece Gaussian marginals. `"hessian"` computes the full
-  `"shortcut"` (default) computes only diagonals via central differences
-  (full z-trace plus Schur complement correction), `"shortcut_fd"` is
-  the same formula using forward differences (roughly half the cost,
-  less accurate), `"hessian"` computes the full Hessian-based correction
-  (slow), and `"none"` (or `FALSE`) applies no correction.
+  two-piece Gaussian marginals. `"shortcut"` (default) computes only
+  diagonals via central differences (full z-trace plus Schur complement
+  correction), `"shortcut_fd"` is the same formula using forward
+  differences (roughly half the cost, less accurate), `"hessian"`
+  computes the full Hessian-based correction (slow), and `"none"` (or
+  `FALSE`) applies no correction.
 
 - nsamp:
 
@@ -354,21 +354,20 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [313ms]
+#> ✔ Posterior mode and Hessian. [308ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [326ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [381ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.2s]
+#> ✔ Fit 17/17 skew-normal marginals. [1.3s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [200ms]
+#> ✔ Summarise 100 posterior draws. [187ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.2.9006 ended normally after 83 iterations
+#> INLAvaan 0.3.3 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

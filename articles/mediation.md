@@ -101,16 +101,16 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [154ms]
+#> ✔ Posterior mode and Hessian. [198ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.074σ. [185ms]
+#> ✔ VB correction; mean |δ| = 0.074σ. [188ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [175ms]
+#> ✔ Fit 7/7 skew-normal marginals. [188ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [768ms]
+#> ✔ Summarise 1000 posterior draws. [798ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -128,7 +128,7 @@ The summary output provides the posterior mean, standard deviation, and
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.2.9006 ended normally after 5 iterations
+#> INLAvaan 0.3.3 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

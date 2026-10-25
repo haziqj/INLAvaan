@@ -282,7 +282,8 @@ multigroup (multigroup two-level models are not supported yet).
 
 Alhyari, M., Jamil, H., Montcho, H., & Rue, H. (2026). *Deterministic
 leave-one-cluster-out cross-validation for multilevel Bayesian
-structural equation models*. arXiv. (Preprint forthcoming; placeholder.)
+structural equation models*. arXiv:2609.00670.
+[doi:10.48550/arXiv.2609.00670](https://doi.org/10.48550/arXiv.2609.00670)
 
 Merkle, E. C., Furr, D., & Rabe-Hesketh, S. (2019). Bayesian comparison
 of latent variable models: Conditional versus marginal likelihoods.
@@ -307,17 +308,17 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [179ms]
+#> ✔ Posterior mode and Hessian. [192ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [222ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [229ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ⠹ Fitting 6/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [972ms]
+#> ⠹ Fitting 5/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [992ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [774ms]
+#> ✔ Summarise 1000 posterior draws. [792ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -395,19 +396,21 @@ model2l <- "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [1s]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [1.1s]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.050σ. [893ms]
+#> ✔ VB correction; mean |δ| = 0.050σ. [936ms]
 #> 
 #> ⠙ Fitting 0/34 skew-normal marginals.
-#> ⠹ Fitting 10/34 skew-normal marginals.
-#> ⠸ Fitting 24/34 skew-normal marginals.
-#> ✔ Fit 34/34 skew-normal marginals. [6.9s]
+#> ⠹ Fitting 8/34 skew-normal marginals.
+#> ⠸ Fitting 22/34 skew-normal marginals.
+#> ✔ Fit 34/34 skew-normal marginals. [7.2s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [3.4s]
+#> ⠸ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [3.6s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> ℹ The two-level PPP is experimental.
