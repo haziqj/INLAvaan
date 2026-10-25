@@ -1,4 +1,4 @@
-# INLAvaan (development version)
+# INLAvaan 0.3.3
 
 ## New features
 

@@ -14,7 +14,7 @@ authors:
   - family-names: Jamil
     given-names: Haziq
     orcid: "https://orcid.org/0000-0003-3298-1010"
-version: 0.3.2
+version: 0.3.3
 license: GPL-3.0-or-later
 url: "https://inlavaan.haziqj.ml/"
 repository-code: "https://github.com/haziqj/INLAvaan"
