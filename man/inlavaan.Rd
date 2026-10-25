@@ -111,12 +111,12 @@ approximation), and \code{"sampling"} (sampling from the joint Laplace
 approximation).}
 
 \item{marginal_correction}{Which type of correction to use when fitting the
-skew-normal or two-piece Gaussian marginals. \code{"hessian"} computes the full
-\code{"shortcut"} (default) computes only diagonals via central differences
-(full z-trace plus Schur complement correction), \code{"shortcut_fd"} is the
-same formula using forward differences (roughly half the cost, less
-accurate), \code{"hessian"} computes the full Hessian-based correction (slow),
-and \code{"none"} (or \code{FALSE}) applies no correction.}
+skew-normal or two-piece Gaussian marginals. \code{"shortcut"} (default)
+computes only diagonals via central differences (full z-trace plus Schur
+complement correction), \code{"shortcut_fd"} is the same formula using forward
+differences (roughly half the cost, less accurate), \code{"hessian"} computes
+the full Hessian-based correction (slow), and \code{"none"} (or \code{FALSE})
+applies no correction.}
 
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}

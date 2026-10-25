@@ -67,12 +67,12 @@
 #'   approximation), and `"sampling"` (sampling from the joint Laplace
 #'   approximation).
 #' @param marginal_correction Which type of correction to use when fitting the
-#'   skew-normal or two-piece Gaussian marginals. `"hessian"` computes the full
-#'   `"shortcut"` (default) computes only diagonals via central differences
-#'   (full z-trace plus Schur complement correction), `"shortcut_fd"` is the
-#'   same formula using forward differences (roughly half the cost, less
-#'   accurate), `"hessian"` computes the full Hessian-based correction (slow),
-#'   and `"none"` (or `FALSE`) applies no correction.
+#'   skew-normal or two-piece Gaussian marginals. `"shortcut"` (default)
+#'   computes only diagonals via central differences (full z-trace plus Schur
+#'   complement correction), `"shortcut_fd"` is the same formula using forward
+#'   differences (roughly half the cost, less accurate), `"hessian"` computes
+#'   the full Hessian-based correction (slow), and `"none"` (or `FALSE`)
+#'   applies no correction.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
 #' @param samp_copula Logical. When `TRUE` (default), posterior samples are
