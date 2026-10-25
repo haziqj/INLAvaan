@@ -330,6 +330,22 @@ rs_per_cluster <- function(object, observed = FALSE) {
   out
 }
 
+## ----- Handing averaged moments to lavaan ------------------------------------
+
+# lavaan refuses moment-based output (implied moments, residuals, R-square and
+# the standardised solution) for a model with random slopes, because its
+# implied moments vary across clusters. INLAvaan either hands lavaan the
+# averaged moments or replaces lavaan's values with them, so the lavaan copies
+# it passes in carry no random-slope flags.
+rs_without_flags <- function(object) {
+  object@Model@rv.ov <- object@Model@rv.ov[0]
+  object@Model@rv.lv <- object@Model@rv.lv[0]
+  if (isTRUE(object@Model@modprop$within_x_cond)) {
+    object@Model@modprop$within_x_cond <- FALSE
+  }
+  object
+}
+
 ## ----- Standardised solution -------------------------------------------------
 
 # Match the rows of a lavaan output table to partable rows by lhs/op/rhs and
@@ -399,7 +415,7 @@ rs_std_values <- function(
     lavaan::standardizedSolution,
     c(
       list(
-        object,
+        rs_without_flags(object),
         type = type,
         est = est1,
         glist = rs_avg_glist(lavmodel, lavmodel@GLIST, info),
@@ -493,7 +509,7 @@ rs_rsquare <- function(object, info) {
 # that lavaan's own fitted() and residuals() do the labelling and scaling.
 rs_avg_object <- function(object) {
   info <- rs_spec(get_inlavaan_internal(object))$rs$info
-  obj <- as(object, "lavaan")
+  obj <- rs_without_flags(as(object, "lavaan"))
   obj@implied <- rs_avg_implied(object@Model, info)
   obj
 }

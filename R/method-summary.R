@@ -98,10 +98,15 @@ summary_inlavaan <- function(
   # else if (marg_method == "sampling")
   #   marg_method <- "Sampling"
 
+  # The R-square of a random-slope fit is replaced below
+  pe_object <- object
+  if (has_random_slopes(object@Model)) {
+    pe_object <- rs_without_flags(object)
+  }
   # lavaan also standardises the := rows for the R-square, where they may be
   # undefined.
   PE <- muffle_nan_warnings(lavaan::parameterEstimates(
-    object,
+    pe_object,
     se = FALSE, # create our own
     zstat = FALSE,
     ci = TRUE,

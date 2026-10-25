@@ -138,8 +138,9 @@ standardisedsolution <- function(
   }
   xstd_samp <- do.call("rbind", xstd_samp)
 
+  # The table only. Its est.std is replaced by the draws' summaries below.
   out <- muffle_nan_warnings(lavaan::standardizedSolution(
-    object = object,
+    object = if (is.null(spec)) object else rs_without_flags(object),
     est = esti,
     type = type,
     cov_std = cov.std,
