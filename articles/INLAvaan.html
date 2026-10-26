@@ -91,7 +91,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.3/vignettes/INLAvaan.qmd" class="external-link"><code>vignettes/INLAvaan.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/INLAvaan.qmd" class="external-link"><code>vignettes/INLAvaan.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -217,16 +217,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [217ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [277ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.040σ. [165ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.040σ. [190ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [317ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [367ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [623ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [561ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
 </div>
@@ -385,11 +385,11 @@
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">yrep</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          y1         y2          y3        y4         y5        y6</span></span>
 <span><span class="co">#&gt; 1 -0.247092 -1.5686457 -0.06714146 1.5618447 1.20561624 0.7941650</span></span>
-<span><span class="co">#&gt; 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380588 1.1356429</span></span>
-<span><span class="co">#&gt; 3  1.492414 -0.8458358  0.57549347 2.6692719 2.24473335 1.9629508</span></span>
+<span><span class="co">#&gt; 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380587 1.1356429</span></span>
+<span><span class="co">#&gt; 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473334 1.9629508</span></span>
 <span><span class="co">#&gt; 4  0.012789 -0.6156410 -0.21093715 2.7687469 0.23618624 0.3798649</span></span>
-<span><span class="co">#&gt; 5  2.888693  1.3165189  1.26488447 1.2994000 0.05916673 0.1433568</span></span>
-<span><span class="co">#&gt; 6  1.418953  1.5439697  1.42632696 1.6012381 0.82603880 1.0609389</span></span></code></pre></div>
+<span><span class="co">#&gt; 5  2.888693  1.3165189  1.26488446 1.2994000 0.05916673 0.1433568</span></span>
+<span><span class="co">#&gt; 6  1.418953  1.5439697  1.42632695 1.6012381 0.82603880 1.0609389</span></span></code></pre></div>
 </div>
 <p>Comparing such replicates with the observed data is the basis of prior and posterior predictive checking. The <a href="https://inlavaan.haziqj.ml/articles/predictive-checks.html">predictive checks article</a> walks through that workflow, and the <a href="https://inlavaan.haziqj.ml/articles/sampling.html">sampling article</a> explains the machinery behind it.</p>
 </section><section class="level3"><h3 id="fit-measures">Fit measures<a class="anchor" aria-label="anchor" href="#fit-measures"></a>
@@ -426,7 +426,7 @@
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 1.40 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.48 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -454,16 +454,17 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [106ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [289ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [141ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [156ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [271ms]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 5/12 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [323ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [581ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [544ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>

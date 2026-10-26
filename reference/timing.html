@@ -58,7 +58,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Timing Information for INLAvaan Models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.3/R/method-timing.R" class="external-link"><code>R/method-timing.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/method-timing.R" class="external-link"><code>R/method-timing.R</code></a></small>
       <div class="d-none name"><code>timing.Rd</code></div>
     </div>
 
@@ -129,19 +129,19 @@ durations as seconds, longer ones as minutes or hours.</p>
 <span class="r-in"><span><span class="co"># Total elapsed time</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.93 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.10 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># All stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        init       optim          vb      loglik   marginals       norta </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.03 s      0.10 s      0.14 s      0.00 s      0.65 s      0.00 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.03 s      0.13 s      0.16 s      0.00 s      0.76 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    sampling covariances definedpars   deltapars        test       total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.01 s      0.00 s      0.00 s      0.00 s      0.00 s      0.93 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.02 s      0.00 s      0.00 s      0.00 s      0.00 s      1.10 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Specific stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"optim"</span>, <span class="st">"marginals"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     optim marginals </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.10 s    0.65 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.13 s    0.76 s </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
