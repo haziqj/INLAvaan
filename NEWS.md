@@ -12,16 +12,15 @@
   predictive p-value is not available and is dropped from `test`. A random
   slope on a latent or split covariate uses lavaan's quadrature, which is
   slower, and `integration.ngh` sets its number of nodes. Such fits have no
-  `simulate()`, casewise values, `predict(type = "yhat")`,
-  `per_cluster = TRUE` or Bayesian fit indices. Composites cannot be combined with random slopes yet. See the
-  multilevel article.
+  `simulate()`, casewise values, `predict(type = "yhat")`, `per_cluster = TRUE`
+  or Bayesian fit indices. Composites cannot be combined with random slopes yet.
+  See the multilevel article.
 
 * INLAvaan now fits composites, which lavaan specifies with the `<~` operator,
   with continuous data, in one or more groups or at either level of a two-level
-  model. They work
-  with the fit measures, `loo()`, `compare()`, `predict()` and `sampling()`,
-  and `summary()` gives posterior summaries for the variance and intercept of
-  each composite. Free weights have the new default prior
+  model. They work with the fit measures, `loo()`, `compare()`, `predict()` and
+  `sampling()`, and `summary()` gives posterior summaries for the variance and
+  intercept of each composite. Free weights have the new default prior
   `wmat = "normal(0,10)"` in `priors_for()`. Unlike lavaan, INLAvaan estimates
   the (co)variances of the indicators by default (`composites.cov = "free"`);
   `composites.cov = "fixed"` fixes them at their sample values. See the new
