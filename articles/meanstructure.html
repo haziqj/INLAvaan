@@ -91,7 +91,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/articles/meanstructure.qmd" class="external-link"><code>vignettes/articles/meanstructure.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.3/vignettes/articles/meanstructure.qmd" class="external-link"><code>vignettes/articles/meanstructure.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -184,7 +184,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD</span></span>
 <span><span class="co">#&gt;      fit_metric   36   -3828.331   0.000 7504.626 36.162</span></span>
-<span><span class="co">#&gt;  fit_configural   42   -3847.689 -19.358 7506.866 40.822</span></span></code></pre></div>
+<span><span class="co">#&gt;  fit_configural   42   -3847.689 -19.358 7506.866 40.823</span></span></code></pre></div>
 </div>
 <p>Across the metric–scalar boundary they are <strong>not</strong>: an improper flat prior is only defined up to a constant <span class="math inline">\(c\)</span>, the marginal likelihood scales with <span class="math inline">\(c^{\,p}\)</span> per group, and against a model with proper-prior means that constant is orphaned — the “Bayes factor” becomes an artefact of a normalisation convention (and even proper-but-vague intercept priors leave it hostage to the prior width, the Lindley–Bartlett phenomenon). <code><a href="../reference/compare.html">compare()</a></code> warns when fits mix the two mean treatments.</p>
 <p>The leave-one-out conditionals, by contrast, are proper under both treatments — <span class="math inline">\(p(\mathbf{y}_i \mid \mathbf{Y}_{-i}) =
