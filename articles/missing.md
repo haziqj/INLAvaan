@@ -41,24 +41,23 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [485ms]
+#> ✔ Posterior mode and Hessian. [413ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [1s]
+#> ✔ VB correction; mean |δ| = 0.190σ. [804ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 9/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [3.1s]
+#> ⠹ Fitting 14/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [949ms]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.3 ended normally after 71 iterations
+#> INLAvaan 0.3.3.9000 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -94,24 +93,24 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [697ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [588ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.164σ. [1.7s]
+#> ✔ VB correction; mean |δ| = 0.164σ. [1.4s]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 1/42 skew-normal marginals.
-#> ⠸ Fitting 16/42 skew-normal marginals.
-#> ⠼ Fitting 30/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [8.5s]
+#> ⠹ Fitting 9/42 skew-normal marginals.
+#> ⠸ Fitting 28/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [6.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.5s]
+#> ✔ Summarise 1000 posterior draws. [1.7s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)
-#> INLAvaan 0.3.3 ended normally after 91 iterations
+#> INLAvaan 0.3.3.9000 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
