@@ -203,12 +203,13 @@ test_that("Multilevel ypred works with residual variances fixed to zero", {
     vb_correction = FALSE,
     nsamp = 3
   )
-  # Same seed, same fitted values: y1 gets no noise at either level
+  # Same seed, same fitted values: y1 gets no noise at either level. The
+  # tolerance absorbs rounding differences under alternative BLAS (MKL, BLIS).
   set.seed(1)
   yhat <- predict(fit, type = "yhat", nsamp = 3)[[1]]
   set.seed(1)
   ypred <- predict(fit, type = "ypred", nsamp = 3)[[1]]
-  expect_equal(ypred[, "y1"], yhat[, "y1"])
+  expect_equal(ypred[, "y1"], yhat[, "y1"], tolerance = 1e-4)
   expect_true(all(ypred[, c("y2", "y3")] != yhat[, c("y2", "y3")]))
 })
 
