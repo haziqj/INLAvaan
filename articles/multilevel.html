@@ -231,18 +231,18 @@
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [723ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [763ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.054σ. [929ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.054σ. [967ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/20 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 4/20 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 20/20 skew-normal marginals. [2.6s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 3/20 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 20/20 skew-normal marginals. [2.7s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [3.4s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [3.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="co">#&gt; ℹ The two-level PPP is experimental.</span></span>
@@ -266,12 +266,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                  -12175.615 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square, experimental)                0.564 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square, experimental)                0.568 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            24192.083 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    19.445 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24193.066 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    19.936 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -381,30 +381,29 @@
 <span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [11.9s]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [12.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.092σ. [29.9s]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.092σ. [30.3s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/19 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠹ Fitting 1/19 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠸ Fitting 2/19 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠼ Fitting 3/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting 4/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠦ Fitting 5/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠧ Fitting 6/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠇ Fitting 7/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠏ Fitting 8/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠋ Fitting 9/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠙ Fitting 10/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 5/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting 6/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting 7/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting 8/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠏ Fitting 9/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠋ Fitting 10/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 11/19 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠹ Fitting 12/19 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠸ Fitting 13/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting 14/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting 15/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠦ Fitting 16/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠧ Fitting 17/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠇ Fitting 18/19 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠏ Fitting 19/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 15/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 16/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting 17/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting 18/19 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting 19/19 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ✔ Fit 19/19 skew-normal marginals. [52s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
@@ -412,7 +411,8 @@
 <span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [14.1s]</span></span>
+<span><span class="co">#&gt; ⠦ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [14.5s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span></code></pre></div>
 </div>
@@ -434,8 +434,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            24627.463 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    18.121 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24627.927 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    18.353 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -514,7 +514,7 @@
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fitmeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         npar   margloglik          dic        p_dic       BRMSEA    BGammaHat </span></span>
-<span><span class="co">#&gt;           19   -12385.741    24627.463       18.121        0.003        1.000 </span></span>
+<span><span class="co">#&gt;           19   -12385.741    24627.927       18.353        0.003        1.000 </span></span>
 <span><span class="co">#&gt; adjBGammaHat          BMc         BCFI         BTLI         BNFI </span></span>
 <span><span class="co">#&gt;        1.000        1.000        0.999        1.002        0.990</span></span></code></pre></div>
 </div>
@@ -553,10 +553,10 @@
 <span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
 <span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [10.9s]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [11.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.061σ. [20.3s]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.061σ. [20.6s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/18 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠹ Fitting 1/18 skew-normal marginals.</span></span>
@@ -575,41 +575,7 @@
 <span><span class="co">#&gt; ⠴ Fitting 16/18 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠦ Fitting 17/18 skew-normal marginals.</span></span>
 <span><span class="co">#&gt; ⠧ Fitting 18/18 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 18/18 skew-normal marginals. [46.2s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [13.9s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span>
-<span><span class="va">fit_fx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod_fx</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
-<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [9.2s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.048σ. [20.2s]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ⠙ Fitting 0/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 1/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 2/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting 3/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting 4/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠦ Fitting 6/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠧ Fitting 7/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠇ Fitting 8/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠏ Fitting 9/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠋ Fitting 11/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠙ Fitting 12/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 13/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠸ Fitting 14/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠼ Fitting 16/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠴ Fitting 17/17 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 17/17 skew-normal marginals. [41.4s]</span></span>
+<span><span class="co">#&gt; ✔ Fit 18/18 skew-normal marginals. [46.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
@@ -617,7 +583,42 @@
 <span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠦ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [13.7s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [14.4s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span>
+<span><span class="va">fit_fx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod_fx</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
+<span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
+<span><span class="co">#&gt; ℹ Computing the Hessian.</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [9.5s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.048σ. [20.6s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Fitting 0/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 1/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 2/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 4/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 5/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠦ Fitting 6/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠧ Fitting 7/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠇ Fitting 9/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠏ Fitting 10/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠋ Fitting 11/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 12/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 13/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠸ Fitting 15/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠼ Fitting 16/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ⠴ Fitting 17/17 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 17/17 skew-normal marginals. [42.1s]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
+<span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ⠦ Computing fit indices (DIC).</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [14.2s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span></code></pre></div>
 </div>
@@ -629,9 +630,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Model npar Marg.Loglik  logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;   fit_fx   17   -12376.97  0.000 24624.81 16.824</span></span>
-<span><span class="co">#&gt;  fit_cli   18   -12382.90 -5.930 24626.48 17.711</span></span>
-<span><span class="co">#&gt;   fit_rs   19   -12385.74 -8.769 24627.46 18.121</span></span></code></pre></div>
+<span><span class="co">#&gt;   fit_fx   17   -12376.97  0.000 24624.25 16.542</span></span>
+<span><span class="co">#&gt;  fit_cli   18   -12382.90 -5.930 24626.63 17.787</span></span>
+<span><span class="co">#&gt;   fit_rs   19   -12385.74 -8.769 24627.93 18.353</span></span></code></pre></div>
 </div>
 <p>Because a random-slope likelihood is the density of the outcomes <em>given</em> the covariates, every fit in a table like this one must score the same variables: the outcomes, plus any between-level variable the model explains rather than regresses on. <code><a href="../reference/compare.html">compare()</a></code> checks that, and aborts otherwise. The covariates themselves may differ, as for any fit with <code>fixed.x = TRUE</code>: a model without <code>w1</code> says that the outcomes do not depend on it, so dropping a covariate is a fair comparison too. The plain fixed-slope model written out directly (<code>fw ~ x1</code> at Level 1) is an equally valid member of the table, and it fits a good deal faster.</p>
 <p>On <code>Demo.twolevel</code> the maximum-likelihood estimate of the slope variance is slightly negative, so there is no slope variation in these data to find, and the models without it are duly preferred: a log Bayes factor of -5.930 for the cross-level-interaction model and -8.769 for the full random-slope model, both against the fixed-slope fit, with the DIC ordering the three the same way.</p>
@@ -666,8 +667,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Model npar Marg.Loglik  logBF      DIC     pD      ELPD      SE  p_loo</span></span>
-<span><span class="co">#&gt;  fit_fx   17   -12376.97  0.000 24624.81 16.824 -12313.27 394.398 18.703</span></span>
-<span><span class="co">#&gt;  fit_rs   19   -12385.74 -8.769 24627.46 18.121 -12314.46 394.413 19.640</span></span>
+<span><span class="co">#&gt;  fit_fx   17   -12376.97  0.000 24624.25 16.542 -12313.27 394.398 18.703</span></span>
+<span><span class="co">#&gt;  fit_rs   19   -12385.74 -8.769 24627.93 18.353 -12314.46 394.413 19.640</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000    0.00</span></span>
 <span><span class="co">#&gt;     -1.187    0.44</span></span></code></pre></div>
@@ -679,26 +680,27 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_rs</span>, type <span class="op">=</span> <span class="st">"lv"</span>, level <span class="op">=</span> <span class="fl">2</span>, summary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■                                8% | …</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■                             12% | …</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■                       34% | …</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■                57% | …</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■         79% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■                                7% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■                              11% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■                       32% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■                 54% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■          76% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■    98% | …</span></span>
 <span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | …</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mean of predicted values from inlavaan model</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;          fb    s1</span></span>
-<span><span class="co">#&gt; 1   0.09208 0.503</span></span>
-<span><span class="co">#&gt; 2   0.00647 0.479</span></span>
-<span><span class="co">#&gt; 3  -1.87890 0.484</span></span>
-<span><span class="co">#&gt; 4  -0.69790 0.484</span></span>
-<span><span class="co">#&gt; 5   0.16607 0.494</span></span>
-<span><span class="co">#&gt; 6  -0.09009 0.486</span></span>
-<span><span class="co">#&gt; 7   0.78583 0.509</span></span>
-<span><span class="co">#&gt; 8  -0.15093 0.519</span></span>
-<span><span class="co">#&gt; 9  -1.03267 0.491</span></span>
-<span><span class="co">#&gt; 10  1.40704 0.539</span></span>
+<span><span class="co">#&gt;         fb    s1</span></span>
+<span><span class="co">#&gt; 1   0.1154 0.502</span></span>
+<span><span class="co">#&gt; 2   0.0202 0.475</span></span>
+<span><span class="co">#&gt; 3  -1.8683 0.484</span></span>
+<span><span class="co">#&gt; 4  -0.7002 0.483</span></span>
+<span><span class="co">#&gt; 5   0.1705 0.492</span></span>
+<span><span class="co">#&gt; 6  -0.1044 0.487</span></span>
+<span><span class="co">#&gt; 7   0.7446 0.504</span></span>
+<span><span class="co">#&gt; 8  -0.1448 0.521</span></span>
+<span><span class="co">#&gt; 9  -1.0242 0.496</span></span>
+<span><span class="co">#&gt; 10  1.3783 0.535</span></span>
 <span><span class="co">#&gt; # ℹ 190 more rows</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="implied-moments-and-standardised-estimates">Implied Moments and Standardised Estimates<a class="anchor" aria-label="anchor" href="#implied-moments-and-standardised-estimates"></a>
@@ -742,15 +744,15 @@
 <code class="sourceCode R"><span><span class="va">std</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/standardisedsolution.html">standardisedsolution</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
 <span><span class="va">std</span><span class="op">[</span><span class="va">std</span><span class="op">$</span><span class="va">lhs</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fw"</span>, <span class="st">"s1"</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;    lhs op rhs est.std    se ci.lower ci.upper</span></span>
-<span><span class="co">#&gt; 1   fw =~  y1   0.711 0.017    0.676    0.742</span></span>
-<span><span class="co">#&gt; 2   fw =~  y2   0.601 0.019    0.566    0.636</span></span>
-<span><span class="co">#&gt; 3   fw =~  y3   0.594 0.022    0.554    0.636</span></span>
-<span><span class="co">#&gt; 4   fw  ~  x1   0.495 0.021    0.452    0.533</span></span>
-<span><span class="co">#&gt; 8   fw ~~  fw   0.749 0.022    0.706    0.790</span></span>
+<span><span class="co">#&gt; 1   fw =~  y1   0.712 0.018    0.676    0.746</span></span>
+<span><span class="co">#&gt; 2   fw =~  y2   0.600 0.020    0.563    0.637</span></span>
+<span><span class="co">#&gt; 3   fw =~  y3   0.592 0.020    0.552    0.627</span></span>
+<span><span class="co">#&gt; 4   fw  ~  x1   0.495 0.019    0.460    0.532</span></span>
+<span><span class="co">#&gt; 8   fw ~~  fw   0.749 0.019    0.710    0.782</span></span>
 <span><span class="co">#&gt; 14  fw ~1       0.000 0.000    0.000    0.000</span></span>
-<span><span class="co">#&gt; 19  s1  ~  w1   0.006 0.023   -0.035    0.048</span></span>
-<span><span class="co">#&gt; 25  s1 ~~  s1   0.005 0.006    0.000    0.022</span></span>
-<span><span class="co">#&gt; 32  s1 ~1       0.494 0.021    0.452    0.531</span></span></code></pre></div>
+<span><span class="co">#&gt; 19  s1  ~  w1   0.008 0.024   -0.046    0.045</span></span>
+<span><span class="co">#&gt; 25  s1 ~~  s1   0.005 0.006    0.000    0.017</span></span>
+<span><span class="co">#&gt; 32  s1 ~1       0.495 0.019    0.459    0.531</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="what-is-not-available">What Is Not Available<a class="anchor" aria-label="anchor" href="#what-is-not-available"></a>
 </h3>

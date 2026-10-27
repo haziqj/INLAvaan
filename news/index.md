@@ -2,6 +2,13 @@
 
 ## INLAvaan (development version)
 
+### Bug fixes
+
+- [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md) now
+  warns when the models score different variables, for instance when
+  they differ in `fixed.x`, since their marginal likelihoods and DICs
+  are then not comparable.
+
 ## INLAvaan 0.3.3
 
 CRAN release: 2026-10-26

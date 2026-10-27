@@ -345,16 +345,17 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [213ms]
+#> ✔ Posterior mode and Hessian. [215ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [272ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [276ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [1.5s]
+#> ⠹ Fitting 10/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [1.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [385ms]
+#> ✔ Summarise 1000 posterior draws. [383ms]
 #> 
 summary(fit)
 #> INLAvaan 0.3.3.9000 ended normally after 82 iterations
