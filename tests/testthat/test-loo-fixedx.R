@@ -446,7 +446,7 @@ test_that("compare(loo = TRUE) enforces the flavour rules", {
 
   # Mixing joint and conditional scores is refused
   expect_error(
-    compare(fit_c, fit_j, loo = TRUE),
+    suppressWarnings(compare(fit_c, fit_j, loo = TRUE)),
     "mix joint and conditional"
   )
 })

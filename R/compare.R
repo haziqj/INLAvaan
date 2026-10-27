@@ -60,6 +60,10 @@
 #' results (`test` including `"loo"` or `"full"`, or [add_loo()]) are
 #' reused.
 #'
+#' `compare()` warns when the models do not score the same variables, for
+#' instance when a variable is a covariate in one model and an outcome in
+#' another, or when the models differ in `fixed.x`. Their covariates may differ.
+#'
 #' When any of the models has random slopes (lavaan's `rv()` modifier; see
 #' [inlavaan()]), `compare()` aborts unless all the models were fitted with
 #' `fixed.x = TRUE`, score the same outcome variables, and share one
@@ -194,6 +198,29 @@ compare_impl <- function(
   pD_vec <- vapply(internals, function(m) m$DIC$pD %||% NA_real_, numeric(1))
 
   check_rs_comparable(internals, modnames)
+
+  # Under fixed.x the marginal likelihood and the DIC are densities of the
+  # outcomes given the covariates, so fits may differ in their covariates but
+  # not in what they score. A fit that conditions on a variable and one that
+  # models it report densities of different things. Random-slope fits have
+  # already aborted on this in check_rs_comparable().
+  resp <- lapply(internals, scored_vars)
+  same_resp <- vapply(resp, identical, logical(1), y = resp[[1L]])
+  if (!all(same_resp)) {
+    k <- which(!same_resp)[1L]
+    cli_warn(
+      c(
+        "Comparing fits that score different variables: marginal
+         log-likelihoods, Bayes factors, and DIC are densities of different
+         things.",
+        "x" = "{.val {modnames[1L]}} scores {.val {resp[[1L]]}} but
+               {.val {modnames[k]}} scores {.val {resp[[k]]}}.",
+        "i" = "Keep the same outcome variables and the same {.code fixed.x}
+               setting in every model. The covariates may differ."
+      ),
+      class = "inlavaan_compare_resp"
+    )
+  }
 
   # Marginal likelihoods, Bayes factors, and DIC are only comparable
   # between fits with the same mean treatment: without a mean structure
@@ -531,6 +558,17 @@ composite_t_key <- function(int) {
   sort(unique(unlist(keys)))
 }
 
+# The variables a fit's likelihood scores, as a sorted set: everything it does
+# not condition on. A random-slope fit reads them off its kernel.
+scored_vars <- function(int, spec = rs_spec(int)) {
+  v <- if (is.null(spec)) {
+    setdiff(unlist(int$lavdata@ov.names), unlist(int$lavdata@ov.names.x))
+  } else {
+    rs_scored_sets(int, spec)$resp
+  }
+  sort(unique(v[nzchar(v)]))
+}
+
 # ---- Random-slope comparability ----------------------------------------------
 
 # A random-slope likelihood is the density of the outcomes *given* the
@@ -577,17 +615,7 @@ check_rs_comparable <- function(internals, modnames) {
 
   # (b) Which variables are scored? Everything a fit does not condition on:
   # the outcomes, and the between-only endogenous variables it models.
-  resp <- lapply(seq_along(internals), function(k) {
-    v <- if (is.null(specs[[k]])) {
-      setdiff(
-        unlist(internals[[k]]$lavdata@ov.names),
-        unlist(internals[[k]]$lavdata@ov.names.x)
-      )
-    } else {
-      rs_scored_sets(internals[[k]], specs[[k]])$resp
-    }
-    sort(unique(v[nzchar(v)]))
-  })
+  resp <- Map(scored_vars, internals, specs)
   same <- vapply(resp, identical, logical(1), y = resp[[1L]])
   if (!all(same)) {
     k <- which(!same)[1L]

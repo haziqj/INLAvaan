@@ -152,10 +152,37 @@ test_that("compare() warns when fits differ in the VB correction", {
 
 test_that("compare() accepts more than two models via ...", {
   skip_on_cran()
-  fit_speed <- acfa(mod_speed, dat, verbose = FALSE, nsamp = 3, test = "none")
-  cmp <- compare(fit1, fit2, fit_speed)
+  fit_one <- acfa(
+    "visual =~ x1 + a*x2 + a*x3\n textual =~ x4 + b*x5 + b*x6",
+    dat,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
+  cmp <- compare(fit1, fit2, fit_one)
   expect_equal(nrow(cmp), 3)
-  expect_setequal(cmp$Model, c("fit1", "fit2", "fit_speed"))
+  expect_setequal(cmp$Model, c("fit1", "fit2", "fit_one"))
+})
+
+test_that("compare() warns when fits score different variables", {
+  fit_speed <- acfa(mod_speed, dat, verbose = FALSE, nsamp = 3, test = "none")
+  expect_warning(
+    compare(fit1, fit_speed),
+    class = "inlavaan_compare_resp"
+  )
+
+  # A fixed.x = FALSE fit scores its covariates as outcomes
+  fit_reg <- function(mod, ...) {
+    asem(mod, dat, verbose = FALSE, nsamp = 3, test = "none", ...)
+  }
+  fit_x <- fit_reg("x1 ~ ageyr")
+  expect_warning(
+    compare(fit_x, fit_reg("x1 ~ ageyr", fixed.x = FALSE)),
+    class = "inlavaan_compare_resp"
+  )
+
+  # Fixed covariates may differ
+  expect_no_warning(compare(fit_x, fit_reg("x1 ~ ageyr + grade")))
 })
 
 test_that("compare(loo = TRUE) appends ELPD columns with paired SEs", {
@@ -252,7 +279,10 @@ test_that("compare(loo = TRUE) aborts when the variable sets differ", {
     nsamp = 3,
     test = "none"
   )
-  expect_error(compare(fit1_ms, fit9, loo = TRUE), "same set of observed")
+  expect_error(
+    suppressWarnings(compare(fit1_ms, fit9, loo = TRUE)),
+    "same set of observed"
+  )
 })
 
 test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
@@ -391,7 +421,7 @@ test_that("compare(loo = TRUE) says why a composite fit is scored jointly", {
     )
   )
   expect_error(
-    compare(fit_reg_joint, fit_reg, loo = TRUE),
+    suppressWarnings(compare(fit_reg_joint, fit_reg, loo = TRUE)),
     "same `fixed.x` setting"
   )
 })

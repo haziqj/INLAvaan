@@ -96,6 +96,10 @@ sets may differ, which is the covariate-selection setting. Stored LOO
 results (\code{test} including \code{"loo"} or \code{"full"}, or \code{\link[=add_loo]{add_loo()}}) are
 reused.
 
+\code{compare()} warns when the models do not score the same variables, for
+instance when a variable is a covariate in one model and an outcome in
+another, or when the models differ in \code{fixed.x}. Their covariates may differ.
+
 When any of the models has random slopes (lavaan's \code{rv()} modifier; see
 \code{\link[=inlavaan]{inlavaan()}}), \code{compare()} aborts unless all the models were fitted with
 \code{fixed.x = TRUE}, score the same outcome variables, and share one
