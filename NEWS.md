@@ -1,5 +1,11 @@
 # INLAvaan (development version)
 
+## Bug fixes
+
+* `compare()` now warns when the models score different variables, for
+  instance when they differ in `fixed.x`, since their marginal likelihoods and
+  DICs are then not comparable.
+
 # INLAvaan 0.3.3
 
 ## New features
