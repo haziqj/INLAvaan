@@ -68,6 +68,15 @@ marginals (skew-normal method only; NA otherwise).}
 \item{\code{scan_end_mass_max}}{Maximum, across parameters, of
 \code{scan_end_mass} (see below). NA unless the skew-normal marginal
 method was used.}
+\item{\code{psi_npd_share}}{Share of the posterior draws in which the
+covariance matrix of the latent variables (\code{psi}) of some block is
+not positive definite. Each correlation is kept in (-1, 1) on its own,
+but a block of several free correlations can still leave the matrix
+indefinite, and the likelihood guards only the model-implied
+covariance matrix. Zero when no \code{psi} matrix has a free
+covariance.}
+\item{\code{theta_npd_share}}{The same share for the residual covariance
+matrix of the observed variables (\code{theta}).}
 }
 
 \strong{Per-parameter diagnostics} (\code{type = "param"}):
@@ -127,7 +136,11 @@ of every fit and emits a single consolidated warning (condition class
 \item any marginal with \code{nmad} above 0.1;
 \item any marginal with \code{scan_end_mass} above 0.05;
 \item \code{vb_shift_max} above 1 posterior SD;
-\item \code{hess_cond} above 1e8.
+\item \code{hess_cond} above 1e8;
+\item the latent or residual covariance matrix is not positive definite
+at the posterior estimates (the check that \pkg{lavaan} runs after a
+fit);
+\item \code{psi_npd_share} or \code{theta_npd_share} above 0.01.
 }
 Three of these checks have calibration behind them. Over 1,046 simulated
 fits with MCMC references, the Spearman correlation with the worst-case

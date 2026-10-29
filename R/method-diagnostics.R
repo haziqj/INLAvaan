@@ -50,6 +50,15 @@
 #'   \item{\code{scan_end_mass_max}}{Maximum, across parameters, of
 #'     \code{scan_end_mass} (see below). NA unless the skew-normal marginal
 #'     method was used.}
+#'   \item{\code{psi_npd_share}}{Share of the posterior draws in which the
+#'     covariance matrix of the latent variables (\code{psi}) of some block is
+#'     not positive definite. Each correlation is kept in (-1, 1) on its own,
+#'     but a block of several free correlations can still leave the matrix
+#'     indefinite, and the likelihood guards only the model-implied
+#'     covariance matrix. Zero when no \code{psi} matrix has a free
+#'     covariance.}
+#'   \item{\code{theta_npd_share}}{The same share for the residual covariance
+#'     matrix of the observed variables (\code{theta}).}
 #' }
 #'
 #' \strong{Per-parameter diagnostics} (\code{type = "param"}):
@@ -109,7 +118,11 @@
 #'   \item any marginal with \code{nmad} above 0.1;
 #'   \item any marginal with \code{scan_end_mass} above 0.05;
 #'   \item \code{vb_shift_max} above 1 posterior SD;
-#'   \item \code{hess_cond} above 1e8.
+#'   \item \code{hess_cond} above 1e8;
+#'   \item the latent or residual covariance matrix is not positive definite
+#'     at the posterior estimates (the check that \pkg{lavaan} runs after a
+#'     fit);
+#'   \item \code{psi_npd_share} or \code{theta_npd_share} above 0.01.
 #' }
 #' Three of these checks have calibration behind them. Over 1,046 simulated
 #' fits with MCMC references, the Spearman correlation with the worst-case
@@ -247,6 +260,8 @@ diagnostics_internal <- function(int) {
   scan_end_mass <- psnorm(scan_lo, sn_xi, sn_omega, sn_alpha) +
     psnorm(scan_hi, sn_xi, sn_omega, sn_alpha, lower_tail = FALSE)
 
+  cov_pd <- int$cov_pd
+
   global <- c(
     npar = m,
     nsamp = int$nsamp,
@@ -282,6 +297,17 @@ diagnostics_internal <- function(int) {
       NA_real_
     } else {
       max(scan_end_mass, na.rm = TRUE)
+    },
+    # Fits saved before this check existed carry no cov_pd
+    psi_npd_share = if (is.null(cov_pd)) {
+      NA_real_
+    } else {
+      cov_pd$npd_share[["psi"]]
+    },
+    theta_npd_share = if (is.null(cov_pd)) {
+      NA_real_
+    } else {
+      cov_pd$npd_share[["theta"]]
     }
   )
   class(global) <- c("diagnostics.INLAvaan", "numeric")
@@ -309,6 +335,74 @@ diagnostics_internal <- function(int) {
   list(global = global, param = param)
 }
 
+# Positive definiteness of the latent (psi) and residual (theta) covariance
+# matrices of every block. Each tanh map keeps one correlation in (-1, 1), but
+# not a block of several correlations jointly positive definite, and the
+# likelihood guards only the model-implied covariance matrix. This checks the
+# posterior estimates x_est, as lavaan's post-fit check does, and the share of
+# posterior draws x_samp in which the matrix is not positive definite. Only
+# matrices with a free off-diagonal element are checked, since a diagonal
+# matrix of variances is always positive (semi-)definite. The tolerance is
+# lavaan's, so a singular matrix with a variance fixed at zero passes.
+cov_pd_check <- function(x_est, x_samp, lavmodel) {
+  out <- list(
+    est_ok = c(psi = TRUE, theta = TRUE),
+    npd_share = c(psi = 0, theta = 0)
+  )
+  mats <- names(lavmodel@GLIST)
+  blk <- rep(seq_len(lavmodel@nblocks), times = lavmodel@nmat)
+  check_idx <- which(
+    mats %in%
+      c("psi", "theta") &
+      vapply(
+        seq_along(mats),
+        function(k) {
+          ij <- arrayInd(lavmodel@m.free.idx[[k]], dim(lavmodel@GLIST[[k]]))
+          any(ij[, 1] != ij[, 2])
+        },
+        logical(1)
+      )
+  )
+  if (length(check_idx) == 0L) {
+    return(out)
+  }
+
+  is_psd <- function(mat) {
+    eig <- eigen(mat, symmetric = TRUE, only.values = TRUE)$values
+    all(is.finite(eig)) &&
+      !any(eig < -.Machine$double.eps^(3 / 4) * max(1, abs(eig[1L])))
+  }
+  # For each checked matrix, whether it is positive definite at x
+  pd_at <- function(x) {
+    glist <- lavaan::lav_model_set_parameters(lavmodel, as.numeric(x))@GLIST
+    vapply(
+      check_idx,
+      function(k) {
+        mat <- glist[[k]]
+        if (mats[k] == "theta") {
+          num_idx <- lavmodel@num.idx[[blk[k]]]
+          mat <- mat[num_idx, num_idx, drop = FALSE]
+        }
+        nrow(mat) == 0L || is_psd(mat)
+      },
+      logical(1)
+    )
+  }
+
+  check_mats <- mats[check_idx]
+  ok_est <- if (is.null(x_est)) rep(TRUE, length(check_idx)) else pd_at(x_est)
+  ok_samp <- matrix(
+    apply(x_samp, 1, pd_at),
+    nrow = length(check_idx)
+  )
+  for (mm in unique(check_mats)) {
+    rows <- check_mats == mm
+    out$est_ok[[mm]] <- all(ok_est[rows])
+    out$npd_share[[mm]] <- mean(!apply(ok_samp[rows, , drop = FALSE], 2, all))
+  }
+  out
+}
+
 # Fit-time diagnostics check, called once at the end of inlavaan(). Emits a
 # single consolidated warning when the checks reported by diagnostics() look
 # off. Thresholds are deliberately loose so that a healthy fit stays silent:
@@ -324,7 +418,8 @@ warn_fit_diagnostics <- function(
   nmad_tol = 0.1,
   scan_end_mass_tol = 0.05,
   vb_shift_tol = 1,
-  hess_cond_tol = 1e8
+  hess_cond_tol = 1e8,
+  npd_share_tol = 0.01
 ) {
   dg <- diagnostics_internal(int)
   glob <- dg$global
@@ -440,6 +535,42 @@ warn_fit_diagnostics <- function(
         "The Hessian at the mode is near-singular (condition number = ",
         fmt(glob[["hess_cond"]]),
         "); some parameters may be weakly identified."
+      )
+    )
+  }
+
+  cov_labels <- c(
+    psi = "covariance matrix of the latent variables ({.code psi})",
+    theta = "residual covariance matrix ({.code theta})"
+  )
+  est_ok <- int$cov_pd$est_ok
+  if (is.null(est_ok)) {
+    est_ok <- c(psi = TRUE, theta = TRUE)
+  }
+  for (mm in names(est_ok)[!est_ok]) {
+    issues <- c(
+      issues,
+      "x" = paste0(
+        "The ",
+        cov_labels[[mm]],
+        " is not positive definite at the posterior estimates."
+      )
+    )
+  }
+  npd_share <- c(
+    psi = glob[["psi_npd_share"]],
+    theta = glob[["theta_npd_share"]]
+  )
+  for (mm in names(npd_share)[which(npd_share > npd_share_tol)]) {
+    issues <- c(
+      issues,
+      "x" = paste0(
+        "The ",
+        cov_labels[[mm]],
+        " is not positive definite in ",
+        formatC(100 * npd_share[[mm]], digits = 1, format = "f"),
+        "% of the posterior draws; summaries computed from the draws include
+         them."
       )
     )
   }

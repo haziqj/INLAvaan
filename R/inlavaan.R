@@ -1670,6 +1670,15 @@ inlavaan <- function(
     pt$mat[pt$mat == "psi_cov"] <- "psi_cor"
   }
 
+  # Latent and residual covariance matrices: positive definite at the
+  # estimates and in the draws? Under cov_as_cor the estimates of the
+  # covariance rows are correlations, so only the draws are checked.
+  cov_pd <- cov_pd_check(
+    x_est = if (isTRUE(cov_as_cor)) NULL else coefs,
+    x_samp = x_samp,
+    lavmodel = lavmodel
+  )
+
   out <- list(
     coefficients = coefs,
     mloglik = mloglik,
@@ -1702,6 +1711,7 @@ inlavaan <- function(
     timing = timing[-1], # remove start.time
     visual_debug = visual_debug,
     vb = vb,
+    cov_pd = cov_pd,
     call = mc,
     version = as.character(utils::packageVersion("INLAvaan"))
   )
