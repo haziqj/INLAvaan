@@ -1,5 +1,15 @@
 # INLAvaan (development version)
 
+## New features
+
+* The fit now checks that the latent and residual covariance matrices are
+  positive definite, at the posterior estimates and in the posterior draws.
+  Each correlation is kept in (-1, 1), but a block of several free correlations
+  can still be indefinite. `diagnostics()` reports the share of draws that are
+  not positive definite (`psi_npd_share`, `theta_npd_share`), and the fit-time
+  warning flags estimates that are not positive definite and shares above
+  0.01.
+
 ## Bug fixes
 
 * `compare()` now warns when the models score different variables, for
