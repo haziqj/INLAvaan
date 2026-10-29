@@ -47,7 +47,9 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
     "vb_mcse_mean",
     "nmad_max",
     "nmad_mean",
-    "scan_end_mass_max"
+    "scan_end_mass_max",
+    "psi_npd_share",
+    "theta_npd_share"
   )
   expect_named(dg, expected_names)
   expect_equal(unname(dg["npar"]), length(coef(fit)))
@@ -218,7 +220,11 @@ test_that("timing distinguishes a not-run loo/waic from an unknown segment", {
   expect_error(timing(fit, what = "loo"), "not computed", fixed = TRUE)
   expect_error(timing(fit, what = "waic"), "not computed", fixed = TRUE)
   expect_error(timing(fit, what = c("loo", "nonexistent")), "Unknown")
-  expect_error(timing(fit, what = c("loo", "nonexistent")), "not computed", fixed = TRUE)
+  expect_error(
+    timing(fit, what = c("loo", "nonexistent")),
+    "not computed",
+    fixed = TRUE
+  )
 })
 
 test_that("timing segments are disjoint and sum to the total", {
@@ -236,4 +242,89 @@ test_that("timing segments are disjoint and sum to the total", {
 test_that("print.timing.INLAvaan works", {
   tt <- timing(fit, what = "all")
   expect_output(print(tt))
+})
+
+# ---- positive definiteness of psi and theta ----
+
+pd_mod <- "
+  ind60 =~ x1 + x2 + x3
+  dem60 =~ y1 + y2 + y3 + y4
+  dem65 =~ y5 + y6 + y7 + y8
+  dem60 ~ ind60
+  dem65 ~ ind60 + dem60
+  y1 ~~ y5
+  y2 ~~ y4 + y6
+  y3 ~~ y7
+  y4 ~~ y8
+  y6 ~~ y8
+"
+fit_pd <- asem(
+  pd_mod,
+  lavaan::PoliticalDemocracy,
+  verbose = FALSE,
+  nsamp = 20,
+  test = "none"
+)
+
+test_that("a model with residual covariances has PD psi and theta", {
+  dg <- diagnostics(fit_pd)
+  expect_equal(dg[["psi_npd_share"]], 0)
+  expect_equal(dg[["theta_npd_share"]], 0)
+  int <- INLAvaan:::get_inlavaan_internal(fit_pd)
+  expect_true(all(int$cov_pd$est_ok))
+})
+
+test_that("cov_pd_check() finds a residual block that is not PD", {
+  int <- INLAvaan:::get_inlavaan_internal(fit_pd)
+  x <- int$coefficients
+  # Correlations of 0.9, 0.9, 0.9 and -0.9 around the cycle y2-y4-y8-y6
+  # cannot hold together: the smallest eigenvalue of that block is -0.27.
+  set_cor <- function(x, a, b, r) {
+    x[[paste0(a, "~~", b)]] <- r *
+      sqrt(x[[paste0(a, "~~", a)]] * x[[paste0(b, "~~", b)]])
+    x
+  }
+  x <- set_cor(x, "y2", "y4", 0.9)
+  x <- set_cor(x, "y2", "y6", 0.9)
+  x <- set_cor(x, "y4", "y8", 0.9)
+  x <- set_cor(x, "y6", "y8", -0.9)
+  x_samp <- rbind(x, x, int$coefficients, int$coefficients)
+  res <- INLAvaan:::cov_pd_check(x, x_samp, int$lavmodel)
+  expect_false(res$est_ok[["theta"]])
+  expect_true(res$est_ok[["psi"]])
+  expect_equal(res$npd_share[["theta"]], 0.5)
+  expect_equal(res$npd_share[["psi"]], 0)
+})
+
+test_that("a CFA without free covariances in theta skips the check", {
+  int <- INLAvaan:::get_inlavaan_internal(fit)
+  # psi has the factor covariance, theta is diagonal
+  expect_equal(int$cov_pd$npd_share[["theta"]], 0)
+})
+
+test_that("warn_fit_diagnostics() flags psi and theta that are not PD", {
+  int <- INLAvaan:::get_inlavaan_internal(fit_pd)
+  int$cov_pd$est_ok[["psi"]] <- FALSE
+  int$cov_pd$npd_share[["theta"]] <- 0.25
+  w <- expect_warning(
+    INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  expect_match(conditionMessage(w), "latent variables")
+  expect_match(conditionMessage(w), "posterior estimates")
+  expect_match(conditionMessage(w), "25.0% of the posterior draws")
+})
+
+test_that("a small share of draws that are not PD stays silent", {
+  int <- INLAvaan:::get_inlavaan_internal(fit_pd)
+  int$cov_pd$npd_share[["theta"]] <- 0.005
+  expect_no_warning(INLAvaan:::warn_fit_diagnostics(int))
+})
+
+test_that("fits saved without cov_pd report NA and do not warn", {
+  int <- INLAvaan:::get_inlavaan_internal(fit_pd)
+  int$cov_pd <- NULL
+  glob <- INLAvaan:::diagnostics_internal(int)$global
+  expect_true(is.na(glob[["psi_npd_share"]]))
+  expect_no_warning(INLAvaan:::warn_fit_diagnostics(int))
 })
