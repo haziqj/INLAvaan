@@ -5,9 +5,6 @@ vignette: >
   %\VignetteIndexEntry{Mediation Analysis}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
-# format:
-#   html:
-#     mermaid-format: png
 knitr:
   opts_chunk: 
     collapse: true
@@ -26,12 +23,28 @@ Common examples include:
 In this vignette, we demonstrate how to estimate a simple mediation model using `{INLAvaan}`.
 We will fit a standard three-variable mediation model:
 
-```{mermaid}
-%%| fig-align: center
-graph LR
-    X((X)) -->|a| M((M))
-    M -->|b| Y((Y))
-    X -->|c| Y
+```{=html}
+<div style="text-align: center;">
+<svg viewBox="0 0 320 180" width="320" style="max-width: 100%; height: auto;" role="img" aria-label="Mediation diagram: X affects M (path a), M affects Y (path b), and X affects Y directly (path c)." font-family="serif" font-style="italic" font-size="18" fill="none" stroke="currentColor" stroke-width="1.5">
+  <circle cx="50" cy="135" r="22"/>
+  <circle cx="160" cy="40" r="22"/>
+  <circle cx="270" cy="135" r="22"/>
+  <line x1="66.7" y1="120.6" x2="135.7" y2="60.9"/>
+  <line x1="176.7" y1="54.4" x2="245.7" y2="114.1"/>
+  <line x1="72" y1="135" x2="238" y2="135"/>
+  <g fill="currentColor" stroke="none" text-anchor="middle" dominant-baseline="central">
+    <polygon points="143.3,54.4 139.0,64.7 132.5,57.2"/>
+    <polygon points="253.3,120.6 242.5,117.8 249.0,110.3"/>
+    <polygon points="248,135 238,140 238,130"/>
+    <text x="50" y="135">X</text>
+    <text x="160" y="40">M</text>
+    <text x="270" y="135">Y</text>
+    <text x="92" y="76">a</text>
+    <text x="228" y="76">b</text>
+    <text x="160" y="155">c</text>
+  </g>
+</svg>
+</div>
 ```
 
 - $a$: The effect of $X$ on $M$.
