@@ -147,8 +147,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3870.099    0.000 7535.355 29.751 -3769.163 42.996 32.597
-#>  fit1f   27   -3976.901 -106.802 7756.255 26.487 -3878.041 46.738 27.377
+#>    fit   30   -3870.099    0.000 7534.947 29.547 -3769.163 42.996 32.597
+#>  fit1f   27   -3976.901 -106.802 7757.308 27.014 -3878.041 46.738 27.377
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>   -108.878  17.009
@@ -235,7 +235,7 @@ loo(fit2l, units = worst)
 #> 
 #>   first-to-second-order gap         0.5
 #>   pD/2 (trace)                      0.5
-#>   excess over pD/2 (trace)       +11.8%
+#>   excess over pD/2 (trace)       +11.9%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
 #>   second-order expansion has not settled over the sample.

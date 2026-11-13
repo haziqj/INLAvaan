@@ -115,7 +115,7 @@ compare(fit_configural, fit_metric)
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD
 #>      fit_metric   36   -3828.331   0.000 7504.626 36.162
-#>  fit_configural   42   -3847.689 -19.358 7506.866 40.822
+#>  fit_configural   42   -3847.689 -19.358 7506.866 40.823
 ```
 
 Across the metric–scalar boundary they are **not**: an improper flat

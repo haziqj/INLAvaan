@@ -20,6 +20,9 @@
   they differ in `fixed.x`, since their marginal likelihoods and DICs
   are then not comparable.
 
+- Models with a single free parameter now fit
+  ([\#32](https://github.com/haziqj/INLAvaan/issues/32)).
+
 ## INLAvaan 0.3.3
 
 CRAN release: 2026-10-26

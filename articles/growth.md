@@ -39,17 +39,16 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [583ms]
+#> ✔ Posterior mode and Hessian. [450ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.032σ. [441ms]
+#> ✔ VB correction; mean |δ| = 0.032σ. [339ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 14/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.6s]
+#> ✔ Fit 17/17 skew-normal marginals. [1.2s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [204ms]
+#> ✔ Summarise 100 posterior draws. [176ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -64,12 +63,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2557.535 
-#>    PPP (Chi-square)                              0.370 
+#>    PPP (Chi-square)                              0.460 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4996.118 
-#>    Effective parameters (pD)                    16.892 
+#>    Deviance (DIC)                             4993.038 
+#>    Effective parameters (pD)                    15.352 
 #> 
 #> Parameter Estimates:
 #> 
@@ -109,7 +108,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.079    0.038    0.003    0.154    0.006       beta(1,1)
+#>    .s                 0.078    0.038    0.009    0.158    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
