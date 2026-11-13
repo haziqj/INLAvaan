@@ -447,17 +447,17 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [147ms]
+#> ✔ Posterior mode and Hessian. [125ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [220ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [213ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [766ms]
+#> ✔ Fit 21/21 skew-normal marginals. [731ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [744ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [687ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)

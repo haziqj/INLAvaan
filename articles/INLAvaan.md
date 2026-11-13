@@ -118,16 +118,16 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [248ms]
+#> ✔ Posterior mode and Hessian. [231ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.040σ. [175ms]
+#> ✔ VB correction; mean |δ| = 0.040σ. [166ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [337ms]
+#> ✔ Fit 13/13 skew-normal marginals. [316ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [685ms]
+#> ✔ Summarise 1000 posterior draws. [618ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -339,7 +339,7 @@ str(summ_eta)
 head(summ_eta$Mean)
 #>            eta1       eta2
 #> [1,] -1.1418039 -0.3537009
-#> [2,] -0.5572125  0.4883728
+#> [2,] -0.5572125  0.4883729
 #> [3,]  0.4727568 -0.9477424
 #> [4,]  0.2536504 -0.4047609
 #> [5,] -1.0741578  0.7084259
@@ -361,8 +361,8 @@ yrep <- simulate(fit, nsim = 1, seed = 1)
 head(yrep[[1]])
 #>          y1         y2          y3        y4         y5        y6
 #> 1 -0.247092 -1.5686457 -0.06714146 1.5618447 1.20561624 0.7941650
-#> 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380588 1.1356429
-#> 3  1.492414 -0.8458358  0.57549347 2.6692719 2.24473335 1.9629508
+#> 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380588 1.1356430
+#> 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473335 1.9629508
 #> 4  0.012789 -0.6156410 -0.21093715 2.7687469 0.23618624 0.3798649
 #> 5  2.888693  1.3165189  1.26488447 1.2994000 0.05916673 0.1433568
 #> 6  1.418953  1.5439697  1.42632696 1.6012381 0.82603880 1.0609389
@@ -421,8 +421,10 @@ diagnostics(fit)
 #>          2.94e+01                 1            0.0966            0.0108 
 #>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean 
 #>            0.0047            0.0011            0.0812            0.0289 
-#>          nmad_max         nmad_mean scan_end_mass_max 
-#>            0.0050            0.0028          2.73e-04
+#>          nmad_max         nmad_mean scan_end_mass_max     psi_npd_share 
+#>            0.0050            0.0028          2.73e-04            0.0000 
+#>   theta_npd_share 
+#>            0.0000
 ```
 
 The [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)
@@ -433,7 +435,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.52 s
+#> 1.41 s
 ```
 
 ### Plot
@@ -467,16 +469,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [247ms]
+#> ✔ Posterior mode and Hessian. [223ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [146ms]
+#> ✔ VB correction; mean |δ| = 0.039σ. [142ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [285ms]
+#> ✔ Fit 12/12 skew-normal marginals. [270ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [605ms]
+#> ✔ Summarise 1000 posterior draws. [579ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)

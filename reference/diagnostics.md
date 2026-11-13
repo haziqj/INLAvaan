@@ -130,6 +130,20 @@ For `type = "global"`, a named numeric vector (class
   Maximum, across parameters, of `scan_end_mass` (see below). NA unless
   the skew-normal marginal method was used.
 
+- `psi_npd_share`:
+
+  Share of the posterior draws in which the covariance matrix of the
+  latent variables (`psi`) of some block is not positive definite. Each
+  correlation is kept in (-1, 1) on its own, but a block of several free
+  correlations can still leave the matrix indefinite, and the likelihood
+  guards only the model-implied covariance matrix. Zero when no `psi`
+  matrix has a free covariance.
+
+- `theta_npd_share`:
+
+  The same share for the residual covariance matrix of the observed
+  variables (`theta`).
+
 **Per-parameter diagnostics** (`type = "param"`): A data frame with
 columns:
 
@@ -230,7 +244,12 @@ when any of them looks off:
 
 - `vb_shift_max` above 1 posterior SD;
 
-- `hess_cond` above 1e8.
+- `hess_cond` above 1e8;
+
+- the latent or residual covariance matrix is not positive definite at
+  the posterior estimates (the check that lavaan runs after a fit);
+
+- `psi_npd_share` or `theta_npd_share` above 0.01.
 
 Three of these checks have calibration behind them. Over 1,046 simulated
 fits with MCMC references, the Spearman correlation with the worst-case
@@ -272,8 +291,10 @@ diagnostics(fit)
 #>          4.51e+01                 1            0.1926            0.0721 
 #>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean 
 #>            0.0186            0.0057            0.1330            0.0532 
-#>          nmad_max         nmad_mean scan_end_mass_max 
-#>            0.0229            0.0060          1.03e-03 
+#>          nmad_max         nmad_mean scan_end_mass_max     psi_npd_share 
+#>            0.0229            0.0060          1.03e-03            0.0000 
+#>   theta_npd_share 
+#>            0.0000 
 
 # Per-parameter table
 diagnostics(fit, type = "param")
