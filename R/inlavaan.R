@@ -783,7 +783,7 @@ inlavaan <- function(
     ))
   }
   L_canon <- backsolve(R_prec, diag(m)) # L_c L_c^T = Sigma_canon (upper tri)
-  L <- L_canon[inv_perm, ] # rows back to original param order
+  L <- L_canon[inv_perm, , drop = FALSE] # rows back to original param order
   Sigma_theta <- tcrossprod(L) # reconstruct covariance
   dimnames(Sigma_theta) <- list(parnames, parnames)
   lp_max <- joint_lp(theta_star) # before correction

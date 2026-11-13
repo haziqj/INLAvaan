@@ -24,6 +24,13 @@ ginv_base <- function(X, tol = sqrt(.Machine$double.eps)) {
   } # nocov end
 }
 
+# Row-wise apply that always returns an nrow(X) x k matrix. Plain t(apply())
+# collapses to a 1 x nrow(X) matrix when FUN returns a scalar (k = 1).
+apply_rows <- function(X, FUN, ...) {
+  out <- apply(X, 1, FUN, ...)
+  if (is.matrix(out)) t(out) else matrix(out, ncol = 1)
+}
+
 #' Helper function to check if two functions are the same
 #'
 #' @param f,g Functions to compare.

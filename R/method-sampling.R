@@ -223,11 +223,11 @@ sample_params_prior <- function(int, nsamp) {
   theta_full <- theta_samp
   if (lavmodel@ceq.simple.only) {
     K <- lavmodel@ceq.simple.K
-    theta_full <- t(apply(theta_samp, 1, function(p) as.numeric(K %*% p)))
+    theta_full <- tcrossprod(theta_samp, K)
   }
 
   # Map theta → lavaan x-space (handles covariance = cor * sqrt(var1 * var2))
-  x_samp <- t(apply(theta_full, 1, pars_to_x, pt = pt))
+  x_samp <- apply_rows(theta_full, pars_to_x, pt = pt)
 
   list(theta_samp = theta_samp, x_samp = x_samp)
 }

@@ -139,3 +139,28 @@ test_that("A single variance-into-covariance term keeps the gradient working", {
     test = "none"
   ))
 })
+
+test_that("A model with a single free parameter fits", {
+  mod_one <- "
+    speed =~ .616*x7 + .732*x8 + x9
+    x7 ~~ .823*x7
+    x8 ~~ .506*x8
+    x9 ~~ .569*x9
+  "
+  for (method in c("skewnorm", "sampling")) {
+    expect_no_error({
+      fit <- acfa(
+        mod_one,
+        lavaan::HolzingerSwineford1939,
+        std.lv = TRUE,
+        meanstructure = FALSE,
+        marginal_method = method,
+        verbose = FALSE,
+        nsamp = 3
+      )
+    })
+    expect_length(coef(fit), 1)
+    expect_equal(dim(vcov(fit)), c(1, 1))
+  }
+  expect_equal(dim(sampling(fit, nsamp = 3)), c(3, 1))
+})

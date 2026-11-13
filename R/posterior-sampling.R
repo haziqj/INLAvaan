@@ -62,7 +62,7 @@ sample_params <- function(
 
   # Use marginals to get theta
   if (method == "sampling") {
-    D <- diag(sqrt(diag(Sigma_theta)))
+    D <- diag(sqrt(diag(Sigma_theta)), nrow = nrow(Sigma_theta))
     theta <- t(D %*% qnorm(t(u)) + theta_star)
   } else {
     if (method == "skewnorm") {
@@ -120,10 +120,10 @@ sample_params <- function(
   theta_full <- theta
   if (lavmodel@ceq.simple.only) {
     K <- lavmodel@ceq.simple.K
-    theta_full <- t(apply(theta, 1, function(pars) as.numeric(K %*% pars)))
+    theta_full <- tcrossprod(theta, K)
   }
 
-  x <- t(apply(theta_full, 1, pars_to_x, pt = pt))
+  x <- apply_rows(theta_full, pars_to_x, pt = pt)
 
   list(theta_samp = theta, x_samp = x)
 }
