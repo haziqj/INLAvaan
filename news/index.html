@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.3.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,13 +60,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="development version" id="inlavaan-development-version">INLAvaan (development version)<a class="anchor" aria-label="anchor" href="#inlavaan-development-version"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.4" id="inlavaan-034">INLAvaan 0.3.4<a class="anchor" aria-label="anchor" href="#inlavaan-034"></a></h2>
 <div class="section level3">
-<h3 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h3>
+<h3 id="new-features-0-3-4">New features<a class="anchor" aria-label="anchor" href="#new-features-0-3-4"></a></h3>
 <ul><li>The fit now checks that the latent and residual covariance matrices are positive definite, at the posterior estimates and in the posterior draws. Each correlation is kept in (-1, 1), but a block of several free correlations can still be indefinite. <code><a href="../reference/diagnostics.html">diagnostics()</a></code> reports the share of draws that are not positive definite (<code>psi_npd_share</code>, <code>theta_npd_share</code>), and the fit-time warning flags estimates that are not positive definite and shares above 0.01.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="bug-fixes-development-version">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-development-version"></a></h3>
+<h3 id="bug-fixes-0-3-4">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-4"></a></h3>
 <ul><li>
 <code><a href="../reference/compare.html">compare()</a></code> now warns when the models score different variables, for instance when they differ in <code>fixed.x</code>, since their marginal likelihoods and DICs are then not comparable.</li>
 </ul></div>
