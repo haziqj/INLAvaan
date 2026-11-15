@@ -1,5 +1,7 @@
 # Changelog
 
+## INLAvaan (development version)
+
 ## INLAvaan 0.3.4
 
 CRAN release: 2026-11-13
