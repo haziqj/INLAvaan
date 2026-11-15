@@ -2,6 +2,8 @@
 
 ## INLAvaan 0.3.4
 
+CRAN release: 2026-11-13
+
 ### New features
 
 - The fit now checks that the latent and residual covariance matrices
