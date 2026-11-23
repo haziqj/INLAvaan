@@ -26,3 +26,5 @@
 ^\.claude$
 ^CITATION\.cff$
 ^inst/validation-tests$
+^air\.toml$
+^\.git-blame-ignore-revs$
