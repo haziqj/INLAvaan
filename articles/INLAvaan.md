@@ -118,16 +118,16 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [235ms]
+#> ✔ Posterior mode and Hessian. [225ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [171ms]
+#> ✔ VB correction; mean |δ| = 0.039σ. [170ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [323ms]
+#> ✔ Fit 13/13 skew-normal marginals. [316ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [643ms]
+#> ✔ Summarise 1000 posterior draws. [640ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -435,7 +435,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.45 s
+#> 1.42 s
 ```
 
 ### Plot
@@ -469,16 +469,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [103ms]
+#> ✔ Posterior mode and Hessian. [101ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [128ms]
+#> ✔ VB correction; mean |δ| = 0.039σ. [125ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [284ms]
+#> ✔ Fit 12/12 skew-normal marginals. [278ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [599ms]
+#> ✔ Summarise 1000 posterior draws. [594ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
