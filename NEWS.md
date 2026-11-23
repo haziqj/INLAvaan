@@ -2,6 +2,10 @@
 
 ## Bug fixes
 
+* Models with exploratory blocks (`efa()`) now stop with an error. INLAvaan
+  has no rotation, so it used to fit them and report loadings that are not
+  identified.
+
 * Results no longer depend on the collation locale. The canonical parameter
   order, which sets the whitening of the posterior marginals, followed
   `LC_COLLATE`, so models with mixed-case names gave slightly different
