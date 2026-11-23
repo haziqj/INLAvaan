@@ -169,3 +169,25 @@ test_that("Gradients are correct (Finite Difference Check)", {
     tolerance = 1e-3
   )
 })
+
+test_that("Non-recursive (cyclic) model", {
+  set.seed(1234)
+  pop_model <- "
+    dv1 ~ 0.3*dv3
+    dv2 ~ 0.5*dv1
+    dv3 ~ 0.7*dv2
+  "
+  dat <- lavaan::simulateData(pop_model, sample.nobs = 500)
+  fit <- asem(
+    "dv1 ~ dv3; dv2 ~ dv1; dv3 ~ dv2",
+    data = dat,
+    dp = priors_for(beta = "normal(.5,.5)"),
+    test = "none",
+    nsamp = 3,
+    verbose = FALSE
+  )
+  expect_s4_class(fit, "INLAvaan")
+  expect_no_error(capture.output(summary(fit)))
+  beta <- coef(fit)[c("dv1~dv3", "dv2~dv1", "dv3~dv2")]
+  expect_true(all(abs(beta - c(0.3, 0.5, 0.7)) < 0.25))
+})

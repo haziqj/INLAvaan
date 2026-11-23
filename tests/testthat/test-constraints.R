@@ -151,3 +151,62 @@ test_that("Constraint errors name the level of each row", {
     fixed = TRUE
   )
 })
+
+test_that("Residual covariances held equal across groups keep their labels", {
+  mod <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+    speed   =~ x7 + x8 + x9
+
+    x1 ~~ c(a, b)*x4
+    x2 ~~ c(a, b)*x5
+  "
+  fit <- acfa(
+    mod,
+    data = lavaan::HolzingerSwineford1939,
+    group = "school",
+    dp = priors_for(lambda = "normal(1,.5)"),
+    marginal_method = "marggaus",
+    marginal_correction = "none",
+    test = "none",
+    nsamp = 2,
+    verbose = FALSE
+  )
+  expect_s4_class(fit, "INLAvaan")
+  expect_no_error(capture.output(summary(fit)))
+  pe <- lavaan::parameterEstimates(fit)
+  for (lab in c("a", "b")) {
+    est <- pe$est[pe$label == lab]
+    expect_length(est, 2L)
+    expect_equal(est[1], est[2])
+  }
+})
+
+test_that("std.lv with loadings held equal frees the second group variance", {
+  mod <- "
+    visual  =~ c(l1, l1)*x1 + c(l2, l2)*x2 + c(l3, l3)*x3
+    textual =~ c(l4, l4)*x4 + c(l5, l5)*x5 + c(l6, l6)*x6
+    visual  ~~ c(1, NA)*visual
+    textual ~~ c(1, NA)*textual
+  "
+  fit <- acfa(
+    mod,
+    data = lavaan::HolzingerSwineford1939,
+    group = "school",
+    std.lv = TRUE,
+    meanstructure = TRUE,
+    marginal_correction = "none",
+    test = "none",
+    nsamp = 2,
+    verbose = FALSE
+  )
+  expect_s4_class(fit, "INLAvaan")
+  expect_no_error(capture.output(summary(fit)))
+  pe <- lavaan::parameterEstimates(fit)
+  fvar <- pe[
+    pe$op == "~~" & pe$lhs == pe$rhs & pe$lhs %in% c("visual", "textual"),
+  ]
+  expect_equal(fvar$est[fvar$group == 1], c(1, 1))
+  expect_true(all(fvar$est[fvar$group == 2] != 1))
+  expect_equal(pe$est[pe$label == "l1"][1], pe$est[pe$label == "l1"][2])
+})

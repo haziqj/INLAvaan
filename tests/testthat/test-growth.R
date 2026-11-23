@@ -110,3 +110,57 @@ test_that("Gradients are correct (Finite Difference Check)", {
     tolerance = 1e-3
   )
 })
+
+test_that("Latent change score model with constant change", {
+  dat <- lavaan::Demo.growth
+  colnames(dat)[1:4] <- c("X1", "X2", "X3", "X4")
+  mod <- "
+    lX1 =~ 1*X1
+    lX2 =~ 1*X2
+    lX3 =~ 1*X3
+    lX4 =~ 1*X4
+    lX2 ~ 1*lX1
+    lX3 ~ 1*lX2
+    lX4 ~ 1*lX3
+    dX1 =~ 1*lX2
+    dX2 =~ 1*lX3
+    dX3 =~ 1*lX4
+    intX   =~ 1*lX1
+    slopeX =~ 1*dX1 + 1*dX2 + 1*dX3
+    X1 ~~ rsdX*X1
+    X2 ~~ rsdX*X2
+    X3 ~~ rsdX*X3
+    X4 ~~ rsdX*X4
+    X1 ~ 0*1
+    X2 ~ 0*1
+    X3 ~ 0*1
+    X4 ~ 0*1
+    dX1 ~ 0*lX1
+    dX2 ~ 0*lX2
+    dX3 ~ 0*lX3
+    slopeX ~ 1
+    intX ~ 1
+    slopeX ~~ slopeX
+    intX ~~ intX
+    slopeX ~~ intX
+    lX1 ~ 0*1
+    lX2 ~ 0*1
+    lX3 ~ 0*1
+    lX4 ~ 0*1
+    dX1 ~ 0*1
+    dX2 ~ 0*1
+    dX3 ~ 0*1
+    lX1 ~~ 0*lX1
+    lX2 ~~ 0*lX2
+    lX3 ~~ 0*lX3
+    lX4 ~~ 0*lX4
+    dX1 ~~ 0*dX1
+    dX2 ~~ 0*dX2
+    dX3 ~~ 0*dX3
+  "
+  fit <- inlavaan(mod, dat, test = "none", nsamp = 3, verbose = FALSE)
+  expect_s4_class(fit, "INLAvaan")
+  expect_no_error(capture.output(summary(fit)))
+  rsd <- coef(fit)[paste0("X", 1:4, "~~X", 1:4)]
+  expect_equal(unname(rsd), rep(unname(rsd[1]), 4))
+})
