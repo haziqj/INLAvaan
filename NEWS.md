@@ -13,6 +13,15 @@
 
 ## Bug fixes
 
+* Under `std.ov = TRUE`, residual covariances were treated as correlations
+  although the residual variances are free. Under `std.lv = TRUE`, latent
+  covariances were treated as correlations also when a latent variance was
+  free (for example in a second group, `c(1, NA)*f`). The covariance was then
+  held in (-1, 1), and the correlation prior acted on the covariance. These
+  rows are now covariances, scaled by their standard deviations, with the prior
+  on the correlation. Results change for such models. They now equal the fit of
+  the same model written out without `std.ov` or `std.lv`.
+
 * A prior string that does not parse, such as `gama(1,1)` or `normal(0)`, now
   stops with an error that names the parameter and the prior. Before, it gave
   NA hyperparameters and failed later with an error about the gradient.
