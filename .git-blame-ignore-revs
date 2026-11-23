@@ -1,0 +1,5 @@
+# Formatting-only commits. GitHub skips these in its blame view. Locally, run
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Format R and tests with air
+c754b8ac8f00f3a77d663e5f8e183c2e8798bfd0
