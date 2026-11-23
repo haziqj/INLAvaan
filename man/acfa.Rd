@@ -28,6 +28,7 @@ acfa(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
@@ -183,6 +184,12 @@ mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"opt
 
 \item{numerical_grad}{Logical indicating whether to use numerical gradients
 for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
+
+\item{hessian_method}{How the Hessian at the posterior mode is differenced
+from the analytical gradient. \code{"central"} (default) costs two gradient
+evaluations per parameter. \code{"forward"} costs about half as much but is less
+accurate, and suits models with many parameters and large samples. Used
+only with \code{optim_method = "nlminb"} and \code{numerical_grad = FALSE}.}
 
 \item{cores}{Integer or \code{NULL}. Number of cores for parallel marginal
 fitting. When \code{NULL} (default), serial execution is used unless the number

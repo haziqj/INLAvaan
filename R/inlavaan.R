@@ -135,6 +135,11 @@
 #'   (BFGS).
 #' @param numerical_grad Logical indicating whether to use numerical gradients
 #'   for the optimisation. Defaults to `FALSE` to use analytical gradients.
+#' @param hessian_method How the Hessian at the posterior mode is differenced
+#'   from the analytical gradient. `"central"` (default) costs two gradient
+#'   evaluations per parameter. `"forward"` costs about half as much but is less
+#'   accurate, and suits models with many parameters and large samples. Used
+#'   only with `optim_method = "nlminb"` and `numerical_grad = FALSE`.
 #' @param start Optional numeric vector of starting values for the optimiser,
 #'   given as a full vector of free parameters in the internal (unconstrained)
 #'   parameterisation. Mainly for internal use by [update()], which warm-starts
@@ -293,6 +298,7 @@ inlavaan <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   start = NULL,
   cores = NULL,
   ppp_method = c("onestep", "em"),
@@ -326,6 +332,7 @@ inlavaan <- function(
     marginal_correction <- match.arg(marginal_correction)
   }
   optim_method <- match.arg(optim_method)
+  hessian_method <- match.arg(hessian_method)
   vb_method <- match.arg(vb_method)
   if (isTRUE(debug)) {
     verbose <- TRUE
@@ -720,7 +727,8 @@ inlavaan <- function(
       H_neg <- fast_jacobian(
         function(x) -1 * joint_lp_grad(x),
         theta_star,
-        cols = cc
+        cols = cc,
+        method = hessian_method
       )
       H_neg[fp_idx, ] <- 0
       Sg_hat <- lavaan::lav_model_implied(
@@ -732,7 +740,11 @@ inlavaan <- function(
         diag(fastpath$prec, length(fp_idx))
     } else {
       # H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
-      H_neg <- fast_jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
+      H_neg <- fast_jacobian(
+        function(x) -1 * joint_lp_grad(x),
+        theta_star,
+        method = hessian_method
+      )
     }
   } else if (optim_method == "ucminf") {
     # nocov start
@@ -1775,6 +1787,7 @@ acfa <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
@@ -1833,6 +1846,7 @@ asem <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
@@ -1889,6 +1903,7 @@ agrowth <- function(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,

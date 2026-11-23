@@ -16,6 +16,7 @@ lavaan___lav_model_veta <- NULL
 lavaan___lav_model_eeta <- NULL
 lavaan___lav_model_ey <- NULL
 lavaan___lav_model_delta <- NULL
+lavaan___lav_lisrel_df_dmlist <- NULL
 lavaan___lav_mvn_loglik_samp <- NULL
 lavaan___lav_mvn_mi_loglik_samp <- NULL
 lavaan___lav_mvn_sc_mu_sigma <- NULL
@@ -42,6 +43,7 @@ lavaan_internal_names <- c(
   "lav_model_eeta",
   "lav_model_ey",
   "lav_model_delta",
+  "lav_lisrel_df_dmlist",
   "lav_mvn_loglik_samp",
   "lav_mvn_mi_loglik_samp",
   "lav_mvn_sc_mu_sigma",

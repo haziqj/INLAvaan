@@ -29,6 +29,7 @@ inlavaan(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   start = NULL,
   cores = NULL,
   ppp_method = c("onestep", "em"),
@@ -193,6 +194,12 @@ mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"opt
 
 \item{numerical_grad}{Logical indicating whether to use numerical gradients
 for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
+
+\item{hessian_method}{How the Hessian at the posterior mode is differenced
+from the analytical gradient. \code{"central"} (default) costs two gradient
+evaluations per parameter. \code{"forward"} costs about half as much but is less
+accurate, and suits models with many parameters and large samples. Used
+only with \code{optim_method = "nlminb"} and \code{numerical_grad = FALSE}.}
 
 \item{start}{Optional numeric vector of starting values for the optimiser,
 given as a full vector of free parameters in the internal (unconstrained)
