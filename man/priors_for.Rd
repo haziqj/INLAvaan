@@ -51,15 +51,25 @@ normal distribution with mean 0 and standard deviation 10 (not variance 10).
 For variance parameters (\code{theta}, \code{psi}), the prior distribution
 can be placed on a transformed scale by appending a qualifier:
 \itemize{
+\item \code{[var]}: Prior is on the variance \eqn{\sigma^2}. Example:
+\code{"gamma(1,0.5)[var]"} places a Gamma(1, 0.5) prior on the variance.
+A prior with no qualifier is also on the variance.
 \item \code{[sd]}: Prior is on the standard deviation \eqn{\sigma}.
 Example: \code{"gamma(1,0.5)[sd]"} places a Gamma(1, 0.5) prior on
 \eqn{\sigma = \sqrt{\text{variance}}}.
 \item \code{[prec]}: Prior is on the precision \eqn{\tau = 1/\sigma^2}.
 Example: \code{"gamma(1,1)[prec]"} places a Gamma(1, 1) prior on
-\eqn{\tau = 1/\text{variance}}. This is the parameterisation used by
-blavaan and corresponds to an Inverse-Gamma prior on the variance.
+\eqn{\tau = 1/\text{variance}}. This corresponds to an Inverse-Gamma
+prior on the variance.
 }
-The necessary Jacobian adjustment is applied automatically in both cases.
+The necessary Jacobian adjustment is applied automatically.
+
+blavaan reads a \code{gamma} prior with no qualifier as a prior on the
+precision, whereas INLAvaan reads it as a prior on the variance. The
+qualifiers \code{[var]}, \code{[sd]} and \code{[prec]} mean the same in both
+packages, so use one of them when the same syntax is fitted with both.
+INLAvaan shows a message, once per session, when a \code{gamma} prior on a
+variance has no qualifier.
 }
 
 \examples{
