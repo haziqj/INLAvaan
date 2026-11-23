@@ -351,3 +351,21 @@ test_that("[var] puts the prior on the variance, as no qualifier does", {
   s <- sampling(fit_var, type = "lavaan", nsamp = 5, prior = TRUE)
   expect_false(anyNA(as.matrix(s)))
 })
+
+test_that("An unqualified gamma prior on a variance is flagged once", {
+  old <- inlavaan_once$gamma_variance_scale
+  on.exit(inlavaan_once$gamma_variance_scale <- old, add = TRUE)
+  inlavaan_once$gamma_variance_scale <- NULL
+
+  fit_with <- function(prior) {
+    mod_p <- paste0(mod, "\n visual ~~ prior('", prior, "')*visual")
+    asem(mod_p, dat, verbose = FALSE, nsamp = NSAMP, test = "none")
+  }
+  expect_no_message(fit_with("gamma(2,1)[var]"))
+  expect_no_message(fit_with("gamma(2,1)[sd]"))
+  expect_message(
+    fit_with("gamma(2,1)"),
+    class = "inlavaan_gamma_variance_scale"
+  )
+  expect_no_message(fit_with("gamma(2,1)"))
+})

@@ -30,6 +30,40 @@ check_prior_strings <- function(priors, parnames) {
   )
 }
 
+# Flags for messages shown once per session
+inlavaan_once <- new.env(parent = emptyenv())
+
+# A gamma prior with no qualifier on a variance is a prior on the variance in
+# INLAvaan, but blavaan reads the same string as a prior on the precision. Say
+# so once per session, so that a user who copies blavaan syntax notices.
+inform_gamma_variance_scale <- function(pt) {
+  if (isTRUE(inlavaan_once$gamma_variance_scale)) {
+    return(invisible(FALSE))
+  }
+  prior <- trimws(pt$prior)
+  hit <- pt$free > 0 &
+    grepl("theta_var|psi_var", pt$mat) &
+    grepl("^gamma", prior) &
+    !grepl("\\[(sd|var|prec)\\]", prior)
+  hit[is.na(hit)] <- FALSE
+  if (!any(hit)) {
+    return(invisible(FALSE))
+  }
+  inlavaan_once$gamma_variance_scale <- TRUE
+  cli_inform(
+    c(
+      "i" = "{cli::qty(sum(hit))}A {.code gamma} prior with no qualifier on
+             {?a variance/variances} ({.val {unique(pt$names[hit])}}) is a
+             prior on the variance in INLAvaan. blavaan reads the same prior
+             as a prior on the precision.",
+      " " = "Add {.code [var]}, {.code [sd]} or {.code [prec]} to state the
+             scale. This message is shown once per session."
+    ),
+    class = "inlavaan_gamma_variance_scale"
+  )
+  invisible(TRUE)
+}
+
 prepare_priors_for_optim <- function(pt) {
   # 1. Filter for relevant rows: Free parameters that are not duplicates
   # We only calculate gradients for unique free parameters.

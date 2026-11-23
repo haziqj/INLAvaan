@@ -567,6 +567,7 @@ inlavaan <- function(
 
   # Cache partable for prior logdens and grad
   prior_cache <- prepare_priors_for_optim(pt)
+  inform_gamma_variance_scale(pt)
 
   # Saturated-means fast path (see saturated_mean_idx): along the free
   # intercept axes the posterior is exactly Gaussian and block-diagonal at
