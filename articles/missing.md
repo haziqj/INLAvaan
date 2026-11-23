@@ -41,23 +41,23 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [429ms]
+#> ✔ Posterior mode and Hessian. [422ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.185σ. [864ms]
+#> ✔ VB correction; mean |δ| = 0.185σ. [913ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 14/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.6s]
+#> ⠹ Fitting 13/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [863ms]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.4.9007 ended normally after 71 iterations
+#> INLAvaan 0.3.99.9000 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -93,22 +93,23 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [456ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [471ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.144σ. [544ms]
+#> ✔ VB correction; mean |δ| = 0.144σ. [527ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 19/42 skew-normal marginals.
+#> ⠹ Fitting 17/42 skew-normal marginals.
 #> ⠸ Fitting 41/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [5.6s]
+#> ✔ Fit 42/42 skew-normal marginals. [5.4s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.3s]
+#> ✔ Summarise 1000 posterior draws. [1.4s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)
-#> INLAvaan 0.3.4.9007 ended normally after 91 iterations
+#> INLAvaan 0.3.99.9000 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

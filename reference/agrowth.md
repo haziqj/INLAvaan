@@ -109,7 +109,7 @@ agrowth(
   Defaults to `64`; see the Details section of
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
   Values above `128` (the size of the stored Sobol table) require the
-  qrng package. Ignored when `vb_correction = FALSE` or
+  spacefillr package. Ignored when `vb_correction = FALSE` or
   `vb_method = "gauss_hermite"`.
 
 - vb_method:
@@ -372,21 +372,21 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [351ms]
+#> ✔ Posterior mode and Hessian. [357ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [325ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [337ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ⠹ Fitting 3/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.2s]
+#> ⠹ Fitting 4/17 skew-normal marginals.
+#> ✔ Fit 17/17 skew-normal marginals. [1.3s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [171ms]
+#> ✔ Summarise 100 posterior draws. [181ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.4.9007 ended normally after 83 iterations
+#> INLAvaan 0.3.99.9000 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

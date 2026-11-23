@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9007</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -140,9 +140,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik  logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;      fit_scalar   48   -3889.776   0.00 7508.371 47.509</span></span>
-<span><span class="co">#&gt;      fit_metric   54   -3907.496 -17.72 7479.698 53.163</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3926.905 -37.13 7483.637 58.860</span></span></code></pre></div>
+<span><span class="co">#&gt;      fit_scalar   48   -3889.776   0.00 7508.841 47.744</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3907.496 -17.72 7481.250 53.939</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3926.905 -37.13 7483.859 58.972</span></span></code></pre></div>
 </div>
 <p>These are within-flavour comparisons (all three fits model the means with proper priors), so the Bayes factors are meaningful here. But marginal likelihoods answer a prior-sensitive question – “which model gave these data the highest prior predictive density?” – and for invariance testing we usually want the predictive one: <em>which rung of the ladder predicts new children best?</em></p>
 <p><code>compare(..., loo = TRUE)</code> answers that with leave-one-out cross-validation computed from each single fit – no refitting, no sampling (see the <a href="loo.html">LOO article</a> for the machinery). Groups are independent, so every child is scored against their own school’s implied moments, and the expected log predictive density (ELPD) sums over both schools. Differences come with <em>paired</em> standard errors, since the same children are scored under every model:</p>
@@ -154,9 +154,9 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik  logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;      fit_metric   54   -3907.496 -17.72 7479.698 53.163 -3743.279 44.443 57.679</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3926.905 -37.13 7483.637 58.860 -3746.424 44.605 68.053</span></span>
-<span><span class="co">#&gt;      fit_scalar   48   -3889.776   0.00 7508.371 47.509 -3757.551 43.780 52.282</span></span>
+<span><span class="co">#&gt;      fit_metric   54   -3907.496 -17.72 7481.250 53.939 -3743.279 44.443 57.679</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3926.905 -37.13 7483.859 58.972 -3746.424 44.605 68.053</span></span>
+<span><span class="co">#&gt;      fit_scalar   48   -3889.776   0.00 7508.841 47.744 -3757.551 43.780 52.282</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;     -3.144   3.601</span></span>
@@ -176,8 +176,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE</span></span>
-<span><span class="co">#&gt;  fit_configural   60   -3926.905 -56.875 7483.637 58.860 -3746.424 44.605</span></span>
-<span><span class="co">#&gt;      fit_pooled   30   -3870.030   0.000 7535.410 29.744 -3769.108 43.007</span></span>
+<span><span class="co">#&gt;  fit_configural   60   -3926.905 -56.875 7483.859 58.972 -3746.424 44.605</span></span>
+<span><span class="co">#&gt;      fit_pooled   30   -3870.030   0.000 7536.003 30.040 -3769.108 43.007</span></span>
 <span><span class="co">#&gt;   p_loo elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;  68.053     0.000   0.000</span></span>
 <span><span class="co">#&gt;  32.546   -22.685  11.646</span></span></code></pre></div>

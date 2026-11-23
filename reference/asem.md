@@ -109,7 +109,7 @@ asem(
   Defaults to `64`; see the Details section of
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
   Values above `128` (the size of the stored Sobol table) require the
-  qrng package. Ignored when `vb_correction = FALSE` or
+  spacefillr package. Ignored when `vb_correction = FALSE` or
   `vb_method = "gauss_hermite"`.
 
 - vb_method:
@@ -363,20 +363,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [202ms]
+#> ✔ Posterior mode and Hessian. [217ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [259ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [278ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 17/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [1.6s]
+#> ⠹ Fitting 12/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [1.8s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [281ms]
+#> ✔ Summarise 1000 posterior draws. [370ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.4.9007 ended normally after 82 iterations
+#> INLAvaan 0.3.99.9000 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

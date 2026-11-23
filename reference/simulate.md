@@ -118,16 +118,16 @@ single-observation draws from the predictive distribution
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [29ms]
+#> ✔ Posterior mode and Hessian. [40ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [118ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [164ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [69ms]
+#> ✔ Fit 6/6 skew-normal marginals. [94ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [355ms]
+#> ✔ Summarise 1000 posterior draws. [532ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

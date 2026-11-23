@@ -124,8 +124,8 @@ inlavaan(
 
   Number of quasi-Monte Carlo nodes used by the VB mean correction.
   Defaults to `64`; see the Details section of `inlavaan()`. Values
-  above `128` (the size of the stored Sobol table) require the qrng
-  package. Ignored when `vb_correction = FALSE` or
+  above `128` (the size of the stored Sobol table) require the
+  spacefillr package. Ignored when `vb_correction = FALSE` or
   `vb_method = "gauss_hermite"`.
 
 - vb_method:
@@ -465,20 +465,21 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [141ms]
+#> ✔ Posterior mode and Hessian. [128ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [185ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [220ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [747ms]
+#> ⠹ Fitting 8/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [765ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [544ms]
+#> ✔ Summarise 1000 posterior draws. [701ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.4.9007 ended normally after 65 iterations
+#> INLAvaan 0.3.99.9000 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -52,22 +52,22 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 fit <- asem(model, HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [685ms]
+#> ✔ Posterior mode and Hessian. [711ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.104σ. [1.3s]
+#> ✔ VB correction; mean |δ| = 0.104σ. [1.4s]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ⠹ Fitting 2/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [2.7s]
+#> ⠹ Fitting 1/13 skew-normal marginals.
+#> ✔ Fit 13/13 skew-normal marginals. [2.8s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.5s]
+#> ✔ Summarise 1000 posterior draws. [2s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.4.9007 ended normally after 40 iterations
+#> INLAvaan 0.3.99.9000 ended normally after 40 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

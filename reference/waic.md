@@ -193,16 +193,17 @@ HS.model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [166ms]
+#> ✔ Posterior mode and Hessian. [184ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.133σ. [210ms]
+#> ✔ VB correction; mean |δ| = 0.133σ. [233ms]
 #> 
 #> ⠙ Fitting 0/30 skew-normal marginals.
-#> ✔ Fit 30/30 skew-normal marginals. [951ms]
+#> ⠹ Fitting 19/30 skew-normal marginals.
+#> ✔ Fit 30/30 skew-normal marginals. [1s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [586ms]
+#> ✔ Summarise 1000 posterior draws. [746ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 waic(fit)

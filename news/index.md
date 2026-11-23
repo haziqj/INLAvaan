@@ -2,6 +2,8 @@
 
 ## INLAvaan (development version)
 
+## INLAvaan 0.3.5
+
 ### New features
 
 - Priors on variances accept the `[var]` qualifier, for example
@@ -24,10 +26,11 @@
 
 ### Bug fixes
 
-- The VB correction of models with more than 300 free parameters changed
-  from run to run, even with
+- The VB correction of models with more than 300 free parameters, or
+  with `n_qmc` above 128, changed from run to run, even with
   [`set.seed()`](https://rdrr.io/r/base/Random.html). It is now the same
-  on every run.
+  on every run. These models need the spacefillr package, which INLAvaan
+  now suggests in place of qrng.
 
 - With `cov_as_cor = TRUE`,
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
