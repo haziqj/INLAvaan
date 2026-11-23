@@ -1,5 +1,12 @@
 # INLAvaan (development version)
 
+## Bug fixes
+
+* Results no longer depend on the collation locale. The canonical parameter
+  order, which sets the whitening of the posterior marginals, followed
+  `LC_COLLATE`, so models with mixed-case names gave slightly different
+  marginal likelihoods under a UTF-8 locale than under the C locale.
+
 # INLAvaan 0.3.4
 
 ## New features
