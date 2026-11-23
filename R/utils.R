@@ -24,6 +24,13 @@ ginv_base <- function(X, tol = sqrt(.Machine$double.eps)) {
   } # nocov end
 }
 
+# Order of a character vector in C byte order, whatever the collation locale.
+# Plain order() follows LC_COLLATE, so the canonical parameter order (and with
+# it the Cholesky whitening) would change with the locale.
+canonical_order <- function(x) {
+  order(x, method = "radix")
+}
+
 # Row-wise apply that always returns an nrow(X) x k matrix. Plain t(apply())
 # collapses to a 1 x nrow(X) matrix when FUN returns a scalar (k = 1).
 apply_rows <- function(X, FUN, ...) {

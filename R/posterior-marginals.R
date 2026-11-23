@@ -19,7 +19,7 @@ prodfac_lp <- function(z, sigma_asym) {
 marg_lp <- function(tj, j, theta_star, Sigma_theta, sigma_asym) {
   # Canonical-ordered Cholesky whitening — permutation invariant
   pnames    <- colnames(Sigma_theta)
-  cperm     <- if (!is.null(pnames)) order(pnames) else seq_len(nrow(Sigma_theta))
+  cperm     <- if (!is.null(pnames)) canonical_order(pnames) else seq_len(nrow(Sigma_theta))
   iperm     <- order(cperm)
   R         <- chol(Sigma_theta[cperm, cperm]) # canonical upper Cholesky
   L_canon   <- t(R)                            # lower Cholesky in canonical order

@@ -763,7 +763,7 @@ inlavaan <- function(
   # (by name) so results don't depend on the latent-variable ordering in the
   # model specification string.
   H_sym <- 0.5 * (H_neg + t(H_neg))
-  canon_perm <- order(parnames)
+  canon_perm <- canonical_order(parnames)
   inv_perm <- order(canon_perm)
   H_canon <- H_sym[canon_perm, canon_perm]
   # Upper Cholesky of the canonical precision
