@@ -29,6 +29,7 @@ acfa(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
@@ -249,6 +250,15 @@ acfa(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- hessian_method:
+
+  How the Hessian at the posterior mode is differenced from the
+  analytical gradient. `"central"` (default) costs two gradient
+  evaluations per parameter. `"forward"` costs about half as much but is
+  less accurate, and suits models with many parameters and large
+  samples. Used only with `optim_method = "nlminb"` and
+  `numerical_grad = FALSE`.
+
 - cores:
 
   Integer or `NULL`. Number of cores for parallel marginal fitting. When
@@ -341,20 +351,20 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [113ms]
+#> ✔ Posterior mode and Hessian. [101ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [168ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [150ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [661ms]
+#> ✔ Fit 21/21 skew-normal marginals. [595ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [73ms]
+#> ✔ Summarise 100 posterior draws. [63ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.4.9006 ended normally after 66 iterations
+#> INLAvaan 0.3.4.9007 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

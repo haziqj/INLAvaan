@@ -29,6 +29,7 @@ asem(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
@@ -249,6 +250,15 @@ asem(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- hessian_method:
+
+  How the Hessian at the posterior mode is differenced from the
+  analytical gradient. `"central"` (default) costs two gradient
+  evaluations per parameter. `"forward"` costs about half as much but is
+  less accurate, and suits models with many parameters and large
+  samples. Used only with `optim_method = "nlminb"` and
+  `numerical_grad = FALSE`.
+
 - cores:
 
   Integer or `NULL`. Number of cores for parallel marginal fitting. When
@@ -353,20 +363,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [218ms]
+#> ✔ Posterior mode and Hessian. [202ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [280ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [259ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 6/28 skew-normal marginals.
+#> ⠹ Fitting 17/28 skew-normal marginals.
 #> ✔ Fit 28/28 skew-normal marginals. [1.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [383ms]
+#> ✔ Summarise 1000 posterior draws. [281ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.4.9006 ended normally after 82 iterations
+#> INLAvaan 0.3.4.9007 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

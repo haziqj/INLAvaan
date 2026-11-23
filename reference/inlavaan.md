@@ -34,6 +34,7 @@ inlavaan(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   start = NULL,
   cores = NULL,
   ppp_method = c("onestep", "em"),
@@ -265,6 +266,15 @@ inlavaan(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- hessian_method:
+
+  How the Hessian at the posterior mode is differenced from the
+  analytical gradient. `"central"` (default) costs two gradient
+  evaluations per parameter. `"forward"` costs about half as much but is
+  less accurate, and suits models with many parameters and large
+  samples. Used only with `optim_method = "nlminb"` and
+  `numerical_grad = FALSE`.
+
 - start:
 
   Optional numeric vector of starting values for the optimiser, given as
@@ -455,20 +465,20 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [135ms]
+#> ✔ Posterior mode and Hessian. [141ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [233ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [185ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
 #> ✔ Fit 21/21 skew-normal marginals. [747ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [683ms]
+#> ✔ Summarise 1000 posterior draws. [544ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.4.9006 ended normally after 65 iterations
+#> INLAvaan 0.3.4.9007 ended normally after 65 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -29,6 +29,7 @@ agrowth(
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
   numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
@@ -249,6 +250,15 @@ agrowth(
   Logical indicating whether to use numerical gradients for the
   optimisation. Defaults to `FALSE` to use analytical gradients.
 
+- hessian_method:
+
+  How the Hessian at the posterior mode is differenced from the
+  analytical gradient. `"central"` (default) costs two gradient
+  evaluations per parameter. `"forward"` costs about half as much but is
+  less accurate, and suits models with many parameters and large
+  samples. Used only with `optim_method = "nlminb"` and
+  `numerical_grad = FALSE`.
+
 - cores:
 
   Integer or `NULL`. Number of cores for parallel marginal fitting. When
@@ -362,20 +372,21 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [354ms]
+#> ✔ Posterior mode and Hessian. [351ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [330ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [325ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
+#> ⠹ Fitting 3/17 skew-normal marginals.
 #> ✔ Fit 17/17 skew-normal marginals. [1.2s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [182ms]
+#> ✔ Summarise 100 posterior draws. [171ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.4.9006 ended normally after 83 iterations
+#> INLAvaan 0.3.4.9007 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
