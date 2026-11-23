@@ -180,11 +180,19 @@ asem(
   instead – useful for comparing the profiling machinery (skew-normal
   fit, VB, ...) against a correlation-scale reference without the
   sampling/copula step in between. Model estimation is identical either
-  way; only what is reported for these parameters changes (and,
-  correspondingly, their `mat` classification in the returned partable,
-  `theta_cov`/`psi_cov` vs. `theta_cor`/`psi_cor`). Not the same as
-  lavaan's `std.ov`/`std.lv`, which re-parameterises the whole model on
-  a standardised scale. Defaults to `FALSE`.
+  way; only what is reported for these parameters changes. The returned
+  parameter table keeps their covariance classes, so
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) after the fit
+  score the same model, and the setting is stored as
+  `get_inlavaan_internal(fit)$cov_as_cor`. The point estimates of these
+  parameters are correlations, so methods that use the point estimates
+  as model parameters (such as
+  [`fitted()`](https://inlavaan.haziqj.ml/reference/fitted.md) and
+  [`residuals()`](https://inlavaan.haziqj.ml/reference/residuals.md))
+  are not meaningful when `TRUE`. Not the same as lavaan's
+  `std.ov`/`std.lv`, which re-parameterises the whole model on a
+  standardised scale. Defaults to `FALSE`.
 
 - sn_fit_ngrid:
 
@@ -345,20 +353,20 @@ utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [263ms]
+#> ✔ Posterior mode and Hessian. [218ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.172σ. [348ms]
+#> ✔ VB correction; mean |δ| = 0.172σ. [280ms]
 #> 
 #> ⠙ Fitting 0/28 skew-normal marginals.
-#> ⠹ Fitting 7/28 skew-normal marginals.
-#> ✔ Fit 28/28 skew-normal marginals. [2s]
+#> ⠹ Fitting 6/28 skew-normal marginals.
+#> ✔ Fit 28/28 skew-normal marginals. [1.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [292ms]
+#> ✔ Summarise 1000 posterior draws. [383ms]
 #> 
 summary(fit)
-#> INLAvaan 0.3.4.9000 ended normally after 82 iterations
+#> INLAvaan 0.3.4.9006 ended normally after 82 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB

@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -216,16 +216,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [303ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [233ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.040σ. [189ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [189ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [378ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [319ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [605ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [630ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
 </div>
@@ -241,7 +241,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots</span></span>
 <span><span class="va">fit</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.4.9000 ended normally after 69 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.4.9006 ended normally after 69 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -266,7 +266,7 @@
 <span></span>
 <span><span class="co"># Summary of results</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; INLAvaan 0.3.4.9000 ended normally after 69 iterations</span></span>
+<span><span class="co">#&gt; INLAvaan 0.3.4.9006 ended normally after 69 iterations</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Estimator                                      BAYES</span></span>
 <span><span class="co">#&gt;   Optimization method                           NLMINB</span></span>
@@ -329,7 +329,7 @@
 <span><span class="co">#&gt;             eta1       eta2</span></span>
 <span><span class="co">#&gt; [1,] -0.87389228 -0.9810704</span></span>
 <span><span class="co">#&gt; [2,] -0.53788951  1.0354961</span></span>
-<span><span class="co">#&gt; [3,]  0.71541534 -1.0325474</span></span>
+<span><span class="co">#&gt; [3,]  0.71541535 -1.0325474</span></span>
 <span><span class="co">#&gt; [4,]  0.73112006 -0.5508709</span></span>
 <span><span class="co">#&gt; [5,] -0.01775186  0.1443790</span></span>
 <span><span class="co">#&gt; [6,]  1.71539939  1.5187677</span></span></code></pre></div>
@@ -384,8 +384,8 @@
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">yrep</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          y1         y2          y3        y4         y5        y6</span></span>
 <span><span class="co">#&gt; 1 -0.247092 -1.5686457 -0.06714146 1.5618447 1.20561624 0.7941650</span></span>
-<span><span class="co">#&gt; 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380587 1.1356429</span></span>
-<span><span class="co">#&gt; 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473334 1.9629508</span></span>
+<span><span class="co">#&gt; 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380588 1.1356430</span></span>
+<span><span class="co">#&gt; 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473335 1.9629508</span></span>
 <span><span class="co">#&gt; 4  0.012789 -0.6156410 -0.21093715 2.7687469 0.23618624 0.3798649</span></span>
 <span><span class="co">#&gt; 5  2.888693  1.3165189  1.26488447 1.2994000 0.05916673 0.1433568</span></span>
 <span><span class="co">#&gt; 6  1.418953  1.5439697  1.42632696 1.6012381 0.82603880 1.0609389</span></span></code></pre></div>
@@ -412,11 +412,11 @@
 <span><span class="co">#&gt;              npar             nsamp         converged        iterations </span></span>
 <span><span class="co">#&gt;                13              1000                 1                69 </span></span>
 <span><span class="co">#&gt;          grad_inf      grad_inf_rel           grad_l2    mode_shift_max </span></span>
-<span><span class="co">#&gt;          3.89e-03          1.25e-01          7.75e-03          3.69e-04 </span></span>
+<span><span class="co">#&gt;          3.89e-03          1.24e-01          7.75e-03          3.69e-04 </span></span>
 <span><span class="co">#&gt;         hess_cond        vb_applied      vb_shift_max     vb_kld_global </span></span>
-<span><span class="co">#&gt;          2.94e+01                 1            0.0966            0.0108 </span></span>
+<span><span class="co">#&gt;          2.94e+01                 1            0.0977            0.0106 </span></span>
 <span><span class="co">#&gt;           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean </span></span>
-<span><span class="co">#&gt;            0.0047            0.0011            0.0812            0.0289 </span></span>
+<span><span class="co">#&gt;            0.0048            0.0011            0.0818            0.0279 </span></span>
 <span><span class="co">#&gt;          nmad_max         nmad_mean scan_end_mass_max     psi_npd_share </span></span>
 <span><span class="co">#&gt;            0.0050            0.0028          2.73e-04            0.0000 </span></span>
 <span><span class="co">#&gt;   theta_npd_share </span></span>
@@ -427,7 +427,7 @@
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 1.56 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.45 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -455,16 +455,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [119ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [101ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [152ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [126ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [324ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [283ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [543ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [592ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
@@ -504,11 +504,11 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   13   -8081.340   0.000 16069.27 13.077 -8024.860 54.291 13.008</span></span>
+<span><span class="co">#&gt;    fit   13   -8081.340   0.000 16069.27 13.077 -8024.860 54.291 13.009</span></span>
 <span><span class="co">#&gt;   fit2   12   -8108.789 -27.449 16133.20 11.950 -8057.005 55.133 12.043</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
-<span><span class="co">#&gt;      0.000    0.00</span></span>
-<span><span class="co">#&gt;    -32.145    7.74</span></span></code></pre></div>
+<span><span class="co">#&gt;      0.000   0.000</span></span>
+<span><span class="co">#&gt;    -32.144   7.743</span></span></code></pre></div>
 </div>
 <p>See the <a href="https://inlavaan.haziqj.ml/articles/loo.html">cross-validation article</a> for the methodology and more advanced usage, including multigroup and two-level models, missing data, and scoring submodels without refitting.</p>
 </section><section class="level2"><h2 id="setting-priors">Setting priors<a class="anchor" aria-label="anchor" href="#setting-priors"></a>

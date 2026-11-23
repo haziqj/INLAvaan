@@ -41,24 +41,23 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [489ms]
+#> ✔ Posterior mode and Hessian. [415ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.190σ. [1s]
+#> ✔ VB correction; mean |δ| = 0.185σ. [899ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 8/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [3.3s]
+#> ⠹ Fitting 13/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [980ms]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.4.9000 ended normally after 71 iterations
+#> INLAvaan 0.3.4.9006 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -69,7 +68,7 @@ print(fit1)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -795.666 
+#>    Marginal log-likelihood                    -795.580 
 #>    PPP (Chi-square)                              0.509
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
@@ -94,23 +93,24 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [714ms]
+#> ℹ Computing the Hessian.
+#> ✔ Posterior mode and Hessian. [600ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.164σ. [1.8s]
+#> ✔ VB correction; mean |δ| = 0.144σ. [683ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 14/42 skew-normal marginals.
-#> ⠸ Fitting 28/42 skew-normal marginals.
-#> ⠼ Fitting 42/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [8.8s]
+#> ⠹ Fitting 12/42 skew-normal marginals.
+#> ⠸ Fitting 30/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [6.9s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.6s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.7s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)
-#> INLAvaan 0.3.4.9000 ended normally after 91 iterations
+#> INLAvaan 0.3.4.9006 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -121,7 +121,7 @@ print(fit2)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1393.186 
+#>    Marginal log-likelihood                   -1393.372 
 #>    PPP (Chi-square)                              0.047
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
@@ -171,13 +171,13 @@ loo(fit2)
 #> ── Leave-one-subject-out ────────────────────────── 75 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -1287.1 36.6
-#> p_loo        38.6  3.2
-#> looic      2574.2 73.2
+#> elpd_loo  -1287.1 36.7
+#> p_loo        38.7  3.2
+#> looic      2574.2 73.3
 #> 
 #> ── Curvature check ─────────────────────────────────────────────────────────────
 #> 
-#>   first-to-second-order gap        23.4
+#>   first-to-second-order gap        23.5
 #>   pD/2 (trace)                     19.2
 #>   excess over pD/2 (trace)       +22.1%
 #> 

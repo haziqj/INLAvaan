@@ -57,10 +57,10 @@ compare(fit_configural, fit_metric, fit_scalar)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
-#>           Model npar Marg.Loglik   logBF      DIC     pD
-#>      fit_scalar   48   -3889.782   0.000 7508.812 47.740
-#>      fit_metric   54   -3907.506 -17.725 7481.359 54.008
-#>  fit_configural   60   -3926.952 -37.170 7483.369 58.698
+#>           Model npar Marg.Loglik  logBF      DIC     pD
+#>      fit_scalar   48   -3889.776   0.00 7508.365 47.506
+#>      fit_metric   54   -3907.496 -17.72 7480.776 53.702
+#>  fit_configural   60   -3926.905 -37.13 7481.675 57.880
 ```
 
 These are within-flavour comparisons (all three fits model the means
@@ -86,14 +86,14 @@ compare(fit_configural, fit_metric, fit_scalar, loo = TRUE)
 #> Models ordered by ELPD (Taylor LOO, second-order)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
-#>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>      fit_metric   54   -3907.506 -17.725 7481.359 54.008 -3743.342 44.489
-#>  fit_configural   60   -3926.952 -37.170 7483.369 58.698 -3746.122 44.544
-#>      fit_scalar   48   -3889.782   0.000 7508.812 47.740 -3757.531 43.779
-#>   p_loo elpd_diff se_diff
-#>  57.802     0.000   0.000
-#>  68.479    -2.780   3.512
-#>  52.267   -14.188   5.976
+#>           Model npar Marg.Loglik  logBF      DIC     pD      ELPD     SE  p_loo
+#>      fit_metric   54   -3907.496 -17.72 7480.776 53.702 -3743.279 44.443 57.679
+#>  fit_configural   60   -3926.905 -37.13 7481.675 57.880 -3746.424 44.605 68.053
+#>      fit_scalar   48   -3889.776   0.00 7508.365 47.506 -3757.551 43.780 52.282
+#>  elpd_diff se_diff
+#>      0.000   0.000
+#>     -3.144   3.601
+#>    -14.271   5.959
 ```
 
 The textbook Holzinger–Swineford story appears: metric invariance is
@@ -125,11 +125,11 @@ compare(fit_pooled, fit_configural, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>  fit_configural   60   -3926.952 -56.853 7483.369 58.698 -3746.122 44.544
-#>      fit_pooled   30   -3870.099   0.000 7534.646 29.397 -3769.163 42.996
+#>  fit_configural   60   -3926.905 -56.875 7481.675 57.880 -3746.424 44.605
+#>      fit_pooled   30   -3870.030   0.000 7534.036 29.057 -3769.108 43.007
 #>   p_loo elpd_diff se_diff
-#>  68.479     0.000   0.000
-#>  32.597   -23.041  11.558
+#>  68.053     0.000   0.000
+#>  32.546   -22.685  11.646
 ```
 
 Allowing the two schools their own parameters clearly improves
@@ -150,9 +150,9 @@ loo_metric
 #> ── Leave-one-subject-out ───────────── 301 subjects in 2 groups, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -3743.3 44.5
-#> p_loo        57.8  4.1
-#> looic      7486.7 89.0
+#> elpd_loo  -3743.3 44.4
+#> p_loo        57.7  4.1
+#> looic      7486.6 88.9
 #> 
 #> ── Curvature check ─────────────────────────────────────────────────────────────
 #> 
@@ -165,15 +165,15 @@ loo_metric
 
 head(loo_metric$per_unit[, 1:6], 3)
 #>   unit   group nobs    l_star score_norm     lpd_1
-#> 1    1 Pasteur    1 -17.73264   6.698259 -17.52204
-#> 2    2 Pasteur    1 -13.45279   4.858706 -13.33301
-#> 3    3 Pasteur    1 -10.89661   3.166017 -10.83771
+#> 1    1 Pasteur    1 -17.70765   6.676611 -17.49756
+#> 2    2 Pasteur    1 -13.44512   4.848471 -13.32575
+#> 3    3 Pasteur    1 -10.91366   3.174453 -10.85433
 
 # Where does scalar invariance lose predictive density?
 d <- loo_scalar$per_unit$log_cpo_2 - loo_metric$per_unit$log_cpo_2
 tapply(d, loo_scalar$per_unit$group, sum)
 #> Grant-White     Pasteur 
-#>   -6.662481   -7.525896
+#>   -6.894810   -7.376544
 ```
 
 Both schools pay for the intercept constraints, confirming the misfit is

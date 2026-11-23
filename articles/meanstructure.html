@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -183,7 +183,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD</span></span>
 <span><span class="co">#&gt;      fit_metric   36   -3828.331   0.000 7504.626 36.162</span></span>
-<span><span class="co">#&gt;  fit_configural   42   -3847.689 -19.358 7506.866 40.822</span></span></code></pre></div>
+<span><span class="co">#&gt;  fit_configural   42   -3847.689 -19.358 7506.866 40.823</span></span></code></pre></div>
 </div>
 <p>Across the metric–scalar boundary they are <strong>not</strong>: an improper flat prior is only defined up to a constant <span class="math inline">\(c\)</span>, the marginal likelihood scales with <span class="math inline">\(c^{\,p}\)</span> per group, and against a model with proper-prior means that constant is orphaned — the “Bayes factor” becomes an artefact of a normalisation convention (and even proper-but-vague intercept priors leave it hostage to the prior width, the Lindley–Bartlett phenomenon). <code><a href="../reference/compare.html">compare()</a></code> warns when fits mix the two mean treatments.</p>
 <p>The leave-one-out conditionals, by contrast, are proper under both treatments — <span class="math inline">\(p(\mathbf{y}_i \mid \mathbf{Y}_{-i}) =
@@ -202,12 +202,12 @@ p(\mathbf{Y})/p(\mathbf{Y}_{-i})\)</span> cancels the flat-prior constant — so
 <span><span class="co">#&gt; Models ordered by ELPD (Taylor LOO, second-order)</span></span>
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Model npar Marg.Loglik  logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;  fit_f   21   -3830.509   0.00 7552.718 20.698 -3769.129 43.029 23.803</span></span>
-<span><span class="co">#&gt;  fit_t   30   -3870.099 -39.59 7535.665 29.906 -3769.163 42.996 32.597</span></span>
+<span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
+<span><span class="co">#&gt;  fit_t   30   -3870.030 -39.521 7535.595 29.836 -3769.108 43.007 32.546</span></span>
+<span><span class="co">#&gt;  fit_f   21   -3830.509   0.000 7552.718 20.698 -3769.129 43.029 23.803</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
-<span><span class="co">#&gt;     -0.034   0.212</span></span></code></pre></div>
+<span><span class="co">#&gt;     -0.021   0.156</span></span></code></pre></div>
 </div>
 <p>The two ELPDs agree closely: both estimate <span class="math inline">\(\sum_i \log p(\mathbf{y}_i \mid \mathbf{Y}_{-i})\)</span>, and the models differ only in whether the means are estimated under proper priors or marginalised under flat ones.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">

@@ -2,6 +2,71 @@
 
 ## INLAvaan (development version)
 
+### New features
+
+- Priors on variances accept the `[var]` qualifier, for example
+  `prior("gamma(1,1)[var]")`, which puts the prior on the variance.
+  blavaan reads `[var]` the same way, so one syntax now gives the same
+  prior in both packages.
+
+- A `gamma` prior with no qualifier on a variance gives a message, once
+  per session. INLAvaan reads it as a prior on the variance, whereas
+  blavaan reads it as a prior on the precision. The meaning in INLAvaan
+  is unchanged.
+
+### Bug fixes
+
+- With `cov_as_cor = TRUE`,
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) called after
+  the fit scored the wrong model. The returned parameter table
+  relabelled the covariances as correlations, so they were not scaled by
+  their standard deviations. On the Holzinger and Swineford three-factor
+  model, LOOIC was 7664 instead of 7538. The classes now stay
+  covariances, and the setting is stored in
+  `get_inlavaan_internal(fit)$cov_as_cor`.
+
+- Under `std.ov = TRUE`, residual covariances were treated as
+  correlations although the residual variances are free. Under
+  `std.lv = TRUE`, latent covariances were treated as correlations also
+  when a latent variance was free (for example in a second group,
+  `c(1, NA)*f`). The covariance was then held in (-1, 1), and the
+  correlation prior acted on the covariance. These rows are now
+  covariances, scaled by their standard deviations, with the prior on
+  the correlation. Results change for such models. They now equal the
+  fit of the same model written out without `std.ov` or `std.lv`.
+
+- A prior string that does not parse, such as `gama(1,1)` or
+  `normal(0)`, now stops with an error that names the parameter and the
+  prior. Before, it gave NA hyperparameters and failed later with an
+  error about the gradient.
+
+- The README compared INLAvaan and blavaan under different priors on the
+  latent variances, because the two packages read an unqualified `gamma`
+  prior on different scales. The README now uses `[var]`.
+
+- Models with exploratory blocks
+  ([`efa()`](https://rdrr.io/pkg/lavaan/man/efa.html)) now stop with an
+  error. INLAvaan has no rotation, so it used to fit them and report
+  loadings that are not identified.
+
+- Results no longer depend on the collation locale. The canonical
+  parameter order, which sets the whitening of the posterior marginals,
+  followed `LC_COLLATE`. Under a UTF-8 locale, models whose parameter
+  names sort differently than in the C locale (mixed case, or the
+  operators `~` and `~~`) gave slightly different results. The README
+  model, for example, had a marginal log-likelihood of -1644.364 under
+  UTF-8 and -1644.390 under C. All locales now give the C result.
+
+### Internal
+
+- The MCMC validation scripts in `inst/validation-tests/` moved out of
+  the package, which no longer ships them. Their fast checks are now
+  package tests: results do not depend on the order of the latent
+  variables, and four smoke tests (equal covariances across groups,
+  `std.lv` with a free second-group variance, a latent change score
+  model, a cyclic model).
+
 ## INLAvaan 0.3.4
 
 CRAN release: 2026-11-13

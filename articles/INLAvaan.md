@@ -118,16 +118,16 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [303ms]
+#> ✔ Posterior mode and Hessian. [233ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.040σ. [189ms]
+#> ✔ VB correction; mean |δ| = 0.039σ. [189ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [378ms]
+#> ✔ Fit 13/13 skew-normal marginals. [319ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [605ms]
+#> ✔ Summarise 1000 posterior draws. [630ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -189,7 +189,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.4.9000 ended normally after 69 iterations
+#> INLAvaan 0.3.4.9006 ended normally after 69 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -219,7 +219,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.4.9000 ended normally after 69 iterations
+#> INLAvaan 0.3.4.9006 ended normally after 69 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -293,7 +293,7 @@ head(eta_preds[[1]])
 #>             eta1       eta2
 #> [1,] -0.87389228 -0.9810704
 #> [2,] -0.53788951  1.0354961
-#> [3,]  0.71541534 -1.0325474
+#> [3,]  0.71541535 -1.0325474
 #> [4,]  0.73112006 -0.5508709
 #> [5,] -0.01775186  0.1443790
 #> [6,]  1.71539939  1.5187677
@@ -361,8 +361,8 @@ yrep <- simulate(fit, nsim = 1, seed = 1)
 head(yrep[[1]])
 #>          y1         y2          y3        y4         y5        y6
 #> 1 -0.247092 -1.5686457 -0.06714146 1.5618447 1.20561624 0.7941650
-#> 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380587 1.1356429
-#> 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473334 1.9629508
+#> 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380588 1.1356430
+#> 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473335 1.9629508
 #> 4  0.012789 -0.6156410 -0.21093715 2.7687469 0.23618624 0.3798649
 #> 5  2.888693  1.3165189  1.26488447 1.2994000 0.05916673 0.1433568
 #> 6  1.418953  1.5439697  1.42632696 1.6012381 0.82603880 1.0609389
@@ -416,11 +416,11 @@ diagnostics(fit)
 #>              npar             nsamp         converged        iterations 
 #>                13              1000                 1                69 
 #>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max 
-#>          3.89e-03          1.25e-01          7.75e-03          3.69e-04 
+#>          3.89e-03          1.24e-01          7.75e-03          3.69e-04 
 #>         hess_cond        vb_applied      vb_shift_max     vb_kld_global 
-#>          2.94e+01                 1            0.0966            0.0108 
+#>          2.94e+01                 1            0.0977            0.0106 
 #>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean 
-#>            0.0047            0.0011            0.0812            0.0289 
+#>            0.0048            0.0011            0.0818            0.0279 
 #>          nmad_max         nmad_mean scan_end_mass_max     psi_npd_share 
 #>            0.0050            0.0028          2.73e-04            0.0000 
 #>   theta_npd_share 
@@ -435,7 +435,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.56 s
+#> 1.45 s
 ```
 
 ### Plot
@@ -469,16 +469,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [119ms]
+#> ✔ Posterior mode and Hessian. [101ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [152ms]
+#> ✔ VB correction; mean |δ| = 0.039σ. [126ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [324ms]
+#> ✔ Fit 12/12 skew-normal marginals. [283ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [543ms]
+#> ✔ Summarise 1000 posterior draws. [592ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
@@ -539,11 +539,11 @@ compare(fit, fit2, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   13   -8081.340   0.000 16069.27 13.077 -8024.860 54.291 13.008
+#>    fit   13   -8081.340   0.000 16069.27 13.077 -8024.860 54.291 13.009
 #>   fit2   12   -8108.789 -27.449 16133.20 11.950 -8057.005 55.133 12.043
 #>  elpd_diff se_diff
-#>      0.000    0.00
-#>    -32.145    7.74
+#>      0.000   0.000
+#>    -32.144   7.743
 ```
 
 See the [cross-validation

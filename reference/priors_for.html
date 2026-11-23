@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,14 +113,23 @@ normal distribution with mean 0 and standard deviation 10 (not variance 10).</p>
 
 
 <p>For variance parameters (<code>theta</code>, <code>psi</code>), the prior distribution
-can be placed on a transformed scale by appending a qualifier:</p><ul><li><p><code>[sd]</code>: Prior is on the standard deviation \(\sigma\).
+can be placed on a transformed scale by appending a qualifier:</p><ul><li><p><code>[var]</code>: Prior is on the variance \(\sigma^2\). Example:
+<code>"gamma(1,0.5)[var]"</code> places a Gamma(1, 0.5) prior on the variance.
+A prior with no qualifier is also on the variance.</p></li>
+<li><p><code>[sd]</code>: Prior is on the standard deviation \(\sigma\).
 Example: <code>"gamma(1,0.5)[sd]"</code> places a Gamma(1, 0.5) prior on
 \(\sigma = \sqrt{\text{variance}}\).</p></li>
 <li><p><code>[prec]</code>: Prior is on the precision \(\tau = 1/\sigma^2\).
 Example: <code>"gamma(1,1)[prec]"</code> places a Gamma(1, 1) prior on
-\(\tau = 1/\text{variance}\). This is the parameterisation used by
-blavaan and corresponds to an Inverse-Gamma prior on the variance.</p></li>
-</ul><p>The necessary Jacobian adjustment is applied automatically in both cases.</p>
+\(\tau = 1/\text{variance}\). This corresponds to an Inverse-Gamma
+prior on the variance.</p></li>
+</ul><p>The necessary Jacobian adjustment is applied automatically.</p>
+<p>blavaan reads a <code>gamma</code> prior with no qualifier as a prior on the
+precision, whereas INLAvaan reads it as a prior on the variance. The
+qualifiers <code>[var]</code>, <code>[sd]</code> and <code>[prec]</code> mean the same in both
+packages, so use one of them when the same syntax is fitted with both.
+INLAvaan shows a message, once per session, when a <code>gamma</code> prior on a
+variance has no qualifier.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

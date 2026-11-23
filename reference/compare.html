@@ -15,7 +15,7 @@ statistics and (optionally) fit indices side by side."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.4.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -196,17 +196,16 @@ analogue of the classical likelihood-ratio test – and points here instead.</p>
 <span class="r-in"><span><span class="co"># Configural invariance</span></span></span>
 <span class="r-in"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[599ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[482ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.125σ. <span style="color: #B2B2B2;">[1.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.125σ. <span style="color: #B2B2B2;">[995ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 3/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 22/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠼ Fitting 41/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠴ Fitting 59/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 60/60 skew-normal marginals. <span style="color: #B2B2B2;">[9.6s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 10/60 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 32/60 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠼ Fitting 56/60 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 60/60 skew-normal marginals. <span style="color: #B2B2B2;">[7.7s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.1s]</span></span>
@@ -221,19 +220,19 @@ analogue of the classical likelihood-ratio test – and points here instead.</p>
 <span class="r-in"><span>  group.equal <span class="op">=</span> <span class="st">"loadings"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[532ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[419ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.092σ. <span style="color: #B2B2B2;">[385ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.092σ. <span style="color: #B2B2B2;">[278ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/54 skew-normal marginals.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 4/54 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 23/54 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠼ Fitting 44/54 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 54/54 skew-normal marginals. <span style="color: #B2B2B2;">[8.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 29/54 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠼ Fitting 53/54 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 54/54 skew-normal marginals. <span style="color: #B2B2B2;">[6.5s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.1s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -245,19 +244,18 @@ analogue of the classical likelihood-ratio test – and points here instead.</p>
 <span class="r-in"><span>  group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"intercepts"</span>, <span class="st">"loadings"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Computing the Hessian.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[496ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[397ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.077σ. <span style="color: #B2B2B2;">[433ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.077σ. <span style="color: #B2B2B2;">[336ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/48 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 18/48 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 41/48 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 48/48 skew-normal marginals. <span style="color: #B2B2B2;">[6.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 9/48 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 39/48 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 48/48 skew-normal marginals. <span style="color: #B2B2B2;">[4.8s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.2s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>

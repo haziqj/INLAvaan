@@ -64,17 +64,27 @@ normal distribution with mean 0 and standard deviation 10 (not variance
 For variance parameters (`theta`, `psi`), the prior distribution can be
 placed on a transformed scale by appending a qualifier:
 
+- `[var]`: Prior is on the variance \\\sigma^2\\. Example:
+  `"gamma(1,0.5)[var]"` places a Gamma(1, 0.5) prior on the variance. A
+  prior with no qualifier is also on the variance.
+
 - `[sd]`: Prior is on the standard deviation \\\sigma\\. Example:
   `"gamma(1,0.5)[sd]"` places a Gamma(1, 0.5) prior on \\\sigma =
   \sqrt{\text{variance}}\\.
 
 - `[prec]`: Prior is on the precision \\\tau = 1/\sigma^2\\. Example:
   `"gamma(1,1)[prec]"` places a Gamma(1, 1) prior on \\\tau =
-  1/\text{variance}\\. This is the parameterisation used by blavaan and
-  corresponds to an Inverse-Gamma prior on the variance.
+  1/\text{variance}\\. This corresponds to an Inverse-Gamma prior on the
+  variance.
 
-The necessary Jacobian adjustment is applied automatically in both
-cases.
+The necessary Jacobian adjustment is applied automatically.
+
+blavaan reads a `gamma` prior with no qualifier as a prior on the
+precision, whereas INLAvaan reads it as a prior on the variance. The
+qualifiers `[var]`, `[sd]` and `[prec]` mean the same in both packages,
+so use one of them when the same syntax is fitted with both. INLAvaan
+shows a message, once per session, when a `gamma` prior on a variance
+has no qualifier.
 
 ## See also
 
