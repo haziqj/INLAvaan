@@ -11,6 +11,14 @@
   `LC_COLLATE`, so models with mixed-case names gave slightly different
   marginal likelihoods under a UTF-8 locale than under the C locale.
 
+## Internal
+
+* The MCMC validation scripts in `inst/validation-tests/` moved out of the
+  package, which no longer ships them. Their fast checks are now
+  package tests: results do not depend on the order of the latent variables,
+  and four smoke tests (equal covariances across groups, `std.lv` with a free
+  second-group variance, a latent change score model, a cyclic model).
+
 # INLAvaan 0.3.4
 
 ## New features
