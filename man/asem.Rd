@@ -138,11 +138,15 @@ parameter's own directly profiled correlation-scale marginal
 profiling machinery (skew-normal fit, VB, ...) against a
 correlation-scale reference without the sampling/copula step in
 between. Model estimation is identical either way; only what is
-reported for these parameters changes (and, correspondingly, their
-\code{mat} classification in the returned partable, \code{theta_cov}/\code{psi_cov}
-vs. \code{theta_cor}/\code{psi_cor}). Not the same as lavaan's \code{std.ov}/\code{std.lv},
-which re-parameterises the whole model on a standardised scale.
-Defaults to \code{FALSE}.}
+reported for these parameters changes. The returned parameter table keeps
+their covariance classes, so \code{\link[=loo]{loo()}} and \code{\link[=waic]{waic()}} after the fit score the
+same model, and the setting is stored as
+\code{get_inlavaan_internal(fit)$cov_as_cor}. The point estimates of these
+parameters are correlations, so methods that use the point estimates as
+model parameters (such as \code{\link[=fitted]{fitted()}} and \code{\link[=residuals]{residuals()}}) are not
+meaningful when \code{TRUE}. Not the same as lavaan's
+\code{std.ov}/\code{std.lv}, which re-parameterises the whole model on a
+standardised scale. Defaults to \code{FALSE}.}
 
 \item{sn_fit_ngrid}{Number of grid points to lay out per dimension when
 fitting the skew-normal marginals. A finer grid gives a better fit at the

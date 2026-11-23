@@ -100,11 +100,15 @@
 #'   profiling machinery (skew-normal fit, VB, ...) against a
 #'   correlation-scale reference without the sampling/copula step in
 #'   between. Model estimation is identical either way; only what is
-#'   reported for these parameters changes (and, correspondingly, their
-#'   `mat` classification in the returned partable, `theta_cov`/`psi_cov`
-#'   vs. `theta_cor`/`psi_cor`). Not the same as lavaan's `std.ov`/`std.lv`,
-#'   which re-parameterises the whole model on a standardised scale.
-#'   Defaults to `FALSE`.
+#'   reported for these parameters changes. The returned parameter table keeps
+#'   their covariance classes, so [loo()] and [waic()] after the fit score the
+#'   same model, and the setting is stored as
+#'   `get_inlavaan_internal(fit)$cov_as_cor`. The point estimates of these
+#'   parameters are correlations, so methods that use the point estimates as
+#'   model parameters (such as [fitted()] and [residuals()]) are not
+#'   meaningful when `TRUE`. Not the same as lavaan's
+#'   `std.ov`/`std.lv`, which re-parameterises the whole model on a
+#'   standardised scale. Defaults to `FALSE`.
 #' @param sn_fit_ngrid Number of grid points to lay out per dimension when
 #'   fitting the skew-normal marginals. A finer grid gives a better fit at the
 #'   cost of more joint-log-posterior evaluations. Defaults to `21`.
@@ -1664,14 +1668,6 @@ inlavaan <- function(
   }
 
   ## ----- Output --------------------------------------------------------------
-  # Cosmetic only, applied last: relabel theta_cov/psi_cov as theta_cor/
-  # psi_cor in the RETURNED partable so it honestly reflects what was
-  # reported above. Nothing upstream reads pt$mat again after this point.
-  if (isTRUE(cov_as_cor)) {
-    pt$mat[pt$mat == "theta_cov"] <- "theta_cor"
-    pt$mat[pt$mat == "psi_cov"] <- "psi_cor"
-  }
-
   # Latent and residual covariance matrices: positive definite at the
   # estimates and in the draws? Under cov_as_cor the estimates of the
   # covariance rows are correlations, so only the draws are checked.
@@ -1692,6 +1688,7 @@ inlavaan <- function(
     test = test_rec,
     optim_method = optim_method,
     marginal_method = marginal_method,
+    cov_as_cor = isTRUE(cov_as_cor),
     samp_copula = samp_copula,
     samp_norta = samp_norta,
     theta_star_novbc = as.numeric(theta_star),

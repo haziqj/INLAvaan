@@ -135,10 +135,12 @@ test_that("cov_as_cor reports correlations without changing the fit", {
   ]
   expect_true(length(covpars) > 0)
 
-  # mat relabelled to _cor, reporting scale switches to (-1, 1); everything
+  # The classes stay covariances (methods after the fit read them) and the
+  # setting is stored. The reporting scale switches to (-1, 1), and everything
   # else in the summary is untouched.
   pt_on <- fit_on$partable
-  expect_true(all(pt_on$mat[match(covpars, pt_on$names)] == "theta_cor"))
+  expect_true(all(pt_on$mat[match(covpars, pt_on$names)] == "theta_cov"))
+  expect_true(fit_on$cov_as_cor)
   expect_true(all(abs(fit_on$summary[covpars, "Mean"]) <= 1))
 
   noncov <- setdiff(rownames(fit_off$summary), covpars)
