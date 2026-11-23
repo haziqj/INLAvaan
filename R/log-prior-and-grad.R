@@ -1,3 +1,35 @@
+# Each prior must read "<family>(<number>,<number>)" with an optional scale
+# qualifier. Anything else would be parsed into NA hyperparameters and fail
+# later with an error that does not name the prior.
+check_prior_strings <- function(priors, parnames) {
+  num <- "[-+]?([0-9]+\\.?[0-9]*|\\.[0-9]+)([eE][-+]?[0-9]+)?"
+  pattern <- paste0(
+    "^\\s*(normal|gamma|beta)\\s*\\(\\s*",
+    num,
+    "\\s*,\\s*",
+    num,
+    "\\s*\\)\\s*(\\[(sd|prec)\\])?\\s*$"
+  )
+  bad <- !grepl(pattern, priors)
+  if (!any(bad)) {
+    return(invisible(NULL))
+  }
+  shown <- paste0(parnames[bad], ": ", priors[bad])
+  # Double the braces, which cli would otherwise interpolate
+  shown <- gsub("([{}])", "\\1\\1", shown)
+  cli_abort(
+    c(
+      "{cli::qty(sum(bad))}Cannot read the prior{?s} of
+       {.val {parnames[bad]}}.",
+      stats::setNames(shown, rep("x", length(shown))),
+      "i" = "A prior is {.code normal(m,s)}, {.code gamma(a,b)} or
+             {.code beta(a,b)}, optionally followed by {.code [sd]} or
+             {.code [prec]}."
+    ),
+    class = "inlavaan_prior_parse"
+  )
+}
+
 prepare_priors_for_optim <- function(pt) {
   # 1. Filter for relevant rows: Free parameters that are not duplicates
   # We only calculate gradients for unique free parameters.
@@ -26,6 +58,7 @@ prepare_priors_for_optim <- function(pt) {
   is_prec_prior <- logical(n) # Special flag for [prec] qualifier
 
   raw_priors <- pt$prior[idx]
+  check_prior_strings(raw_priors, pt$names[idx])
 
   # Detect [prec] qualifier (valid for any distribution)
   is_prec_prior <- grepl("\\[prec\\]", raw_priors)
@@ -200,26 +233,37 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   # 4. Handle [prec] qualifier: prior is on precision (1/x) rather than x
   # Re-evaluate lp at 1/xval and apply Jacobian |d(1/x)/dx| = 1/x^2
   idx_prec <- which(cache$is_prec_prior %||% logical(n))
-  if (length(idx_prec) > 0) { # nocov start
-    ip_norm  <- idx_prec[cache$prior_type[idx_prec] == 1L]
+  if (length(idx_prec) > 0) {
+    # nocov start
+    ip_norm <- idx_prec[cache$prior_type[idx_prec] == 1L]
     ip_gamma <- idx_prec[cache$prior_type[idx_prec] == 2L]
-    ip_beta  <- idx_prec[cache$prior_type[idx_prec] == 3L]
+    ip_beta <- idx_prec[cache$prior_type[idx_prec] == 3L]
 
     if (length(ip_norm) > 0) {
       lp[ip_norm] <- dnorm(
-        1 / xval[ip_norm], cache$p1[ip_norm], cache$p2[ip_norm], log = TRUE
+        1 / xval[ip_norm],
+        cache$p1[ip_norm],
+        cache$p2[ip_norm],
+        log = TRUE
       )
     }
     if (length(ip_gamma) > 0) {
       lp[ip_gamma] <- dgamma(
-        1 / xval[ip_gamma], cache$p1[ip_gamma], cache$p2[ip_gamma], log = TRUE
+        1 / xval[ip_gamma],
+        cache$p1[ip_gamma],
+        cache$p2[ip_gamma],
+        log = TRUE
       )
     }
     if (length(ip_beta) > 0) {
       y <- (1 / xval[ip_beta] + 1) / 2
       lp[ip_beta] <- dbeta(
-        y, shape1 = cache$p1[ip_beta], shape2 = cache$p2[ip_beta], log = TRUE
-      ) - 0.69314718
+        y,
+        shape1 = cache$p1[ip_beta],
+        shape2 = cache$p2[ip_beta],
+        log = TRUE
+      ) -
+        0.69314718
     }
 
     # Jacobian: |d(1/x)/dx| = 1/x^2 — multiply dx_dth by 1/x^2
@@ -367,12 +411,13 @@ prior_grad_vectorized <- function(theta, cache) {
   # Chain rule: dlp_dx = (d log p(tau) / d tau)|_{tau=1/x} * (-1/x^2)
   # Jacobian extra: d/d(theta) log|d(1/x)/dx| = -2 * x'(theta) / x
   idx_prec <- which(cache$is_prec_prior %||% logical(n))
-  if (length(idx_prec) > 0) { # nocov start
+  if (length(idx_prec) > 0) {
+    # nocov start
     pv <- 1 / xval[idx_prec] # precision values
 
-    ip_norm  <- which(cache$prior_type[idx_prec] == 1L)
+    ip_norm <- which(cache$prior_type[idx_prec] == 1L)
     ip_gamma <- which(cache$prior_type[idx_prec] == 2L)
-    ip_beta  <- which(cache$prior_type[idx_prec] == 3L)
+    ip_beta <- which(cache$prior_type[idx_prec] == 3L)
 
     raw_dlp_dprec <- numeric(length(idx_prec))
 
@@ -381,7 +426,8 @@ prior_grad_vectorized <- function(theta, cache) {
         (cache$p2[idx_prec[ip_norm]]^2)
     }
     if (length(ip_gamma) > 0) {
-      raw_dlp_dprec[ip_gamma] <- (cache$p1[idx_prec[ip_gamma]] - 1) / pv[ip_gamma] -
+      raw_dlp_dprec[ip_gamma] <- (cache$p1[idx_prec[ip_gamma]] - 1) /
+        pv[ip_gamma] -
         cache$p2[idx_prec[ip_gamma]]
     }
     if (length(ip_beta) > 0) {

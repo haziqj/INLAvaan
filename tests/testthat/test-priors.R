@@ -54,7 +54,11 @@ test_that("Straight from textual model", {
   short_pt <- lapply(pt, function(x) x[idx])
   short_pt$free <- 1:4
 
-  res <- prior_logdens_vectorized(c(2, 4, 1, 1), prepare_priors_for_optim(short_pt), debug = TRUE)
+  res <- prior_logdens_vectorized(
+    c(2, 4, 1, 1),
+    prepare_priors_for_optim(short_pt),
+    debug = TRUE
+  )
 
   # Check log densities
   expect_equal(
@@ -128,9 +132,13 @@ test_that("Vectorized vs Old: Standard Single-Group CFA", {
   new_grad <- prior_grad_vectorized(obj$theta, obj$cache)
   h <- 1e-5
   num_grad <- sapply(seq_along(obj$theta), function(i) {
-    tp <- obj$theta; tp[i] <- tp[i] + h
-    tm <- obj$theta; tm[i] <- tm[i] - h
-    (prior_logdens_vectorized(tp, obj$cache) - prior_logdens_vectorized(tm, obj$cache)) / (2 * h)
+    tp <- obj$theta
+    tp[i] <- tp[i] + h
+    tm <- obj$theta
+    tm[i] <- tm[i] - h
+    (prior_logdens_vectorized(tp, obj$cache) -
+      prior_logdens_vectorized(tm, obj$cache)) /
+      (2 * h)
   })
   # Accumulate cache-indexed grad back to full theta-length vector
   full_grad <- numeric(length(obj$theta))
@@ -168,9 +176,13 @@ test_that("Vectorized vs Old: Multi-Group with Equality Constraints", {
   new_grad <- prior_grad_vectorized(obj$theta, obj$cache)
   h <- 1e-5
   num_grad <- sapply(seq_along(obj$theta), function(i) {
-    tp <- obj$theta; tp[i] <- tp[i] + h
-    tm <- obj$theta; tm[i] <- tm[i] - h
-    (prior_logdens_vectorized(tp, obj$cache) - prior_logdens_vectorized(tm, obj$cache)) / (2 * h)
+    tp <- obj$theta
+    tp[i] <- tp[i] + h
+    tm <- obj$theta
+    tm[i] <- tm[i] - h
+    (prior_logdens_vectorized(tp, obj$cache) -
+      prior_logdens_vectorized(tm, obj$cache)) /
+      (2 * h)
   })
   # Accumulate cache-indexed grad back to full theta-length vector
   full_grad <- numeric(length(obj$theta))
@@ -216,9 +228,9 @@ test_that("Beta prior gradient with tanh transform matches numerical", {
   # Previously the gradient was off by a factor of 2
   cache <- list(
     free_id = 1L,
-    trans_type = 2L,   # tanh (correlation)
-    prior_type = 3L,   # beta
-    p1 = 5,            # beta(5,5)
+    trans_type = 2L, # tanh (correlation)
+    prior_type = 3L, # beta
+    p1 = 5, # beta(5,5)
     p2 = 5,
     is_sd_prior = FALSE,
     prior_names = "rho"
@@ -228,9 +240,14 @@ test_that("Beta prior gradient with tanh transform matches numerical", {
   for (th in c(-0.8, -0.3, 0.0, 0.3, 0.8)) {
     ag <- as.numeric(prior_grad_vectorized(th, cache))
     ng <- (prior_logdens_vectorized(th + h, cache) -
-           prior_logdens_vectorized(th - h, cache)) / (2 * h)
-    expect_equal(ag, ng, tolerance = 1e-5,
-      info = paste0("Beta(5,5) tanh gradient at theta=", th))
+      prior_logdens_vectorized(th - h, cache)) /
+      (2 * h)
+    expect_equal(
+      ag,
+      ng,
+      tolerance = 1e-5,
+      info = paste0("Beta(5,5) tanh gradient at theta=", th)
+    )
   }
 
   # Also test asymmetric Beta(2,8)
@@ -239,23 +256,64 @@ test_that("Beta prior gradient with tanh transform matches numerical", {
   for (th in c(-0.5, 0.0, 0.5)) {
     ag <- as.numeric(prior_grad_vectorized(th, cache))
     ng <- (prior_logdens_vectorized(th + h, cache) -
-           prior_logdens_vectorized(th - h, cache)) / (2 * h)
-    expect_equal(ag, ng, tolerance = 1e-5,
-      info = paste0("Beta(2,8) tanh gradient at theta=", th))
+      prior_logdens_vectorized(th - h, cache)) /
+      (2 * h)
+    expect_equal(
+      ag,
+      ng,
+      tolerance = 1e-5,
+      info = paste0("Beta(2,8) tanh gradient at theta=", th)
+    )
   }
 })
 
 test_that("dbeta_box with log = TRUE returns log-density", {
   x <- seq(0, 100, length.out = 20)
-  ld  <- dbeta_box(x, shape1 = 2, shape2 = 5, a = 0, b = 100, log = TRUE)
+  ld <- dbeta_box(x, shape1 = 2, shape2 = 5, a = 0, b = 100, log = TRUE)
   nld <- dbeta_box(x, shape1 = 2, shape2 = 5, a = 0, b = 100, log = FALSE)
   expect_equal(ld, log(nld))
   expect_true(all(is.finite(ld[x > 0 & x < 100])))
 })
 
 test_that("dbeta_box stops when b <= a", {
-  expect_error(dbeta_box(0.5, shape1 = 1, shape2 = 1, a = 1, b = 0),
-               "Require finite scalars with b > a")
-  expect_error(dbeta_box(0.5, shape1 = 1, shape2 = 1, a = 0, b = 0),
-               "Require finite scalars with b > a")
+  expect_error(
+    dbeta_box(0.5, shape1 = 1, shape2 = 1, a = 1, b = 0),
+    "Require finite scalars with b > a"
+  )
+  expect_error(
+    dbeta_box(0.5, shape1 = 1, shape2 = 1, a = 0, b = 0),
+    "Require finite scalars with b > a"
+  )
+})
+
+test_that("A prior string that does not parse stops with an error naming it", {
+  mod_bad <- "
+    visual  =~ x1 + x2 + x3
+    visual ~~ prior('gama(1,1)')*visual
+    x1 ~~ prior('normal(0)')*x1
+  "
+  expect_error(
+    acfa(mod_bad, dat, verbose = FALSE, nsamp = NSAMP),
+    class = "inlavaan_prior_parse"
+  )
+  err <- tryCatch(
+    acfa(mod_bad, dat, verbose = FALSE, nsamp = NSAMP),
+    error = function(e) conditionMessage(e)
+  )
+  expect_match(err, "visual~~visual", fixed = TRUE)
+  expect_match(err, "gama(1,1)", fixed = TRUE)
+  expect_match(err, "normal(0)", fixed = TRUE)
+})
+
+test_that("Valid prior strings pass the check", {
+  expect_no_error(check_prior_strings(
+    c(
+      "normal(0,10)",
+      "normal(-1, +2.5)",
+      "gamma(1,.5)[sd]",
+      "gamma(1e-3, 2) [prec]",
+      "beta(1,1)"
+    ),
+    paste0("p", 1:5)
+  ))
 })
