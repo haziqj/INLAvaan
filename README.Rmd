@@ -76,9 +76,9 @@ mod_poldem <- "
     dem60 =~ 1.5*y4
   
   # Custom priors on latent variances
-    ind60 ~~ prior('gamma(1, 1)')*ind60
-    dem60 ~~ prior('gamma(2, 1)')*dem60
-    dem65 ~~ prior('gamma(1,.5)')*dem65
+    ind60 ~~ prior('gamma(1, 1)[var]')*ind60
+    dem60 ~~ prior('gamma(2, 1)[var]')*dem60
+    dem65 ~~ prior('gamma(1,.5)[var]')*dem65
 "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
