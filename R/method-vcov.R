@@ -36,11 +36,15 @@
 #' @name vcov
 #' @aliases vcov,INLAvaan-method
 #' @export
-setMethod("vcov", "INLAvaan", function(object, type = c("lavaan", "theta"), ...) {
-  type <- match.arg(type)
-  if (type == "lavaan") {
-    object@vcov$vcov
-  } else {
-    object@vcov$vcov_theta
+setMethod(
+  "vcov",
+  "INLAvaan",
+  function(object, type = c("lavaan", "theta"), ...) {
+    type <- match.arg(type)
+    if (type == "lavaan") {
+      object@vcov$vcov
+    } else {
+      object@vcov$vcov_theta
+    }
   }
-})
+)

@@ -13,7 +13,7 @@ test_that("qsnorm_fast is correct for negative alpha", {
 
   # Test with negative alpha (previously broken)
   q_fast <- qsnorm_fast(probs, xi = -0.44, omega = 0.25, alpha = -2.0)
-  q_sn   <- sn::qsn(probs, xi = -0.44, omega = 0.25, alpha = -2.0)
+  q_sn <- sn::qsn(probs, xi = -0.44, omega = 0.25, alpha = -2.0)
   expect_equal(q_fast, q_sn, tolerance = 1e-3)
 
   # Verify symmetry: Q(-alpha, u) == -Q(alpha, 1-u)

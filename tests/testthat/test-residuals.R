@@ -15,21 +15,35 @@ test_that("residuals() returns observed-minus-fitted moments for INLAvaan object
 })
 
 test_that("residuals() matches observed minus fitted()", {
-  fit <- acfa(mod, dat, meanstructure = TRUE, verbose = FALSE,
-              nsamp = 3, test = "none")
+  fit <- acfa(
+    mod,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
   ov <- lavaan::lavNames(fit, "ov")
   obs_cov <- lavaan::lavInspect(fit, "sampstat")$cov
   implied <- fitted(fit)$cov
-  expect_equal(unclass(residuals(fit)$cov), unclass(obs_cov) - unclass(implied),
-               tolerance = 1e-8)
+  expect_equal(
+    unclass(residuals(fit)$cov),
+    unclass(obs_cov) - unclass(implied),
+    tolerance = 1e-8
+  )
 })
 
 test_that("residuals() supports the lavaan 'type' options", {
   fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
   # lavaan canonicalises the reported $type; "cor" -> "cor.bollen"
-  expected <- c(raw = "raw", cor = "cor.bollen", cor.bollen = "cor.bollen",
-                cor.bentler = "cor.bentler", normalized = "normalized",
-                standardized = "standardized")
+  expected <- c(
+    raw = "raw",
+    cor = "cor.bollen",
+    cor.bollen = "cor.bollen",
+    cor.bentler = "cor.bentler",
+    normalized = "normalized",
+    standardized = "standardized"
+  )
   for (ty in names(expected)) {
     rs <- residuals(fit, type = ty)
     expect_equal(rs$type, unname(expected[ty]))

@@ -18,13 +18,17 @@ prodfac_lp <- function(z, sigma_asym) {
 # Marginalised distribution
 marg_lp <- function(tj, j, theta_star, Sigma_theta, sigma_asym) {
   # Canonical-ordered Cholesky whitening — permutation invariant
-  pnames    <- colnames(Sigma_theta)
-  cperm     <- if (!is.null(pnames)) canonical_order(pnames) else seq_len(nrow(Sigma_theta))
-  iperm     <- order(cperm)
-  R         <- chol(Sigma_theta[cperm, cperm]) # canonical upper Cholesky
-  L_canon   <- t(R)                            # lower Cholesky in canonical order
+  pnames <- colnames(Sigma_theta)
+  cperm <- if (!is.null(pnames)) {
+    canonical_order(pnames)
+  } else {
+    seq_len(nrow(Sigma_theta))
+  }
+  iperm <- order(cperm)
+  R <- chol(Sigma_theta[cperm, cperm]) # canonical upper Cholesky
+  L_canon <- t(R) # lower Cholesky in canonical order
   # Rows → original order; cols stay canonical z-order
-  L         <- L_canon[iperm, ]
+  L <- L_canon[iperm, ]
   # L^{-1} for whitening: solve L x = b via canonical Cholesky
   # L^{-1} = L_canon^{-1} P, which is forwardsolve(L_canon, P x)
 
@@ -187,7 +191,11 @@ post_marg_marggaus <- function(
   x_sd <- sqrt(max(sum(weights * ginvz^2) - x_mean^2, 0))
 
   # Compute quantiles
-  qq <- ginv(qnorm(c(0.025, 0.25, 0.5, 0.75, 0.975), mean = thetaj_mean, sd = thetaj_sd))
+  qq <- ginv(qnorm(
+    c(0.025, 0.25, 0.5, 0.75, 0.975),
+    mean = thetaj_mean,
+    sd = thetaj_sd
+  ))
 
   # Build PDF data
   tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])

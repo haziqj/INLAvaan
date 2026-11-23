@@ -124,7 +124,9 @@ test_that("Covariance coefficients are on the covariance scale", {
   # posterior-mean covariances must respect the positive-definiteness bound
   for (nm in cov_names) {
     lv <- strsplit(nm, "~~", fixed = TRUE)[[1]]
-    bound <- sqrt(co[paste0(lv[1], "~~", lv[1])] * co[paste0(lv[2], "~~", lv[2])])
+    bound <- sqrt(
+      co[paste0(lv[1], "~~", lv[1])] * co[paste0(lv[2], "~~", lv[2])]
+    )
     expect_lt(abs(co[nm]), bound)
   }
 })

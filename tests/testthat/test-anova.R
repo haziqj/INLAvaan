@@ -3,8 +3,15 @@ mod <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
 "
-fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none", 
-            marginal_method = "marggaus", vb_correction = FALSE)
+fit <- acfa(
+  mod,
+  dat,
+  verbose = FALSE,
+  nsamp = 3,
+  test = "none",
+  marginal_method = "marggaus",
+  vb_correction = FALSE
+)
 
 test_that("anova() on a single INLAvaan fit redirects to compare()", {
   expect_error(anova(fit), "compare")

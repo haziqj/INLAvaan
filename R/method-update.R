@@ -109,7 +109,9 @@ setMethod(
       expand.dots = FALSE
     )
     extras <- outer_call[["..."]]
-    for (nm in names(extras)) cl[[nm]] <- extras[[nm]]
+    for (nm in names(extras)) {
+      cl[[nm]] <- extras[[nm]]
+    }
 
     if (!evaluate) {
       return(cl)

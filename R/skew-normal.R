@@ -35,13 +35,15 @@
 fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   # NOTE: y is the density evaluations at x on the log scale, i.e. log f(x).
   # y should ideally be normalized so max(y) = 0 for numerical stability
-  if (max(y) > 0) { # nocov start
+  if (max(y) > 0) {
+    # nocov start
     cli_warn(
       "In {.fn fit_skew_normal}, log density {.arg y} should be normalized so that max(y) = 0 for numerical stability. Automatically normalizing now."
     )
     y <- y - max(y)
   } # nocov end
-  if (threshold_log_drop >= 0) { # nocov start
+  if (threshold_log_drop >= 0) {
+    # nocov start
     cli_abort(
       "In {.fn fit_skew_normal}, {.arg threshold_log_drop} must be negative."
     )
@@ -71,7 +73,8 @@ fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
   m2 <- sum(w_int * p * x^2)
 
   # Protect against degenerate m0 (e.g. if all y are very small)
-  if (m0 < .Machine$double.eps) { # nocov
+  if (m0 < .Machine$double.eps) {
+    # nocov
     m0 <- 1
   }
 

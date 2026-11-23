@@ -3,7 +3,14 @@ mod <- "
   visual  =~ x1 + x2 + x3
   textual =~ x4 + x5 + x6
 "
-fit <- acfa(mod, dat, marginal_method = "marggaus", vb_correction = FALSE, verbose = FALSE, nsamp = 3)
+fit <- acfa(
+  mod,
+  dat,
+  marginal_method = "marggaus",
+  vb_correction = FALSE,
+  verbose = FALSE,
+  nsamp = 3
+)
 
 test_that("deviance(type = 'mean') returns posterior mean deviance with pD/DIC attrs", {
   dev <- deviance(fit)
@@ -17,7 +24,10 @@ test_that("deviance(type = 'mean') returns posterior mean deviance with pD/DIC a
 
 test_that("deviance(type = 'plugin') matches -2 * logLik(type = 'plugin')", {
   dev_plugin <- deviance(fit, type = "plugin")
-  expect_equal(as.numeric(dev_plugin), as.numeric(-2 * logLik(fit, type = "plugin")))
+  expect_equal(
+    as.numeric(dev_plugin),
+    as.numeric(-2 * logLik(fit, type = "plugin"))
+  )
 })
 
 test_that("deviance() errors without DIC components", {

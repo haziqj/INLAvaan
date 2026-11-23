@@ -10,35 +10,48 @@
 # @param delta_inner Step size for inner finite difference (forward-diff Hessian diag).
 # @param m Number of parameters.
 # @return Scalar gamma1_j correction value.
-compute_gamma1j <- function(j, method, theta_star, Vscan, L,
-                            joint_lp_grad, delta_outer, delta_inner, m) {
-  if (method == "none") return(0)
+compute_gamma1j <- function(
+  j,
+  method,
+  theta_star,
+  Vscan,
+  L,
+  joint_lp_grad,
+  delta_outer,
+  delta_inner,
+  m
+) {
+  if (method == "none") {
+    return(0)
+  }
 
   vj <- Vscan[, j]
   th_plus <- theta_star + vj * delta_outer
   neg_grad <- function(x) -1 * joint_lp_grad(x)
 
-  if (method == "hessian") { # nocov start
+  if (method == "hessian") {
+    # nocov start
     # Full Hessian at two shifted points (central outer FD).
     # Cost: 4m gradient evaluations per parameter.
     th_minus <- theta_star - vj * delta_outer
-    Htheta_plus  <- fast_jacobian(neg_grad, th_plus)
+    Htheta_plus <- fast_jacobian(neg_grad, th_plus)
     Htheta_minus <- fast_jacobian(neg_grad, th_minus)
 
-    Hz_plus  <- diag(crossprod(L, Htheta_plus  %*% L))
+    Hz_plus <- diag(crossprod(L, Htheta_plus %*% L))
     Hz_minus <- diag(crossprod(L, Htheta_minus %*% L))
     dH_dz <- (Hz_plus - Hz_minus) / (2 * delta_outer)
 
-    vHv_plus  <- as.numeric(crossprod(vj, Htheta_plus  %*% vj))
+    vHv_plus <- as.numeric(crossprod(vj, Htheta_plus %*% vj))
     vHv_minus <- as.numeric(crossprod(vj, Htheta_minus %*% vj))
     d_vHv <- (vHv_plus - vHv_minus) / (2 * delta_outer)
 
     gamma1j <- -0.5 * sum(dH_dz) + 0.5 * d_vHv
-
   } else if (method == "shortcut") {
     # Central-difference shortcut (Q2): full z-trace + Schur correction.
     # Inner: central FD with h = 1e-5.  Outer: forward FD with delta_outer.
     # Cost: 2m + 2 gradient evaluations per parameter.
+    # nocov end
+
     h <- 1e-5
     trace_Hz1 <- 0
     for (kk in seq_len(m)) {
@@ -56,9 +69,8 @@ compute_gamma1j <- function(j, method, theta_star, Vscan, L,
     d_vHv <- (vHv_1 - 1) / delta_outer
 
     gamma1j <- full_trace + 0.5 * d_vHv
-  } # nocov end
-
-  else if (method == "shortcut_fd") { # nocov start
+  } else if (method == "shortcut_fd") {
+    # nocov start
     # Forward-difference shortcut (Q2): full z-trace + Schur correction.
     # Cost: m + 2 gradient evaluations per parameter.
     g0 <- neg_grad(th_plus)

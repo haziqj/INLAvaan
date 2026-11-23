@@ -127,7 +127,7 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   # Standard normal quantile (z in C code)
   z <- stats::qnorm(u)
 
-  A <- a  # a >= 0 after fold
+  A <- a # a >= 0 after fold
 
   # --- Region Checks ---
   # right_limit = erf(const_tol / A)
@@ -137,7 +137,8 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   # Mask for calculations (skip 0/1/Inf boundaries and a=0,1 special cases)
   mask <- (u > 0) & (u < 1) & (a != 0) & (a != 1)
 
-  if (!any(mask)) { # nocov start
+  if (!any(mask)) {
+    # nocov start
     res[!mask] <- z[!mask]
     res[flip] <- -res[flip]
     return(res)
@@ -275,7 +276,8 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   # In the context of qsn, x is derived from 1/prob, so usually x > 0.
   # But copying C logic for completeness.
   idx_neg <- !idx_pos
-  if (any(idx_neg)) { # nocov start
+  if (any(idx_neg)) {
+    # nocov start
     # Check for 0 specifically
     is_zero <- (x == 0)
     # If exactly 0, res is 0 (already set)

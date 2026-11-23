@@ -1,7 +1,8 @@
 pars_to_x <- function(theta, pt) {
   # Convert unrestricted theta-side parameters to lavaan-side parameters x.
   # Always receive UNPACKED theta and returns PACKED theta.
-  if (is.null(pt) | missing(pt)) { # nocov
+  if (is.null(pt) | missing(pt)) {
+    # nocov
     cli_abort("Parameter table 'pt' must be provided.")
   }
 

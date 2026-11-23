@@ -15,8 +15,14 @@ test_that("fitted() returns model-implied moments for INLAvaan objects", {
 })
 
 test_that("fitted() includes the mean vector with a mean structure", {
-  fit <- acfa(mod, dat, meanstructure = TRUE, verbose = FALSE,
-              nsamp = 3, test = "none")
+  fit <- acfa(
+    mod,
+    dat,
+    meanstructure = TRUE,
+    verbose = FALSE,
+    nsamp = 3,
+    test = "none"
+  )
   fv <- fitted(fit)
   expect_true("mean" %in% names(fv))
   expect_length(fv$mean, length(lavaan::lavNames(fit, "ov")))
