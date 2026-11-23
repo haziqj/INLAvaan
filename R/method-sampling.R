@@ -171,7 +171,7 @@ sample_params_prior <- function(int, nsamp) {
   x_natural <- matrix(NA_real_, nrow = nsamp, ncol = m)
 
   for (j in seq_len(m)) {
-    prior_str <- pt$prior[PTFREEIDX[j]]
+    prior_str <- trimws(pt$prior[PTFREEIDX[j]])
 
     if (is.na(prior_str) || prior_str == "") {
       # Fallback: wide normal for params without an explicit prior
@@ -186,7 +186,7 @@ sample_params_prior <- function(int, nsamp) {
       is_sd <- grepl("\\[sd\\]", prior_str)
       is_prec <- grepl("\\[prec\\]", prior_str)
       par <- as.numeric(strsplit(
-        gsub("gamma\\(|\\)|\\[sd\\]|\\[prec\\]", "", prior_str),
+        gsub("gamma\\(|\\)|\\[sd\\]|\\[var\\]|\\[prec\\]", "", prior_str),
         ","
       )[[1]])
       raw <- stats::rgamma(nsamp, shape = par[1], rate = par[2])

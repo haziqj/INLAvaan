@@ -8,7 +8,7 @@ check_prior_strings <- function(priors, parnames) {
     num,
     "\\s*,\\s*",
     num,
-    "\\s*\\)\\s*(\\[(sd|prec)\\])?\\s*$"
+    "\\s*\\)\\s*(\\[(sd|var|prec)\\])?\\s*$"
   )
   bad <- !grepl(pattern, priors)
   if (!any(bad)) {
@@ -23,8 +23,8 @@ check_prior_strings <- function(priors, parnames) {
        {.val {parnames[bad]}}.",
       stats::setNames(shown, rep("x", length(shown))),
       "i" = "A prior is {.code normal(m,s)}, {.code gamma(a,b)} or
-             {.code beta(a,b)}, optionally followed by {.code [sd]} or
-             {.code [prec]}."
+             {.code beta(a,b)}, optionally followed by {.code [sd]},
+             {.code [var]} or {.code [prec]}."
     ),
     class = "inlavaan_prior_parse"
   )
@@ -63,8 +63,9 @@ prepare_priors_for_optim <- function(pt) {
   # Detect [prec] qualifier (valid for any distribution)
   is_prec_prior <- grepl("\\[prec\\]", raw_priors)
 
-  # Strip ALL qualifiers before numeric parsing
-  clean_priors <- gsub("\\[sd\\]|\\[prec\\]", "", raw_priors)
+  # Strip ALL qualifiers before numeric parsing. [var] is the default scale of
+  # a prior on a variance, so it needs no flag of its own.
+  clean_priors <- gsub("\\[sd\\]|\\[var\\]|\\[prec\\]", "", raw_priors)
 
   # Parse Normal
   is_norm <- grepl("normal", clean_priors)

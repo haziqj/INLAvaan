@@ -317,3 +317,37 @@ test_that("Valid prior strings pass the check", {
     paste0("p", 1:5)
   ))
 })
+
+test_that("[var] puts the prior on the variance, as no qualifier does", {
+  fit_with <- function(prior) {
+    mod_p <- paste0(mod, "\n visual ~~ prior('", prior, "')*visual")
+    set.seed(1)
+    asem(mod_p, dat, verbose = FALSE, nsamp = NSAMP, test = "none")
+  }
+  suppressMessages(fit_plain <- fit_with("gamma(2,1)"))
+  fit_var <- fit_with("gamma(2,1)[var]")
+  fit_sd <- fit_with("gamma(2,1)[sd]")
+  fit_prec <- fit_with("gamma(2,1)[prec]")
+  expect_equal(coef(fit_var), coef(fit_plain))
+  expect_false(isTRUE(all.equal(coef(fit_var), coef(fit_sd))))
+  expect_false(isTRUE(all.equal(coef(fit_var), coef(fit_prec))))
+
+  # The prior density on the variance is the gamma density itself
+  pt <- get_inlavaan_internal(fit_var)$partable
+  i <- which(pt$names == "visual~~visual")
+  short_pt <- lapply(pt, function(x) x[i])
+  short_pt$free <- 1L
+  cache <- prepare_priors_for_optim(short_pt)
+  v <- 0.7
+  lp <- prior_logdens_vectorized(log(v), cache)
+  # On theta = log(v), the log Jacobian is log(v)
+  expect_equal(
+    lp,
+    dgamma(v, shape = 2, rate = 1, log = TRUE) + log(v),
+    tolerance = 1e-8
+  )
+
+  # Prior draws read [var] too
+  s <- sampling(fit_var, type = "lavaan", nsamp = 5, prior = TRUE)
+  expect_false(anyNA(as.matrix(s)))
+})
