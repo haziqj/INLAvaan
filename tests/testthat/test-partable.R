@@ -431,3 +431,102 @@ test_that("Covariances start from their correlation", {
   )
   expect_true(all(is.finite(pt$parstart[pt$free > 0])))
 })
+
+# Mode of a fit, named by parameter and group
+named_mode <- function(fit) {
+  int <- get_inlavaan_internal(fit)
+  pt <- int$partable
+  k <- pt$free > 0 & !duplicated(pt$free)
+  stats::setNames(int$theta_star, paste(pt$names[k], pt$group[k]))
+}
+
+test_that("std.lv with a free second-group variance fits as written out", {
+  hs <- lavaan::HolzingerSwineford1939
+  mod_std <- "
+    visual  =~ c(l1, l1)*x1 + c(l2, l2)*x2 + c(l3, l3)*x3
+    textual =~ c(l4, l4)*x4 + c(l5, l5)*x5 + c(l6, l6)*x6
+    visual  ~~ c(1, NA)*visual
+    textual ~~ c(1, NA)*textual
+  "
+  mod_hand <- "
+    visual  =~ NA*x1 + c(l1, l1)*x1 + c(l2, l2)*x2 + c(l3, l3)*x3
+    textual =~ NA*x4 + c(l4, l4)*x4 + c(l5, l5)*x5 + c(l6, l6)*x6
+    visual  ~~ c(1, NA)*visual
+    textual ~~ c(1, NA)*textual
+  "
+  fit_with <- function(mod, std_lv) {
+    acfa(
+      mod,
+      hs,
+      group = "school",
+      std.lv = std_lv,
+      test = "none",
+      nsamp = 3,
+      verbose = FALSE
+    )
+  }
+  fit_std <- fit_with(mod_std, TRUE)
+  fit_hand <- fit_with(mod_hand, FALSE)
+
+  pt <- get_inlavaan_internal(fit_std)$partable
+  is_lv_cov <- pt$op == "~~" & pt$lhs == "visual" & pt$rhs == "textual"
+  expect_equal(pt$mat[is_lv_cov], c("psi_cor", "psi_cov"))
+
+  expect_equal(
+    get_inlavaan_internal(fit_std)$mloglik,
+    get_inlavaan_internal(fit_hand)$mloglik,
+    tolerance = 1e-8
+  )
+  mode_std <- named_mode(fit_std)
+  expect_equal(
+    mode_std,
+    named_mode(fit_hand)[names(mode_std)],
+    tolerance = 1e-6
+  )
+})
+
+test_that("std.ov residual covariances fit as on standardised data", {
+  pd <- lavaan::PoliticalDemocracy[, paste0("y", 1:4)]
+  mod <- "
+    dem60 =~ y1 + y2 + y3 + y4
+    y2 ~~ y4
+  "
+  fit_std <- acfa(
+    mod,
+    pd,
+    std.ov = TRUE,
+    test = "none",
+    nsamp = 3,
+    verbose = FALSE
+  )
+  # lavaan standardises with the n - 1 divisor, as scale() does
+  fit_hand <- acfa(
+    mod,
+    as.data.frame(scale(pd)),
+    test = "none",
+    nsamp = 3,
+    verbose = FALSE
+  )
+
+  pt <- get_inlavaan_internal(fit_std)$partable
+  expect_equal(pt$mat[pt$lhs == "y2" & pt$rhs == "y4"], "theta_cov")
+  expect_equal(
+    get_inlavaan_internal(fit_std)$mloglik,
+    get_inlavaan_internal(fit_hand)$mloglik,
+    tolerance = 1e-8
+  )
+  expect_equal(named_mode(fit_std), named_mode(fit_hand), tolerance = 1e-6)
+})
+
+test_that("std.lv with unit latent variances keeps the correlation class", {
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3\n textual =~ x4 + x5 + x6",
+    lavaan::HolzingerSwineford1939,
+    std.lv = TRUE,
+    test = "none",
+    nsamp = 3,
+    verbose = FALSE
+  )
+  pt <- get_inlavaan_internal(fit)$partable
+  expect_equal(pt$mat[pt$lhs == "visual" & pt$rhs == "textual"], "psi_cor")
+})

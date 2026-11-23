@@ -161,6 +161,26 @@ partable_level_labels <- function(pt) {
   pt$level[match(seq_len(max(idx)), idx)]
 }
 
+# Classes of a parameter table where each theta_cor or psi_cor row whose two
+# variances are not both fixed at 1 (in its group or level) becomes a covariance
+partable_cor_to_cov <- function(pt) {
+  mat <- pt$mat
+  value <- if (!is.null(pt$ustart)) pt$ustart else pt$start
+  value[is.na(value)] <- pt$start[is.na(value)]
+  unit_var <- function(v, g) {
+    i <- which(pt$lhs == v & pt$op == "~~" & pt$rhs == v & pt$group == g)
+    length(i) > 0L && pt$free[i[1L]] == 0L && isTRUE(value[i[1L]] == 1)
+  }
+  for (j in which(mat %in% c("theta_cor", "psi_cor"))) {
+    if (
+      !(unit_var(pt$lhs[j], pt$group[j]) && unit_var(pt$rhs[j], pt$group[j]))
+    ) {
+      mat[j] <- sub("_cor$", "_cov", mat[j])
+    }
+  }
+  mat
+}
+
 inlavaanify_partable <- function(
   pt,
   dp = priors_for(),
@@ -203,6 +223,14 @@ inlavaanify_partable <- function(
   comp <- unique(pt$lhs[pt$op == "<~"])
   is_comp_cor <- pt$mat %in% "psi_cor" & (pt$lhs %in% comp | pt$rhs %in% comp)
   pt$mat[is_comp_cor] <- "psi_cov"
+
+  # A *_cor row is handed to lavaan as tanh(theta) unscaled, which is the
+  # covariance only when both variances are fixed at 1. That holds for latent
+  # variances under std.lv unless the user frees one (for example in a second
+  # group), and almost never for residual variances under std.ov. Any other
+  # such row is a covariance, so it is scaled by its standard deviations and
+  # its correlation prior acts on the correlation.
+  pt$mat <- partable_cor_to_cov(pt)
 
   # Add priors
   # Note: Possible to add own non-standard priors, but the evaluation of
