@@ -25,3 +25,4 @@
 ^lab$
 ^\.claude$
 ^CITATION\.cff$
+^inst/validation-tests$
