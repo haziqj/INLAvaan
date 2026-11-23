@@ -31,6 +31,27 @@ canonical_order <- function(x) {
   order(x, method = "radix")
 }
 
+# Exploratory (ESEM) blocks, marked by efa() in the syntax, need a rotation to
+# identify their loadings. INLAvaan has none, so it would report loadings of an
+# unidentified model.
+check_efa_blocks <- function(pt) {
+  efa <- pt$efa
+  if (is.null(efa) || !any(nzchar(efa))) {
+    return(invisible(NULL))
+  }
+  blocks <- unique(efa[nzchar(efa)])
+  cli_abort(
+    c(
+      "INLAvaan does not support exploratory blocks ({.code efa()}) yet.",
+      "x" = "The model has {cli::qty(length(blocks))} efa block{?s}
+             {.val {blocks}}. Without a rotation their loadings are not
+             identified.",
+      "i" = "Fit a confirmatory model, or use {.fn lavaan::sem} for ESEM."
+    ),
+    class = "inlavaan_efa"
+  )
+}
+
 # Row-wise apply that always returns an nrow(X) x k matrix. Plain t(apply())
 # collapses to a 1 x nrow(X) matrix when FUN returns a scalar (k = 1).
 apply_rows <- function(X, FUN, ...) {

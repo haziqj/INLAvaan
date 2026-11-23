@@ -411,6 +411,7 @@ inlavaan <- function(
   fit0 <- muffle_nan_warnings(muffle_rs_test_warning(
     do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
   ))
+  check_efa_blocks(fit0@ParTable)
   check_composite_scope(fit0)
   # Ordinal variables come from `ordered =`, threshold syntax or ordered-factor
   # columns. Name exactly those the model uses, so that the PML refit (and its

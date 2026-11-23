@@ -81,3 +81,19 @@ test_that("Chained modifiers keep their prior and fixed value", {
   expect_equal(res$pt$free[res$i], 0)
   expect_equal(res$pt$est[res$i], 0.5)
 })
+
+test_that("efa() blocks are refused", {
+  dat <- lavaan::HolzingerSwineford1939
+  mod <- '
+    efa("e")*f1 + efa("e")*f2 =~ x1 + x2 + x3 + x4 + x5 + x6
+  '
+  expect_error(
+    acfa(mod, dat, verbose = FALSE),
+    class = "inlavaan_efa"
+  )
+  mod_sem <- paste(mod, "f3 =~ x7 + x8 + x9\n f3 ~ f1 + f2")
+  expect_error(
+    asem(mod_sem, dat, verbose = FALSE),
+    class = "inlavaan_efa"
+  )
+})
