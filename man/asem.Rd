@@ -82,7 +82,7 @@ correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
 \item{n_qmc}{Number of quasi-Monte Carlo nodes used by the VB mean
 correction. Defaults to \code{64}; see the Details section of \code{\link[=inlavaan]{inlavaan()}}.
 Values above \code{128} (the size
-of the stored Sobol table) require the \pkg{qrng} package. Ignored when
+of the stored Sobol table) require the \pkg{spacefillr} package. Ignored when
 \code{vb_correction = FALSE} or \code{vb_method = "gauss_hermite"}.}
 
 \item{vb_method}{Integration rule for the VB mean correction. \code{"sobol"}

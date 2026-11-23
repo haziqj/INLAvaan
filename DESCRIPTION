@@ -38,9 +38,9 @@ Suggests:
     knitr,
     lme4,
     numDeriv,
-    qrng,
     quarto,
     sn,
+    spacefillr,
     testthat (>= 3.2.0),
     ucminf
 VignetteBuilder: 

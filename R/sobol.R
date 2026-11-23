@@ -7,18 +7,19 @@ sobol_owen <- function(n, d) {
     return(SobolOwen[seq_len(n), seq_len(d), drop = FALSE])
   }
 
-  # Otherwise, fall back to qrng if available. A fixed seed makes the scrambling
-  # the same on every run, as the stored table is; without one it ignores
-  # set.seed(). It also leaves R's random number stream untouched.
+  # Otherwise, generate the points with spacefillr if available. A fixed seed
+  # makes the scrambling the same on every run, as the stored table is, and it
+  # leaves R's random number stream untouched. (qrng's Owen scrambling is a
+  # wrapper around the same spacefillr function, so it needs spacefillr too.)
   # nocov start
-  if (requireNamespace("qrng", quietly = TRUE)) {
-    return(qrng::sobol(n = n, d = d, randomize = "Owen", seed = 1L))
+  if (requireNamespace("spacefillr", quietly = TRUE)) {
+    return(spacefillr::generate_sobol_owen_set(n, dim = d, seed = 1L))
   }
 
   # No fallback available — error with guidance
   cli_abort(c(
     "Requested Sobol sequence ({n} x {d}) exceeds stored table ({N} x {D}).",
-    "i" = "Install the {.pkg qrng} package to generate larger sequences on the fly."
+    "i" = "Install the {.pkg spacefillr} package to generate larger sequences on the fly."
   ))
   # nocov end
 }
