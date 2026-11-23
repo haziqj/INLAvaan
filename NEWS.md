@@ -20,8 +20,10 @@
 
 ## Bug fixes
 
-* The VB correction of models with more than 300 free parameters changed from
-  run to run, even with `set.seed()`. It is now the same on every run.
+* The VB correction of models with more than 300 free parameters, or with
+  `n_qmc` above 128, changed from run to run, even with `set.seed()`. It is now
+  the same on every run. These models need the spacefillr package, which
+  INLAvaan now suggests in place of qrng.
 
 * With `cov_as_cor = TRUE`, `loo()` and `waic()` called after the fit scored
   the wrong model. The returned parameter table relabelled the covariances as
