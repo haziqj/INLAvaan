@@ -1,6 +1,25 @@
 # INLAvaan (development version)
 
+## New features
+
+* Priors on variances accept the `[var]` qualifier, for example
+  `prior("gamma(1,1)[var]")`, which puts the prior on the variance. blavaan
+  reads `[var]` the same way, so one syntax now gives the same prior in both
+  packages.
+
+* A `gamma` prior with no qualifier on a variance gives a message, once per
+  session. INLAvaan reads it as a prior on the variance, whereas blavaan reads
+  it as a prior on the precision. The meaning in INLAvaan is unchanged.
+
 ## Bug fixes
+
+* A prior string that does not parse, such as `gama(1,1)` or `normal(0)`, now
+  stops with an error that names the parameter and the prior. Before, it gave
+  NA hyperparameters and failed later with an error about the gradient.
+
+* The README compared INLAvaan and blavaan under different priors on the
+  latent variances, because the two packages read an unqualified `gamma`
+  prior on different scales. The README now uses `[var]`.
 
 * Models with exploratory blocks (`efa()`) now stop with an error. INLAvaan
   has no rotation, so it used to fit them and report loadings that are not
