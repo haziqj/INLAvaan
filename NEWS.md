@@ -13,6 +13,13 @@
 
 ## Bug fixes
 
+* With `cov_as_cor = TRUE`, `loo()` and `waic()` called after the fit scored
+  the wrong model. The returned parameter table relabelled the covariances as
+  correlations, so they were not scaled by their standard deviations. On the
+  Holzinger and Swineford three-factor model, LOOIC was 7664 instead of 7538.
+  The classes now stay covariances, and the setting is stored in
+  `get_inlavaan_internal(fit)$cov_as_cor`.
+
 * Under `std.ov = TRUE`, residual covariances were treated as correlations
   although the residual variances are free. Under `std.lv = TRUE`, latent
   covariances were treated as correlations also when a latent variance was
