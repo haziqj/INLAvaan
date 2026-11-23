@@ -11,7 +11,17 @@
   session. INLAvaan reads it as a prior on the variance, whereas blavaan reads
   it as a prior on the precision. The meaning in INLAvaan is unchanged.
 
+* Fits with missing data (`missing = "ml"`) are faster, most of all under
+  planned missingness: the log-likelihood and its gradient now factorise each
+  missing-data pattern directly.
+
+* The new `hessian_method = "forward"` builds the Hessian at the posterior mode
+  with about half the gradient evaluations, for large models.
+
 ## Bug fixes
+
+* The VB correction of models with more than 300 free parameters changed from
+  run to run, even with `set.seed()`. It is now the same on every run.
 
 * With `cov_as_cor = TRUE`, `loo()` and `waic()` called after the fit scored
   the wrong model. The returned parameter table relabelled the covariances as
