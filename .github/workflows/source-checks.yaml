@@ -1,0 +1,35 @@
+# Fast checks of the source tree, without installing R: the code is formatted
+# with air (settings in air.toml), and R/ calls no unexported function of
+# another package with `:::`. lavaan internals are bound in
+# R/lavaan-unexported.R instead.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+name: source-checks
+
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  source-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install air
+        uses: posit-dev/setup-air@v1
+
+      - name: Check formatting
+        run: air format . --check
+
+      - name: "Check for ::: in R/"
+        run: |
+          if grep -n '^[^#]*:::' R/*.R; then
+            echo "::error::Use the bindings in R/lavaan-unexported.R, not :::"
+            exit 1
+          fi
