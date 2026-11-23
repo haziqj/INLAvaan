@@ -27,8 +27,11 @@
 
 * Results no longer depend on the collation locale. The canonical parameter
   order, which sets the whitening of the posterior marginals, followed
-  `LC_COLLATE`, so models with mixed-case names gave slightly different
-  marginal likelihoods under a UTF-8 locale than under the C locale.
+  `LC_COLLATE`. Under a UTF-8 locale, models whose parameter names sort
+  differently than in the C locale (mixed case, or the operators `~~` and `=~`)
+  gave slightly different results. The README model, for example, had a
+  marginal log-likelihood of -1644.364 under UTF-8 and -1644.390 under C. All
+  locales now give the C result.
 
 ## Internal
 
