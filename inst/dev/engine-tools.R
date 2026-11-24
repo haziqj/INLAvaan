@@ -1068,13 +1068,16 @@ run_engine_sync <- function(
   }
   report_stale(check_engine_stale(lock, repo), pkg, release = FALSE)
   cat(
-    "Next: run devtools::document() (NAMESPACE must not change), the tests\n",
-    "and `air format . --check`, add a NEWS entry, and make it all one\n",
-    "commit, \"Sync engine to ",
+    "Next:\n",
+    "  - devtools::document(): NAMESPACE must not change\n",
+    "  - DESCRIPTION: the Imports and Suggests that the copied files need\n",
+    "  - the tests, R CMD check and `air format . --check`\n",
+    "  - a NEWS entry\n",
+    "  - all in one commit, \"Sync engine to ",
     upstream_name(lock),
     " ",
     tag,
-    "\".\n",
+    "\"\n",
     sep = ""
   )
   invisible(list(

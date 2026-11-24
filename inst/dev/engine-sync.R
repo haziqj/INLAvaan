@@ -19,8 +19,9 @@
 # the files already locked, and copies all from the one tag. To drop a file,
 # delete the copy and its record from the lock by hand. The sync leaves
 # NAMESPACE unchanged and refuses a file with roxygen tags that would change
-# it. Then run devtools::document(), the tests and `air format . --check`,
-# and commit the sync with its NEWS entry as one commit.
+# it. Then run devtools::document(), add the dependencies of the copied files
+# to DESCRIPTION, run the tests, R CMD check and `air format . --check`, and
+# commit the sync with its NEWS entry as one commit.
 #
 ################################################################################
 
