@@ -7,11 +7,12 @@
 #     [--upstream=URL]
 #
 # The clone of inlavanilla is --repo or the environment variable
-# INLAVANILLA_REPO. The script refuses a working tree with changes, and a tag
-# that is not on the upstream remote (Upstream in inst/inlavanilla.lock, or
-# --upstream for a first lock) at the same commit. It copies the files byte
-# for byte to R/, writes the lock, and prints the upstream log since the last
-# sync, check 1a, the duplicate names and the staleness report.
+# INLAVANILLA_REPO. The script refuses a working tree with changes, a tag that
+# is not a version (v26.11.23), and a tag that is not on the upstream remote
+# (Upstream in inst/inlavanilla.lock, or --upstream for a first lock) at the
+# same commit. It copies the files byte for byte to R/, writes the lock, and
+# prints the upstream log since the last sync, check 1a, the duplicate names
+# and the staleness report.
 #
 # The files are named as R/vanilla-<name>.R or vanilla-<name>.R. Without them
 # the sync takes every R/vanilla-*.R file at the tag. With them it adds them to

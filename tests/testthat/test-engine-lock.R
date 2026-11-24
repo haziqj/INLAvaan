@@ -533,7 +533,7 @@ test_that("the sync copies files from a pushed tag and writes the lock", {
   fixture_commit(kit, pkg, list(), "Add vanilla-b.R")
 })
 
-test_that("the sync refuses a dirty tree, an unpushed tag and NAMESPACE tags", {
+test_that("the sync refuses a dirty tree, bad tags and NAMESPACE tags", {
   kit <- engine_tools()
   skip_if_no_git()
   up <- make_upstream(kit)
@@ -558,6 +558,12 @@ test_that("the sync refuses a dirty tree, an unpushed tag and NAMESPACE tags", {
   fixture_git(kit, up$clone, "tag", "--force", "v26.12.01")
   expect_error(sync("v26.12.01"), "in the clone but")
   expect_error(sync("v99"), "no tag")
+
+  # A tag on the remote that is not a release tag
+  fixture_git(kit, up$clone, "tag", "snapshot")
+  kit$git(up$clone, c("push", "--quiet", "origin", "snapshot"))
+  expect_error(sync("snapshot"), "not a release tag")
+  expect_false(file.exists(file.path(pkg, "R/vanilla-a.R")))
 
   # A file that is not an engine file
   kit$git(up$clone, c("push", "--quiet", "--force", "origin", "--tags"))

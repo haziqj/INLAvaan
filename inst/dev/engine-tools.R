@@ -702,6 +702,13 @@ run_engine_sync <- function(
   upstream = NULL,
   date = Sys.Date()
 ) {
+  if (!grepl(engine_tag_pattern, tag)) {
+    stop(
+      tag,
+      " is not a release tag: a version such as v26.11.23",
+      call. = FALSE
+    )
+  }
   if (!nzchar(repo)) {
     stop(
       "Set ",
