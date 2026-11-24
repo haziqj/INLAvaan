@@ -640,8 +640,7 @@ if (!is.null(Sigma_theta)) {
     omega = numeric(m),
     alpha = numeric(m),
     logC = numeric(m),
-    k = numeric(m),
-    rmse = numeric(m),
+    nmad = numeric(m),
     stringsAsFactors = FALSE
   )
 
@@ -695,17 +694,16 @@ if (!is.null(Sigma_theta)) {
     )
 
     if (!is.null(sn_fit)) {
-      sn_params[j, ] <- sn_fit[c("xi", "omega", "alpha", "logC", "k", "rmse")]
-      cat(sprintf("    SN fit: ξ=%.4f, ω=%.4f, α=%.4f, R²=%.4f\n",
-                  sn_fit$xi, sn_fit$omega, sn_fit$alpha, 1 - sn_fit$rmse))
+      sn_params[j, ] <- sn_fit[c("xi", "omega", "alpha", "logC", "nmad")]
+      cat(sprintf("    SN fit: ξ=%.4f, ω=%.4f, α=%.4f, NMAD=%.4f\n",
+                  sn_fit$xi, sn_fit$omega, sn_fit$alpha, sn_fit$nmad))
     } else {
       # Fall back: use Gaussian approximation from Hessian
       sn_params[j, "xi"] <- theta_star[j]
       sn_params[j, "omega"] <- sd_j
       sn_params[j, "alpha"] <- 0  # symmetric = Gaussian
       sn_params[j, "logC"] <- 0
-      sn_params[j, "k"] <- 1
-      sn_params[j, "rmse"] <- NA
+      sn_params[j, "nmad"] <- NA
       cat(sprintf("    Fallback Gaussian: ξ=%.4f, ω=%.4f\n",
                   theta_star[j], sd_j))
     }
@@ -715,14 +713,16 @@ if (!is.null(Sigma_theta)) {
   print(round(sn_params, 4))
 
   # --- Diagnostic: plot a few marginals -------------------------------------
-  cat("\nMarginal fit diagnostics (R² values):\n")
+  # NMAD is the largest absolute gap between the fitted and the scanned density,
+  # over all scan points, divided by the peak of the scanned density.
+  cat("\nMarginal fit diagnostics (NMAD values, smaller is better):\n")
   for (j in 1:m) {
-    rmse_val <- sn_params$rmse[j]
-    if (!is.na(rmse_val)) {
-      rsq <- 1 - rmse_val
-      cat(sprintf("  %2d. %s: R² = %.4f\n", j, par_names[j], rsq))
+    nmad_val <- sn_params$nmad[j]
+    if (!is.na(nmad_val)) {
+      cat(sprintf("  %2d. %s: NMAD = %.4f\n", j, par_names[j], nmad_val))
     } else {
-      cat(sprintf("  %2d. %s: R² = N/A (Gaussian fallback)\n", j, par_names[j]))
+      cat(sprintf("  %2d. %s: NMAD = N/A (Gaussian fallback)\n", j,
+                  par_names[j]))
     }
   }
 }
