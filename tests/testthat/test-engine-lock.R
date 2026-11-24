@@ -603,7 +603,22 @@ test_that("engine-check.R and engine-sync.R run from the shell", {
   kit <- engine_tools()
   skip_if_no_git()
   rscript <- file.path(R.home("bin"), "Rscript")
-  dev <- file.path(kit$root, "inst", "dev")
+
+  # The scripts, the package and the clone sit in folders whose names have a
+  # space, as a Windows home folder may
+  spaced <- file.path(tempfile("spaced-"), "a folder")
+  dev <- file.path(spaced, "inst dev")
+  dir.create(dev, recursive = TRUE)
+  on.exit(unlink(dirname(spaced), recursive = TRUE), add = TRUE)
+  file.copy(
+    file.path(
+      kit$root,
+      "inst",
+      "dev",
+      c("engine-tools.R", "engine-check.R", "engine-sync.R")
+    ),
+    dev
+  )
   run <- function(script, args) {
     out <- suppressWarnings(system2(
       rscript,
@@ -618,6 +633,10 @@ test_that("engine-check.R and engine-sync.R run from the shell", {
   on.exit(unlink(c(up$clone, up$remote), recursive = TRUE), add = TRUE)
   pkg <- make_git_pkg(kit, up)
   on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+  file.rename(up$clone, file.path(spaced, "upstream clone"))
+  up$clone <- file.path(spaced, "upstream clone")
+  file.rename(pkg, file.path(spaced, "fixture pkg"))
+  pkg <- file.path(spaced, "fixture pkg")
 
   res <- run(
     "engine-sync.R",

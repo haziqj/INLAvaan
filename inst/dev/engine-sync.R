@@ -29,7 +29,9 @@ file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
 if (length(file_arg) == 0) {
   stop("Run this script with Rscript", call. = FALSE)
 }
-script_dir <- dirname(normalizePath(sub("^--file=", "", file_arg[1])))
+# Rscript writes each space in the path of the script as ~+~
+script_path <- gsub("~+~", " ", sub("^--file=", "", file_arg[1]), fixed = TRUE)
+script_dir <- dirname(normalizePath(script_path))
 source(file.path(script_dir, "engine-tools.R"))
 
 cli <- parse_cli_args(
