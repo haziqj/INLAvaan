@@ -31,7 +31,7 @@ engine_repo_env <- "INLAVANILLA_REPO"
 engine_tag_pattern <- "^v?[0-9]+([.-][0-9]+)*$"
 
 # Roxygen tags that would change NAMESPACE, or the collation order through
-# @include, if a copied file held them
+# @include, if a copied file held them.
 engine_roxygen_ns <- paste0(
   "^\\s*#'.*@",
   "(export|import|useDynLib|rawNamespace|S3method|include)"
@@ -396,7 +396,7 @@ upstream_version <- function(repo, rev) {
 }
 
 # The tags of a remote, named by tag, with the commit that each names: the
-# peeled entry of an annotated tag, else the plain one
+# peeled entry of an annotated tag, else the plain one.
 remote_tags <- function(repo, url) {
   out <- git(repo, c("ls-remote", "--tags", url), error = FALSE)
   if (is.null(out)) {
@@ -576,7 +576,7 @@ is_release_version <- function(version) {
 }
 
 # TRUE when the first section of NEWS.md (from its first level-one heading to
-# the next) contains `text`
+# the next) contains `text`.
 news_names <- function(pkg, text) {
   path <- file.path(pkg, "NEWS.md")
   if (!file.exists(path)) {
@@ -914,7 +914,7 @@ run_engine_sync <- function(
   }
 
   # The files: those asked for (or all engine files at the tag) and those
-  # already locked
+  # already locked.
   at_tag <- git_files_at(repo, commit)
   engine_at_tag <- at_tag[grepl(engine_file_pattern, at_tag)]
   if (length(files) == 0) {

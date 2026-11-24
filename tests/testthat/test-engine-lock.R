@@ -42,7 +42,7 @@ fake_header <- function(
 }
 
 # A package folder with engine copies, other R files and a lock that lists the
-# copies with their MD5 hashes
+# copies with their MD5 hashes.
 make_pkg <- function(kit, copies, others = list(), header = fake_header(kit)) {
   pkg <- tempfile("pkg-")
   write_text(
@@ -101,7 +101,7 @@ fixture_commit <- function(kit, dir, files, message, tag = NULL) {
 }
 
 # A clone of a fixture of inlavanilla, with a bare repository as its remote
-# origin, released as v26.11.23
+# origin, released as v26.11.23.
 make_upstream <- function(kit) {
   clone <- tempfile("upstream-")
   remote <- paste0(clone, ".git")
@@ -130,7 +130,7 @@ make_upstream <- function(kit) {
 }
 
 # The package under git, with a lock at v26.11.23 of the fixture upstream that
-# lists no file yet
+# lists no file yet.
 make_git_pkg <- function(kit, up, others = list()) {
   header <- fake_header(
     kit,
@@ -294,7 +294,7 @@ test_that("the duplicate-name check finds an engine object defined twice", {
   expect_identical(kit$check_engine_names(pkg), character())
 
   # A function, a constant and an S4 generic of the same names as engine
-  # objects, the first in a file that R loads after the engine file
+  # objects, the first in a file that R loads after the engine file.
   write_text(
     file.path(pkg, "R/zz-own.R"),
     paste(
@@ -514,7 +514,7 @@ test_that("check 2 flags a newer release that changes a copied file", {
   )
 
   # A newer release that changes a copied file is stale: a report during
-  # development, a failure at release unless NEWS.md names the tag
+  # development, a failure at release unless NEWS.md names the tag.
   kit$git(up$clone, c("push", "--quiet", "origin", "--tags"))
   stale <- kit$check_engine_stale(lock, up$clone)
   expect_identical(stale$local_only, character())
@@ -763,7 +763,7 @@ test_that("engine-check.R and engine-sync.R run from the shell", {
   rscript <- file.path(R.home("bin"), "Rscript")
 
   # The scripts, the package and the clone sit in folders whose names have a
-  # space, as a Windows home folder may
+  # space, as a Windows home folder may.
   spaced <- file.path(tempfile("spaced-"), "a folder")
   dev <- file.path(spaced, "inst dev")
   dir.create(dev, recursive = TRUE)
