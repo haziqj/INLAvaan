@@ -372,16 +372,16 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [347ms]
+#> ✔ Posterior mode and Hessian. [732ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [326ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [457ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.2s]
+#> ✔ Fit 17/17 skew-normal marginals. [1.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [175ms]
+#> ✔ Summarise 100 posterior draws. [207ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
