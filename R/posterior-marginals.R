@@ -1,6 +1,26 @@
 # All functions here compute summaries and also table of (x, f(x)) values for
 # plotting of the jth component parameter's posterior marginal
 
+## ----- Rows of approx_data ---------------------------------------------------
+# One row per skew-normal marginal: the fit (xi, omega, alpha, logC), its
+# normalised maximum absolute deviation from the scan (nmad) and the third-order
+# correction of the scan (gamma1). Each row is built by name, so a fit that
+# returns other fields cannot shift a column, and a field a writer lacks is NA.
+approx_data_cols <- c("xi", "omega", "alpha", "logC", "nmad", "gamma1")
+
+approx_data_row <- function(fit) {
+  vapply(
+    approx_data_cols,
+    function(nm) if (nm %in% names(fit)) as.numeric(fit[[nm]]) else NA_real_,
+    numeric(1)
+  )
+}
+
+# Stack named fits into rows. The names of `fits` become the row names.
+approx_data_rows <- function(fits) {
+  do.call(rbind, lapply(fits, approx_data_row))
+}
+
 ## ----- Two-piece asymmetric Gaussian -----------------------------------------
 # Product factor log-pdf
 prodfac_lp <- function(z, sigma_asym) {

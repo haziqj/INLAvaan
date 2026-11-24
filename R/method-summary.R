@@ -248,8 +248,9 @@ summary_inlavaan <- function(
   # NMAD (skewnorm marginal fit quality)
   if (isTRUE(nmad)) {
     # nocov start
+    int <- object@external$inlavaan_internal
     nmad_vals <- tryCatch(
-      object@external$inlavaan_internal$approx_data[, "nmad"],
+      int$approx_data[seq_along(int$theta_star), "nmad"],
       error = function(e) NULL
     )
     if (!is.null(nmad_vals) && !all(is.na(nmad_vals))) {

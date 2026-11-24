@@ -728,16 +728,7 @@ summarise_samples_sn <- function(y) {
   # summarise other draws directly.
   if (length(y) < 2 || is_constant(y)) {
     out <- summarise_samples(y)
-    out$sn_params <- c(
-      xi = NA_real_,
-      omega = NA_real_,
-      alpha = NA_real_,
-      logC = NA_real_,
-      k = NA_real_,
-      rmse = NA_real_,
-      nmad = NA_real_,
-      gamma1 = NA_real_
-    )
+    out$sn_params <- approx_data_row(NULL)
     return(out)
   }
   sn <- fit_skew_normal_samp(y)
@@ -770,16 +761,7 @@ summarise_samples_sn <- function(y) {
   list(
     summary = res,
     pdf_data = data.frame(x = x, y = fx),
-    sn_params = c(
-      xi = xi,
-      omega = omega,
-      alpha = alpha,
-      logC = NA_real_,
-      k = NA_real_,
-      rmse = NA_real_,
-      nmad = NA_real_,
-      gamma1 = NA_real_
-    )
+    sn_params = approx_data_row(list(xi = xi, omega = omega, alpha = alpha))
   )
 }
 

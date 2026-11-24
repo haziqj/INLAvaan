@@ -1231,16 +1231,14 @@ inlavaan <- function(
           # the scan would reproduce the Laplace marginal to numerical
           # precision -- emit it directly
           return(list(
-            fit = c(
-              xi = theta_star[j],
+            fit = approx_data_row(list(
+              xi = theta_star[[j]],
               omega = sqrt(Sigma_theta[j, j]),
               alpha = 0,
               logC = 0,
-              k = 0,
-              rmse = 0,
               nmad = 0,
               gamma1 = 0
-            ),
+            )),
             visual_debug = NULL
           ))
         }
@@ -1284,7 +1282,10 @@ inlavaan <- function(
         fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
         fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
 
-        list(fit = c(unlist(fit_sn), gamma1 = gamma1j), visual_debug = vd)
+        list(
+          fit = approx_data_row(c(fit_sn, gamma1 = gamma1j)),
+          visual_debug = vd
+        )
       }
 
       all_results <- run_parallel_or_serial(
@@ -1297,7 +1298,7 @@ inlavaan <- function(
         msg_done = "Fit {m}/{m} skew-normal marginal{?s}."
       )
 
-      approx_data <- do.call(what = "rbind", lapply(all_results, `[[`, "fit"))
+      approx_data <- approx_data_rows(lapply(all_results, `[[`, "fit"))
       rownames(approx_data) <- parnames
       visual_debug <- lapply(all_results, `[[`, "visual_debug")
       names(visual_debug) <- parnames
@@ -1438,7 +1439,7 @@ inlavaan <- function(
     } else {
       if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
         samp_cov <- sample_covariances_fit_sn(x_samp, pt)
-        sn_rows <- do.call(rbind, lapply(samp_cov, `[[`, "sn_params"))
+        sn_rows <- approx_data_rows(lapply(samp_cov, `[[`, "sn_params"))
         approx_data <- rbind(approx_data, sn_rows)
       } else {
         samp_cov <- sample_covariances(x_samp, pt)
@@ -1461,7 +1462,7 @@ inlavaan <- function(
   if (any(pt$op == ":=")) {
     if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
       defpars <- get_defpars(x_samp, pt, lavmodel, summarise_samples_sn)
-      sn_rows <- do.call(rbind, lapply(defpars, `[[`, "sn_params"))
+      sn_rows <- approx_data_rows(lapply(defpars, `[[`, "sn_params"))
       approx_data <- rbind(approx_data, sn_rows)
     } else {
       defpars <- get_defpars(x_samp, pt, lavmodel)
@@ -1486,7 +1487,7 @@ inlavaan <- function(
     })
     names(comp_summ) <- colnames(comp_draws)
     if (use_sn) {
-      sn_rows <- do.call(rbind, lapply(comp_summ, `[[`, "sn_params"))
+      sn_rows <- approx_data_rows(lapply(comp_summ, `[[`, "sn_params"))
       approx_data <- rbind(approx_data, sn_rows)
     }
     for (comp_name in names(comp_summ)) {

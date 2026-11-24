@@ -6,6 +6,11 @@
   engine whose files INLAvaan copies, with a hash of each copy. It lists no
   files yet.
 
+* `approx_data` in `get_inlavaan_internal()` no longer has the columns `k` and
+  `rmse`. `k` was the temperature of the skew-normal fit, and `rmse` was a mean
+  squared error, not its root. The columns are now `xi`, `omega`, `alpha`,
+  `logC`, `nmad` and `gamma1`, and each row is built by name.
+
 # INLAvaan 0.3.5
 
 ## New features
