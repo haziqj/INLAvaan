@@ -1,7 +1,7 @@
 # The engine lock. INLAvaan holds byte copies of inlavanilla's engine files,
 # R/vanilla-*.R, listed with their MD5 hashes in inst/inlavanilla.lock. The
-# tools that check the copies live in inst/dev, which R CMD build leaves out,
-# so these tests run only in a source tree (devtools::test()).
+# tools that check and sync the copies live in inst/dev, which R CMD build
+# leaves out, so these tests run only in a source tree (devtools::test()).
 # Each check is shown to pass on a good fixture and to fail on a broken one.
 # The git fixtures stand in for a clone of inlavanilla and its remote. `kit`
 # is the environment of the tools.
@@ -122,6 +122,17 @@ make_upstream <- function(kit) {
   kit$git(clone, c("push", "--quiet", "origin", "main", "--tags"))
   kit$git(clone, c("fetch", "--quiet", "origin"))
   list(clone = clone, remote = remote)
+}
+
+# The package under git, with a lock at v26.11.23 of the fixture upstream that
+# lists no file yet
+make_git_pkg <- function(kit, up, others = list()) {
+  header <- fake_header(kit, kit$git_commit_of(up$clone, "v26.11.23"))
+  header[["Upstream"]] <- up$remote
+  pkg <- make_pkg(kit, list(), others = others, header = header)
+  kit$git(pkg, c("init", "--quiet"))
+  fixture_commit(kit, pkg, list(), "Start")
+  pkg
 }
 
 quietly <- function(expr) {
@@ -433,4 +444,179 @@ test_that("release mode follows the version in DESCRIPTION", {
   expect_false(kit$is_release_version("0.4.0.9001"))
   expect_true(kit$is_release_version("0.4.0"))
   expect_true(kit$is_release_version("0.4.0.1"))
+})
+
+## ----- Sync ------------------------------------------------------------------
+
+test_that("the sync copies files from a pushed tag and writes the lock", {
+  kit <- engine_tools()
+  skip_if_no_git()
+  up <- make_upstream(kit)
+  on.exit(unlink(c(up$clone, up$remote), recursive = TRUE), add = TRUE)
+  fixture_commit(
+    kit,
+    up$clone,
+    list("R/vanilla-a.R" = paste0(engine_a, "ga <- function() 0\n")),
+    "Add ga",
+    "v26.12.01"
+  )
+  kit$git(up$clone, c("push", "--quiet", "origin", "main", "--tags"))
+  pkg <- make_git_pkg(
+    kit,
+    up,
+    others = list("R/own.R" = "own <- function() 1\n")
+  )
+  on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+  namespace <- tools::md5sum(file.path(pkg, "NAMESPACE"))
+  sync <- function(...) {
+    quietly(kit$run_engine_sync(
+      ...,
+      pkg = pkg,
+      repo = up$clone,
+      date = "2026-12-02"
+    ))
+  }
+
+  # One file from v26.12.01
+  res <- sync("v26.12.01", "vanilla-a.R")
+  lock <- res$value$lock
+  expect_identical(lock$header[["Release"]], "v26.12.01")
+  expect_identical(
+    lock$header[["Commit"]],
+    kit$git_commit_of(up$clone, "v26.12.01")
+  )
+  expect_identical(lock$header[["Synced"]], "2026-12-02")
+  expect_identical(lock$files$file, "R/vanilla-a.R")
+  expect_identical(res$value$copy, character())
+  expect_identical(res$value$names, character())
+  expect_identical(kit$check_engine_upstream(lock, up$clone), character())
+  expect_identical(tools::md5sum(file.path(pkg, "NAMESPACE")), namespace)
+  expect_match(res$output, "Upstream log since v26.11.23", all = FALSE)
+  expect_match(res$output, "Add ga$", all = FALSE)
+
+  # The tree is not clean now
+  expect_error(sync("v26.12.01"), "not clean")
+  fixture_commit(kit, pkg, list(), "Sync engine to upstream v26.12.01")
+
+  # Without files, every engine file at the tag
+  res <- sync("v26.12.01")
+  expect_identical(
+    res$value$lock$files$file,
+    c("R/vanilla-a.R", "R/vanilla-b.R")
+  )
+  expect_match(res$output, "The lock was at v26.12.01 already", all = FALSE)
+  fixture_commit(kit, pkg, list(), "Add vanilla-b.R")
+})
+
+test_that("the sync refuses a dirty tree, an unpushed tag and NAMESPACE tags", {
+  kit <- engine_tools()
+  skip_if_no_git()
+  up <- make_upstream(kit)
+  on.exit(unlink(c(up$clone, up$remote), recursive = TRUE), add = TRUE)
+  pkg <- make_git_pkg(kit, up)
+  on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+  sync <- function(...) {
+    quietly(kit$run_engine_sync(..., pkg = pkg, repo = up$clone))
+  }
+
+  # A tag only in the clone, and a tag moved after the push
+  fixture_commit(
+    kit,
+    up$clone,
+    list("R/vanilla-b.R" = "fb <- NULL\n"),
+    "B",
+    "v26.12.01"
+  )
+  expect_error(sync("v26.12.01"), "is not on")
+  kit$git(up$clone, c("push", "--quiet", "origin", "--tags"))
+  fixture_commit(kit, up$clone, list("R/vanilla-b.R" = "fb <- 1\n"), "B again")
+  fixture_git(kit, up$clone, "tag", "--force", "v26.12.01")
+  expect_error(sync("v26.12.01"), "in the clone but")
+  expect_error(sync("v99"), "no tag")
+
+  # A file that is not an engine file
+  kit$git(up$clone, c("push", "--quiet", "--force", "origin", "--tags"))
+  expect_error(sync("v26.12.01", "R/methods.R"), "Not an engine file")
+
+  # A dirty tree
+  write_text(file.path(pkg, "R/new.R"), "x <- 1\n")
+  expect_error(sync("v26.12.01"), "not clean")
+  unlink(file.path(pkg, "R/new.R"))
+
+  # A file with an @export tag
+  fixture_commit(
+    kit,
+    up$clone,
+    list("R/vanilla-b.R" = "#' @export\nfb <- 1\n"),
+    "Export fb",
+    "v26.12.02"
+  )
+  kit$git(up$clone, c("push", "--quiet", "origin", "--tags"))
+  expect_error(sync("v26.12.02"), "would change NAMESPACE")
+  expect_false(file.exists(file.path(pkg, "R/vanilla-b.R")))
+})
+
+test_that("the sync reports a name that the package still defines", {
+  kit <- engine_tools()
+  skip_if_no_git()
+  up <- make_upstream(kit)
+  on.exit(unlink(c(up$clone, up$remote), recursive = TRUE), add = TRUE)
+  pkg <- make_git_pkg(
+    kit,
+    up,
+    others = list("R/own.R" = "fa <- function() 1\n")
+  )
+  on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+  res <- quietly(kit$run_engine_sync("v26.11.23", pkg = pkg, repo = up$clone))
+  expect_identical(res$value$names, "`fa` is defined in R/own.R, R/vanilla-a.R")
+  expect_match(res$output, "^FAIL +names", all = FALSE)
+})
+
+## ----- The scripts -----------------------------------------------------------
+
+test_that("engine-check.R and engine-sync.R run from the shell", {
+  kit <- engine_tools()
+  skip_if_no_git()
+  rscript <- file.path(R.home("bin"), "Rscript")
+  dev <- file.path(kit$root, "inst", "dev")
+  run <- function(script, args) {
+    out <- suppressWarnings(system2(
+      rscript,
+      shQuote(c(file.path(dev, script), args)),
+      stdout = TRUE,
+      stderr = TRUE
+    ))
+    status <- attr(out, "status")
+    list(status = if (is.null(status)) 0L else status, output = out)
+  }
+  up <- make_upstream(kit)
+  on.exit(unlink(c(up$clone, up$remote), recursive = TRUE), add = TRUE)
+  pkg <- make_git_pkg(kit, up)
+  on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+
+  res <- run(
+    "engine-sync.R",
+    c(
+      "v26.11.23",
+      "vanilla-a.R",
+      paste0("--pkg=", pkg),
+      paste0("--repo=", up$clone)
+    )
+  )
+  expect_identical(res$status, 0L)
+  expect_match(res$output, "Synced 1 file", all = FALSE)
+  res <- run(
+    "engine-check.R",
+    c(paste0("--pkg=", pkg), paste0("--repo=", up$clone))
+  )
+  expect_identical(res$status, 0L)
+  expect_match(res$output, "^ok +1b", all = FALSE)
+
+  # An edited copy fails, and so do checks 1b and 2 asked for without a clone
+  write_text(file.path(pkg, "R/vanilla-a.R"), "fa <- 0\n")
+  res <- run("engine-check.R", c(paste0("--pkg=", pkg), "--checks=copy"))
+  expect_identical(res$status, 1L)
+  expect_match(res$output, "^FAIL +1a", all = FALSE)
+  res <- run("engine-check.R", c(paste0("--pkg=", pkg), "--checks=upstream"))
+  expect_identical(res$status, 1L)
 })

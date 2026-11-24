@@ -5,11 +5,12 @@
 # R/vanilla-*.R, each listed with its MD5 hash in inst/inlavanilla.lock. The
 # tools read and write the lock, check the copies against it (check 1a), check
 # that no object of an engine file is also defined in another file of R/, check
-# the lock against a clone of inlavanilla (check 1b), and report whether a
-# newer release of inlavanilla changes a copied file (check 2). engine-check.R
-# runs them from the shell, and tests/testthat/test-engine-lock.R sources this
-# file. They need base R (>= 4.1.0) and git, and read the name of the package
-# that holds the copies from its DESCRIPTION, so any package can use them.
+# the lock against a clone of inlavanilla (check 1b), report whether a newer
+# release of inlavanilla changes a copied file (check 2), and sync the copies
+# from a release tag. engine-check.R and engine-sync.R run them from the shell,
+# and tests/testthat/test-engine-lock.R sources this file. They need base R
+# (>= 4.1.0) and git, and read the name of the package that holds the copies
+# from its DESCRIPTION, so any package can use them.
 #
 ################################################################################
 
@@ -28,6 +29,13 @@ engine_header_fields <- c(
 )
 engine_repo_env <- "INLAVANILLA_REPO"
 engine_tag_pattern <- "^v?[0-9]+([.-][0-9]+)*$"
+
+# Roxygen tags that would change NAMESPACE, or the collation order through
+# @include, if a copied file held them
+engine_roxygen_ns <- paste0(
+  "^\\s*#'.*@",
+  "(export|import|useDynLib|rawNamespace|S3method|include)"
+)
 
 ## ----- The lock file ---------------------------------------------------------
 
@@ -306,6 +314,24 @@ upstream_version <- function(repo, rev) {
     return(NA_character_)
   }
   unname(read.dcf(tmp, fields = "Version")[1, 1])
+}
+
+# The commit that a tag of a remote names: the peeled entry of an annotated
+# tag, else the plain one. NA if the remote does not have the tag.
+remote_tag_commit <- function(repo, url, tag) {
+  out <- git(repo, c("ls-remote", "--tags", url))
+  ref <- paste0("refs/tags/", tag)
+  sha <- sub("\t.*$", "", out)
+  refs <- sub("^[^\t]*\t", "", out)
+  peeled <- sha[refs == paste0(ref, "^{}")]
+  plain <- sha[refs == ref]
+  if (length(peeled) > 0) {
+    peeled[1]
+  } else if (length(plain) > 0) {
+    plain[1]
+  } else {
+    NA_character_
+  }
 }
 
 ## ----- Check 1b: lock = upstream ---------------------------------------------
@@ -654,6 +680,264 @@ run_engine_check <- function(
     }
   }
   invisible(!failed)
+}
+
+## ----- Engine sync -----------------------------------------------------------
+
+# Copies engine files from a release tag of a clone of inlavanilla into R/,
+# byte for byte, and writes the lock. `files` adds to the files already
+# locked, and NULL takes every R/vanilla-*.R file at the tag. All locked files
+# are copied from the one tag, so the lock names one commit. To drop a file,
+# delete the copy and its record from the lock by hand.
+run_engine_sync <- function(
+  tag,
+  files = NULL,
+  pkg = find_package_root(),
+  repo = Sys.getenv(engine_repo_env),
+  upstream = NULL,
+  date = Sys.Date()
+) {
+  if (!nzchar(repo)) {
+    stop(
+      "Set ",
+      engine_repo_env,
+      " or pass --repo: the path of a clone of inlavanilla",
+      call. = FALSE
+    )
+  }
+  repo <- normalizePath(repo, mustWork = TRUE)
+  pkg <- normalizePath(pkg, mustWork = TRUE)
+  desc <- package_desc(pkg)
+  lock_path <- file.path(pkg, engine_lock_file)
+  old <- if (file.exists(lock_path)) read_engine_lock(lock_path) else NULL
+  if (is.null(upstream)) {
+    if (is.null(old)) {
+      stop("There is no lock yet: pass --upstream=<URL>", call. = FALSE)
+    }
+    upstream <- old$header[["Upstream"]]
+  }
+
+  # A clean tree, so that the sync is one commit of its own
+  if (
+    is.null(git(pkg, c("rev-parse", "--is-inside-work-tree"), error = FALSE))
+  ) {
+    stop(pkg, " is not in a git working tree", call. = FALSE)
+  }
+  dirty <- git(pkg, c("status", "--porcelain"))
+  if (length(dirty) > 0) {
+    stop(
+      "The working tree of ",
+      pkg,
+      " is not clean. Commit or stash first:\n",
+      paste(dirty, collapse = "\n"),
+      call. = FALSE
+    )
+  }
+
+  # A tag that the upstream remote has, at the same commit
+  commit <- git_commit_of(repo, paste0("refs/tags/", tag))
+  if (is.na(commit)) {
+    stop(
+      "There is no tag ",
+      tag,
+      " in ",
+      repo,
+      ": fetch it first",
+      call. = FALSE
+    )
+  }
+  remote_commit <- remote_tag_commit(repo, upstream, tag)
+  if (is.na(remote_commit)) {
+    stop(
+      "The tag ",
+      tag,
+      " is not on ",
+      upstream,
+      ": push it first",
+      call. = FALSE
+    )
+  }
+  if (remote_commit != commit) {
+    stop(
+      "The tag ",
+      tag,
+      " is ",
+      short_sha(commit),
+      " in the clone but ",
+      short_sha(remote_commit),
+      " on ",
+      upstream,
+      call. = FALSE
+    )
+  }
+
+  # The files: those asked for (or all engine files at the tag) and those
+  # already locked
+  at_tag <- git_files_at(repo, commit)
+  engine_at_tag <- at_tag[grepl(engine_file_pattern, at_tag)]
+  if (length(files) == 0) {
+    wanted <- engine_at_tag
+    if (length(wanted) == 0) {
+      stop("There is no R/vanilla-*.R file at ", tag, call. = FALSE)
+    }
+  } else {
+    wanted <- ifelse(grepl("^R/", files), files, file.path("R", files))
+    unknown <- setdiff(wanted, engine_at_tag)
+    if (length(unknown) > 0) {
+      stop(
+        "Not an engine file R/vanilla-*.R at ",
+        tag,
+        ": ",
+        paste(unknown, collapse = ", "),
+        call. = FALSE
+      )
+    }
+  }
+  locked <- if (is.null(old)) character() else old$files$file
+  gone <- setdiff(locked, engine_at_tag)
+  if (length(gone) > 0) {
+    stop(
+      "The lock lists file(s) that are not at ",
+      tag,
+      ": ",
+      paste(gone, collapse = ", "),
+      ". Delete each copy and its record from the lock first.",
+      call. = FALSE
+    )
+  }
+  wanted <- sort(unique(c(wanted, locked)), method = "radix")
+
+  # Stage the files, and refuse any that would change NAMESPACE
+  stage <- tempfile("engine-sync-")
+  dir.create(stage)
+  on.exit(unlink(stage, recursive = TRUE), add = TRUE)
+  staged <- file.path(stage, basename(wanted))
+  for (i in seq_along(wanted)) {
+    if (!git_blob_to_file(repo, commit, wanted[i], staged[i])) {
+      stop("Could not read ", wanted[i], " at ", tag, call. = FALSE)
+    }
+    lines <- readLines(staged[i], warn = FALSE, encoding = "UTF-8")
+    ns <- grep(engine_roxygen_ns, lines, value = TRUE)
+    if (length(ns) > 0) {
+      stop(
+        wanted[i],
+        " at ",
+        tag,
+        " has roxygen tags that would change NAMESPACE or the collation:\n",
+        paste(ns, collapse = "\n"),
+        call. = FALSE
+      )
+    }
+  }
+
+  # Copy and write the lock
+  dest <- file.path(pkg, wanted)
+  dir.create(file.path(pkg, "R"), showWarnings = FALSE)
+  if (!all(file.copy(staged, dest, overwrite = TRUE))) {
+    stop("Could not copy the files into ", file.path(pkg, "R"), call. = FALSE)
+  }
+  new_files <- data.frame(file = wanted, md5 = md5_lf(dest))
+  header <- c(
+    Upstream = upstream,
+    Release = tag,
+    Commit = commit,
+    Version = upstream_version(repo, commit),
+    Synced = format(as.Date(date), "%Y-%m-%d"),
+    Hash = engine_hash
+  )
+  write_engine_lock(lock_path, header, new_files)
+  lock <- read_engine_lock(lock_path)
+
+  # Report the files and the upstream log since the last sync
+  old_md5 <- if (is.null(old)) {
+    character()
+  } else {
+    stats::setNames(old$files$md5, old$files$file)
+  }
+  state <- ifelse(
+    !wanted %in% names(old_md5),
+    "new",
+    ifelse(old_md5[wanted] == new_files$md5, "unchanged", "changed")
+  )
+  cat(sprintf(
+    "Synced %d file(s) of %s %s (%s) into %s:\n",
+    length(wanted),
+    upstream_name(lock),
+    tag,
+    short_sha(commit),
+    desc[["Package"]]
+  ))
+  cat(sprintf("  %-9s %s\n", state, wanted), sep = "")
+  if (!is.null(old)) {
+    old_commit <- old$header[["Commit"]]
+    if (identical(old_commit, commit)) {
+      cat("The lock was at ", tag, " already.\n", sep = "")
+    } else if (is.na(git_commit_of(repo, old_commit))) {
+      cat(
+        "The last synced commit ",
+        old_commit,
+        " is not in the clone.\n",
+        sep = ""
+      )
+    } else {
+      args <- c("merge-base", "--is-ancestor", old_commit, commit)
+      if (is.null(git(repo, args, error = FALSE))) {
+        cat(tag, " does not descend from the last synced commit.\n", sep = "")
+      }
+      range <- paste0(old_commit, "..", commit)
+      log <- git(repo, c("log", "--oneline", "--no-decorate", range))
+      cat(sprintf(
+        "Upstream log since %s (%s), %d commit(s):\n",
+        old$header[["Release"]],
+        short_sha(old_commit),
+        length(log)
+      ))
+      cat(paste0("  ", log, "\n"), sep = "")
+      stat <- git(repo, c("diff", "--stat", old_commit, commit, "--", wanted))
+      if (length(stat) > 0) {
+        cat("Changes to the copied files:\n")
+        cat(paste0(stat, "\n"), sep = "")
+      }
+    }
+  }
+
+  # The checks after a sync: 1a must pass. A duplicate name means the package
+  # still defines an object that the engine now defines.
+  copy_problems <- check_engine_copy(pkg, lock)
+  if (length(copy_problems) > 0) {
+    report_line("FAIL", "1a  copies = lock", copy_problems)
+  } else {
+    report_line(
+      "ok",
+      sprintf("1a  copies = lock: %d file(s) match", nrow(lock$files))
+    )
+  }
+  name_problems <- check_engine_names(pkg)
+  if (length(name_problems) > 0) {
+    report_line(
+      "FAIL",
+      "names: delete the package's own definitions of these objects",
+      name_problems
+    )
+  } else {
+    report_line("ok", "names: no object of an engine file is defined twice")
+  }
+  report_stale(check_engine_stale(lock, repo), pkg, release = FALSE)
+  cat(
+    "Next: run devtools::document() (NAMESPACE must not change), the tests\n",
+    "and `air format . --check`, add a NEWS entry, and make it all one\n",
+    "commit, \"Sync engine to ",
+    upstream_name(lock),
+    " ",
+    tag,
+    "\".\n",
+    sep = ""
+  )
+  invisible(list(
+    lock = lock,
+    copy = copy_problems,
+    names = name_problems
+  ))
 }
 
 ## ----- Command line ----------------------------------------------------------
