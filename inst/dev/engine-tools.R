@@ -262,9 +262,33 @@ call_arg <- function(args, name) {
   if (length(unnamed) > 0) args[[unnamed[1]]] else NULL
 }
 
+# The names that NAMESPACE imports one by one (importFrom), with the package
+# each comes from. A whole-package import() names nothing here.
+namespace_imports <- function(pkg) {
+  pkg <- normalizePath(pkg, mustWork = TRUE)
+  none <- data.frame(name = character(), from = character())
+  if (!file.exists(file.path(pkg, "NAMESPACE"))) {
+    return(none)
+  }
+  imports <- parseNamespaceFile(basename(pkg), dirname(pkg))$imports
+  imports <- Filter(is.list, imports)
+  if (length(imports) == 0) {
+    return(none)
+  }
+  local_names <- lapply(imports, function(x) {
+    nm <- x[[2]]
+    if (is.null(names(nm))) nm else ifelse(names(nm) == "", nm, names(nm))
+  })
+  data.frame(
+    name = as.character(unlist(local_names)),
+    from = rep(vapply(imports, `[[`, character(1), 1), lengths(local_names))
+  )
+}
+
 # Without a Collate field, R loads R/ in alphabetical order, and an object
-# defined in two files silently takes the later definition. Fails when a name
-# bound in an R/vanilla-*.R file is bound in any other file of R/.
+# defined in two files silently takes the later definition. A definition also
+# silently masks an import. Fails when a name bound in an R/vanilla-*.R file
+# is bound in any other file of R/, or imported in NAMESPACE with importFrom.
 check_engine_names <- function(pkg) {
   files <- list.files(file.path(pkg, "R"), pattern = "[.][RrSsQq]$")
   defs <- lapply(file.path(pkg, "R", files), top_level_names)
@@ -282,6 +306,23 @@ check_engine_names <- function(pkg) {
         sprintf("`%s` is defined in %s", name, paste(in_files, collapse = ", "))
       )
     }
+  }
+  imports <- namespace_imports(pkg)
+  masked <- imports[imports$name %in% engine_names, , drop = FALSE]
+  masked <- masked[order(masked$name, method = "radix"), , drop = FALSE]
+  for (i in seq_len(nrow(masked))) {
+    in_files <- where$file[
+      where$name == masked$name[i] & grepl(engine_file_pattern, where$file)
+    ]
+    problems <- c(
+      problems,
+      sprintf(
+        "`%s` is defined in %s and imported from %s in NAMESPACE",
+        masked$name[i],
+        paste(in_files, collapse = ", "),
+        masked$from[i]
+      )
+    )
   }
   problems
 }
@@ -725,12 +766,15 @@ run_engine_check <- function(
     if (length(problems) > 0) {
       report_line(
         "FAIL",
-        "names: an object of an engine file is defined twice in R/",
+        "names: an object of an engine file is defined twice or imported",
         problems
       )
       failed <- TRUE
     } else {
-      report_line("ok", "names: no object of an engine file is defined twice")
+      report_line(
+        "ok",
+        "names: no object of an engine file is defined twice or imported"
+      )
     }
   }
   if (any(c("upstream", "stale") %in% checks)) {
@@ -1013,11 +1057,14 @@ run_engine_sync <- function(
   if (length(name_problems) > 0) {
     report_line(
       "FAIL",
-      "names: delete the package's own definitions of these objects",
+      "names: delete the package's own definitions or imports of these objects",
       name_problems
     )
   } else {
-    report_line("ok", "names: no object of an engine file is defined twice")
+    report_line(
+      "ok",
+      "names: no object of an engine file is defined twice or imported"
+    )
   }
   report_stale(check_engine_stale(lock, repo), pkg, release = FALSE)
   cat(

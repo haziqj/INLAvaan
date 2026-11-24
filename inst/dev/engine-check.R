@@ -7,8 +7,9 @@
 #
 # copy (1a): each file in inst/inlavanilla.lock has its MD5, and every
 # R/vanilla-*.R file is listed. names: no object of an engine file is also
-# defined in another file of R/. upstream (1b): the release tag of the lock
-# resolves to its Commit, and each MD5 equals that of the file at Commit.
+# defined in another file of R/ or imported with importFrom in NAMESPACE.
+# upstream (1b): the release tag of the lock resolves to its Commit, and each
+# MD5 equals that of the file at Commit.
 # stale (2): no newer release tag on Upstream (the remote in the lock) changes
 # a copied file. Tags only in the clone are ignored. Newer commits on --branch
 # are listed only.

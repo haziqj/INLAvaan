@@ -314,6 +314,38 @@ test_that("the duplicate-name check finds an engine object defined twice", {
   )
 })
 
+test_that("the names check finds an engine object that masks an import", {
+  kit <- engine_tools()
+  pkg <- make_pkg(
+    kit,
+    list("R/vanilla-a.R" = engine_a, "R/vanilla-b.R" = engine_b)
+  )
+  on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+  write_text(
+    file.path(pkg, "NAMESPACE"),
+    paste(
+      "export(own)",
+      "import(utils)",
+      "importFrom(stats, median, setNames)",
+      "importFrom(graphics, fb = plot)",
+      "importFrom(grDevices, fa, const_a)",
+      "",
+      sep = "\n"
+    )
+  )
+  expect_identical(
+    kit$check_engine_names(pkg),
+    sprintf(
+      "`%s` is defined in R/vanilla-%s.R and imported from %s in NAMESPACE",
+      c("const_a", "fa", "fb"),
+      c("a", "a", "b"),
+      c("grDevices", "grDevices", "graphics")
+    )
+  )
+  write_text(file.path(pkg, "NAMESPACE"), "importFrom(stats, median)\n")
+  expect_identical(kit$check_engine_names(pkg), character())
+})
+
 test_that("the duplicate-name check reads bindings in blocks and calls", {
   kit <- engine_tools()
   engine_c <- paste(

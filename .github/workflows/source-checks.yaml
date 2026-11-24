@@ -3,10 +3,10 @@
 # function of another package with `:::`. lavaan internals are bound in
 # R/lavaan-unexported.R instead. Then the engine checks of inst/dev (base R
 # and git only): the copies R/vanilla-*.R match inst/inlavanilla.lock (check
-# 1a, in the shell), no object of an engine file is defined twice in R/, the
-# lock matches a fresh clone of inlavanilla (check 1b), and no newer release
-# of inlavanilla changes a copied file (check 2, a report during development
-# and an error at release).
+# 1a, in the shell), no object of an engine file is defined twice in R/ or
+# imported in NAMESPACE, the lock matches a fresh clone of inlavanilla (check
+# 1b), and no newer release of inlavanilla changes a copied file (check 2, a
+# report during development and an error at release).
 on:
   push:
     branches: [main, master]
