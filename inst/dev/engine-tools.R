@@ -432,7 +432,12 @@ check_engine_stale <- function(lock, repo, branch = "main") {
   )
   changed <- lapply(tags, function(tag) {
     blobs <- vapply(files, function(f) git_blob_id(repo, tag, f), character(1))
-    files[!mapply(identical, blobs, locked_blobs)]
+    same <- vapply(
+      seq_along(files),
+      function(i) identical(blobs[[i]], locked_blobs[[i]]),
+      logical(1)
+    )
+    files[!same]
   })
   names(changed) <- tags
   newest <- if (length(tags) > 0) {

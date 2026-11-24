@@ -438,6 +438,31 @@ test_that("check 2 flags a newer release that changes a copied file", {
   expect_false(quietly(check(TRUE))$value)
 })
 
+test_that("check 2 works on a lock that lists no file", {
+  kit <- engine_tools()
+  skip_if_no_git()
+  up <- make_upstream(kit)
+  on.exit(unlink(c(up$clone, up$remote), recursive = TRUE), add = TRUE)
+  commit <- kit$git_commit_of(up$clone, "v26.11.23")
+  pkg <- make_pkg(kit, list(), header = fake_header(kit, commit))
+  on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+  lock <- kit$read_engine_lock(file.path(pkg, kit$engine_lock_file))
+  fixture_commit(
+    kit,
+    up$clone,
+    list("R/vanilla-a.R" = "fa <- 0\n"),
+    "A",
+    "v26.12.01"
+  )
+  stale <- kit$check_engine_stale(lock, up$clone)
+  expect_identical(stale$tags, "v26.12.01")
+  expect_identical(stale$stale, character())
+  expect_identical(stale$not_copied, c("R/vanilla-a.R", "R/vanilla-b.R"))
+  expect_true(
+    quietly(kit$run_engine_check(pkg, up$clone, release = TRUE))$value
+  )
+})
+
 test_that("release mode follows the version in DESCRIPTION", {
   kit <- engine_tools()
   expect_false(kit$is_release_version("0.3.99.9000"))
