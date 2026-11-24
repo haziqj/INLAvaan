@@ -263,7 +263,8 @@ call_arg <- function(args, name) {
 }
 
 # The names that NAMESPACE imports one by one (importFrom), with the package
-# each comes from. A whole-package import() names nothing here.
+# each comes from. A whole-package import(), with or without except, names
+# nothing here.
 namespace_imports <- function(pkg) {
   pkg <- normalizePath(pkg, mustWork = TRUE)
   none <- data.frame(name = character(), from = character())
@@ -271,7 +272,7 @@ namespace_imports <- function(pkg) {
     return(none)
   }
   imports <- parseNamespaceFile(basename(pkg), dirname(pkg))$imports
-  imports <- Filter(is.list, imports)
+  imports <- Filter(function(x) is.list(x) && is.null(x$except), imports)
   if (length(imports) == 0) {
     return(none)
   }

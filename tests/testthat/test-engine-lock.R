@@ -327,6 +327,7 @@ test_that("the names check finds an engine object that masks an import", {
     paste(
       "export(own)",
       "import(utils)",
+      "import(tools, except = c(fa, fb))",
       "importFrom(stats, median, setNames)",
       "importFrom(graphics, fb = plot)",
       "importFrom(grDevices, fa, const_a)",
