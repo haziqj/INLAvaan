@@ -9,6 +9,9 @@ cli_messages <- c(
   "Navigating the seas of stochasticity"
 )
 
+# Base R has %||% from R 4.4.0 only. This copy keeps it for R 4.1.0 and later.
+`%||%` <- function(x, y) if (is.null(x)) y else x
+
 # Moore-Penrose pseudoinverse (replaces MASS::ginv, uses only base svd)
 ginv_base <- function(X, tol = sqrt(.Machine$double.eps)) {
   s <- svd(X)
