@@ -216,16 +216,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [299ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [179ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [193ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [124ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [395ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [209ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [613ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [360ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
 </div>
@@ -281,8 +281,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            16069.266 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    13.077 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            16069.238 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    13.063 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -327,12 +327,12 @@
 <span><span class="co">#&gt; [1] 100</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">eta_preds</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;             eta1       eta2</span></span>
-<span><span class="co">#&gt; [1,] -0.87389228 -0.9810704</span></span>
-<span><span class="co">#&gt; [2,] -0.53788951  1.0354961</span></span>
-<span><span class="co">#&gt; [3,]  0.71541534 -1.0325474</span></span>
-<span><span class="co">#&gt; [4,]  0.73112006 -0.5508709</span></span>
-<span><span class="co">#&gt; [5,] -0.01775186  0.1443790</span></span>
-<span><span class="co">#&gt; [6,]  1.71539939  1.5187677</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,] -0.87388848 -0.9810772</span></span>
+<span><span class="co">#&gt; [2,] -0.53788926  1.0354982</span></span>
+<span><span class="co">#&gt; [3,]  0.71540000 -1.0325591</span></span>
+<span><span class="co">#&gt; [4,]  0.73112686 -0.5508657</span></span>
+<span><span class="co">#&gt; [5,] -0.01774651  0.1443935</span></span>
+<span><span class="co">#&gt; [6,]  1.71538679  1.5187622</span></span></code></pre></div>
 </div>
 <p>This is an S3 object with a summary method that provides posterior means and credible intervals for the latent variables. Alternatively, the user is welcome to perform their own summary statistics on the list of posterior samples returned by <code><a href="../reference/predict.html">predict()</a></code>.</p>
 <div class="cell">
@@ -368,12 +368,12 @@
 <span><span class="co">#&gt;  - attr(*, "class")= chr "summary.predict.inlavaan_internal"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">summ_eta</span><span class="op">$</span><span class="va">Mean</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            eta1       eta2</span></span>
-<span><span class="co">#&gt; [1,] -1.1418039 -0.3537009</span></span>
-<span><span class="co">#&gt; [2,] -0.5572125  0.4883728</span></span>
-<span><span class="co">#&gt; [3,]  0.4727568 -0.9477424</span></span>
-<span><span class="co">#&gt; [4,]  0.2536504 -0.4047609</span></span>
-<span><span class="co">#&gt; [5,] -1.0741578  0.7084259</span></span>
-<span><span class="co">#&gt; [6,]  1.5640164  1.4570187</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,] -1.1418054 -0.3537044</span></span>
+<span><span class="co">#&gt; [2,] -0.5572098  0.4883860</span></span>
+<span><span class="co">#&gt; [3,]  0.4727436 -0.9477335</span></span>
+<span><span class="co">#&gt; [4,]  0.2536586 -0.4047496</span></span>
+<span><span class="co">#&gt; [5,] -1.0741541  0.7083938</span></span>
+<span><span class="co">#&gt; [6,]  1.5640087  1.4570329</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="predictive-checks">Predictive checks<a class="anchor" aria-label="anchor" href="#predictive-checks"></a>
 </h3>
@@ -382,13 +382,13 @@
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">yrep</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate.html">simulate</a></span><span class="op">(</span><span class="va">fit</span>, nsim <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">yrep</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          y1         y2          y3        y4         y5        y6</span></span>
-<span><span class="co">#&gt; 1 -0.247092 -1.5686457 -0.06714146 1.5618447 1.20561624 0.7941650</span></span>
-<span><span class="co">#&gt; 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380587 1.1356429</span></span>
-<span><span class="co">#&gt; 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473334 1.9629508</span></span>
-<span><span class="co">#&gt; 4  0.012789 -0.6156410 -0.21093715 2.7687469 0.23618624 0.3798649</span></span>
-<span><span class="co">#&gt; 5  2.888693  1.3165189  1.26488447 1.2994000 0.05916673 0.1433568</span></span>
-<span><span class="co">#&gt; 6  1.418953  1.5439697  1.42632696 1.6012381 0.82603880 1.0609389</span></span></code></pre></div>
+<span><span class="co">#&gt;            y1         y2          y3       y4         y5        y6</span></span>
+<span><span class="co">#&gt; 1 -0.24709176 -1.5686489 -0.06714349 1.561836 1.20558583 0.7941593</span></span>
+<span><span class="co">#&gt; 2 -2.36341866 -1.0970918 -1.47288153 0.574459 1.25378427 1.1356304</span></span>
+<span><span class="co">#&gt; 3  1.49242306 -0.8458409  0.57549028 2.669261 2.24467174 1.9629433</span></span>
+<span><span class="co">#&gt; 4  0.01279583 -0.6156373 -0.21093473 2.768771 0.23615784 0.3798802</span></span>
+<span><span class="co">#&gt; 5  2.88871273  1.3165203  1.26488546 1.299416 0.05914934 0.1433670</span></span>
+<span><span class="co">#&gt; 6  1.41895572  1.5439718  1.42632843 1.601245 0.82600615 1.0609432</span></span></code></pre></div>
 </div>
 <p>Comparing such replicates with the observed data is the basis of prior and posterior predictive checking. The <a href="https://inlavaan.haziqj.ml/articles/predictive-checks.html">predictive checks article</a> walks through that workflow, and the <a href="https://inlavaan.haziqj.ml/articles/sampling.html">sampling article</a> explains the machinery behind it.</p>
 </section><section class="level3"><h3 id="fit-measures">Fit measures<a class="anchor" aria-label="anchor" href="#fit-measures"></a>
@@ -398,7 +398,7 @@
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fitmeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         npar   margloglik          ppp          dic        p_dic       BRMSEA </span></span>
-<span><span class="co">#&gt;           13    -8081.340        0.121    16069.266       13.077        0.032 </span></span>
+<span><span class="co">#&gt;           13    -8081.340        0.121    16069.238       13.063        0.032 </span></span>
 <span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI </span></span>
 <span><span class="co">#&gt;        0.997        0.992        0.996        0.996        0.992        0.992</span></span></code></pre></div>
 </div>
@@ -427,7 +427,7 @@
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 1.59 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.93 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -455,16 +455,16 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [121ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [66ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [162ms]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.039σ. [86ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/12 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [335ms]</span></span>
+<span><span class="co">#&gt; ✔ Fit 12/12 skew-normal marginals. [184ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [546ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [338ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
@@ -472,8 +472,8 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;    fit   13   -8081.340   0.000 16069.27 13.077</span></span>
-<span><span class="co">#&gt;   fit2   12   -8108.789 -27.449 16133.20 11.950</span></span></code></pre></div>
+<span><span class="co">#&gt;    fit   13   -8081.340   0.000 16069.24 13.063</span></span>
+<span><span class="co">#&gt;   fit2   12   -8108.789 -27.449 16133.18 11.938</span></span></code></pre></div>
 </div>
 <p>As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs <span class="citation" data-cites="tendeiro2019review schad2023workflow">(<a href="#ref-tendeiro2019review" role="doc-biblioref">Tendeiro and Kiers 2019</a>; <a href="#ref-schad2023workflow" role="doc-biblioref">Schad et al. 2023</a>)</span>. Leave-one-out cross-validation <span class="citation" data-cites="vehtari2017practical">(LOO, <a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span> and the widely applicable information criterion <span class="citation" data-cites="watanabe2010asymptotic">(WAIC, <a href="#ref-watanabe2010asymptotic" role="doc-biblioref">Watanabe 2010</a>)</span> are popular alternatives which compare models on out-of-sample predictive accuracy instead; see <span class="citation" data-cites="merkle2019bayesian">Merkle et al. (<a href="#ref-merkle2019bayesian" role="doc-biblioref">2019</a>)</span> for their use with latent variable models. Both are implemented in <a href="https://inlavaan.haziqj.ml/">INLAvaan</a>. The functions <code><a href="../reference/loo.html">loo()</a></code> and <code><a href="../reference/waic.html">waic()</a></code> require neither refitting nor sampling: both are computed in closed form from the same Taylor expansion around the fit’s Laplace summary.</p>
 <div class="cell">
@@ -504,8 +504,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   13   -8081.340   0.000 16069.27 13.077 -8024.860 54.291 13.009</span></span>
-<span><span class="co">#&gt;   fit2   12   -8108.789 -27.449 16133.20 11.950 -8057.005 55.133 12.043</span></span>
+<span><span class="co">#&gt;    fit   13   -8081.340   0.000 16069.24 13.063 -8024.860 54.291 13.009</span></span>
+<span><span class="co">#&gt;   fit2   12   -8108.789 -27.449 16133.18 11.938 -8057.005 55.133 12.043</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;    -32.144   7.743</span></span></code></pre></div>

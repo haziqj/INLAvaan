@@ -74,10 +74,10 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
             test = "standard", verbose = FALSE)
 
 deviance(fit)
-#> Deviance: 7531.728
-#> # ℹ pD = 20.562, DIC = 7552.291
+#> Deviance: 7531.711
+#> # ℹ pD = 20.545, DIC = 7552.256
 #> 
 attr(deviance(fit), "DIC")
-#> [1] 7552.291
+#> [1] 7552.256
 # }
 ```

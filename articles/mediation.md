@@ -96,16 +96,16 @@ the variables.
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [81ms]
+#> ✔ Posterior mode and Hessian. [51ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.073σ. [234ms]
+#> ✔ VB correction; mean |δ| = 0.073σ. [150ms]
 #> 
 #> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [149ms]
+#> ✔ Fit 7/7 skew-normal marginals. [93ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [570ms]
+#> ✔ Summarise 1000 posterior draws. [340ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -138,8 +138,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              568.329 
-#>    Effective parameters (pD)                     6.719 
+#>    Deviance (DIC)                              568.324 
+#>    Effective parameters (pD)                     6.716 
 #> 
 #> Parameter Estimates:
 #> 
@@ -162,8 +162,8 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                 0.977    0.143    0.735    1.297    0.004 gamma(1,.5)[sd]
-#>    .M                 0.998    0.146    0.752    1.324    0.004 gamma(1,.5)[sd]
+#>    .Y                 0.977    0.143    0.735    1.296    0.004 gamma(1,.5)[sd]
+#>    .M                 0.998    0.146    0.752    1.322    0.004 gamma(1,.5)[sd]
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

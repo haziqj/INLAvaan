@@ -274,13 +274,14 @@ cost of more joint-log-posterior evaluations. Defaults to <code>21</code>.</p></
 <dt id="arg-sn-fit-logthresh">sn_fit_logthresh<a class="anchor" aria-label="anchor" href="#arg-sn-fit-logthresh"></a></dt>
 <dd><p>The log-threshold for fitting the skew-normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will
-be excluded from the fit. Defaults to <code>-6</code>.</p></dd>
+be excluded from the fit. Must be a single finite negative number. The five
+highest points of the scan are always kept. Defaults to <code>-6</code>.</p></dd>
 
 
 <dt id="arg-sn-fit-temp">sn_fit_temp<a class="anchor" aria-label="anchor" href="#arg-sn-fit-temp"></a></dt>
-<dd><p>Temperature parameter for fitting the skew-normal.
-Defaults to <code>1</code> (weights are the density values themselves). If <code>NA</code>, the
-temperature is included as an additional optimisation parameter.</p></dd>
+<dd><p>Temperature parameter for fitting the skew-normal. Must be
+a single finite positive number. Defaults to <code>1</code> (weights are the density
+values themselves).</p></dd>
 
 
 <dt id="arg-sn-fit-sample">sn_fit_sample<a class="anchor" aria-label="anchor" href="#arg-sn-fit-sample"></a></dt>
@@ -490,17 +491,17 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span>  auto.cov.lv.x <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[187ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[82ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.166σ. <span style="color: #B2B2B2;">[247ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.166σ. <span style="color: #B2B2B2;">[411ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/21 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 21/21 skew-normal marginals. <span style="color: #B2B2B2;">[922ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 8/21 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 21/21 skew-normal marginals. <span style="color: #B2B2B2;">[517ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[637ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[398ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
@@ -519,8 +520,8 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Information Criteria:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Deviance (DIC)                             7552.912 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Effective parameters (pD)                    20.796 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Deviance (DIC)                             7552.857 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Effective parameters (pD)                    20.768 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Estimates:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -539,16 +540,16 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span>     x6                0.932    0.057    0.825    1.049    0.003    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   speed =~                                                                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     x7                1.000                                                    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x8                1.228    0.163    0.947    1.584    0.012    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     x8                1.228    0.163    0.946    1.584    0.012    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     x9                1.165    0.219    0.812    1.662    0.013    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Covariances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   visual ~~                                                                    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.396    0.077    0.254    0.555    0.001       beta(1,1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.248    0.053    0.144    0.351    0.011       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.396    0.077    0.255    0.555    0.001       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.248    0.053    0.145    0.351    0.011       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   textual ~~                                                                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.167    0.047    0.077    0.263    0.003       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.167    0.047    0.077    0.262    0.003       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
@@ -559,7 +560,7 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x5                0.454    0.059    0.344    0.576    0.003 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x6                0.363    0.045    0.281    0.455    0.002 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x7                0.833    0.091    0.670    1.025    0.004 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .x8                0.510    0.087    0.351    0.691    0.018 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .x8                0.510    0.087    0.351    0.692    0.018 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x9                0.562    0.089    0.387    0.733    0.008 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     visual            0.798    0.140    0.550    1.099    0.026 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.986    0.113    0.780    1.223    0.002 gamma(1,.5)[sd]</span>

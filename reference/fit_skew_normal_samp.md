@@ -16,21 +16,8 @@ fit_skew_normal_samp(x)
 
 ## Value
 
-A list with fitted parameters:
-
-- `xi`: location parameter
-
-- `omega`: scale parameter
-
-- `alpha`: shape parameter
-
-- `logC`: log-normalization constant
-
-- `k`: temperature parameter
-
-- `rsq`: R-squared of the fit
-
-Note that `logC` and `k` are not used when fitting from a sample.
+A list with the fitted parameters `xi` (location), `omega` (scale) and
+`alpha` (shape).
 
 ## Details
 

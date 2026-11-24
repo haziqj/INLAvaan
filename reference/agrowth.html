@@ -250,13 +250,14 @@ cost of more joint-log-posterior evaluations. Defaults to <code>21</code>.</p></
 <dt id="arg-sn-fit-logthresh">sn_fit_logthresh<a class="anchor" aria-label="anchor" href="#arg-sn-fit-logthresh"></a></dt>
 <dd><p>The log-threshold for fitting the skew-normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will
-be excluded from the fit. Defaults to <code>-6</code>.</p></dd>
+be excluded from the fit. Must be a single finite negative number. The five
+highest points of the scan are always kept. Defaults to <code>-6</code>.</p></dd>
 
 
 <dt id="arg-sn-fit-temp">sn_fit_temp<a class="anchor" aria-label="anchor" href="#arg-sn-fit-temp"></a></dt>
-<dd><p>Temperature parameter for fitting the skew-normal.
-Defaults to <code>1</code> (weights are the density values themselves). If <code>NA</code>, the
-temperature is included as an additional optimisation parameter.</p></dd>
+<dd><p>Temperature parameter for fitting the skew-normal. Must be
+a single finite positive number. Defaults to <code>1</code> (weights are the density
+values themselves).</p></dd>
 
 
 <dt id="arg-sn-fit-sample">sn_fit_sample<a class="anchor" aria-label="anchor" href="#arg-sn-fit-sample"></a></dt>
@@ -399,16 +400,17 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">agrowth</span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.growth</span>, nsamp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[732ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[224ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.031σ. <span style="color: #B2B2B2;">[457ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.031σ. <span style="color: #B2B2B2;">[221ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/17 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 17/17 skew-normal marginals. <span style="color: #B2B2B2;">[1.6s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 1/17 skew-normal marginals.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 17/17 skew-normal marginals. <span style="color: #B2B2B2;">[859ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 100 posterior draws. <span style="color: #B2B2B2;">[207ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 100 posterior draws. <span style="color: #B2B2B2;">[132ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
@@ -427,8 +429,8 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Information Criteria:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Deviance (DIC)                             4997.468 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Effective parameters (pD)                    17.567 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Deviance (DIC)                             4997.446 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Effective parameters (pD)                    17.556 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Estimates:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

@@ -18,16 +18,16 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [316ms]
+#> ✔ Posterior mode and Hessian. [188ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [229ms]
+#> ✔ VB correction; mean |δ| = 0.089σ. [135ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [805ms]
+#> ✔ Fit 21/21 skew-normal marginals. [467ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [81ms]
+#> ✔ Summarise 100 posterior draws. [80ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -46,8 +46,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7551.423 
-#>    Effective parameters (pD)                    20.128 
+#>    Deviance (DIC)                             7551.696 
+#>    Effective parameters (pD)                    20.265 
 #> 
 #> Parameter Estimates:
 #> 
@@ -67,7 +67,7 @@ summary(fit)
 #>   speed =~                                                                     
 #>     x7                0.616    0.074    0.466    0.758    0.003    normal(0,10)
 #>     x8                0.732    0.073    0.586    0.872    0.014    normal(0,10)
-#>     x9                0.681    0.075    0.537    0.833    0.016    normal(0,10)
+#>     x9                0.681    0.075    0.537    0.832    0.016    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -81,9 +81,9 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>    .x1                0.565    0.117    0.341    0.797    0.011 gamma(1,.5)[sd]
 #>    .x2                1.150    0.107    0.956    1.374    0.001 gamma(1,.5)[sd]
-#>    .x3                0.856    0.097    0.672    1.054    0.003 gamma(1,.5)[sd]
+#>    .x3                0.856    0.097    0.673    1.054    0.003 gamma(1,.5)[sd]
 #>    .x4                0.379    0.049    0.287    0.480    0.003 gamma(1,.5)[sd]
-#>    .x5                0.455    0.059    0.344    0.577    0.003 gamma(1,.5)[sd]
+#>    .x5                0.455    0.059    0.345    0.577    0.003 gamma(1,.5)[sd]
 #>    .x6                0.364    0.045    0.281    0.456    0.002 gamma(1,.5)[sd]
 #>    .x7                0.823    0.090    0.662    1.015    0.004 gamma(1,.5)[sd]
 #>    .x8                0.506    0.087    0.346    0.689    0.023 gamma(1,.5)[sd]

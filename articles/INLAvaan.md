@@ -118,16 +118,16 @@ mod <- "
 "
 fit <- asem(mod, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [299ms]
+#> ✔ Posterior mode and Hessian. [179ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [193ms]
+#> ✔ VB correction; mean |δ| = 0.039σ. [124ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [395ms]
+#> ✔ Fit 13/13 skew-normal marginals. [209ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [613ms]
+#> ✔ Summarise 1000 posterior draws. [360ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -234,8 +234,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            16069.266 
-#>    Effective parameters (pD)                    13.077 
+#>    Deviance (DIC)                            16069.238 
+#>    Effective parameters (pD)                    13.063 
 #> 
 #> Parameter Estimates:
 #> 
@@ -291,12 +291,12 @@ length(eta_preds)
 #> [1] 100
 head(eta_preds[[1]])
 #>             eta1       eta2
-#> [1,] -0.87389228 -0.9810704
-#> [2,] -0.53788951  1.0354961
-#> [3,]  0.71541534 -1.0325474
-#> [4,]  0.73112006 -0.5508709
-#> [5,] -0.01775186  0.1443790
-#> [6,]  1.71539939  1.5187677
+#> [1,] -0.87388848 -0.9810772
+#> [2,] -0.53788926  1.0354982
+#> [3,]  0.71540000 -1.0325591
+#> [4,]  0.73112686 -0.5508657
+#> [5,] -0.01774651  0.1443935
+#> [6,]  1.71538679  1.5187622
 ```
 
 This is an S3 object with a summary method that provides posterior means
@@ -338,12 +338,12 @@ str(summ_eta)
 #>  - attr(*, "class")= chr "summary.predict.inlavaan_internal"
 head(summ_eta$Mean)
 #>            eta1       eta2
-#> [1,] -1.1418039 -0.3537009
-#> [2,] -0.5572125  0.4883728
-#> [3,]  0.4727568 -0.9477424
-#> [4,]  0.2536504 -0.4047609
-#> [5,] -1.0741578  0.7084259
-#> [6,]  1.5640164  1.4570187
+#> [1,] -1.1418054 -0.3537044
+#> [2,] -0.5572098  0.4883860
+#> [3,]  0.4727436 -0.9477335
+#> [4,]  0.2536586 -0.4047496
+#> [5,] -1.0741541  0.7083938
+#> [6,]  1.5640087  1.4570329
 ```
 
 ### Predictive checks
@@ -359,13 +359,13 @@ produces complete replicate data sets from the fitted model.
 
 yrep <- simulate(fit, nsim = 1, seed = 1)
 head(yrep[[1]])
-#>          y1         y2          y3        y4         y5        y6
-#> 1 -0.247092 -1.5686457 -0.06714146 1.5618447 1.20561624 0.7941650
-#> 2 -2.363400 -1.0970890 -1.47287956 0.5744784 1.25380587 1.1356429
-#> 3  1.492414 -0.8458358  0.57549346 2.6692719 2.24473334 1.9629508
-#> 4  0.012789 -0.6156410 -0.21093715 2.7687469 0.23618624 0.3798649
-#> 5  2.888693  1.3165189  1.26488447 1.2994000 0.05916673 0.1433568
-#> 6  1.418953  1.5439697  1.42632696 1.6012381 0.82603880 1.0609389
+#>            y1         y2          y3       y4         y5        y6
+#> 1 -0.24709176 -1.5686489 -0.06714349 1.561836 1.20558583 0.7941593
+#> 2 -2.36341866 -1.0970918 -1.47288153 0.574459 1.25378427 1.1356304
+#> 3  1.49242306 -0.8458409  0.57549028 2.669261 2.24467174 1.9629433
+#> 4  0.01279583 -0.6156373 -0.21093473 2.768771 0.23615784 0.3798802
+#> 5  2.88871273  1.3165203  1.26488546 1.299416 0.05914934 0.1433670
+#> 6  1.41895572  1.5439718  1.42632843 1.601245 0.82600615 1.0609432
 ```
 
 Comparing such replicates with the observed data is the basis of prior
@@ -388,7 +388,7 @@ stored with the fit.
 
 fitmeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           13    -8081.340        0.121    16069.266       13.077        0.032 
+#>           13    -8081.340        0.121    16069.238       13.063        0.032 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
 #>        0.997        0.992        0.996        0.996        0.992        0.992
 ```
@@ -435,7 +435,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.59 s
+#> 0.93 s
 ```
 
 ### Plot
@@ -469,16 +469,16 @@ mod2 <- "
 "
 fit2 <- asem(mod2, dat)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [121ms]
+#> ✔ Posterior mode and Hessian. [66ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [162ms]
+#> ✔ VB correction; mean |δ| = 0.039σ. [86ms]
 #> 
 #> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [335ms]
+#> ✔ Fit 12/12 skew-normal marginals. [184ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [546ms]
+#> ✔ Summarise 1000 posterior draws. [338ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
@@ -486,8 +486,8 @@ compare(fit, fit2)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD
-#>    fit   13   -8081.340   0.000 16069.27 13.077
-#>   fit2   12   -8108.789 -27.449 16133.20 11.950
+#>    fit   13   -8081.340   0.000 16069.24 13.063
+#>   fit2   12   -8108.789 -27.449 16133.18 11.938
 ```
 
 As a note, there have been several criticisms of the use of Bayes
@@ -539,8 +539,8 @@ compare(fit, fit2, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   13   -8081.340   0.000 16069.27 13.077 -8024.860 54.291 13.009
-#>   fit2   12   -8108.789 -27.449 16133.20 11.950 -8057.005 55.133 12.043
+#>    fit   13   -8081.340   0.000 16069.24 13.063 -8024.860 54.291 13.009
+#>   fit2   12   -8108.789 -27.449 16133.18 11.938 -8057.005 55.133 12.043
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>    -32.144   7.743

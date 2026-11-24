@@ -126,17 +126,17 @@ C_i = w_1 x_{i1} + w_2 x_{i2} + w_3 x_{i3} = \mathbf w^\top \mathbf x_i ,
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Mode finding and Hessian computation.</span></span>
-<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [842ms]</span></span>
+<span><span class="co">#&gt; ✔ Posterior mode and Hessian. [490ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Performing VB correction.</span></span>
-<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.104σ. [1.7s]</span></span>
+<span><span class="co">#&gt; ✔ VB correction; mean |δ| = 0.104σ. [921ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Fitting 0/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 11/13 skew-normal marginals.</span></span>
-<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [3.4s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 9/13 skew-normal marginals.</span></span>
+<span><span class="co">#&gt; ✔ Fit 13/13 skew-normal marginals. [1.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [1.9s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [989ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
@@ -155,8 +155,8 @@ C_i = w_1 x_{i1} + w_2 x_{i2} + w_3 x_{i3} = \mathbf w^\top \mathbf x_i ,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             4431.835 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    12.898 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             4431.820 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    12.890 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -189,12 +189,12 @@ C_i = w_1 x_{i1} + w_2 x_{i2} + w_3 x_{i3} = \mathbf w^\top \mathbf x_i ,
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span></span>
-<span><span class="co">#&gt;     x1                1.379    0.113    1.174    1.619    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     x1                1.379    0.113    1.174    1.618    0.003 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;     x2                1.404    0.116    1.195    1.648    0.003 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     x3                1.293    0.106    1.101    1.519    0.003 gamma(1,.5)[sd]</span></span>
+<span><span class="co">#&gt;     x3                1.293    0.106    1.101    1.518    0.003 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x4                1.184    0.098    1.008    1.391    0.002 gamma(1,.5)[sd]</span></span>
 <span><span class="co">#&gt;    .x5                1.535    0.127    1.307    1.804    0.003 gamma(1,.5)[sd]</span></span>
-<span><span class="co">#&gt;     C                 1.548    0.296    1.112    2.239</span></span></code></pre></div>
+<span><span class="co">#&gt;     C                 1.547    0.296    1.112    2.238</span></span></code></pre></div>
 </div>
 <p>The marker <code>x1</code> is fixed at 1. The variance of <code>C</code> is not a free parameter but the sample variance of the scores <span class="math inline">\(\mathbf w^\top \mathbf x_i\)</span>. It is still uncertain, and lavaan merely does not report a standard error for it. Its posterior follows draw by draw from those of the weights and of the indicators’ variances and covariances (the <span class="math inline">\(\boldsymbol\Theta_x\)</span> block of lavaan’s <code>theta</code> matrix), without the normal approximation of the delta method. lavaan fixes <span class="math inline">\(\boldsymbol\Theta_x\)</span> at the sample covariances by default, which is what maximum likelihood would estimate anyway. INLAvaan estimates it with priors instead (lavaan’s <code>composites.cov = "free"</code>), so that its uncertainty carries through. The posterior means sit close to lavaan’s maximum likelihood estimates.</p>
 <div class="cell">

@@ -221,13 +221,14 @@ inlavaan(
 
   The log-threshold for fitting the skew-normal. Points with
   log-posterior drop below this threshold (relative to the maximum) will
-  be excluded from the fit. Defaults to `-6`.
+  be excluded from the fit. Must be a single finite negative number. The
+  five highest points of the scan are always kept. Defaults to `-6`.
 
 - sn_fit_temp:
 
-  Temperature parameter for fitting the skew-normal. Defaults to `1`
-  (weights are the density values themselves). If `NA`, the temperature
-  is included as an additional optimisation parameter.
+  Temperature parameter for fitting the skew-normal. Must be a single
+  finite positive number. Defaults to `1` (weights are the density
+  values themselves).
 
 - sn_fit_sample:
 
@@ -465,17 +466,17 @@ fit <- inlavaan(
   auto.cov.lv.x = TRUE
 )
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [187ms]
+#> ✔ Posterior mode and Hessian. [82ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.166σ. [247ms]
+#> ✔ VB correction; mean |δ| = 0.166σ. [411ms]
 #> 
 #> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [922ms]
+#> ⠹ Fitting 8/21 skew-normal marginals.
+#> ✔ Fit 21/21 skew-normal marginals. [517ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [637ms]
+#> ✔ Summarise 1000 posterior draws. [398ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -494,8 +495,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.912 
-#>    Effective parameters (pD)                    20.796 
+#>    Deviance (DIC)                             7552.857 
+#>    Effective parameters (pD)                    20.768 
 #> 
 #> Parameter Estimates:
 #> 
@@ -514,16 +515,16 @@ summary(fit)
 #>     x6                0.932    0.057    0.825    1.049    0.003    normal(0,10)
 #>   speed =~                                                                     
 #>     x7                1.000                                                    
-#>     x8                1.228    0.163    0.947    1.584    0.012    normal(0,10)
+#>     x8                1.228    0.163    0.946    1.584    0.012    normal(0,10)
 #>     x9                1.165    0.219    0.812    1.662    0.013    normal(0,10)
 #> 
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.396    0.077    0.254    0.555    0.001       beta(1,1)
-#>     speed             0.248    0.053    0.144    0.351    0.011       beta(1,1)
+#>     textual           0.396    0.077    0.255    0.555    0.001       beta(1,1)
+#>     speed             0.248    0.053    0.145    0.351    0.011       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.167    0.047    0.077    0.263    0.003       beta(1,1)
+#>     speed             0.167    0.047    0.077    0.262    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -534,7 +535,7 @@ summary(fit)
 #>    .x5                0.454    0.059    0.344    0.576    0.003 gamma(1,.5)[sd]
 #>    .x6                0.363    0.045    0.281    0.455    0.002 gamma(1,.5)[sd]
 #>    .x7                0.833    0.091    0.670    1.025    0.004 gamma(1,.5)[sd]
-#>    .x8                0.510    0.087    0.351    0.691    0.018 gamma(1,.5)[sd]
+#>    .x8                0.510    0.087    0.351    0.692    0.018 gamma(1,.5)[sd]
 #>    .x9                0.562    0.089    0.387    0.733    0.008 gamma(1,.5)[sd]
 #>     visual            0.798    0.140    0.550    1.099    0.026 gamma(1,.5)[sd]
 #>     textual           0.986    0.113    0.780    1.223    0.002 gamma(1,.5)[sd]

@@ -41,18 +41,17 @@ datmiss[datmiss == 0] <- NA
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [500ms]
+#> ✔ Posterior mode and Hessian. [280ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.185σ. [1.2s]
+#> ✔ VB correction; mean |δ| = 0.185σ. [579ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 7/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [3.2s]
+#> ✔ Fit 42/42 skew-normal marginals. [1.6s]
 #> 
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [973ms]
+#> ✔ Summarise 1000 posterior draws. [587ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
@@ -77,7 +76,7 @@ coef(fit1)
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
 #>        0.721        1.354        0.913        0.567        1.080        0.470 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        1.844        3.596        0.607       -0.668        1.283        0.071 
+#>        1.844        3.596        0.607       -0.669        1.283        0.071 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
 #>        0.144        0.424        1.698        7.790        4.086        2.786 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
@@ -94,19 +93,17 @@ coef(fit1)
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [578ms]
+#> ✔ Posterior mode and Hessian. [287ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.144σ. [719ms]
+#> ✔ VB correction; mean |δ| = 0.144σ. [379ms]
 #> 
 #> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 5/42 skew-normal marginals.
-#> ⠸ Fitting 23/42 skew-normal marginals.
-#> ⠼ Fitting 40/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [7.2s]
+#> ⠹ Fitting 20/42 skew-normal marginals.
+#> ✔ Fit 42/42 skew-normal marginals. [3.7s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.5s]
+#> ✔ Summarise 1000 posterior draws. [886ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)
@@ -127,7 +124,7 @@ coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        2.214        1.835        0.650        0.791        0.954        1.026 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        1.050        1.287        1.299        0.524        0.756        0.482 
+#>        1.050        1.287        1.299        0.524        0.756        0.483 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
 #>        0.898        3.316        0.301        0.365        1.294        0.084 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 

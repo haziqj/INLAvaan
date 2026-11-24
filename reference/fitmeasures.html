@@ -163,14 +163,14 @@ degrees of freedom (<code>p - npar</code>) at each posterior sample.</p></dd>
 <span class="r-in"><span><span class="co"># All available fit measures</span></span></span>
 <span class="r-in"><span><span class="fu">fitMeasures</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         npar   margloglik          ppp          dic        p_dic       BRMSEA </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           21    -3838.108        0.000     7551.513       20.173        0.090 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           21    -3838.108        0.000     7551.473       20.153        0.090 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        0.957        0.922        0.904        0.931        0.899        0.907 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Specific measures</span></span></span>
 <span class="r-in"><span><span class="fu">fitMeasures</span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"npar"</span>, <span class="st">"dic"</span>, <span class="st">"p_dic"</span>, <span class="st">"ppp"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     npar      ppp      dic    p_dic </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       21    0.000 7551.513   20.173 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       21    0.000 7551.473   20.153 </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

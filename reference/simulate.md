@@ -118,37 +118,37 @@ single-observation draws from the predictive distribution
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [36ms]
+#> ✔ Posterior mode and Hessian. [23ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [122ms]
+#> ✔ VB correction; mean |δ| = 0.285σ. [77ms]
 #> 
 #> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [88ms]
+#> ✔ Fit 6/6 skew-normal marginals. [48ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [371ms]
+#> ✔ Summarise 1000 posterior draws. [231ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
 # Simulate one replicate dataset from the posterior
 sims <- simulate(fit, nsim = 1)
 head(sims[[1]])                    # data frame
-#>         x1       x2       x3
-#> 1 4.747193 5.941388 3.677267
-#> 2 5.707789 4.511219 2.682244
-#> 3 4.731403 6.087476 2.180924
-#> 4 7.234331 7.611288 4.314945
-#> 5 4.281508 5.016598 0.700824
-#> 6 3.771808 7.639455 1.924619
+#>         x1       x2        x3
+#> 1 4.746761 5.941066 3.6762148
+#> 2 5.707638 4.511105 2.6819397
+#> 3 4.731376 6.087457 2.1809846
+#> 4 7.234120 7.611115 4.3133210
+#> 5 4.281755 5.016788 0.7020208
+#> 6 3.771841 7.639483 1.9248617
 attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>      0.7848661      1.2976472      0.8726417      1.2234945      0.4749267 
+#>      0.7848604      1.2961260      0.8726475      1.2234945      0.4749268 
 #> visual~~visual 
 #>      0.5321061 
 attr(sims[[1]], "truth_theta")     # corresponding unconstrained (theta-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>      0.7848661      1.2976472     -0.1362303      0.2017111     -0.7445947 
+#>      0.7848604      1.2961260     -0.1362236      0.2017111     -0.7445945 
 #> visual~~visual 
 #>     -0.6309123 
 

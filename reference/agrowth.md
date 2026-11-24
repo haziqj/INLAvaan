@@ -205,13 +205,14 @@ agrowth(
 
   The log-threshold for fitting the skew-normal. Points with
   log-posterior drop below this threshold (relative to the maximum) will
-  be excluded from the fit. Defaults to `-6`.
+  be excluded from the fit. Must be a single finite negative number. The
+  five highest points of the scan are always kept. Defaults to `-6`.
 
 - sn_fit_temp:
 
-  Temperature parameter for fitting the skew-normal. Defaults to `1`
-  (weights are the density values themselves). If `NA`, the temperature
-  is included as an additional optimisation parameter.
+  Temperature parameter for fitting the skew-normal. Must be a single
+  finite positive number. Defaults to `1` (weights are the density
+  values themselves).
 
 - sn_fit_sample:
 
@@ -372,16 +373,17 @@ str(Demo.growth)
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [732ms]
+#> ✔ Posterior mode and Hessian. [224ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.031σ. [457ms]
+#> ✔ VB correction; mean |δ| = 0.031σ. [221ms]
 #> 
 #> ⠙ Fitting 0/17 skew-normal marginals.
-#> ✔ Fit 17/17 skew-normal marginals. [1.6s]
+#> ⠹ Fitting 1/17 skew-normal marginals.
+#> ✔ Fit 17/17 skew-normal marginals. [859ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [207ms]
+#> ✔ Summarise 100 posterior draws. [132ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -400,8 +402,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4997.468 
-#>    Effective parameters (pD)                    17.567 
+#>    Deviance (DIC)                             4997.446 
+#>    Effective parameters (pD)                    17.556 
 #> 
 #> Parameter Estimates:
 #> 

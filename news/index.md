@@ -6,7 +6,115 @@
 
 - The installed file `inlavanilla.lock` names the release of the
   inlavanilla engine whose files INLAvaan copies, with a hash of each
-  copy. It lists no files yet.
+  copy. INLAvaan now copies two files from inlavanilla v26.11.24, byte
+  for byte: `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`.
+  They hold the skew-normal functions, which INLAvaan defined itself
+  before, and the lock lists them.
+
+- Thomas Luu is now listed as a copyright holder, for the skew-normal
+  quantile approximation in
+  [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md)
+  (Apache License 2.0).
+
+- [`fit_skew_normal()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal.md)
+  is now the engine’s version:
+
+  - `temp` defaults to 1, not `NA`. The temperature is no longer
+    estimated. `temp = NA` now gives an error. Give a positive number.
+  - It returns `xi`, `omega`, `alpha`, `logC` and `nmad`. It no longer
+    returns `k` and `rmse`, and its help no longer lists `k` and `rsq`
+    (it never returned `rsq`).
+  - It no longer rescales `y` to a maximum of 0, and it no longer checks
+    that `threshold_log_drop` is negative. Give it `y - max(y)`.
+  - It always keeps the five highest points, also when fewer points lie
+    above `threshold_log_drop`.
+  - It fits from two starts and keeps the better fit. The second start
+    is the mirror image of the first, with the opposite skew. With one
+    start, a fit could stall near `alpha = 0` when the marginal was
+    almost symmetric. On the Holzinger and Swineford three-factor model
+    and the Political Democracy model, no reported value moves by more
+    than 5e-6 posterior SDs.
+
+- The help of
+  [`fit_skew_normal_samp()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal_samp.md)
+  now lists only the fields that it returns: `xi`, `omega` and `alpha`.
+
+- New [`psnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md) and
+  [`qsnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md) give the
+  distribution function and the quantile function of the skew normal.
+  They share the help page of
+  [`dsnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md).
+  [`qsnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md) refines
+  [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md)
+  by Newton’s method. For tail probabilities of 1e-6 or more,
+  `psnorm(qsnorm(p))` returns `p` to a relative error of about 1e-10.
+
+- [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md)
+  gave wrong values when one call mixed values of `alpha` or `p`. Where
+  `alpha` was 0, 1 or -1, it gave 0 in place of the quantile. Where
+  `alpha` was negative but not -1, a `p` of 0 or 1 in a call with other
+  values of `p` gave an infinite value with the wrong sign. Fits were
+  not affected:
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)
+  passes one `alpha` at a time and, in practice, never a `p` of exactly
+  0 or 1. The help of
+  [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md)
+  no longer says that its relative error is below 1e-7. Against
+  [`qsnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md), its
+  error is about 7e-3 times `omega` for `p` in \[0.01, 0.99\], and about
+  0.09 times `omega` for `p` in \[1e-6, 1 - 1e-6\]. Its help now also
+  gives the error further out in the tails.
+
+- [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) now
+  checks `sn_fit_logthresh` itself. Before, the check was inside
+  [`fit_skew_normal()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal.md),
+  and it ran only for `marginal_method = "skewnorm"`.
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md) now
+  also checks `sn_fit_temp`. Both checks run for every
+  `marginal_method`.
+
+  - `sn_fit_logthresh` must be a finite negative number. Before, `-Inf`
+    kept every scan point. It now gives an error. To keep every scan
+    point, give a large negative number, such as `-100`.
+  - `sn_fit_temp` must be a finite positive number. `sn_fit_temp = NA`
+    no longer estimates the temperature: it gives an error.
+
+- [`summary()`](https://inlavaan.haziqj.ml/reference/INLAvaan-class.md)
+  now uses the exact skew-normal quantile,
+  [`qsnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md), in place
+  of the approximation
+  [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md).
+  The posterior draws now use a spline of the exact quantile
+  (`sn_score_map()`, accurate to about 1e-6 posterior SDs) in place of
+  [`qsnorm_fast()`](https://inlavaan.haziqj.ml/reference/qsnorm_fast.md).
+  With `samp_norta = TRUE`, the NORTA correlation also changes, because
+  it now uses
+  [`qsnorm()`](https://inlavaan.haziqj.ml/reference/dsnorm.md). With the
+  default settings, on the Holzinger and Swineford three-factor model
+  and the Political Democracy model, over 150 seeds:
+
+  - For the rows that come from the fitted marginals, the Mean, SD and
+    Mode do not change. Their quantiles move by at most 0.008 posterior
+    SDs on the Holzinger and Swineford model, and by at most 0.006
+    posterior SDs on the Political Democracy model.
+  - The rows that come from the draws (covariances and defined
+    parameters) change for the same seed. In about 19 fits of 20, no
+    Mean, SD, Mode or quantile of these rows moves by more than 0.01
+    posterior SDs. In the other fits, a row can move more, up to about
+    0.15 posterior SDs. This happens when
+    [`fit_skew_normal_samp()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal_samp.md)
+    stalls near `alpha = 0` for one set of draws and not for the other.
+    [`fit_skew_normal_samp()`](https://inlavaan.haziqj.ml/reference/fit_skew_normal_samp.md)
+    itself does not change.
+  - DIC moves by about 0.06 (at most 0.084), and PPP by at most 0.006.
+    The marginal likelihood (`mloglik`) and `Dhat` do not change.
+
+- `approx_data` in
+  [`get_inlavaan_internal()`](https://inlavaan.haziqj.ml/reference/get_inlavaan_internal.md)
+  no longer has the columns `k` and `rmse`. `k` was the temperature of
+  the skew-normal fit, and `rmse` was a mean squared error, not its
+  root. For skew-normal marginals, the columns are now `xi`, `omega`,
+  `alpha`, `logC`, `nmad` and `gamma1`, and each row is built by name.
 
 ## INLAvaan 0.3.5
 

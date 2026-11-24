@@ -207,17 +207,16 @@ for SBC); <code><a href="predict.html">predict()</a></code> for individual-speci
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="st">"visual =~ x1 + x2 + x3"</span>, <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[36ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[19ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.285σ. <span style="color: #B2B2B2;">[121ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.285σ. <span style="color: #B2B2B2;">[71ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/6 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 6/6 skew-normal marginals. <span style="color: #B2B2B2;">[89ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 6/6 skew-normal marginals. <span style="color: #B2B2B2;">[53ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[372ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[228ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -225,12 +224,12 @@ for SBC); <code><a href="predict.html">predict()</a></code> for individual-speci
 <span class="r-in"><span><span class="va">samps</span> <span class="op">&lt;-</span> <span class="fu">sampling</span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">samps</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      visual=~x2 visual=~x3    x1~~x1   x2~~x2    x3~~x3 visual~~visual</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  1.1926685  1.6569140 1.1595538 1.073682 0.4866329      0.2607632</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.7666483  1.5703139 0.9254137 1.233297 0.4807911      0.3599290</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.7406369  0.9541111 0.7554769 1.109193 0.8180625      0.5322786</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.8425679  1.6685363 1.0732579 1.175925 0.3132956      0.4212003</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.8181815  1.1650122 0.8351979 1.111821 0.6378685      0.4649971</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]  0.7772747  1.0808871 0.6825584 1.169309 0.5949492      0.5787656</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  1.1926682  1.6569140 1.1596398 1.073682 0.4866332      0.2607879</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.7666464  1.5703130 0.9254138 1.233297 0.4807913      0.3600404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.7406366  0.9541111 0.7560406 1.109193 0.8180625      0.5322786</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.8425036  1.6685363 1.0732602 1.175925 0.3132956      0.4212133</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.8181554  1.1649132 0.8352365 1.111821 0.6380687      0.4649987</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,]  0.7772709  1.0808822 0.6825842 1.169309 0.5951661      0.5787656</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare copula vs Gaussian sampling</span></span></span>
 <span class="r-in"><span><span class="va">s_cop</span> <span class="op">&lt;-</span> <span class="fu">sampling</span><span class="op">(</span><span class="va">fit</span>, nsamp <span class="op">=</span> <span class="fl">500</span>, samp_copula <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

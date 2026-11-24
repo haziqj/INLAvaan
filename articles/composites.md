@@ -52,17 +52,17 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 fit <- asem(model, HolzingerSwineford1939)
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [842ms]
+#> ✔ Posterior mode and Hessian. [490ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.104σ. [1.7s]
+#> ✔ VB correction; mean |δ| = 0.104σ. [921ms]
 #> 
 #> ⠙ Fitting 0/13 skew-normal marginals.
-#> ⠹ Fitting 11/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [3.4s]
+#> ⠹ Fitting 9/13 skew-normal marginals.
+#> ✔ Fit 13/13 skew-normal marginals. [1.8s]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.9s]
+#> ✔ Summarise 1000 posterior draws. [989ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -81,8 +81,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4431.835 
-#>    Effective parameters (pD)                    12.898 
+#>    Deviance (DIC)                             4431.820 
+#>    Effective parameters (pD)                    12.890 
 #> 
 #> Parameter Estimates:
 #> 
@@ -115,12 +115,12 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>     x1                1.379    0.113    1.174    1.619    0.003 gamma(1,.5)[sd]
+#>     x1                1.379    0.113    1.174    1.618    0.003 gamma(1,.5)[sd]
 #>     x2                1.404    0.116    1.195    1.648    0.003 gamma(1,.5)[sd]
-#>     x3                1.293    0.106    1.101    1.519    0.003 gamma(1,.5)[sd]
+#>     x3                1.293    0.106    1.101    1.518    0.003 gamma(1,.5)[sd]
 #>    .x4                1.184    0.098    1.008    1.391    0.002 gamma(1,.5)[sd]
 #>    .x5                1.535    0.127    1.307    1.804    0.003 gamma(1,.5)[sd]
-#>     C                 1.548    0.296    1.112    2.239
+#>     C                 1.547    0.296    1.112    2.238
 ```
 
 The marker `x1` is fixed at 1. The variance of `C` is not a free

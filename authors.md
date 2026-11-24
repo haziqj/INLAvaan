@@ -13,6 +13,9 @@
 - **[Alvin Bong](https://alvinbjl.github.io)**. Contributor.  
   Initial site build
 
+- **Thomas Luu**. Copyright holder.  
+  Skew-normal quantile approximation (Apache License 2.0)
+
 ## Citation
 
 Source:

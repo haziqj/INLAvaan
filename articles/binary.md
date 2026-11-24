@@ -66,17 +66,16 @@ head(dat)
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
 #> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [313ms]
+#> ✔ Posterior mode and Hessian. [185ms]
 #> 
 #> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.310σ. [1.7s]
+#> ✔ VB correction; mean |δ| = 0.310σ. [822ms]
 #> 
 #> ⠙ Fitting 0/10 skew-normal marginals.
-#> ⠹ Fitting 5/10 skew-normal marginals.
-#> ✔ Fit 10/10 skew-normal marginals. [975ms]
+#> ✔ Fit 10/10 skew-normal marginals. [611ms]
 #> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [636ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -95,8 +94,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             2185.429 
-#>    Effective parameters (pD)                     8.453 
+#>    Deviance (DIC)                             2185.393 
+#>    Effective parameters (pD)                     8.436 
 #> 
 #> Parameter Estimates:
 #> 
@@ -133,7 +132,7 @@ summary(fit)
 #> Scaling Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior     
 #>     y1                1.571    0.325    1.137    2.318                       
-#>     y2                1.308    0.195    1.064    1.775                       
+#>     y2                1.307    0.195    1.064    1.775                       
 #>     y3                1.309    0.210    1.051    1.830                       
 #>     y4                1.208    0.146    1.029    1.584                       
 #>     y5                1.142    0.106    1.010    1.387
