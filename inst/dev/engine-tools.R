@@ -316,22 +316,26 @@ upstream_version <- function(repo, rev) {
   unname(read.dcf(tmp, fields = "Version")[1, 1])
 }
 
-# The commit that a tag of a remote names: the peeled entry of an annotated
-# tag, else the plain one. NA if the remote does not have the tag.
-remote_tag_commit <- function(repo, url, tag) {
-  out <- git(repo, c("ls-remote", "--tags", url))
-  ref <- paste0("refs/tags/", tag)
-  sha <- sub("\t.*$", "", out)
-  refs <- sub("^[^\t]*\t", "", out)
-  peeled <- sha[refs == paste0(ref, "^{}")]
-  plain <- sha[refs == ref]
-  if (length(peeled) > 0) {
-    peeled[1]
-  } else if (length(plain) > 0) {
-    plain[1]
-  } else {
-    NA_character_
+# The tags of a remote, named by tag, with the commit that each names: the
+# peeled entry of an annotated tag, else the plain one
+remote_tags <- function(repo, url) {
+  out <- git(repo, c("ls-remote", "--tags", url), error = FALSE)
+  if (is.null(out)) {
+    stop("Cannot list the tags of ", url, ": is it reachable?", call. = FALSE)
   }
+  sha <- sub("\t.*$", "", out)
+  refs <- sub("^refs/tags/", "", sub("^[^\t]*\t", "", out))
+  peeled <- endsWith(refs, "^{}")
+  tags <- sha[!peeled]
+  names(tags) <- refs[!peeled]
+  tags[sub("\\^\\{\\}$", "", refs[peeled])] <- sha[peeled]
+  tags
+}
+
+# The commit that a tag of a remote names. NA if the remote does not have it.
+remote_tag_commit <- function(repo, url, tag) {
+  tags <- remote_tags(repo, url)
+  if (tag %in% names(tags)) tags[[tag]] else NA_character_
 }
 
 ## ----- Check 1b: lock = upstream ---------------------------------------------
@@ -401,14 +405,13 @@ check_engine_upstream <- function(lock, repo) {
 
 ## ----- Check 2: not stale ----------------------------------------------------
 
-# Release tags of the clone with a version above `release`, oldest first. A
-# release tag is a version, with or without a leading v (v26.11.23,
+# The release tags among `tags` with a version above `release`, oldest first.
+# A release tag is a version, with or without a leading v (v26.11.23,
 # v26.11.23-1).
-newer_release_tags <- function(repo, release) {
+newer_release_tags <- function(tags, release) {
   if (!grepl(engine_tag_pattern, release)) {
     stop("The release ", release, " is not a version tag", call. = FALSE)
   }
-  tags <- git(repo, c("tag", "--list"))
   tags <- tags[grepl(engine_tag_pattern, tags)]
   if (length(tags) == 0) {
     return(character())
@@ -419,19 +422,37 @@ newer_release_tags <- function(repo, release) {
   tags[order(versions[newer])]
 }
 
-# The lock is stale when a newer release tag changes a listed file. Newer
+# The lock is stale when a newer release tag changes a listed file. Only the
+# tags on the Upstream remote count: a tag only in the clone is listed and
+# ignored, and a tag that the clone has not fetched cannot be judged. Newer
 # commits on the branch after the newest release are listed, not judged.
 check_engine_stale <- function(lock, repo, branch = "main") {
   commit <- lock$header[["Commit"]]
+  release <- lock$header[["Release"]]
   files <- lock$files$file
-  tags <- newer_release_tags(repo, lock$header[["Release"]])
+  remote <- remote_tags(repo, lock$header[["Upstream"]])
+  on_remote <- newer_release_tags(names(remote), release)
+  local_only <- setdiff(
+    newer_release_tags(git(repo, c("tag", "--list")), release),
+    names(remote)
+  )
+  fetched <- !is.na(vapply(
+    remote[on_remote],
+    function(sha) git_commit_of(repo, sha),
+    character(1)
+  ))
+  tags <- on_remote[fetched]
   locked_blobs <- vapply(
     files,
     function(f) git_blob_id(repo, commit, f),
     character(1)
   )
   changed <- lapply(tags, function(tag) {
-    blobs <- vapply(files, function(f) git_blob_id(repo, tag, f), character(1))
+    blobs <- vapply(
+      files,
+      function(f) git_blob_id(repo, remote[[tag]], f),
+      character(1)
+    )
     same <- vapply(
       seq_along(files),
       function(i) identical(blobs[[i]], locked_blobs[[i]]),
@@ -440,15 +461,8 @@ check_engine_stale <- function(lock, repo, branch = "main") {
     files[!same]
   })
   names(changed) <- tags
-  newest <- if (length(tags) > 0) {
-    tags[length(tags)]
-  } else {
-    lock$header[["Release"]]
-  }
-  newest_commit <- git_commit_of(repo, paste0("refs/tags/", newest))
-  if (is.na(newest_commit)) {
-    newest_commit <- commit
-  }
+  newest <- if (length(tags) > 0) tags[length(tags)] else release
+  newest_commit <- if (length(tags) > 0) remote[[newest]] else commit
   at_newest <- git_files_at(repo, newest_commit)
   not_copied <- setdiff(at_newest[grepl(engine_file_pattern, at_newest)], files)
   refs <- paste0(c("refs/remotes/origin/", "refs/heads/"), branch)
@@ -463,6 +477,8 @@ check_engine_stale <- function(lock, repo, branch = "main") {
     tags = tags,
     changed = changed,
     stale = tags[lengths(changed) > 0],
+    unfetched = on_remote[!fetched],
+    local_only = local_only,
     newest = newest,
     not_copied = not_copied,
     branch = branch,
@@ -506,7 +522,8 @@ report_line <- function(status, label, details = character()) {
 }
 
 # Prints check 2 and returns TRUE when it fails: at release, a stale lock
-# fails unless the first section of NEWS.md names the newest stale tag.
+# fails unless the first section of NEWS.md names the newest stale tag, and a
+# release that the clone has not fetched fails.
 report_stale <- function(stale, pkg, release, max_commits = 20) {
   details <- character()
   for (tag in stale$tags) {
@@ -518,6 +535,21 @@ report_stale <- function(stale, pkg, release, max_commits = 20) {
       } else {
         sprintf("%s changes no copied file", tag)
       }
+    )
+  }
+  if (length(stale$unfetched) > 0) {
+    details <- c(
+      details,
+      sprintf("%s is on Upstream but not in the clone", stale$unfetched)
+    )
+  }
+  if (length(stale$local_only) > 0) {
+    details <- c(
+      details,
+      sprintf(
+        "%s is in the clone but not on Upstream: ignored",
+        stale$local_only
+      )
     )
   }
   if (length(stale$not_copied) > 0) {
@@ -550,7 +582,8 @@ report_stale <- function(stale, pkg, release, max_commits = 20) {
       if (n > max_commits) sprintf("  ... and %d more", n - max_commits)
     )
   }
-  if (length(stale$stale) == 0) {
+  unfetched <- length(stale$unfetched) > 0
+  if (length(stale$stale) == 0 && !unfetched) {
     report_line(
       "ok",
       "2   not stale: no newer release changes a copied file",
@@ -558,18 +591,26 @@ report_stale <- function(stale, pkg, release, max_commits = 20) {
     )
     return(FALSE)
   }
-  tag <- stale$stale[length(stale$stale)]
-  label <- sprintf(
-    "2   stale: %s changes a copied file (sync: engine-sync.R %s)",
-    tag,
-    tag
-  )
-  if (!release) {
-    report_line("note", label, details)
-    return(FALSE)
+  excused <- TRUE
+  if (length(stale$stale) > 0) {
+    tag <- stale$stale[length(stale$stale)]
+    label <- sprintf(
+      "2   stale: %s changes a copied file (sync: engine-sync.R %s)",
+      tag,
+      tag
+    )
+    excused <- news_names(pkg, tag)
+    if (release && excused) {
+      details <- c(details, sprintf("NEWS.md names %s", tag))
+    }
+  } else {
+    label <- sprintf(
+      "2   cannot judge %s: fetch the clone",
+      paste(stale$unfetched, collapse = ", ")
+    )
   }
-  if (news_names(pkg, tag)) {
-    report_line("note", label, c(details, sprintf("NEWS.md names %s", tag)))
+  if (!release || (excused && !unfetched)) {
+    report_line("note", label, details)
     return(FALSE)
   }
   report_line(
@@ -577,8 +618,15 @@ report_stale <- function(stale, pkg, release, max_commits = 20) {
     label,
     c(
       details,
-      sprintf("At release, sync, or name %s in the first section", tag),
-      "of NEWS.md and say why the sync waits."
+      if (!excused) {
+        c(
+          sprintf("At release, sync, or name %s in the first section", tag),
+          "of NEWS.md and say why the sync waits."
+        )
+      },
+      if (unfetched) {
+        "At release, fetch the clone so that check 2 sees every tag."
+      }
     )
   )
   TRUE

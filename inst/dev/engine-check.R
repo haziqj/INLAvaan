@@ -9,8 +9,9 @@
 # R/vanilla-*.R file is listed. names: no object of an engine file is also
 # defined in another file of R/. upstream (1b): the release tag of the lock
 # resolves to its Commit, and each MD5 equals that of the file at Commit.
-# stale (2): no newer release tag of inlavanilla changes a copied file. Newer
-# commits on --branch are listed only.
+# stale (2): no newer release tag on Upstream (the remote in the lock) changes
+# a copied file. Tags only in the clone are ignored. Newer commits on --branch
+# are listed only.
 #
 # Checks 1b and 2 read a clone of inlavanilla, at --repo or in the environment
 # variable INLAVANILLA_REPO. Fetch it first. Without a clone they are skipped,

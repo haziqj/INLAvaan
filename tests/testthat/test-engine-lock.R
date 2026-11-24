@@ -26,9 +26,13 @@ write_text <- function(path, text) {
   writeBin(charToRaw(text), path)
 }
 
-fake_header <- function(kit, commit = strrep("a", 40)) {
+fake_header <- function(
+  kit,
+  commit = strrep("a", 40),
+  upstream = "https://example.org/inlavanilla"
+) {
   c(
-    Upstream = "https://example.org/inlavanilla",
+    Upstream = upstream,
     Release = "v26.11.23",
     Commit = commit,
     Version = "26.11.23",
@@ -127,8 +131,11 @@ make_upstream <- function(kit) {
 # The package under git, with a lock at v26.11.23 of the fixture upstream that
 # lists no file yet
 make_git_pkg <- function(kit, up, others = list()) {
-  header <- fake_header(kit, kit$git_commit_of(up$clone, "v26.11.23"))
-  header[["Upstream"]] <- up$remote
+  header <- fake_header(
+    kit,
+    kit$git_commit_of(up$clone, "v26.11.23"),
+    up$remote
+  )
   pkg <- make_pkg(kit, list(), others = others, header = header)
   kit$git(pkg, c("init", "--quiet"))
   fixture_commit(kit, pkg, list(), "Start")
@@ -371,7 +378,7 @@ test_that("check 2 flags a newer release that changes a copied file", {
   pkg <- make_pkg(
     kit,
     list("R/vanilla-a.R" = engine_a),
-    header = fake_header(kit, commit)
+    header = fake_header(kit, commit, up$remote)
   )
   on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
   lock <- kit$read_engine_lock(file.path(pkg, kit$engine_lock_file))
@@ -408,10 +415,26 @@ test_that("check 2 flags a newer release that changes a copied file", {
   expect_true(quietly(check(FALSE))$value)
   expect_true(quietly(check(TRUE))$value)
 
-  # A newer release that changes a copied file is stale: a report during
-  # development, a failure at release unless NEWS.md names the tag
+  # A tag only in the clone is listed and ignored
   fixture_git(kit, up$clone, "tag", "v26.12.01")
   stale <- kit$check_engine_stale(lock, up$clone)
+  expect_identical(stale$tags, "v26.11.30")
+  expect_identical(stale$local_only, "v26.12.01")
+  expect_identical(stale$stale, character())
+  res <- quietly(check(TRUE))
+  expect_true(res$value)
+  expect_match(
+    res$output,
+    "v26.12.01 is in the clone but not on Upstream: ignored",
+    fixed = TRUE,
+    all = FALSE
+  )
+
+  # A newer release that changes a copied file is stale: a report during
+  # development, a failure at release unless NEWS.md names the tag
+  kit$git(up$clone, c("push", "--quiet", "origin", "--tags"))
+  stale <- kit$check_engine_stale(lock, up$clone)
+  expect_identical(stale$local_only, character())
   expect_identical(stale$tags, c("v26.11.30", "v26.12.01"))
   expect_identical(stale$stale, "v26.12.01")
   expect_identical(stale$changed[["v26.12.01"]], "R/vanilla-a.R")
@@ -444,7 +467,7 @@ test_that("check 2 works on a lock that lists no file", {
   up <- make_upstream(kit)
   on.exit(unlink(c(up$clone, up$remote), recursive = TRUE), add = TRUE)
   commit <- kit$git_commit_of(up$clone, "v26.11.23")
-  pkg <- make_pkg(kit, list(), header = fake_header(kit, commit))
+  pkg <- make_pkg(kit, list(), header = fake_header(kit, commit, up$remote))
   on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
   lock <- kit$read_engine_lock(file.path(pkg, kit$engine_lock_file))
   fixture_commit(
@@ -454,6 +477,7 @@ test_that("check 2 works on a lock that lists no file", {
     "A",
     "v26.12.01"
   )
+  kit$git(up$clone, c("push", "--quiet", "origin", "--tags"))
   stale <- kit$check_engine_stale(lock, up$clone)
   expect_identical(stale$tags, "v26.12.01")
   expect_identical(stale$stale, character())
@@ -461,6 +485,49 @@ test_that("check 2 works on a lock that lists no file", {
   expect_true(
     quietly(kit$run_engine_check(pkg, up$clone, release = TRUE))$value
   )
+})
+
+test_that("check 2 cannot judge a release that the clone has not fetched", {
+  kit <- engine_tools()
+  skip_if_no_git()
+  up <- make_upstream(kit)
+  on.exit(unlink(c(up$clone, up$remote), recursive = TRUE), add = TRUE)
+  commit <- kit$git_commit_of(up$clone, "v26.11.23")
+  pkg <- make_pkg(
+    kit,
+    list("R/vanilla-a.R" = engine_a),
+    header = fake_header(kit, commit, up$remote)
+  )
+  on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+  lock <- kit$read_engine_lock(file.path(pkg, kit$engine_lock_file))
+
+  # Another clone pushes a release that this clone has not fetched
+  other <- tempfile("other-")
+  on.exit(unlink(other, recursive = TRUE), add = TRUE)
+  kit$git(tempdir(), c("clone", "--quiet", up$remote, other))
+  fixture_commit(
+    kit,
+    other,
+    list("R/vanilla-a.R" = "fa <- 0\n"),
+    "A",
+    "v26.12.01"
+  )
+  kit$git(other, c("push", "--quiet", "origin", "main", "--tags"))
+  stale <- kit$check_engine_stale(lock, up$clone)
+  expect_identical(stale$tags, character())
+  expect_identical(stale$unfetched, "v26.12.01")
+  res <- quietly(kit$run_engine_check(pkg, up$clone, release = FALSE))
+  expect_true(res$value)
+  expect_match(res$output, "^note +2 +cannot judge v26.12.01", all = FALSE)
+  res <- quietly(kit$run_engine_check(pkg, up$clone, release = TRUE))
+  expect_false(res$value)
+  expect_match(res$output, "^FAIL +2 +cannot judge v26.12.01", all = FALSE)
+
+  # Once fetched, the release is judged
+  kit$git(up$clone, c("fetch", "--quiet", "--tags", "origin"))
+  stale <- kit$check_engine_stale(lock, up$clone)
+  expect_identical(stale$stale, "v26.12.01")
+  expect_identical(stale$unfetched, character())
 })
 
 test_that("release mode follows the version in DESCRIPTION", {
