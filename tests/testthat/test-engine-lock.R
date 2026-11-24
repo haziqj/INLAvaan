@@ -314,6 +314,55 @@ test_that("the duplicate-name check finds an engine object defined twice", {
   )
 })
 
+test_that("the duplicate-name check reads bindings in blocks and calls", {
+  kit <- engine_tools()
+  engine_c <- paste(
+    "gc <- gd <- ge <- gf <- gg <- gh <- gi <- gj <- gk <- 0",
+    "gl <- function() 1",
+    sep = "\n"
+  )
+  pkg <- make_pkg(kit, list("R/vanilla-c.R" = engine_c))
+  on.exit(unlink(pkg, recursive = TRUE), add = TRUE)
+
+  # A generic called by its namespace, bindings inside { and in either branch
+  # of an if, assign() and delayedAssign() with a literal name, and an
+  # assignment whose value is a block. Bindings inside a function or local()
+  # do not reach the namespace.
+  write_text(
+    file.path(pkg, "R/own.R"),
+    paste(
+      "methods::setGeneric(\"gc\", function(x) standardGeneric(\"gc\"))",
+      "if (TRUE) {",
+      "  gd <- 1",
+      "} else ge <- 2",
+      "{",
+      "  gf <- 3",
+      "}",
+      "assign(\"gg\", 4)",
+      "base::delayedAssign(value = 5, x = \"gh\")",
+      "own <- {",
+      "  gi <- 6",
+      "}",
+      "local({",
+      "  gj <- 7",
+      "})",
+      "f <- function() {",
+      "  gk <- 8",
+      "}",
+      "assign(paste0(\"g\", \"l\"), 9)",
+      sep = "\n"
+    )
+  )
+  problems <- kit$check_engine_names(pkg)
+  expect_identical(
+    problems,
+    sprintf(
+      "`%s` is defined in R/own.R, R/vanilla-c.R",
+      c("gc", "gd", "ge", "gf", "gg", "gh", "gi")
+    )
+  )
+})
+
 ## ----- Check 1b: lock = upstream ---------------------------------------------
 
 test_that("check 1b passes on a true lock and fails on a false one", {

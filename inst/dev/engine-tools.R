@@ -200,29 +200,66 @@ check_engine_copy <- function(pkg, lock = NULL) {
 
 ## ----- Duplicate names -------------------------------------------------------
 
-# Names bound at the top level of an R file: assignments with <-, = or <<-
-# (chains such as a <- b <- f included), and setGeneric("name", ...).
+# Names bound at the top level of an R file
 top_level_names <- function(path) {
   exprs <- parse(path, keep.source = FALSE, encoding = "UTF-8")
-  assign_ops <- c("<-", "=", "<<-")
-  out <- character()
-  for (e in exprs) {
-    while (is.call(e) && as.character(e[[1]])[1] %in% assign_ops) {
-      lhs <- e[[2]]
-      if (is.name(lhs) || (is.character(lhs) && length(lhs) == 1)) {
-        out <- c(out, as.character(lhs))
-      }
-      e <- e[[3]]
+  unique(as.character(unlist(lapply(exprs, bound_names))))
+}
+
+# The names that a top-level expression binds: assignments with <-, = or <<-
+# (chains such as a <- b <- f included), setGeneric("name"), and assign() and
+# delayedAssign() with a literal name, also inside a { block or an if or else
+# body. A call such as methods::setGeneric counts by its last symbol.
+bound_names <- function(e) {
+  if (!is.call(e)) {
+    return(character())
+  }
+  fun <- call_symbol(e)
+  args <- as.list(e)[-1]
+  if (fun %in% c("<-", "=", "<<-")) {
+    lhs <- args[[1]]
+    here <- if (is.name(lhs) || (is.character(lhs) && length(lhs) == 1)) {
+      as.character(lhs)
     }
-    if (is.call(e) && identical(e[[1]], as.name("setGeneric"))) {
-      args <- as.list(e)[-1]
-      name <- if (!is.null(args$name)) args$name else args[[1]]
-      if (is.character(name) && length(name) == 1) {
-        out <- c(out, name)
-      }
+    return(c(here, bound_names(args[[2]])))
+  }
+  if (fun %in% c("{", "(")) {
+    return(unlist(lapply(args, bound_names)))
+  }
+  if (fun == "if") {
+    return(unlist(lapply(args[-1], bound_names)))
+  }
+  if (fun %in% c("setGeneric", "assign", "delayedAssign")) {
+    name <- call_arg(args, if (fun == "setGeneric") "name" else "x")
+    if (is.character(name) && length(name) == 1) {
+      return(name)
     }
   }
-  unique(out)
+  character()
+}
+
+# The symbol of the function that a call calls: f for f(), and f for pkg::f()
+call_symbol <- function(e) {
+  f <- e[[1]]
+  if (
+    is.call(f) && is.name(f[[1]]) && as.character(f[[1]]) %in% c("::", ":::")
+  ) {
+    f <- f[[3]]
+  }
+  if (is.name(f)) as.character(f) else ""
+}
+
+# The argument `name` of a call, given by name or as the first unnamed one
+call_arg <- function(args, name) {
+  tags <- names(args)
+  if (is.null(tags)) {
+    tags <- rep("", length(args))
+  }
+  if (name %in% tags) {
+    return(args[[name]])
+  }
+  unnamed <- which(tags == "")
+  if (length(unnamed) > 0) args[[unnamed[1]]] else NULL
 }
 
 # Without a Collate field, R loads R/ in alphabetical order, and an object
