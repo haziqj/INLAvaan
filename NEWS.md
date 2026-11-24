@@ -72,11 +72,46 @@
   - The rows that come from the draws (covariances and defined parameters)
     change for the same seed. In about 19 fits of 20, no Mean, SD, Mode or
     quantile of these rows moves by more than 0.01 posterior SDs. In the other
-    fits, a row can move more, up to about 0.15 posterior SDs. This happens
-    when `fit_skew_normal_samp()` stalls near `alpha = 0` for one set of draws
-    and not for the other. `fit_skew_normal_samp()` itself does not change.
+    fits, a row can move more, up to about 0.15 posterior SDs. This happened
+    when `fit_skew_normal_samp()` stalled near `alpha = 0` for one set of draws
+    and not for the other. The next item removes these jumps.
   - DIC moves by about 0.06 (at most 0.084), and PPP by at most 0.006. The
     marginal likelihood (`mloglik`) and `Dhat` do not change.
+
+* `fit_skew_normal_samp()` now fits from two starts and keeps the fit with the
+  larger likelihood, as `fit_skew_normal()` does. The starts come from the
+  skewness of the draws: the moment-based shape and its mirror image, with the
+  opposite skew. When the draws are near symmetric, the starts are `alpha` of
+  about 0.58 and -0.58. Before, the only start was `alpha = 0`, where the
+  likelihood has a stationary point. For mildly skewed draws, the fit could
+  stall there, at `alpha` of about 0.01, and a small change in the draws could
+  tip it to the optimum, at `alpha` of about 1. The covariances and defined
+  parameters in `summary()` come from this fit, so they could jump. With the
+  default settings, on the Holzinger and Swineford three-factor model and the
+  Political Democracy model (also with two defined parameters added), over 150
+  seeds each:
+  - For the same draws, a row changes only where the old fit stalled (`alpha`
+    within 0.05 of 0): 40 of 450 covariances of the Holzinger and Swineford
+    model, 37 of 900 covariances of the Political Democracy model and 139 of
+    300 defined parameters. The new fit stalls for none of them. The other
+    rows move by at most 3e-5 posterior SDs. Where the old fit stalled, the
+    Mean and SD move by at most 0.0012 posterior SDs, the quantiles by up to
+    0.18 posterior SDs and the Mode by up to 0.2 posterior SDs. A row moves by
+    more than 0.01 posterior SDs in 36 of 150 fits of the Holzinger and
+    Swineford model, in 37 of 150 fits of the Political Democracy model, and in
+    109 of 150 fits with the defined parameters.
+  - The fit is now stable when the draws change a little. With the draws of
+    `qsnorm_fast()` in place of those of `qsnorm()`, a row moved by more than
+    0.01 posterior SDs in 7, 1 and 7 fits of 150 (Holzinger and Swineford,
+    Political Democracy, and with the defined parameters), by up to 0.12
+    posterior SDs. Now 1, 0 and 0 fits do. That one fit moves by 0.011
+    posterior SDs, and the old fit moves by the same amount there. With noise
+    of 1e-3 posterior SDs added to the draws, 5, 2 and 10 fits of 150 moved by
+    more than 0.01 posterior SDs, by up to 0.2 posterior SDs. Now none does,
+    and no row moves by more than 0.0004 posterior SDs.
+  - The draws, the rows from the fitted marginals, `mloglik`, DIC and PPP do
+    not change, and neither does the random number stream.
+  - The fit of one row takes about 8 ms in place of 4 ms for 1000 draws.
 
 * `approx_data` in `get_inlavaan_internal()` no longer has the columns `k` and
   `rmse`. `k` was the temperature of the skew-normal fit, and `rmse` was a mean
