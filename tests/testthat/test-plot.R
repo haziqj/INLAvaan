@@ -13,6 +13,7 @@ test_that("Plot method works", {
 })
 
 test_that("Plot with use_ggplot = TRUE returns ggplot object", {
+  skip_if_not_installed("ggplot2")
   dat <- lavaan::HolzingerSwineford1939
   mod <- "
     visual  =~ x1 + x2 + x3
