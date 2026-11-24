@@ -44,10 +44,15 @@
   below 1e-7. Against `qsnorm()`, its error is about 7e-3 times `omega` for `p`
   in [0.01, 0.99], and about 0.09 times `omega` for `p` in [1e-6, 1 - 1e-6].
 
-* `inlavaan()` again stops when `sn_fit_logthresh` is not a negative number. The
-  check was inside `fit_skew_normal()` before. It now also stops when
-  `sn_fit_temp` is not a positive number: `sn_fit_temp = NA` no longer
-  estimates the temperature.
+* `inlavaan()` now checks `sn_fit_logthresh` itself. Before, the check was
+  inside `fit_skew_normal()`, and it ran only for
+  `marginal_method = "skewnorm"`. `inlavaan()` now also checks `sn_fit_temp`.
+  Both checks run for every `marginal_method`.
+  - `sn_fit_logthresh` must be a finite negative number. Before, `-Inf` kept
+    every scan point. It now gives an error. To keep every scan point, give a
+    large negative number, such as `-100`.
+  - `sn_fit_temp` must be a finite positive number. `sn_fit_temp = NA` no
+    longer estimates the temperature: it gives an error.
 
 * `summary()` and the posterior draws now use the exact skew-normal quantile,
   `qsnorm()`, in place of the approximation `qsnorm_fast()`. The means, SDs

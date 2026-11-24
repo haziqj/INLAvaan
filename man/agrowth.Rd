@@ -155,11 +155,12 @@ cost of more joint-log-posterior evaluations. Defaults to \code{21}.}
 
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew-normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will
-be excluded from the fit. Must be a negative number. Defaults to \code{-6}.}
+be excluded from the fit. Must be a single finite negative number. The five
+highest points of the scan are always kept. Defaults to \code{-6}.}
 
 \item{sn_fit_temp}{Temperature parameter for fitting the skew-normal. Must be
-a positive number. Defaults to \code{1} (weights are the density values
-themselves).}
+a single finite positive number. Defaults to \code{1} (weights are the density
+values themselves).}
 
 \item{sn_fit_sample}{Logical. When \code{TRUE} (default), a parametric skew-normal
 is fitted to the posterior samples for covariance and defined parameters.
