@@ -39,17 +39,23 @@ mod <- "
   Day8 ~~ v*Day8
   Day9 ~~ v*Day9
   "
-dat <- reshape(
-  lme4::sleepstudy,
-  timevar = "Days",
-  idvar = "Subject",
-  direction = "wide"
-)
-names(dat) <- sub("^Reaction\\.(.*)$", "Day\\1", names(dat))
-fit_lav <- lavaan::growth(mod, dat)
+# The sleep study data in wide form. lme4 is only suggested, so the tests that
+# use these data skip without it.
+sleep_wide <- function() {
+  skip_if_not_installed("lme4")
+  dat <- reshape(
+    lme4::sleepstudy,
+    timevar = "Days",
+    idvar = "Subject",
+    direction = "wide"
+  )
+  names(dat) <- sub("^Reaction\\.(.*)$", "Day\\1", names(dat))
+  dat
+}
 NSAMP <- 3
 
 test_that("Method: skewnorm", {
+  dat <- sleep_wide()
   expect_no_error({
     fit <- agrowth(
       mod,
@@ -71,6 +77,7 @@ test_that("Method: skewnorm", {
 })
 
 test_that("Method: asymgaus", {
+  dat <- sleep_wide()
   expect_no_error({
     fit <- agrowth(
       mod,
@@ -86,6 +93,7 @@ test_that("Method: asymgaus", {
 })
 
 test_that("Method: marggaus", {
+  dat <- sleep_wide()
   expect_no_error({
     fit <- agrowth(
       mod,
@@ -101,6 +109,7 @@ test_that("Method: marggaus", {
 })
 
 test_that("Method: sampling", {
+  dat <- sleep_wide()
   expect_no_error({
     fit <- agrowth(
       mod,
@@ -119,6 +128,7 @@ test_that("Gradients are correct (Finite Difference Check)", {
   # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
   # differences across CRAN check flavours -- too fragile to assert there.
   skip_on_cran()
+  dat <- sleep_wide()
   suppressMessages(
     tmp <- capture.output(fit <- agrowth(mod, dat, test = "none", debug = TRUE))
   )
