@@ -14,6 +14,7 @@
 
 * `fit_skew_normal()` is now the engine's version:
   - `temp` defaults to 1, not `NA`. The temperature is no longer estimated.
+    `temp = NA` now gives an error. Give a positive number.
   - It returns `xi`, `omega`, `alpha`, `logC` and `nmad`. It no longer returns
     `k` and `rmse`, and its help no longer lists `k` and `rsq` (it never
     returned `rsq`).
@@ -37,12 +38,14 @@
   1e-10.
 
 * `qsnorm_fast()` gave wrong values when one call mixed values of `alpha` or
-  `p`. Where `alpha` was 0 or 1, it gave 0 in place of the quantile. Where
-  `alpha` was negative, a `p` of 0 or 1 gave an infinite value with the wrong
-  sign. Fits were not affected, because `inlavaan()` passes one `alpha` at a
-  time. The help of `qsnorm_fast()` no longer says that its relative error is
-  below 1e-7. Against `qsnorm()`, its error is about 7e-3 times `omega` for `p`
-  in [0.01, 0.99], and about 0.09 times `omega` for `p` in [1e-6, 1 - 1e-6].
+  `p`. Where `alpha` was 0, 1 or -1, it gave 0 in place of the quantile. Where
+  `alpha` was negative, a `p` of 0 or 1 in a call with other values of `p` gave
+  an infinite value with the wrong sign. Fits were not affected: `inlavaan()`
+  passes one `alpha` at a time and, in practice, never a `p` of exactly 0 or 1.
+  The help of `qsnorm_fast()` no longer says that its relative error is below
+  1e-7. Against `qsnorm()`, its error is about 7e-3 times `omega` for `p` in
+  [0.01, 0.99], and about 0.09 times `omega` for `p` in [1e-6, 1 - 1e-6]. Its
+  help now also gives the error further out in the tails.
 
 * `inlavaan()` now checks `sn_fit_logthresh` itself. Before, the check was
   inside `fit_skew_normal()`, and it ran only for
@@ -54,20 +57,31 @@
   - `sn_fit_temp` must be a finite positive number. `sn_fit_temp = NA` no
     longer estimates the temperature: it gives an error.
 
-* `summary()` and the posterior draws now use the exact skew-normal quantile,
-  `qsnorm()`, in place of the approximation `qsnorm_fast()`. The means, SDs
-  and modes of the marginals do not change. The quantiles change a little, and
-  so do the results that come from the draws (covariances, defined parameters,
-  PPP and DIC) for the same seed. With the default settings, on the Holzinger
-  and Swineford three-factor model the quantiles move by at most 0.008
-  posterior SDs and DIC by 0.06. On the Political Democracy model the
-  quantiles move by at most 0.009 posterior SDs, PPP moves from 0.527 to
-  0.528, and DIC moves by 0.07. The marginal likelihood does not change.
+* `summary()` now uses the exact skew-normal quantile, `qsnorm()`, in place of
+  the approximation `qsnorm_fast()`. The posterior draws now use a spline of
+  the exact quantile (`sn_score_map()`, accurate to about 1e-6 posterior SDs)
+  in place of `qsnorm_fast()`. With `samp_norta = TRUE`, the NORTA correlation
+  also changes, because it now uses `qsnorm()`. With the default settings, on
+  the Holzinger and Swineford three-factor model and the Political Democracy
+  model, over 150 seeds:
+  - For the rows that come from the fitted marginals, the Mean, SD and Mode do
+    not change. Their quantiles move by at most 0.008 posterior SDs on the
+    Holzinger and Swineford model, and by at most 0.006 posterior SDs on the
+    Political Democracy model.
+  - The rows that come from the draws (covariances and defined parameters)
+    change for the same seed. In about 19 fits of 20, no Mean, SD, Mode or
+    quantile of these rows moves by more than 0.01 posterior SDs. In the other
+    fits, a row can move more, up to about 0.15 posterior SDs. This happens
+    when `fit_skew_normal_samp()` stalls near `alpha = 0` for one set of draws
+    and not for the other. `fit_skew_normal_samp()` itself does not change.
+  - DIC moves by about 0.06 (at most 0.084), and PPP by at most 0.006. The
+    marginal likelihood (`mloglik`) and `Dhat` do not change.
 
 * `approx_data` in `get_inlavaan_internal()` no longer has the columns `k` and
   `rmse`. `k` was the temperature of the skew-normal fit, and `rmse` was a mean
-  squared error, not its root. The columns are now `xi`, `omega`, `alpha`,
-  `logC`, `nmad` and `gamma1`, and each row is built by name.
+  squared error, not its root. For skew-normal marginals, the columns are now
+  `xi`, `omega`, `alpha`, `logC`, `nmad` and `gamma1`, and each row is built by
+  name.
 
 # INLAvaan 0.3.5
 

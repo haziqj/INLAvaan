@@ -49,9 +49,14 @@ density is \deqn{f(x) = \frac{2}{\omega} \phi(z) \Phi(\alpha z), \quad z =
 }
 \details{
 \code{psnorm()} computes \eqn{F(q) = \Phi(z) - 2 T(z, \alpha)} with
-Owen's \eqn{T} function by 48-point Gauss-Legendre quadrature, to about
-\code{1e-15} absolute accuracy. The upper tail is computed by reflection, so a
-small upper-tail probability does not lose its relative accuracy.
+Owen's \eqn{T} function by 48-point Gauss-Legendre quadrature, to an
+absolute error of about \code{2e-16}. The upper tail is computed by
+reflection, so a small probability in the heavy tail (the upper tail when
+\code{alpha > 0}, the lower tail when \code{alpha < 0}) keeps its relative accuracy.
+In the light tail (the upper tail when \code{alpha < 0}, the lower tail when
+\code{alpha > 0}), the value is accurate only in absolute terms: a probability
+near \code{1e-12} there can have a relative error of about \code{1e-4}, and a
+probability below about \code{1e-17} can come out as 0.
 
 \code{qsnorm()} starts from \code{\link[=qsnorm_fast]{qsnorm_fast()}} and refines the quantile by
 Newton's method on the log of the smaller tail probability, which keeps

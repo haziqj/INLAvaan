@@ -31,11 +31,26 @@ The domain is split into tail regions, handled through the
 Lambert W function, and a central region, handled by a fifth-order Taylor
 expansion of the inverse error function about a well-chosen expansion
 point. Negative \code{alpha} is handled by the symmetry \eqn{Q(u; -\alpha) =
-  -Q(1 - u; \alpha)}. The result is exact for \code{alpha} of 0 and \eqn{\pm 1},
-where the quantile has a closed form. Elsewhere its error against
-\code{\link[=qsnorm]{qsnorm()}}, in units of \code{omega}, is about \code{7e-3} for \code{p} in \eqn{[0.01,
-  0.99]}, about \code{0.09} for \code{p} in \eqn{[10^{-6}, 1 - 10^{-6}]}, and larger
-further out. \code{\link[=qsnorm]{qsnorm()}} uses it only as the start of Newton's method.
+  -Q(1 - u; \alpha)}. \code{\link[=qsnorm]{qsnorm()}} uses it only as the start of Newton's
+method.
+
+The errors below are in units of \code{omega}, for a tail probability (\code{p} or
+\code{1 - p}), and were measured for \code{alpha} in \eqn{[-30, 30]}. The result is
+exact for \code{alpha = 0}. For \code{alpha} of \eqn{\pm 1}, where the quantile has
+a closed form, it is exact except far in the heavy tail, where \code{1 - p} or
+\code{sqrt(p)} rounds: the error is about \code{2e-8} at a tail probability of
+\code{1e-9}, \code{2e-3} at \code{1e-14} and \code{0.1} at \code{1e-16}. For other \code{alpha}, the
+error against \code{\link[=qsnorm]{qsnorm()}} is at most about \code{7e-3} for \code{p} in \eqn{[0.01,
+  0.99]}. It is largest for a tail probability near \code{1e-3} (about \code{0.085})
+and smaller further out: \code{0.02} to \code{0.04} from \code{1e-15} to \code{1e-8}, and up
+to \code{0.06} below \code{1e-15}, where \code{1 - p} rounds. The exception is the light
+tail (the lower tail when \code{alpha > 0}, the upper tail when \code{alpha < 0})
+for \code{alpha} within about \code{0.015} of \eqn{\pm 2.18}, where the
+fifth-order coefficient of the expansion is 0. There the error grows
+further out: about \code{0.36} at a tail probability of \code{1e-9}, \code{1.1} at
+\code{1e-13} and \code{2.1} at \code{1e-16}. For most \code{alpha < 0}, a \code{p} below about
+\code{1e-16} gives \code{-Inf}, and for most \code{alpha > 0}, a \code{p} within about
+\code{1e-16} of 1 gives \code{Inf}.
 }
 \examples{
 qsnorm_fast(c(0.025, 0.5, 0.975))

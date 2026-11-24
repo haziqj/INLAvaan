@@ -13,9 +13,14 @@
 #' (x - \xi) / \omega.}
 #'
 #' @details `psnorm()` computes \eqn{F(q) = \Phi(z) - 2 T(z, \alpha)} with
-#'   Owen's \eqn{T} function by 48-point Gauss-Legendre quadrature, to about
-#'   `1e-15` absolute accuracy. The upper tail is computed by reflection, so a
-#'   small upper-tail probability does not lose its relative accuracy.
+#'   Owen's \eqn{T} function by 48-point Gauss-Legendre quadrature, to an
+#'   absolute error of about `2e-16`. The upper tail is computed by
+#'   reflection, so a small probability in the heavy tail (the upper tail when
+#'   `alpha > 0`, the lower tail when `alpha < 0`) keeps its relative accuracy.
+#'   In the light tail (the upper tail when `alpha < 0`, the lower tail when
+#'   `alpha > 0`), the value is accurate only in absolute terms: a probability
+#'   near `1e-12` there can have a relative error of about `1e-4`, and a
+#'   probability below about `1e-17` can come out as 0.
 #'
 #'   `qsnorm()` starts from [qsnorm_fast()] and refines the quantile by
 #'   Newton's method on the log of the smaller tail probability, which keeps
@@ -79,11 +84,26 @@ NULL
 #'   Lambert W function, and a central region, handled by a fifth-order Taylor
 #'   expansion of the inverse error function about a well-chosen expansion
 #'   point. Negative `alpha` is handled by the symmetry \eqn{Q(u; -\alpha) =
-#'   -Q(1 - u; \alpha)}. The result is exact for `alpha` of 0 and \eqn{\pm 1},
-#'   where the quantile has a closed form. Elsewhere its error against
-#'   [qsnorm()], in units of `omega`, is about `7e-3` for `p` in \eqn{[0.01,
-#'   0.99]}, about `0.09` for `p` in \eqn{[10^{-6}, 1 - 10^{-6}]}, and larger
-#'   further out. [qsnorm()] uses it only as the start of Newton's method.
+#'   -Q(1 - u; \alpha)}. [qsnorm()] uses it only as the start of Newton's
+#'   method.
+#'
+#'   The errors below are in units of `omega`, for a tail probability (`p` or
+#'   `1 - p`), and were measured for `alpha` in \eqn{[-30, 30]}. The result is
+#'   exact for `alpha = 0`. For `alpha` of \eqn{\pm 1}, where the quantile has
+#'   a closed form, it is exact except far in the heavy tail, where `1 - p` or
+#'   `sqrt(p)` rounds: the error is about `2e-8` at a tail probability of
+#'   `1e-9`, `2e-3` at `1e-14` and `0.1` at `1e-16`. For other `alpha`, the
+#'   error against [qsnorm()] is at most about `7e-3` for `p` in \eqn{[0.01,
+#'   0.99]}. It is largest for a tail probability near `1e-3` (about `0.085`)
+#'   and smaller further out: `0.02` to `0.04` from `1e-15` to `1e-8`, and up
+#'   to `0.06` below `1e-15`, where `1 - p` rounds. The exception is the light
+#'   tail (the lower tail when `alpha > 0`, the upper tail when `alpha < 0`)
+#'   for `alpha` within about `0.015` of \eqn{\pm 2.18}, where the
+#'   fifth-order coefficient of the expansion is 0. There the error grows
+#'   further out: about `0.36` at a tail probability of `1e-9`, `1.1` at
+#'   `1e-13` and `2.1` at `1e-16`. For most `alpha < 0`, a `p` below about
+#'   `1e-16` gives `-Inf`, and for most `alpha > 0`, a `p` within about
+#'   `1e-16` of 1 gives `Inf`.
 #'
 #' @references Luu, T. (2016). *Fast and accurate parallel computation of
 #'   quantile functions for random number generation* (Doctoral thesis). UCL
