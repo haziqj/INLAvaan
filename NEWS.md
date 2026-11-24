@@ -39,9 +39,10 @@
 
 * `qsnorm_fast()` gave wrong values when one call mixed values of `alpha` or
   `p`. Where `alpha` was 0, 1 or -1, it gave 0 in place of the quantile. Where
-  `alpha` was negative, a `p` of 0 or 1 in a call with other values of `p` gave
-  an infinite value with the wrong sign. Fits were not affected: `inlavaan()`
-  passes one `alpha` at a time and, in practice, never a `p` of exactly 0 or 1.
+  `alpha` was negative but not -1, a `p` of 0 or 1 in a call with other values
+  of `p` gave an infinite value with the wrong sign. Fits were not affected:
+  `inlavaan()` passes one `alpha` at a time and, in practice, never a `p` of
+  exactly 0 or 1.
   The help of `qsnorm_fast()` no longer says that its relative error is below
   1e-7. Against `qsnorm()`, its error is about 7e-3 times `omega` for `p` in
   [0.01, 0.99], and about 0.09 times `omega` for `p` in [1e-6, 1 - 1e-6]. Its
