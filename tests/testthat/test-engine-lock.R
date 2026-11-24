@@ -669,6 +669,7 @@ test_that("the sync copies files from a pushed tag and writes the lock", {
   expect_match(res$output, "Upstream log since v26.11.23", all = FALSE)
   expect_match(res$output, "Add ga$", all = FALSE)
   expect_match(res$output, "DESCRIPTION: the Imports and Suggests", all = FALSE)
+  expect_match(res$output, "NAMESPACE changes only to drop", all = FALSE)
 
   # The tree is not clean now
   expect_error(sync("v26.12.01"), "not clean")

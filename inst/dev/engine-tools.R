@@ -1070,7 +1070,8 @@ run_engine_sync <- function(
   report_stale(check_engine_stale(lock, repo), pkg, release = FALSE)
   cat(
     "Next:\n",
-    "  - devtools::document(): NAMESPACE must not change\n",
+    "  - devtools::document(): NAMESPACE changes only to drop the imports\n",
+    "    that the names check flags\n",
     "  - DESCRIPTION: the Imports and Suggests that the copied files need\n",
     "  - the tests, R CMD check and `air format . --check`\n",
     "  - a NEWS entry\n",
