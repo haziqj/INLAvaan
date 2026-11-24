@@ -44,11 +44,11 @@ norta_adjust_R <- function(R, approx_data, use_spline = TRUE) {
       aj <- alphas[j]
       if (use_spline) {
         u_grid <- seq(eps, 1 - eps, length.out = 2000)
-        q_vals <- qsnorm_fast(u_grid, xi = 0, omega = 1, alpha = aj)
+        q_vals <- qsnorm(u_grid, xi = 0, omega = 1, alpha = aj)
         q_funs[[j]] <- splinefun(u_grid, q_vals, method = "monoH.FC")
       } else {
         q_funs[[j]] <- function(u, .a = aj) {
-          qsnorm_fast(u, xi = 0, omega = 1, alpha = .a)
+          qsnorm(u, xi = 0, omega = 1, alpha = .a)
         }
       }
       q1_all[j, ] <- q_funs[[j]](u1)

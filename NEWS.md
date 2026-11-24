@@ -49,6 +49,16 @@
   `sn_fit_temp` is not a positive number: `sn_fit_temp = NA` no longer
   estimates the temperature.
 
+* `summary()` and the posterior draws now use the exact skew-normal quantile,
+  `qsnorm()`, in place of the approximation `qsnorm_fast()`. The means, SDs
+  and modes of the marginals do not change. The quantiles change a little, and
+  so do the results that come from the draws (covariances, defined parameters,
+  PPP and DIC) for the same seed. With the default settings, on the Holzinger
+  and Swineford three-factor model the quantiles move by at most 0.008
+  posterior SDs and DIC by 0.06. On the Political Democracy model the
+  quantiles move by at most 0.009 posterior SDs, PPP moves from 0.527 to
+  0.528, and DIC moves by 0.07. The marginal likelihood does not change.
+
 * `approx_data` in `get_inlavaan_internal()` no longer has the columns `k` and
   `rmse`. `k` was the temperature of the skew-normal fit, and `rmse` was a mean
   squared error, not its root. The columns are now `xi`, `omega`, `alpha`,

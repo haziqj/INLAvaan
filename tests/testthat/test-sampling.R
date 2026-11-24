@@ -443,3 +443,40 @@ test_that("sampling() dispatches on the internal list as on the fit", {
   from_fit <- sampling(fit, type = "implied", nsamp = 2)
   expect_identical(from_int, from_fit)
 })
+
+# A skew-normal fit, for the map from normal scores to draws
+fit_sn <- acfa(mod, dat, verbose = FALSE, nsamp = 5, test = "none")
+
+test_that("Skew-normal copula draws map the normal scores exactly", {
+  int <- get_inlavaan_internal(fit_sn)
+  m <- length(int$theta_star)
+  sn <- int$approx_data[seq_len(m), ]
+  set.seed(1)
+  th <- sample_params_posterior(int, 200, TRUE)$theta_samp
+  # The same normal scores, from the same seed
+  set.seed(1)
+  z <- matrix(rnorm(200 * m), 200) %*% chol(cov2cor(int$Sigma_theta))
+  for (j in seq_len(m)) {
+    exact <- qsnorm(
+      pnorm(z[, j]),
+      xi = sn[j, "xi"],
+      omega = sn[j, "omega"],
+      alpha = sn[j, "alpha"]
+    )
+    expect_lt(max(abs(th[, j] - exact)) / sn[j, "omega"], 1e-6)
+  }
+})
+
+test_that("Gaussian skew-normal marginals draw as the joint Gaussian", {
+  int <- get_inlavaan_internal(fit_sn)
+  int$approx_data <- cbind(
+    xi = int$theta_star,
+    omega = sqrt(diag(int$Sigma_theta)),
+    alpha = 0
+  )
+  set.seed(3)
+  th_sn <- sample_params_posterior(int, 50, TRUE)$theta_samp
+  set.seed(3)
+  th_gauss <- sample_params_posterior(int, 50, FALSE)$theta_samp
+  expect_equal(th_sn, th_gauss, tolerance = 1e-8)
+})

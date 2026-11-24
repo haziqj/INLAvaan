@@ -192,3 +192,32 @@ test_that("inlavaan() checks sn_fit_logthresh and sn_fit_temp", {
     expect_error(fit_with(sn_fit_temp = bad), "sn_fit_temp")
   }
 })
+
+test_that("Skew-normal marginal quantiles are exact", {
+  skip_if_not_installed("sn")
+  probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+  qcols <- c("2.5%", "25%", "50%", "75%", "97.5%")
+  for (alpha in c(-6, -2, 0.5, 2, 6)) {
+    res <- post_marg_skewnorm(
+      j = 1,
+      theta_star = 0.2,
+      Sigma_theta = matrix(0.09),
+      sn_params = cbind(xi = 0.2, omega = 0.3, alpha = alpha)
+    )$summary
+    expect_equal(
+      unname(res[qcols]),
+      sn::qsn(probs, 0.2, 0.3, alpha, tol = 1e-12),
+      tolerance = 1e-8
+    )
+  }
+  # The quantiles of a skew-normal fitted to draws
+  set.seed(1)
+  y <- stats::rgamma(500, shape = 3)
+  res <- summarise_samples_sn(y)
+  snp <- res$sn_params
+  expect_equal(
+    unname(res$summary[qcols]),
+    sn::qsn(probs, snp[["xi"]], snp[["omega"]], snp[["alpha"]], tol = 1e-12),
+    tolerance = 1e-8
+  )
+})

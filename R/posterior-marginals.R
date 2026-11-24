@@ -167,7 +167,7 @@ post_marg_skewnorm <- function(
   SDx <- sqrt(Vx)
 
   # Compute quantiles
-  qq <- ginv(qsnorm_fast(
+  qq <- ginv(qsnorm(
     c(0.025, 0.25, 0.5, 0.75, 0.975),
     xi = xi,
     omega = omega,

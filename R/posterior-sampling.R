@@ -66,13 +66,20 @@ sample_params <- function(
     theta <- t(D %*% qnorm(t(u)) + theta_star)
   } else {
     if (method == "skewnorm") {
+      # Map each normal score to its skew-normal quantile, as the engine's
+      # sn_draws() does. A marginal with alpha = 0 is Gaussian, so its map is
+      # linear.
       theta <- do.call(
         "cbind",
-        lapply(seq_len(ncol(u)), function(j) {
+        lapply(seq_len(ncol(z)), function(j) {
           xi <- approx_data[j, "xi"]
           omega <- approx_data[j, "omega"]
           alpha <- approx_data[j, "alpha"]
-          qsnorm_fast(u[, j], xi = xi, omega = omega, alpha = alpha)
+          if (alpha == 0) {
+            xi + omega * z[, j]
+          } else {
+            sn_score_map(xi, omega, alpha)(z[, j])
+          }
         })
       )
     } else if (method == "asymgaus") {
@@ -740,7 +747,7 @@ summarise_samples_sn <- function(y) {
   Ex <- xi + omega * delta * sqrt(2 / pi)
   Vx <- omega^2 * (1 - 2 * delta^2 / pi)
   SDx <- sqrt(Vx)
-  qq <- qsnorm_fast(
+  qq <- qsnorm(
     c(0.025, 0.25, 0.5, 0.75, 0.975),
     xi = xi,
     omega = omega,
