@@ -108,6 +108,7 @@ make_upstream <- function(kit) {
   dir.create(clone)
   dir.create(remote)
   kit$git(remote, c("init", "--quiet", "--bare"))
+  kit$git(remote, c("symbolic-ref", "HEAD", "refs/heads/main"))
   kit$git(clone, c("init", "--quiet"))
   kit$git(clone, c("symbolic-ref", "HEAD", "refs/heads/main"))
   fixture_commit(
