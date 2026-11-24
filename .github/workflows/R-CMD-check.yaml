@@ -35,6 +35,19 @@ jobs:
               build_args: 'c("--no-manual", "--no-build-vignettes")',
               check_args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'
             }
+          # The floor of Depends. Current ggplot2, blavaan, sn and lme4 need a
+          # newer R or Matrix, so this job installs the hard dependencies and
+          # the Suggests used by the tests, and skips the vignettes.
+          - {
+              os: ubuntu-latest,
+              r: '4.1',
+              label: '(R floor)',
+              dependencies: '"hard"',
+              extra_packages: 'any::rcmdcheck, any::testthat, any::spacefillr, any::ucminf, local::.',
+              force_suggests: 'false',
+              build_args: 'c("--no-manual", "--no-build-vignettes")',
+              check_args: 'c("--no-manual", "--as-cran", "--ignore-vignettes")'
+            }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -54,7 +67,8 @@ jobs:
       # (quarto-dev/quarto-r#217).
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck, local::.
+          dependencies: ${{ matrix.config.dependencies || '"all"' }}
+          extra-packages: ${{ matrix.config.extra_packages || 'any::rcmdcheck, local::.' }}
           needs: check
 
       - name: Install lavaan devel from GitHub
