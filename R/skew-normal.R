@@ -184,6 +184,14 @@ NULL
 #' to the provided numeric vector `x`. The fit is computed on standardised
 #' draws, so it does not depend on the scale of `x`.
 #'
+#' The fit runs from two starts and keeps the one with the larger likelihood,
+#' as [fit_skew_normal()] does. With \eqn{\delta = \alpha / \sqrt{1 +
+#' \alpha^2}}, when the sample skewness of `x` gives \eqn{|\delta| \ge 0.2},
+#' the starts are the moment-based values and their mirror image, with the
+#' opposite skew. When `x` is near symmetric, the starts are \eqn{\delta = \pm
+#' 0.5}. A single start at `alpha = 0`, a stationary point of the likelihood,
+#' can stall there when the skew is mild.
+#'
 #' @param x A numeric vector of sample data.
 #'
 #' @returns A list with the fitted parameters `xi` (location), `omega` (scale)
@@ -194,26 +202,40 @@ NULL
 #' x <- rnorm(100, mean = 5, sd = 1)
 #' unlist(fit_skew_normal_samp(x))
 fit_skew_normal_samp <- function(x) {
-  # Fit on standardised draws, starting from the standard normal, since
-  # nlminb() stalls at its start values when the draws have a small scale. The
-  # shape alpha is scale-free.
+  # Fit on standardised draws, since nlminb() stalls at its start values when
+  # the draws have a small scale. The shape alpha is scale-free.
   m <- stats::median(x)
   s <- stats::sd(x)
   z <- (x - m) / s
 
-  opt <- nlminb(
-    start = c(0, 0, 0),
-    objective = function(par) {
-      -1 *
-        sum(dsnorm(
-          z,
-          xi = par[1],
-          omega = exp(par[2]),
-          alpha = par[3],
-          log = TRUE
-        ))
-    }
-  )
+  nll <- function(par) {
+    -1 *
+      sum(dsnorm(
+        z,
+        xi = par[1],
+        omega = exp(par[2]),
+        alpha = par[3],
+        log = TRUE
+      ))
+  }
+
+  # Fit from two starts and keep the larger likelihood, as fit_skew_normal()
+  # does. The likelihood has a stationary point at alpha = 0, so a single start
+  # there can stall when the draws are mildly skewed. The starts are the
+  # moment-based delta = alpha / sqrt(1 + alpha^2) and its mirror image, or
+  # delta = +-0.5 when the draws are near symmetric. The standardised draws
+  # have SD 1.
+  mean_z <- mean(z)
+  d0 <- sn_delta_from_skew(mean((z - mean_z)^3) / mean((z - mean_z)^2)^1.5)
+  if (!is.finite(d0) || abs(d0) < 0.2) {
+    d0 <- 0.5
+  }
+  starts <- lapply(c(d0, -d0), function(d) {
+    om <- 1 / sqrt(1 - 2 * d^2 / pi)
+    c(mean_z - om * d * sqrt(2 / pi), log(om), d / sqrt(1 - d^2))
+  })
+  fits <- lapply(starts, function(st) stats::nlminb(st, nll))
+  opt <- fits[[which.min(vapply(fits, `[[`, 0, "objective"))]]
 
   xi_hat <- m + s * opt$par[1]
   omega_hat <- s * exp(opt$par[2])
@@ -224,4 +246,13 @@ fit_skew_normal_samp <- function(x) {
     omega = omega_hat,
     alpha = alpha_hat
   )
+}
+
+# The delta = alpha / sqrt(1 + alpha^2) of the skew normal with skewness g, by
+# the method of moments. The skewness of a skew normal is below about 0.995 in
+# absolute value, so g is capped at +-0.9, as in fit_skew_normal().
+sn_delta_from_skew <- function(g) {
+  g <- max(min(g, 0.9), -0.9)
+  g23 <- abs(g)^(2 / 3)
+  sign(g) * sqrt(pi / 2 * g23 / (g23 + ((4 - pi) / 2)^(2 / 3)))
 }

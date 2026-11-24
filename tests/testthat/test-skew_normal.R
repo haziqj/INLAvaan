@@ -40,6 +40,45 @@ test_that("Skew-normal sample fit is scale-equivariant", {
   }
 })
 
+test_that("Skew-normal sample fit does not stall at alpha = 0", {
+  # Draws with skewness about 0.3. A single start at alpha = 0 stalled at
+  # alpha of about 0.01, with a log-likelihood about 7.5 below the optimum.
+  set.seed(288)
+  d <- 1.5 / sqrt(1 + 1.5^2)
+  y <- d * abs(rnorm(1000)) + sqrt(1 - d^2) * rnorm(1000)
+  yc <- y - mean(y)
+  expect_equal(mean(yc^3) / mean(yc^2)^1.5, 0.3, tolerance = 0.05)
+
+  loglik <- function(p) sum(dsnorm(y, p$xi, p$omega, p$alpha, log = TRUE))
+  res <- fit_skew_normal_samp(y)
+  normal <- list(xi = mean(y), omega = sqrt(mean(yc^2)), alpha = 0)
+  expect_gt(res$alpha, 1)
+  expect_gt(loglik(res) - loglik(normal), 7)
+
+  # Draws with the opposite skew give the mirror image
+  neg <- fit_skew_normal_samp(-y)
+  expect_equal(
+    c(-neg$xi, neg$omega, -neg$alpha),
+    unlist(res),
+    ignore_attr = TRUE
+  )
+})
+
+test_that("Skew-normal sample fit is stable under a little noise", {
+  # On these draws, noise of 1e-3 SD tipped a single start at alpha = 0
+  # between alpha of about 0.01 and the optimum.
+  d <- 1 / sqrt(2)
+  for (seed in c(18, 37, 217)) {
+    set.seed(seed)
+    y <- d * abs(rnorm(1000)) + sqrt(1 - d^2) * rnorm(1000)
+    y_noisy <- y + 1e-3 * rnorm(1000)
+    alpha <- fit_skew_normal_samp(y)$alpha
+    alpha_noisy <- fit_skew_normal_samp(y_noisy)$alpha
+    expect_gt(min(alpha, alpha_noisy), 0.5)
+    expect_equal(alpha_noisy, alpha, tolerance = 0.01)
+  }
+})
+
 test_that("Posterior modes are accurate on a small scale", {
   set.seed(1)
   d <- 4 / sqrt(17)
