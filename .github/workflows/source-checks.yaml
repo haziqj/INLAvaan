@@ -1,7 +1,12 @@
-# Fast checks of the source tree, without installing R: the code is formatted
-# with air (settings in air.toml), and R/ calls no unexported function of
-# another package with `:::`. lavaan internals are bound in
-# R/lavaan-unexported.R instead.
+# Fast checks of the source tree, without installing packages: the code is
+# formatted with air (settings in air.toml), and R/ calls no unexported
+# function of another package with `:::`. lavaan internals are bound in
+# R/lavaan-unexported.R instead. Then the engine checks of inst/dev (base R
+# and git only): the copies R/vanilla-*.R match inst/inlavanilla.lock (check
+# 1a, in the shell), no object of an engine file is defined twice in R/, the
+# lock matches a fresh clone of inlavanilla (check 1b), and no newer release
+# of inlavanilla changes a copied file (check 2, a report during development
+# and an error at release).
 on:
   push:
     branches: [main, master]
@@ -33,3 +38,24 @@ jobs:
             echo "::error::Use the bindings in R/lavaan-unexported.R, not :::"
             exit 1
           fi
+
+      - name: Check the engine copies against the lock
+        run: bash inst/dev/engine-check-copy.sh
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+          use-public-rspm: true
+
+      - name: Check the names of the engine files
+        run: Rscript inst/dev/engine-check.R --checks=names
+
+      - name: Clone inlavanilla
+        run: |
+          upstream=$(sed -n 's/^Upstream: *//p' inst/inlavanilla.lock | tr -d '\r')
+          git clone --quiet "$upstream" "$RUNNER_TEMP/inlavanilla"
+
+      - name: Check the lock against inlavanilla
+        run: |
+          Rscript inst/dev/engine-check.R --checks=upstream,stale \
+            --repo="$RUNNER_TEMP/inlavanilla"
