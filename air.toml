@@ -2,3 +2,4 @@
 line-width = 80
 indent-width = 2
 exclude = ["inst/dev", "inst/examples", "inst/hexSticker", "lab"]
+skip = ["matrix"]
