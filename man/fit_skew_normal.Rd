@@ -4,47 +4,57 @@
 \alias{fit_skew_normal}
 \title{Fit a skew normal distribution to log-density evaluations}
 \usage{
-fit_skew_normal(x, y, threshold_log_drop = -6, temp = NA)
+fit_skew_normal(x, y, threshold_log_drop = -6, temp = 1)
 }
 \arguments{
 \item{x}{A numeric vector of points where the density is evaluated.}
 
-\item{y}{A numeric vector of log-density evaluations at points x.}
+\item{y}{A numeric vector of log-density evaluations at \code{x}, normalised so
+that \code{max(y) = 0}. The function does not normalise \code{y}, and the threshold
+is measured from 0.}
 
-\item{threshold_log_drop}{A negative numeric value indicating the log-density
-drop threshold below which points are ignored in the fitting. Default is
--6.}
+\item{threshold_log_drop}{Points with \code{y} below this value are left out of
+the fit (default -6).}
 
-\item{temp}{A numeric value for the temperature parameter k. If NA (default),
-it is included in the optimisation.}
+\item{temp}{A positive number, the temperature of the weights (default 1).
+\code{NA} is not allowed: the temperature is no longer estimated.}
 }
 \value{
-A list with fitted parameters:
+A list with the fitted parameters:
 \itemize{
 \item \code{xi}: location parameter
 \item \code{omega}: scale parameter
 \item \code{alpha}: shape parameter
-\item \code{logC}: log-normalization constant
-\item \code{k}: temperature parameter
-\item \code{rsq}: R-squared of the fit
+\item \code{logC}: log-constant, so that \code{exp(y)} is approximated by
+\code{dsnorm(x, xi, omega, alpha, logC)}
+\item \code{nmad}: the largest absolute difference between \code{exp(y)} and the
+fitted density over all points, divided by \code{max(exp(y))}
 }
-
-Note that \code{logC} and \code{k} are not used when fitting from a sample.
 }
 \description{
 Fit a skew normal distribution to log-density evaluations
 }
 \details{
-This skew normal fitting function uses a weighted least squares
-approach to fit the log-density evaluations provided in \code{y} at points \code{x}.
-The weights are set to be the density evaluations raised to the power of
-the temperature parameter \code{k}. This has somewhat an interpretation of
-finding the skew normal fit that minimises the Kullback-Leibler divergence
-from the true density to it.
+The fit is by weighted least squares on the log scale: it
+minimises \eqn{\sum_i w_i \{y_i - \log f(x_i)\}^2} over the location,
+scale and shape of a skew-normal density \eqn{f} and a log-constant
+\code{logC}. The weights \eqn{w_i \propto \exp(\tau y_i)}, with
+\eqn{\tau} = \code{temp}, put the fit where the mass is. Points with \code{y}
+below \code{threshold_log_drop} are left out of the fit, but the five highest
+points are always kept.
 
-In R-INLA, the C code implementation from which this was translated from
-can be found
-\href{https://github.com/hrue/r-inla/blob/b63eb379f69d6553f965b360f1b88877cfef20d1/gmrflib/fit-sn.c}{here}.
+The fit runs from two starts and keeps the better fit. With \eqn{\delta
+  = \alpha / \sqrt{1 + \alpha^2}}, when the skewness of the scan (from
+trapezoidal moments of \code{exp(y)}) gives \eqn{|\delta| \ge 0.2}, the
+starts are the moment-based values and their mirror image, with the
+opposite skew. When the scan is near symmetric, the starts are
+\eqn{\delta = \pm 0.5} (\code{alpha} of about \eqn{\pm 0.577}), with the mean
+and standard deviation of the scan. A single start with the wrong sign of
+skew can stall at \code{alpha = 0} when the skew is mild.
+
+This is the approach of R-INLA, whose C code
+\href{https://github.com/hrue/r-inla/blob/b63eb379f69d6553f965b360f1b88877cfef20d1/gmrflib/fit-sn.c}{fit-sn.c}
+it translates, with the temperature fixed rather than estimated.
 }
 \examples{
 # Fit a SN curve to gamma log-density

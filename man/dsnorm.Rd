@@ -2,34 +2,74 @@
 % Please edit documentation in R/skew-normal.R
 \name{dsnorm}
 \alias{dsnorm}
-\title{The Skew Normal Distribution}
+\alias{psnorm}
+\alias{qsnorm}
+\title{The skew-normal distribution}
 \usage{
 dsnorm(x, xi, omega, alpha, logC = 0, log = FALSE)
+
+psnorm(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE)
+
+qsnorm(p, xi = 0, omega = 1, alpha = 0)
 }
 \arguments{
-\item{x}{Vector of quantiles.}
+\item{x, q}{Vector of quantiles.}
+
+\item{p}{Vector of probabilities.}
 
 \item{xi}{Location parameter.}
 
-\item{omega}{Scale parameter.}
+\item{omega}{Scale parameter, positive.}
 
-\item{alpha}{Shape parameter.}
+\item{alpha}{Shape parameter. \code{alpha = 0} gives the normal distribution.}
 
-\item{logC}{Log-normalization constant.}
+\item{logC}{Log-constant added to the log density, so that the density is
+multiplied by \code{exp(logC)}.}
 
-\item{log}{Logical; if TRUE, returns the log density.}
+\item{log}{Logical; if \code{TRUE}, \code{dsnorm()} returns the log density.}
+
+\item{lower_tail}{Logical; if \code{TRUE} (default), probabilities are \eqn{P(X
+\le q)}, otherwise \eqn{P(X > q)}.}
 }
 \value{
-A numeric vector of (log) density values.
+A numeric vector: the (log) density for \code{dsnorm()}, the
+probabilities for \code{psnorm()} and the quantiles for \code{qsnorm()}. \code{dsnorm()}
+has no defaults for \code{xi}, \code{omega} and \code{alpha}. \code{psnorm()} and \code{qsnorm()}
+recycle their arguments to the longest. \code{psnorm()} returns 0 and 1 at
+\code{-Inf} and \code{Inf}, and \code{NA} for a missing \code{q}, a non-finite \code{alpha} or a
+non-positive or missing scale. \code{qsnorm()} returns \code{-Inf} and \code{Inf} at \code{p}
+of 0 and 1, and \code{NA} for \code{p} outside \eqn{[0, 1]}, a non-finite \code{alpha} or
+a non-positive or missing scale.
 }
 \description{
-Density for the skew normal distribution with location \code{xi}, scale \code{omega},
-and shape \code{alpha}.
+Density, distribution function and quantile function of the skew-normal
+distribution with location \code{xi}, scale \code{omega} and shape \code{alpha}, whose
+density is \deqn{f(x) = \frac{2}{\omega} \phi(z) \Phi(\alpha z), \quad z =
+(x - \xi) / \omega.}
+}
+\details{
+\code{psnorm()} computes \eqn{F(q) = \Phi(z) - 2 T(z, \alpha)} with
+Owen's \eqn{T} function by 48-point Gauss-Legendre quadrature, to about
+\code{1e-15} absolute accuracy. The upper tail is computed by reflection, so a
+small upper-tail probability does not lose its relative accuracy.
+
+\code{qsnorm()} starts from \code{\link[=qsnorm_fast]{qsnorm_fast()}} and refines the quantile by
+Newton's method on the log of the smaller tail probability, which keeps
+quantiles far out in the tails accurate. Where the smaller tail
+probability is \code{1e-6} or more, \code{psnorm(qsnorm(p))} returns \code{p} to a
+relative error of about \code{1e-10}. Further out in the light tail,
+\code{psnorm()} loses relative accuracy to cancellation, so \code{qsnorm()}
+computes that tail by a separate quadrature.
 }
 \examples{
 x <- seq(-2, 5, length.out = 100)
 y <- dsnorm(x, xi = 0, omega = 1, alpha = 5)
 plot(x, y, type = "l", main = "Skew Normal Density")
+
+# The quantile function inverts the distribution function
+p <- c(1e-10, 0.025, 0.5, 0.975)
+q <- qsnorm(p, xi = 1, omega = 2, alpha = -3)
+psnorm(q, xi = 1, omega = 2, alpha = -3)
 }
 \references{
 https://en.wikipedia.org/wiki/Skew_normal_distribution

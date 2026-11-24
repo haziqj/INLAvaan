@@ -1,401 +1,162 @@
-#' Fit a skew normal distribution to log-density evaluations
+# The skew-normal functions dsnorm(), psnorm(), qsnorm(), qsnorm_fast() and
+# fit_skew_normal() are defined in the engine copies R/vanilla-skew-normal.R
+# and R/vanilla-qsnorm-fast.R, which hold no roxygen. Their help and their
+# export lines live here. The usage lines are written out, so R CMD check
+# (codoc) and tests/testthat/test-interface.R catch a sync that changes the
+# arguments.
+
+#' The skew-normal distribution
 #'
-#' @details This skew normal fitting function uses a weighted least squares
-#'   approach to fit the log-density evaluations provided in `y` at points `x`.
-#'   The weights are set to be the density evaluations raised to the power of
-#'   the temperature parameter `k`. This has somewhat an interpretation of
-#'   finding the skew normal fit that minimises the Kullback-Leibler divergence
-#'   from the true density to it.
+#' Density, distribution function and quantile function of the skew-normal
+#' distribution with location `xi`, scale `omega` and shape `alpha`, whose
+#' density is \deqn{f(x) = \frac{2}{\omega} \phi(z) \Phi(\alpha z), \quad z =
+#' (x - \xi) / \omega.}
 #'
-#'   In R-INLA, the C code implementation from which this was translated from
-#'   can be found
-#'   [here](https://github.com/hrue/r-inla/blob/b63eb379f69d6553f965b360f1b88877cfef20d1/gmrflib/fit-sn.c).
+#' @details `psnorm()` computes \eqn{F(q) = \Phi(z) - 2 T(z, \alpha)} with
+#'   Owen's \eqn{T} function by 48-point Gauss-Legendre quadrature, to about
+#'   `1e-15` absolute accuracy. The upper tail is computed by reflection, so a
+#'   small upper-tail probability does not lose its relative accuracy.
 #'
+#'   `qsnorm()` starts from [qsnorm_fast()] and refines the quantile by
+#'   Newton's method on the log of the smaller tail probability, which keeps
+#'   quantiles far out in the tails accurate. Where the smaller tail
+#'   probability is `1e-6` or more, `psnorm(qsnorm(p))` returns `p` to a
+#'   relative error of about `1e-10`. Further out in the light tail,
+#'   `psnorm()` loses relative accuracy to cancellation, so `qsnorm()`
+#'   computes that tail by a separate quadrature.
 #'
-#' @param x A numeric vector of points where the density is evaluated.
-#' @param y A numeric vector of log-density evaluations at points x.
-#' @param threshold_log_drop A negative numeric value indicating the log-density
-#'   drop threshold below which points are ignored in the fitting. Default is
-#'   -6.
-#' @param temp A numeric value for the temperature parameter k. If NA (default),
-#'   it is included in the optimisation.
-#'
-#' @returns A list with fitted parameters:
-#'   - `xi`: location parameter
-#'   - `omega`: scale parameter
-#'   - `alpha`: shape parameter
-#'   - `logC`: log-normalization constant
-#'   - `k`: temperature parameter
-#'   - `rsq`: R-squared of the fit
-#'
-#'  Note that `logC` and `k` are not used when fitting from a sample.
-#'
-#' @example inst/examples/ex-skewnorm-fit.R
-#' @export
-fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = NA) {
-  # NOTE: y is the density evaluations at x on the log scale, i.e. log f(x).
-  # y should ideally be normalized so max(y) = 0 for numerical stability
-  if (max(y) > 0) {
-    # nocov start
-    cli_warn(
-      "In {.fn fit_skew_normal}, log density {.arg y} should be normalized so that max(y) = 0 for numerical stability. Automatically normalizing now."
-    )
-    y <- y - max(y)
-  } # nocov end
-  if (threshold_log_drop >= 0) {
-    # nocov start
-    cli_abort(
-      "In {.fn fit_skew_normal}, {.arg threshold_log_drop} must be negative."
-    )
-  } # nocov end
-  is_est_k <- is.na(temp) | is.null(temp)
-
-  # Integration weights (used for calculating moments to get inits)
-  if (FALSE) {
-    w_int <- rep(1, length(x))
-  } else {
-    # Trapezoidal rule weights
-    w_int <- numeric(length(x))
-    w_int[1] <- 0.5 * (x[2] - x[1])
-    w_int[-1] <- 0.5 * (c(diff(x[-1]), 0) + c(0, diff(x[-length(x)])))
-    # w_int     <- w_int / sum(w_int)
-  }
-
-  # # Fitting (importance) weights for objective
-  # w_fit <- exp(10 * y)
-  # w_fit[y < threshold_log_drop] <- 0  # the "clean" KLD approach
-  # w_fit <- w_fit / sum(w_fit)  # normalise for stability
-
-  # Initial moment-based estimates
-  p <- exp(y)
-  m0 <- sum(w_int * p)
-  m1 <- sum(w_int * p * x)
-  m2 <- sum(w_int * p * x^2)
-
-  # Protect against degenerate m0 (e.g. if all y are very small)
-  if (m0 < .Machine$double.eps) {
-    # nocov
-    m0 <- 1
-  }
-
-  mean_hat <- m1 / m0
-  var_hat <- m2 / m0 - mean_hat^2
-  sd_hat <- sqrt(max(.Machine$double.eps, var_hat))
-  m3 <- sum(w_int * p * (x - mean_hat)^3)
-
-  skew_hat <- (m3 / m0) / (sd_hat^3)
-  skew_hat <- max(min(skew_hat, 0.9), -0.9)
-  # Note: Theoretical limit of skewness is 0.9952717
-
-  f_skew_to_delta <- function(delta, target_skew) {
-    # gamma1(delta) from Wikipedia:
-    # γ1 = ((4−π)/2) * ((δ*√(2/π))^3) / (1 − 2 δ^2/π)^(3/2)
-    # δ = α / √(1 + α^2)
-    num <- (4 - pi) / 2 * (delta * sqrt(2 / pi))^3
-    den <- (1 - 2 * delta^2 / pi)^(3 / 2)
-    num / den - target_skew
-  }
-
-  # Solve for delta in (−1,1)
-  root <- tryCatch(
-    {
-      stats::uniroot(
-        f_skew_to_delta,
-        interval = c(-0.995, 0.995),
-        target_skew = skew_hat
-      )$root
-    },
-    error = function(e) 0
-  ) # fallback to normal if uniroot fails
-  alpha_init <- root / sqrt(1 - root^2)
-  omega_init <- sd_hat / sqrt(1 - 2 * root^2 / pi)
-  xi_init <- mean_hat - omega_init * root * sqrt(2 / pi)
-
-  # Optimisation functions
-  ob <- function(param, x, y) {
-    mu <- param[1]
-    lsinv <- param[2]
-    a <- param[3]
-    logC <- param[4]
-    logk <- if (is_est_k) param[5] else log(temp)
-    # print(exp(logk))
-
-    w <- exp(exp(logk) * y)
-    w[y < threshold_log_drop] <- 0
-    w <- w / sum(w)
-
-    # log skew-normal density up to constant
-    xx <- (x - mu) * exp(lsinv)
-    logdens <- log(2) +
-      stats::dnorm(xx, log = TRUE) +
-      stats::pnorm(a * xx, log.p = TRUE) +
-      lsinv +
-      logC
-    resid <- y - logdens
-    sum(w * resid^2) # Weighted Sum of Squares
-  }
-
-  gr <- function(param, x, y) {
-    mu <- param[1]
-    lsinv <- param[2]
-    a <- param[3]
-    logC <- param[4]
-    s <- exp(lsinv)
-    xx <- s * (x - mu)
-    u <- a * xx
-    R <- mills_ratio(u)
-
-    logk <- if (is_est_k) param[5] else log(temp)
-    w <- exp(exp(logk) * y)
-    w[y < threshold_log_drop] <- 0
-    w <- w / sum(w)
-
-    # First derivatives of log-density L wrt parameters
-    L_mu <- s * xx - a * s * R
-    L_lsinv <- -xx^2 + a * xx * R + 1
-    L_a <- xx * R
-    L_logC <- 1
-
-    L <- log(2) +
-      stats::dnorm(xx, log = TRUE) +
-      stats::pnorm(u, log.p = TRUE) +
-      lsinv +
-      logC
-    r <- y - L
-
-    # Weighted Gradients
-    g1 <- -2 * sum(w * r * L_mu)
-    g2 <- -2 * sum(w * r * L_lsinv)
-    g3 <- -2 * sum(w * r * L_a)
-    g4 <- -2 * sum(w * r * L_logC)
-    # w is normalised, so its derivative carries the centring term y - ybar
-    g5 <- sum(w * r^2 * (y - sum(w * y))) * exp(logk)
-
-    if (is_est_k) {
-      return(c(g1, g2, g3, g4, g5))
-    } else {
-      return(c(g1, g2, g3, g4))
-    }
-  }
-
-  hs <- function(param, x, y) {
-    w <- exp(temp * y)
-    w[y < threshold_log_drop] <- 0
-    w <- w / sum(w)
-
-    mu <- param[1]
-    lsinv <- param[2]
-    a <- param[3]
-    logC <- param[4]
-    s <- exp(lsinv)
-    xx <- s * (x - mu)
-    u <- a * xx
-    R <- mills_ratio(u)
-    Rprime <- -R * (u + R) # derivative of Mills ratio
-
-    # First derivatives
-    L_mu <- s * xx - a * s * R
-    L_lsinv <- -xx^2 + a * xx * R + 1
-    L_a <- xx * R
-    L_logC <- 1
-
-    # Second derivatives
-    L_mumu <- -s^2 + a^2 * s^2 * Rprime
-    L_mu_lsinv <- 2 * s * xx - a * s * R - a^2 * s * xx * Rprime
-    L_mu_a <- -s * R - a * s * xx * Rprime
-    L_mu_logC <- 0
-
-    L_lsinv_lsinv <- -2 * xx^2 + a * xx * R + a^2 * xx^2 * Rprime
-    L_lsinv_a <- xx * R + a * xx^2 * Rprime
-    L_lsinv_logC <- 0
-
-    L_aa <- xx^2 * Rprime
-    L_a_logC <- 0
-
-    L <- log(2) +
-      stats::dnorm(xx, log = TRUE) +
-      stats::pnorm(u, log.p = TRUE) +
-      lsinv +
-      logC
-    r <- y - L
-
-    # Weighted Hessian: H = 2 * sum w * (gradL gradL^T - r * HessL)
-    H11 <- 2 * sum(w * (L_mu * L_mu - r * L_mumu))
-    H12 <- 2 * sum(w * (L_mu * L_lsinv - r * L_mu_lsinv))
-    H13 <- 2 * sum(w * (L_mu * L_a - r * L_mu_a))
-    H14 <- 2 * sum(w * (L_mu * L_logC - r * L_mu_logC))
-
-    H22 <- 2 * sum(w * (L_lsinv * L_lsinv - r * L_lsinv_lsinv))
-    H23 <- 2 * sum(w * (L_lsinv * L_a - r * L_lsinv_a))
-    H24 <- 2 * sum(w * (L_lsinv * L_logC - r * L_lsinv_logC))
-
-    H33 <- 2 * sum(w * (L_a * L_a - r * L_aa))
-    H34 <- 2 * sum(w * (L_a * L_logC - r * L_a_logC))
-
-    H44 <- 2 * sum(w * (L_logC * L_logC))
-
-    # fmt: skip
-    matrix(c(H11, H12, H13, H14,
-             H12, H22, H23, H24,
-             H13, H23, H33, H34,
-             H14, H24, H34, H44), nrow = 4, byrow = TRUE)
-  }
-  if (is_est_k) {
-    hs <- NULL
-  }
-
-  # Optimise skew normal parameters
-  st <- if (is_est_k) {
-    c(xi_init, log(1 / omega_init), alpha_init, 0, log(10))
-  } else {
-    c(xi_init, log(1 / omega_init), alpha_init, 0)
-  }
-  fit <- stats::nlminb(
-    st,
-    ob,
-    gr,
-    hs,
-    x = x,
-    y = y
-    # w = w_fit
-  )
-  xi_hat <- fit$par[1]
-  omega_hat <- exp(-fit$par[2])
-  alpha_hat <- fit$par[3]
-  logC_hat <- fit$par[4]
-  k_hat <- if (is_est_k) exp(fit$par[5]) else temp
-
-  # Calculate RMSE and R2 (unweighted)
-  expy <- exp(y)
-  fity <- dsnorm(x, xi_hat, omega_hat, alpha_hat, logC_hat)
-  rss <- sum((expy - fity)^2)
-  tss <- sum(expy^2) # total sum of squares relative to 0
-  rmse <- rss / length(expy)
-  rsq <- 1 - (rss / tss)
-
-  # Normalised max abs deviation (NMAD)
-  nmad <- max(abs(expy - fity)) / max(expy)
-
-  list(
-    xi = xi_hat,
-    omega = omega_hat,
-    alpha = alpha_hat,
-    logC = logC_hat,
-    k = k_hat,
-    rmse = rmse,
-    nmad = nmad
-  )
-}
-
-mills_ratio <- function(u) {
-  logphi <- stats::dnorm(u, log = TRUE)
-  logPhi <- stats::pnorm(u, log.p = TRUE)
-  # guard against -Inf in logPhi; cap to avoid exp overflow
-  logPhi <- pmax(logPhi, -745) # ~exp(-745) ~ 5e-324
-  exp(logphi - logPhi)
-}
-
-
-#' The Skew Normal Distribution
-#'
-#' Density for the skew normal distribution with location `xi`, scale `omega`,
-#' and shape `alpha`.
-#'
-#' @param x Vector of quantiles.
+#' @param x,q Vector of quantiles.
+#' @param p Vector of probabilities.
 #' @param xi Location parameter.
-#' @param omega Scale parameter.
-#' @param alpha Shape parameter.
-#' @param logC Log-normalization constant.
-#' @param log Logical; if TRUE, returns the log density.
+#' @param omega Scale parameter, positive.
+#' @param alpha Shape parameter. `alpha = 0` gives the normal distribution.
+#' @param logC Log-constant added to the log density, so that the density is
+#'   multiplied by `exp(logC)`.
+#' @param log Logical; if `TRUE`, `dsnorm()` returns the log density.
+#' @param lower_tail Logical; if `TRUE` (default), probabilities are \eqn{P(X
+#'   \le q)}, otherwise \eqn{P(X > q)}.
 #'
-#' @returns A numeric vector of (log) density values.
+#' @returns A numeric vector: the (log) density for `dsnorm()`, the
+#'   probabilities for `psnorm()` and the quantiles for `qsnorm()`. `dsnorm()`
+#'   has no defaults for `xi`, `omega` and `alpha`. `psnorm()` and `qsnorm()`
+#'   recycle their arguments to the longest. `psnorm()` returns 0 and 1 at
+#'   `-Inf` and `Inf`, and `NA` for a missing `q`, a non-finite `alpha` or a
+#'   non-positive or missing scale. `qsnorm()` returns `-Inf` and `Inf` at `p`
+#'   of 0 and 1, and `NA` for `p` outside \eqn{[0, 1]}, a non-finite `alpha` or
+#'   a non-positive or missing scale.
+#'
 #' @references https://en.wikipedia.org/wiki/Skew_normal_distribution
 #'
-#' @export
+#' @name dsnorm
+#' @aliases psnorm qsnorm
+#' @usage dsnorm(x, xi, omega, alpha, logC = 0, log = FALSE)
+#'
+#' psnorm(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE)
+#'
+#' qsnorm(p, xi = 0, omega = 1, alpha = 0)
+#' @export dsnorm
+#' @export psnorm
+#' @export qsnorm
 #' @examples
 #' x <- seq(-2, 5, length.out = 100)
 #' y <- dsnorm(x, xi = 0, omega = 1, alpha = 5)
 #' plot(x, y, type = "l", main = "Skew Normal Density")
-dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {
-  xx <- (x - xi) / omega
-  if (isTRUE(log)) {
-    log(2) +
-      stats::dnorm(xx, log = TRUE) +
-      stats::pnorm(alpha * xx, log.p = TRUE) -
-      log(omega) +
-      logC
-  } else {
-    2 / omega * stats::dnorm(xx) * stats::pnorm(alpha * xx) * exp(logC)
-  }
-}
+#'
+#' # The quantile function inverts the distribution function
+#' p <- c(1e-10, 0.025, 0.5, 0.975)
+#' q <- qsnorm(p, xi = 1, omega = 2, alpha = -3)
+#' psnorm(q, xi = 1, omega = 2, alpha = -3)
+NULL
 
-# Gauss-Legendre nodes and weights on [0, 1] (Golub-Welsch). Evaluated once
-# when the namespace is built, so Owen's T below costs one small matrix
-# product per call.
-gauss_legendre_01 <- function(n) {
-  i <- seq_len(n - 1)
-  b <- i / sqrt(4 * i^2 - 1)
-  J <- matrix(0, n, n)
-  J[cbind(i, i + 1)] <- b
-  J[cbind(i + 1, i)] <- b
-  e <- eigen(J, symmetric = TRUE)
-  list(x = (e$values + 1) / 2, w = e$vectors[1, ]^2)
-}
-gl_owen <- gauss_legendre_01(48L)
+#' Fast approximation of the skew-normal quantile function
+#'
+#' A fast approximation of skew-normal quantiles, from the INLA GMRFLib C
+#' source and originally by Thomas Luu (see the references). It needs no
+#' iterative inversion, but it is only approximate: use [qsnorm()] for
+#' accurate quantiles.
+#'
+#' @details The domain is split into tail regions, handled through the
+#'   Lambert W function, and a central region, handled by a fifth-order Taylor
+#'   expansion of the inverse error function about a well-chosen expansion
+#'   point. Negative `alpha` is handled by the symmetry \eqn{Q(u; -\alpha) =
+#'   -Q(1 - u; \alpha)}. The result is exact for `alpha` of 0 and \eqn{\pm 1},
+#'   where the quantile has a closed form. Elsewhere its error against
+#'   [qsnorm()], in units of `omega`, is about `7e-3` for `p` in \eqn{[0.01,
+#'   0.99]}, about `0.09` for `p` in \eqn{[10^{-6}, 1 - 10^{-6}]}, and larger
+#'   further out. [qsnorm()] uses it only as the start of Newton's method.
+#'
+#' @references Luu, T. (2016). *Fast and accurate parallel computation of
+#'   quantile functions for random number generation* (Doctoral thesis). UCL
+#'   (University College London). \url{https://discovery.ucl.ac.uk/1482128/}
+#'
+#' @param p Vector of probabilities.
+#' @param xi Location parameter.
+#' @param omega Scale parameter, positive.
+#' @param alpha Shape parameter.
+#'
+#' @returns A numeric vector of approximate quantiles. `xi`, `omega` and
+#'   `alpha` shorter than `p` are recycled to its length. `p` of 0 and 1 give
+#'   `-Inf` and `Inf`.
+#'
+#' @name qsnorm_fast
+#' @usage qsnorm_fast(p, xi = 0, omega = 1, alpha = 0)
+#' @export qsnorm_fast
+#' @seealso [qsnorm()] for accurate quantiles.
+#' @examples
+#' qsnorm_fast(c(0.025, 0.5, 0.975))
+#' qsnorm_fast(c(0.025, 0.5, 0.975), xi = 2, omega = 0.5, alpha = 1)
+#'
+#' # The error of the approximation, in units of omega
+#' p <- c(0.025, 0.5, 0.975)
+#' qsnorm_fast(p, alpha = 3) - qsnorm(p, alpha = 3)
+NULL
 
-# Owen's T(h, a) = (2 pi)^-1 int_0^a exp(-h^2 (1 + x^2) / 2) / (1 + x^2) dx,
-# vectorised over h and a. It is reduced to h >= 0 and 0 <= a <= 1 by the
-# symmetries T(-h, a) = T(h, a), T(h, -a) = -T(h, a) and, for a > 1,
-# T(h, a) = Phi(h)/2 + Phi(ah)/2 - Phi(h) Phi(ah) - T(ah, 1/a). On the
-# reduced range 48 Gauss-Legendre nodes give about 1e-15 absolute accuracy.
-owen_t <- function(h, a) {
-  n <- max(length(h), length(a))
-  h <- abs(rep_len(h, n))
-  a <- rep_len(a, n)
-  sgn <- sign(a)
-  a <- abs(a)
-  big <- a > 1
-  ah <- a * h
-  aa <- ifelse(big, 1 / a, a)
-  hh <- ifelse(big, ah, h)
-  X <- outer(aa, gl_owen$x)
-  G <- exp(-0.5 * hh^2 * (1 + X^2)) / (1 + X^2)
-  t_red <- as.numeric(G %*% gl_owen$w) * aa / (2 * pi)
-  ph <- stats::pnorm(h)
-  pah <- stats::pnorm(ah)
-  sgn * ifelse(big, 0.5 * ph + 0.5 * pah - ph * pah - t_red, t_red)
-}
-
-# Skew-normal distribution function F(q) = Phi(z) - 2 T(z, alpha), with
-# z = (q - xi) / omega. The upper tail is computed by reflection,
-# 1 - F(z; alpha) = F(-z; -alpha), so a small tail probability never comes
-# out as the difference of two numbers close to one. Absolute accuracy is
-# about 1e-15. The value is NA for a non-finite argument or a non-positive
-# scale.
-psnorm <- function(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE) {
-  n <- max(length(q), length(xi), length(omega), length(alpha))
-  q <- rep_len(q, n)
-  xi <- rep_len(xi, n)
-  omega <- rep_len(omega, n)
-  alpha <- rep_len(alpha, n)
-  z <- (q - xi) / omega
-  if (!isTRUE(lower_tail)) {
-    z <- -z
-    alpha <- -alpha
-  }
-  ok <- is.finite(z) & is.finite(alpha) & omega > 0
-  out <- rep(NA_real_, n)
-  out[ok] <- stats::pnorm(z[ok]) - 2 * owen_t(z[ok], alpha[ok])
-  out[ok] <- pmin(pmax(out[ok], 0), 1)
-  out
-}
-
-# snorm_EX_VarX <- function(xi, omega, alpha) {
-#   delta <- alpha / sqrt(1 + alpha^2)
-#   EX <- xi + omega * delta * sqrt(2 / pi)
-#   VarX <- omega^2 * (1 - (2 * delta^2) / pi)
-#   list(EX = EX, VarX = VarX)
-# }
+#' Fit a skew normal distribution to log-density evaluations
+#'
+#' @details The fit is by weighted least squares on the log scale: it
+#'   minimises \eqn{\sum_i w_i \{y_i - \log f(x_i)\}^2} over the location,
+#'   scale and shape of a skew-normal density \eqn{f} and a log-constant
+#'   `logC`. The weights \eqn{w_i \propto \exp(\tau y_i)}, with
+#'   \eqn{\tau} = `temp`, put the fit where the mass is. Points with `y`
+#'   below `threshold_log_drop` are left out of the fit, but the five highest
+#'   points are always kept.
+#'
+#'   The fit runs from two starts and keeps the better fit. With \eqn{\delta
+#'   = \alpha / \sqrt{1 + \alpha^2}}, when the skewness of the scan (from
+#'   trapezoidal moments of `exp(y)`) gives \eqn{|\delta| \ge 0.2}, the
+#'   starts are the moment-based values and their mirror image, with the
+#'   opposite skew. When the scan is near symmetric, the starts are
+#'   \eqn{\delta = \pm 0.5} (`alpha` of about \eqn{\pm 0.577}), with the mean
+#'   and standard deviation of the scan. A single start with the wrong sign of
+#'   skew can stall at `alpha = 0` when the skew is mild.
+#'
+#'   This is the approach of R-INLA, whose C code
+#'   [fit-sn.c](https://github.com/hrue/r-inla/blob/b63eb379f69d6553f965b360f1b88877cfef20d1/gmrflib/fit-sn.c)
+#'   it translates, with the temperature fixed rather than estimated.
+#'
+#' @param x A numeric vector of points where the density is evaluated.
+#' @param y A numeric vector of log-density evaluations at `x`, normalised so
+#'   that `max(y) = 0`. The function does not normalise `y`, and the threshold
+#'   is measured from 0.
+#' @param threshold_log_drop Points with `y` below this value are left out of
+#'   the fit (default -6).
+#' @param temp A positive number, the temperature of the weights (default 1).
+#'   `NA` is not allowed: the temperature is no longer estimated.
+#'
+#' @returns A list with the fitted parameters:
+#'   - `xi`: location parameter
+#'   - `omega`: scale parameter
+#'   - `alpha`: shape parameter
+#'   - `logC`: log-constant, so that `exp(y)` is approximated by
+#'     `dsnorm(x, xi, omega, alpha, logC)`
+#'   - `nmad`: the largest absolute difference between `exp(y)` and the
+#'     fitted density over all points, divided by `max(exp(y))`
+#'
+#' @name fit_skew_normal
+#' @usage fit_skew_normal(x, y, threshold_log_drop = -6, temp = 1)
+#' @export fit_skew_normal
+#' @example inst/examples/ex-skewnorm-fit.R
+NULL
 
 #' Fit a skew normal distribution to a sample
 #'
@@ -405,7 +166,8 @@ psnorm <- function(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE) {
 #'
 #' @param x A numeric vector of sample data.
 #'
-#' @inherit fit_skew_normal return
+#' @returns A list with the fitted parameters `xi` (location), `omega` (scale)
+#'   and `alpha` (shape).
 #' @export
 #'
 #' @examples

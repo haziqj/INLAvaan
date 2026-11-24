@@ -1,6 +1,12 @@
 Upstream: https://github.com/haziqj/inlavanilla
-Release: v26.11.23
-Commit: e280234540f6ef6363f9bc718d792987a0a67078
-Version: 26.11.23
+Release: v26.11.24
+Commit: 88056cfa545cee5a601af4485bbc2a3a5443e0fc
+Version: 26.11.24
 Synced: 2026-11-24
 Hash: md5 of the text with LF line endings
+
+File: R/vanilla-qsnorm-fast.R
+MD5: 000ab78ae2b4b2c2a8d7222704be8617
+
+File: R/vanilla-skew-normal.R
+MD5: faa33742c788625510ca1b332aae47d5

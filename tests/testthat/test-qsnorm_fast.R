@@ -32,6 +32,16 @@ test_that("qsnorm_fast is monotonically non-decreasing", {
   expect_true(all(diff(q2) >= -1e-10))
 })
 
+test_that("qsnorm_fast() is exact at alpha 0 and 1 when alpha varies", {
+  p <- c(0.3, 0.3, 0.3)
+  q <- qsnorm_fast(p, alpha = c(0, 1, 2))
+  expect_equal(q[1:2], c(stats::qnorm(0.3), stats::qnorm(sqrt(0.3))))
+  expect_identical(
+    qsnorm_fast(c(0, 1, 0.3), alpha = c(-2, -2, 2))[1:2],
+    c(-Inf, Inf)
+  )
+})
+
 # library(microbenchmark)
 # microbenchmark(
 #   sn = sn::qsn(c(0.025, 0.5, 0.975), xi = 2.09, omega = 0.19, alpha = 0.96),

@@ -10,17 +10,8 @@ fit_skew_normal_samp(x)
 \item{x}{A numeric vector of sample data.}
 }
 \value{
-A list with fitted parameters:
-\itemize{
-\item \code{xi}: location parameter
-\item \code{omega}: scale parameter
-\item \code{alpha}: shape parameter
-\item \code{logC}: log-normalization constant
-\item \code{k}: temperature parameter
-\item \code{rsq}: R-squared of the fit
-}
-
-Note that \code{logC} and \code{k} are not used when fitting from a sample.
+A list with the fitted parameters \code{xi} (location), \code{omega} (scale)
+and \code{alpha} (shape).
 }
 \description{
 Fit a skew normal distribution to a sample

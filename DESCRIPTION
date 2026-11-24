@@ -8,7 +8,9 @@ Authors@R: c(
     person("Håvard", "Rue", role = "ctb",
            comment = c(ORCID = "0000-0002-0222-1881", "Statistical and computational methodology")),
     person("Alvin", "Bong", role = "ctb",
-           comment = "Initial site build")
+           comment = "Initial site build"),
+    person("Thomas", "Luu", role = "cph",
+           comment = "Skew-normal quantile approximation (Apache License 2.0)")
   )
 Description: Implements approximate Bayesian inference for Structural
     Equation Models (SEM) using a custom adaptation of the Integrated

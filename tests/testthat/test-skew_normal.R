@@ -11,17 +11,16 @@ test_that("SN fit fixed temp", {
   expect_equal(res$alpha, 5)
 })
 
-test_that("SN fit variable temp", {
+test_that("fit_skew_normal() fixes the temperature at 1 by default", {
   x_grid <- seq(-2, 5, length.out = 31)
-  y_log <- sapply(x_grid, function(x) {
-    dsnorm(x, xi = 1, omega = 1, alpha = 5, log = TRUE)
-  })
-  y_log <- y_log - max(y_log) # normalise to have maximum at zero
+  y_log <- dsnorm(x_grid, xi = 1, omega = 1, alpha = 5, log = TRUE)
+  y_log <- y_log - max(y_log)
 
-  res <- fit_skew_normal(x_grid, y_log, temp = NA)
-  expect_equal(res$xi, 1)
-  expect_equal(res$omega, 1)
-  expect_equal(res$alpha, 5)
+  res <- fit_skew_normal(x_grid, y_log)
+  expect_named(res, c("xi", "omega", "alpha", "logC", "nmad"))
+  expect_identical(res, fit_skew_normal(x_grid, y_log, temp = 1))
+  expect_equal(c(res$xi, res$omega, res$alpha), c(1, 1, 5))
+  expect_lt(res$nmad, 1e-8)
 })
 
 test_that("Skew-normal sample fit is scale-equivariant", {
@@ -136,4 +135,60 @@ test_that("psnorm() returns NA for a degenerate scale", {
   expect_true(is.na(psnorm(1, 0, NA, 1)))
   expect_true(is.na(psnorm(1, 0, -1, 1)))
   expect_true(is.na(psnorm(NA, 0, 1, 1)))
+})
+
+test_that("psnorm() is 0 and 1 at the infinite ends", {
+  expect_identical(psnorm(c(-Inf, Inf), 0, 1, 3), c(0, 1))
+  expect_identical(psnorm(c(-Inf, Inf), 0, 1, 3, lower_tail = FALSE), c(1, 0))
+})
+
+test_that("qsnorm() inverts psnorm(), also far out in the tails", {
+  p <- c(1e-10, 1e-4, 0.025, 0.5, 0.975, 1 - 1e-4)
+  upper <- p > 0.5
+  for (alpha in c(-20, -2, -0.5, 0, 0.5, 2, 20)) {
+    q <- qsnorm(p, xi = 1, omega = 2, alpha = alpha)
+    # Each smaller tail probability comes back to a small relative error
+    tail_p <- ifelse(upper, 1 - p, p)
+    tail_q <- ifelse(
+      upper,
+      psnorm(q, xi = 1, omega = 2, alpha = alpha, lower_tail = FALSE),
+      psnorm(q, xi = 1, omega = 2, alpha = alpha)
+    )
+    expect_lt(max(abs(tail_q / tail_p - 1)), 1e-6)
+  }
+  expect_equal(qsnorm(p), stats::qnorm(p))
+})
+
+test_that("qsnorm() matches sn::qsn()", {
+  skip_if_not_installed("sn")
+  p <- c(1e-6, 0.025, 0.5, 0.975, 1 - 1e-6)
+  for (alpha in c(-6, -1, 1, 6)) {
+    ref <- sn::qsn(p, xi = 0.5, omega = 2, alpha = alpha, tol = 1e-12)
+    expect_equal(qsnorm(p, 0.5, 2, alpha), ref, tolerance = 1e-9)
+  }
+})
+
+test_that("qsnorm() gives the infinite ends and NA outside [0, 1]", {
+  expect_identical(qsnorm(c(0, 1), 0, 1, 2), c(-Inf, Inf))
+  expect_true(all(is.na(qsnorm(c(-0.1, NA, 1.1), 0, 1, 2))))
+  expect_true(is.na(qsnorm(0.5, 0, 0, 2)))
+})
+
+test_that("inlavaan() checks sn_fit_logthresh and sn_fit_temp", {
+  fit_with <- function(...) {
+    acfa(
+      "visual =~ x1 + x2 + x3",
+      lavaan::HolzingerSwineford1939,
+      verbose = FALSE,
+      test = "none",
+      nsamp = 3,
+      ...
+    )
+  }
+  for (bad in list(0, 2, -Inf, NA, NA_real_, NULL, c(-6, -4), "-6")) {
+    expect_error(fit_with(sn_fit_logthresh = bad), "sn_fit_logthresh")
+  }
+  for (bad in list(0, -1, Inf, NA, NA_real_, NULL, c(1, 2), "1")) {
+    expect_error(fit_with(sn_fit_temp = bad), "sn_fit_temp")
+  }
 })

@@ -114,10 +114,10 @@
 #'   cost of more joint-log-posterior evaluations. Defaults to `21`.
 #' @param sn_fit_logthresh The log-threshold for fitting the skew-normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
-#'   be excluded from the fit. Defaults to `-6`.
-#' @param sn_fit_temp Temperature parameter for fitting the skew-normal.
-#'   Defaults to `1` (weights are the density values themselves). If `NA`, the
-#'   temperature is included as an additional optimisation parameter.
+#'   be excluded from the fit. Must be a negative number. Defaults to `-6`.
+#' @param sn_fit_temp Temperature parameter for fitting the skew-normal. Must be
+#'   a positive number. Defaults to `1` (weights are the density values
+#'   themselves).
 #' @param sn_fit_sample Logical. When `TRUE` (default), a parametric skew-normal
 #'   is fitted to the posterior samples for covariance and defined parameters.
 #'   When `FALSE`, these are summarised using kernel density estimation instead.
@@ -334,6 +334,22 @@ inlavaan <- function(
   optim_method <- match.arg(optim_method)
   hessian_method <- match.arg(hessian_method)
   vb_method <- match.arg(vb_method)
+  if (
+    !is.numeric(sn_fit_logthresh) ||
+      length(sn_fit_logthresh) != 1L ||
+      !is.finite(sn_fit_logthresh) ||
+      sn_fit_logthresh >= 0
+  ) {
+    cli_abort("{.arg sn_fit_logthresh} must be a single negative number.")
+  }
+  if (
+    !is.numeric(sn_fit_temp) ||
+      length(sn_fit_temp) != 1L ||
+      !is.finite(sn_fit_temp) ||
+      sn_fit_temp <= 0
+  ) {
+    cli_abort("{.arg sn_fit_temp} must be a single positive number.")
+  }
   if (isTRUE(debug)) {
     verbose <- TRUE
   }

@@ -3,8 +3,51 @@
 * INLAvaan now requires R 4.1.0 or later.
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
-  engine whose files INLAvaan copies, with a hash of each copy. It lists no
-  files yet.
+  engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
+  copies two files from inlavanilla v26.11.24, byte for byte:
+  `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`. They hold the
+  skew-normal functions, which INLAvaan defined itself before, and the lock
+  lists them.
+
+* Thomas Luu is now listed as a copyright holder, for the skew-normal quantile
+  approximation in `qsnorm_fast()` (Apache License 2.0).
+
+* `fit_skew_normal()` is now the engine's version:
+  - `temp` defaults to 1, not `NA`. The temperature is no longer estimated.
+  - It returns `xi`, `omega`, `alpha`, `logC` and `nmad`. It no longer returns
+    `k` and `rmse`, and its help no longer lists `k` and `rsq` (it never
+    returned `rsq`).
+  - It no longer rescales `y` to a maximum of 0, and it no longer checks that
+    `threshold_log_drop` is negative. Give it `y - max(y)`.
+  - It always keeps the five highest points, also when fewer points lie above
+    `threshold_log_drop`.
+  - It fits from two starts and keeps the better fit. The second start is the
+    mirror image of the first, with the opposite skew. With one start, a fit
+    could stall near `alpha = 0` when the marginal was almost symmetric. On the
+    Holzinger and Swineford three-factor model and the Political Democracy
+    model, no reported value moves by more than 5e-6 posterior SDs.
+
+* The help of `fit_skew_normal_samp()` now lists only the fields that it
+  returns: `xi`, `omega` and `alpha`.
+
+* New `psnorm()` and `qsnorm()` give the distribution function and the quantile
+  function of the skew normal. They share the help page of `dsnorm()`.
+  `qsnorm()` refines `qsnorm_fast()` by Newton's method. For tail probabilities
+  of 1e-6 or more, `psnorm(qsnorm(p))` returns `p` to a relative error of about
+  1e-10.
+
+* `qsnorm_fast()` gave wrong values when one call mixed values of `alpha` or
+  `p`. Where `alpha` was 0 or 1, it gave 0 in place of the quantile. Where
+  `alpha` was negative, a `p` of 0 or 1 gave an infinite value with the wrong
+  sign. Fits were not affected, because `inlavaan()` passes one `alpha` at a
+  time. The help of `qsnorm_fast()` no longer says that its relative error is
+  below 1e-7. Against `qsnorm()`, its error is about 7e-3 times `omega` for `p`
+  in [0.01, 0.99], and about 0.09 times `omega` for `p` in [1e-6, 1 - 1e-6].
+
+* `inlavaan()` again stops when `sn_fit_logthresh` is not a negative number. The
+  check was inside `fit_skew_normal()` before. It now also stops when
+  `sn_fit_temp` is not a positive number: `sn_fit_temp = NA` no longer
+  estimates the temperature.
 
 * `approx_data` in `get_inlavaan_internal()` no longer has the columns `k` and
   `rmse`. `k` was the temperature of the skew-normal fit, and `rmse` was a mean

@@ -34,50 +34,19 @@
 # functions for random number generation. Doctoral thesis, UCL (University
 # College London). https://discovery.ucl.ac.uk/1482128/
 
-#' Fast Approximation of Skew-Normal Quantile Function
-#'
-#' A fast approximation of skew-normal quantiles using the high-performance
-#' approximation algorithm from the INLA GMRFLib C source, and originally by
-#' Thomas Luu (see details for reference).
-#'
-#' @details This function implements a high-performance approximation for the
-#'   skew-normal quantile function based on the algorithm described by Luu
-#'   (2016). The method uses a domain decomposition strategy to achieve high
-#'   accuracy (\eqn{< 10^{-7}} relative error) without iterative numerical
-#'   inversion.
-#'
-#'   The domain is split into two regions:
-#' \itemize{
-#'   \item **Tail Regions:** For extreme probabilities where \eqn{\vert u \vert} is large, the quantile
-#'   is approximated using the Lambert W-function, \eqn{W(z)}, solving \eqn{z = \Phi(q)} via
-#'   asymptotic expansion:
-#'   \deqn{q \approx \sqrt{2 W\left(\frac{1}{2\pi (1-p)^2}\right)}}
-#'   \item **Central Region:** For the main body of the distribution, the function
-#'   uses a high-order Taylor expansion of the inverse error function around a
-#'   carefully selected expansion point $x_0$:
-#'   \deqn{\Phi^{-1}(p) \approx \sum_{k=0}^5 c_k (z - x_0)^k}
-#' }
-#'
-#'   This approach is significantly faster than standard numerical inversion
-#'   (e.g., `uniroot`) while maintaining sufficient precision for most
-#'   statistical applications.
-#'
-#' @references Luu, T. (2016). *Fast and accurate parallel computation of
-#'   quantile functions for random number generation* (Doctoral thesis). UCL
-#'   (University College London). \url{https://discovery.ucl.ac.uk/1482128/}
-
-#' @param p Vector of probabilities.
-#' @param xi Location parameter (numeric vector).
-#' @param omega Scale parameter (numeric vector).
-#' @param alpha Shape parameter (numeric vector).
-#'
-#' @return Vector of quantiles.
-#'
-#' @examples
-#' qsnorm_fast(c(0.025, 0.5, 0.975))
-#' qsnorm_fast(c(0.025, 0.5, 0.975), xi = 2, omega = 0.5, alpha = 1)
-#'
-#' @export
+# Fast approximation of the skew-normal quantile function, from the INLA
+# GMRFLib C source and originally by Thomas Luu (2016), as ported in INLAvaan.
+# The domain is split into tail regions, handled through the Lambert W
+# function, and a central region, handled by a fifth-order Taylor expansion of
+# the inverse error function about a well-chosen expansion point. It needs no
+# iterative inversion, but it is only a starting value: away from
+# alpha = 0 and +-1 its error reaches about 5e-2 in standardised units (Luu's
+# original uses a tolerance of 0.01), so qsnorm() and sn_score_map() refine it
+# by Newton's method.
+#
+# Luu, T. (2016). Fast and accurate parallel computation of quantile functions
+# for random number generation (Doctoral thesis). University College London.
+# https://discovery.ucl.ac.uk/1482128/
 qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   # Recycling inputs to match length of p
   n <- length(p)
@@ -95,7 +64,7 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   z <- .qsn_std_fast(p, alpha)
 
   # Scale and shift
-  return(xi + omega * z)
+  xi + omega * z
 }
 
 # Internal standardized quantile function
@@ -252,6 +221,9 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   }
 
   res[mask] <- final_vals
+  # Unmasked points (alpha of 0 or 1, or u at 0 or 1) take the normal
+  # quantile, as in the early return above
+  res[!mask] <- z[!mask]
 
   # Apply symmetry flip for originally-negative alpha
   res[flip] <- -res[flip]

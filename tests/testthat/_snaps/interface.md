@@ -21,6 +21,8 @@
         is_same_function
         loo
         priors_for
+        psnorm
+        qsnorm
         qsnorm_fast
         sampling
         standardisedSolution
@@ -113,13 +115,15 @@
       dbeta_box(x, shape1, shape2, a, b, log = FALSE)
       diagnostics(object, ...)
       dsnorm(x, xi, omega, alpha, logC = 0, log = FALSE)
-      fit_skew_normal(x, y, threshold_log_drop = -6, temp = NA)
+      fit_skew_normal(x, y, threshold_log_drop = -6, temp = 1)
       fit_skew_normal_samp(x)
       get_inlavaan_internal(object, what)
       inlavaan(model, data, model.type = "sem", dp = priors_for(), test = "standard", vb_correction = TRUE, n_qmc = 64L, vb_method = c("sobol", "gauss_hermite"), marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"), marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"), nsamp = 1000, samp_copula = TRUE, samp_norta = FALSE, cov_as_cor = FALSE, sn_fit_ngrid = 21, sn_fit_logthresh = -6, sn_fit_temp = 1, sn_fit_sample = TRUE, control = list(), verbose = TRUE, debug = FALSE, add_priors = TRUE, optim_method = c("nlminb", "ucminf", "optim"), numerical_grad = FALSE, hessian_method = c("central", "forward"), start = NULL, cores = NULL, ppp_method = c("onestep", "em"), ppp_nsamp = 250L, ...)
       is_same_function(f, g)
       loo(x, ...)
       priors_for(...)
+      psnorm(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE)
+      qsnorm(p, xi = 0, omega = 1, alpha = 0)
       qsnorm_fast(p, xi = 0, omega = 1, alpha = 0)
       sampling(object, ...)
       standardisedSolution(object, type = "std.all", se = TRUE, ci = TRUE, level = 0.95, postmedian = FALSE, postmode = FALSE, cov.std = TRUE, remove.eq = TRUE, remove.ineq = TRUE, remove.def = FALSE, nsamp = 250, ...)

@@ -75,6 +75,7 @@ Other contributors:
 \itemize{
   \item Håvard Rue (\href{https://orcid.org/0000-0002-0222-1881}{ORCID}) (Statistical and computational methodology) [contributor]
   \item Alvin Bong (Initial site build) [contributor]
+  \item Thomas Luu (Skew-normal quantile approximation (Apache License 2.0)) [copyright holder]
 }
 
 }
