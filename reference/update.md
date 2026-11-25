@@ -67,12 +67,45 @@ extends the lavaan class, a dedicated method is required: without it,
 `update()` would dispatch to lavaan's method and silently return a
 frequentist lavaan fit instead of a Bayesian one.
 
-When the parameter structure is preserved (no change to `model`, `add`,
-or `model.type`), the previous posterior mode is passed as the
-optimiser's starting value (a warm start), so mode-finding is typically
-much faster than a cold fit. This makes prior sweeps particularly cheap.
-The warm start only changes the optimiser's starting point, not the
-fitted result. Supply `start` explicitly to override it.
+When the parameter structure and the data are preserved (no change to
+`model`, `add`, `model.type`, `data` or the sample statistics), the
+previous posterior mode is passed as the optimiser's starting value (a
+warm start), so mode-finding is typically much faster than a cold fit.
+This makes prior sweeps particularly cheap. The warm start changes the
+optimiser's starting point, so the mode it finds agrees with that of a
+fresh fit only up to the optimiser's tolerance (differences of order
+`1e-5` on the internal scale). It is used only when the refitted model
+has the same free parameters, by name and in the same order. Otherwise,
+as after `std.lv = TRUE` or `meanstructure = TRUE`, the fit starts from
+the usual values. It is not used when the recorded data are a function
+call, such as `lavaan::simulateData(...)` or `read.csv(...)`, which can
+give other data each time, rather than an object or a part of one (`dd`,
+`dd[dd$g == 1, ]`). Supply `start` explicitly to override it, or
+`start = NULL` to start from the usual values and get the fit of a fresh
+call.
+
+The refit needs the objects that the recorded call names: the data, the
+model, and the sample statistics of a fit to summary data (`sample.cov`,
+`sample.mean`, `sample.nobs`). When one of them is no longer found, as
+after `rm(dd)` or in a new session, `update()` stops with an error of
+class `inlavaan_update_data_not_found` that names it. Give it again, as
+in `update(fit, data = dd)` or `update(fit, model = mm)`, or fit the
+model again with
+[`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md). An
+object named after a function, such as `df` or `data` in a new session,
+counts as not found. A data call, such as
+`simulateData(mm, sample.nobs = 100)`, is not run before the refit: only
+the object at its root (`mm`) is checked. An error inside the call is
+the error of the refit.
+
+`update(fit, arg = NULL)` drops `arg` from the recorded call, as
+[`stats::update()`](https://rdrr.io/r/stats/update.html) does. An
+argument given under another spelling that lavaan reads as the same,
+such as `std_ov` for `std.ov`, replaces the recorded one.
+
+`verbose = TRUE` and `silent = TRUE` cannot go together. So
+`update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
+`update(fit, verbose = TRUE)` drops `silent`.
 
 Fits produced by INLAvaan versions that did not record their call cannot
 be updated; re-fit once with
@@ -102,6 +135,6 @@ fit3 <- update(fit, add = "x1 ~~ x2")
 compare(fit, fit3)
 
 # Swap approximation settings only
-fit4 <- update(fit, marginal_method = "sampling", nsamp = 4000)
+fit4 <- update(fit, marginal_method = "gaussian", nsamp = 4000)
 } # }
 ```

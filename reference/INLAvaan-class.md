@@ -137,11 +137,11 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            test = "none", verbose = FALSE)
+            test = "none", silent = TRUE)
 
 # Print basic info
 fit
-#> INLAvaan 0.3.99.9000 ended normally after 66 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -151,11 +151,11 @@ fit
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3838.108 
+#>    Marginal log-likelihood                   -3838.101 
 
 # Detailed summary
 summary(fit)
-#> INLAvaan 0.3.99.9000 ended normally after 66 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -165,12 +165,12 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3838.108 
+#>    Marginal log-likelihood                   -3838.101 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
-#>    VB correction                                  TRUE
+#>    VB correction                               ONESTEP
 #> 
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -191,7 +191,7 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
 #>     textual           0.449    0.064    0.318    0.567    0.001       beta(1,1)
-#>     speed             0.465    0.084    0.298    0.625    0.011       beta(1,1)
+#>     speed             0.465    0.084    0.299    0.625    0.011       beta(1,1)
 #>   textual ~~                                                                   
 #>     speed             0.280    0.070    0.139    0.414    0.003       beta(1,1)
 #> 

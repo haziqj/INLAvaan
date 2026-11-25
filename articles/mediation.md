@@ -95,17 +95,11 @@ the variables.
 
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [51ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.073σ. [150ms]
-#> 
-#> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [93ms]
-#> 
+#> ✔ Found the posterior mode in 5 iterations [74ms]
+#> ✔ VB mean correction, max shift 0.28σ [130ms]
+#> ✔ Fitted 7 skew-normal marginals [144ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [340ms]
+#> ✔ Summarise 1000 posterior draws. [534ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -123,7 +117,7 @@ The summary output provides the posterior mean, standard deviation, and
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.99.9000 ended normally after 5 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -133,18 +127,18 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -308.482 
+#>    Marginal log-likelihood                    -308.480 
 #>    PPP (Chi-square)                              0.519 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              568.324 
-#>    Effective parameters (pD)                     6.716 
+#>    Deviance (DIC)                              568.318 
+#>    Effective parameters (pD)                     6.710 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
-#>    VB correction                                  TRUE
+#>    VB correction                               ONESTEP
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -168,7 +162,7 @@ summary(fit)
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>     ab                0.406    0.097    0.227    0.609                         
-#>     total             0.349    0.136    0.083    0.615
+#>     total             0.349    0.136    0.078    0.611
 ```
 
 Looking at the Regressions and Defined Parameters sections of the

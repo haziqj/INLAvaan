@@ -15,7 +15,7 @@ available."><meta property="og:image" content="https://inlavaan.haziqj.ml/logo.p
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -199,11 +199,11 @@ Set to TRUE to show it.</p></dd>
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Print basic info</span></span></span>
 <span class="r-in"><span><span class="va">fit</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.99.9000 ended normally after 66 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.99.9001 ended normally after 66 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                      BAYES</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
@@ -213,11 +213,11 @@ Set to TRUE to show it.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Test (User Model):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Marginal log-likelihood                   -3838.108 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Marginal log-likelihood                   -3838.101 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Detailed summary</span></span></span>
 <span class="r-in"><span><span class="fu">summary</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.99.9000 ended normally after 66 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.99.9001 ended normally after 66 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                      BAYES</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
@@ -227,12 +227,12 @@ Set to TRUE to show it.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Test (User Model):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Marginal log-likelihood                   -3838.108 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Marginal log-likelihood                   -3838.101 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Estimates:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Marginalisation method                     SKEWNORM</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    VB correction                                  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    VB correction                               ONESTEP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Latent Variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
@@ -253,7 +253,7 @@ Set to TRUE to show it.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   visual ~~                                                                    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.449    0.064    0.318    0.567    0.001       beta(1,1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.465    0.084    0.298    0.625    0.011       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.465    0.084    0.299    0.625    0.011       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   textual ~~                                                                   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.280    0.070    0.139    0.414    0.003       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

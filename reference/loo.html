@@ -21,7 +21,7 @@ two-level models are scored per cluster (leave-one-cluster-out, LOCO)."><meta pr
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -155,7 +155,7 @@ different dimension (see Details).</p></dd>
 <dt id="arg-theta-omega">theta, Omega<a class="anchor" aria-label="anchor" href="#arg-theta-omega"></a></dt>
 <dd><p>Optional posterior mean vector and covariance matrix
 (in the unconstrained parameter space, as stored in <code>theta_star</code> and
-<code>Sigma_theta</code>) at which to evaluate the LOO instead of the fit's own
+<code>Omega</code>) at which to evaluate the LOO instead of the fit's own
 Laplace summary. See Details.</p></dd>
 
 
@@ -342,18 +342,11 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[119ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.133σ. <span style="color: #B2B2B2;">[132ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/30 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 30/30 skew-normal marginals. <span style="color: #B2B2B2;">[636ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">105</span> iterations <span style="color: #555555;">[233ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.54σ</span> <span style="color: #555555;">[125ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">30</span> skew-normal marginals <span style="color: #555555;">[411ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[419ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[599ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -364,8 +357,8 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate   SE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> elpd_loo  -3769.1 43.0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> p_loo        32.5  2.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> looic      7538.2 86.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> p_loo        32.6  2.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> looic      7538.2 86.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ── Curvature check ─────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -377,25 +370,25 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">  second-order expansion has not settled over the sample.</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">per_unit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   unit nobs    l_star score_norm     lpd_1     lpd_2 log_cpo_1 log_cpo_2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1    1 -17.30919   6.646703 -17.19476 -17.24151 -17.42362 -17.47403</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2    1 -13.78169   5.442203 -13.69904 -13.76970 -13.86434 -13.93963</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3    1 -11.11040   3.789743 -11.07449 -11.16498 -11.14631 -11.23920</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4    4    1 -10.25262   2.580054 -10.23857 -10.28526 -10.26667 -10.31439</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5    5    1 -10.70128   2.974402 -10.68783 -10.73479 -10.71473 -10.76276</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6    6    1 -13.37858   5.008821 -13.31650 -13.40400 -13.44066 -13.53238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1    1 -17.30934   6.644320 -17.19513 -17.24186 -17.42355 -17.47394</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2    1 -13.78294   5.438113 -13.69983 -13.77036 -13.86604 -13.94118</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3    1 -11.11054   3.790941 -11.07463 -11.16545 -11.14644 -11.23966</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    4    1 -10.24828   2.578282 -10.23425 -10.28097 -10.26231 -10.31006</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    5    1 -10.70035   2.975035 -10.68689 -10.73392 -10.71381 -10.76191</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    6    1 -13.38506   5.005316 -13.32301 -13.41055 -13.44711 -13.53887</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      det_term      k_max        k_min      k_sum       k_ssq   ok</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.04877732 0.03773964 -0.041266991 0.09404961 0.006990423 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.07270997 0.05910469 -0.049278162 0.14094433 0.008831504 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.09217179 0.04153084 -0.009791359 0.18193722 0.004724893 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.04763225 0.02969695 -0.010269099 0.09422303 0.002056503 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.04796440 0.03026567 -0.011352189 0.09484979 0.002130082 TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 -0.08977773 0.06593768 -0.023150767 0.17537797 0.008112617 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 -0.04875926 0.03773263 -0.041253265 0.09401273 0.006991798 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.07252225 0.05853795 -0.049105895 0.14060513 0.008761710 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.09250798 0.04125001 -0.009619928 0.18260977 0.004724986 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.04767087 0.02977498 -0.010311659 0.09429723 0.002062434 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 -0.04804159 0.03032600 -0.011282330 0.09500137 0.002135455 TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 -0.08982296 0.06580099 -0.023157759 0.17547029 0.008109724 TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Score a submodel without refitting: condition the Laplace summary on the</span></span></span>
 <span class="r-in"><span><span class="co"># visual ~~ speed covariance being zero, then evaluate at that summary</span></span></span>
 <span class="r-in"><span><span class="va">int</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_inlavaan_internal.html">get_inlavaan_internal</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">int</span><span class="op">$</span><span class="va">theta_star</span></span></span>
-<span class="r-in"><span><span class="va">Omega</span> <span class="op">&lt;-</span> <span class="va">int</span><span class="op">$</span><span class="va">Sigma_theta</span></span></span>
+<span class="r-in"><span><span class="va">Omega</span> <span class="op">&lt;-</span> <span class="va">int</span><span class="op">$</span><span class="va">Omega</span></span></span>
 <span class="r-in"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="INLAvaan-class.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span> <span class="op">==</span> <span class="st">"visual~~speed"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">theta_c</span> <span class="op">&lt;-</span> <span class="va">theta</span> <span class="op">-</span> <span class="va">Omega</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span> <span class="op">*</span> <span class="op">(</span><span class="va">theta</span><span class="op">[</span><span class="va">p</span><span class="op">]</span> <span class="op">/</span> <span class="va">Omega</span><span class="op">[</span><span class="va">p</span>, <span class="va">p</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">Omega_c</span> <span class="op">&lt;-</span> <span class="va">Omega</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">tcrossprod</a></span><span class="op">(</span><span class="va">Omega</span><span class="op">[</span>, <span class="va">p</span><span class="op">]</span><span class="op">)</span> <span class="op">/</span> <span class="va">Omega</span><span class="op">[</span><span class="va">p</span>, <span class="va">p</span><span class="op">]</span></span></span>
@@ -403,9 +396,9 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-out co"><span class="r-pr">#&gt;</span> ── Leave-one-subject-out ───────────────────────── 301 subjects, second-order ──</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate   SE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> elpd_loo  -3786.1 45.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> elpd_loo  -3786.2 45.0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> p_loo        34.1  2.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> looic      7572.1 90.0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> looic      7572.4 90.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span><span style="color: #555555;"> Evaluated at a user-supplied (theta, Sigma) summary.</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -413,7 +406,7 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   first-to-second-order gap        16.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   pD/2 (trace)                     15.3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   excess over pD/2 (trace)        +6.5%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   excess over pD/2 (trace)        +6.6%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span><span style="color: #555555;"> The gap approaches pD/2 (trace) from above. A large excess says the</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">  second-order expansion has not settled over the sample.</span></span>
@@ -430,19 +423,14 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="va">fit2l</span> <span class="op">&lt;-</span> <span class="fu"><a href="asem.html">asem</a></span><span class="op">(</span><span class="va">model2l</span>, <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span>,</span></span>
 <span class="r-in"><span>              meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, fixed.x <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[642ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.050σ. <span style="color: #B2B2B2;">[566ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 9/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 32/34 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 34/34 skew-normal marginals. <span style="color: #B2B2B2;">[4.5s]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Finding the posterior mode, 656 calls</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Finding the posterior mode, 688 calls</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">197</span> iterations <span style="color: #555555;">[1.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.61σ</span> <span style="color: #555555;">[488ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">34</span> skew-normal marginals <span style="color: #555555;">[1.7s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.5s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[2.4s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The two-level PPP is experimental.</span>
@@ -452,14 +440,14 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          Estimate     SE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> elpd_loo -23344.2  731.4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> p_loo        34.5    2.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> p_loo        34.4    2.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> looic     46688.4 1462.9</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ── Curvature check ─────────────────────────────────────────────────────────────</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   first-to-second-order gap        17.4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   pD/2 (trace)                     16.7</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   excess over pD/2 (trace)        +4.3%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   excess over pD/2 (trace)        +4.2%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span><span style="color: #555555;"> The gap approaches pD/2 (trace) from above. A large excess says the</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">  second-order expansion has not settled over the sample.</span></span>

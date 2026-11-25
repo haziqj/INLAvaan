@@ -32,9 +32,9 @@ qsnorm_fast(p, xi = 0, omega = 1, alpha = 0)
 
 ## Value
 
-A numeric vector of approximate quantiles. `xi`, `omega` and `alpha`
-shorter than `p` are recycled to its length. `p` of 0 and 1 give `-Inf`
-and `Inf`.
+A numeric vector of approximate quantiles. The arguments are recycled to
+the length of the longest, and an argument of length zero gives a
+zero-length result. `p` of 0 and 1 give `-Inf` and `Inf`.
 
 ## Details
 

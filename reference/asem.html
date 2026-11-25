@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,32 +68,34 @@
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">asem</span><span class="op">(</span></span>
 <span>  <span class="va">model</span>,</span>
-<span>  <span class="va">data</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  dp <span class="op">=</span> <span class="fu"><a href="priors_for.html">priors_for</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  test <span class="op">=</span> <span class="st">"standard"</span>,</span>
-<span>  vb_correction <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  n_qmc <span class="op">=</span> <span class="fl">64L</span>,</span>
-<span>  vb_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sobol"</span>, <span class="st">"gauss_hermite"</span><span class="op">)</span>,</span>
-<span>  marginal_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skewnorm"</span>, <span class="st">"asymgaus"</span>, <span class="st">"marggaus"</span>, <span class="st">"sampling"</span><span class="op">)</span>,</span>
-<span>  marginal_correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"shortcut"</span>, <span class="st">"shortcut_fd"</span>, <span class="st">"hessian"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  vb_correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"onestep"</span>, <span class="st">"full"</span>, <span class="st">"none"</span><span class="op">)</span>,</span>
+<span>  n_qmc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  vb_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  marginal_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"skewnorm"</span>, <span class="st">"gaussian"</span><span class="op">)</span>,</span>
+<span>  marginal_correction <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="fl">1000</span>,</span>
-<span>  samp_copula <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  samp_norta <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  samp_copula <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  samp_norta <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cov_as_cor <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  sn_fit_ngrid <span class="op">=</span> <span class="fl">21</span>,</span>
-<span>  sn_fit_logthresh <span class="op">=</span> <span class="op">-</span><span class="fl">6</span>,</span>
-<span>  sn_fit_temp <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  sn_fit_ngrid <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sn_fit_logthresh <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  sn_fit_temp <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sn_fit_sample <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  debug <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  add_priors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  optim_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"nlminb"</span>, <span class="st">"ucminf"</span>, <span class="st">"optim"</span><span class="op">)</span>,</span>
-<span>  numerical_grad <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  hessian_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"central"</span>, <span class="st">"forward"</span><span class="op">)</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  debug <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  add_priors <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  optim_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  numerical_grad <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  hessian_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cores <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ppp_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"onestep"</span>, <span class="st">"em"</span><span class="op">)</span>,</span>
 <span>  ppp_nsamp <span class="op">=</span> <span class="fl">250L</span>,</span>
+<span>  marginal_scan <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"linear"</span>, <span class="st">"exact"</span>, <span class="st">"laplace"</span>, <span class="st">"plain"</span><span class="op">)</span>,</span>
+<span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -119,7 +121,8 @@
 <dt id="arg-dp">dp<a class="anchor" aria-label="anchor" href="#arg-dp"></a></dt>
 <dd><p>Default prior distributions for the different types of model
 parameters; a named character vector as returned by <code><a href="priors_for.html">priors_for()</a></code>. Types
-left out take their default priors.</p></dd>
+left out take their default priors. A name that is not a type, such as a
+misspelt one, gives a warning. <code>dp = blavaan::dpriors()</code> works too.</p></dd>
 
 
 <dt id="arg-test">test<a class="anchor" aria-label="anchor" href="#arg-test"></a></dt>
@@ -151,46 +154,44 @@ message otherwise (see the Random slopes section of <code><a href="inlavaan.html
 
 
 <dt id="arg-vb-correction">vb_correction<a class="anchor" aria-label="anchor" href="#arg-vb-correction"></a></dt>
-<dd><p>Logical indicating whether to apply a variational Bayes
-correction for the posterior mean vector of estimates. Defaults to <code>TRUE</code>.</p></dd>
+<dd><p>The variational Bayes (VB) correction of the posterior
+mean of the Laplace approximation. <code>"onestep"</code> (default) takes one step
+from the mode and checks it. Where the check fails, the posterior is far
+from Gaussian along the step: the fit then solves the VB equation instead,
+and warns (see <code><a href="diagnostics.html">diagnostics()</a></code>). <code>"full"</code> iterates the correction to its
+fixed point, and <code>"none"</code> leaves it out. The correction moves the marginal
+log-likelihood, the point at which the DIC is computed, the centre of the
+LOO and the WAIC, and the Gaussian marginals of
+<code>marginal_method = "gaussian"</code> and their draws. It does not move the
+skew-normal marginals or their draws, which are scanned from the mode.</p></dd>
 
 
 <dt id="arg-n-qmc">n_qmc<a class="anchor" aria-label="anchor" href="#arg-n-qmc"></a></dt>
-<dd><p>Number of quasi-Monte Carlo nodes used by the VB mean
-correction. Defaults to <code>64</code>; see the Details section of <code><a href="inlavaan.html">inlavaan()</a></code>.
-Values above <code>128</code> (the size
-of the stored Sobol table) require the <span class="pkg">spacefillr</span> package. Ignored when
-<code>vb_correction = FALSE</code> or <code>vb_method = "gauss_hermite"</code>.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The VB correction now
+takes a deterministic step, with no quasi-Monte Carlo nodes.</p></dd>
 
 
 <dt id="arg-vb-method">vb_method<a class="anchor" aria-label="anchor" href="#arg-vb-method"></a></dt>
-<dd><p>Integration rule for the VB mean correction. <code>"sobol"</code>
-(default) averages over <code>n_qmc</code> scrambled Sobol nodes. <code>"gauss_hermite"</code>
-uses a deterministic rule instead: a three-point Gauss-Hermite rule along
-each principal axis of the Laplace covariance, <code>2m + 1</code> nodes in all for
-<code>m</code> free parameters. It is exact whenever the log-posterior is quartic in
-whitened coordinates, and it gives the same shift on every run. Having no
-node sets to compare, it reports no quadrature error, so <code>vb_mcse_sigma</code>
-in <code><a href="diagnostics.html">diagnostics()</a></code> is <code>NA</code>. Its cost grows with <code>m</code>: it is cheaper than
-the default below about 30 free parameters and dearer above. Experimental.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The VB correction now
+has one rule, and <code>vb_correction = "full"</code> iterates it.</p></dd>
 
 
 <dt id="arg-marginal-method">marginal_method<a class="anchor" aria-label="anchor" href="#arg-marginal-method"></a></dt>
-<dd><p>The method for approximating the marginal posterior
-distributions. Options include <code>"skewnorm"</code> (skew-normal), <code>"asymgaus"</code>
-(two-piece asymmetric Gaussian), <code>"marggaus"</code> (marginalising the Laplace
-approximation), and <code>"sampling"</code> (sampling from the joint Laplace
-approximation).</p></dd>
+<dd><p>How the marginal posterior of each parameter is
+approximated. <code>"skewnorm"</code> (default) fits a skew-normal distribution to a
+scan of the log-posterior along the parameter (see <code>marginal_scan</code>).
+<code>"gaussian"</code> takes the Gaussian marginal of the Laplace approximation,
+centred at the VB mean, which is faster. <a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> The old
+values warn: <code>"marggaus"</code> is the old name of <code>"gaussian"</code>, and
+<code>"asymgaus"</code> now runs <code>"skewnorm"</code>. <code>"sampling"</code> is kept for a sampler
+that is under development, and gives an error.</p></dd>
 
 
 <dt id="arg-marginal-correction">marginal_correction<a class="anchor" aria-label="anchor" href="#arg-marginal-correction"></a></dt>
-<dd><p>Which type of correction to use when fitting the
-skew-normal or two-piece Gaussian marginals. <code>"shortcut"</code> (default)
-computes only diagonals via central differences (full z-trace plus Schur
-complement correction), <code>"shortcut_fd"</code> is the same formula using forward
-differences (roughly half the cost, less accurate), <code>"hessian"</code> computes
-the full Hessian-based correction (slow), and <code>"none"</code> (or <code>FALSE</code>)
-applies no correction.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use <code>marginal_scan</code>.
+<code>"none"</code> and <code>FALSE</code> are <code>marginal_scan = "plain"</code>, which gives the same
+fit. <code>"shortcut"</code>, <code>"shortcut_fd"</code> and <code>"hessian"</code> run
+<code>marginal_scan = "linear"</code>.</p></dd>
 
 
 <dt id="arg-nsamp">nsamp<a class="anchor" aria-label="anchor" href="#arg-nsamp"></a></dt>
@@ -199,21 +200,15 @@ applies no correction.</p></dd>
 
 
 <dt id="arg-samp-copula">samp_copula<a class="anchor" aria-label="anchor" href="#arg-samp-copula"></a></dt>
-<dd><p>Logical. When <code>TRUE</code> (default), posterior samples are
-drawn using the copula method with the fitted marginals (e.g. skew-normal
-or asymmetric Gaussian). When <code>FALSE</code>, samples are drawn from the
-Gaussian (Laplace) approximation.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The draws always
+couple the fitted marginals by a Gaussian copula. With
+<code>marginal_method = "gaussian"</code> they are the draws of the Laplace
+approximation.</p></dd>
 
 
 <dt id="arg-samp-norta">samp_norta<a class="anchor" aria-label="anchor" href="#arg-samp-norta"></a></dt>
-<dd><p>Logical. When <code>TRUE</code>, the latent correlation matrix of
-the skew-normal copula is adjusted by the NORmal-To-Anything (NORTA)
-scheme of Cario and Nelson (1997) so that the Pearson correlations of
-the copula draws match those of the Laplace approximation after the
-nonlinear quantile transform. The adjustment never changes a marginal;
-it affects only summaries that involve several parameters at once, and
-in practice moves the correlations very little. Default <code>FALSE</code>. Only
-used when <code>samp_copula = TRUE</code> and <code>marginal_method = "skewnorm"</code>.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The draws no longer
+adjust the correlations of the copula.</p></dd>
 
 
 <dt id="arg-cov-as-cor">cov_as_cor<a class="anchor" aria-label="anchor" href="#arg-cov-as-cor"></a></dt>
@@ -223,7 +218,7 @@ always estimated on the correlation scale internally (an <code>atanh</code> link
 the same as for <code>std.ov</code>/<code>std.lv</code>-standardised parameters); by default
 their reported marginal is then re-derived on the covariance scale
 \(\sigma_i \sigma_j \rho\) from a posterior sample (see
-<code>samp_copula</code>), because that is the scale lavaan/blavaan report by
+<code>nsamp</code>), because that is the scale lavaan/blavaan report by
 default. When <code>TRUE</code>, that re-derivation is skipped and each such
 parameter's own directly profiled correlation-scale marginal
 \(\rho \in (-1, 1)\) is reported instead – useful for comparing the
@@ -242,22 +237,18 @@ standardised scale. Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-sn-fit-ngrid">sn_fit_ngrid<a class="anchor" aria-label="anchor" href="#arg-sn-fit-ngrid"></a></dt>
-<dd><p>Number of grid points to lay out per dimension when
-fitting the skew-normal marginals. A finer grid gives a better fit at the
-cost of more joint-log-posterior evaluations. Defaults to <code>21</code>.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use
+<code>control = inlavaan_control(n_grid = )</code>, which gives the same fit.</p></dd>
 
 
 <dt id="arg-sn-fit-logthresh">sn_fit_logthresh<a class="anchor" aria-label="anchor" href="#arg-sn-fit-logthresh"></a></dt>
-<dd><p>The log-threshold for fitting the skew-normal. Points
-with log-posterior drop below this threshold (relative to the maximum) will
-be excluded from the fit. Must be a single finite negative number. The five
-highest points of the scan are always kept. Defaults to <code>-6</code>.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use
+<code>control = inlavaan_control(log_threshold = )</code>, which gives the same fit.</p></dd>
 
 
 <dt id="arg-sn-fit-temp">sn_fit_temp<a class="anchor" aria-label="anchor" href="#arg-sn-fit-temp"></a></dt>
-<dd><p>Temperature parameter for fitting the skew-normal. Must be
-a single finite positive number. Defaults to <code>1</code> (weights are the density
-values themselves).</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The skew-normal
+marginals are fitted with temperature 1.</p></dd>
 
 
 <dt id="arg-sn-fit-sample">sn_fit_sample<a class="anchor" aria-label="anchor" href="#arg-sn-fit-sample"></a></dt>
@@ -267,54 +258,59 @@ When <code>FALSE</code>, these are summarised using kernel density estimation in
 
 
 <dt id="arg-control">control<a class="anchor" aria-label="anchor" href="#arg-control"></a></dt>
-<dd><p>A list of control parameters for the optimiser. For the
-default <code>"nlminb"</code>, INLAvaan raises the stock iteration ceilings to
-<code>iter.max = 1000</code> and <code>eval.max = 2000</code> (complex models can exhaust
-<code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">nlminb()</a></code>'s own defaults of 150 and 200); any value supplied here
-overrides these.</p></dd>
+<dd><p>A list of tuning settings, made by <code><a href="inlavaan_control.html">inlavaan_control()</a></code>, or a
+plain list with some of its names: the limits of the search for the
+posterior mode, of the VB correction and of the skew-normal scans, and
+the settings <code>hessian</code>, <code>debug</code> and <code>add_priors</code>. The defaults suit most
+fits. An unknown name gives an error. The controls of <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>
+that <code>control</code> took up to INLAvaan 0.3.5, such as <code>iter.max</code>, still work,
+with a deprecation warning. See <code><a href="inlavaan_control.html">inlavaan_control()</a></code>.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>Logical indicating whether to print progress messages.</p></dd>
+<dd><p>Logical. With <code>FALSE</code> (default) the fit prints one line per
+stage. With <code>TRUE</code> it also prints the details of each stage of the fit on
+the internal scale: the start, the mode search, the VB correction and the
+marginals, with their checks. Use <code>silent = TRUE</code> to print nothing.</p></dd>
 
 
 <dt id="arg-debug">debug<a class="anchor" aria-label="anchor" href="#arg-debug"></a></dt>
-<dd><p>Logical indicating whether to return debug information.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use
+<code>control = inlavaan_control(debug = TRUE)</code>, which gives the same fit.</p></dd>
 
 
 <dt id="arg-add-priors">add_priors<a class="anchor" aria-label="anchor" href="#arg-add-priors"></a></dt>
-<dd><p>Logical indicating whether to include prior densities in
-the posterior computation.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use
+<code>control = inlavaan_control(add_priors = FALSE)</code>, which gives the same
+fit.</p></dd>
 
 
 <dt id="arg-optim-method">optim_method<a class="anchor" aria-label="anchor" href="#arg-optim-method"></a></dt>
-<dd><p>The optimisation method to use for finding the posterior
-mode. Options include <code>"nlminb"</code> (default), <code>"ucminf"</code>, and <code>"optim"</code>
-(BFGS).</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The posterior mode
+is always found by <code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>.</p></dd>
 
 
 <dt id="arg-numerical-grad">numerical_grad<a class="anchor" aria-label="anchor" href="#arg-numerical-grad"></a></dt>
-<dd><p>Logical indicating whether to use numerical gradients
-for the optimisation. Defaults to <code>FALSE</code> to use analytical gradients.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The fit always
+uses the analytic gradient.</p></dd>
 
 
 <dt id="arg-hessian-method">hessian_method<a class="anchor" aria-label="anchor" href="#arg-hessian-method"></a></dt>
-<dd><p>How the Hessian at the posterior mode is differenced
-from the analytical gradient. <code>"central"</code> (default) costs two gradient
-evaluations per parameter. <code>"forward"</code> costs about half as much but is less
-accurate, and suits models with many parameters and large samples. Used
-only with <code>optim_method = "nlminb"</code> and <code>numerical_grad = FALSE</code>.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Use
+<code>control = inlavaan_control(hessian = )</code>, which gives the same fit.</p></dd>
 
 
 <dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
-<dd><p>Integer or <code>NULL</code>. Number of cores for parallel marginal
-fitting. When <code>NULL</code> (default), serial execution is used unless the number
-of free parameters exceeds 120, in which case parallelisation is enabled
-automatically using all available physical cores. Set to <code>1L</code> to force
-serial execution. If <code>cores &gt; 1</code>, marginal fits are distributed across
-cores – forked via <code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code> where that is safe, or over a
-PSOCK cluster (separate R processes) inside IDE R sessions (RStudio,
-Positron) and on Windows.</p></dd>
+<dd><p>A positive whole number or <code>NULL</code>. The number of cores. Other
+values, such as <code>0</code>, <code>2.5</code> or <code>NA</code>, give an error. With <code>NULL</code> (default),
+the scans of the skew-normal marginals follow <code><a href="https://future.futureverse.org/reference/plan.html" class="external-link">future::plan()</a></code>, which is
+serial unless a plan is set, and the LOO and the WAIC asked for in <code>test</code>
+run serially. With <code>cores &gt; 1</code>, the scans run in parallel when the
+packages <span class="pkg">future</span> and <span class="pkg">parallelly</span> are installed, and serially
+otherwise. The LOO and the WAIC are then forked via
+<code><a href="https://rdrr.io/r/parallel/mclapply.html" class="external-link">parallel::mclapply()</a></code> where that is safe, or run over a PSOCK cluster
+(separate R processes) inside IDE R sessions (RStudio, Positron) and on
+Windows. <code>1</code> is serial.</p></dd>
 
 
 <dt id="arg-ppp-method">ppp_method<a class="anchor" aria-label="anchor" href="#arg-ppp-method"></a></dt>
@@ -333,6 +329,27 @@ models.</p></dd>
 set, that the PPP of a two-level model uses. Defaults to <code>250</code>, and is
 capped at <code>nsamp</code>. Draws that cannot be scored are left out, with a
 warning. Ignored for single-level models.</p></dd>
+
+
+<dt id="arg-marginal-scan">marginal_scan<a class="anchor" aria-label="anchor" href="#arg-marginal-scan"></a></dt>
+<dd><p>How the scan behind each skew-normal marginal is taken.
+<code>"linear"</code> (default) scans along a straight line through the mode, and
+adds a linear correction for the changing volume of the other parameters.
+<code>"exact"</code> computes that volume term exactly at each point of the scan.
+<code>"laplace"</code> maximises the log-posterior over the other parameters at each
+point of the scan, and takes the height and the volume there. <code>"plain"</code>
+adds no volume correction. On the Holzinger and Swineford and the
+Political Democracy models, <code>"exact"</code> and <code>"laplace"</code> take 10 to 25 times
+as long as <code>"linear"</code>. Ignored with <code>marginal_method = "gaussian"</code>, which
+has no scan.</p></dd>
+
+
+<dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
+<dd><p>Logical. Print nothing at all, and muffle the warnings and
+messages raised during the fit? Default <code>FALSE</code>. <code>verbose</code> and <code>silent</code>
+cannot both be <code>TRUE</code>. Errors are still raised. Whether or not <code>silent</code> is
+<code>TRUE</code>, the texts of the warnings raised during the fit are recorded in
+the field <code>warnings</code> of <code><a href="get_inlavaan_internal.html">get_inlavaan_internal()</a></code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -391,20 +408,14 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"PoliticalDemocracy"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">asem</span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, test <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[140ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.172σ. <span style="color: #B2B2B2;">[179ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/28 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 28/28 skew-normal marginals. <span style="color: #B2B2B2;">[1s]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">82</span> iterations <span style="color: #555555;">[303ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.55σ</span> <span style="color: #555555;">[157ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">28</span> skew-normal marginals <span style="color: #555555;">[632ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[225ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[279ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.99.9000 ended normally after 82 iterations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.99.9001 ended normally after 82 iterations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Estimator                                      BAYES</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Optimization method                           NLMINB</span>
@@ -414,12 +425,12 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model Test (User Model):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Marginal log-likelihood                   -1638.407 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Marginal log-likelihood                   -1638.388 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Estimates:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Marginalisation method                     SKEWNORM</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    VB correction                                  TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    VB correction                               ONESTEP</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Latent Variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
@@ -441,7 +452,7 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> Regressions:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dem60 ~                                                                      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ind60             1.468    0.394    0.712    2.258    0.002    normal(0,10)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ind60             1.469    0.394    0.712    2.258    0.002    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dem65 ~                                                                      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ind60             0.587    0.243    0.116    1.071    0.000    normal(0,10)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     dem60             0.868    0.078    0.721    1.025    0.004    normal(0,10)</span>
@@ -449,16 +460,16 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> Covariances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y1 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                0.654    0.384   -0.037    1.471    0.003       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                0.654    0.384   -0.037    1.472    0.003       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y2 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                1.438    0.706    0.137    2.910    0.007       beta(1,1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                2.233    0.742    0.883    3.796    0.012       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                1.439    0.706    0.137    2.910    0.007       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                2.233    0.742    0.883    3.797    0.012       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y3 ~~                                                                        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                0.857    0.641   -0.331    2.186    0.006       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y4 ~~                                                                        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                0.398    0.468   -0.476    1.361    0.004       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .y6 ~~                                                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                1.362    0.594    0.290    2.623    0.005       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                1.362    0.594    0.290    2.624    0.005       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
@@ -466,13 +477,13 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x2                0.132    0.067    0.031    0.283    0.031 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .x3                0.509    0.101    0.342    0.735    0.003 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y1                2.046    0.505    1.190    3.161    0.010 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y2                8.012    1.452    5.571   11.242    0.000 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y2                8.012    1.452    5.572   11.243    0.000 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y3                5.335    1.065    3.579    7.735    0.001 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                3.434    0.798    2.067    5.183    0.008 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y4                3.435    0.798    2.067    5.183    0.008 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y5                2.523    0.541    1.623    3.732    0.005 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .y6                5.259    0.970    3.625    7.411    0.002 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                3.827    0.811    2.476    5.640    0.006 gamma(1,.5)[sd]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                3.487    0.758    2.195    5.156    0.006 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y7                3.827    0.811    2.476    5.641    0.006 gamma(1,.5)[sd]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    .y8                3.488    0.758    2.195    5.156    0.006 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     ind60             0.461    0.090    0.311    0.664    0.003 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .dem60             3.995    0.919    2.472    6.055    0.002 gamma(1,.5)[sd]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .dem65             0.275    0.197    0.027    0.750    0.044 gamma(1,.5)[sd]</span>

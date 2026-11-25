@@ -117,17 +117,11 @@ mod <- "
   eta2 ~ eta1
 "
 fit <- asem(mod, dat)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [179ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [124ms]
-#> 
-#> ⠙ Fitting 0/13 skew-normal marginals.
-#> ✔ Fit 13/13 skew-normal marginals. [209ms]
-#> 
+#> ✔ Found the posterior mode in 69 iterations [262ms]
+#> ✔ VB mean correction, max shift 0.1σ [76ms]
+#> ✔ Fitted 13 skew-normal marginals [226ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [360ms]
+#> ✔ Summarise 1000 posterior draws. [526ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -148,22 +142,27 @@ posterior density by way of a Laplace approximation ([Tierney et al.
 1989](#ref-tierney1989fully); [Jamil and Rue
 2026a](#ref-jamil2026approximate)). The joint mode and the Hessian needs
 to be computed, which gives a Gaussian distribution for the joint
-posterior of the parameters. The default method for optimisation is
-[`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html), but other
-optimisers can be used by specifying `optim_method = "ucminf"` for the
-[ucminf](https://github.com/hdakpo/ucminf) package or
-`optim_method = "optim"` to call the
-[`stats::optim()`](https://rdrr.io/r/stats/optim.html) function with
-method `"BFGS"`.
+posterior of the parameters. The mode is found with
+[`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html). A variational
+Bayes (VB) correction then moves the mean of this Gaussian: by default
+it takes one step from the mode (`vb_correction = "onestep"`),
+`vb_correction = "full"` iterates it, and `vb_correction = "none"`
+leaves it out. The one step is checked, and where the check fails the
+posterior is far from Gaussian along the step: the fit then solves the
+VB equation instead and warns, and
+[`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+reports the check (`vb_lhat`, `vb_j0`, `vb_j1` and `vb_solve`). Settings
+of the search for the mode, the VB correction and the scans below are
+set with `control = inlavaan_control()`.
 
-From this, marginal posterior distributions for each parameter can be
-obtained by one of several ways, including 1) Skew normal fitting
+From this, the marginal posterior distribution of each parameter is
+obtained in one of two ways: 1) Skew normal fitting
 (`marginal_method = "skewnorm"`, the default method, see [Chiuchiolo et
-al. 2023](#ref-chiuchiolo2023joint)); 2) Two-piece asymmetric Gaussian
-fitting (`marginal_method = "asymgaus"`, see [Martins et al.
-2013](#ref-martins2013bayesian)); 3) Direct marginalisation of the joint
-Gaussian posterior (`marginal_method = "marggaus"`); and 4) Sampling
-from the joint Gaussian posterior (`marginal_method = "sampling"`).
+al. 2023](#ref-chiuchiolo2023joint)), which scans the log-posterior of
+each parameter from the mode and fits a skew normal density to the scan
+(`marginal_scan` chooses how the scan is taken: `"linear"`, the default,
+`"exact"`, `"laplace"` or `"plain"`); and 2) the marginals of the joint
+Gaussian posterior (`marginal_method = "gaussian"`).
 
 Once the marginal posterior distributions have been obtained, we can
 further use these to compute any derived quantities of interest via
@@ -189,7 +188,7 @@ objects.
 str(fit, 1)
 #> Formal class 'INLAvaan' [package "INLAvaan"] with 21 slots
 fit
-#> INLAvaan 0.3.99.9000 ended normally after 69 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 69 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -199,7 +198,7 @@ fit
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -8081.340 
+#>    Marginal log-likelihood                   -8081.339 
 #>    PPP (Chi-square)                              0.121
 ```
 
@@ -219,7 +218,7 @@ coef(fit)
 
 # Summary of results
 summary(fit)
-#> INLAvaan 0.3.99.9000 ended normally after 69 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 69 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -229,18 +228,18 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -8081.340 
+#>    Marginal log-likelihood                   -8081.339 
 #>    PPP (Chi-square)                              0.121 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            16069.238 
-#>    Effective parameters (pD)                    13.063 
+#>    Deviance (DIC)                            16069.236 
+#>    Effective parameters (pD)                    13.061 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
-#>    VB correction                                  TRUE
+#>    VB correction                               ONESTEP
 #> 
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -291,12 +290,12 @@ length(eta_preds)
 #> [1] 100
 head(eta_preds[[1]])
 #>             eta1       eta2
-#> [1,] -0.87388848 -0.9810772
-#> [2,] -0.53788926  1.0354982
-#> [3,]  0.71540000 -1.0325591
-#> [4,]  0.73112686 -0.5508657
-#> [5,] -0.01774651  0.1443935
-#> [6,]  1.71538679  1.5187622
+#> [1,] -0.87388740 -0.9810775
+#> [2,] -0.53788863  1.0354989
+#> [3,]  0.71539830 -1.0325585
+#> [4,]  0.73112778 -0.5508644
+#> [5,] -0.01774483  0.1443918
+#> [6,]  1.71538447  1.5187613
 ```
 
 This is an S3 object with a summary method that provides posterior means
@@ -338,12 +337,12 @@ str(summ_eta)
 #>  - attr(*, "class")= chr "summary.predict.inlavaan_internal"
 head(summ_eta$Mean)
 #>            eta1       eta2
-#> [1,] -1.1418054 -0.3537044
-#> [2,] -0.5572098  0.4883860
-#> [3,]  0.4727436 -0.9477335
-#> [4,]  0.2536586 -0.4047496
-#> [5,] -1.0741541  0.7083938
-#> [6,]  1.5640087  1.4570329
+#> [1,] -1.1418047 -0.3537043
+#> [2,] -0.5572092  0.4883867
+#> [3,]  0.4727418 -0.9477327
+#> [4,]  0.2536589 -0.4047482
+#> [5,] -1.0741537  0.7083917
+#> [6,]  1.5640064  1.4570325
 ```
 
 ### Predictive checks
@@ -359,13 +358,13 @@ produces complete replicate data sets from the fitted model.
 
 yrep <- simulate(fit, nsim = 1, seed = 1)
 head(yrep[[1]])
-#>            y1         y2          y3       y4         y5        y6
-#> 1 -0.24709176 -1.5686489 -0.06714349 1.561836 1.20558583 0.7941593
-#> 2 -2.36341866 -1.0970918 -1.47288153 0.574459 1.25378427 1.1356304
-#> 3  1.49242306 -0.8458409  0.57549028 2.669261 2.24467174 1.9629433
-#> 4  0.01279583 -0.6156373 -0.21093473 2.768771 0.23615784 0.3798802
-#> 5  2.88871273  1.3165203  1.26488546 1.299416 0.05914934 0.1433670
-#> 6  1.41895572  1.5439718  1.42632843 1.601245 0.82600615 1.0609432
+#>            y1         y2          y3        y4        y5        y6
+#> 1 -0.24709223 -1.5686526 -0.06714442 1.5618391 1.2055896 0.7941617
+#> 2 -2.36342238 -1.0970945 -1.47288377 0.5744609 1.2537885 1.1356330
+#> 3  1.49242599 -0.8458421  0.57549121 2.6692672 2.2446799 1.9629489
+#> 4  0.01279552 -0.6156390 -0.21093528 2.7687749 0.2361583 0.3798813
+#> 5  2.88871763  1.3165239  1.26488817 1.2994183 0.0591500 0.1433680
+#> 6  1.41895902  1.5439769  1.42633167 1.6012491 0.8260100 1.0609464
 ```
 
 Comparing such replicates with the observed data is the basis of prior
@@ -388,7 +387,7 @@ stored with the fit.
 
 fitmeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           13    -8081.340        0.121    16069.238       13.063        0.032 
+#>           13    -8081.339        0.121    16069.236       13.061        0.032 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
 #>        0.997        0.992        0.996        0.996        0.992        0.992
 ```
@@ -405,7 +404,7 @@ fitted model. Global diagnostics (`type = "global"`) check whether the
 optimiser converged, and quantify how well the skew-normal marginals
 match the joint posterior (via KL divergence and NMAD), including how
 much mass a fitted marginal leaves beyond the window that was scanned to
-fit it (`scan_end_mass_max`). Per-parameter diagnostics
+fit it (`unscanned_mass_max`). Per-parameter diagnostics
 (`type = "param"`) provide gradient norms and KL contributions for each
 free parameter, which is useful for identifying any problematic
 parameters.
@@ -413,18 +412,22 @@ parameters.
 ``` r
 
 diagnostics(fit)
-#>              npar             nsamp         converged        iterations 
-#>                13              1000                 1                69 
-#>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max 
-#>          3.89e-03          1.24e-01          7.75e-03          3.69e-04 
-#>         hess_cond        vb_applied      vb_shift_max     vb_kld_global 
-#>          2.94e+01                 1            0.0977            0.0106 
-#>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean 
-#>            0.0048            0.0011            0.0818            0.0279 
-#>          nmad_max         nmad_mean scan_end_mass_max     psi_npd_share 
-#>            0.0050            0.0028          2.73e-04            0.0000 
-#>   theta_npd_share 
-#>            0.0000
+#>               npar          converged         iterations           grad_inf 
+#>                 13                  1                 69           3.89e-03 
+#>       grad_inf_rel            grad_l2     mode_shift_max          hess_cond 
+#>           1.21e-01           7.75e-03           3.69e-04           2.94e+01 
+#>      hess_cond_cor         vb_applied       vb_shift_max      vb_kld_global 
+#>           1.03e+01                  1             0.1023             0.0120 
+#>            kld_max           kld_mean           nmad_max          nmad_mean 
+#>             0.0052             0.0012             0.0050             0.0028 
+#> unscanned_mass_max       grad_gap_max        vb_fallback        vb_step_max 
+#>           2.73e-04           1.08e-03                  0                 NA 
+#>            vb_lhat              vb_j0              vb_j1           vb_solve 
+#>             0.0096            -0.0010             0.0125                  0 
+#>       mean_gap_max     ridge_bend_max      n_heavy_tails              nsamp 
+#>             0.0016             0.0281                  0               1000 
+#>      psi_npd_share    theta_npd_share        vb_mcse_max       vb_mcse_mean 
+#>             0.0000             0.0000                 NA                 NA
 ```
 
 The [`timing()`](https://inlavaan.haziqj.ml/reference/timing.md)
@@ -435,7 +438,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 0.93 s
+#> 1.16 s
 ```
 
 ### Plot
@@ -468,26 +471,21 @@ mod2 <- "
   eta1 ~~ 0*eta2
 "
 fit2 <- asem(mod2, dat)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [66ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.039σ. [86ms]
-#> 
-#> ⠙ Fitting 0/12 skew-normal marginals.
-#> ✔ Fit 12/12 skew-normal marginals. [184ms]
-#> 
+#> ✔ Found the posterior mode in 68 iterations [117ms]
+#> ✔ VB mean correction, max shift 0.079σ [45ms]
+#> ✔ Fitted 12 skew-normal marginals [189ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [338ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [497ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
 #> Bayesian Model Comparison (INLAvaan)
 #> Models ordered by marginal log-likelihood
 #> 
-#>  Model npar Marg.Loglik   logBF      DIC     pD
-#>    fit   13   -8081.340   0.000 16069.24 13.063
-#>   fit2   12   -8108.789 -27.449 16133.18 11.938
+#>  Model npar Marg.Loglik  logBF      DIC     pD
+#>    fit   13   -8081.339   0.00 16069.24 13.061
+#>   fit2   12   -8108.789 -27.45 16133.18 11.937
 ```
 
 As a note, there have been several criticisms of the use of Bayes
@@ -538,12 +536,12 @@ compare(fit, fit2, loo = TRUE)
 #> Models ordered by ELPD (Taylor LOO, second-order)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
-#>  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   13   -8081.340   0.000 16069.24 13.063 -8024.860 54.291 13.009
-#>   fit2   12   -8108.789 -27.449 16133.18 11.938 -8057.005 55.133 12.043
+#>  Model npar Marg.Loglik  logBF      DIC     pD      ELPD     SE  p_loo
+#>    fit   13   -8081.339   0.00 16069.24 13.061 -8024.860 54.291 13.008
+#>   fit2   12   -8108.789 -27.45 16133.18 11.937 -8057.002 55.129 12.039
 #>  elpd_diff se_diff
 #>      0.000   0.000
-#>    -32.144   7.743
+#>    -32.143   7.735
 ```
 
 See the [cross-validation
@@ -591,7 +589,7 @@ DP
 #>  "normal(0,32)"  "normal(0,10)"  "normal(0,10)"  "normal(0,10)"  "normal(0,10)" 
 #>           theta             psi             rho             tau 
 #>    "gamma(1,1)"    "gamma(1,1)"     "beta(1,1)" "normal(0,1.5)"
-## fit <- asem(mod, dat, dpriors = DP)  # not run
+## fit <- asem(mod, dat, dp = DP)  # not run
 ```
 
 To set individual priors for specific parameters, we can do so in the
@@ -639,11 +637,6 @@ Approximations*. arXiv. <https://doi.org/10.48550/arXiv.2603.25690>.
 Jamil, Haziq, and Håvard Rue. 2026b. *Implementation and Workflows for
 INLA-Based Approximate Bayesian Structural Equation Modelling*. arXiv.
 <https://doi.org/10.48550/arXiv.2604.00671>.
-
-Martins, Thiago G., Daniel Simpson, Finn Lindgren, and Håvard Rue. 2013.
-“Bayesian Computing with INLA: New Features.” *Computational Statistics
-& Data Analysis* 67 (November): 68–83.
-<https://doi.org/10.1016/j.csda.2013.04.014>.
 
 Merkle, Edgar C., Ellen Fitzsimmons, James Uanhoro, and Ben Goodrich.
 2021. “Efficient Bayesian Structural Equation Modeling in Stan.”

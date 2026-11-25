@@ -12,7 +12,7 @@ bfit_indices(
   baseline.model = NULL,
   rescale = c("devM", "MCMC"),
   nsamp = NULL,
-  samp_copula = TRUE
+  samp_copula = NULL
 )
 
 # S3 method for class 'bfit_indices'
@@ -56,9 +56,8 @@ print(x, ...)
 
 - samp_copula:
 
-  Logical. When `TRUE` (default), posterior samples are drawn using the
-  copula method with the fitted marginals. When `FALSE`, samples are
-  drawn from the Gaussian (Laplace) approximation.
+  **\[deprecated\]** Has no effect. The draws always couple the fitted
+  marginals by a Gaussian copula, as the draws of the fit do.
 
 - ...:
 
@@ -114,7 +113,7 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            verbose = FALSE)
+            silent = TRUE)
 
 # Absolute fit indices
 bf <- bfit_indices(fit)
@@ -130,9 +129,9 @@ summary(bf)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 100):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.091 0.005 0.084 0.088 0.091 0.094  0.101 0.090
+#> BRMSEA       0.091 0.005 0.084 0.088 0.091 0.094  0.101 0.089
 #> BGammaHat    0.957 0.004 0.948 0.954 0.957 0.959  0.963 0.958
-#> adjBGammaHat 0.920 0.008 0.904 0.915 0.921 0.925  0.933 0.923
+#> adjBGammaHat 0.920 0.008 0.904 0.915 0.921 0.926  0.933 0.923
 #> BMc          0.903 0.009 0.883 0.896 0.904 0.909  0.918 0.907
 #> BCFI         0.930 0.007 0.915 0.925 0.931 0.935  0.942 0.933
 #> BTLI         0.899 0.010 0.877 0.892 0.900 0.905  0.915 0.903

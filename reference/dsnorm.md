@@ -56,11 +56,14 @@ qsnorm(p, xi = 0, omega = 1, alpha = 0)
 A numeric vector: the (log) density for `dsnorm()`, the probabilities
 for `psnorm()` and the quantiles for `qsnorm()`. `dsnorm()` has no
 defaults for `xi`, `omega` and `alpha`. `psnorm()` and `qsnorm()`
-recycle their arguments to the longest. `psnorm()` returns 0 and 1 at
-`-Inf` and `Inf`, and `NA` for a missing `q`, a non-finite `alpha` or a
-non-positive or missing scale. `qsnorm()` returns `-Inf` and `Inf` at
-`p` of 0 and 1, and `NA` for `p` outside \\\[0, 1\]\\, a non-finite
-`alpha` or a non-positive or missing scale.
+recycle their arguments to the longest, give a zero-length result when
+an argument has length zero, and keep the names and dimensions of `q` or
+`p`, as [`stats::pnorm()`](https://rdrr.io/r/stats/Normal.html) and
+[`stats::qnorm()`](https://rdrr.io/r/stats/Normal.html) do. `psnorm()`
+returns 0 and 1 at `-Inf` and `Inf`, and `NA` for a missing `q`, a
+non-finite `alpha` or a non-positive or missing scale. `qsnorm()`
+returns `-Inf` and `Inf` at `p` of 0 and 1, and `NA` for `p` outside
+\\\[0, 1\]\\, a non-finite `alpha` or a non-positive or missing scale.
 
 ## Details
 

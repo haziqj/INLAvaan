@@ -308,6 +308,8 @@ Main lavaan-style functions to estimate SEM.
   an Approximate Bayesian Growth Curve Model
 - [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md) :
   Specify priors for a SEM
+- [`inlavaan_control()`](https://inlavaan.haziqj.ml/reference/inlavaan_control.md)
+  : Tuning of an INLAvaan fit
 
 ## Methods
 

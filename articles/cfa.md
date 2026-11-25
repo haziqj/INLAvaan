@@ -17,21 +17,15 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [188ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.089σ. [135ms]
-#> 
-#> ⠙ Fitting 0/21 skew-normal marginals.
-#> ✔ Fit 21/21 skew-normal marginals. [467ms]
-#> 
+#> ✔ Found the posterior mode in 66 iterations [281ms]
+#> ✔ VB mean correction, max shift 0.2σ [108ms]
+#> ✔ Fitted 21 skew-normal marginals [336ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [80ms]
+#> ✔ Summarise 100 posterior draws. [129ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.99.9000 ended normally after 66 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 66 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -41,18 +35,18 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -3838.108 
+#>    Marginal log-likelihood                   -3838.101 
 #>    PPP (Chi-square)                              0.000 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7551.696 
-#>    Effective parameters (pD)                    20.265 
+#>    Deviance (DIC)                             7549.975 
+#>    Effective parameters (pD)                    19.400 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
-#>    VB correction                                  TRUE
+#>    VB correction                               ONESTEP
 #> 
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -73,7 +67,7 @@ summary(fit)
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
 #>     textual           0.449    0.064    0.318    0.567    0.001       beta(1,1)
-#>     speed             0.465    0.084    0.298    0.625    0.011       beta(1,1)
+#>     speed             0.465    0.084    0.299    0.625    0.011       beta(1,1)
 #>   textual ~~                                                                   
 #>     speed             0.280    0.070    0.139    0.414    0.003       beta(1,1)
 #> 

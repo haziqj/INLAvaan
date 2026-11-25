@@ -15,7 +15,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,16 +91,20 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 <dd><p>Character vector of timing segment names to return, or
 <code>"all"</code> to return every segment. Defaults to <code>"total"</code>.
 Available segments (depending on model options): <code>"init"</code> (which
-includes the lavaan model setup), <code>"optim"</code>, <code>"vb"</code>,
-<code>"loglik"</code>, <code>"marginals"</code>, <code>"norta"</code>, <code>"sampling"</code>,
+includes the lavaan model setup), <code>"optim"</code> (the search for the
+posterior mode and the Laplace approximation), <code>"vb"</code> (the VB
+correction), <code>"loglik"</code>, <code>"marginals"</code> (the marginals and the
+checks of the fit), <code>"norta"</code>, <code>"sampling"</code>,
 <code>"covariances"</code>, <code>"definedpars"</code>, <code>"deltapars"</code>,
 <code>"test"</code>, <code>"loo"</code>, <code>"waic"</code>, <code>"total"</code>. The
-segments are disjoint and <code>"total"</code> is their sum. <code>"loo"</code> and
-<code>"waic"</code> are recorded only when the fit computed them, i.e.
-<code>test</code> (see <code><a href="inlavaan.html">inlavaan()</a></code>) included <code>"loo"</code>, <code>"waic"</code> or
-<code>"full"</code> and the model is supported (see <code><a href="loo.html">loo()</a></code>); requesting
-either otherwise gives an error explaining why, distinct from
-requesting a misspelled segment name.</p></dd>
+segments are disjoint and <code>"total"</code> is their sum. <code>"norta"</code>
+is about 0: the draws no longer adjust the correlations of their copula
+(NORTA), and the segment is kept so that code that asks for it still
+works. <code>"loo"</code> and <code>"waic"</code> are recorded only when the fit
+computed them, i.e. <code>test</code> (see <code><a href="inlavaan.html">inlavaan()</a></code>) included
+<code>"loo"</code>, <code>"waic"</code> or <code>"full"</code> and the model is
+supported (see <code><a href="loo.html">loo()</a></code>); requesting either otherwise gives an error
+explaining why, distinct from requesting a misspelled segment name.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -124,24 +128,24 @@ durations as seconds, longer ones as minutes or hours.</p>
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Total elapsed time</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.68 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.67 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># All stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        init       optim          vb      loglik   marginals       norta </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.02 s      0.07 s      0.09 s      0.00 s      0.47 s      0.00 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.03 s      0.15 s      0.07 s      0.01 s      0.36 s      0.00 s </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    sampling covariances definedpars   deltapars        test       total </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.03 s      0.00 s      0.00 s      0.00 s      0.00 s      0.68 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.05 s      0.00 s      0.00 s      0.00 s      0.00 s      0.67 s </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Specific stages</span></span></span>
 <span class="r-in"><span><span class="fu">timing</span><span class="op">(</span><span class="va">fit</span>, what <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"optim"</span>, <span class="st">"marginals"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     optim marginals </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.07 s    0.47 s </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.15 s    0.36 s </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

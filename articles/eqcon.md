@@ -53,22 +53,16 @@ dat <- reshape(
 )
 names(dat) <- sub("^Reaction\\.(.*)$", "Day\\1", names(dat))
 fit <- agrowth(mod, dat)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [66ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.176σ. [419ms]
-#> 
-#> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [96ms]
-#> 
+#> ✔ Found the posterior mode in 47 iterations [96ms]
+#> ✔ VB mean correction, max shift 0.66σ [116ms]
+#> ✔ Fitted 6 skew-normal marginals [293ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [393ms]
+#> ✔ Summarise 1000 posterior draws. [591ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 coef(fit)
 #>      i~~i       i~1      s~~s       s~1      i~~s         v         v         v 
-#> 12103.393    32.694    38.488     9.351    87.594   622.801   622.801   622.801 
+#> 12103.446    32.694    38.521     9.357    89.668   622.799   622.799   622.799 
 #>         v         v         v         v         v         v         v 
-#>   622.801   622.801   622.801   622.801   622.801   622.801   622.801
+#>   622.799   622.799   622.799   622.799   622.799   622.799   622.799
 ```

@@ -16,7 +16,7 @@ sampling(
   object,
   type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
   nsamp = 1000L,
-  samp_copula = TRUE,
+  samp_copula = NULL,
   prior = FALSE,
   silent = FALSE,
   ...
@@ -89,10 +89,10 @@ sampling(
 
 - samp_copula:
 
-  Logical. When `TRUE` (default), posterior parameter samples use the
-  copula method with the fitted marginals. When `FALSE`, samples are
-  drawn from the joint Gaussian (Laplace) approximation. Ignored when
-  `prior = TRUE`.
+  **\[deprecated\]** Has no effect. The draws always couple the fitted
+  marginals by a Gaussian copula, as the draws of the fit do. For a fit
+  with `marginal_method = "gaussian"` they are the draws of the Laplace
+  approximation.
 
 - prior:
 
@@ -159,34 +159,24 @@ for Bayesian fit indices.
 ``` r
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [19ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [71ms]
-#> 
-#> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [53ms]
-#> 
+#> ✔ Found the posterior mode in 25 iterations [61ms]
+#> ✔ VB mean correction, max shift 0.47σ [19ms]
+#> ✔ Fitted 6 skew-normal marginals [95ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [228ms]
+#> ✔ Summarise 1000 posterior draws. [360ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
 # Posterior samples of lavaan-side parameters
 samps <- sampling(fit, nsamp = 500)
 head(samps)
-#>      visual=~x2 visual=~x3    x1~~x1   x2~~x2    x3~~x3 visual~~visual
-#> [1,]  1.1926682  1.6569140 1.1596398 1.073682 0.4866332      0.2607879
-#> [2,]  0.7666464  1.5703130 0.9254138 1.233297 0.4807913      0.3600404
-#> [3,]  0.7406366  0.9541111 0.7560406 1.109193 0.8180625      0.5322786
-#> [4,]  0.8425036  1.6685363 1.0732602 1.175925 0.3132956      0.4212133
-#> [5,]  0.8181554  1.1649132 0.8352365 1.111821 0.6380687      0.4649987
-#> [6,]  0.7772709  1.0808822 0.6825842 1.169309 0.5951661      0.5787656
-
-# Compare copula vs Gaussian sampling
-s_cop <- sampling(fit, nsamp = 500, samp_copula = TRUE)
-s_gaus <- sampling(fit, nsamp = 500, samp_copula = FALSE)
+#>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
+#> [1,]  0.8051145   1.331193 1.0722789 1.3121316 0.5288120      0.2994148
+#> [2,]  0.8821187   1.041379 0.8076991 1.0599461 0.7122129      0.4373219
+#> [3,]  0.7670896   1.190653 0.8543126 1.0010145 0.6375759      0.5259382
+#> [4,]  0.7265785   1.274846 0.8903637 1.0685634 0.6469123      0.5366774
+#> [5,]  0.7620023   1.067593 0.8661717 0.9071604 0.5912996      0.5203973
+#> [6,]  0.7450164   1.193717 1.0282496 1.2241559 0.5151260      0.4587178
 
 # Prior predictive samples
 y_prior <- sampling(fit, type = "observed", nsamp = 500, prior = TRUE)

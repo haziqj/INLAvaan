@@ -105,7 +105,7 @@ HS.model <- "
   speed   =~ x7 + x8 + x9
 "
 
-fit <- acfa(HS.model, HolzingerSwineford1939, verbose = FALSE)
+fit <- acfa(HS.model, HolzingerSwineford1939, silent = TRUE)
 ```
 
 ### Scalar fit measures
@@ -118,7 +118,7 @@ diagnostics.
 
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3830.509        0.001     7552.885       20.782        0.092 
+#>           21    -3830.485        0.000     7552.730       20.689        0.092 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
 #>        0.957        0.919        0.903        0.930        0.897        0.907
 ```
@@ -136,7 +136,7 @@ bfi
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc         BCFI         BTLI 
-#>        0.092        0.957        0.919        0.903        0.930        0.897 
+#>        0.092        0.957        0.920        0.903        0.930        0.897 
 #>         BNFI 
 #>        0.907
 ```
@@ -153,13 +153,13 @@ summary(bfi)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.092 0.005 0.083 0.088 0.091 0.095  0.102 0.090
-#> BGammaHat    0.957 0.005 0.947 0.954 0.957 0.960  0.964 0.958
-#> adjBGammaHat 0.919 0.009 0.901 0.914 0.920 0.926  0.933 0.922
-#> BMc          0.903 0.010 0.881 0.897 0.904 0.911  0.920 0.906
+#> BRMSEA       0.092 0.005 0.083 0.088 0.091 0.095  0.103 0.090
+#> BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.964 0.958
+#> adjBGammaHat 0.920 0.009 0.900 0.915 0.920 0.926  0.933 0.923
+#> BMc          0.903 0.010 0.880 0.897 0.904 0.910  0.919 0.907
 #> BCFI         0.930 0.008 0.913 0.926 0.931 0.936  0.943 0.933
-#> BTLI         0.897 0.012 0.872 0.890 0.898 0.905  0.915 0.901
-#> BNFI         0.907 0.007 0.890 0.902 0.908 0.912  0.919 0.909
+#> BTLI         0.897 0.011 0.871 0.890 0.898 0.905  0.915 0.902
+#> BNFI         0.907 0.007 0.890 0.902 0.907 0.912  0.918 0.909
 ```
 
 You can also access the raw per-sample vectors for custom analysis:
@@ -193,7 +193,7 @@ null.model <- "
   x9 ~~ x9
 "
 
-fit_null <- acfa(null.model, HolzingerSwineford1939, verbose = FALSE)
+fit_null <- acfa(null.model, HolzingerSwineford1939, silent = TRUE)
 ```
 
 Now pass the baseline model to `fitMeasures()` or
@@ -203,9 +203,9 @@ Now pass the baseline model to `fitMeasures()` or
 
 fitMeasures(fit, baseline.model = fit_null)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3830.509        0.001     7552.885       20.782        0.092 
+#>           21    -3830.485        0.000     7552.730       20.689        0.092 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.957        0.919        0.903        0.930        0.897        0.907
+#>        0.957        0.920        0.903        0.930        0.897        0.907
 ```
 
 ``` r
@@ -216,13 +216,13 @@ summary(bfi_inc)
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.092 0.005 0.083 0.088 0.091 0.095  0.103 0.091
-#> BGammaHat    0.957 0.004 0.946 0.954 0.957 0.960  0.964 0.958
-#> adjBGammaHat 0.919 0.008 0.900 0.915 0.920 0.925  0.933 0.922
-#> BMc          0.903 0.010 0.880 0.897 0.904 0.910  0.919 0.906
-#> BCFI         0.930 0.007 0.913 0.926 0.931 0.936  0.942 0.933
-#> BTLI         0.897 0.011 0.871 0.891 0.898 0.905  0.915 0.900
-#> BNFI         0.907 0.007 0.890 0.903 0.908 0.912  0.918 0.909
+#> BRMSEA       0.092 0.005 0.083 0.088 0.091 0.095  0.103 0.092
+#> BGammaHat    0.956 0.005 0.946 0.954 0.957 0.960  0.964 0.959
+#> adjBGammaHat 0.919 0.009 0.900 0.915 0.920 0.925  0.933 0.924
+#> BMc          0.903 0.010 0.879 0.897 0.904 0.910  0.919 0.908
+#> BCFI         0.930 0.008 0.912 0.926 0.931 0.936  0.943 0.930
+#> BTLI         0.897 0.012 0.870 0.890 0.898 0.905  0.915 0.896
+#> BNFI         0.906 0.008 0.889 0.902 0.907 0.912  0.919 0.906
 ```
 
 ## Rescaling: `"devM"` vs `"MCMC"`
@@ -240,13 +240,13 @@ summary(bfi_mcmc)
 #> Posterior summary of MCMC-based Bayesian fit indices (nsamp = 1000):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.107 0.004 0.100 0.104 0.106 0.109  0.116 0.106
+#> BRMSEA       0.107 0.004 0.099 0.103 0.106 0.109  0.116 0.106
 #> BGammaHat    0.943 0.004 0.933 0.940 0.943 0.946  0.950 0.943
-#> adjBGammaHat 0.892 0.008 0.874 0.888 0.893 0.899  0.905 0.894
-#> BMc          0.872 0.010 0.850 0.866 0.873 0.879  0.887 0.874
-#> BCFI         0.908 0.007 0.890 0.903 0.908 0.913  0.920 0.909
-#> BTLI         0.861 0.011 0.835 0.855 0.863 0.870  0.879 0.863
-#> BNFI         0.885 0.007 0.868 0.881 0.886 0.891  0.897 0.886
+#> adjBGammaHat 0.893 0.008 0.875 0.888 0.893 0.899  0.907 0.894
+#> BMc          0.873 0.009 0.851 0.867 0.873 0.879  0.889 0.873
+#> BCFI         0.908 0.007 0.892 0.903 0.908 0.913  0.921 0.909
+#> BTLI         0.862 0.011 0.837 0.855 0.863 0.870  0.881 0.863
+#> BNFI         0.886 0.007 0.870 0.881 0.886 0.891  0.898 0.886
 ```
 
 The two methods will generally produce different results, especially
@@ -261,7 +261,7 @@ as [blavaan](https://blavaan.org) ([Merkle et al.
 
 | Feature | INLAvaan | blavaan |
 |:---|:---|:---|
-| Posterior samples | INLA-based (Sobol/NORTA) | MCMC draws from Stan/JAGS |
+| Posterior samples | Skew-normal marginals coupled by a Gaussian copula | MCMC draws from Stan/JAGS |
 | Rescaling methods | `"devM"`, `"MCMC"` | `"devM"`, `"MCMC"`, `"ppmc"` |
 | Effective parameters (\\p_D\\)[^1] | DIC-based \\p_D\\ only | DIC-based \\p_D\\, LOOIC-based \\p\_{\text{loo}}\\, or WAIC-based \\p\_{\text{waic}}\\ |
 | HPD intervals | Not currently computed | Computed via `{coda}` |

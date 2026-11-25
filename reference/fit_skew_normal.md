@@ -22,12 +22,14 @@ fit_skew_normal(x, y, threshold_log_drop = -6, temp = 1)
 
 - threshold_log_drop:
 
-  Points with `y` below this value are left out of the fit (default -6).
+  A single finite negative number (default -6). Points with `y` below it
+  are left out of the fit.
 
 - temp:
 
-  A positive number, the temperature of the weights (default 1). `NA` is
-  not allowed: the temperature is no longer estimated.
+  A single finite positive number, the temperature of the weights
+  (default 1). `NA` is not allowed: the temperature is no longer
+  estimated.
 
 ## Value
 

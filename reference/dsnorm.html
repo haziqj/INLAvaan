@@ -19,7 +19,7 @@ density is $$f(x) = \frac{2}{\omega} \phi(z) \Phi(\alpha z), \quad z =
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,7 +125,9 @@ multiplied by <code>exp(logC)</code>.</p></dd>
     <p>A numeric vector: the (log) density for <code>dsnorm()</code>, the
 probabilities for <code>psnorm()</code> and the quantiles for <code>qsnorm()</code>. <code>dsnorm()</code>
 has no defaults for <code>xi</code>, <code>omega</code> and <code>alpha</code>. <code>psnorm()</code> and <code>qsnorm()</code>
-recycle their arguments to the longest. <code>psnorm()</code> returns 0 and 1 at
+recycle their arguments to the longest, give a zero-length result when an
+argument has length zero, and keep the names and dimensions of <code>q</code> or <code>p</code>,
+as <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">stats::pnorm()</a></code> and <code><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">stats::qnorm()</a></code> do. <code>psnorm()</code> returns 0 and 1 at
 <code>-Inf</code> and <code>Inf</code>, and <code>NA</code> for a missing <code>q</code>, a non-finite <code>alpha</code> or a
 non-positive or missing scale. <code>qsnorm()</code> returns <code>-Inf</code> and <code>Inf</code> at <code>p</code>
 of 0 and 1, and <code>NA</code> for <code>p</code> outside \([0, 1]\), a non-finite <code>alpha</code> or

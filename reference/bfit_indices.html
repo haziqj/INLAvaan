@@ -15,7 +15,7 @@ model, analogous to blavaan::blavFitIndices()."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,7 @@ model, analogous to <code><a href="https://blavaan.org/reference/blavFitIndices.
 <span>  baseline.model <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  rescale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"devM"</span>, <span class="st">"MCMC"</span><span class="op">)</span>,</span>
 <span>  nsamp <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  samp_copula <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  samp_copula <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'bfit_indices'</span></span>
@@ -116,9 +116,9 @@ used when fitting the model.</p></dd>
 
 
 <dt id="arg-samp-copula">samp_copula<a class="anchor" aria-label="anchor" href="#arg-samp-copula"></a></dt>
-<dd><p>Logical. When <code>TRUE</code> (default), posterior samples are
-drawn using the copula method with the fitted marginals. When <code>FALSE</code>,
-samples are drawn from the Gaussian (Laplace) approximation.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The draws always
+couple the fitted marginals by a Gaussian copula, as the draws of the fit
+do.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -168,7 +168,7 @@ needs enough clusters for its parameters.</p>
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>            verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>            silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Absolute fit indices</span></span></span>
 <span class="r-in"><span><span class="va">bf</span> <span class="op">&lt;-</span> <span class="fu">bfit_indices</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
@@ -184,9 +184,9 @@ needs enough clusters for its parameters.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Posterior summary of devM-based Bayesian fit indices (nsamp = 100):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BRMSEA       0.091 0.005 0.084 0.088 0.091 0.094  0.101 0.090</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BRMSEA       0.091 0.005 0.084 0.088 0.091 0.094  0.101 0.089</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BGammaHat    0.957 0.004 0.948 0.954 0.957 0.959  0.963 0.958</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> adjBGammaHat 0.920 0.008 0.904 0.915 0.921 0.925  0.933 0.923</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> adjBGammaHat 0.920 0.008 0.904 0.915 0.921 0.926  0.933 0.923</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BMc          0.903 0.009 0.883 0.896 0.904 0.909  0.918 0.907</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BCFI         0.930 0.007 0.915 0.925 0.931 0.935  0.942 0.933</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BTLI         0.899 0.010 0.877 0.892 0.900 0.905  0.915 0.903</span>

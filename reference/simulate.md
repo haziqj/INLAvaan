@@ -15,7 +15,7 @@ simulate(
   seed = NULL,
   sample.nobs = NULL,
   prior = FALSE,
-  samp_copula = TRUE,
+  samp_copula = NULL,
   silent = FALSE,
   ...
 )
@@ -50,8 +50,8 @@ simulate(
 
 - samp_copula:
 
-  Logical. When `TRUE` (default) and `prior = FALSE`, posterior
-  parameter draws use the copula method. Ignored when `prior = TRUE`.
+  **\[deprecated\]** Has no effect. The posterior draws always couple
+  the fitted marginals by a Gaussian copula, as the draws of the fit do.
 
 - silent:
 
@@ -117,40 +117,35 @@ single-observation draws from the predictive distribution
 ``` r
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [23ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.285σ. [77ms]
-#> 
-#> ⠙ Fitting 0/6 skew-normal marginals.
-#> ✔ Fit 6/6 skew-normal marginals. [48ms]
-#> 
+#> ✔ Found the posterior mode in 25 iterations [35ms]
+#> ✔ VB mean correction, max shift 0.47σ [19ms]
+#> ✔ Fitted 6 skew-normal marginals [79ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [231ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [367ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
 # Simulate one replicate dataset from the posterior
 sims <- simulate(fit, nsim = 1)
 head(sims[[1]])                    # data frame
-#>         x1       x2        x3
-#> 1 4.746761 5.941066 3.6762148
-#> 2 5.707638 4.511105 2.6819397
-#> 3 4.731376 6.087457 2.1809846
-#> 4 7.234120 7.611115 4.3133210
-#> 5 4.281755 5.016788 0.7020208
-#> 6 3.771841 7.639483 1.9248617
+#>         x1       x2       x3
+#> 1 5.555767 2.939660 3.565238
+#> 2 5.435979 5.660462 1.071958
+#> 3 5.925919 6.998072 2.639845
+#> 4 3.502717 8.775188 1.277392
+#> 5 6.512296 7.355982 3.647969
+#> 6 5.506838 5.417858 1.656728
 attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>      0.7848604      1.2961260      0.8726475      1.2234945      0.4749268 
+#>      0.7794665      1.3239542      0.9189826      1.4817029      0.5567278 
 #> visual~~visual 
-#>      0.5321061 
+#>      0.4052003 
 attr(sims[[1]], "truth_theta")     # corresponding unconstrained (theta-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>      0.7848604      1.2961260     -0.1362236      0.2017111     -0.7445945 
+#>     0.77946648     1.32395415    -0.08448809     0.39319204    -0.58567881 
 #> visual~~visual 
-#>     -0.6309123 
+#>    -0.90337386 
 
 # Simulate from the prior (e.g., for SBC)
 sims_prior <- simulate(fit, nsim = 5, prior = TRUE)
