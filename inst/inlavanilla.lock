@@ -1,7 +1,7 @@
 Upstream: https://github.com/haziqj/inlavanilla
-Release: v26.11.24-1
-Commit: 0d3daa7cc8c12fdbda1c1f7a82923ab91dac0395
-Version: 26.11.24-1
+Release: v26.11.25
+Commit: 9b71612d6ce7a0f53e166b0d9cdfddd60a7be32d
+Version: 26.11.25
 Synced: 2026-11-25
 Hash: md5 of the text with LF line endings
 

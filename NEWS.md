@@ -17,7 +17,7 @@
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
-  copies the 13 engine files of inlavanilla v26.11.24-1, byte for byte, as
+  copies the 13 engine files of inlavanilla v26.11.25, byte for byte, as
   `R/vanilla-*.R`, and the lock lists them. Two of them,
   `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`, hold the
   skew-normal functions, which INLAvaan defined itself before. The others
