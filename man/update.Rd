@@ -53,12 +53,17 @@ the same order. Otherwise, as after \code{std.lv = TRUE} or
 \code{meanstructure = TRUE}, the fit starts from the usual values. Supply
 \code{start} explicitly to override it.
 
-When the data object of the original call is no longer found, as after
-\code{rm(dd)} or in a new session, \code{update()} stops with an error of class
-\code{inlavaan_update_data_not_found}. Give the data again with \code{data}, as in
-\code{update(fit, data = dd)}, or fit the model again with \code{\link[=inlavaan]{inlavaan()}}. Data
-named after a function, such as \code{df} or \code{data} in a new session, count as
-not found.
+The refit needs the objects that the recorded call names: the data, the
+model, and the sample statistics of a fit to summary data (\code{sample.cov},
+\code{sample.mean}, \code{sample.nobs}). When one of them is no longer found, as
+after \code{rm(dd)} or in a new session, \code{update()} stops with an error of class
+\code{inlavaan_update_data_not_found} that names it. Give it again, as in
+\code{update(fit, data = dd)} or \code{update(fit, model = mm)}, or fit the model
+again with \code{\link[=inlavaan]{inlavaan()}}. An object named after a function, such as \code{df} or
+\code{data} in a new session, counts as not found. A data call, such as
+\code{simulateData(mm, sample.nobs = 100)}, is not run before the refit: only
+the object at its root (\code{mm}) is checked. An error inside the call is the
+error of the refit.
 
 \code{update(fit, arg = NULL)} drops \code{arg} from the recorded call, as
 \code{\link[stats:update]{stats::update()}} does. An argument given under another spelling that

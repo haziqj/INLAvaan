@@ -290,6 +290,57 @@ test_that("update() does not evaluate a data call before the refit", {
   expect_error(update(fit), class = "inlavaan_update_data_not_found")
 })
 
+test_that("update() names a model or sample statistics that are not found", {
+  one_factor <- "visual =~ x1 + x2 + x3"
+  args <- list(
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  not_found_msg <- function(expr) {
+    err <- expect_error(expr, class = "inlavaan_update_data_not_found")
+    gsub("\\s+", " ", cli::ansi_strip(conditionMessage(err)))
+  }
+  mm <- one_factor
+  dd <- dat
+  fit <- do.call(acfa, c(list(quote(mm), data = quote(dd)), args))
+  rm(mm, dd)
+  msg <- not_found_msg(update(fit))
+  expect_match(
+    msg,
+    "cannot find the model `mm` and the data `dd`",
+    fixed = TRUE
+  )
+  expect_match(msg, "update(fit, model = mm, data = dd)", fixed = TRUE)
+  # `add` reads the recorded model, so it stops before it reads a lost model
+  msg <- not_found_msg(update(fit, add = "x1 ~~ x2", evaluate = FALSE))
+  expect_match(msg, "the model `mm`", fixed = TRUE)
+  # Objects that update() is given are not checked
+  msg <- not_found_msg(update(fit, model = one_factor))
+  expect_no_match(msg, "mm", fixed = TRUE)
+  fit_new <- update(fit, model = one_factor, data = dat)
+  expect_s4_class(fit_new, "INLAvaan")
+  # The sample statistics of a fit to summary data
+  S <- lavaan::lavInspect(lavaan::cfa(one_factor, dat), "sampstat")$cov
+  n <- 301L
+  fit <- do.call(
+    acfa,
+    c(list(one_factor, sample.cov = quote(S), sample.nobs = quote(n)), args)
+  )
+  S_given <- S
+  rm(S, n)
+  msg <- not_found_msg(update(fit))
+  expect_match(
+    msg,
+    "update(fit, sample.cov = S, sample.nobs = n)",
+    fixed = TRUE
+  )
+  fit_new <- update(fit, sample.cov = S_given, sample.nobs = 301L)
+  expect_equal(lavaan::lavInspect(fit_new, "nobs"), 301L)
+})
+
 test_that("update() with a new model gives the fit of a fresh call", {
   skip_on_cran()
   args <- list(

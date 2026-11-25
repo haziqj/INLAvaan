@@ -24,12 +24,17 @@
 #' `meanstructure = TRUE`, the fit starts from the usual values. Supply
 #' `start` explicitly to override it.
 #'
-#' When the data object of the original call is no longer found, as after
-#' `rm(dd)` or in a new session, `update()` stops with an error of class
-#' `inlavaan_update_data_not_found`. Give the data again with `data`, as in
-#' `update(fit, data = dd)`, or fit the model again with [inlavaan()]. Data
-#' named after a function, such as `df` or `data` in a new session, count as
-#' not found.
+#' The refit needs the objects that the recorded call names: the data, the
+#' model, and the sample statistics of a fit to summary data (`sample.cov`,
+#' `sample.mean`, `sample.nobs`). When one of them is no longer found, as
+#' after `rm(dd)` or in a new session, `update()` stops with an error of class
+#' `inlavaan_update_data_not_found` that names it. Give it again, as in
+#' `update(fit, data = dd)` or `update(fit, model = mm)`, or fit the model
+#' again with [inlavaan()]. An object named after a function, such as `df` or
+#' `data` in a new session, counts as not found. A data call, such as
+#' `simulateData(mm, sample.nobs = 100)`, is not run before the refit: only
+#' the object at its root (`mm`) is checked. An error inside the call is the
+#' error of the refit.
 #'
 #' `update(fit, arg = NULL)` drops `arg` from the recorded call, as
 #' [stats::update()] does. An argument given under another spelling that
@@ -142,6 +147,17 @@ setMethod(
     model_given <- !missing(model)
     add_given <- !model_given && !missing(add)
 
+    # The refit evaluates the recorded call again, so it needs the objects
+    # that the call names. `add` reads the recorded model at once.
+    given <- c(names(extras), if (model_given) "model")
+    not_found <- objects_not_found(cl, given, caller)
+    if (length(not_found) > 0L) {
+      model_lost <- add_given && "model" %in% names(not_found)
+      if (evaluate || model_lost) {
+        abort_not_found(not_found)
+      }
+    }
+
     # Replace or extend the model
     if (model_given) {
       cl$model <- model
@@ -161,24 +177,6 @@ setMethod(
 
     if (!evaluate) {
       return(cl)
-    }
-
-    # The refit evaluates the recorded call again, so it needs the data that
-    # the call names.
-    data_missing <- !"data" %in% names(extras) &&
-      !is.null(missing_object(cl$data, caller))
-    if (data_missing) {
-      cli_abort(
-        c(
-          "{.fn update} cannot find the data {.code {deparse1(cl$data)}} of
-           the fit.",
-          "i" = "Give the data with {.arg data}, as in
-                 {.code update(fit, data = dd)}, or fit the model again with
-                 {.fn inlavaan}."
-        ),
-        class = "inlavaan_update_data_not_found",
-        call = NULL
-      )
     }
 
     # Warm start: the search for the mode starts at the mode of the fit. This
@@ -218,6 +216,67 @@ drop_other_spellings <- function(cl, nm) {
     return(cl)
   }
   cl[-other]
+}
+
+# The arguments of a recorded call that name objects which the refit needs:
+# the model, the data, and the sample statistics of a fit to summary data
+needed_args <- c(
+  "model",
+  "data",
+  "sample.cov",
+  "sample.mean",
+  "sample.nobs",
+  "sample.th",
+  "NACOV",
+  "WLS.V"
+)
+
+# The arguments of the call `cl` that name an object no longer found in
+# `env`, as a named list: the name of the object and the expression of the
+# argument. The arguments in `given`, which update() was given, are not
+# checked.
+objects_not_found <- function(cl, given, env) {
+  args <- names(cl)[-1L]
+  keys <- arg_key(args)
+  args <- args[keys %in% arg_key(needed_args) & !keys %in% arg_key(given)]
+  out <- list()
+  for (arg in args) {
+    name <- missing_object(cl[[arg]], env)
+    if (!is.null(name)) {
+      out[[arg]] <- list(name = name, expr = cl[[arg]])
+    }
+  }
+  out
+}
+
+# Stop update() on the objects in `not_found`, from objects_not_found()
+abort_not_found <- function(not_found) {
+  args <- names(not_found)
+  label <- paste("the", args)
+  items <- character(length(args))
+  given <- character(length(args))
+  for (i in seq_along(args)) {
+    name <- not_found[[i]]$name
+    expr <- deparse1(not_found[[i]]$expr)
+    if (is.symbol(not_found[[i]]$expr)) {
+      items[i] <- paste0(label[i], " `", name, "`")
+      given[i] <- paste(args[i], "=", name)
+    } else {
+      items[i] <- paste0("`", name, "` in ", label[i], " `", expr, "`")
+      given[i] <- paste(args[i], "= ...")
+    }
+  }
+  example <- paste0("update(fit, ", paste(given, collapse = ", "), ")")
+  n <- length(items)
+  cli_abort(
+    c(
+      "{.fn update} cannot find {items} of the fit.",
+      "i" = "Give {cli::qty(n)}{?it/them} again, as in {.code {example}}, or
+             fit the model again with {.fn inlavaan}."
+    ),
+    class = "inlavaan_update_data_not_found",
+    call = NULL
+  )
 }
 
 # The name of the object that the expression `expr` of a recorded call reads
