@@ -120,6 +120,7 @@ See the [mean structures article](https://inlavaan.haziqj.ml/articles/meanstruct
 The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters.
 The mode is found with `stats::nlminb()`.
 A variational Bayes (VB) correction then moves the mean of this Gaussian: by default it takes one step from the mode (`vb_correction = "onestep"`), `vb_correction = "full"` iterates it, and `vb_correction = "none"` leaves it out.
+The one step is checked, and where the check fails the posterior is far from Gaussian along the step: the fit then solves the VB equation instead and warns, and `diagnostics()` reports the check (`vb_lhat`, `vb_j0`, `vb_j1` and `vb_solve`).
 Settings of the search for the mode, the VB correction and the scans below are set with `control = inlavaan_control()`.
 
 From this, the marginal posterior distribution of each parameter is obtained in one of two ways: 1) Skew normal fitting [`marginal_method = "skewnorm"`, the default method, see @chiuchiolo2023joint], which scans the log-posterior of each parameter from the mode and fits a skew normal density to the scan (`marginal_scan` chooses how the scan is taken: `"linear"`, the default, `"exact"`, `"laplace"` or `"plain"`); and 2) the marginals of the joint Gaussian posterior (`marginal_method = "gaussian"`).
