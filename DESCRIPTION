@@ -44,7 +44,8 @@ Suggests:
     parallelly,
     quarto,
     sn,
-    testthat (>= 3.2.0)
+    testthat (>= 3.2.0),
+    withr
 VignetteBuilder: 
     quarto
 Config/Needs/website: rmarkdown
