@@ -140,3 +140,33 @@ test_that("the warm start is used only when the parameters keep their names", {
     get_inlavaan_internal(fit_one(std.lv = TRUE), "theta_star_novbc")
   )
 })
+
+test_that("update() uses the stored data when the data object is gone", {
+  one_factor <- "visual =~ x1 + x2 + x3"
+  dd <- dat[dat$school == "Pasteur", ]
+  fit <- acfa(
+    one_factor,
+    dd,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  suppressMessages(expect_message(
+    fit_new <- update(fit, silent = FALSE),
+    class = "inlavaan_update_stored_data"
+  ))
+  expect_equal(lavaan::lavInspect(fit_new, "nobs"), 156L)
+  expect_equal(coef(fit_new), coef(fit), tolerance = 1e-5)
+  # A silent refit says nothing, and the refit can be updated again
+  expect_silent(fit_silent <- update(fit))
+  expect_silent(fit_again <- update(fit_silent, nsamp = 5))
+  expect_equal(coef(fit_again), coef(fit), tolerance = 1e-5)
+  # Given again, the data are read as usual
+  expect_no_message(
+    update(fit, data = dat, silent = TRUE),
+    class = "inlavaan_update_stored_data"
+  )
+})

@@ -53,6 +53,13 @@ the same order. Otherwise, as after \code{std.lv = TRUE} or
 \code{meanstructure = TRUE}, the fit starts from the usual values. Supply
 \code{start} explicitly to override it.
 
+When the data object of the original call is no longer found, as after
+\code{rm(dd)} or in a new session, \code{update()} uses the data stored in the fit
+and says so. lavaan has processed these data already (for example, it has
+dropped the incomplete rows under listwise deletion), so this suits an
+update that keeps the options on how the data are read, such as \code{group},
+\code{cluster}, \code{missing} and \code{ordered}. To change them, give \code{data} again.
+
 \code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So
 \code{update(fit, silent = TRUE)} drops \code{verbose} from the recorded call, and
 \code{update(fit, verbose = TRUE)} drops \code{silent}.

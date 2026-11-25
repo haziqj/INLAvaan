@@ -24,6 +24,13 @@
 #' `meanstructure = TRUE`, the fit starts from the usual values. Supply
 #' `start` explicitly to override it.
 #'
+#' When the data object of the original call is no longer found, as after
+#' `rm(dd)` or in a new session, `update()` uses the data stored in the fit
+#' and says so. lavaan has processed these data already (for example, it has
+#' dropped the incomplete rows under listwise deletion), so this suits an
+#' update that keeps the options on how the data are read, such as `group`,
+#' `cluster`, `missing` and `ordered`. To change them, give `data` again.
+#'
 #' `verbose = TRUE` and `silent = TRUE` cannot go together. So
 #' `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
 #' `update(fit, verbose = TRUE)` drops `silent`.
@@ -137,6 +144,42 @@ setMethod(
 
     if (!evaluate) {
       return(cl)
+    }
+
+    # When the data object of the recorded call is gone from the caller's
+    # environment, the refit uses the data stored in the fit, with a message
+    # (unless the refit is silent). lavaan has processed them already, so
+    # this suits an update that keeps the options on how the data are read.
+    if (
+      !"data" %in% names(extras) && (is.symbol(cl$data) || is.call(cl$data))
+    ) {
+      found <- tryCatch(
+        {
+          eval(cl$data, caller)
+          TRUE
+        },
+        error = function(e) FALSE
+      )
+      if (!found) {
+        silent <- tryCatch(
+          isTRUE(eval(cl$silent, caller)),
+          error = function(e) FALSE
+        )
+        if (!silent) {
+          cli_inform(
+            c(
+              "i" = "The data {.code {deparse1(cl$data)}} of the fit are not
+                     found, so {.fn update} uses the data stored in the fit.",
+              " " = "Give {.arg data} to refit with other options on how the
+                     data are read, such as {.arg group}, {.arg cluster},
+                     {.arg missing} or {.arg ordered}."
+            ),
+            class = "inlavaan_update_stored_data"
+          )
+        }
+        cl$data <- NULL
+        cl$slotData <- object@Data
+      }
     }
 
     # Warm start (Tier A): reuse the previous posterior mode as the optimiser's

@@ -169,6 +169,14 @@
   from values of other parameters. The fit was the same, but the search for
   the mode took longer.
 
+* When the data object of a fit's call is no longer found, as after `rm()`
+  or in a new session, `update()` now uses the data stored in the fit, with
+  a message of class `inlavaan_update_stored_data` (none when the refit is
+  silent). So `fit <- update(fit)` refits a saved fit, also one made before
+  the engine. lavaan has processed the stored data already, so to change how
+  the data are read (`group`, `cluster`, `missing`, `ordered`), give `data`
+  again. Before, `update()` stopped with "object not found".
+
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,
   `simulate()`, `fitMeasures()`, `bfit_indices()` and
