@@ -13,11 +13,15 @@
 # is, because the engine reads -1e40 as a failed point itself. `gr` returns NA
 # where joint_lp() fails: the VB correction and the ridge bend call the
 # gradient alone at some points, and see a failed point only through a
-# gradient that is not finite, while joint_lp_grad() is finite there. lavaan
-# warns that Sigma.hat is not positive definite at such a point, so that
-# warning is muffled. A one-entry memo of the last value of joint_lp() saves
-# the extra call when nlminb() asks for the gradient at the point whose
-# objective it has just taken. With `numerical_grad = TRUE` there is no `gr`.
+# gradient that is not finite, while joint_lp_grad() is finite there. A failed
+# point is what the engine's failed_lp() reads as one (NA, NaN, or -1e39 and
+# below), so that the gradient fails exactly where the stages see a failed
+# log-posterior. A value of +Inf is not a failure to the engine, so its
+# gradient is computed. lavaan warns that Sigma.hat is not positive definite at
+# a failed point, so that warning is muffled. A one-entry memo of the last
+# value of joint_lp() saves the extra call when nlminb() asks for the gradient
+# at the point whose objective it has just taken. With `numerical_grad = TRUE`
+# there is no `gr`.
 engine_fns <- function(joint_lp, joint_lp_grad, numerical_grad = FALSE) {
   memo <- new.env(parent = emptyenv())
   memo$theta <- NULL
@@ -37,7 +41,7 @@ engine_fns <- function(joint_lp, joint_lp_grad, numerical_grad = FALSE) {
     } else {
       joint_lp(theta)
     }
-    if (!is.finite(value) || value <= -1e39) {
+    if (identical(failed_lp(value), -Inf)) {
       return(rep(NA_real_, length(theta)))
     }
     withCallingHandlers(

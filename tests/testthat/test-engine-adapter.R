@@ -93,6 +93,18 @@ test_that("the gradient is NA where the log-posterior fails", {
   g_new <- gr(x)
   lp(x)
   expect_identical(gr(x), g_new)
+
+  # A failed point is one that the engine's failed_lp() reads as failed: NA,
+  # NaN, and -1e39 and below. +Inf is not.
+  fns <- engine_fns(function(theta) theta[[1]], function(theta) c(7, 7))
+  for (v in c(NA, NaN, -1e39, -1e40, -Inf)) {
+    expect_identical(fns$gr(c(v, 0)), c(NA_real_, NA_real_))
+    expect_identical(failed_lp(v), -Inf)
+  }
+  for (v in c(Inf, -1e38, 0)) {
+    expect_identical(fns$gr(c(v, 0)), c(7, 7))
+    expect_false(identical(failed_lp(v), -Inf))
+  }
 })
 
 test_that("the Hessian at the mode mirrors the cross block of the fast path", {
