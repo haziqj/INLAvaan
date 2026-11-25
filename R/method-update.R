@@ -127,7 +127,13 @@ setMethod(
     )
     extras <- outer_call[["..."]]
     for (nm in names(extras)) {
-      cl[[nm]] <- extras[[nm]]
+      if (is.null(extras[[nm]]) && !nm %in% names(cl)) {
+        # As in stats::update(), `arg = NULL` drops an argument of the call,
+        # or gives it as NULL when the call does not have it
+        cl[nm] <- list(NULL)
+      } else {
+        cl[[nm]] <- extras[[nm]]
+      }
     }
     # verbose = TRUE and silent = TRUE cannot go together, so asking for one
     # drops the other from the recorded call, unless it is asked for too:

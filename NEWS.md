@@ -193,6 +193,11 @@
   `inlavaan_update_data_not_found`: give `data` again. Data given again also
   replace the stored data of a refit.
 
+* `update(fit, arg = NULL)` now drops `arg` from the call of the fit, or
+  gives it as `NULL` when the call does not have it, as `stats::update()`
+  does. Before, an argument that the call did not have failed with
+  "subscript out of bounds".
+
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,
   `simulate()`, `fitMeasures()`, `bfit_indices()` and

@@ -171,6 +171,17 @@ test_that("update() uses the stored data when the data object is gone", {
   )
 })
 
+test_that("update() drops an argument given as NULL", {
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
+  cl <- update(fit, silent = NULL, evaluate = FALSE)
+  expect_false("silent" %in% names(cl))
+  # Before, NULL for an argument that the call does not have failed with an
+  # error of base R
+  cl <- update(fit, ordered = NULL, evaluate = FALSE)
+  expect_true("ordered" %in% names(cl))
+  expect_null(cl$ordered)
+})
+
 test_that("update() on the stored data stops when it changes how they are read", {
   dd <- dat[dat$school == "Pasteur", ]
   fit <- acfa(
