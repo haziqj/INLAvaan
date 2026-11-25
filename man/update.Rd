@@ -76,6 +76,27 @@ puts them in another order (unless the fit has \code{ov.order = "data"}, under
 which lavaan puts them in the order of the data). To make such a change,
 give \code{data} again.
 
+Some updates on the stored data stop although the refit could be the same,
+because the fit does not show how lavaan would read the data for them:
+\itemize{
+\item a new model with exogenous variables, on a fit without them, unless the
+update or the fit gives \code{fixed.x = FALSE} (lavaan sets \code{fixed.x} to
+\code{FALSE} for a model without exogenous variables);
+\item \code{fixed.x}, \code{conditional.x}, \code{group.label} or \code{level.label} given as
+\code{NULL}, their default, when the fit gave a value;
+\item a value of \code{ordered} that leaves out a variable that is an ordered factor
+in the data, when \code{ordered} or a threshold of the fit also made it
+ordinal;
+\item any new value of \code{ov.order} or \code{mimic}, and data in another form
+(\code{sample.cov} and the like);
+\item a model in which \code{update()} cannot find the roles of the observed
+variables;
+\item on a fit made by an older version of INLAvaan, which did not record these
+values: a new model, when the fit has ordinal variables and its call gave
+\code{ordered}, unless the update gives \code{ordered} too, and \code{add}, when the
+model has constraints written with \code{==}, \code{<} or \code{>}.
+}
+
 \code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So
 \code{update(fit, silent = TRUE)} drops \code{verbose} from the recorded call, and
 \code{update(fit, verbose = TRUE)} drops \code{silent}.

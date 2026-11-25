@@ -47,6 +47,25 @@
 #' which lavaan puts them in the order of the data). To make such a change,
 #' give `data` again.
 #'
+#' Some updates on the stored data stop although the refit could be the same,
+#' because the fit does not show how lavaan would read the data for them:
+#' * a new model with exogenous variables, on a fit without them, unless the
+#'   update or the fit gives `fixed.x = FALSE` (lavaan sets `fixed.x` to
+#'   `FALSE` for a model without exogenous variables);
+#' * `fixed.x`, `conditional.x`, `group.label` or `level.label` given as
+#'   `NULL`, their default, when the fit gave a value;
+#' * a value of `ordered` that leaves out a variable that is an ordered factor
+#'   in the data, when `ordered` or a threshold of the fit also made it
+#'   ordinal;
+#' * any new value of `ov.order` or `mimic`, and data in another form
+#'   (`sample.cov` and the like);
+#' * a model in which `update()` cannot find the roles of the observed
+#'   variables;
+#' * on a fit made by an older version of INLAvaan, which did not record these
+#'   values: a new model, when the fit has ordinal variables and its call gave
+#'   `ordered`, unless the update gives `ordered` too, and `add`, when the
+#'   model has constraints written with `==`, `<` or `>`.
+#'
 #' `verbose = TRUE` and `silent = TRUE` cannot go together. So
 #' `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
 #' `update(fit, verbose = TRUE)` drops `silent`.
