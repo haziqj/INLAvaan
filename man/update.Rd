@@ -43,16 +43,21 @@ dedicated method is required: without it, \code{update()} would dispatch to
 \pkg{lavaan}'s method and silently return a frequentist \pkg{lavaan} fit
 instead of a Bayesian one.
 
-When the parameter structure is preserved (no change to \code{model}, \code{add}, or
-\code{model.type}), the previous posterior mode is passed as the optimiser's
-starting value (a warm start), so mode-finding is typically much faster than
-a cold fit. This makes prior sweeps particularly cheap. The warm start only
-changes the optimiser's starting point, not the fitted result. It is used
-only when the refitted model has the same free parameters, by name and in
-the same order. Otherwise, as after \code{std.lv = TRUE} or
-\code{meanstructure = TRUE}, the fit starts from the usual values. Supply
-\code{start} explicitly to override it, or \code{start = NULL} to start from the
-usual values.
+When the parameter structure and the data are preserved (no change to
+\code{model}, \code{add}, \code{model.type}, \code{data} or the sample statistics), the previous
+posterior mode is passed as the optimiser's starting value (a warm start),
+so mode-finding is typically much faster than a cold fit. This makes prior
+sweeps particularly cheap. The warm start changes the optimiser's starting
+point, so the mode it finds agrees with that of a fresh fit only up to the
+optimiser's tolerance (differences of order \code{1e-5} on the internal scale).
+It is used only when the refitted model has the same free parameters, by
+name and in the same order. Otherwise, as after \code{std.lv = TRUE} or
+\code{meanstructure = TRUE}, the fit starts from the usual values. It is not
+used when the recorded data are a function call, such as
+\code{lavaan::simulateData(...)} or \code{read.csv(...)}, which can give other data
+each time, rather than an object or a part of one (\code{dd}, \code{dd[dd$g == 1, ]}).
+Supply \code{start} explicitly to override it, or \code{start = NULL} to start from
+the usual values and get the fit of a fresh call.
 
 The refit needs the objects that the recorded call names: the data, the
 model, and the sample statistics of a fit to summary data (\code{sample.cov},

@@ -14,16 +14,21 @@
 #' \pkg{lavaan}'s method and silently return a frequentist \pkg{lavaan} fit
 #' instead of a Bayesian one.
 #'
-#' When the parameter structure is preserved (no change to `model`, `add`, or
-#' `model.type`), the previous posterior mode is passed as the optimiser's
-#' starting value (a warm start), so mode-finding is typically much faster than
-#' a cold fit. This makes prior sweeps particularly cheap. The warm start only
-#' changes the optimiser's starting point, not the fitted result. It is used
-#' only when the refitted model has the same free parameters, by name and in
-#' the same order. Otherwise, as after `std.lv = TRUE` or
-#' `meanstructure = TRUE`, the fit starts from the usual values. Supply
-#' `start` explicitly to override it, or `start = NULL` to start from the
-#' usual values.
+#' When the parameter structure and the data are preserved (no change to
+#' `model`, `add`, `model.type`, `data` or the sample statistics), the previous
+#' posterior mode is passed as the optimiser's starting value (a warm start),
+#' so mode-finding is typically much faster than a cold fit. This makes prior
+#' sweeps particularly cheap. The warm start changes the optimiser's starting
+#' point, so the mode it finds agrees with that of a fresh fit only up to the
+#' optimiser's tolerance (differences of order `1e-5` on the internal scale).
+#' It is used only when the refitted model has the same free parameters, by
+#' name and in the same order. Otherwise, as after `std.lv = TRUE` or
+#' `meanstructure = TRUE`, the fit starts from the usual values. It is not
+#' used when the recorded data are a function call, such as
+#' `lavaan::simulateData(...)` or `read.csv(...)`, which can give other data
+#' each time, rather than an object or a part of one (`dd`, `dd[dd$g == 1, ]`).
+#' Supply `start` explicitly to override it, or `start = NULL` to start from
+#' the usual values and get the fit of a fresh call.
 #'
 #' The refit needs the objects that the recorded call names: the data, the
 #' model, and the sample statistics of a fit to summary data (`sample.cov`,
@@ -180,15 +185,21 @@ setMethod(
       return(cl)
     }
 
-    # Warm start: the search for the mode starts at the mode of the fit. This
-    # changes where the search starts, not the fit. It is skipped when the
-    # model or its type changes, or when `start` is given.
-    structure_changed <- model_given ||
-      add_given ||
-      "model.type" %in% names(extras)
-    # `start = NULL` asks for the usual starting values, so any `start` given
-    # turns the warm start off.
-    if (!structure_changed && !"start" %in% names(extras)) {
+    # Warm start: the search for the mode starts at the mode of the fit. The
+    # search then ends close to, not at, the mode of a fresh fit. So the warm
+    # start is used only when the structure and the data stay the same. It is
+    # skipped when the model or its type changes, when the data or the sample
+    # statistics are given, when the data are a call such as simulateData()
+    # that can give other data, and when `start` is given: `start = NULL`
+    # asks for the usual starting values.
+    data_keys <- arg_key(setdiff(needed_args, "model"))
+    warm <- !model_given &&
+      !add_given &&
+      !"model.type" %in% names(extras) &&
+      !any(arg_key(names(extras)) %in% data_keys) &&
+      reads_object(cl$data) &&
+      !"start" %in% names(extras)
+    if (warm) {
       # inlavaan() checks the names before it uses the mode as the start
       cl$start <- structure(
         internal$theta_star_novbc,
@@ -282,6 +293,27 @@ abort_not_found <- function(not_found) {
   )
 }
 
+# The functions that read a part of an object, as in `dd$x` or `dd[1:10, ]`
+extract_fns <- c("$", "[[", "[", "@")
+
+# Whether the expression `expr` reads an object or a part of it, as `dd`,
+# `dd[dd$g == 1, ]` and `lavaan::HolzingerSwineford1939` do. A call to another
+# function, such as simulateData() or read.csv(), can give other data each
+# time.
+reads_object <- function(expr) {
+  while (is.call(expr)) {
+    fn <- expr[[1L]]
+    if (identical(fn, as.name("::")) || identical(fn, as.name(":::"))) {
+      return(TRUE)
+    }
+    if (!(is.symbol(fn) && as.character(fn) %in% extract_fns)) {
+      return(FALSE)
+    }
+    expr <- expr[[2L]]
+  }
+  TRUE
+}
+
 # The name of the object that the expression `expr` of a recorded call reads
 # and that is no longer found in `env`, or NULL. The expression is not
 # evaluated: a call such as read.csv() or lavaan::simulateData() would run
@@ -293,7 +325,6 @@ abort_not_found <- function(not_found) {
 # function counts as not found: in a new session, data named `df` or `data`
 # find the functions stats::df() and utils::data(), which lavaan cannot read.
 missing_object <- function(expr, env) {
-  extract <- c("$", "[[", "[", "@")
   direct <- TRUE
   while (is.call(expr)) {
     fn <- expr[[1L]]
@@ -304,7 +335,7 @@ missing_object <- function(expr, env) {
     ) {
       return(NULL)
     }
-    if (!(is.symbol(fn) && as.character(fn) %in% extract)) {
+    if (!(is.symbol(fn) && as.character(fn) %in% extract_fns)) {
       direct <- FALSE
     }
     expr <- expr[[2L]]

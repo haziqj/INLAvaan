@@ -155,6 +155,15 @@ test_that("the warm start is used only when the parameters keep their names", {
     iterations(update(fit, start = NULL)),
     iterations(fit)
   )
+  # Other data: no warm start, so the fit of a fresh call
+  dd <- dat[dat$school == "Pasteur", ]
+  expect_identical(
+    get_inlavaan_internal(update(fit, data = dd), "theta_star_novbc"),
+    get_inlavaan_internal(
+      acfa(one_factor, dd, silent = TRUE, nsamp = 3, test = "none"),
+      "theta_star_novbc"
+    )
+  )
   # As many parameters, under other names: the fit of a cold start
   expect_identical(
     get_inlavaan_internal(update(fit, std.lv = TRUE), "theta_star_novbc"),
@@ -267,6 +276,8 @@ test_that("update() does not evaluate a data call before the refit", {
     lavaan::lavInspect(fit_new, "sampstat"),
     lavaan::lavInspect(fit_fresh, "sampstat")
   )
+  # Such a call can give other data, so the refit starts cold
+  expect_same_fit(fit_new, fit_fresh)
   # An error inside the data call is the error of the call itself
   path <- tempfile(fileext = ".rds")
   saveRDS(dat, path)
