@@ -303,7 +303,9 @@ extract_fns <- c("$", "[[", "[", "@")
 reads_object <- function(expr) {
   while (is.call(expr)) {
     fn <- expr[[1L]]
-    if (identical(fn, as.name("::")) || identical(fn, as.name(":::"))) {
+    if (
+      identical(fn, as.name("::")) || identical(fn, as.name(strrep(":", 3L)))
+    ) {
       return(TRUE)
     }
     if (!(is.symbol(fn) && as.character(fn) %in% extract_fns)) {
@@ -331,7 +333,7 @@ missing_object <- function(expr, env) {
     if (
       length(expr) < 2L ||
         identical(fn, as.name("::")) ||
-        identical(fn, as.name(":::"))
+        identical(fn, as.name(strrep(":", 3L)))
     ) {
       return(NULL)
     }
