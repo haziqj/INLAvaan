@@ -1,12 +1,12 @@
 Upstream: https://github.com/haziqj/inlavanilla
-Release: v26.11.25-1
-Commit: 5febcaffde263edf488361462f20f1d4140a60fa
-Version: 26.11.25-1
+Release: v26.11.25-2
+Commit: 3a5e30e05ca95f796f38ee8566c5941f14c7a50a
+Version: 26.11.25-2
 Synced: 2026-11-25
 Hash: md5 of the text with LF line endings
 
 File: R/vanilla-control.R
-MD5: 58d754b181b188bfda7d5f09d88bd0c3
+MD5: 982d68669da67023c6360328c64fc53d
 
 File: R/vanilla-core.R
 MD5: fdccdff3ae2b173be5138a74d676597f
@@ -24,7 +24,7 @@ File: R/vanilla-parallel.R
 MD5: 879096dde549deb3c3853663bd542154
 
 File: R/vanilla-progress.R
-MD5: e5f75eaa9e2754e5ddeb46f07aec13e1
+MD5: 0b89fd1dd7093df47d667db771bbbe8f
 
 File: R/vanilla-qsnorm-fast.R
 MD5: 163e3bbf5d10e92866b46128852f0dc3
@@ -39,7 +39,7 @@ File: R/vanilla-taylor.R
 MD5: 0132e13036dcc9ce524d674318baf1dd
 
 File: R/vanilla-utils.R
-MD5: 60c5c068ac852877c1dd1d02dd69a364
+MD5: 962db811660d6883171e31e61a487fbd
 
 File: R/vanilla-vb.R
-MD5: 3f583a5a2307e5fdad6282664963009b
+MD5: af3aca196017e4bccd4dbb1ef946b2a8

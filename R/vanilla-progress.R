@@ -492,7 +492,7 @@ report_vb <- function(p, vbc, sds, logml_laplace, calls) {
                   paste0(
                     " at the cap of ",
                     plural(h$max_sweeps, "sweep"),
-                    ", from the calls of the mode and Hessian stage"
+                    ", set by `vb_budget`"
                   )
                 }
               )

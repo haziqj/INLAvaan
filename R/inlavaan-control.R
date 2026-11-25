@@ -21,6 +21,15 @@
 #'   act with `vb_correction = "full"`, and on the solve that follows a failed
 #'   check of the default one-step correction. A first step below `vb_tol` in
 #'   every parameter is not checked.
+#' @param vb_budget The cap on the solve that follows a failed check of the
+#'   default one-step correction. The solve and the two passes of the check
+#'   together take at most `vb_budget` times the gradient evaluations of the
+#'   search for the posterior mode and of the Hessian, in passes of the rule
+#'   of 2m + 1 gradients each, for m parameters. Default 2. `1` is the cap of
+#'   earlier development versions, `Inf` lifts the cap, so that the solve
+#'   stops only at `vb_tol` or after `vb_maxit` iterations, and `0` leaves a
+#'   flagged fit at its mode. A single number of at least 0. A fit that passes
+#'   the check does not depend on it.
 #' @param n_grid The number of points of the scan of each skew-normal
 #'   marginal, over 4 posterior SDs on each side of the mode. At least 7. It
 #'   replaces the deprecated argument `sn_fit_ngrid` of [inlavaan()].
@@ -75,6 +84,7 @@ inlavaan_control <- function(
   mode_tol = 1e-10,
   vb_maxit = 25L,
   vb_tol = 1e-3,
+  vb_budget = 2,
   n_grid = 21L,
   log_threshold = -6,
   nlminb = list(),

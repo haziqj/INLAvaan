@@ -16,8 +16,9 @@
 # posterior SDs from the posterior mean. A second sweep at the step then checks
 # that the fixed-point map contracts there, which is what the one step assumes
 # (vb_checked_onestep()). Where it does not, a quasi-Newton solve on the same
-# sweeps takes over, capped by the calls of the mode and Hessian stage. With a
-# gradient a sweep is 2m + 1 gradients on the axes of cov_root()
+# sweeps takes over, capped at `vb_budget` (2) times the calls of the mode and
+# Hessian stage.
+# With a gradient a sweep is 2m + 1 gradients on the axes of cov_root()
 # (axis_nodes()), about one numerical Hessian. Without one it is one Stein
 # pass on vb_nodes(), since Stein's identity needs that rule's degree. The
 # check, the solve and the warning are the same code on both routes. See
@@ -161,16 +162,24 @@ vb_maxstep <- 1.5
 vb_slope_step <- 1e-3
 
 # The cap on the sweeps of the checked one step, the two sweeps of its check
-# among them: the calls of the mode and Hessian stage (`budget`) over 2m + 1,
-# the calls of one sweep with a gradient. With a gradient the VB stage then
-# stays within the calls of that stage. The same count of sweeps holds without
-# a gradient (the owner's, 2026-11-25), where a sweep is a Stein pass of
-# (m + 1)(m + 2) calls: a flagged fit can then spend up to
-# (m + 1)(m + 2) / (2m + 1) times the calls of that stage, about m / 2, which
-# is the price of a fit without a gradient. The two sweeps of the check are
-# always taken.
-vb_max_sweeps <- function(budget, m) {
-  floor(budget / (2 * m + 1))
+# among them: `factor` times the calls of the mode and Hessian stage
+# (`budget`) over 2m + 1, the calls of one sweep with a gradient. `factor` is
+# the control `vb_budget`. A fit that passes the check takes two sweeps and
+# never meets the cap. With a gradient the VB stage of a fit that fails it
+# then stays within `factor` times the calls of that stage. The default of 2
+# is the owner's (2026-11-25): at 1 the solve of most hard fits stopped short
+# of its root, and at 2 it reaches it (see lab/DESIGN.md). The same count of
+# sweeps holds without a gradient (the owner's, 2026-11-25), where a sweep is
+# a Stein pass of (m + 1)(m + 2) calls: at the default a flagged fit can then
+# spend up to 2(m + 1)(m + 2) / (2m + 1) times the calls of that stage, about
+# m, which is the price of a fit without a gradient. The two sweeps of the
+# check are always taken. With `factor` at Inf there is no cap, and the solve
+# stops at `vb_tol` or after `vb_maxit` iterations.
+vb_max_sweeps <- function(budget, m, factor = 2) {
+  if (is.infinite(factor)) {
+    return(Inf)
+  }
+  floor(factor * budget / (2 * m + 1))
 }
 
 # One sweep with a gradient, on the axis rule at a shift: the gradient at
@@ -417,7 +426,7 @@ vb_checked_onestep <- function(lp, gr, mode, Sigma, R, A, ctrl, budget, fixed) {
   stein <- is.null(gr)
   rule <- if (stein) vb_nodes(Sigma, A) else axis_nodes(Sigma, A)
   A_inv <- crossprod(A, crossprod(R))
-  max_sweeps <- vb_max_sweeps(budget, m)
+  max_sweeps <- vb_max_sweeps(budget, m, ctrl$vb_budget)
   sweeps <- 0L
   to_shift <- function(d) {
     shift <- as.numeric(A %*% d)
@@ -515,8 +524,8 @@ vb_checked_onestep <- function(lp, gr, mode, Sigma, R, A, ctrl, budget, fixed) {
 }
 
 # `method` is "onestep" or "full". "onestep" is vb_checked_onestep(), whose
-# sweeps `budget`, the calls of the mode and Hessian stage, caps
-# (vb_max_sweeps()). Of the code below it reaches only the fallback, and only
+# sweeps `budget`, the calls of the mode and Hessian stage, caps through the
+# control `vb_budget` (vb_max_sweeps()). Of the code below it reaches only the fallback, and only
 # when its sweep at the mode is not finite.
 # `fixed` holds the parameters whose shift is known to be zero, those with
 # Gaussian marginals (the `gaussian_marginals` of vanilla_core()): their step

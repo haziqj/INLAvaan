@@ -17,7 +17,7 @@
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
-  copies the 13 engine files of inlavanilla v26.11.25-1, byte for byte, as
+  copies the 13 engine files of inlavanilla v26.11.25-2, byte for byte, as
   `R/vanilla-*.R`, and the lock lists them. Two of them,
   `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`, hold the
   skew-normal functions, which INLAvaan defined itself before. The others
@@ -48,10 +48,12 @@
     that fails solves the VB equation instead, from the mode, and the warning
     at the end of the fit says that the posterior is far from Gaussian along
     the mean correction, and names the parameter that the step moved
-    furthest. When the solve stops more than 0.1 posterior SDs short of the
-    VB mean, the warning says so too. Small samples fail the check more often: a one-factor model of
-    `x1`, `x2` and `x3` fails it on the first 50 rows of
-    `HolzingerSwineford1939`, and passes on all 301. `diagnostics()` gives
+    furthest. The solve takes at most twice the evaluations of the mode and
+    Hessian stage, in passes of the rule. When the solve stops more than 0.1
+    posterior SDs short of the VB mean, the warning says so too. Small
+    samples fail the check more often: a one-factor model of `x1`, `x2` and
+    `x3` fails it on the first 50 rows of `HolzingerSwineford1939`, and
+    passes on all 301. `diagnostics()` gives
     `vb_lhat`, `vb_j0` and `vb_j1`, and `vb_solve`, which is 1 when the check
     failed. The gain ratio of earlier development versions (`vb_gain_ratio`)
     is gone, with its warning, and so is the iteration with capped steps

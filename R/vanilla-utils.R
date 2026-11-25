@@ -205,8 +205,8 @@ check_flags <- function(dg, gaussian) {
 
 # Whether the one-step check failed and the VB equation was solved instead.
 # The fit is then flagged by `vb_check`, and the step still to go where the
-# solve stopped is recorded but is not a flag: the solve stops at a budget
-# that is not a setting of the user's.
+# solve stopped is recorded but is not a flag: the solve stops at a budget,
+# and the flag of the check already says that the fit needs care.
 vb_solved <- function(dg) {
   isTRUE(dg$global[["vb_solve"]] == 1)
 }

@@ -10,6 +10,7 @@ inlavaan_control(
   mode_tol = 1e-10,
   vb_maxit = 25L,
   vb_tol = 0.001,
+  vb_budget = 2,
   n_grid = 21L,
   log_threshold = -6,
   nlminb = list(),
@@ -33,6 +34,16 @@ in posterior SDs, of the fixed-point iteration of the VB correction. They
 act with \code{vb_correction = "full"}, and on the solve that follows a failed
 check of the default one-step correction. A first step below \code{vb_tol} in
 every parameter is not checked.}
+
+\item{vb_budget}{The cap on the solve that follows a failed check of the
+default one-step correction. The solve and the two passes of the check
+together take at most \code{vb_budget} times the gradient evaluations of the
+search for the posterior mode and of the Hessian, in passes of the rule
+of 2m + 1 gradients each, for m parameters. Default 2. \code{1} is the cap of
+earlier development versions, \code{Inf} lifts the cap, so that the solve
+stops only at \code{vb_tol} or after \code{vb_maxit} iterations, and \code{0} leaves a
+flagged fit at its mode. A single number of at least 0. A fit that passes
+the check does not depend on it.}
 
 \item{n_grid}{The number of points of the scan of each skew-normal
 marginal, over 4 posterior SDs on each side of the mode. At least 7. It

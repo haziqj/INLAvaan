@@ -123,6 +123,9 @@ test_that("a bad entry stops with the name of the entry", {
       )
     }
   }
+  for (bad in list(-1, NA, NaN, "2", c(1, 2), NULL)) {
+    expect_error(inlavaan_control(vb_budget = bad), "vb_budget", fixed = TRUE)
+  }
   expect_error(inlavaan_control(n_grid = 6), "n_grid")
   expect_error(inlavaan_control(log_threshold = 0), "log_threshold")
   expect_error(inlavaan_control(nlminb = "a"), "nlminb")
@@ -277,4 +280,107 @@ test_that("an old name and the entry it sets stop, in the names given", {
     )),
     "n_grid"
   )
+})
+
+## ----- The cap on the VB solve -------------------------------------------------
+
+# On its first 50 rows the one-factor model fails the one-step check, and with
+# a tight vb_tol its solve runs into the cap of vb_budget = 1 but not into that
+# of the default. capture_sweeps() also records the cap that the engine sets.
+capture_sweeps <- function(control, cap = NULL) {
+  seen <- new.env()
+  max_sweeps <- vb_max_sweeps
+  local_mocked_bindings(
+    vb_max_sweeps = function(budget, m, factor = 2) {
+      seen$budget <- budget
+      seen$m <- m
+      seen$factor <- factor
+      seen$cap <- if (is.null(cap)) {
+        max_sweeps(budget, m, factor)
+      } else {
+        cap(budget, m)
+      }
+      seen$cap
+    }
+  )
+  seen$fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    hs[1:50, ],
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    control = control
+  )
+  seen$int <- get_inlavaan_internal(seen$fit)
+  seen
+}
+tight <- list(vb_tol = 1e-12, vb_maxit = 200)
+
+test_that("vb_budget is checked and kept, and Inf and 0 are allowed", {
+  for (ok in list(0, 0.5, 1, 2, Inf)) {
+    expect_identical(inlavaan_control(vb_budget = ok), list(vb_budget = ok))
+    expect_identical(check_control(list(vb_budget = ok))$vb_budget, ok)
+  }
+  expect_identical(check_control(list())$vb_budget, 2)
+  ce <- fit_with(control = list(vb_budget = Inf))
+  expect_identical(ce$args$control$vb_budget, Inf)
+})
+
+test_that("the default vb_budget of 2 reaches the engine", {
+  sw <- capture_sweeps(tight)
+  expect_identical(sw$factor, 2)
+  expect_identical(sw$cap, floor(2 * sw$budget / (2 * sw$m + 1)))
+  expect_equal(diagnostics(sw$fit)[["vb_solve"]], 1)
+  # The solve converges below the cap
+  expect_lt(diagnostics(sw$fit)[["vb_step_max"]], 1e-12)
+  given <- capture_sweeps(c(tight, vb_budget = 2))
+  expect_identical(given$int$theta_star, sw$int$theta_star)
+})
+
+test_that("vb_budget = 1 is the cap before vb_budget, and Inf lifts it", {
+  one <- capture_sweeps(c(tight, vb_budget = 1))
+  expect_identical(one$factor, 1)
+  # The cap of inlavanilla v26.11.25-1, the calls of the mode and Hessian over
+  # 2m + 1, gives the same fit to the last bit
+  old <- capture_sweeps(
+    tight,
+    cap = function(budget, m) floor(budget / (2 * m + 1))
+  )
+  expect_identical(one$cap, old$cap)
+  expect_identical(one$int$theta_star, old$int$theta_star)
+  expect_identical(one$int$mloglik, old$int$mloglik)
+  # At that cap the solve stops short, and at the default it does not
+  expect_gt(diagnostics(one$fit)[["vb_step_max"]], 1e-6)
+  two <- capture_sweeps(tight)
+  expect_false(identical(one$int$theta_star, two$int$theta_star))
+  free <- capture_sweeps(c(tight, vb_budget = Inf))
+  expect_identical(free$cap, Inf)
+  expect_identical(free$int$theta_star, two$int$theta_star)
+})
+
+test_that("vb_budget = 0 leaves a flagged fit at its mode", {
+  sw <- capture_sweeps(list(vb_budget = 0))
+  expect_identical(sw$cap, 0)
+  expect_equal(diagnostics(sw$fit)[["vb_solve"]], 1)
+  expect_identical(sw$int$theta_star, sw$int$theta_star_novbc)
+})
+
+test_that("a fit that passes the VB check does not depend on vb_budget", {
+  # On all 301 rows the check passes
+  fits <- lapply(list(0, 2, Inf), function(b) {
+    acfa(
+      "visual =~ x1 + x2 + x3",
+      hs,
+      silent = TRUE,
+      nsamp = 3,
+      test = "none",
+      control = list(vb_budget = b)
+    )
+  })
+  expect_equal(diagnostics(fits[[1]])[["vb_solve"]], 0)
+  ints <- lapply(fits, get_inlavaan_internal)
+  expect_identical(ints[[1]]$theta_star, ints[[2]]$theta_star)
+  expect_identical(ints[[3]]$theta_star, ints[[2]]$theta_star)
+  expect_identical(ints[[1]]$mloglik, ints[[2]]$mloglik)
+  expect_false(identical(ints[[2]]$theta_star, ints[[2]]$theta_star_novbc))
 })

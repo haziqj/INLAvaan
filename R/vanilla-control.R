@@ -16,6 +16,7 @@ vanilla_control <- function(
   mode_tol = 1e-10,
   vb_maxit = 25L,
   vb_tol = 1e-3,
+  vb_budget = 2,
   n_grid = 21L,
   log_threshold = -6,
   nlminb = list()
@@ -66,6 +67,15 @@ vanilla_control <- function(
   if (!is_num(vb_tol) || vb_tol <= 0) {
     abort("{.arg vb_tol} must be a single positive number.")
   }
+  # Inf is allowed: the solve then runs until it converges
+  if (
+    !is.numeric(vb_budget) ||
+      length(vb_budget) != 1L ||
+      is.na(vb_budget) ||
+      vb_budget < 0
+  ) {
+    abort("{.arg vb_budget} must be a single number of at least 0.")
+  }
   if (!is_num(n_grid) || n_grid < 7) {
     abort("{.arg n_grid} must be a single number of at least 7.")
   }
@@ -78,6 +88,7 @@ vanilla_control <- function(
     mode_tol = mode_tol,
     vb_maxit = as.integer(round(vb_maxit)),
     vb_tol = vb_tol,
+    vb_budget = vb_budget,
     n_grid = as.integer(round(n_grid)),
     log_threshold = log_threshold,
     nlminb = nlminb
