@@ -55,13 +55,16 @@ the same order. Otherwise, as after \code{std.lv = TRUE} or
 
 When the data object of the original call is no longer found, as after
 \code{rm(dd)} or in a new session, \code{update()} uses the data stored in the fit
-and says so. lavaan has read these data already, with the options of the
-fit (for example, it has dropped the incomplete rows under listwise
-deletion). So \code{update()} then stops with an error of class
-\code{inlavaan_update_data_not_found} when the update changes an option on how
-the data are read, such as \code{group}, \code{cluster}, \code{missing}, \code{ordered} or
-\code{sampling.weights}, or when the new model has other observed variables. To
-make such a change, give \code{data} again.
+and says so. lavaan has read these data already, with the options and the
+model of the fit (for example, it has dropped the incomplete rows under
+listwise deletion, and it has put the observed variables in the order of
+the model). So \code{update()} then stops with an error of class
+\code{inlavaan_update_data_not_found} when the update gives a new value to an
+option on how the data are read, such as \code{group}, \code{cluster}, \code{missing},
+\code{ordered} or \code{sampling.weights}. It also stops when the new model has other
+observed variables, or gives them other roles (other exogenous or ordinal
+variables, or other variables on a level), or puts them in another order.
+To make such a change, give \code{data} again.
 
 \code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So
 \code{update(fit, silent = TRUE)} drops \code{verbose} from the recorded call, and

@@ -238,6 +238,109 @@ test_that("update() on the stored data of a listwise fit stops on missing", {
   )
 })
 
+test_that("update() on the stored data stops when the model gives the variables other roles", {
+  dd <- dat
+  fit_reg <- asem(
+    "x1 ~ x2 + x3",
+    dd,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  fit_mimic <- asem(
+    "visual =~ x1 + x2 + x3\n visual ~ x4",
+    dd,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  err <- "inlavaan_update_data_not_found"
+  # Other exogenous variables. Before, the refit kept those of the fit.
+  expect_error(
+    update(fit_reg, model = "x2 ~ x1 + x3"),
+    "other roles",
+    class = err
+  )
+  expect_error(update(fit_reg, model = "x1 ~ x2\n x3 ~ x1"), class = err)
+  expect_error(
+    update(fit_mimic, model = "visual =~ x1 + x2 + x4\n visual ~ x3"),
+    class = err
+  )
+  # lavaan matches the stored data to the model by position, so the same
+  # variables in another order would swap the estimates of x2 and x3
+  expect_error(update(fit_reg, model = "x1 ~ x3 + x2"), class = err)
+  # Models that keep the roles refit as on the data given again: the
+  # statements in another order, and an equality constraint
+  for (model in c(
+    "visual ~ x4\n visual =~ x1 + x2 + x3",
+    "visual =~ x1 + a*x2 + a*x3\n visual ~ x4"
+  )) {
+    fit_stored <- update(fit_mimic, model = model)
+    fit_given <- update(fit_mimic, model = model, data = dat)
+    for (field in c("theta_star_novbc", "mloglik")) {
+      expect_equal(
+        get_inlavaan_internal(fit_stored, field),
+        get_inlavaan_internal(fit_given, field),
+        tolerance = 1e-6
+      )
+    }
+  }
+})
+
+test_that("update() on the stored data of a two-level fit stops when a variable changes level", {
+  dd <- lavaan::Demo.twolevel
+  model <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1 + x2 + x3
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1 + w2
+  "
+  fit <- asem(
+    model,
+    dd,
+    cluster = "cluster",
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  moved <- sub("w1 + w2", "w2", model, fixed = TRUE)
+  moved <- sub("x1 + x2 + x3", "x1 + x2 + x3 + w1", moved, fixed = TRUE)
+  # Before, this failed with an error of base R
+  expect_error(
+    update(fit, model = moved),
+    "other roles",
+    class = "inlavaan_update_data_not_found"
+  )
+})
+
+test_that("update() on the stored data stops when other variables are ordinal", {
+  dd <- dat[, c("x1", "x2", "x3")]
+  for (v in names(dd)) {
+    dd[[v]] <- findInterval(dd[[v]], stats::quantile(dd[[v]], c(1, 2) / 3)) + 1L
+  }
+  model <- "visual =~ x1 + x2 + x3"
+  model_thr <- paste(model, "x1 | t1 + t2", sep = "\n")
+  fit_num <- acfa(model, dd, silent = TRUE, nsamp = 3, test = "none")
+  fit_thr <- acfa(model_thr, dd, silent = TRUE, nsamp = 3, test = "none")
+  rm(dd)
+  err <- "inlavaan_update_data_not_found"
+  # The thresholds make x1 ordinal. Before, this failed with an error of base
+  # R.
+  expect_error(update(fit_num, model = model_thr), "other roles", class = err)
+  # Without its thresholds x1 is numeric. Before, the refit kept it ordinal.
+  expect_error(update(fit_thr, model = model), class = err)
+})
+
 test_that("check_stored_data_update() lets unchanged options and variables pass", {
   fit <- acfa(
     "visual =~ x1 + x2 + x3",
@@ -277,14 +380,21 @@ test_that("check_stored_data_update() lets unchanged options and variables pass"
     NULL,
     fit
   ))
-  # The same observed variables, in another order or with priors
-  same_vars <- 'visual =~ x3 + prior("normal(0,1)")*x2 + x1'
+  # The same observed variables in the same order, with priors or as a
+  # parameter table
+  same_vars <- 'visual =~ x1 + prior("normal(0,1)")*x2 + x3'
   expect_silent(check_stored_data_update(old_call, list(), same_vars, fit))
   expect_silent(
     check_stored_data_update(old_call, list(), lavaan::parTable(fit), fit)
   )
+  # The same observed variables in another order
+  expect_error(
+    check_stored_data_update(old_call, list(), "visual =~ x3 + x2 + x1", fit),
+    "other roles",
+    class = "inlavaan_update_data_not_found"
+  )
   # A model that lavaan cannot parse here is left to lavaan
-  expect_null(model_ov_names("visual =~ x1 +"))
+  expect_null(model_read_roles("visual =~ x1 +"))
   expect_silent(check_stored_data_update(
     old_call,
     list(),

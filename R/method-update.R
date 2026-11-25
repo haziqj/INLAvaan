@@ -26,13 +26,16 @@
 #'
 #' When the data object of the original call is no longer found, as after
 #' `rm(dd)` or in a new session, `update()` uses the data stored in the fit
-#' and says so. lavaan has read these data already, with the options of the
-#' fit (for example, it has dropped the incomplete rows under listwise
-#' deletion). So `update()` then stops with an error of class
-#' `inlavaan_update_data_not_found` when the update changes an option on how
-#' the data are read, such as `group`, `cluster`, `missing`, `ordered` or
-#' `sampling.weights`, or when the new model has other observed variables. To
-#' make such a change, give `data` again.
+#' and says so. lavaan has read these data already, with the options and the
+#' model of the fit (for example, it has dropped the incomplete rows under
+#' listwise deletion, and it has put the observed variables in the order of
+#' the model). So `update()` then stops with an error of class
+#' `inlavaan_update_data_not_found` when the update gives a new value to an
+#' option on how the data are read, such as `group`, `cluster`, `missing`,
+#' `ordered` or `sampling.weights`. It also stops when the new model has other
+#' observed variables, or gives them other roles (other exogenous or ordinal
+#' variables, or other variables on a level), or puts them in another order.
+#' To make such a change, give `data` again.
 #'
 #' `verbose = TRUE` and `silent = TRUE` cannot go together. So
 #' `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
@@ -171,7 +174,8 @@ setMethod(
     # (unless the refit is silent). lavaan has read them already, with the
     # options of the fit on how the data are read, and would ignore new values
     # of those options. So an update that changes one of them, or the observed
-    # variables of the model, stops (see check_stored_data_update()).
+    # variables of the model or their roles, stops (see
+    # check_stored_data_update()).
     use_stored <- !data_given && length(slot_args) > 0L
     data_lost <- FALSE
     if (!data_given && (is.symbol(cl$data) || is.call(cl$data))) {
@@ -258,27 +262,107 @@ arg_key <- function(x) {
   tolower(gsub("_", ".", x, fixed = TRUE))
 }
 
-# The observed variables of a model given as lavaan syntax or as a parameter
-# table, or NULL when the model cannot be parsed here. lavaan then reports the
-# problem when it reads the model.
-model_ov_names <- function(model) {
-  tryCatch(
+# The roles of the observed variables that lavaan fixes when it reads the data
+# for a model given as lavaan syntax or as a parameter table, as lavaan()
+# finds them in the model before it reads the data (lav_step01_ovnames_*()).
+# Per group: all the observed variables (`ov`), the endogenous ones (`ov_nox`)
+# and the exogenous ones (`ov_x`), each in the order of the model, and the
+# variables of each level (`ov_l`). Also the variables with thresholds in the
+# model (`ov_thr`). NULL when the model cannot be parsed here (lavaan then
+# reports the problem when it reads the model), and FALSE when the roles
+# cannot be read here.
+model_read_roles <- function(model, ngroups = 1L) {
+  flat <- tryCatch(
     {
       if (is.character(model)) {
-        model <- lavaan::lavParseModelString(
-          split_modifiers(model),
-          parser = "old"
-        )
+        lavaan::lavParseModelString(split_modifiers(model), parser = "old")
+      } else {
+        model
       }
-      lavaan::lavNames(model, "ov")
     },
     error = function(e) NULL
   )
+  if (!is.list(flat) || is.null(flat$lhs)) {
+    return(NULL)
+  }
+  tryCatch(flat_read_roles(flat, ngroups), error = function(e) FALSE)
 }
+
+flat_read_roles <- function(flat, ngroups) {
+  names_of <- function(pt, type, ...) {
+    unique(unlist(lavaan::lavNames(pt, type, ...), use.names = FALSE))
+  }
+  roles_of <- function(pt, ...) {
+    list(
+      ov = names_of(pt, "ov", ...),
+      ov_nox = names_of(pt, "ov.nox", ...),
+      ov_x = names_of(pt, "ov.x", ...)
+    )
+  }
+  # Group and level blocks in the syntax are expanded into a parameter table,
+  # as lavaan does. A parameter table has them as columns.
+  is_block <- flat$op == ":"
+  block_values <- function(type) {
+    unique(flat$rhs[is_block & tolower(flat$lhs) == type])
+  }
+  group_values <- block_values("group")
+  level_values <- block_values("level")
+  pt <- flat
+  if (length(group_values) > 0L || length(level_values) > 0L) {
+    attr(pt, "modifiers") <- NULL
+    attr(pt, "constraints") <- NULL
+    pt$lhs[is_block] <- tolower(pt$lhs[is_block])
+    pt <- lavaan::lavaanify(
+      pt,
+      ngroups = max(length(group_values), 1L),
+      warn = FALSE
+    )
+  } else {
+    group_values <- partable_values(flat, "group")
+    if (length(group_values) < 2L) {
+      group_values <- NULL
+    }
+    level_values <- partable_values(flat, "level")
+  }
+
+  # Without groups in the model, every group of the data has the same roles
+  if (length(group_values) > 0L) {
+    roles <- lapply(group_values, function(g) roles_of(pt, group = g))
+  } else {
+    roles <- rep(list(roles_of(flat)), ngroups)
+  }
+  ov_l <- list()
+  if (length(level_values) > 1L) {
+    per_level <- function(...) {
+      lapply(level_values, function(l) names_of(pt, "ov", ..., level = l))
+    }
+    ov_l <- if (length(group_values) > 0L) {
+      lapply(group_values, function(g) per_level(group = g))
+    } else {
+      rep(list(per_level()), ngroups)
+    }
+  }
+  list(
+    ov = lapply(roles, `[[`, "ov"),
+    ov_nox = lapply(roles, `[[`, "ov_nox"),
+    ov_x = lapply(roles, `[[`, "ov_x"),
+    ov_l = ov_l,
+    ov_thr = names_of(flat, "ov.ord")
+  )
+}
+
+# The values of a block column (group or level) of a parameter table
+partable_values <- function(pt, column) {
+  x <- pt[[column]][!pt$op %in% c("==", "<", ">", ":=")]
+  x <- x[!is.na(x)]
+  unique(if (is.numeric(x)) x[x > 0] else x[nzchar(x)])
+}
+
 
 # Stop when update() refits on the stored data of a fit and changes how the
 # data are read: an argument of `data_read_args` that the recorded call does
-# not give with the same expression, or a model with other observed variables.
+# not give with the same expression, or a model with other observed variables,
+# or with the observed variables in other roles or in another order.
 check_stored_data_update <- function(old_call, extras, new_model, object) {
   old_args <- as.list(old_call)[-1L]
   old_keys <- arg_key(names(old_args))
@@ -305,18 +389,72 @@ check_stored_data_update <- function(old_call, extras, new_model, object) {
     )
   }
   if (!is.null(new_model)) {
-    new_ov <- model_ov_names(new_model)
-    if (!is.null(new_ov) && !setequal(new_ov, lavaan::lavNames(object, "ov"))) {
-      cli_abort(
-        c(
-          "The original data of the fit are not found, so {.fn update} cannot
-           fit a model with other observed variables.",
-          "i" = "The data stored in the fit hold the observed variables of the
-                 fit. Pass the data again with {.arg data}."
-        ),
-        class = "inlavaan_update_data_not_found"
-      )
-    }
+    check_stored_data_roles(object, new_model)
   }
   invisible()
+}
+
+# Stop when the model of the refit gives the observed variables other roles
+# than those of the stored data: other exogenous or ordinal variables, other
+# variables on a level, or the variables in another order. lavaan matches the
+# stored data to the model by position, not by name, so the refit would mix up
+# the variables.
+check_stored_data_roles <- function(object, new_model) {
+  data <- object@Data
+  opt <- object@Options
+  roles <- model_read_roles(new_model, data@ngroups)
+  if (is.null(roles)) {
+    return(invisible())
+  }
+  if (is.list(roles) && !setequal(unique(unlist(roles$ov)), data@ov$name)) {
+    cli_abort(
+      c(
+        "The original data of the fit are not found, so {.fn update} cannot
+         fit a model with other observed variables.",
+        "i" = "The data stored in the fit hold the observed variables of the
+               fit. Pass the data again with {.arg data}."
+      ),
+      class = "inlavaan_update_data_not_found"
+    )
+  }
+
+  # fixed.x and conditional.x as lavaan resolved them for the fit. A model
+  # without exogenous variables sets both to FALSE, so then the value for a
+  # model with exogenous variables is unknown. It is taken as TRUE, which the
+  # stored data (with no exogenous variables) fail.
+  no_old_x <- length(lavaan::lavNames(object, "ov.x")) == 0L
+  fixed_x <- isTRUE(opt$fixed.x) || no_old_x
+  cond_x <- isTRUE(opt$conditional.x)
+  same <- is.list(roles)
+  if (same) {
+    ov_read <- if (cond_x) roles$ov_nox else roles$ov
+    ov_x_read <- if (fixed_x) roles$ov_x else lapply(roles$ov_x, `[`, 0L)
+    same <- identical(unname(data@ov.names), unname(ov_read)) &&
+      identical(unname(data@ov.names.x), unname(ov_x_read)) &&
+      identical(unname(lapply(data@ov.names.l, unname)), unname(roles$ov_l))
+  }
+
+  # The ordinal variables: those given by `ordered`, those with thresholds in
+  # the model, and those that are ordered factors in the data. The first and
+  # the last stay, so the thresholds of the model must make no other variable
+  # ordinal, and must keep those of the fit.
+  pt_old <- lavaan::parTable(object)
+  thr_old <- unique(pt_old$lhs[pt_old$op == "|" & pt_old$user == 1L])
+  ord_old <- data@ov$name[data@ov$type == "ordered"]
+  same <- same &&
+    all(roles$ov_thr %in% ord_old) &&
+    all(thr_old %in% roles$ov_thr)
+  if (same) {
+    return(invisible())
+  }
+  cli_abort(
+    c(
+      "The original data of the fit are not found, so {.fn update} cannot
+       fit a model that gives the observed variables other roles.",
+      "i" = "The data stored in the fit keep the exogenous and ordinal
+             variables of the fit, the variables of each level, and their
+             order. Pass the data again with {.arg data}."
+    ),
+    class = "inlavaan_update_data_not_found"
+  )
 }
