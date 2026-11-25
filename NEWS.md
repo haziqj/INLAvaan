@@ -191,20 +191,34 @@
 
 * `update()` now starts the search for the mode at the mode of the fit (the
   warm start) only when the refitted model has the same free parameters, by
-  name and in the same order. Otherwise it starts from the usual values. So
-  `update(fit, meanstructure = TRUE)` now works, where before it stopped
-  with an error about the length of `start`. `update(fit, std.lv = TRUE)`,
-  which keeps the number of parameters but changes them, no longer starts
-  from values of other parameters. The fit was the same, but the search for
-  the mode took longer.
+  name and in the same order, and the same data. Otherwise it starts from
+  the usual values. So `update(fit, meanstructure = TRUE)` now works, where
+  before it stopped with an error about the length of `start`.
+  `update(fit, std.lv = TRUE)`, which keeps the number of parameters but
+  changes them, no longer starts from values of other parameters. The fit
+  was the same, but the search for the mode took longer. With new data
+  (`data`, the sample statistics, or a data call such as
+  `lavaan::simulateData()`), the refit now starts cold and gives the fit of
+  a fresh call. Before, it differed from that fit by up to 3e-5 in the mode
+  and 4e-3 in the marginal log-likelihood. The help no longer says that the
+  warm start leaves the fit unchanged: the mode it finds agrees with that of
+  a fresh fit to the optimiser's tolerance.
 
-* When the data object of a fit's call is no longer found, as after `rm()`
-  or in a new session, `update()` now stops with an error of class
-  `inlavaan_update_data_not_found`, which says to give the data with
-  `data =` or to fit the model again with `inlavaan()`. Data named after a
-  function, such as `df` or `data` in a new session, count as not found.
-  Before, `update()` stopped with "object not found", or gave the function
-  to lavaan, which stopped with an error about the data.
+* `update(fit, start = NULL)` now starts from the usual values. Before, the
+  warm start was used anyway.
+
+* When an object that a fit's call names is no longer found, as after
+  `rm()` or in a new session, `update()` now stops with an error of class
+  `inlavaan_update_data_not_found`. The objects checked are the data, the
+  model, and the sample statistics (`sample.cov`, `sample.mean`,
+  `sample.nobs`). The error names each object not found and says to give it
+  again, as in `update(fit, model = mm, data = dd)`, or to fit the model
+  again with `inlavaan()`. Objects named after a function, such as `df` or
+  `data` in a new session, count as not found. The check does not run a
+  data call such as `read.csv()` or `lavaan::simulateData()`: it checks only
+  the object at its root, and an error inside the call is the error of the
+  refit. Before, `update()` stopped with "object not found", or gave the
+  function to lavaan, which stopped with an error about the data.
 
 * `update()` now replaces an argument of the call that it is given under
   another spelling, such as `std_ov = FALSE` for `std.ov = TRUE`. Before,
