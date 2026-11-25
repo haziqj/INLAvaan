@@ -78,18 +78,21 @@
   - DIC moves by about 0.06 (at most 0.084), and PPP by at most 0.006. The
     marginal likelihood (`mloglik`) and `Dhat` do not change.
 
-* `fit_skew_normal_samp()` now fits from two starts and keeps the fit with the
-  larger likelihood, as `fit_skew_normal()` does. The starts come from the
-  skewness of the draws: the moment-based shape and its mirror image, with the
-  opposite skew. When the draws are near symmetric, the starts are `alpha` of
-  about 0.58 and -0.58. Before, the only start was `alpha = 0`, where the
-  likelihood has a stationary point. For mildly skewed draws, the fit could
-  stall there, at `alpha` of about 0.01, and a small change in the draws could
-  tip it to the optimum, at `alpha` of about 1. The covariances and defined
-  parameters in `summary()` come from this fit, so they could jump. With the
-  default settings, on the Holzinger and Swineford three-factor model and the
-  Political Democracy model (also with two defined parameters added), over 150
-  seeds each:
+* `fit_skew_normal_samp()` now fits from three starts and keeps the fit with
+  the largest likelihood, so its likelihood is never below that of the old
+  fit. The first start is the old one, `alpha = 0`, where the likelihood has a
+  stationary point. The other two come from the skewness of the draws, as in
+  `fit_skew_normal()`: the moment-based shape and its mirror image, with the
+  opposite skew. When the sample skewness is below about 0.0018 in absolute
+  value, these two starts are `alpha` of about 0.58 and -0.58. For mildly
+  skewed draws, the old fit could stall near `alpha = 0`, at `alpha` of about
+  0.01, and a small change in the draws could tip it to the optimum, at
+  `alpha` of about 1. The covariances and defined parameters in `summary()`
+  come from this fit, so they could jump. For draws that do not vary or are
+  not all finite, the fit returns the same values as before, with one warning
+  in place of the warnings of `nlminb()`. With the default settings, on the
+  Holzinger and Swineford three-factor model and the Political Democracy model
+  (also with two defined parameters added), over 150 seeds each:
   - For the same draws, a row changes only where the old fit stalled (`alpha`
     within 0.05 of 0): 40 of 450 covariances of the Holzinger and Swineford
     model, 37 of 900 covariances of the Political Democracy model and 139 of
@@ -111,7 +114,7 @@
     and no row moves by more than 0.0004 posterior SDs.
   - The draws, the rows from the fitted marginals, `mloglik`, DIC and PPP do
     not change, and neither does the random number stream.
-  - The fit of one row takes about 8 ms in place of 4 ms for 1000 draws.
+  - The fit of one row takes about 12 ms in place of 4 ms for 1000 draws.
 
 * `approx_data` in `get_inlavaan_internal()` no longer has the columns `k` and
   `rmse`. `k` was the temperature of the skew-normal fit, and `rmse` was a mean
