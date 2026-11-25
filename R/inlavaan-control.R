@@ -18,8 +18,9 @@
 #'   (the `rel.tol` of [stats::nlminb()]).
 #' @param vb_maxit,vb_tol The largest number of iterations, and the tolerance
 #'   in posterior SDs, of the fixed-point iteration of the VB correction. They
-#'   act with `vb_correction = "full"`, and when the default one-step
-#'   correction takes a step so large that it must iterate.
+#'   act with `vb_correction = "full"`, and on the solve that follows a failed
+#'   check of the default one-step correction. A first step below `vb_tol` in
+#'   every parameter is not checked.
 #' @param n_grid The number of points of the scan of each skew-normal
 #'   marginal, over 4 posterior SDs on each side of the mode. At least 7. It
 #'   replaces the deprecated argument `sn_fit_ngrid` of [inlavaan()].

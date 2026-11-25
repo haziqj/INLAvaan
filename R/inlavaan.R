@@ -50,12 +50,14 @@
 #'   `"dic"`, `"loo"` and `"waic"` are unaffected.
 #' @param vb_correction The variational Bayes (VB) correction of the posterior
 #'   mean of the Laplace approximation. `"onestep"` (default) takes one step
-#'   from the mode, `"full"` iterates the correction to its fixed point, and
-#'   `"none"` leaves it out. The correction moves the marginal log-likelihood,
-#'   the point at which the DIC is computed, the centre of the LOO and the
-#'   WAIC, and the Gaussian marginals of `marginal_method = "gaussian"` and
-#'   their draws. It does not move the skew-normal marginals or their draws,
-#'   which are scanned from the mode.
+#'   from the mode and checks it. Where the check fails, the posterior is far
+#'   from Gaussian along the step: the fit then solves the VB equation instead,
+#'   and warns (see [diagnostics()]). `"full"` iterates the correction to its
+#'   fixed point, and `"none"` leaves it out. The correction moves the marginal
+#'   log-likelihood, the point at which the DIC is computed, the centre of the
+#'   LOO and the WAIC, and the Gaussian marginals of
+#'   `marginal_method = "gaussian"` and their draws. It does not move the
+#'   skew-normal marginals or their draws, which are scanned from the mode.
 #' @param n_qmc `r badge_deprecated()` Has no effect. The VB correction now
 #'   takes a deterministic step, with no quasi-Monte Carlo nodes.
 #' @param vb_method `r badge_deprecated()` Has no effect. The VB correction now

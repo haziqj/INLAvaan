@@ -30,8 +30,9 @@ parameter scaled by its curvature and the same limits.}
 
 \item{vb_maxit, vb_tol}{The largest number of iterations, and the tolerance
 in posterior SDs, of the fixed-point iteration of the VB correction. They
-act with \code{vb_correction = "full"}, and when the default one-step
-correction takes a step so large that it must iterate.}
+act with \code{vb_correction = "full"}, and on the solve that follows a failed
+check of the default one-step correction. A first step below \code{vb_tol} in
+every parameter is not checked.}
 
 \item{n_grid}{The number of points of the scan of each skew-normal
 marginal, over 4 posterior SDs on each side of the mode. At least 7. It
