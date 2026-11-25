@@ -146,8 +146,10 @@
 #'     posterior-SD units, as \code{mode_shift_sigma} is for the mode.
 #'     \code{NA} after the default one-step VB correction when its check
 #'     passed. When the check failed (\code{vb_solve}), it is the step still
-#'     to go where the solve stopped, which is recorded but not flagged, since
-#'     the solve stops at a limit on its cost that is not a setting.}
+#'     to go where the solve stopped: at \code{vb_tol}, at \code{vb_maxit}
+#'     (see [inlavaan_control()]), or at a cap on its cost that is not a
+#'     setting. It is then not a check of its own, but the bullet on the
+#'     failed check says how far the solve stopped short when it is above 0.1.}
 #'   \item{\code{mean_gap}}{Gap between the mean of the skew-normal marginal
 #'     and the VB mean, in posterior-SD units. Both estimate the shift from the
 #'     mode to the posterior mean, so a large gap says that the posterior is
@@ -180,8 +182,10 @@
 #'     posterior SDs, except after the solve that follows a failed one-step
 #'     check;
 #'   \item the one-step VB correction failed its check (\code{vb_solve} is
-#'     1): the posterior is far from Gaussian along the mean correction, and
-#'     the warning names the parameter that the one step moved furthest;
+#'     1): the posterior is far from Gaussian along the mean correction. The
+#'     warning names the parameter that the one step moved furthest, and when
+#'     the solve that followed stopped with \code{vb_step_max} above 0.1
+#'     posterior SDs, it says so;
 #'   \item any marginal with \code{nmad} above 0.1;
 #'   \item any marginal with \code{unscanned_mass} above 0.05;
 #'   \item any marginal with heavy tails;
@@ -443,10 +447,22 @@ warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
   }
   issues <- c(issues, problems)
 
-  # The check of the one step failed, and the VB equation was solved instead.
-  # The VB mean centres the Gaussian marginals, but not the skew-normal ones.
+  # The check of the one step failed, and the fit solved the VB equation
+  # instead. The solve stops at vb_tol, at vb_maxit or at a cap on its sweeps,
+  # and the engine does not flag where it stopped. So the bullet says that the
+  # equation was solved only when the step still to go is within the level at
+  # which the VB correction settles, and otherwise how far the solve stopped
+  # short. The VB mean centres the Gaussian marginals, but not the skew-normal
+  # ones.
   if (flags[["vb_check"]]) {
     env$vbc_worst <- int$engine$diagnostics$vb$check_worst
+    step_sigma <- dg$param$vb_step_sigma
+    step_max <- glob[["vb_step_max"]]
+    solved <- is.na(step_max) || step_max <= warn_levels$vb_step
+    if (!solved) {
+      env$vbc_stop <- dg$param$names[worst_first(step_sigma)[1L]]
+      env$vbc_step <- fmt_g3(step_max)
+    }
     issues <- c(
       issues,
       "x" = paste0(
@@ -455,7 +471,16 @@ warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
         if (length(env$vbc_worst) == 1L && !is.na(env$vbc_worst)) {
           ", most of all for {.code {vbc_worst}}"
         },
-        ". The VB equation was solved instead."
+        if (solved) {
+          ". The VB equation was solved instead."
+        } else {
+          paste0(
+            ". The solve of the VB equation that followed stopped short: one ",
+            "more step would move {.code {vbc_stop}} by {vbc_step}",
+            sd_unit(),
+            "."
+          )
+        }
       ),
       "i" = paste0(
         "Treat ",

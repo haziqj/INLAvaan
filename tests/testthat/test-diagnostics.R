@@ -378,8 +378,8 @@ test_that("warn_fit_diagnostics() reports a failed VB one-step check", {
   )
   ed$marginals$vb_shift_sigma <- rep(0.1, m)
   ed$marginals$kld <- rep(0.005, m)
-  # Where the solve stopped is recorded, not flagged
-  ed$marginals$vb_step_sigma <- c(0.5, rep(0.01, m - 1L))
+  # A solve that stopped within the settling level counts as solved
+  ed$marginals$vb_step_sigma <- c(0.05, rep(0.01, m - 1L))
   int$engine$diagnostics <- ed
   expect_equal(diagnostics_fit(int)$global[["vb_solve"]], 1)
   message_of <- function(int) {
@@ -401,6 +401,22 @@ test_that("warn_fit_diagnostics() reports a failed VB one-step check", {
   expect_no_match(msg, "posterior means", fixed = TRUE)
   int$marginal_method <- "gaussian"
   expect_match(message_of(int), "Treat the posterior means,", fixed = TRUE)
+  # A solve that stopped short is not said to have solved the equation, and
+  # the step still to go is in the bullet on the check, not in one of its own
+  int$engine$diagnostics$marginals$vb_step_sigma <- c(
+    0.01,
+    0.5,
+    rep(0.01, m - 2L)
+  )
+  msg <- message_of(int)
+  expect_match(msg, "flagged 1 potential issue:", fixed = TRUE)
+  expect_no_match(msg, "solved instead", fixed = TRUE)
+  expect_match(
+    msg,
+    paste0("stopped short: one more step would move `", worst, "` by 0.5"),
+    fixed = TRUE
+  )
+  expect_no_match(msg, "did not settle", fixed = TRUE)
 })
 
 test_that("a fit that fails the VB one-step check warns once, in INLAvaan's words", {
