@@ -37,9 +37,10 @@ every parameter is not checked.}
 
 \item{vb_budget}{The cap on the solve that follows a failed check of the
 default one-step correction. The solve and the two passes of the check
-together take at most \code{vb_budget} times the gradient evaluations of the
-search for the posterior mode and of the Hessian, in passes of the rule
-of 2m + 1 gradients each, for m parameters. Default 2. \code{1} is the cap of
+together take at most \code{vb_budget} times the evaluations of the
+log-posterior, of its gradient and of the Hessian that the search for the
+posterior mode and the Hessian made, in passes of the rule of 2m + 1
+gradients each, for m parameters. Default 2. \code{1} is the cap of
 earlier development versions, \code{Inf} lifts the cap, so that the solve
 stops only at \code{vb_tol} or after \code{vb_maxit} iterations, and \code{0} leaves a
 flagged fit at its mode. A single number of at least 0. A fit that passes
