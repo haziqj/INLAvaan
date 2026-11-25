@@ -50,7 +50,10 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
     "grad_gap_max",
     "vb_fallback",
     "vb_step_max",
-    "vb_gain_ratio",
+    "vb_lhat",
+    "vb_j0",
+    "vb_j1",
+    "vb_solve",
     "mean_gap_max",
     "ridge_bend_max",
     "n_heavy_tails",
@@ -69,7 +72,8 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
   int <- get_inlavaan_internal(fit)
   ed <- int$engine$diagnostics
   eng <- diagnostics_internal(ed$optim, ed$vb, ed$marginals, int$theta_star)
-  expect_identical(unclass(dg)[1:24], unclass(eng$global)[1:24])
+  n_eng <- length(eng$global)
+  expect_identical(unclass(dg)[seq_len(n_eng)], unclass(eng$global))
   # hess_cond is that of the covariance matrix, as before
   ev <- eigen(int$Omega, only.values = TRUE)$values
   expect_equal(dg[["hess_cond"]], max(ev) / min(ev))
@@ -306,7 +310,9 @@ test_that("warn_fit_diagnostics() flags large VB shifts", {
     iterations = 1L,
     fallback = FALSE,
     one_pass = TRUE,
-    gain_ratio = 0.9,
+    solve = FALSE,
+    check = c(lhat = 0.2, j0 = -0.1, j1 = 0.1),
+    check_worst = names(coef(fit))[1],
     kld_global = 1
   )
   ed$marginals$vb_shift_sigma <- rep(2, m)
@@ -317,15 +323,7 @@ test_that("warn_fit_diagnostics() flags large VB shifts", {
     class = "inlavaan_diagnostics_warning"
   )
   expect_match(conditionMessage(w), "VB correction shifted")
-  # A one-step correction that delivered little of its promised gain
-  int$engine$diagnostics$marginals$vb_shift_sigma <- rep(0.1, m)
-  int$engine$diagnostics$vb$gain_ratio <- 0.3
-  w <- expect_warning(
-    INLAvaan:::warn_fit_diagnostics(int),
-    class = "inlavaan_diagnostics_warning"
-  )
-  expect_match(conditionMessage(w), "One-step VB delivered")
-  expect_match(conditionMessage(w), "vb_correction = \"full\"", fixed = TRUE)
+  expect_no_match(conditionMessage(w), "failed its check")
 })
 
 test_that("the advice on an unsettled VB correction names no ended argument", {
@@ -337,7 +335,9 @@ test_that("the advice on an unsettled VB correction names no ended argument", {
     iterations = 1L,
     fallback = FALSE,
     one_pass = TRUE,
-    gain_ratio = 0.9,
+    solve = FALSE,
+    check = c(lhat = 0.2, j0 = -0.1, j1 = 0.1),
+    check_worst = names(coef(fit_sn))[1],
     kld_global = 0.01
   )
   ed$marginals$vb_shift_sigma <- rep(0.1, m)
