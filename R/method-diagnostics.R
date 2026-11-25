@@ -147,9 +147,10 @@
 #'     \code{NA} after the default one-step VB correction when its check
 #'     passed. When the check failed (\code{vb_solve}), it is the step still
 #'     to go where the solve stopped: at \code{vb_tol}, at \code{vb_maxit}
-#'     (see [inlavaan_control()]), or at a cap on its cost that is not a
-#'     setting. It is then not a check of its own, but the bullet on the
-#'     failed check says how far the solve stopped short when it is above 0.1.}
+#'     or at the cap on its cost that \code{vb_budget} sets (see
+#'     [inlavaan_control()]). It is then not a check of its own, but the
+#'     bullet on the failed check says how far the solve stopped short when it
+#'     is above 0.1.}
 #'   \item{\code{mean_gap}}{Gap between the mean of the skew-normal marginal
 #'     and the VB mean, in posterior-SD units. Both estimate the shift from the
 #'     mode to the posterior mean, so a large gap says that the posterior is
@@ -448,12 +449,12 @@ warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
   issues <- c(issues, problems)
 
   # The check of the one step failed, and the fit solved the VB equation
-  # instead. The solve stops at vb_tol, at vb_maxit or at a cap on its sweeps,
-  # and the engine does not flag where it stopped. So the bullet says that the
-  # equation was solved only when the step still to go is within the level at
-  # which the VB correction settles, and otherwise how far the solve stopped
-  # short. The VB mean centres the Gaussian marginals, but not the skew-normal
-  # ones.
+  # instead. The solve stops at vb_tol, at vb_maxit or at the cap on its sweeps
+  # that vb_budget sets, and the engine does not flag where it stopped. So the
+  # bullet says that the equation was solved only when the step still to go is
+  # within the level at which the VB correction settles, and otherwise how far
+  # the solve stopped short. The VB mean centres the Gaussian marginals, but
+  # not the skew-normal ones.
   if (flags[["vb_check"]]) {
     env$vbc_worst <- int$engine$diagnostics$vb$check_worst
     step_sigma <- dg$param$vb_step_sigma

@@ -165,9 +165,10 @@ posterior-SD units, as \code{mode_shift_sigma} is for the mode.
 \code{NA} after the default one-step VB correction when its check
 passed. When the check failed (\code{vb_solve}), it is the step still
 to go where the solve stopped: at \code{vb_tol}, at \code{vb_maxit}
-(see \code{\link[=inlavaan_control]{inlavaan_control()}}), or at a cap on its cost that is not a
-setting. It is then not a check of its own, but the bullet on the
-failed check says how far the solve stopped short when it is above 0.1.}
+or at the cap on its cost that \code{vb_budget} sets (see
+\code{\link[=inlavaan_control]{inlavaan_control()}}). It is then not a check of its own, but the
+bullet on the failed check says how far the solve stopped short when it
+is above 0.1.}
 \item{\code{mean_gap}}{Gap between the mean of the skew-normal marginal
 and the VB mean, in posterior-SD units. Both estimate the shift from the
 mode to the posterior mean, so a large gap says that the posterior is
