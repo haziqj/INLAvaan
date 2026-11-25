@@ -53,13 +53,13 @@ HS.model <- "
 data("HolzingerSwineford1939", package = "lavaan")
 
 fit_configural <- acfa(HS.model, HolzingerSwineford1939, group = "school",
-                       meanstructure = TRUE, verbose = FALSE)
+                       meanstructure = TRUE, silent = TRUE)
 fit_metric <- acfa(HS.model, HolzingerSwineford1939, group = "school",
                    group.equal = "loadings",
-                   meanstructure = TRUE, verbose = FALSE)
+                   meanstructure = TRUE, silent = TRUE)
 fit_scalar <- acfa(HS.model, HolzingerSwineford1939, group = "school",
                    group.equal = c("loadings", "intercepts"),
-                   meanstructure = TRUE, verbose = FALSE)
+                   meanstructure = TRUE, silent = TRUE)
 ```
 
 Cross-group equality constraints are handled exactly (not by penalty):
@@ -121,7 +121,7 @@ differently:
 #| label: compare-pooled
 #| message: false
 fit_pooled <- acfa(HS.model, HolzingerSwineford1939,
-                   meanstructure = TRUE, verbose = FALSE)
+                   meanstructure = TRUE, silent = TRUE)
 compare(fit_pooled, fit_configural, loo = TRUE)
 ```
 

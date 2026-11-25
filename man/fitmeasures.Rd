@@ -71,7 +71,7 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            verbose = FALSE)
+            silent = TRUE)
 
 # All available fit measures
 fitMeasures(fit)

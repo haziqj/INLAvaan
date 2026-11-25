@@ -43,7 +43,7 @@
 #' "
 #' utils::data("HolzingerSwineford1939", package = "lavaan")
 #' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-#'             test = "standard", verbose = FALSE)
+#'             test = "standard", silent = TRUE)
 #'
 #' deviance(fit)
 #' attr(deviance(fit), "DIC")

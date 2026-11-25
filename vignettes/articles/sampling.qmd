@@ -107,7 +107,7 @@ mod <- "
   textual =~ x4 + x5 + x6
   speed   =~ x7 + x8 + x9
 "
-fit <- acfa(mod, dat, verbose = FALSE)
+fit <- acfa(mod, dat, silent = TRUE)
 ```
 
 ### Parameter samples
@@ -143,13 +143,13 @@ names(all_samps)
 ## Comparing samples to the fitted marginals
 
 INLAvaan approximates each marginal posterior with a skew-normal density.
-We can overlay the `sampling()` histogram (drawn via the copula method) on top of the fitted density curve stored in `pdf_data` to verify that they agree.
+We can overlay the `sampling()` histogram (drawn via the copula method, which couples the fitted marginals by a Gaussian copula) on top of the fitted density curve stored in `pdf_data` to verify that they agree.
 
 ```{r}
 #| label: fig-copula-vs-pdf
 #| fig-cap: "Copula samples (histogram) versus the fitted skew-normal marginal (red curve) for all free parameters."
 # 1. Draw copula samples
-samp_cop <- sampling(fit, type = "lavaan", nsamp = 1000, samp_copula = TRUE)
+samp_cop <- sampling(fit, type = "lavaan", nsamp = 1000)
 
 # 2. Retrieve the fitted skew-normal densities
 int <- fit@external$inlavaan_internal
@@ -179,46 +179,6 @@ ggplot(hist_df, aes(x = value)) +
        title = "Copula samples vs. fitted skew-normal posterior") +
   theme_minimal(base_size = 11)
 ```
-
-
-## Copula vs. Gaussian sampling
-
-By default, `sampling()` uses the copula method, which respects the skew-normal marginals.
-Setting `samp_copula = FALSE` uses the multivariate Gaussian (Laplace) approximation instead.
-The difference is most visible for parameters with asymmetric posteriors, such as variance components.
-
-```{r}
-#| label: fig-copula-vs-gaussian
-#| fig-cap: "Comparison of marginal histograms from copula sampling (blue) and Gaussian sampling (orange) for all parameters."
-samp_gauss <- sampling(fit, type = "lavaan", nsamp = 5000, samp_copula = FALSE)
-
-cop_df <- data.frame(
-  param = rep(par_names, each = nrow(samp_cop)),
-  value = as.vector(samp_cop),
-  method = "Copula"
-)
-gauss_df <- data.frame(
-  param = rep(par_names, each = nrow(samp_gauss)),
-  value = as.vector(samp_gauss),
-  method = "Gaussian"
-)
-both_df <- rbind(cop_df, gauss_df)
-both_df$param <- factor(both_df$param, levels = par_names)
-both_df$method <- factor(both_df$method, levels = c("Copula", "Gaussian"))
-
-ggplot(both_df, aes(x = value, fill = method)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 50,
-                 alpha = 0.45, position = "identity") +
-  facet_wrap(~param, scales = "free") +
-  scale_fill_manual(values = c(Copula = "#00A6AA", Gaussian = "#F18F00")) +
-  labs(x = "Parameter value", y = "Density", fill = "Method",
-       title = "Copula vs. Gaussian posterior sampling") +
-  theme_minimal(base_size = 11) +
-  theme(legend.position = "top")
-```
-
-For symmetric posteriors (e.g., factor loadings), the two methods are nearly identical.
-For positively-skewed posteriors (e.g., residual variances), the copula method captures the asymmetry while the Gaussian approximation is symmetric by construction.
 
 
 ## Prior sampling

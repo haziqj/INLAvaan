@@ -371,7 +371,7 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
 #' "
 #' utils::data("HolzingerSwineford1939", package = "lavaan")
 #' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-#'             verbose = FALSE)
+#'             silent = TRUE)
 #'
 #' # Absolute fit indices
 #' bf <- bfit_indices(fit)
@@ -794,7 +794,7 @@ print.fitmeasures.inlavaan_internal <- function(x, ...) {
 #' "
 #' utils::data("HolzingerSwineford1939", package = "lavaan")
 #' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-#'             verbose = FALSE)
+#'             silent = TRUE)
 #'
 #' # All available fit measures
 #' fitMeasures(fit)

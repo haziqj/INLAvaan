@@ -113,13 +113,13 @@ model <- "
 dat <- lavaan::HolzingerSwineford1939
 
 fit_configural <- acfa(model, dat, group = "school",
-                       meanstructure = FALSE, verbose = FALSE)
+                       meanstructure = FALSE, silent = TRUE)
 fit_metric <- acfa(model, dat, group = "school",
                    meanstructure = FALSE, group.equal = "loadings",
-                   verbose = FALSE)
+                   silent = TRUE)
 fit_scalar <- acfa(model, dat, group = "school",
                    group.equal = c("loadings", "intercepts"),
-                   verbose = FALSE)
+                   silent = TRUE)
 ```
 
 ## When are these models comparable?
@@ -156,8 +156,8 @@ the *whole* measurement-invariance ladder; see the
 ```{r}
 #| label: loo-single
 #| message: false
-fit_f <- acfa(model, dat, meanstructure = FALSE, verbose = FALSE)
-fit_t <- acfa(model, dat, meanstructure = TRUE, verbose = FALSE)
+fit_f <- acfa(model, dat, meanstructure = FALSE, silent = TRUE)
+fit_t <- acfa(model, dat, meanstructure = TRUE, silent = TRUE)
 compare(fit_f, fit_t, loo = TRUE)
 ```
 

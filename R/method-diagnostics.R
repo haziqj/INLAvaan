@@ -200,7 +200,7 @@
 #' "
 #' utils::data("HolzingerSwineford1939", package = "lavaan")
 #' fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-#'             test = "none", verbose = FALSE)
+#'             test = "none", silent = TRUE)
 #'
 #' # Global convergence summary
 #' diagnostics(fit)

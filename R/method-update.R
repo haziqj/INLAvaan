@@ -74,7 +74,7 @@
 #' compare(fit, fit3)
 #'
 #' # Swap approximation settings only
-#' fit4 <- update(fit, marginal_method = "sampling", nsamp = 4000)
+#' fit4 <- update(fit, marginal_method = "gaussian", nsamp = 4000)
 #' }
 setMethod(
   "update",

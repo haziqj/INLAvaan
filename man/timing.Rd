@@ -17,16 +17,20 @@ timing(object, ...)
 \item{what}{Character vector of timing segment names to return, or
 \code{"all"} to return every segment. Defaults to \code{"total"}.
 Available segments (depending on model options): \code{"init"} (which
-includes the lavaan model setup), \code{"optim"}, \code{"vb"},
-\code{"loglik"}, \code{"marginals"}, \code{"norta"}, \code{"sampling"},
+includes the lavaan model setup), \code{"optim"} (the search for the
+posterior mode and the Laplace approximation), \code{"vb"} (the VB
+correction), \code{"loglik"}, \code{"marginals"} (the marginals and the
+checks of the fit), \code{"norta"}, \code{"sampling"},
 \code{"covariances"}, \code{"definedpars"}, \code{"deltapars"},
 \code{"test"}, \code{"loo"}, \code{"waic"}, \code{"total"}. The
-segments are disjoint and \code{"total"} is their sum. \code{"loo"} and
-\code{"waic"} are recorded only when the fit computed them, i.e.
-\code{test} (see \code{\link[=inlavaan]{inlavaan()}}) included \code{"loo"}, \code{"waic"} or
-\code{"full"} and the model is supported (see \code{\link[=loo]{loo()}}); requesting
-either otherwise gives an error explaining why, distinct from
-requesting a misspelled segment name.}
+segments are disjoint and \code{"total"} is their sum. \code{"norta"}
+is about 0: the draws no longer adjust the correlations of their copula
+(NORTA), and the segment is kept so that code that asks for it still
+works. \code{"loo"} and \code{"waic"} are recorded only when the fit
+computed them, i.e. \code{test} (see \code{\link[=inlavaan]{inlavaan()}}) included
+\code{"loo"}, \code{"waic"} or \code{"full"} and the model is
+supported (see \code{\link[=loo]{loo()}}); requesting either otherwise gives an error
+explaining why, distinct from requesting a misspelled segment name.}
 }
 \value{
 A named numeric vector (class \code{c("timing.INLAvaan",
@@ -46,7 +50,7 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            test = "none", verbose = FALSE)
+            test = "none", silent = TRUE)
 
 # Total elapsed time
 timing(fit)

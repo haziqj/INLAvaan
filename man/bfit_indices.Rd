@@ -78,7 +78,7 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            verbose = FALSE)
+            silent = TRUE)
 
 # Absolute fit indices
 bf <- bfit_indices(fit)

@@ -158,8 +158,8 @@ fit <- acfa(
   data = HolzingerSwineford1939,
   test = "none",
   nsamp = 10,
-  vb_correction = FALSE,
-  verbose = FALSE
+  vb_correction = "none",
+  silent = TRUE
 )
 standardisedsolution(fit, nsamp = 10, se = FALSE, ci = FALSE)
 }

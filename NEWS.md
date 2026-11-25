@@ -249,6 +249,15 @@
   gives an error. `inlavaan_control(debug = TRUE)` no longer sets
   `verbose = TRUE`, and no longer prints a check of the gradient at the mode.
 
+* The vignettes, the articles and the examples use the arguments of 0.4.0.
+  They give `silent = TRUE` where they gave `verbose = FALSE`, and no
+  deprecated argument or value. The introduction now describes the VB
+  correction, `marginal_scan` and `inlavaan_control()`, and no longer the
+  optimisers and the marginal methods that ended. The sampling article no
+  longer compares copula and Gaussian draws, since `samp_copula` has no
+  effect. The help of `timing()` says what the segments `optim`, `vb` and
+  `marginals` hold, and that `norta` is about 0.
+
 * Thomas Luu is now listed as a copyright holder, for the skew-normal quantile
   approximation in `qsnorm_fast()` (Apache License 2.0).
 

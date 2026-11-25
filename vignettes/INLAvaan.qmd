@@ -118,9 +118,11 @@ See the [mean structures article](https://inlavaan.haziqj.ml/articles/meanstruct
 
 `{INLAvaan}` computes an approximation to the posterior density by way of a Laplace approximation [@tierney1989fully; @jamil2026approximate].
 The joint mode and the Hessian needs to be computed, which gives a Gaussian distribution for the joint posterior of the parameters.
-The default method for optimisation is `stats::nlminb()`, but other optimisers can be used by specifying `optim_method = "ucminf"` for the `{ucminf}` package or `optim_method = "optim"` to call the `stats::optim()` function with method `"BFGS"`.
+The mode is found with `stats::nlminb()`.
+A variational Bayes (VB) correction then moves the mean of this Gaussian: by default it takes one step from the mode (`vb_correction = "onestep"`), `vb_correction = "full"` iterates it, and `vb_correction = "none"` leaves it out.
+Settings of the search for the mode, the VB correction and the scans below are set with `control = inlavaan_control()`.
 
-From this, marginal posterior distributions for each parameter can be obtained by one of several ways, including 1) Skew normal fitting [`marginal_method = "skewnorm"`, the default method, see @chiuchiolo2023joint]; 2) Two-piece asymmetric Gaussian fitting [`marginal_method = "asymgaus"`, see @martins2013bayesian]; 3) Direct marginalisation of the joint Gaussian posterior (`marginal_method = "marggaus"`); and 4) Sampling from the joint Gaussian posterior (`marginal_method = "sampling"`).
+From this, the marginal posterior distribution of each parameter is obtained in one of two ways: 1) Skew normal fitting [`marginal_method = "skewnorm"`, the default method, see @chiuchiolo2023joint], which scans the log-posterior of each parameter from the mode and fits a skew normal density to the scan (`marginal_scan` chooses how the scan is taken: `"linear"`, the default, `"exact"`, `"laplace"` or `"plain"`); and 2) the marginals of the joint Gaussian posterior (`marginal_method = "gaussian"`).
 
 Once the marginal posterior distributions have been obtained, we can further use these to compute any derived quantities of interest via copula sampling.
 The posterior predictive p-values [@gelman1996posterior] and Deviance Information Criterion [DIC, @spiegelhalter2002bayesian] are computed this way.
@@ -284,7 +286,7 @@ If, instead we wished to set global priors, say a gamma distribution on **varian
 #| label: priors-global
 DP <- priors_for(theta = "gamma(1,1)", psi = "gamma(1,1)")
 DP
-## fit <- asem(mod, dat, dpriors = DP)  # not run
+## fit <- asem(mod, dat, dp = DP)  # not run
 ```
 
 To set individual priors for specific parameters, we can do so in the model syntax itself.

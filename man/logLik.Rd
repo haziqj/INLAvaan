@@ -70,7 +70,7 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            test = "standard", verbose = FALSE)
+            test = "standard", silent = TRUE)
 
 # Marginal log-likelihood (log evidence)
 logLik(fit)
