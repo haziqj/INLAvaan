@@ -36,7 +36,7 @@ fit_inl <- get_inlavaan_internal(asem(
   add_priors = FALSE,
   vb_correction = FALSE,
   test = "none",
-  verbose = FALSE
+  silent = TRUE
 ))
 pt <- fit_inl$partable
 

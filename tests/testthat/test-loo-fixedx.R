@@ -30,7 +30,7 @@ fit_c <- asem(
   dat_x,
   fixed.x = TRUE,
   meanstructure = TRUE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
@@ -46,7 +46,7 @@ fit_j <- asem(
   dat_x,
   fixed.x = FALSE,
   meanstructure = TRUE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
@@ -173,7 +173,7 @@ fit_2c <- asem(
   cluster = "cluster",
   fixed.x = TRUE,
   meanstructure = TRUE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
@@ -235,7 +235,7 @@ test_that("conditional LOCO with within-level covariates matches reference value
     cluster = "cluster",
     fixed.x = TRUE,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
@@ -318,7 +318,7 @@ test_that("conditional LOCO with within-level covariates matches reference value
     cluster = "cluster",
     fixed.x = TRUE,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
@@ -355,7 +355,7 @@ test_that("conditional LOCO mixes both-level and within-only covariates", {
     d30,
     cluster = "cluster",
     fixed.x = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
@@ -431,7 +431,7 @@ test_that("compare(loo = TRUE) enforces the flavour rules", {
     dat_x,
     fixed.x = TRUE,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
@@ -463,7 +463,7 @@ test_that("Conditional flavour works without a mean structure", {
   set.seed(123)
   dat_x <- lavaan::HolzingerSwineford1939[, c("x1", "x2", "x3", "grade")]
   dat_x <- dat_x[sort(sample(nrow(dat_x), 90)), ]
-  fit <- asem(mod_x, dat_x, verbose = FALSE, test = "none", nsamp = 3)
+  fit <- asem(mod_x, dat_x, silent = TRUE, test = "none", nsamp = 3)
   expect_false(fit@Model@meanstructure)
   res <- loo(fit)
   int <- get_inlavaan_internal(fit)

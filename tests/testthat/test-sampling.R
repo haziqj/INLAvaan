@@ -8,7 +8,7 @@ mod <- "
 fit <- acfa(
   mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 5,
   vb_correction = FALSE,
   test = "none",
@@ -130,7 +130,7 @@ test_that("sampling() works with a single latent variable (nlv = 1)", {
   fit1 <- acfa(
     "visual =~ x1 + x2 + x3",
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 5,
     vb_correction = FALSE,
     test = "none",
@@ -162,7 +162,7 @@ test_that("Observed posterior draws are centred without a mean structure", {
     mod_hs,
     hs,
     meanstructure = FALSE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 200,
     vb_correction = FALSE,
     test = "none"
@@ -179,7 +179,7 @@ test_that("conditional.x fits draw the covariates jointly", {
     "visual =~ x1 + x2 + x3; visual ~ ageyr + grade",
     hs,
     conditional.x = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 50,
     test = "none"
   ))
@@ -221,7 +221,7 @@ test_that("Prior observed draws work with an observed outcome", {
   fit_y <- asem(
     "visual =~ x1 + x2 + x3\n x4 ~ visual",
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 5,
     vb_correction = FALSE,
     test = "none",
@@ -258,7 +258,7 @@ test_that("Composite draws are the weighted sums of their indicators", {
     "C <~ x1 + x2 + x3\n x4 ~ C\n x5 ~ C\n x4 ~~ x5",
     dat,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 5,
     vb_correction = FALSE,
     test = "none",
@@ -298,7 +298,7 @@ fit_ml <- asem(
   mod_ml,
   dat_ml,
   cluster = "cluster",
-  verbose = FALSE,
+  silent = TRUE,
   test = "none",
   nsamp = 50,
   vb_correction = FALSE,
@@ -445,7 +445,7 @@ test_that("sampling() dispatches on the internal list as on the fit", {
 })
 
 # A skew-normal fit, for the map from normal scores to draws
-fit_sn <- acfa(mod, dat, verbose = FALSE, nsamp = 5, test = "none")
+fit_sn <- acfa(mod, dat, silent = TRUE, nsamp = 5, test = "none")
 
 test_that("Skew-normal copula draws map the normal scores exactly", {
   int <- get_inlavaan_internal(fit_sn)

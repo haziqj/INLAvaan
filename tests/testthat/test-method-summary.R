@@ -4,7 +4,7 @@ mod <- "
   a == b
 "
 dat <- lavaan::HolzingerSwineford1939
-fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
 
 test_that("summary(standardized = TRUE) works with equality constraints", {
   expect_no_error(

@@ -267,7 +267,7 @@ test_that("A within-only outcome with a shifted covariate is refused", {
     ",
     d_shift,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     marginal_correction = "none",
     vb_correction = FALSE,
@@ -662,7 +662,7 @@ test_that("The outputs a random-slope fit cannot give are refused", {
     ",
     d_rs,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = 3
   )
@@ -730,7 +730,7 @@ test_that("Constraints, FIML, two slopes and named levels work together", {
     d_mix,
     cluster = "cluster",
     missing = "ml",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     marginal_correction = "none",
     vb_correction = FALSE,

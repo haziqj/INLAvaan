@@ -264,7 +264,7 @@ fit_independence_baseline <- function(object, nsamp = NULL) {
     vb_correction = FALSE,
     test = "dic",
     nsamp = nsamp %||% int$nsamp %||% 1000L,
-    verbose = FALSE
+    silent = TRUE
   )
 }
 

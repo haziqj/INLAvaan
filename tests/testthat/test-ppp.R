@@ -40,7 +40,7 @@ test_that("PPP agrees with and without conditional.x", {
         conditional.x = cx,
         nsamp = 500,
         test = "ppp",
-        verbose = FALSE
+        silent = TRUE
       ))
       get_inlavaan_internal(fit, "ppp")
     },
@@ -63,7 +63,7 @@ test_that("Fixed covariates add no misfit to the PPP", {
     dat_sat,
     nsamp = 500,
     test = "ppp",
-    verbose = FALSE
+    silent = TRUE
   )
   ppp <- get_inlavaan_internal(fit, "ppp")
   expect_gt(ppp, 0.2)
@@ -128,7 +128,7 @@ test_that("Fixed composite indicator covariances add no misfit to the PPP", {
     c(mod_comp, mod_phantom),
     function(m) {
       set.seed(1)
-      fit <- asem(m, dat, nsamp = 500, test = "ppp", verbose = FALSE)
+      fit <- asem(m, dat, nsamp = 500, test = "ppp", silent = TRUE)
       get_inlavaan_internal(fit, "ppp")
     },
     numeric(1)
@@ -173,7 +173,7 @@ mod_two <- "
 test_that("PPP replicates keep the correlation of two composites", {
   skip_on_cran()
   set.seed(1)
-  fit <- asem(mod_two, dat_two, nsamp = 500, test = "ppp", verbose = FALSE)
+  fit <- asem(mod_two, dat_two, nsamp = 500, test = "ppp", silent = TRUE)
   ppp <- get_inlavaan_internal(fit, "ppp")
   expect_lt(ppp, 0.75)
   expect_gt(ppp, 0.25)

@@ -5,7 +5,7 @@ mod <- "
 "
 
 test_that("logLik(type = 'marginal') returns the marginal log-likelihood", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   ll <- logLik(fit)
   expect_s3_class(ll, "inlavaan_logLik")
   expect_equal(as.numeric(ll), get_inlavaan_internal(fit)$mloglik)
@@ -13,7 +13,7 @@ test_that("logLik(type = 'marginal') returns the marginal log-likelihood", {
 })
 
 test_that("logLik(type = 'plugin') is AIC/BIC-compatible", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "standard")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "standard")
   ll <- logLik(fit, type = "plugin")
   expect_s3_class(ll, "logLik")
   expect_equal(attr(ll, "df"), length(coef(fit)))
@@ -23,7 +23,7 @@ test_that("logLik(type = 'plugin') is AIC/BIC-compatible", {
 })
 
 test_that("logLik(type = 'plugin') errors without DIC components", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   expect_error(logLik(fit, type = "plugin"), "DIC")
 })
 
@@ -33,13 +33,13 @@ test_that("plain lavaan fits are unaffected by the INLAvaan logLik() method", {
 })
 
 test_that("AIC()/BIC() on an INLAvaan fit redirect instead of computing", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "standard")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "standard")
   expect_error(AIC(fit), "plugin")
   expect_error(BIC(fit), "plugin")
 })
 
 test_that("AIC()/BIC() still work via the logLik(type = 'plugin') escape hatch", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "standard")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "standard")
   ll <- logLik(fit, type = "plugin")
   expect_true(is.finite(AIC(ll)))
   expect_true(is.finite(BIC(ll)))

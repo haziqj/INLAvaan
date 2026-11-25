@@ -10,7 +10,7 @@ test_that("saturated-mean intercepts get exactly zero VB shift", {
       model.type = "cfa",
       meanstructure = TRUE,
       marginal_method = "marggaus",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 3,
       test = "none",
       debug = TRUE
@@ -39,7 +39,7 @@ test_that("diagnostics() reports the VB shift's own quadrature error", {
       model.type = "cfa",
       meanstructure = TRUE,
       marginal_method = "marggaus",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 3,
       test = "none"
     )
@@ -70,7 +70,7 @@ test_that("no VB correction means no quadrature error to report", {
       model.type = "cfa",
       vb_correction = FALSE,
       marginal_method = "marggaus",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 3,
       test = "none"
     )
@@ -92,7 +92,7 @@ test_that("n_qmc sets the VB node count and is validated", {
         model.type = "cfa",
         n_qmc = n,
         marginal_method = "marggaus",
-        verbose = FALSE,
+        silent = TRUE,
         nsamp = 3,
         test = "none",
         debug = TRUE
@@ -146,7 +146,7 @@ test_that("vb_method = 'gauss_hermite' is deterministic and agrees with Sobol", 
         data = lavaan::HolzingerSwineford1939,
         model.type = "cfa",
         marginal_method = "marggaus",
-        verbose = FALSE,
+        silent = TRUE,
         nsamp = 3,
         test = "none",
         debug = TRUE,
@@ -183,7 +183,7 @@ test_that("the Gauss-Hermite rule keeps the fast path and reports no error", {
       meanstructure = TRUE,
       vb_method = "gauss_hermite",
       marginal_method = "marggaus",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 3,
       test = "none"
     )
@@ -215,7 +215,7 @@ test_that("the VB shift adds its location term to the marginal log-likelihood", 
         meanstructure = TRUE,
         vb_correction = vb_correction,
         marginal_method = "marggaus",
-        verbose = FALSE,
+        silent = TRUE,
         nsamp = 3,
         test = "none"
       )

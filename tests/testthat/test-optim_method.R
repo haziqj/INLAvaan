@@ -11,7 +11,7 @@ test_that("Method: nlminb with numerical grad", {
       mod,
       dat,
       numerical_grad = TRUE,
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -29,7 +29,7 @@ test_that("Method: ucminf", {
       mod,
       dat,
       optim_method = "ucminf",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -46,7 +46,7 @@ test_that("Method: optim", {
       mod,
       dat,
       optim_method = "optim",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })

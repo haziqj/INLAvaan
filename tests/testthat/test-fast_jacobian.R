@@ -145,7 +145,7 @@ test_that("fast_jacobian Hessian matches numDeriv on the PoliticalDemocracy SEM"
   # Fit with debug = TRUE to get internal objects, but we need the gradient
 
   # closure. Instead, build a lightweight version using INLAvaan internals.
-  fit <- asem(mod, dat, test = "none", verbose = FALSE, nsamp = 3)
+  fit <- asem(mod, dat, test = "none", silent = TRUE, nsamp = 3)
 
   # Extract the Sigma_theta (covariance) from the fit
   int <- INLAvaan:::get_inlavaan_internal(fit)
@@ -227,12 +227,12 @@ test_that("fast_jacobian Hessian matches numDeriv on the PoliticalDemocracy SEM"
 
 test_that("hessian_method = 'forward' gives the central posterior", {
   skip_on_cran()
-  fit_c <- asem(mod, dat, test = "none", verbose = FALSE, nsamp = 3)
+  fit_c <- asem(mod, dat, test = "none", silent = TRUE, nsamp = 3)
   fit_f <- asem(
     mod,
     dat,
     test = "none",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     hessian_method = "forward"
   )
@@ -245,7 +245,7 @@ test_that("hessian_method = 'forward' gives the central posterior", {
   )
   expect_equal(int_f$theta_star, int_c$theta_star, tolerance = 1e-5)
   expect_error(
-    asem(mod, dat, test = "none", verbose = FALSE, hessian_method = "backward")
+    asem(mod, dat, test = "none", silent = TRUE, hessian_method = "backward")
   )
 })
 

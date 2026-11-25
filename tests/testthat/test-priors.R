@@ -12,7 +12,7 @@ test_that("Setting dp argument", {
     mod,
     dat,
     dp = DP,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP
   )
   pt <- lavaan::partable(fit)
@@ -35,7 +35,7 @@ test_that("Straight from textual model", {
     fit <- asem(
       mod,
       dat,
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -293,11 +293,11 @@ test_that("A prior string that does not parse stops with an error naming it", {
     x1 ~~ prior('normal(0)')*x1
   "
   expect_error(
-    acfa(mod_bad, dat, verbose = FALSE, nsamp = NSAMP),
+    acfa(mod_bad, dat, silent = TRUE, nsamp = NSAMP),
     class = "inlavaan_prior_parse"
   )
   err <- tryCatch(
-    acfa(mod_bad, dat, verbose = FALSE, nsamp = NSAMP),
+    acfa(mod_bad, dat, silent = TRUE, nsamp = NSAMP),
     error = function(e) conditionMessage(e)
   )
   expect_match(err, "visual~~visual", fixed = TRUE)
@@ -322,7 +322,7 @@ test_that("[var] puts the prior on the variance, as no qualifier does", {
   fit_with <- function(prior) {
     mod_p <- paste0(mod, "\n visual ~~ prior('", prior, "')*visual")
     set.seed(1)
-    asem(mod_p, dat, verbose = FALSE, nsamp = NSAMP, test = "none")
+    asem(mod_p, dat, silent = TRUE, nsamp = NSAMP, test = "none")
   }
   suppressMessages(fit_plain <- fit_with("gamma(2,1)"))
   fit_var <- fit_with("gamma(2,1)[var]")
@@ -361,11 +361,20 @@ test_that("An unqualified gamma prior on a variance is flagged once", {
     mod_p <- paste0(mod, "\n visual ~~ prior('", prior, "')*visual")
     asem(mod_p, dat, verbose = FALSE, nsamp = NSAMP, test = "none")
   }
-  expect_no_message(fit_with("gamma(2,1)[var]"))
-  expect_no_message(fit_with("gamma(2,1)[sd]"))
+  expect_no_message(
+    fit_with("gamma(2,1)[var]"),
+    class = "inlavaan_gamma_variance_scale"
+  )
+  expect_no_message(
+    fit_with("gamma(2,1)[sd]"),
+    class = "inlavaan_gamma_variance_scale"
+  )
   expect_message(
     fit_with("gamma(2,1)"),
     class = "inlavaan_gamma_variance_scale"
   )
-  expect_no_message(fit_with("gamma(2,1)"))
+  expect_no_message(
+    fit_with("gamma(2,1)"),
+    class = "inlavaan_gamma_variance_scale"
+  )
 })

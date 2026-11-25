@@ -5,7 +5,7 @@ mod <- "
 "
 
 test_that("residuals() returns observed-minus-fitted moments for INLAvaan objects", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   rs <- residuals(fit)
   expect_type(rs, "list")
   expect_equal(rs$type, "raw")
@@ -19,7 +19,7 @@ test_that("residuals() matches observed minus fitted()", {
     mod,
     dat,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -34,7 +34,7 @@ test_that("residuals() matches observed minus fitted()", {
 })
 
 test_that("residuals() supports the lavaan 'type' options", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   # lavaan canonicalises the reported $type; "cor" -> "cor.bollen"
   expected <- c(
     raw = "raw",
@@ -51,7 +51,7 @@ test_that("residuals() supports the lavaan 'type' options", {
 })
 
 test_that("residuals(type = 'casewise') returns observed-minus-fitted per case", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   cw <- residuals(fit, type = "casewise")
   expect_true(is.matrix(cw))
   expect_equal(nrow(cw), nrow(dat))
@@ -59,6 +59,6 @@ test_that("residuals(type = 'casewise') returns observed-minus-fitted per case",
 })
 
 test_that("resid() matches residuals()", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   expect_equal(resid(fit), residuals(fit))
 })

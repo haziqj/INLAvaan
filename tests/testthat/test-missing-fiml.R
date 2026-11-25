@@ -11,7 +11,7 @@ mod_hs <- "
   f1 =~ x1 + x2 + x3
   f2 =~ x4 + x5 + x6
 "
-fit_fiml <- acfa(mod_hs, hs, missing = "ml", verbose = FALSE, nsamp = 100)
+fit_fiml <- acfa(mod_hs, hs, missing = "ml", silent = TRUE, nsamp = 100)
 ml_fiml <- lavaan::cfa(mod_hs, hs, missing = "ml")
 
 test_that("the saturated-means fast path is off under FIML", {
@@ -54,7 +54,7 @@ test_that("PPP under FIML tracks the complete-data PPP for the same data", {
   fit_c <- acfa(
     mod,
     Y,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 300,
     marginal_method = "marggaus",
     vb_correction = FALSE
@@ -63,7 +63,7 @@ test_that("PPP under FIML tracks the complete-data PPP for the same data", {
     mod,
     Ym,
     missing = "ml",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 300,
     marginal_method = "marggaus",
     vb_correction = FALSE

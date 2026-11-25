@@ -5,10 +5,10 @@ mod <- "
 "
 
 test_that("update() records the call and returns an INLAvaan fit", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   expect_false(is.null(get_inlavaan_internal(fit, "call")))
 
-  fit2 <- update(fit, verbose = FALSE)
+  fit2 <- update(fit, silent = TRUE)
   expect_s4_class(fit2, "INLAvaan")
   # A no-op update reproduces the (deterministic) posterior mode
   expect_equal(
@@ -19,7 +19,7 @@ test_that("update() records the call and returns an INLAvaan fit", {
 })
 
 test_that("update() overrides arguments and preserves expressions", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
 
   cl <- update(fit, dp = priors_for(lambda = "normal(0,1)"), evaluate = FALSE)
   expect_true(is.call(cl))
@@ -31,11 +31,11 @@ test_that("update() overrides arguments and preserves expressions", {
 
 test_that("update() applies a changed prior", {
   skip_on_cran()
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   fit_tight <- update(
     fit,
     dp = priors_for(lambda = "normal(0,0.3)"),
-    verbose = FALSE
+    silent = TRUE
   )
   # A tight loading prior shrinks loadings towards zero
   expect_lt(coef(fit_tight)["visual=~x2"], coef(fit)["visual=~x2"])
@@ -43,23 +43,23 @@ test_that("update() applies a changed prior", {
 
 test_that("update(add=) extends the model structure", {
   skip_on_cran()
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   # nsamp = 3 can trip the marginal-fit diagnostic; irrelevant to structure here
-  fit_add <- suppressWarnings(update(fit, add = "x1 ~~ x2", verbose = FALSE))
+  fit_add <- suppressWarnings(update(fit, add = "x1 ~~ x2", silent = TRUE))
   expect_s4_class(fit_add, "INLAvaan")
   expect_equal(length(coef(fit_add)), length(coef(fit)) + 1L)
 })
 
 test_that("warm start reaches the same posterior mode as a cold fit", {
   skip_on_cran()
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   dp2 <- priors_for(lambda = "normal(0,0.3)")
-  fit_warm <- update(fit, dp = dp2, verbose = FALSE)
+  fit_warm <- update(fit, dp = dp2, silent = TRUE)
   fit_cold <- acfa(
     mod,
     dat,
     dp = dp2,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -73,14 +73,14 @@ test_that("warm start reaches the same posterior mode as a cold fit", {
 })
 
 test_that("update() errors on a call-less fit", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   fit@external$inlavaan_internal$call <- NULL
   expect_error(update(fit), "did not record its call")
 })
 
 test_that("start of wrong length is rejected", {
   expect_error(
-    acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none", start = 1:3),
+    acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none", start = 1:3),
     "free parameter"
   )
 })
@@ -91,11 +91,11 @@ test_that("update() re-parses a recorded test = c('standard', 'loo') call", {
     mod,
     dat,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = c("standard", "loo")
   ))
-  fit2 <- suppressWarnings(update(fit, nsamp = 5, verbose = FALSE))
+  fit2 <- suppressWarnings(update(fit, nsamp = 5, silent = TRUE))
   computed <- get_inlavaan_internal(fit2, "test")$computed
   expect_true(all(c("loo", "waic") %in% computed))
 })

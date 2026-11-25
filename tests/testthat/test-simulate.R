@@ -8,7 +8,7 @@ mod <- "
 fit <- acfa(
   mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 5,
   vb_correction = FALSE,
   test = "none",
@@ -86,7 +86,7 @@ fit_ms <- acfa(
   mod,
   dat,
   meanstructure = FALSE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 20,
   vb_correction = FALSE,
   test = "none",
@@ -96,7 +96,7 @@ fit_true <- acfa(
   mod,
   dat,
   meanstructure = TRUE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 20,
   vb_correction = FALSE,
   test = "none",
@@ -149,7 +149,7 @@ test_that("simulate() works for multigroup models", {
     lavaan::HolzingerSwineford1939,
     group = "school",
     group.equal = "loadings",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -167,7 +167,7 @@ test_that("simulate() works for conditional.x fits", {
     "visual =~ x1 + x2 + x3; visual ~ ageyr + grade",
     na.omit(lavaan::HolzingerSwineford1939),
     conditional.x = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 20,
     test = "none"
   ))
@@ -192,7 +192,7 @@ test_that("simulate() keeps the cluster design of a two-level fit", {
     ",
     d,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = 3
   )

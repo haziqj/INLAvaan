@@ -23,8 +23,8 @@ mod_speed <- "
 # Shared by every test below that just needs *some* comparable pair of
 # no-mean-structure, test = "none" fits (historically each re-fit these
 # identically)
-fit1 <- acfa(mod_null, dat, verbose = FALSE, nsamp = 3, test = "none")
-fit2 <- acfa(mod_full, dat, verbose = FALSE, nsamp = 3, test = "none")
+fit1 <- acfa(mod_null, dat, silent = TRUE, nsamp = 3, test = "none")
+fit2 <- acfa(mod_full, dat, silent = TRUE, nsamp = 3, test = "none")
 
 # Same, but with a mean structure (needed for loo = TRUE comparisons); shared
 # across every loo-comparison test that doesn't need its own bespoke fit
@@ -34,7 +34,7 @@ fit1_ms <- acfa(
   meanstructure = TRUE,
   marginal_method = "marggaus",
   vb_correction = FALSE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none"
 )
@@ -44,7 +44,7 @@ fit2_ms <- acfa(
   meanstructure = TRUE,
   marginal_method = "marggaus",
   vb_correction = FALSE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none"
 )
@@ -91,8 +91,8 @@ test_that("compare() includes DIC/pD when the fit computed the DIC", {
   skip_on_cran()
   # the default test = "standard" computes the DIC but no fit-time LOO/WAIC,
   # so nothing here warns
-  fit1_std <- acfa(mod_null, dat, verbose = FALSE, nsamp = 3)
-  fit2_std <- acfa(mod_full, dat, verbose = FALSE, nsamp = 3)
+  fit1_std <- acfa(mod_null, dat, silent = TRUE, nsamp = 3)
+  fit2_std <- acfa(mod_full, dat, silent = TRUE, nsamp = 3)
   cmp <- compare(fit1_std, fit2_std)
   expect_true("DIC" %in% names(cmp))
   expect_true("pD" %in% names(cmp))
@@ -112,7 +112,7 @@ test_that("compare() warns when mean-structure treatments differ", {
     mod_null,
     dat,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -120,7 +120,7 @@ test_that("compare() warns when mean-structure treatments differ", {
     mod_null,
     dat,
     meanstructure = FALSE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -140,7 +140,7 @@ test_that("compare() warns when fits differ in the VB correction", {
     dat,
     vb_correction = FALSE,
     marginal_method = "marggaus",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -155,7 +155,7 @@ test_that("compare() accepts more than two models via ...", {
   fit_one <- acfa(
     "visual =~ x1 + a*x2 + a*x3\n textual =~ x4 + b*x5 + b*x6",
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -165,7 +165,7 @@ test_that("compare() accepts more than two models via ...", {
 })
 
 test_that("compare() warns when fits score different variables", {
-  fit_speed <- acfa(mod_speed, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit_speed <- acfa(mod_speed, dat, silent = TRUE, nsamp = 3, test = "none")
   expect_warning(
     compare(fit1, fit_speed),
     class = "inlavaan_compare_resp"
@@ -259,7 +259,7 @@ test_that("compare(loo = TRUE) aborts for models on different data", {
       dat[1:20, ],
       meanstructure = TRUE,
       vb_correction = FALSE, # as fit1_ms
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 3,
       test = "none"
     ),
@@ -275,7 +275,7 @@ test_that("compare(loo = TRUE) aborts when the variable sets differ", {
     dat,
     meanstructure = TRUE,
     vb_correction = FALSE, # as fit1_ms
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -306,7 +306,7 @@ test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
       dat,
       fixed.x = TRUE,
       meanstructure = TRUE,
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 3,
       test = "none"
     )
@@ -317,7 +317,7 @@ test_that("compare(loo = TRUE) aborts when conditional outcome sets differ", {
       dat,
       fixed.x = TRUE,
       meanstructure = TRUE,
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 3,
       test = "none"
     )
@@ -331,7 +331,7 @@ test_that("compare() scales incremental indices against the independence model",
   fit_a <- acfa(
     mod_null,
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 50,
     vb_correction = FALSE,
     marginal_method = "marggaus"
@@ -339,7 +339,7 @@ test_that("compare() scales incremental indices against the independence model",
   fit_b <- acfa(
     mod_full,
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 50,
     vb_correction = FALSE,
     marginal_method = "marggaus"
@@ -363,7 +363,7 @@ mod_comp <- "
 "
 fit_args_comp <- list(
   composites.cov = "fixed",
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
@@ -468,7 +468,7 @@ fit_twolevel <- function(mod, ...) {
     mod,
     d_rs,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "dic",
     marginal_correction = "none",
@@ -635,7 +635,7 @@ test_that("quadrature fits are compared on the covariates they condition on", {
         d_b,
         cluster = "cluster",
         integration.ngh = 5,
-        verbose = FALSE,
+        silent = TRUE,
         nsamp = 3,
         test = "none",
         marginal_correction = "none",

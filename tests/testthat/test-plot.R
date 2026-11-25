@@ -4,7 +4,7 @@ test_that("Plot method works", {
     visual  =~ x1 + x2 + x3
     textual =~ x4 + x5 + x6
   "
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   pdf(file = NULL)
   on.exit(dev.off(), add = TRUE)
   expect_silent(plt <- plot(fit))
@@ -19,7 +19,7 @@ test_that("Plot with use_ggplot = TRUE returns ggplot object", {
     visual  =~ x1 + x2 + x3
     textual =~ x4 + x5 + x6
   "
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   pdf(file = NULL)
   on.exit(dev.off(), add = TRUE)
 
@@ -36,7 +36,7 @@ test_that("Plot with use_ggplot = FALSE uses base graphics", {
     visual  =~ x1 + x2 + x3
     textual =~ x4 + x5 + x6
   "
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   pdf(file = NULL)
   on.exit(dev.off(), add = TRUE)
 
@@ -53,7 +53,7 @@ test_that("the skew-normal fit plots differ between the two scales", {
   fit <- acfa(
     "visual =~ x1 + x2 + x3",
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )

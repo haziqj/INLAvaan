@@ -12,7 +12,7 @@ test_that("cov_as_cor changes the report only, not the model after the fit", {
       cov_as_cor = cov_as_cor,
       test = "none",
       nsamp = 3,
-      verbose = FALSE
+      silent = TRUE
     )
   }
   fit_cov <- fit_with(FALSE)

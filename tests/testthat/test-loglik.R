@@ -154,7 +154,7 @@ fixedx_evidence <- function(model, data, ...) {
     data,
     nsamp = 3,
     test = "dic",
-    verbose = FALSE,
+    silent = TRUE,
     ...
   ))
   c(mloglik = int$mloglik, Dhat = int$DIC$Dhat)

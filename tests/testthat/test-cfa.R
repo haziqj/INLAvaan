@@ -14,7 +14,7 @@ test_that("Method: skewnorm", {
       mod,
       dat,
       marginal_method = "skewnorm",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP,
       std.lv = STDLV
     )
@@ -35,7 +35,7 @@ test_that("Method: asymgaus", {
       mod,
       dat,
       marginal_method = "asymgaus",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP,
       std.lv = STDLV
     )
@@ -52,7 +52,7 @@ test_that("Method: marggaus", {
       mod,
       dat,
       marginal_method = "marggaus",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP,
       std.lv = STDLV
     )
@@ -69,7 +69,7 @@ test_that("Method: sampling", {
       mod,
       dat,
       marginal_method = "sampling",
-      verbose = FALSE,
+      silent = TRUE,
       # pure-sampling summaries are means of the draws, so a handful of
       # draws is too seed-sensitive for the coef comparison below
       nsamp = 100,
@@ -111,7 +111,7 @@ test_that("Covariance coefficients are on the covariance scale", {
   # subsample where the two scales differ clearly.
   set.seed(20260612)
   dat_sub <- dat[sample(nrow(dat), 120L), ]
-  fit <- acfa(mod, dat_sub, verbose = FALSE, nsamp = NSAMP, test = "none")
+  fit <- acfa(mod, dat_sub, silent = TRUE, nsamp = NSAMP, test = "none")
   co <- coef(fit)
   summ <- get_inlavaan_internal(fit)$summary
 
@@ -136,7 +136,7 @@ test_that("A single variance-into-covariance term keeps the gradient working", {
   expect_no_error(acfa(
     "visual =~ NA*x1 + x2 + x3\n textual =~ x4 + x5 + x6\n visual ~~ 1*visual",
     lavaan::HolzingerSwineford1939,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   ))
@@ -157,7 +157,7 @@ test_that("A model with a single free parameter fits", {
         std.lv = TRUE,
         meanstructure = FALSE,
         marginal_method = method,
-        verbose = FALSE,
+        silent = TRUE,
         nsamp = 3
       )
     })

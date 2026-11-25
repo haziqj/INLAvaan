@@ -143,7 +143,7 @@ test_that("fit results do not depend on the collation locale", {
   "
   fit_once <- function() {
     set.seed(1)
-    fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+    fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
     c(get_inlavaan_internal(fit)$mloglik, coef(fit))
   }
   res_utf8 <- fit_once()

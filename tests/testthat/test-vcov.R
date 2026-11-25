@@ -5,7 +5,7 @@ mod <- "
 "
 
 test_that("vcov() returns a matrix for INLAvaan objects", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   vc <- suppressMessages(vcov(fit))
   expect_true(is.matrix(vc))
   expect_equal(nrow(vc), length(coef(fit)))
@@ -13,7 +13,7 @@ test_that("vcov() returns a matrix for INLAvaan objects", {
 })
 
 test_that("vcov(type = 'theta') returns Laplace covariance", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   vt <- vcov(fit, type = "theta")
   expect_true(is.matrix(vt))
   expect_true(isSymmetric(vt))
@@ -32,21 +32,21 @@ test_that("vcov() lines up with coef() under equality constraints", {
       dat,
       group = "school",
       group.equal = "loadings",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 10,
       test = "none"
     ),
     shared_label = acfa(
       "visual =~ x1 + a * x2 + a * x3\n textual =~ x4 + x5 + x6",
       dat,
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 10,
       test = "none"
     ),
     explicit_eq = acfa(
       "visual =~ x1 + a * x2 + b * x3\n textual =~ x4 + x5 + x6\n a == b",
       dat,
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 10,
       test = "none"
     )

@@ -10,7 +10,7 @@ test_that("Standardised solution", {
     data = HolzingerSwineford1939,
     marginal_correction = FALSE,
     vb_correction = FALSE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3
   )
   expect_no_error(out <- standardisedsolution(fit, nsamp = 3))
@@ -30,7 +30,7 @@ test_that("Standardised solution", {
 test_that("standardisedsolution with postmedian and postmode", {
   mod <- "visual =~ x1 + x2 + x3; textual =~ x4 + x5 + x6"
   dat <- lavaan::HolzingerSwineford1939
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3)
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3)
   out <- standardisedsolution(
     fit,
     nsamp = 3,
@@ -56,7 +56,7 @@ test_that("standardisedsolution handles := defined parameters", {
     ratio := l2 / l5
   "
   dat <- lavaan::HolzingerSwineford1939
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3)
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3)
   out <- standardisedsolution(fit, nsamp = 3)
   expect_s3_class(out, "data.frame")
 })
@@ -66,7 +66,7 @@ test_that("standardisedsolution() draws nsamp samples, not the fit's number", {
   fit <- acfa(
     "visual =~ x1 + x2 + x3",
     data = HolzingerSwineford1939,
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = 3
   )

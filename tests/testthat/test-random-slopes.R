@@ -7,7 +7,7 @@ fit_rs_dic <- asem(
   mod_rs,
   d_rs,
   cluster = "cluster",
-  verbose = FALSE,
+  silent = TRUE,
   test = "dic",
   marginal_correction = "none",
   vb_correction = FALSE,
@@ -86,7 +86,7 @@ test_that("Random slopes: fixed.x = FALSE is refused", {
       d_rs,
       cluster = "cluster",
       fixed.x = FALSE,
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = 3
     ),
@@ -300,7 +300,7 @@ fit_route_b <- function(ngh) {
       d_b,
       cluster = "cluster",
       integration.ngh = ngh,
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = 3,
       marginal_correction = "none",
@@ -646,7 +646,7 @@ test_that("Random slopes: an inexact equality group is refused", {
       mod_mix,
       d_rs,
       cluster = "cluster",
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = 3
     ),
@@ -671,7 +671,7 @@ test_that("Random slopes: an inexact equality group is refused", {
       mod_cov,
       d_rs,
       cluster = "cluster",
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = 3
     ),
@@ -697,7 +697,7 @@ test_that("Random slopes: a zero slope variance is refused on the quadrature rou
       d_rs,
       cluster = "cluster",
       integration.ngh = 3,
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = 3
     ),
@@ -719,7 +719,7 @@ test_that("Random slopes: composites are refused", {
       mod_comp,
       d_rs,
       cluster = "cluster",
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = 3
     ),

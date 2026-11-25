@@ -2,6 +2,15 @@
 
 * INLAvaan now requires R 4.1.0 or later, and cli 3.6.0 or later.
 
+* New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
+  `silent = TRUE` prints nothing, whatever `verbose` says, and muffles the
+  warnings and messages raised during the fit, for simulations and other
+  repeated fits. Errors are still raised. Whether or not `silent` is `TRUE`,
+  the fit records the texts of its warnings in the field `warnings` of
+  `get_inlavaan_internal()`. `fitMeasures()`, `bfit_indices()` and `compare()`
+  now fit the independence baseline with `silent = TRUE`, so the warnings of
+  that fit are no longer shown.
+
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
   copies the 13 engine files of inlavanilla v26.11.24-1, byte for byte, as

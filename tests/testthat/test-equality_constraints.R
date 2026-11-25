@@ -61,7 +61,7 @@ test_that("Method: skewnorm", {
       mod,
       dat,
       marginal_method = "skewnorm",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -83,7 +83,7 @@ test_that("Method: asymgaus", {
       mod,
       dat,
       marginal_method = "asymgaus",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -99,7 +99,7 @@ test_that("Method: marggaus", {
       mod,
       dat,
       marginal_method = "marggaus",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -115,7 +115,7 @@ test_that("Method: sampling", {
       mod,
       dat,
       marginal_method = "sampling",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -179,7 +179,7 @@ test_that("sampling() works with equality constraints", {
     lavaan::HolzingerSwineford1939,
     group = "school",
     group.equal = "loadings",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP,
     test = "none"
   )
@@ -196,7 +196,7 @@ test_that("Covariances held equal across groups fit", {
     lavaan::HolzingerSwineford1939,
     group = "school",
     group.equal = c("loadings", "lv.covariances"),
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP,
     test = "none"
   )

@@ -23,7 +23,7 @@ shared_rs_fit <- local({
         mod_rs,
         d_rs,
         cluster = "cluster",
-        verbose = FALSE,
+        silent = TRUE,
         test = "none",
         marginal_correction = "none",
         vb_correction = FALSE,

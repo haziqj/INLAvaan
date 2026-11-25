@@ -31,7 +31,7 @@ rownames(dat_mg) <- NULL
 
 fit_args <- list(
   meanstructure = TRUE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,

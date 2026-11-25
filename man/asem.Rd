@@ -32,6 +32,7 @@ asem(
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
+  silent = FALSE,
   ...
 )
 }
@@ -214,6 +215,12 @@ models.}
 set, that the PPP of a two-level model uses. Defaults to \code{250}, and is
 capped at \code{nsamp}. Draws that cannot be scored are left out, with a
 warning. Ignored for single-level models.}
+
+\item{silent}{Logical. Print nothing at all, and muffle the warnings and
+messages raised during the fit? Default \code{FALSE}. With \code{silent = TRUE},
+\code{verbose} is ignored. Errors are still raised. Whether or not \code{silent} is
+\code{TRUE}, the texts of the warnings raised during the fit are recorded in
+the field \code{warnings} of \code{\link[=get_inlavaan_internal]{get_inlavaan_internal()}}.}
 
 \item{...}{Additional arguments to be passed to the \link[lavaan:lavaan]{lavaan} model fitting
 function.}

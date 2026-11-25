@@ -13,7 +13,7 @@ fit_quiet <- function(model, data = dat, ...) {
   asem(
     model,
     data,
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = NSAMP,
     vb_correction = FALSE,
@@ -303,7 +303,7 @@ test_that("Each composite needs a unit marker and its own indicators", {
       "C <~ x1 + x2 + x3\n x4 ~ C\n x5 ~ C\n x4 ~~ x4\n x5 ~~ x5",
       dat,
       model.type = "lavaan",
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = NSAMP
     ),
@@ -404,7 +404,7 @@ test_that("Latent means absorbed by composites stop the fit", {
   "
   expect_error(
     suppressWarnings(
-      agrowth(gr, gdat, verbose = FALSE, test = "none", nsamp = NSAMP)
+      agrowth(gr, gdat, silent = TRUE, test = "none", nsamp = NSAMP)
     ),
     "agrowth"
   )

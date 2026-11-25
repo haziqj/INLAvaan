@@ -25,7 +25,7 @@ test_that("Results do not depend on the order of the latent variables", {
         marginal_correction = correction,
         test = "none",
         nsamp = 3,
-        verbose = FALSE
+        silent = TRUE
       )
     })
     coefs <- lapply(fits, function(fit) {

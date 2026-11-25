@@ -179,7 +179,7 @@ test_that("inlavaan() checks sn_fit_logthresh and sn_fit_temp", {
     acfa(
       "visual =~ x1 + x2 + x3",
       lavaan::HolzingerSwineford1939,
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = 3,
       ...

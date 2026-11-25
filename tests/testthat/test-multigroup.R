@@ -13,7 +13,7 @@ test_that("Multigroup fitting and testing", {
     fit1 <- acfa(
       mod,
       dat,
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       std.lv = STDLV,
       group = "school"
@@ -30,7 +30,7 @@ test_that("Multigroup fitting and testing", {
     fit2 <- acfa(
       mod,
       dat,
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       std.lv = STDLV,
       group = "school",
@@ -44,7 +44,7 @@ test_that("Multigroup fitting and testing", {
     fit3 <- acfa(
       mod,
       dat,
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       std.lv = STDLV,
       group = "school",

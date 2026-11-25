@@ -17,7 +17,7 @@ mod <- "visual =~ x1 + x2 + x3"
 fit_ord <- function(data, ...) {
   set.seed(1)
   suppressWarnings(
-    acfa(mod, data, verbose = FALSE, nsamp = 3, test = "none", ...)
+    acfa(mod, data, silent = TRUE, nsamp = 3, test = "none", ...)
   )
 }
 

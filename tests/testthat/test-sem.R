@@ -25,7 +25,7 @@ test_that("Method: skewnorm", {
       marginal_correction = "none",
       vb_correction = FALSE,
       test = "none",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -57,7 +57,7 @@ test_that("Method: asymgaus", {
       marginal_correction = "none",
       vb_correction = FALSE,
       test = "none",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -74,7 +74,7 @@ test_that("Method: marggaus", {
       marginal_method = "marggaus",
       vb_correction = FALSE,
       test = "none",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -91,7 +91,7 @@ test_that("Method: sampling", {
       marginal_method = "sampling",
       vb_correction = FALSE,
       test = "none",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -107,7 +107,7 @@ test_that("cov_as_cor reports correlations without changing the fit", {
     dat,
     debug = TRUE,
     test = "none",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP,
     cov_as_cor = FALSE
   )
@@ -116,7 +116,7 @@ test_that("cov_as_cor reports correlations without changing the fit", {
     dat,
     debug = TRUE,
     test = "none",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP,
     cov_as_cor = TRUE
   )
@@ -186,7 +186,7 @@ test_that("Non-recursive (cyclic) model", {
     dp = priors_for(beta = "normal(.5,.5)"),
     test = "none",
     nsamp = 3,
-    verbose = FALSE
+    silent = TRUE
   )
   expect_s4_class(fit, "INLAvaan")
   expect_no_error(capture.output(summary(fit)))

@@ -11,7 +11,7 @@ fit_ml <- asem(
   mod_ml,
   lavaan::Demo.twolevel,
   cluster = "cluster",
-  verbose = FALSE,
+  silent = TRUE,
   test = "none",
   marginal_correction = "none",
   vb_correction = FALSE,
@@ -95,7 +95,7 @@ test_that("Multilevel predict ymis works", {
     test = "none",
     marginal_correction = "none",
     vb_correction = FALSE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3
   )
 
@@ -136,7 +136,7 @@ test_that("Named levels give the same results as numbered levels", {
       model,
       dat,
       cluster = "cluster",
-      verbose = FALSE,
+      silent = TRUE,
       test = "none",
       nsamp = 20
     )
@@ -197,7 +197,7 @@ test_that("Multilevel ypred works with residual variances fixed to zero", {
     mod,
     subset(lavaan::Demo.twolevel, cluster <= 40),
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     marginal_correction = "none",
     vb_correction = FALSE,
@@ -324,7 +324,7 @@ test_that("Two-level predict() draws match the exact conditional distribution", 
     dat,
     cluster = "cluster",
     missing = "ML",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = 3
   )
@@ -384,7 +384,7 @@ test_that("Two-level ypred keeps covariates and draws outcome residuals", {
     ",
     dat,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = 3
   )
@@ -425,7 +425,7 @@ test_that("The two-level PPP holds for a covariate with little between variance"
     cluster = "cluster",
     nsamp = 200,
     test = "ppp",
-    verbose = FALSE
+    silent = TRUE
   )
   expect_gt(get_inlavaan_internal(fit, "ppp"), 0.05)
 })
@@ -551,7 +551,7 @@ test_that("The one-step and EM PPPs agree, and ppp_nsamp sets the draws", {
       ",
       dat,
       cluster = "cluster",
-      verbose = FALSE,
+      silent = TRUE,
       marginal_correction = "none",
       vb_correction = FALSE,
       ...
@@ -602,7 +602,7 @@ test_that("Incomplete two-level data use the EM PPP", {
     cluster = "cluster",
     missing = "ml",
     test = "ppp",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 30,
     ppp_nsamp = 30
   ))
@@ -625,7 +625,7 @@ test_that("The one-step PPP frees a covariate the replicates draw", {
     ",
     dat,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = 3
   ))
@@ -673,7 +673,7 @@ test_that("The one-step PPP falls back to EM at the boundary", {
     ",
     dat,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = 3
   ))
@@ -722,7 +722,7 @@ test_that("A two-level PPP with no scored draw is recorded as skipped", {
     ",
     lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 5
   )
   rec <- get_inlavaan_internal(fit, "test")
@@ -796,7 +796,7 @@ test_that("The printed two-level PPP is marked experimental", {
     ",
     lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 10,
     ppp_nsamp = 10
   )
@@ -848,7 +848,7 @@ test_that("A single-level PPP is not marked experimental", {
   fit <- acfa(
     "visual =~ x1 + x2 + x3",
     HolzingerSwineford1939,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 20
   )
   out <- capture.output(fit)
@@ -916,7 +916,7 @@ test_that("Replicate statistics fall back to rows when D'D is singular", {
     ",
     dat,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     test = "none",
     nsamp = 3
   ))

@@ -63,7 +63,7 @@ test_that("Chained modifiers keep their prior and fixed value", {
     fit <- suppressWarnings(acfa(
       paste0(base, rhs, " + x6"),
       dat,
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 3,
       test = "none"
     ))
@@ -88,12 +88,12 @@ test_that("efa() blocks are refused", {
     efa("e")*f1 + efa("e")*f2 =~ x1 + x2 + x3 + x4 + x5 + x6
   '
   expect_error(
-    acfa(mod, dat, verbose = FALSE),
+    acfa(mod, dat, silent = TRUE),
     class = "inlavaan_efa"
   )
   mod_sem <- paste(mod, "f3 =~ x7 + x8 + x9\n f3 ~ f1 + f2")
   expect_error(
-    asem(mod_sem, dat, verbose = FALSE),
+    asem(mod_sem, dat, silent = TRUE),
     class = "inlavaan_efa"
   )
 })

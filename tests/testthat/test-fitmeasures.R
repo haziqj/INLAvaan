@@ -8,7 +8,7 @@ mod <- "
 fit_notest <- acfa(
   mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
@@ -17,7 +17,7 @@ fit_notest <- acfa(
 fit_test <- acfa(
   mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 10,
   vb_correction = FALSE,
   marginal_method = "marggaus"
@@ -34,7 +34,7 @@ null_mod <- "
 fit_null <- acfa(
   null_mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   vb_correction = FALSE,
   marginal_method = "marggaus"
@@ -227,7 +227,7 @@ test_that("Moment count excludes fixed exogenous covariates, as in lavaan", {
   fit_x <- acfa(
     "f =~ x1 + x2 + x3\n f ~ ageyr",
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 20,
     vb_correction = FALSE,
     marginal_method = "marggaus"
@@ -268,7 +268,7 @@ test_that("Two-level fit indices are finite and sane", {
     mod2,
     d2,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 30,
     vb_correction = FALSE,
     marginal_method = "marggaus"
@@ -294,7 +294,7 @@ test_that("Two-level fit indices are finite and sane", {
     d2,
     cluster = "cluster",
     missing = "ml",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 30,
     vb_correction = FALSE,
     marginal_method = "marggaus"
@@ -322,7 +322,7 @@ test_that("Each group's fixed composite moments are removed once", {
     dat,
     composites.cov = "fixed",
     group = "school",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 20,
     test = "none",
     vb_correction = FALSE,
@@ -387,7 +387,7 @@ test_that("The baseline is scaled by its own moment count", {
     mod_comp,
     dat,
     composites.cov = "fixed",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 20,
     test = "none",
     vb_correction = FALSE,

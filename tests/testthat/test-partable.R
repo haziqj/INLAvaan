@@ -373,7 +373,7 @@ test_that("A := parameter cannot reuse a parameter label", {
     acfa(
       "visual =~ x1 + a*x2 + x3\n a := 2",
       lavaan::HolzingerSwineford1939,
-      verbose = FALSE,
+      silent = TRUE,
       test = "none"
     ),
     "reuses a parameter label"
@@ -386,7 +386,7 @@ test_that("Multigroup := parameters can be plotted by name", {
     "visual =~ x1 + c(a1, a2)*x2 + x3\n d := a1 - a2",
     lavaan::HolzingerSwineford1939,
     group = "school",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 10,
     test = "none"
   )
@@ -402,7 +402,7 @@ test_that("Multigroup two-level models give an error", {
   blk <- "level: 1\n fw =~ y1 + y2 + y3\n level: 2\n fb =~ y1 + y2 + y3\n"
   mod <- paste0("group: a\n", blk, "group: b\n", blk)
   expect_error(
-    asem(mod, dat, cluster = "cluster", group = "g", verbose = FALSE),
+    asem(mod, dat, cluster = "cluster", group = "g", silent = TRUE),
     "Multigroup two-level"
   )
 })
@@ -462,7 +462,7 @@ test_that("std.lv with a free second-group variance fits as written out", {
       std.lv = std_lv,
       test = "none",
       nsamp = 3,
-      verbose = FALSE
+      silent = TRUE
     )
   }
   fit_std <- fit_with(mod_std, TRUE)
@@ -497,7 +497,7 @@ test_that("std.ov residual covariances fit as on standardised data", {
     std.ov = TRUE,
     test = "none",
     nsamp = 3,
-    verbose = FALSE
+    silent = TRUE
   )
   # lavaan standardises with the n - 1 divisor, as scale() does
   fit_hand <- acfa(
@@ -505,7 +505,7 @@ test_that("std.ov residual covariances fit as on standardised data", {
     as.data.frame(scale(pd)),
     test = "none",
     nsamp = 3,
-    verbose = FALSE
+    silent = TRUE
   )
 
   pt <- get_inlavaan_internal(fit_std)$partable
@@ -525,7 +525,7 @@ test_that("std.lv with unit latent variances keeps the correlation class", {
     std.lv = TRUE,
     test = "none",
     nsamp = 3,
-    verbose = FALSE
+    silent = TRUE
   )
   pt <- get_inlavaan_internal(fit)$partable
   expect_equal(pt$mat[pt$lhs == "visual" & pt$rhs == "textual"], "psi_cor")

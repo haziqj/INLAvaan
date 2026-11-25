@@ -8,7 +8,7 @@ fit <- acfa(
   dat,
   marginal_method = "marggaus",
   vb_correction = FALSE,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3
 )
 
@@ -31,7 +31,7 @@ test_that("deviance(type = 'plugin') matches -2 * logLik(type = 'plugin')", {
 })
 
 test_that("deviance() errors without DIC components", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   expect_error(deviance(fit), "DIC")
 })
 

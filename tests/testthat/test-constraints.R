@@ -2,7 +2,7 @@ dat <- lavaan::HolzingerSwineford1939
 base <- "visual =~ x1 + x2 + x3\n speed =~ x7 + x8 + x9\n"
 fit_with <- function(mod, ...) {
   set.seed(1)
-  acfa(paste0(base, mod), dat, verbose = FALSE, nsamp = 3, test = "none", ...)
+  acfa(paste0(base, mod), dat, silent = TRUE, nsamp = 3, test = "none", ...)
 }
 
 test_that("a == b gives the same fit as a shared label", {
@@ -89,7 +89,7 @@ test_that("Two-level fits with a constraint keep working lavaan methods", {
     "level: 1\n fw =~ y1 + a*y2 + y3\n level: 2\n fb =~ y1 + b*y2 + y3\n a == b",
     lavaan::Demo.twolevel,
     cluster = "cluster",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -144,7 +144,7 @@ test_that("Constraint errors name the level of each row", {
        y1 ~~ v*y1",
       lavaan::Demo.twolevel,
       cluster = "cluster",
-      verbose = FALSE,
+      silent = TRUE,
       test = "none"
     ),
     "(level within) = y1~~y1 (level between)",
@@ -170,7 +170,7 @@ test_that("Residual covariances held equal across groups keep their labels", {
     marginal_correction = "none",
     test = "none",
     nsamp = 2,
-    verbose = FALSE
+    silent = TRUE
   )
   expect_s4_class(fit, "INLAvaan")
   expect_no_error(capture.output(summary(fit)))
@@ -198,7 +198,7 @@ test_that("std.lv with loadings held equal frees the second group variance", {
     marginal_correction = "none",
     test = "none",
     nsamp = 2,
-    verbose = FALSE
+    silent = TRUE
   )
   expect_s4_class(fit, "INLAvaan")
   expect_no_error(capture.output(summary(fit)))

@@ -25,7 +25,7 @@ test_that("Method: skewnorm", {
     fit <- asem(
       mod,
       dat,
-      verbose = FALSE
+      silent = TRUE
     )
   })
   expect_no_error(out <- capture.output(summary(fit)))
@@ -56,7 +56,7 @@ test_that("Defined parameters can use other defined parameters", {
   dat <- lavaan::HolzingerSwineford1939
   fit_lav <- lavaan::sem(mod, dat)
   expect_no_error({
-    fit <- asem(mod, dat, verbose = FALSE, nsamp = 100, test = "none")
+    fit <- asem(mod, dat, silent = TRUE, nsamp = 100, test = "none")
   })
 
   # Compare with the ML values implied by lavaan's a, b and c, each on the
@@ -104,7 +104,7 @@ test_that("summary() matches defined parameters under equality constraints", {
     lavaan::HolzingerSwineford1939,
     group = "school",
     group.equal = c("loadings", "regressions"),
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 100,
     test = "none"
   )
@@ -170,7 +170,7 @@ test_that("Defined parameters summarise the draws where they are defined", {
   expect_true(any(grepl("lb: undefined in", out)))
   expect_error(plot(fit, params = "nb"), "No posterior density")
   expect_error(
-    asem(mod, dat, verbose = FALSE, nsamp = 1, test = "none"),
+    asem(mod, dat, silent = TRUE, nsamp = 1, test = "none"),
     "at least 2"
   )
 })

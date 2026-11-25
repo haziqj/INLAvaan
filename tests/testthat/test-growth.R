@@ -25,7 +25,7 @@ test_that("Method: marggaus (fast)", {
       marginal_method = "marggaus",
       vb_correction = FALSE,
       test = "none",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -42,7 +42,7 @@ test_that("Method: skewnorm", {
       marginal_method = "skewnorm",
       vb_correction = FALSE,
       test = "none",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -63,7 +63,7 @@ test_that("Method: asymgaus", {
       marginal_method = "asymgaus",
       vb_correction = FALSE,
       test = "none",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -80,7 +80,7 @@ test_that("Method: sampling", {
       marginal_method = "sampling",
       vb_correction = FALSE,
       test = "none",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = NSAMP
     )
   })
@@ -158,7 +158,7 @@ test_that("Latent change score model with constant change", {
     dX2 ~~ 0*dX2
     dX3 ~~ 0*dX3
   "
-  fit <- inlavaan(mod, dat, test = "none", nsamp = 3, verbose = FALSE)
+  fit <- inlavaan(mod, dat, test = "none", nsamp = 3, silent = TRUE)
   expect_s4_class(fit, "INLAvaan")
   expect_no_error(capture.output(summary(fit)))
   rsd <- coef(fit)[paste0("X", 1:4, "~~X", 1:4)]

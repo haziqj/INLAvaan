@@ -5,7 +5,7 @@ mod <- "
 "
 
 test_that("fitted() returns model-implied moments for INLAvaan objects", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   fv <- fitted(fit)
   expect_type(fv, "list")
   expect_true("cov" %in% names(fv))
@@ -19,7 +19,7 @@ test_that("fitted() includes the mean vector with a mean structure", {
     mod,
     dat,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 3,
     test = "none"
   )
@@ -29,7 +29,7 @@ test_that("fitted() includes the mean vector with a mean structure", {
 })
 
 test_that("fitted(type = 'ov') returns casewise predicted values", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   cw <- fitted(fit, type = "ov")
   expect_true(is.matrix(cw))
   expect_equal(nrow(cw), nrow(dat))
@@ -37,6 +37,6 @@ test_that("fitted(type = 'ov') returns casewise predicted values", {
 })
 
 test_that("fitted.values() matches fitted()", {
-  fit <- acfa(mod, dat, verbose = FALSE, nsamp = 3, test = "none")
+  fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   expect_equal(fitted.values(fit), fitted(fit))
 })

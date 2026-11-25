@@ -16,7 +16,7 @@ sem_mod <- "
 fit_cfa <- acfa(
   mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = NSAMP,
   vb_correction = FALSE,
   test = "none",
@@ -25,7 +25,7 @@ fit_cfa <- acfa(
 fit_mg <- acfa(
   mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = NSAMP,
   group = "school",
   vb_correction = FALSE,
@@ -35,7 +35,7 @@ fit_mg <- acfa(
 fit_sem <- asem(
   sem_mod,
   sem_dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = NSAMP,
   vb_correction = FALSE,
   test = "none",
@@ -153,7 +153,7 @@ test_that("Factor scores are centred on the implied/saturated means", {
   fit50 <- acfa(
     mod,
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 50,
     vb_correction = FALSE,
     test = "none"
@@ -181,7 +181,7 @@ test_that("predict() passes R_star and honours the fit's samp_copula", {
   fit_sn <- acfa(
     mod,
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP,
     vb_correction = FALSE,
     test = "none",
@@ -201,7 +201,7 @@ test_that("predict() passes R_star and honours the fit's samp_copula", {
   fit_nc <- acfa(
     mod,
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP,
     vb_correction = FALSE,
     test = "none",
@@ -227,7 +227,7 @@ fit_quick <- function(model, data = dat, ...) {
     model,
     data,
     ...,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP,
     vb_correction = FALSE,
     test = "none",
@@ -426,7 +426,7 @@ test_that("predict(type = 'ymis') imputes conditional.x fits", {
     dat_mis,
     conditional.x = TRUE,
     missing = "ml",
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = NSAMP,
     test = "none"
   ))

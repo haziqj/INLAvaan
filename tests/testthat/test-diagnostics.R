@@ -6,7 +6,7 @@ mod <- "
 fit <- acfa(
   mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
@@ -16,7 +16,7 @@ fit <- acfa(
 fit_sn <- acfa(
   mod,
   dat,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 3,
   test = "none",
   vb_correction = FALSE
@@ -112,6 +112,52 @@ test_that("an unconverged optimiser triggers the fit-time warning", {
   )
   expect_match(conditionMessage(w), "did not converge")
   expect_match(conditionMessage(w), "posterior mode is not zero")
+})
+
+test_that("silent = TRUE prints nothing, and the fit records its warnings", {
+  fit_unconverged <- function(...) {
+    acfa(
+      mod,
+      dat,
+      nsamp = 3,
+      test = "none",
+      vb_correction = FALSE,
+      marginal_method = "marggaus",
+      std.lv = TRUE,
+      control = list(iter.max = 2),
+      ...
+    )
+  }
+  # silent = TRUE overrides the default verbose = TRUE
+  expect_silent(fit_s <- fit_unconverged(silent = TRUE))
+  rec <- get_inlavaan_internal(fit_s, "warnings")
+  expect_length(rec, 1L)
+  expect_match(rec, "did not converge")
+
+  # Without silent the warning is raised, and the same text is recorded
+  w <- expect_warning(
+    fit_v <- fit_unconverged(verbose = FALSE),
+    class = "inlavaan_diagnostics_warning"
+  )
+  expect_identical(
+    get_inlavaan_internal(fit_v, "warnings"),
+    cli::ansi_strip(conditionMessage(w))
+  )
+  expect_identical(rec, get_inlavaan_internal(fit_v, "warnings"))
+
+  # Messages are muffled too
+  expect_silent(acfa(
+    mod,
+    dat,
+    likelihood = "wishart",
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus"
+  ))
+  expect_identical(get_inlavaan_internal(fit, "warnings"), character(0))
+  expect_error(acfa(mod, dat, silent = NA), "silent")
 })
 
 test_that("warn_fit_diagnostics() flags high NMAD marginals by name", {
@@ -261,7 +307,7 @@ pd_mod <- "
 fit_pd <- asem(
   pd_mod,
   lavaan::PoliticalDemocracy,
-  verbose = FALSE,
+  silent = TRUE,
   nsamp = 20,
   test = "none"
 )

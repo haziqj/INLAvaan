@@ -14,7 +14,7 @@ fit_ad <- function(...) {
     mod,
     dat,
     meanstructure = TRUE,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 50,
     test = "none",
     ...
@@ -92,7 +92,7 @@ test_that("a free covariance with no fast path fits with sn_fit_sample", {
   fit <- acfa(
     mod,
     dat,
-    verbose = FALSE,
+    silent = TRUE,
     nsamp = 50,
     test = "none",
     sn_fit_sample = TRUE
