@@ -150,7 +150,10 @@
 #'     or at the cap on its cost that \code{vb_budget} sets (see
 #'     [inlavaan_control()]). It is then not a check of its own, but the
 #'     bullet on the failed check says how far the solve stopped short when it
-#'     is above 0.1.}
+#'     is above 0.1. With \code{vb_budget = 0} the fit stays at the mode, and
+#'     it is the first step of the fixed-point rule from the mode. That step
+#'     can be much larger than the distance from the mode to the VB mean, so
+#'     it then overstates how far the solve stopped short.}
 #'   \item{\code{mean_gap}}{Gap between the mean of the skew-normal marginal
 #'     and the VB mean, in posterior-SD units. Both estimate the shift from the
 #'     mode to the posterior mean, so a large gap says that the posterior is
