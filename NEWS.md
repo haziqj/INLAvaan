@@ -54,8 +54,12 @@
   - `control` still goes to `nlminb()`, but the limits are now
     `iter.max = 5000` and `eval.max = 5000`, not 1000 and 2000. When the
     gradient at the mode is too large, the engine runs `nlminb()` again from
-    there, and the iterations of both runs are counted.
-  - `sn_fit_ngrid` must be at least 7.
+    there, and the iterations of both runs are counted. `control` must be a
+    named list, `control$iter.max` and `control$eval.max` single numbers of
+    at least 1, and `control$rel.tol` a single positive number. Otherwise
+    the fit stops with an error.
+  - `sn_fit_ngrid` must be a single number of at least 7. Otherwise the fit
+    stops with an error.
   - A fit stops with an error when the log-posterior cannot be evaluated at
     the starting values.
   - `cores = NULL` follows `future::plan()`, which is serial unless a plan

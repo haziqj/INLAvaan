@@ -399,6 +399,16 @@ inlavaan <- function(
         "{.arg sn_fit_logthresh} must be a single finite negative number."
       )
     }
+    # The engine checks its grid too, but under its own name
+    if (
+      !is.numeric(sn_fit_ngrid) ||
+        length(sn_fit_ngrid) != 1L ||
+        !is.finite(sn_fit_ngrid) ||
+        sn_fit_ngrid < 7
+    ) {
+      cli_abort("{.arg sn_fit_ngrid} must be a single number of at least 7.")
+    }
+    check_nlminb_control(control)
     if (
       !is.numeric(sn_fit_temp) ||
         length(sn_fit_temp) != 1L ||

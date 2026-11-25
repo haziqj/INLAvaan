@@ -199,6 +199,38 @@ test_that("an engine error carries no call of inla_vanilla()", {
   expect_match(conditionMessage(e), "boom")
 })
 
+test_that("the controls of nlminb() are checked under the user's names", {
+  fit_with <- function(control) {
+    capture_engine(acfa(
+      "visual =~ x1 + x2 + x3",
+      hs,
+      silent = TRUE,
+      nsamp = 3,
+      test = "none",
+      vb_correction = FALSE,
+      marginal_method = "marggaus",
+      control = control
+    ))
+  }
+  # Every entry of control that the engine checks under a name of its own
+  for (twin in nlminb_twins) {
+    for (bad in list(-1, 0, NA, Inf, "10", c(10, 20))) {
+      err <- expect_error(
+        fit_with(stats::setNames(list(bad), twin)),
+        paste0("control$", twin),
+        fixed = TRUE
+      )
+      expect_false(inherits(err, "inlavanilla_error"))
+    }
+  }
+  for (bad in list(NULL, "a", list(10), list(1, iter.max = 10))) {
+    err <- expect_error(fit_with(bad), "control")
+    expect_false(inherits(err, "inlavanilla_error"))
+  }
+  ce <- fit_with(list(iter.max = 50, rel.tol = 1e-8))
+  expect_identical(ce$args$control$nlminb, list(iter.max = 50, rel.tol = 1e-8))
+})
+
 test_that("the fit prints a line per stage, and more with verbose = TRUE", {
   local_engine()
   fit_once <- function(...) {
