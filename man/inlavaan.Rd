@@ -162,12 +162,14 @@ standardised scale. Defaults to \code{FALSE}.}
 
 \item{sn_fit_ngrid}{Number of grid points to lay out per dimension when
 fitting the skew-normal marginals. A finer grid gives a better fit at the
-cost of more joint-log-posterior evaluations. Defaults to \code{21}.}
+cost of more joint-log-posterior evaluations. Defaults to \code{21}. The same
+as \code{control = inlavaan_control(n_grid = )}: set only one of the two.}
 
 \item{sn_fit_logthresh}{The log-threshold for fitting the skew-normal. Points
 with log-posterior drop below this threshold (relative to the maximum) will
 be excluded from the fit. Must be a single finite negative number. The five
-highest points of the scan are always kept. Defaults to \code{-6}.}
+highest points of the scan are always kept. Defaults to \code{-6}. The same as
+\code{control = inlavaan_control(log_threshold = )}: set only one of the two.}
 
 \item{sn_fit_temp}{Temperature parameter for fitting the skew-normal. Must be
 a single finite positive number. Defaults to \code{1} (weights are the density
@@ -177,21 +179,28 @@ values themselves).}
 is fitted to the posterior samples for covariance and defined parameters.
 When \code{FALSE}, these are summarised using kernel density estimation instead.}
 
-\item{control}{A list of control parameters for the optimiser. For the
-default \code{"nlminb"}, INLAvaan raises the stock iteration ceilings to
-\code{iter.max = 1000} and \code{eval.max = 2000} (complex models can exhaust
-\code{nlminb()}'s own defaults of 150 and 200); any value supplied here
-overrides these.}
+\item{control}{A list of tuning settings, made by \code{\link[=inlavaan_control]{inlavaan_control()}}, or a
+plain list with some of its names: the limits of the search for the
+posterior mode, of the VB correction and of the skew-normal scans, and
+the settings \code{hessian}, \code{debug} and \code{add_priors}. The defaults suit most
+fits. An unknown name gives an error. The controls of \code{\link[stats:nlminb]{stats::nlminb()}}
+that \code{control} took up to INLAvaan 0.3.5, such as \code{iter.max}, still work,
+with a deprecation warning. See \code{\link[=inlavaan_control]{inlavaan_control()}}.}
 
 \item{verbose}{Logical. With \code{FALSE} (default) the fit prints one line per
 stage. With \code{TRUE} it also prints the details of each stage of the fit on
 the internal scale: the start, the mode search, the VB correction and the
 marginals, with their checks. Use \code{silent = TRUE} to print nothing.}
 
-\item{debug}{Logical indicating whether to return debug information.}
+\item{debug}{Logical. With \code{TRUE}, the fit returns its internal list (see
+\code{\link[=get_inlavaan_internal]{get_inlavaan_internal()}}) instead of an \link{INLAvaan} object, for
+development. The same as \code{control = inlavaan_control(debug = )}: set only
+one of the two.}
 
-\item{add_priors}{Logical indicating whether to include prior densities in
-the posterior computation.}
+\item{add_priors}{Logical. With \code{FALSE}, the log-posterior leaves out the
+priors, so that the posterior mode is the maximum likelihood estimate.
+Only the mode is meaningful then. The same as
+\code{control = inlavaan_control(add_priors = )}: set only one of the two.}
 
 \item{optim_method}{The optimisation method to use for finding the posterior
 mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"optim"}
@@ -204,7 +213,8 @@ for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
 from the analytical gradient. \code{"central"} (default) costs two gradient
 evaluations per parameter. \code{"forward"} costs about half as much but is less
 accurate, and suits models with many parameters and large samples. Used
-only with \code{optim_method = "nlminb"} and \code{numerical_grad = FALSE}.}
+only with \code{optim_method = "nlminb"} and \code{numerical_grad = FALSE}. The same
+as \code{control = inlavaan_control(hessian = )}: set only one of the two.}
 
 \item{start}{Optional numeric vector of starting values for the optimiser,
 given as a full vector of free parameters in the internal (unconstrained)

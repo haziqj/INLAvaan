@@ -55,13 +55,10 @@
     `FALSE`) scans with no volume correction, and the other values take the
     engine's linear volume correction. With `numerical_grad = TRUE` the
     engine uses no gradient.
-  - `control` still goes to `nlminb()`, but the limits are now
-    `iter.max = 5000` and `eval.max = 5000`, not 1000 and 2000. When the
-    gradient at the mode is too large, the engine runs `nlminb()` again from
-    there, and the iterations of both runs are counted. `control` must be a
-    named list, `control$iter.max` and `control$eval.max` single numbers of
-    at least 1, and `control$rel.tol` a single positive number. Otherwise
-    the fit stops with an error.
+  - The search for the posterior mode by `nlminb()` now allows 5000
+    iterations and 5000 evaluations of the log-posterior, not 1000 and 2000.
+    When the gradient at the mode is too large, the engine runs `nlminb()`
+    again from there, and the iterations of both runs are counted.
   - `sn_fit_ngrid` must be a single number of at least 7. Otherwise the fit
     stops with an error.
   - A fit stops with an error when the log-posterior cannot be evaluated at
@@ -80,6 +77,29 @@
     `"gauss_hermite"`.
   - An invalid `vb_correction`, such as `NA`, now gives an error. Before,
     it turned the VB correction off.
+
+* New `inlavaan_control()` makes the `control` list of `inlavaan()`,
+  `acfa()`, `asem()` and `agrowth()`. Its entries are `mode_maxit`,
+  `mode_maxeval` and `mode_tol` for the search for the posterior mode,
+  `vb_maxit` and `vb_tol` for the VB correction, `n_grid` and
+  `log_threshold` for the skew-normal scans, `nlminb` for other controls of
+  `nlminb()`, and `hessian`, `debug` and `add_priors`. A plain list with some
+  of these names works too, such as `control = list(n_grid = 31)`.
+  - An unknown entry, or a bad value, gives an error that names the entry.
+  - `n_grid`, `log_threshold`, `hessian`, `debug` and `add_priors` do the
+    same as the arguments `sn_fit_ngrid`, `sn_fit_logthresh`,
+    `hessian_method`, `debug` and `add_priors` of `inlavaan()`. Give each
+    setting once: an entry and its argument together give an error, and so
+    do `mode_maxit` and `nlminb$iter.max` (and alike for `mode_maxeval` and
+    `mode_tol`).
+  - Up to 0.3.5, `control` was a list of controls of `nlminb()`. These names
+    still work, with a deprecation warning once per session, and give the
+    same fit: `control$iter.max`, `control$eval.max` and `control$rel.tol`
+    set `mode_maxit`, `mode_maxeval` and `mode_tol`, and the others, such as
+    `control$trace`, go to `nlminb`.
+  - When the search for the mode stops at its limit, the warning at the end
+    of the fit now says to raise `mode_maxit` or `mode_maxeval` in
+    `inlavaan_control()`.
 
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `predict()`, `simulate()`

@@ -350,7 +350,10 @@ inlavaan_advice <- list(
   no_grad = "leave {.arg numerical_grad} at {.code FALSE}",
   vb_full = "{.code vb_correction = \"full\"}",
   vb_none = "{.code vb_correction = FALSE}",
-  mode_limit = "Raise {.code control$iter.max} or {.code control$eval.max}.",
+  mode_limit = paste(
+    "Raise {.code mode_maxit} or {.code mode_maxeval} in",
+    "{.fn inlavaan_control}."
+  ),
   mode_retry = paste(
     "Try other starting values, such as {.code start(1)*x1} in the model",
     "syntax, and check that the model is identified."

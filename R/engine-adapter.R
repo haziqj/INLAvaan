@@ -115,37 +115,6 @@ engine_check_start <- function(joint_lp, init) {
   invisible(value)
 }
 
-# The controls of nlminb() in `control`, which inlavaan() forwards to the
-# engine. The engine takes iter.max, eval.max and rel.tol (its nlminb_twins)
-# as the limits and the tolerance of its mode search, and checks them under its
-# own names (vanilla_control()), so they are checked here first, under the
-# user's, by the same rules. The other entries go to nlminb() as they are.
-check_nlminb_control <- function(control) {
-  nms <- names(control)
-  if (
-    !is.list(control) ||
-      (length(control) > 0L && (is.null(nms) || any(is.na(nms) | nms == "")))
-  ) {
-    cli_abort(
-      "{.arg control} must be a named list of {.fn stats::nlminb} controls."
-    )
-  }
-  is_num <- function(x) is.numeric(x) && length(x) == 1L && is.finite(x)
-  for (entry in c("iter.max", "eval.max")) {
-    x <- control[[entry]]
-    if (!is.null(x) && (!is_num(x) || x < 1)) {
-      cli_abort(
-        "{.code control${entry}} must be a single number of at least 1."
-      )
-    }
-  }
-  x <- control[["rel.tol"]]
-  if (!is.null(x) && (!is_num(x) || x <= 0)) {
-    cli_abort("{.code control$rel.tol} must be a single positive number.")
-  }
-  invisible(control)
-}
-
 ## ----- The call --------------------------------------------------------------
 
 # vanilla_core() with the arguments given. The engine raises its errors with

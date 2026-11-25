@@ -18,6 +18,7 @@
         fit_skew_normal_samp
         get_inlavaan_internal
         inlavaan
+        inlavaan_control
         is_same_function
         loo
         priors_for
@@ -119,6 +120,7 @@
       fit_skew_normal_samp(x)
       get_inlavaan_internal(object, what)
       inlavaan(model, data, model.type = "sem", dp = priors_for(), test = "standard", vb_correction = TRUE, n_qmc = 64L, vb_method = c("sobol", "gauss_hermite"), marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"), marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"), nsamp = 1000, samp_copula = TRUE, samp_norta = FALSE, cov_as_cor = FALSE, sn_fit_ngrid = 21, sn_fit_logthresh = -6, sn_fit_temp = 1, sn_fit_sample = TRUE, control = list(), verbose = FALSE, debug = FALSE, add_priors = TRUE, optim_method = c("nlminb", "ucminf", "optim"), numerical_grad = FALSE, hessian_method = c("central", "forward"), start = NULL, cores = NULL, ppp_method = c("onestep", "em"), ppp_nsamp = 250L, silent = FALSE, ...)
+      inlavaan_control(mode_maxit = 5000L, mode_maxeval = 5000L, mode_tol = 1e-10, vb_maxit = 25L, vb_tol = 0.001, n_grid = 21L, log_threshold = -6, nlminb = list(), hessian = c("central", "forward"), debug = FALSE, add_priors = TRUE)
       is_same_function(f, g)
       loo(x, ...)
       priors_for(...)

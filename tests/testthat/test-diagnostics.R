@@ -157,12 +157,15 @@ test_that("an unconverged optimiser triggers the fit-time warning", {
       vb_correction = FALSE,
       marginal_method = "marggaus",
       std.lv = TRUE, # keeps the Hessian PD at the early stopping point
-      control = list(iter.max = 2)
+      control = inlavaan_control(mode_maxit = 2)
     ),
     class = "inlavaan_diagnostics_warning"
   )
   expect_match(conditionMessage(w), "did not converge")
   expect_match(conditionMessage(w), "posterior mode is not zero")
+  # The advice names the entries of inlavaan_control() that raise the limits
+  expect_match(conditionMessage(w), "mode_maxit", fixed = TRUE)
+  expect_match(conditionMessage(w), "inlavaan_control()", fixed = TRUE)
 })
 
 test_that("silent = TRUE prints nothing, and the fit records its warnings", {
@@ -175,7 +178,7 @@ test_that("silent = TRUE prints nothing, and the fit records its warnings", {
       vb_correction = FALSE,
       marginal_method = "marggaus",
       std.lv = TRUE,
-      control = list(iter.max = 2),
+      control = inlavaan_control(mode_maxit = 2),
       ...
     )
   }

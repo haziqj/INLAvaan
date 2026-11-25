@@ -111,29 +111,38 @@
 #'   standardised scale. Defaults to `FALSE`.
 #' @param sn_fit_ngrid Number of grid points to lay out per dimension when
 #'   fitting the skew-normal marginals. A finer grid gives a better fit at the
-#'   cost of more joint-log-posterior evaluations. Defaults to `21`.
+#'   cost of more joint-log-posterior evaluations. Defaults to `21`. The same
+#'   as `control = inlavaan_control(n_grid = )`: set only one of the two.
 #' @param sn_fit_logthresh The log-threshold for fitting the skew-normal. Points
 #'   with log-posterior drop below this threshold (relative to the maximum) will
 #'   be excluded from the fit. Must be a single finite negative number. The five
-#'   highest points of the scan are always kept. Defaults to `-6`.
+#'   highest points of the scan are always kept. Defaults to `-6`. The same as
+#'   `control = inlavaan_control(log_threshold = )`: set only one of the two.
 #' @param sn_fit_temp Temperature parameter for fitting the skew-normal. Must be
 #'   a single finite positive number. Defaults to `1` (weights are the density
 #'   values themselves).
 #' @param sn_fit_sample Logical. When `TRUE` (default), a parametric skew-normal
 #'   is fitted to the posterior samples for covariance and defined parameters.
 #'   When `FALSE`, these are summarised using kernel density estimation instead.
-#' @param control A list of control parameters for the optimiser. For the
-#'   default `"nlminb"`, INLAvaan raises the stock iteration ceilings to
-#'   `iter.max = 1000` and `eval.max = 2000` (complex models can exhaust
-#'   `nlminb()`'s own defaults of 150 and 200); any value supplied here
-#'   overrides these.
+#' @param control A list of tuning settings, made by [inlavaan_control()], or a
+#'   plain list with some of its names: the limits of the search for the
+#'   posterior mode, of the VB correction and of the skew-normal scans, and
+#'   the settings `hessian`, `debug` and `add_priors`. The defaults suit most
+#'   fits. An unknown name gives an error. The controls of [stats::nlminb()]
+#'   that `control` took up to INLAvaan 0.3.5, such as `iter.max`, still work,
+#'   with a deprecation warning. See [inlavaan_control()].
 #' @param verbose Logical. With `FALSE` (default) the fit prints one line per
 #'   stage. With `TRUE` it also prints the details of each stage of the fit on
 #'   the internal scale: the start, the mode search, the VB correction and the
 #'   marginals, with their checks. Use `silent = TRUE` to print nothing.
-#' @param debug Logical indicating whether to return debug information.
-#' @param add_priors Logical indicating whether to include prior densities in
-#'   the posterior computation.
+#' @param debug Logical. With `TRUE`, the fit returns its internal list (see
+#'   [get_inlavaan_internal()]) instead of an [INLAvaan] object, for
+#'   development. The same as `control = inlavaan_control(debug = )`: set only
+#'   one of the two.
+#' @param add_priors Logical. With `FALSE`, the log-posterior leaves out the
+#'   priors, so that the posterior mode is the maximum likelihood estimate.
+#'   Only the mode is meaningful then. The same as
+#'   `control = inlavaan_control(add_priors = )`: set only one of the two.
 #' @param optim_method The optimisation method to use for finding the posterior
 #'   mode. Options include `"nlminb"` (default), `"ucminf"`, and `"optim"`
 #'   (BFGS).
@@ -143,7 +152,8 @@
 #'   from the analytical gradient. `"central"` (default) costs two gradient
 #'   evaluations per parameter. `"forward"` costs about half as much but is less
 #'   accurate, and suits models with many parameters and large samples. Used
-#'   only with `optim_method = "nlminb"` and `numerical_grad = FALSE`.
+#'   only with `optim_method = "nlminb"` and `numerical_grad = FALSE`. The same
+#'   as `control = inlavaan_control(hessian = )`: set only one of the two.
 #' @param start Optional numeric vector of starting values for the optimiser,
 #'   given as a full vector of free parameters in the internal (unconstrained)
 #'   parameterisation. Mainly for internal use by [update()], which warm-starts
@@ -317,6 +327,22 @@ inlavaan <- function(
 ) {
   mc <- match.call()
   mc$start <- NULL # warm start is transient; keep it out of the recorded call
+  # The arguments that an entry of `control` does the same as, and whether
+  # each was given, taken before any of them is changed below
+  control_twins <- c(
+    n_grid = "sn_fit_ngrid",
+    log_threshold = "sn_fit_logthresh",
+    hessian = "hessian_method",
+    debug = "debug",
+    add_priors = "add_priors"
+  )
+  twin_given <- c(
+    sn_fit_ngrid = !missing(sn_fit_ngrid),
+    sn_fit_logthresh = !missing(sn_fit_logthresh),
+    hessian_method = !missing(hessian_method),
+    debug = !missing(debug),
+    add_priors = !missing(add_priors)
+  )
   start_time0 <- proc.time()[3]
   timing <- list(start_time = start_time0)
   check_flag(verbose, "verbose")
@@ -346,6 +372,28 @@ inlavaan <- function(
   }
   withCallingHandlers(warning = on_fit_warning, message = on_fit_message, {
     ## ----- Check arguments ---------------------------------------------------
+    # The entries of `control` set, checked (see inlavaan_control()). An entry
+    # stands in for the argument that does the same, which must then not be
+    # given too. The engine's entries go to the engine.
+    ctrl <- resolve_control(control, silent = silent)
+    for (entry in intersect(names(control_twins), names(ctrl))) {
+      arg <- control_twins[[entry]]
+      if (twin_given[[arg]]) {
+        cli_abort(c(
+          "Set {.arg {arg}} or {.code control${entry}}, not both.",
+          "i" = "They are the same setting."
+        ))
+      }
+    }
+    sn_fit_ngrid <- ctrl$n_grid %||% sn_fit_ngrid
+    sn_fit_logthresh <- ctrl$log_threshold %||% sn_fit_logthresh
+    hessian_method <- ctrl$hessian %||% hessian_method
+    debug <- ctrl$debug %||% debug
+    add_priors <- ctrl$add_priors %||% add_priors
+    engine_entries <- intersect(names(ctrl), names(formals(vanilla_control)))
+    engine_control <- ctrl[engine_entries]
+    engine_control$n_grid <- sn_fit_ngrid
+    engine_control$log_threshold <- sn_fit_logthresh
     if (!is.null(cores)) {
       # nocov start
       cores <- as.integer(cores)
@@ -404,7 +452,6 @@ inlavaan <- function(
     ) {
       cli_abort("{.arg sn_fit_ngrid} must be a single number of at least 7.")
     }
-    check_nlminb_control(control)
     if (
       !is.numeric(sn_fit_temp) ||
         length(sn_fit_temp) != 1L ||
@@ -799,11 +846,7 @@ inlavaan <- function(
       },
       marginal_scan = marginal_scan,
       cores = cores,
-      control = list(
-        n_grid = sn_fit_ngrid,
-        log_threshold = sn_fit_logthresh,
-        nlminb = control
-      ),
+      control = engine_control,
       verbose = verbose,
       silent = silent
     )

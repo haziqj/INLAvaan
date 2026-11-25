@@ -24,6 +24,7 @@ reference:
     - asem
     - agrowth
     - priors_for
+    - inlavaan_control
 
 - title: Methods
   contents:
