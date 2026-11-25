@@ -28,8 +28,10 @@ so a fit from it alone can stall there when the skew is mild. The other two
 starts are as in \code{\link[=fit_skew_normal]{fit_skew_normal()}}. With
 \eqn{\delta = \alpha / \sqrt{1 + \alpha^2}}, they are the moment-based
 values from the sample skewness of \code{x} and their mirror image, with the
-opposite skew. When the moment-based values give \eqn{|\delta| < 0.2},
-these two starts are \eqn{\delta = \pm 0.5}.
+opposite skew. When the moment-based values give \eqn{|\delta| < 0.2}, that
+is, when the sample skewness of \code{x} is below about 0.0018 in absolute value,
+these two starts are \eqn{\delta = \pm 0.5}. This is rare: even for 1000
+draws from a normal distribution, it happens in about 1 sample of 50.
 }
 \examples{
 x <- rnorm(100, mean = 5, sd = 1)

@@ -191,8 +191,10 @@ NULL
 #' starts are as in [fit_skew_normal()]. With
 #' \eqn{\delta = \alpha / \sqrt{1 + \alpha^2}}, they are the moment-based
 #' values from the sample skewness of `x` and their mirror image, with the
-#' opposite skew. When the moment-based values give \eqn{|\delta| < 0.2},
-#' these two starts are \eqn{\delta = \pm 0.5}.
+#' opposite skew. When the moment-based values give \eqn{|\delta| < 0.2}, that
+#' is, when the sample skewness of `x` is below about 0.0018 in absolute value,
+#' these two starts are \eqn{\delta = \pm 0.5}. This is rare: even for 1000
+#' draws from a normal distribution, it happens in about 1 sample of 50.
 #'
 #' @param x A numeric vector of sample data.
 #'
@@ -237,7 +239,9 @@ fit_skew_normal_samp <- function(x) {
   # there, so that fit can stall when the draws are mildly skewed. The other
   # two starts are as in fit_skew_normal(): the moment-based
   # delta = alpha / sqrt(1 + alpha^2) and its mirror image, or delta = +-0.5
-  # when the draws are near symmetric. The standardised draws have SD 1.
+  # when the moment-based |delta| is below 0.2. This happens only when the
+  # sample skewness is below about 0.0018 in absolute value. The standardised
+  # draws have SD 1.
   mean_z <- mean(z)
   d0 <- sn_delta_from_skew(mean((z - mean_z)^3) / mean((z - mean_z)^2)^1.5)
   if (!is.finite(d0) || abs(d0) < 0.2) {
