@@ -123,6 +123,9 @@ setMethod(
     )
     extras <- outer_call[["..."]]
     for (nm in names(extras)) {
+      # lavaan reads `std_ov` as `std.ov`. So the argument under another
+      # spelling goes, or lavaan would stop on a name given twice.
+      cl <- drop_other_spellings(cl, nm)
       if (is.null(extras[[nm]]) && !nm %in% names(cl)) {
         # As in stats::update(), `arg = NULL` drops an argument of the call,
         # or gives it as NULL when the call does not have it.
@@ -282,6 +285,21 @@ data_role_args <- c("ordered", "fixed.x", "conditional.x")
 # Argument names as lavaan reads them: dot or snake case, upper or lower case
 arg_key <- function(x) {
   tolower(gsub("_", ".", x, fixed = TRUE))
+}
+
+# Drop the arguments of the call `cl` that lavaan reads as the argument `nm`
+# under another spelling, such as `std.ov` for `std_ov`. R matches the
+# arguments of inlavaan() itself by their exact names, so these are kept.
+drop_other_spellings <- function(cl, nm) {
+  own <- names(formals(inlavaan))
+  args <- names(cl)
+  other <- which(
+    arg_key(args) == arg_key(nm) & args != nm & !args %in% own
+  )
+  if (nm %in% own || length(other) == 0L) {
+    return(cl)
+  }
+  cl[-other]
 }
 
 # Whether the data expression of a recorded call names an object that is no

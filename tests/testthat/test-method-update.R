@@ -671,3 +671,23 @@ test_that("update() on the stored data of a fit with ov.order = \"data\" refits"
     class = "inlavaan_update_data_not_found"
   )
 })
+
+test_that("update() replaces an argument given under another spelling", {
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dat,
+    std.ov = TRUE,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  cl <- update(fit, std_ov = FALSE, evaluate = FALSE)
+  expect_false("std.ov" %in% names(cl))
+  expect_false(cl$std_ov)
+  # Before, lavaan stopped on std.ov and std_ov given together
+  fit_new <- update(fit, std_ov = FALSE)
+  expect_true(lavaan::lavInspect(fit, "options")$std.ov)
+  expect_false(lavaan::lavInspect(fit_new, "options")$std.ov)
+})
