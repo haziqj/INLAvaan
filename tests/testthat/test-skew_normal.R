@@ -175,6 +175,7 @@ test_that("qsnorm() gives the infinite ends and NA outside [0, 1]", {
 })
 
 test_that("inlavaan() checks the threshold and the grid of the scans", {
+  local_deprecation_warnings()
   fit_with <- function(...) {
     acfa(
       "visual =~ x1 + x2 + x3",

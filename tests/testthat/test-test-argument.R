@@ -13,8 +13,7 @@ fit_with <- function(test, ...) {
     nsamp = 3,
     test = test,
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     ...
   )
 }
@@ -96,8 +95,7 @@ test_that("the default and 'standard' compute PPP and DIC only", {
     silent = TRUE,
     nsamp = 3,
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   fit_std <- fit_with("standard")
   for (fit in list(fit_default, fit_std)) {
@@ -192,8 +190,7 @@ test_that("an unsupported model warns and records the skipped quantities", {
       verbose = FALSE,
       nsamp = 3,
       vb_correction = FALSE,
-      marginal_method = "marggaus",
-      marginal_correction = "none"
+      marginal_method = "gaussian"
     )
   }
   expect_warning(fit_cx(), "Skipping")
@@ -230,8 +227,7 @@ test_that("the wrappers pass test through unchanged", {
     nsamp = 3,
     test = "dic",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   expect_identical(rec(fit_s)$computed, "dic")
 
@@ -246,8 +242,7 @@ test_that("the wrappers pass test through unchanged", {
     nsamp = 3,
     test = "dic",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   expect_identical(get_inlavaan_internal(fit_g, "test")$computed, "dic")
 })

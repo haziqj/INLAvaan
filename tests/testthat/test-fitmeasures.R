@@ -12,7 +12,7 @@ fit_notest <- acfa(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 fit_test <- acfa(
   mod,
@@ -20,7 +20,7 @@ fit_test <- acfa(
   silent = TRUE,
   nsamp = 10,
   vb_correction = FALSE,
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 
 null_mod <- "
@@ -37,7 +37,7 @@ fit_null <- acfa(
   silent = TRUE,
   nsamp = 3,
   vb_correction = FALSE,
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 
 test_that("Basic fitMeasures returns expected names", {
@@ -230,7 +230,7 @@ test_that("Moment count excludes fixed exogenous covariates, as in lavaan", {
     silent = TRUE,
     nsamp = 20,
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   b <- bfit_indices(fit_x, baseline.model = FALSE)
   # df = p - pD, so p = df + pD must be lavaan's count (9, not 10)
@@ -271,7 +271,7 @@ test_that("Two-level fit indices are finite and sane", {
     silent = TRUE,
     nsamp = 30,
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   fm <- fitMeasures(fit2)
   idx <- c("BRMSEA", "BGammaHat", "BCFI", "BTLI")
@@ -297,7 +297,7 @@ test_that("Two-level fit indices are finite and sane", {
     silent = TRUE,
     nsamp = 30,
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   fmm <- fitMeasures(fit2m)
   expect_true(all(is.finite(fmm[idx])))
@@ -326,7 +326,7 @@ test_that("Each group's fixed composite moments are removed once", {
     nsamp = 20,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   # Per group 15 covariances and 5 means, less 6 fixed indicator moments
   expect_equal(count_sample_moments(fit_mg@ParTable), 28)
@@ -391,7 +391,7 @@ test_that("The baseline is scaled by its own moment count", {
     nsamp = 20,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   bfit_indices(fit_comp, rescale = "MCMC")
   # The composite model fixes six indicator moments, which its independence

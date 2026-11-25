@@ -22,7 +22,6 @@ test_that("Method: skewnorm", {
       mod,
       dat,
       marginal_method = "skewnorm",
-      marginal_correction = "none",
       vb_correction = FALSE,
       test = "none",
       silent = TRUE,
@@ -48,12 +47,12 @@ test_that("Method: skewnorm", {
   expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
-test_that("Method: marggaus", {
+test_that("Method: gaussian", {
   expect_no_error({
     fit <- asem(
       mod,
       dat,
-      marginal_method = "marggaus",
+      marginal_method = "gaussian",
       vb_correction = FALSE,
       test = "none",
       silent = TRUE,

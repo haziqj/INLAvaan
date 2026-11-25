@@ -42,8 +42,7 @@ fit <- acfa(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 res <- loo(fit)
 
@@ -245,8 +244,7 @@ test_that("a fully missing row is left out of the scored units", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   ))
   expect_message(res_empty <- loo(fit_empty), "Not scoring 1 case")
   expect_equal(res_empty$per_unit$unit, 1:70)
@@ -268,8 +266,7 @@ test_that("ml.x scores each row given the covariates it has", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   ))
   expect_message(
     res_x <- loo(fit_x),

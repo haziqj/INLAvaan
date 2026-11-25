@@ -59,6 +59,7 @@ old_calls <- list(
 ## ----- The warning -----------------------------------------------------------
 
 test_that("each deprecated argument and value warns once per session", {
+  local_deprecation_warnings()
   for (id in names(old_calls)) {
     forget_deprecations(id)
     w <- expect_warning(
@@ -83,6 +84,7 @@ test_that("each deprecated argument and value warns once per session", {
 })
 
 test_that("the warning names what to use instead", {
+  local_deprecation_warnings()
   message_of <- function(id) {
     forget_deprecations(id)
     w <- expect_warning(do.call(resolve_with, old_calls[[id]]))
@@ -133,6 +135,7 @@ test_that("with the option inlavaan.deprecation = \"error\" they stop", {
 })
 
 test_that("a deprecation in a silent fit is recorded, not shown or marked", {
+  local_deprecation_warnings()
   forget_deprecations("n_qmc")
   expect_silent(fit <- fit_hs(n_qmc = 64, marginal_method = "gaussian"))
   expect_match(
@@ -158,6 +161,7 @@ test_that("a deprecation in a silent fit is recorded, not shown or marked", {
 ## ----- What the old calls give -------------------------------------------------
 
 test_that("an old call gives the fit of the new call it maps to", {
+  local_deprecation_warnings()
   expect_same_fit <- function(old_args, new_args) {
     set.seed(1)
     a <- do.call(fit_hs, old_args)
@@ -221,6 +225,7 @@ test_that("an old call gives the fit of the new call it maps to", {
 })
 
 test_that("TRUE, FALSE and \"skewnormal\" are silent aliases", {
+  local_deprecation_warnings()
   args <- function(vb_correction, marginal_method) {
     resolve_with(
       vb_correction = vb_correction,
@@ -264,6 +269,7 @@ test_that("TRUE, FALSE and \"skewnormal\" are silent aliases", {
 })
 
 test_that("marginal_method = \"sampling\" is not available", {
+  local_deprecation_warnings()
   err <- expect_error(
     fit_hs(marginal_method = "sampling"),
     class = "inlavaan_unavailable"
@@ -275,6 +281,7 @@ test_that("marginal_method = \"sampling\" is not available", {
 })
 
 test_that("an old argument and what replaces it stop together", {
+  local_deprecation_warnings()
   err <- expect_error(
     fit_hs(sn_fit_ngrid = 31, control = list(n_grid = 31)),
     "not both"
@@ -300,6 +307,7 @@ test_that("an old argument and what replaces it stop together", {
 ## ----- The functions after the fit ---------------------------------------------
 
 test_that("samp_copula after the fit warns and has no effect", {
+  local_deprecation_warnings()
   fit <- acfa(
     "visual =~ x1 + x2 + x3\ntextual =~ x4 + x5 + x6",
     hs,
@@ -338,6 +346,7 @@ test_that("samp_copula after the fit warns and has no effect", {
 ## ----- The wrappers and the help -----------------------------------------------
 
 test_that("the wrappers stop when given model.type", {
+  local_deprecation_warnings()
   for (fn in c("acfa", "asem", "agrowth")) {
     f <- get(fn)
     err <- expect_error(

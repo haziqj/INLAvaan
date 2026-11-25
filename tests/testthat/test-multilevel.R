@@ -13,7 +13,7 @@ fit_ml <- asem(
   cluster = "cluster",
   silent = TRUE,
   test = "none",
-  marginal_correction = "none",
+  marginal_method = "gaussian",
   vb_correction = FALSE,
   nsamp = 3
 )
@@ -93,7 +93,7 @@ test_that("Multilevel predict ymis works", {
     cluster = "cluster",
     missing = "ML",
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     silent = TRUE,
     nsamp = 3
@@ -199,7 +199,7 @@ test_that("Multilevel ypred works with residual variances fixed to zero", {
     cluster = "cluster",
     silent = TRUE,
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   )
@@ -552,7 +552,7 @@ test_that("The one-step and EM PPPs agree, and ppp_nsamp sets the draws", {
       dat,
       cluster = "cluster",
       silent = TRUE,
-      marginal_correction = "none",
+      marginal_method = "gaussian",
       vb_correction = FALSE,
       ...
     )

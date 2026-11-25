@@ -12,7 +12,7 @@ fit <- acfa(
   nsamp = 5,
   vb_correction = FALSE,
   test = "none",
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 
 test_that("simulate() returns list of correct length", {
@@ -74,6 +74,7 @@ test_that("simulate() nsim = 1 returns length-1 list", {
 })
 
 test_that("simulate() with the deprecated samp_copula works", {
+  local_deprecation_warnings()
   sims <- suppressWarnings(simulate(fit, nsim = 2, samp_copula = FALSE))
   expect_length(sims, 2)
   expect_true(is.data.frame(sims[[1]]))
@@ -90,7 +91,7 @@ fit_ms <- acfa(
   nsamp = 20,
   vb_correction = FALSE,
   test = "none",
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 fit_true <- acfa(
   mod,
@@ -100,7 +101,7 @@ fit_true <- acfa(
   nsamp = 20,
   vb_correction = FALSE,
   test = "none",
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 
 sim_col_means <- function(sims) {

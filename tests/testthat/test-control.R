@@ -135,6 +135,7 @@ test_that("a bad entry stops with the name of the entry", {
 ## ----- The control of inlavaan() -----------------------------------------------
 
 test_that("control takes inlavaan_control() or a plain list", {
+  local_deprecation_warnings()
   ce <- fit_with(control = inlavaan_control(n_grid = 31, vb_maxit = 10))
   expect_identical(ce$args$control$n_grid, 31L)
   expect_identical(ce$args$control$vb_maxit, 10L)
@@ -153,6 +154,7 @@ test_that("control takes inlavaan_control() or a plain list", {
 })
 
 test_that("an entry does what the argument of inlavaan() does, but not both", {
+  local_deprecation_warnings()
   # hessian: "forward" gives the engine a Hessian at the mode
   expect_null(fit_with()$args$hess_mode)
   ce <- fit_with(control = inlavaan_control(hessian = "forward"))
@@ -192,6 +194,7 @@ test_that("an entry does what the argument of inlavaan() does, but not both", {
 })
 
 test_that("the controls of nlminb() still work in control, with a warning", {
+  local_deprecation_warnings()
   ids <- paste0("control$", c("iter.max", "trace", "eval.max", "rel.tol"))
   forget_deprecations(ids)
   res <- collect_warnings(suppressMessages(fit_with(
@@ -245,6 +248,7 @@ test_that("the controls of nlminb() still work in control, with a warning", {
 })
 
 test_that("an old name and the entry it sets stop, in the names given", {
+  local_deprecation_warnings()
   for (old in nlminb_twins) {
     entry <- names(nlminb_twins)[nlminb_twins == old]
     ctrl <- stats::setNames(list(10, 10), c(old, entry))

@@ -37,8 +37,7 @@ fit_args <- list(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 fit_comp <- do.call(asem, c(list(mod_comp, dat), fit_args))
 res_comp <- loo(fit_comp)

@@ -69,7 +69,7 @@ test_that("the gradient is NA where the log-posterior fails", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   ))
   lp <- ce$args$lp
   gr <- ce$args$gr
@@ -159,6 +159,7 @@ test_that("the intercept block has no prior precision without priors", {
 })
 
 test_that("forward differences reach the engine, and a gradient always", {
+  local_deprecation_warnings()
   ce_fwd <- capture_engine(acfa(
     hs_mod,
     hs,
@@ -229,6 +230,7 @@ test_that("the fit prints a line per stage, and more with verbose = TRUE", {
 ## ----- Old values ------------------------------------------------------------
 
 test_that("old values map to the engine's stages", {
+  local_deprecation_warnings()
   fit_with <- function(...) {
     capture_engine(acfa(
       "visual =~ x1 + x2 + x3",
@@ -395,7 +397,7 @@ test_that("the evidence holds the constant of a two-level fit under fixed.x", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   ))
   int <- get_inlavaan_internal(ce$fit)
   adj <- twolevel_fixedx_loglik_adj(

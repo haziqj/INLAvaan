@@ -52,7 +52,7 @@ test_that("simulate() keeps the covariates and the clusters", {
     cluster = "cluster",
     silent = TRUE,
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   )
@@ -280,7 +280,7 @@ test_that("The B-indices of a random-slope fit", {
     cluster = "cluster",
     silent = TRUE,
     test = "dic",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   )
@@ -310,7 +310,7 @@ test_that("The B-indices refuse a between-only outcome", {
     cluster = "cluster",
     silent = TRUE,
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   )

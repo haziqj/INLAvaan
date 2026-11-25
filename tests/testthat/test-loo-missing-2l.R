@@ -43,8 +43,7 @@ fit <- suppressWarnings(asem(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 ))
 res <- loo(fit)
 
@@ -312,8 +311,7 @@ fit_2l_ml <- function(model, data) {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   ))
 }
 fits_between <- list(
@@ -797,8 +795,7 @@ fit_x <- function(data, missing = "ml") {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   ))
 }
 fit_x_ml <- fit_x(d_x)

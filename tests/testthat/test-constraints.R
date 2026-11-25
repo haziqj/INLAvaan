@@ -166,8 +166,7 @@ test_that("Residual covariances held equal across groups keep their labels", {
     data = lavaan::HolzingerSwineford1939,
     group = "school",
     dp = priors_for(lambda = "normal(1,.5)"),
-    marginal_method = "marggaus",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     test = "none",
     nsamp = 2,
     silent = TRUE
@@ -195,7 +194,7 @@ test_that("std.lv with loadings held equal frees the second group variance", {
     group = "school",
     std.lv = TRUE,
     meanstructure = TRUE,
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     test = "none",
     nsamp = 2,
     silent = TRUE

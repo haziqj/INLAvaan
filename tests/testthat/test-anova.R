@@ -9,7 +9,7 @@ fit <- acfa(
   silent = TRUE,
   nsamp = 3,
   test = "none",
-  marginal_method = "marggaus",
+  marginal_method = "gaussian",
   vb_correction = FALSE
 )
 

@@ -17,12 +17,12 @@ dat <- lavaan::Demo.growth
 fit_lav <- lavaan::cfa(mod, dat)
 NSAMP <- 3
 
-test_that("Method: marggaus (fast)", {
+test_that("Method: gaussian (fast)", {
   expect_no_error({
     fit <- agrowth(
       mod,
       dat,
-      marginal_method = "marggaus",
+      marginal_method = "gaussian",
       vb_correction = FALSE,
       test = "none",
       silent = TRUE,

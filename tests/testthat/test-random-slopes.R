@@ -9,7 +9,7 @@ fit_rs_dic <- asem(
   cluster = "cluster",
   silent = TRUE,
   test = "dic",
-  marginal_correction = "none",
+  marginal_method = "gaussian",
   vb_correction = FALSE,
   nsamp = 3
 )
@@ -118,7 +118,7 @@ test_that("Random slopes: a latent covariate keeps lavaan's own fixed.x", {
         integration.ngh = 5,
         verbose = FALSE,
         test = "none",
-        marginal_correction = "none",
+        marginal_method = "gaussian",
         vb_correction = FALSE,
         nsamp = 3
       )
@@ -169,7 +169,7 @@ test_that("Random slopes: PPP is dropped from the default test", {
         cluster = "cluster",
         verbose = FALSE,
         test = "ppp",
-        marginal_correction = "none",
+        marginal_method = "gaussian",
         vb_correction = FALSE,
         nsamp = 3
       )
@@ -311,7 +311,7 @@ fit_route_b <- function(ngh) {
       silent = TRUE,
       test = "none",
       nsamp = 3,
-      marginal_correction = "none",
+      marginal_method = "gaussian",
       vb_correction = FALSE
     )
   )
@@ -329,7 +329,7 @@ test_that("Random slopes: the quadrature route warns and honours ngh", {
         verbose = FALSE,
         test = "none",
         nsamp = 3,
-        marginal_correction = "none",
+        marginal_method = "gaussian",
         vb_correction = FALSE
       )
     ),
@@ -366,7 +366,7 @@ test_that("Random slopes: the quadrature route warns once per fit", {
       verbose = FALSE,
       test = "loo",
       nsamp = 3,
-      marginal_correction = "none",
+      marginal_method = "gaussian",
       vb_correction = FALSE
     ),
     inlavaan_rs_route_b = function(cond) {

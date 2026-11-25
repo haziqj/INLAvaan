@@ -32,7 +32,7 @@ fit1_ms <- acfa(
   mod_null,
   dat,
   meanstructure = TRUE,
-  marginal_method = "marggaus",
+  marginal_method = "gaussian",
   vb_correction = FALSE,
   silent = TRUE,
   nsamp = 3,
@@ -42,7 +42,7 @@ fit2_ms <- acfa(
   mod_full,
   dat,
   meanstructure = TRUE,
-  marginal_method = "marggaus",
+  marginal_method = "gaussian",
   vb_correction = FALSE,
   silent = TRUE,
   nsamp = 3,
@@ -139,7 +139,7 @@ test_that("compare() warns when fits differ in the VB correction", {
     mod_full,
     dat,
     vb_correction = FALSE,
-    marginal_method = "marggaus",
+    marginal_method = "gaussian",
     silent = TRUE,
     nsamp = 3,
     test = "none"
@@ -334,7 +334,7 @@ test_that("compare() scales incremental indices against the independence model",
     silent = TRUE,
     nsamp = 50,
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   fit_b <- acfa(
     mod_full,
@@ -342,7 +342,7 @@ test_that("compare() scales incremental indices against the independence model",
     silent = TRUE,
     nsamp = 50,
     vb_correction = FALSE,
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   cmp <- compare(fit_a, fit_b, fit.measures = c("BCFI", "BTLI"))
   expect_true(all(is.finite(cmp$BCFI)))
@@ -367,7 +367,7 @@ fit_args_comp <- list(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 fit_comp <- do.call(asem, c(list(mod_comp, dat), fit_args_comp))
 
@@ -471,7 +471,7 @@ fit_twolevel <- function(mod, ...) {
     silent = TRUE,
     nsamp = 3,
     test = "dic",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     ...
   )
@@ -638,7 +638,7 @@ test_that("quadrature fits are compared on the covariates they condition on", {
         silent = TRUE,
         nsamp = 3,
         test = "none",
-        marginal_correction = "none",
+        marginal_method = "gaussian",
         vb_correction = FALSE
       )
     )

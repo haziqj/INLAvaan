@@ -35,8 +35,7 @@ fit_args <- list(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 fit_conf <- do.call(
   acfa,

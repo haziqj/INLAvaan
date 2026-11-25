@@ -29,12 +29,12 @@ test_that("Method: skewnorm", {
   expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
-test_that("Method: marggaus", {
+test_that("Method: gaussian", {
   expect_no_error({
     fit <- acfa(
       mod,
       dat,
-      marginal_method = "marggaus",
+      marginal_method = "gaussian",
       silent = TRUE,
       nsamp = NSAMP,
       std.lv = STDLV

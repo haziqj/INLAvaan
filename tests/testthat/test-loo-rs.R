@@ -94,7 +94,7 @@ test_that("a covariate at both levels is conditioned on, as in the evidence", {
     cluster = "cluster",
     silent = TRUE,
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   ))
@@ -240,7 +240,7 @@ test_that("a level-2 covariance is carried through the chain rule", {
     cluster = "cluster",
     silent = TRUE,
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   )
@@ -315,7 +315,7 @@ test_that("incomplete data goes through lavaan's own missing handling", {
     missing = "ml",
     silent = TRUE,
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   )
@@ -343,7 +343,7 @@ test_that("a full test set computes LOO and WAIC but still skips PPP", {
         cluster = "cluster",
         verbose = FALSE,
         test = "full",
-        marginal_correction = "none",
+        marginal_method = "gaussian",
         vb_correction = FALSE,
         nsamp = 3
       )

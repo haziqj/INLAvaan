@@ -34,8 +34,7 @@ fit_c <- asem(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 res_c <- loo(fit_c)
 
@@ -50,8 +49,7 @@ fit_j <- asem(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 
 # Total loglik of the fit at the INLAvaan mode (under fixed.x this is the
@@ -177,8 +175,7 @@ fit_2c <- asem(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 
 test_that("conditional LOCO with cluster-level covariates matches reference values", {
@@ -239,8 +236,7 @@ test_that("conditional LOCO with within-level covariates matches reference value
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   res_wx <- loo(fit_wx)
   expect_equal(res_wx$flavour, "conditional")
@@ -322,8 +318,7 @@ test_that("conditional LOCO with within-level covariates matches reference value
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   res_w <- loo(fit_w, units = 1:10)
   expect_equal(res_w$flavour, "conditional")
@@ -359,8 +354,7 @@ test_that("conditional LOCO mixes both-level and within-only covariates", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   int <- get_inlavaan_internal(fit_mix)
   css <- INLAvaan:::loco_suff_stats(int$lavdata)
@@ -435,8 +429,7 @@ test_that("compare(loo = TRUE) enforces the flavour rules", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   cmp <- compare(fit_c, fit_c1, loo = TRUE)
   expect_true(all(

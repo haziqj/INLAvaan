@@ -19,8 +19,7 @@ fit <- acfa(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 res <- loo(fit)
 # Shared across two test_that() blocks that both need a copy of `fit` with
@@ -249,8 +248,7 @@ test_that("equality constraints (ceq.simple) are handled", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   int <- get_inlavaan_internal(fit_eq)
   expect_true(int$lavmodel@ceq.simple.only)
@@ -310,8 +308,7 @@ test_that("fit-time LOO via test = 'loo' and add_loo()", {
     nsamp = 3,
     test = "loo",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   ))
   stored <- get_inlavaan_internal(fit_loo, "loo")
   expect_s3_class(stored, "inlavaan_loo")
@@ -435,8 +432,7 @@ test_that("single-level FIML is supported (see test-loo-missing.R)", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   res_miss <- loo(fit_miss)
   expect_s3_class(res_miss, "inlavaan_loo")
@@ -454,8 +450,7 @@ test_that("test = 'full' stores PPP, DIC, LOO and WAIC", {
     nsamp = 100,
     test = "full",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   ))
   int <- get_inlavaan_internal(fit_std)
 
@@ -505,8 +500,7 @@ test_that("the default test = 'standard' stores neither LOO nor WAIC", {
     silent = TRUE,
     nsamp = 3,
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   int <- get_inlavaan_internal(fit_def)
   expect_equal(int$test$computed, c("ppp", "dic"))
@@ -536,8 +530,7 @@ test_that("test = 'waic' alone also stores both, regardless of nsamp", {
     nsamp = 3,
     test = "waic",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   ))
   int <- get_inlavaan_internal(fit_s3)
   # derived from the same Taylor pass, so no draws-based nsamp gate remains

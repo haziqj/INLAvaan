@@ -6,7 +6,7 @@ mod <- "
 fit <- acfa(
   mod,
   dat,
-  marginal_method = "marggaus",
+  marginal_method = "gaussian",
   vb_correction = FALSE,
   silent = TRUE,
   nsamp = 3

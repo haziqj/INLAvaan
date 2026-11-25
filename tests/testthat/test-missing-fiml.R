@@ -56,7 +56,7 @@ test_that("PPP under FIML tracks the complete-data PPP for the same data", {
     Y,
     silent = TRUE,
     nsamp = 300,
-    marginal_method = "marggaus",
+    marginal_method = "gaussian",
     vb_correction = FALSE
   )
   fit_m <- acfa(
@@ -65,7 +65,7 @@ test_that("PPP under FIML tracks the complete-data PPP for the same data", {
     missing = "ml",
     silent = TRUE,
     nsamp = 300,
-    marginal_method = "marggaus",
+    marginal_method = "gaussian",
     vb_correction = FALSE
   )
   ppp_c <- unname(fitmeasures(fit_c, "ppp"))

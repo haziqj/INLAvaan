@@ -20,7 +20,7 @@ fit_cfa <- acfa(
   nsamp = NSAMP,
   vb_correction = FALSE,
   test = "none",
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 fit_mg <- acfa(
   mod,
@@ -30,7 +30,7 @@ fit_mg <- acfa(
   group = "school",
   vb_correction = FALSE,
   test = "none",
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 fit_sem <- asem(
   sem_mod,
@@ -39,7 +39,7 @@ fit_sem <- asem(
   nsamp = NSAMP,
   vb_correction = FALSE,
   test = "none",
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 
 # ---- CFA: type = "lv" (default) -----------------------------------------
@@ -169,6 +169,7 @@ test_that("Factor scores are centred on the implied/saturated means", {
 # ---- Regression: predict() draws exactly as the fit does -----------------
 
 test_that("predict() draws with the marginals of the fit", {
+  local_deprecation_warnings()
   orig <- sample_params
   args <- NULL
   local_mocked_bindings(
@@ -229,7 +230,7 @@ fit_quick <- function(model, data = dat, ...) {
     nsamp = NSAMP,
     vb_correction = FALSE,
     test = "none",
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
 }
 

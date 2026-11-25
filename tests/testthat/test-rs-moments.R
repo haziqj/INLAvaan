@@ -269,7 +269,7 @@ test_that("A within-only outcome with a shifted covariate is refused", {
     cluster = "cluster",
     silent = TRUE,
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   )
@@ -732,7 +732,7 @@ test_that("Constraints, FIML, two slopes and named levels work together", {
     missing = "ml",
     silent = TRUE,
     test = "none",
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     vb_correction = FALSE,
     nsamp = 3
   )

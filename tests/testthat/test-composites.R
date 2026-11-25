@@ -17,7 +17,7 @@ fit_quiet <- function(model, data = dat, ...) {
     test = "none",
     nsamp = NSAMP,
     vb_correction = FALSE,
-    marginal_correction = "none",
+    marginal_method = "gaussian",
     ...
   )
 }

@@ -25,7 +25,7 @@ shared_rs_fit <- local({
         cluster = "cluster",
         silent = TRUE,
         test = "none",
-        marginal_correction = "none",
+        marginal_method = "gaussian",
         vb_correction = FALSE,
         nsamp = 3
       )

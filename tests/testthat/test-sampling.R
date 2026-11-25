@@ -12,7 +12,7 @@ fit <- acfa(
   nsamp = 5,
   vb_correction = FALSE,
   test = "none",
-  marginal_method = "marggaus"
+  marginal_method = "gaussian"
 )
 
 test_that("sampling() returns matrix for type = 'lavaan'", {
@@ -30,6 +30,7 @@ test_that("sampling() returns matrix for type = 'theta'", {
 })
 
 test_that("sampling() with the deprecated samp_copula returns the same draws", {
+  local_deprecation_warnings()
   set.seed(1)
   s <- suppressWarnings(
     sampling(fit, type = "lavaan", nsamp = 10, samp_copula = FALSE)
@@ -139,7 +140,7 @@ test_that("sampling() works with a single latent variable (nlv = 1)", {
     nsamp = 5,
     vb_correction = FALSE,
     test = "none",
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
 
   lat <- sampling(fit1, type = "latent", nsamp = 8)
@@ -230,7 +231,7 @@ test_that("Prior observed draws work with an observed outcome", {
     nsamp = 5,
     vb_correction = FALSE,
     test = "none",
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   set.seed(1)
   expect_no_message(
@@ -267,7 +268,7 @@ test_that("Composite draws are the weighted sums of their indicators", {
     nsamp = 5,
     vb_correction = FALSE,
     test = "none",
-    marginal_method = "marggaus"
+    marginal_method = "gaussian"
   )
   int <- get_inlavaan_internal(fit_c)
   for (prior in c(FALSE, TRUE)) {
@@ -307,7 +308,7 @@ fit_ml <- asem(
   test = "none",
   nsamp = 50,
   vb_correction = FALSE,
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 
 test_that("sampling() type = 'implied' returns the within/cluster pair", {

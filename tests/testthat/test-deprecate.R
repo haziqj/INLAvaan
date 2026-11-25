@@ -35,6 +35,7 @@ test_that("the badge image is lifecycle's file, unchanged", {
 })
 
 test_that("a deprecation warns once per session for each id", {
+  local_deprecation_warnings()
   ids <- c("test-once-a", "test-once-b")
   forget_deprecations(ids)
   w <- expect_warning(
@@ -56,6 +57,7 @@ test_that("a deprecation warns once per session for each id", {
 })
 
 test_that("the option inlavaan.deprecation = \"error\" makes every call an error", {
+  local_deprecation_warnings()
   id <- "test-error"
   forget_deprecations(id)
   old_opt <- options(inlavaan.deprecation = "error")
@@ -75,6 +77,7 @@ test_that("the option inlavaan.deprecation = \"error\" makes every call an error
 })
 
 test_that("a deprecation raised under silent = TRUE warns again later", {
+  local_deprecation_warnings()
   id <- "test-silent"
   forget_deprecations(id)
   expect_warning(
@@ -91,6 +94,7 @@ test_that("a deprecation raised under silent = TRUE warns again later", {
 })
 
 test_that("the message is filled in from the caller's environment", {
+  local_deprecation_warnings()
   id <- "test-envir"
   forget_deprecations(id)
   caller <- function() {

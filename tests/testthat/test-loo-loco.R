@@ -27,8 +27,7 @@ fit <- asem(
   nsamp = 3,
   test = "none",
   vb_correction = FALSE,
-  marginal_method = "marggaus",
-  marginal_correction = "none"
+  marginal_method = "gaussian"
 )
 res <- loo(fit)
 
@@ -343,8 +342,7 @@ test_that("fixed.x two-level fits are scored conditionally", {
     nsamp = 3,
     test = "none",
     vb_correction = FALSE,
-    marginal_method = "marggaus",
-    marginal_correction = "none"
+    marginal_method = "gaussian"
   )
   res_fx <- loo(fit_fx, units = 1:5)
   expect_equal(res_fx$flavour, "conditional")
