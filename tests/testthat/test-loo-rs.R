@@ -336,15 +336,17 @@ test_that("incomplete data goes through lavaan's own missing handling", {
 test_that("a full test set computes LOO and WAIC but still skips PPP", {
   skip_on_cran()
   expect_warning(
-    fit_full <- asem(
-      mod_rs,
-      d_rs,
-      cluster = "cluster",
-      verbose = FALSE,
-      test = "full",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 3
+    muffle_fit_diagnostics(
+      fit_full <- asem(
+        mod_rs,
+        d_rs,
+        cluster = "cluster",
+        verbose = FALSE,
+        test = "full",
+        marginal_correction = "none",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
     ),
     class = "inlavaan_rs_ppp"
   )

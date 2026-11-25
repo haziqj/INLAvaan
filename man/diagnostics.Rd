@@ -28,12 +28,25 @@ Extract convergence and approximation-quality diagnostics from a fitted
 \code{INLAvaan} model.
 }
 \details{
+The diagnostics are those of the engine that fits the model (the files of
+inlavanilla that INLAvaan copies), in its order and under its names. Then
+come the diagnostics that INLAvaan adds for structural equation models, and
+last the names that INLAvaan 0.4.0 deprecates. Read the values by name, not
+by position. A posterior SD here is the Laplace SD at the mode, \eqn{s_j},
+the square root of the diagonal of \eqn{\Omega}, the covariance matrix of
+the Laplace approximation. Values that a fit did not compute are
+\code{NA}: the VB quantities with \code{vb_correction = FALSE}, and the
+scan quantities with Gaussian marginals (\code{marginal_method =
+"marggaus"}) and for the intercepts of a saturated mean structure, whose
+marginals are Gaussian and have no scan.
+
 \strong{Global diagnostics} (\code{type = "global"}):
 \describe{
 \item{\code{npar}}{Number of free parameters.}
-\item{\code{nsamp}}{Number of posterior samples drawn.}
 \item{\code{converged}}{1 if the optimiser converged, 0 otherwise.}
-\item{\code{iterations}}{Number of optimiser iterations.}
+\item{\code{iterations}}{Number of optimiser iterations. When the
+gradient at the first mode is too large, the optimiser runs again from
+there, and this is the total of both runs.}
 \item{\code{grad_inf}}{L-infinity norm of the analytic gradient at the mode
 (max |grad|). Should be ~0 at convergence.}
 \item{\code{grad_inf_rel}}{Relative L-infinity norm of the analytic gradient
@@ -41,33 +54,48 @@ Extract convergence and approximation-quality diagnostics from a fitted
 \item{\code{grad_l2}}{L2 (Euclidean) norm of the analytic gradient at the mode.}
 \item{\code{mode_shift_max}}{Maximum, across parameters, of the Newton
 step at the reported mode in posterior-SD units
-(max |\eqn{\Sigma_\theta} grad| / se). Unlike the raw gradient norms
+(max |\eqn{\Omega} grad| / s). Unlike the raw gradient norms
 this is scale-free: it estimates how far the reported mode sits from
 the true posterior mode relative to the posterior uncertainty. Should
 be ~0 at convergence.}
-\item{\code{hess_cond}}{Condition number of the Hessian (precision matrix)
-computed from \eqn{\Sigma_\theta}. Large values indicate near-singularity.}
-\item{\code{vb_kld_global}}{Global KL divergence from the VB mean correction
-(NA if VB correction was not applied).}
+\item{\code{hess_cond}}{Condition number of the Hessian at the mode, the
+ratio of the largest to the smallest eigenvalue of \eqn{\Omega}. It
+depends on the units of the parameters.}
+\item{\code{hess_cond_cor}}{The same for the posterior correlation
+matrix, with each parameter in its own posterior-SD units, so it is
+free of units. Large values mean that some combination of the
+parameters is weakly identified. The fit-time check reads this one.}
 \item{\code{vb_applied}}{1 if VB correction was applied, 0 otherwise.}
 \item{\code{vb_shift_max}}{Maximum, across parameters, of the absolute
-VB correction in posterior-SD units (max |\code{vb_shift_sigma}|). This
-is the quantity the fit-time check tests. NA if the VB correction was
-not applied.}
+VB correction in posterior-SD units (max |\code{vb_shift_sigma}|).}
+\item{\code{vb_kld_global}}{KL divergence between the Laplace Gaussian
+and its VB-shifted copy, \eqn{\frac12 \delta^\top \Omega^{-1}
+    \delta}{delta' Omega^-1 delta / 2}, which is also the VB term of the
+marginal log-likelihood.}
 \item{\code{kld_max}}{Maximum per-parameter KL divergence from the VB correction.}
 \item{\code{kld_mean}}{Mean per-parameter KL divergence.}
-\item{\code{vb_mcse_max}}{Maximum, across parameters, of the estimated
-quadrature error of the VB shift, in posterior-SD units. See
-\code{vb_mcse_sigma} below. NA under
-\code{vb_method = "gauss_hermite"}.}
-\item{\code{vb_mcse_mean}}{Mean estimated quadrature error of the VB
-shift, in posterior-SD units.}
 \item{\code{nmad_max}}{Maximum normalised max-absolute-deviation across
-marginals (skew-normal method only; NA otherwise).}
-\item{\code{nmad_mean}}{Mean NMAD across marginals.}
-\item{\code{scan_end_mass_max}}{Maximum, across parameters, of
-\code{scan_end_mass} (see below). NA unless the skew-normal marginal
-method was used.}
+the scanned marginals.}
+\item{\code{nmad_mean}}{Mean NMAD across the scanned marginals.}
+\item{\code{unscanned_mass_max}}{Maximum, across parameters, of
+\code{unscanned_mass} (see below). Before INLAvaan 0.4.0 it was
+\code{scan_end_mass_max}.}
+\item{\code{grad_gap_max}}{Maximum \code{grad_gap} (see below). Should be
+~0.}
+\item{\code{vb_fallback}}{1 if the VB correction handed over to its
+fallback optimiser, 0 otherwise. It is recorded only: the fallback is a
+route of the solver, and the other VB checks judge where it lands.}
+\item{\code{vb_step_max}}{Maximum \code{vb_step_sigma} (see below).}
+\item{\code{vb_gain_ratio}}{The rise in the expected log-posterior that
+the one-step VB correction delivered, as a share of the rise that it
+promised. Near 1 is healthy. \code{NA} when the correction iterated
+(\code{vb_correction = "full"}), or its step was too small to check.}
+\item{\code{mean_gap_max}}{Maximum, across parameters, of
+|\code{mean_gap}| (see below).}
+\item{\code{ridge_bend_max}}{Maximum \code{ridge_bend} (see below).}
+\item{\code{n_heavy_tails}}{Number of marginals with heavy tails, those
+whose \code{tails} is \code{FALSE}.}
+\item{\code{nsamp}}{Number of posterior samples drawn.}
 \item{\code{psi_npd_share}}{Share of the posterior draws in which the
 covariance matrix of the latent variables (\code{psi}) of some block is
 not positive definite. Each correlation is kept in (-1, 1) on its own,
@@ -77,6 +105,9 @@ covariance matrix. Zero when no \code{psi} matrix has a free
 covariance.}
 \item{\code{theta_npd_share}}{The same share for the residual covariance
 matrix of the observed variables (\code{theta}).}
+\item{\code{vb_mcse_max}, \code{vb_mcse_mean}}{Deprecated, and always
+\code{NA}: the VB correction uses a deterministic rule, which has no
+quadrature error. They will be removed in INLAvaan 0.5.0.}
 }
 
 \strong{Per-parameter diagnostics} (\code{type = "param"}):
@@ -85,46 +116,58 @@ A data frame with columns:
 \item{\code{names}}{Parameter name.}
 \item{\code{grad}}{Analytic gradient of the negative log-posterior at the
 mode. Should be ~0 at convergence.}
-\item{\code{grad_num}}{Numerical (finite-difference) gradient at the mode.
-Should agree with \code{grad}; large discrepancies indicate a bug in the
-analytic gradient.}
-\item{\code{grad_diff}}{Difference \code{grad_num - grad}: should be ~0.}
 \item{\code{grad_abs}}{Absolute analytic gradient.}
-\item{\code{grad_rel}}{Relative analytic gradient |grad| / (|par| + 1e-6).}
+\item{\code{grad_rel}}{Relative analytic gradient |grad| / (|par| + 1e-6),
+with par the posterior mean on the internal scale.}
 \item{\code{mode_shift_sigma}}{Newton step at the reported mode in
 posterior-SD units. Should be ~0 at convergence.}
-\item{\code{kld}}{Per-parameter KL divergence from the VB correction.}
-\item{\code{vb_shift}}{VB correction shift (in original scale).}
+\item{\code{kld}}{KL divergence between the Laplace Gaussian marginal and
+its VB-shifted copy, \code{vb_shift_sigma^2 / 2}.}
+\item{\code{vb_shift}}{VB correction shift (on the internal scale).}
 \item{\code{vb_shift_sigma}}{VB shift in units of posterior SD.}
-\item{\code{vb_mcse_sigma}}{Estimated quadrature error of the VB shift, in
-posterior-SD units. The shift is the solution of an integral evaluated by
-quasi-Monte Carlo over a finite node set, so it carries an integration
-error of its own. This estimates that error by splitting the node set in
-half and taking half the disagreement between the two half-set solutions.
-Read it as an error bar on \code{vb_shift_sigma}: a value of 0.05 means
-the reported posterior mean of that parameter could move by roughly that
-much, in SD units, purely from the choice of node set. It runs
-conservative, because the two halves are negatively correlated and
-quasi-Monte Carlo error falls faster than root-n. It is exactly zero for
-parameters whose shift is pinned by the saturated-means fast path, since
-no quadrature is used there. It is NA for every parameter under
-\code{vb_method = "gauss_hermite"}, whose rule is deterministic.}
-\item{\code{nmad}}{Normalised max-absolute-deviation of the skew-normal fit
-(NA when not using the skewnorm method).}
+\item{\code{nmad}}{Normalised max-absolute-deviation of the skew-normal
+fit from the scanned posterior.}
 \item{\code{alpha}}{Shape parameter of the fitted skew-normal marginal,
-on the unconstrained scale. Zero is a Gaussian marginal, and the sign
-gives the direction of the skew (NA when not using the skewnorm
-method).}
-\item{\code{scan_end_mass}}{Mass the fitted marginal puts outside the
+on the internal scale. Zero is a Gaussian marginal, and the sign gives
+the direction of the skew.}
+\item{\code{unscanned_mass}}{Mass the fitted marginal puts outside the
 window that was scanned to fit it,
 \eqn{F(\hat\theta_j - 4 s_j) + 1 - F(\hat\theta_j + 4 s_j)}, where
-\eqn{F} is the fitted skew-normal distribution function,
-\eqn{\hat\theta_j} the posterior mode and \eqn{s_j} the Laplace
-posterior SD. The marginal is fitted inside that window only, so mass
-outside it is extrapolation, and when this is large the 2.5\\% and
-97.5\\% credible limits are the numbers to distrust. A Gaussian marginal
-gives \eqn{2\Phi(-4)} = 6.3e-05, and healthy fits sit between 1e-03 and
-1e-02 (NA when not using the skewnorm method).}
+\eqn{F} is the fitted skew-normal distribution function and
+\eqn{\hat\theta_j} the posterior mode. The marginal is fitted inside
+that window only, so mass outside it is extrapolation, and when this is
+large the 2.5\\% and 97.5\\% credible limits are the numbers to distrust.
+A Gaussian marginal gives \eqn{2\Phi(-4)} = 6.3e-05, and healthy fits
+sit between 1e-03 and 1e-02. Before INLAvaan 0.4.0 it was
+\code{scan_end_mass}.}
+\item{\code{grad_gap}}{How far the analytic gradient is from central
+differences of the log-posterior at the mode: the larger of the gap in
+slope per conditional posterior SD (about how far a wrong gradient
+moves the mode, in posterior SDs) and half the relative gap in
+curvature (about the relative error it makes in a posterior SD).
+Should be ~0.}
+\item{\code{vb_step_sigma}}{The step still to go at the VB mean, in
+posterior-SD units, as \code{mode_shift_sigma} is for the mode.
+\code{NA} after the default one-step VB correction.}
+\item{\code{mean_gap}}{Gap between the mean of the skew-normal marginal
+and the VB mean, in posterior-SD units. Both estimate the shift from the
+mode to the posterior mean, so a large gap says that the posterior is
+far from Gaussian along this parameter.}
+\item{\code{gamma1}}{The volume correction of the scan: the slope, per
+posterior SD, added to the scanned log-posterior for the changing
+volume of the other parameters.}
+\item{\code{tails}}{\code{FALSE} when the density at an end of the scan is
+still above 5\\% of its peak: the tail is heavy there, and the
+skew-normal extrapolates it.}
+\item{\code{ridge_bend}}{The log-density, in nats, that the straight scan
+misses at 2 posterior SDs either side of the mode, where the ridge of
+high posterior density bends away from it. A large value means that
+the marginal may be too narrow: 0.25 is a posterior SD about 10\\% too
+small.}
+\item{\code{grad_num}, \code{grad_diff}, \code{vb_mcse_sigma}}{Deprecated,
+and always \code{NA}: \code{grad_gap} checks the analytic gradient in
+place of \code{grad_num} and \code{grad_diff}, and the VB shift has no
+quadrature error. They will be removed in INLAvaan 0.5.0.}
 }
 
 \strong{Fit-time warnings}: \code{\link[=inlavaan]{inlavaan()}} runs these checks once at the end
@@ -132,25 +175,32 @@ of every fit and emits a single consolidated warning (condition class
 \code{"inlavaan_diagnostics_warning"}) when any of them looks off:
 \itemize{
 \item the optimiser did not converge;
+\item any parameter with \code{grad_gap} above 0.1;
 \item \code{mode_shift_max} above 0.1 posterior SDs;
+\item the VB correction did not settle: \code{vb_step_max} above 0.1
+posterior SDs, or \code{vb_gain_ratio} below 0.5;
 \item any marginal with \code{nmad} above 0.1;
-\item any marginal with \code{scan_end_mass} above 0.05;
+\item any marginal with \code{unscanned_mass} above 0.05;
+\item any marginal with heavy tails;
 \item \code{vb_shift_max} above 1 posterior SD;
-\item \code{hess_cond} above 1e8;
+\item \code{hess_cond_cor} above 1e8;
 \item the latent or residual covariance matrix is not positive definite
 at the posterior estimates (the check that \pkg{lavaan} runs after a
 fit);
 \item \code{psi_npd_share} or \code{theta_npd_share} above 0.01.
 }
+When \code{mode_shift_max} is above 1, or a marginal puts more than 0.9 of
+its mass outside its scan, the warning also says that the mode may be far
+from the posterior mass. The ridge bend and the mean gap never warn.
 Three of these checks have calibration behind them. Over 1,046 simulated
 fits with MCMC references, the Spearman correlation with the worst-case
 posterior-mean discrepancy was 0.64 for the VB shift in SD units, 0.59 for
-the scan-endpoint mass and 0.48 for the NMAD. The convergence, mode-shift
-and condition-number checks are rules of thumb. Every number above is a
-package default, chosen so that a healthy fit stays silent, and not a
-calibrated cut-off: a tripped check is a prompt to look again, and silence
-is not a certificate of accuracy. Silence the check with
-\code{suppressWarnings()}, or selectively by handling the condition class.
+the unscanned mass and 0.48 for the NMAD. The other checks are rules of
+thumb. Every number above is a package default, chosen so that a healthy
+fit stays silent, and not a calibrated cut-off: a tripped check is a prompt
+to look again, and silence is not a certificate of accuracy. Silence the
+check with \code{suppressWarnings()}, or selectively by handling the
+condition class.
 }
 \examples{
 \donttest{

@@ -36,7 +36,7 @@ test_that("FIML posterior summaries agree with lavaan's FIML estimates", {
   se_l <- sqrt(diag(vcov(ml_fiml)))
   expect_equal(unname(sd_i[ld]), unname(se_l[ld]), tolerance = 0.25)
   # The skew-normal marginals sit inside the scanned window again
-  expect_lt(diagnostics(fit_fiml)["scan_end_mass_max"], 0.05)
+  expect_lt(diagnostics(fit_fiml)[["unscanned_mass_max"]], 0.05)
 })
 
 test_that("PPP under FIML tracks the complete-data PPP for the same data", {

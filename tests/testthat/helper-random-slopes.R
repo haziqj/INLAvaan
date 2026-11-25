@@ -33,3 +33,16 @@ shared_rs_fit <- local({
     fit
   }
 })
+
+# The fit-time diagnostics warning, muffled, so that a test can check that a
+# fit raises no other warning, or other conditions. With few clusters, such as
+# the 24 above, the level-2 variances have heavy tails, which the engine's
+# checks flag.
+muffle_fit_diagnostics <- function(expr) {
+  withCallingHandlers(
+    expr,
+    inlavaan_diagnostics_warning = function(w) {
+      tryInvokeRestart("muffleWarning")
+    }
+  )
+}

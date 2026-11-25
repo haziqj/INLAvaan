@@ -150,8 +150,10 @@ test_that("Covariances held equal have the right gradient", {
   expect_no_warning(
     fit <- acfa(mod, dat, verbose = FALSE, nsamp = NSAMP, test = "none")
   )
+  # The analytic gradient agrees with central differences of the
+  # log-posterior at the mode
+  expect_lt(diagnostics(fit)[["grad_gap_max"]], 0.1)
   int <- get_inlavaan_internal(fit)
-  expect_lt(max(abs(int$opt$dx_analytic - int$opt$dx)), 1e-4)
 
   # The posterior mode sits at the ML estimate
   pt <- int$partable

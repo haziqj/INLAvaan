@@ -110,16 +110,18 @@ test_that("Random slopes: a latent covariate keeps lavaan's own fixed.x", {
       s1 ~~ s1
   "
   expect_warning(
-    fit_lat <- asem(
-      mod_lat,
-      d_rs,
-      cluster = "cluster",
-      integration.ngh = 5,
-      verbose = FALSE,
-      test = "none",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 3
+    muffle_fit_diagnostics(
+      fit_lat <- asem(
+        mod_lat,
+        d_rs,
+        cluster = "cluster",
+        integration.ngh = 5,
+        verbose = FALSE,
+        test = "none",
+        marginal_correction = "none",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
     ),
     class = "inlavaan_rs_route_b"
   )
@@ -137,15 +139,17 @@ test_that("Random slopes: PPP is dropped from the default test", {
   # available ... test set to none" and the silent PPP drop under the
   # default `test`
   expect_no_warning(
-    fit_std <- asem(
-      mod_rs,
-      d_rs,
-      cluster = "cluster",
-      verbose = FALSE,
-      test = "standard",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 3
+    muffle_fit_diagnostics(
+      fit_std <- asem(
+        mod_rs,
+        d_rs,
+        cluster = "cluster",
+        verbose = FALSE,
+        test = "standard",
+        marginal_correction = "none",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
     )
   )
 
@@ -158,15 +162,17 @@ test_that("Random slopes: PPP is dropped from the default test", {
 
   # Naming ppp explicitly is worth a warning
   expect_warning(
-    asem(
-      mod_rs,
-      d_rs,
-      cluster = "cluster",
-      verbose = FALSE,
-      test = "ppp",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 3
+    muffle_fit_diagnostics(
+      asem(
+        mod_rs,
+        d_rs,
+        cluster = "cluster",
+        verbose = FALSE,
+        test = "ppp",
+        marginal_correction = "none",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
     ),
     class = "inlavaan_rs_ppp"
   )
@@ -257,15 +263,17 @@ test_that("Random slopes: latent variables come from the EB kernel", {
 test_that("Random slopes: the closed-form route is silent", {
   skip_on_cran()
   expect_no_warning(
-    asem(
-      mod_rs,
-      d_rs,
-      cluster = "cluster",
-      verbose = FALSE,
-      test = "none",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 3
+    muffle_fit_diagnostics(
+      asem(
+        mod_rs,
+        d_rs,
+        cluster = "cluster",
+        verbose = FALSE,
+        test = "none",
+        marginal_correction = "none",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
     )
   )
 })
@@ -312,16 +320,18 @@ fit_route_b <- function(ngh) {
 test_that("Random slopes: the quadrature route warns and honours ngh", {
   skip_on_cran()
   expect_warning(
-    fit_b <- asem(
-      mod_b,
-      d_b,
-      cluster = "cluster",
-      integration.ngh = 5,
-      verbose = FALSE,
-      test = "none",
-      nsamp = 3,
-      marginal_correction = "none",
-      vb_correction = FALSE
+    muffle_fit_diagnostics(
+      fit_b <- asem(
+        mod_b,
+        d_b,
+        cluster = "cluster",
+        integration.ngh = 5,
+        verbose = FALSE,
+        test = "none",
+        nsamp = 3,
+        marginal_correction = "none",
+        vb_correction = FALSE
+      )
     ),
     class = "inlavaan_rs_route_b"
   )
@@ -483,15 +493,17 @@ ceq_theta_grad <- function(int, pars) {
 test_that("Random slopes: a cross-level equality constraint fits", {
   skip_on_cran()
   expect_no_warning(
-    fit_ceq <<- asem(
-      mod_ceq,
-      d_rs,
-      cluster = "cluster",
-      verbose = FALSE,
-      test = "none",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 3
+    muffle_fit_diagnostics(
+      fit_ceq <<- asem(
+        mod_ceq,
+        d_rs,
+        cluster = "cluster",
+        verbose = FALSE,
+        test = "none",
+        marginal_correction = "none",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
     )
   )
 
@@ -584,15 +596,17 @@ test_that("Random slopes: constrained variances and shared slope labels fit", {
       s1 ~ w1
   "
   expect_no_warning(
-    fit_var <- asem(
-      mod_var,
-      d_rs,
-      cluster = "cluster",
-      verbose = FALSE,
-      test = "none",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 3
+    muffle_fit_diagnostics(
+      fit_var <- asem(
+        mod_var,
+        d_rs,
+        cluster = "cluster",
+        verbose = FALSE,
+        test = "none",
+        marginal_correction = "none",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
     )
   )
   # One free parameter, reported once for each row it is tied to
@@ -613,15 +627,17 @@ test_that("Random slopes: constrained variances and shared slope labels fit", {
       s2 ~ v*w1
   "
   expect_no_warning(
-    fit_two <- asem(
-      mod_two,
-      d_rs,
-      cluster = "cluster",
-      verbose = FALSE,
-      test = "none",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      nsamp = 3
+    muffle_fit_diagnostics(
+      fit_two <- asem(
+        mod_two,
+        d_rs,
+        cluster = "cluster",
+        verbose = FALSE,
+        test = "none",
+        marginal_correction = "none",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
     )
   )
   expect_setequal(rs_spec(get_inlavaan_internal(fit_two))$slopes, c("s1", "s2"))

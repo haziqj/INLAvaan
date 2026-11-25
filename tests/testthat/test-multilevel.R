@@ -749,7 +749,7 @@ test_that("A one-step that does not raise the log-likelihood is refused", {
 test_that("A two-level fit says that its PPP is experimental", {
   skip_on_cran()
   fit_with <- function(test) {
-    asem(
+    muffle_fit_diagnostics(asem(
       "
       level: 1
         fw =~ y1 + y2 + y3
@@ -761,7 +761,7 @@ test_that("A two-level fit says that its PPP is experimental", {
       test = test,
       nsamp = 10,
       ppp_nsamp = 10
-    )
+    ))
   }
   expect_message(fit_with("standard"), "two-level PPP is experimental")
   expect_no_message(

@@ -82,7 +82,11 @@ test_that("approx_data has one layout with and without sn_fit_sample", {
       diag_g[["nmad_max"]],
       max(ad[seq_len(m), "nmad"], na.rm = TRUE)
     )
-    expect_equal(diag_p$alpha, unname(ad[seq_len(m), "alpha"]))
+    # The fast-path rows have no scan, so their scan diagnostics are NA
+    expect_equal(diag_p$alpha[scan], unname(ad[scan, "alpha"]))
+    expect_true(all(is.na(diag_p[fp, c("alpha", "nmad", "unscanned_mass")])))
+    expect_true(all(is.finite(diag_p$unscanned_mass[scan])))
+    expect_equal(diag_g[["nmad_mean"]], mean(ad[scan, "nmad"]))
     out <- capture.output(summary(fit, nmad = TRUE))
     expect_true(any(grepl("NMAD", out)))
     if (requireNamespace("ggplot2", quietly = TRUE)) {

@@ -28,9 +28,9 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
   dg <- diagnostics(fit)
   expect_s3_class(dg, "diagnostics.INLAvaan")
   expect_type(dg, "double")
+  # The engine's names in its order, then INLAvaan's, then the deprecated ones
   expected_names <- c(
     "npar",
-    "nsamp",
     "converged",
     "iterations",
     "grad_inf",
@@ -38,22 +38,41 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
     "grad_l2",
     "mode_shift_max",
     "hess_cond",
+    "hess_cond_cor",
     "vb_applied",
     "vb_shift_max",
     "vb_kld_global",
     "kld_max",
     "kld_mean",
-    "vb_mcse_max",
-    "vb_mcse_mean",
     "nmad_max",
     "nmad_mean",
-    "scan_end_mass_max",
+    "unscanned_mass_max",
+    "grad_gap_max",
+    "vb_fallback",
+    "vb_step_max",
+    "vb_gain_ratio",
+    "mean_gap_max",
+    "ridge_bend_max",
+    "n_heavy_tails",
+    "nsamp",
     "psi_npd_share",
-    "theta_npd_share"
+    "theta_npd_share",
+    "vb_mcse_max",
+    "vb_mcse_mean"
   )
   expect_named(dg, expected_names)
   expect_equal(unname(dg["npar"]), length(coef(fit)))
   expect_equal(unname(dg["converged"]), 1)
+  expect_equal(unname(dg["nsamp"]), 3)
+  expect_true(all(is.na(dg[c("vb_mcse_max", "vb_mcse_mean")])))
+  # The engine's numbers
+  int <- get_inlavaan_internal(fit)
+  ed <- int$engine$diagnostics
+  eng <- diagnostics_internal(ed$optim, ed$vb, ed$marginals, int$theta_star)
+  expect_identical(unclass(dg)[1:24], unclass(eng$global)[1:24])
+  # hess_cond is that of the covariance matrix, as before
+  ev <- eigen(int$Sigma_theta, only.values = TRUE)$values
+  expect_equal(dg[["hess_cond"]], max(ev) / min(ev))
 })
 
 test_that("diagnostics(type = 'param') returns data frame", {
@@ -61,31 +80,63 @@ test_that("diagnostics(type = 'param') returns data frame", {
   expect_s3_class(dp, "diagnostics.INLAvaan.param")
   expect_s3_class(dp, "data.frame")
   expect_equal(nrow(dp), length(coef(fit)))
-  expect_true(all(
-    c("names", "grad", "grad_num", "grad_diff", "mode_shift_sigma") %in%
-      names(dp)
-  ))
+  expect_named(
+    dp,
+    c(
+      "names",
+      "grad",
+      "grad_abs",
+      "grad_rel",
+      "mode_shift_sigma",
+      "kld",
+      "vb_shift",
+      "vb_shift_sigma",
+      "nmad",
+      "alpha",
+      "unscanned_mass",
+      "grad_gap",
+      "vb_step_sigma",
+      "mean_gap",
+      "gamma1",
+      "tails",
+      "ridge_bend",
+      "grad_num",
+      "grad_diff",
+      "vb_mcse_sigma"
+    )
+  )
+  expect_identical(dp$names, names(coef(fit)))
+  # Deprecated in 0.4.0: grad_gap checks the gradient instead
+  expect_true(all(is.na(dp[c("grad_num", "grad_diff", "vb_mcse_sigma")])))
+  expect_true(all(is.finite(dp$grad_gap)))
+  expect_equal(diagnostics(fit)[["grad_gap_max"]], max(dp$grad_gap))
 })
 
 test_that("diagnostics() reports the skew-normal marginal fit", {
   glob <- diagnostics(fit_sn)
   dp <- diagnostics(fit_sn, type = "param")
-  expect_true(all(c("alpha", "scan_end_mass") %in% names(dp)))
+  expect_true(all(c("alpha", "unscanned_mass") %in% names(dp)))
   expect_true(all(is.finite(dp$alpha)))
-  expect_true(all(is.finite(dp$scan_end_mass)))
-  expect_true(all(dp$scan_end_mass > 0 & dp$scan_end_mass < 1))
+  expect_true(all(is.finite(dp$unscanned_mass)))
+  expect_true(all(dp$unscanned_mass > 0 & dp$unscanned_mass < 1))
   # A healthy fit leaves next to nothing outside the scanned window: the
   # Gaussian reference is 6.3e-05 and this model sits near 2.5e-04.
-  expect_lt(max(dp$scan_end_mass), 0.05)
-  expect_equal(glob[["scan_end_mass_max"]], max(dp$scan_end_mass))
+  expect_lt(max(dp$unscanned_mass), 0.05)
+  expect_equal(glob[["unscanned_mass_max"]], max(dp$unscanned_mass))
+  expect_true(all(dp$tails))
+  expect_equal(glob[["n_heavy_tails"]], 0)
+  # The names before 0.4.0 are gone
+  expect_false("scan_end_mass_max" %in% names(glob))
+  expect_false("scan_end_mass" %in% names(dp))
 })
 
 test_that("the skew-normal diagnostics are NA for another method", {
   glob <- diagnostics(fit)
   dp <- diagnostics(fit, type = "param")
-  expect_true(is.na(glob[["scan_end_mass_max"]]))
+  expect_true(is.na(glob[["unscanned_mass_max"]]))
+  expect_true(is.na(glob[["nmad_max"]]))
   expect_true(all(is.na(dp$alpha)))
-  expect_true(all(is.na(dp$scan_end_mass)))
+  expect_true(all(is.na(dp$unscanned_mass)))
 })
 
 # ---- fit-time diagnostics warnings ----
@@ -166,22 +217,17 @@ test_that("silent = TRUE prints nothing, and the fit records its warnings", {
 })
 
 test_that("warn_fit_diagnostics() flags high NMAD marginals by name", {
-  int <- INLAvaan:::get_inlavaan_internal(fit)
-  m <- length(coef(fit))
-  int$approx_data <- matrix(
-    0,
-    nrow = m,
-    ncol = 1,
-    dimnames = list(names(coef(fit)), "nmad")
-  )
-  int$approx_data[1:4, "nmad"] <- c(0.5, 0.3, 0.2, 0.15)
+  int <- INLAvaan:::get_inlavaan_internal(fit_sn)
+  int$engine$diagnostics$marginals$nmad[1:4] <- c(0.5, 0.3, 0.2, 0.15)
   w <- expect_warning(
     INLAvaan:::warn_fit_diagnostics(int),
     class = "inlavaan_diagnostics_warning"
   )
   expect_match(conditionMessage(w), "NMAD")
-  expect_match(conditionMessage(w), names(coef(fit))[1], fixed = TRUE)
+  expect_match(conditionMessage(w), names(coef(fit_sn))[1], fixed = TRUE)
   expect_match(conditionMessage(w), "1 other") # top 3 shown, 1 elided
+  expect_match(conditionMessage(w), "flagged 1 potential issue:")
+  expect_match(conditionMessage(w), "?diagnostics", fixed = TRUE)
 })
 
 test_that("a healthy skew-normal fit passes warn_fit_diagnostics() silently", {
@@ -191,42 +237,90 @@ test_that("a healthy skew-normal fit passes warn_fit_diagnostics() silently", {
 
 test_that("warn_fit_diagnostics() flags a marginal that outruns the scan", {
   int <- INLAvaan:::get_inlavaan_internal(fit_sn)
-  # Ten times the fitted scale leaves about 0.71 of the mass outside the
-  # window that was scanned, well past the 0.05 tolerance.
-  int$approx_data[1, "omega"] <- 10 * int$approx_data[1, "omega"]
+  int$engine$diagnostics$marginals$unscanned_mass[1] <- 0.71
   w <- expect_warning(
     INLAvaan:::warn_fit_diagnostics(int),
     class = "inlavaan_diagnostics_warning"
   )
   expect_match(conditionMessage(w), "beyond the scanned")
   expect_match(conditionMessage(w), names(coef(fit_sn))[1], fixed = TRUE)
+  expect_no_match(conditionMessage(w), "far from the posterior mass")
+  # Past 0.9 the mode itself is in doubt
+  int$engine$diagnostics$marginals$unscanned_mass[1] <- 0.95
+  w <- expect_warning(
+    INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  expect_match(conditionMessage(w), "far from the posterior mass")
 })
 
 test_that("warn_fit_diagnostics() flags large VB shifts", {
   int <- INLAvaan:::get_inlavaan_internal(fit)
   m <- length(coef(fit))
-  se <- sqrt(diag(int$Sigma_theta))
-  int$vb$correction <- 2 * se
-  int$vb$kld <- rep(2, m)
-  int$vb$kld_global <- 1
+  ed <- int$engine$diagnostics
+  ed$vb <- list(
+    iterations = 1L,
+    fallback = FALSE,
+    one_pass = TRUE,
+    gain_ratio = 0.9,
+    kld_global = 1
+  )
+  ed$marginals$vb_shift_sigma <- rep(2, m)
+  ed$marginals$kld <- rep(2, m)
+  int$engine$diagnostics <- ed
   w <- expect_warning(
     INLAvaan:::warn_fit_diagnostics(int),
     class = "inlavaan_diagnostics_warning"
   )
-  expect_match(conditionMessage(w), "VB correction")
+  expect_match(conditionMessage(w), "VB correction shifted")
+  # A one-step correction that delivered little of its promised gain
+  int$engine$diagnostics$marginals$vb_shift_sigma <- rep(0.1, m)
+  int$engine$diagnostics$vb$gain_ratio <- 0.3
+  w <- expect_warning(
+    INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  expect_match(conditionMessage(w), "One-step VB delivered")
+  expect_match(conditionMessage(w), "vb_correction = \"full\"", fixed = TRUE)
 })
 
 test_that("warn_fit_diagnostics() flags a near-singular Hessian", {
   int <- INLAvaan:::get_inlavaan_internal(fit)
-  m <- length(coef(fit))
-  # zero out the gradient so only the condition-number check fires
-  int$opt$dx_analytic <- int$opt$dx <- rep(0, m)
-  int$Sigma_theta[1, 1] <- 1e12
+  # The check reads the condition number on the correlation scale
+  int$engine$diagnostics$optim$hess_cond <- 1e12
+  expect_no_warning(INLAvaan:::warn_fit_diagnostics(int))
+  int$engine$diagnostics$optim$hess_cond_cor <- 1e12
   w <- expect_warning(
     INLAvaan:::warn_fit_diagnostics(int),
     class = "inlavaan_diagnostics_warning"
   )
   expect_match(conditionMessage(w), "near-singular")
+})
+
+test_that("warn_fit_diagnostics() flags a gradient that does not match", {
+  int <- INLAvaan:::get_inlavaan_internal(fit)
+  int$engine$diagnostics$marginals$grad_gap[2] <- 0.5
+  w <- expect_warning(
+    INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  msg <- conditionMessage(w)
+  expect_match(msg, "analytic gradient does not match")
+  expect_match(msg, names(coef(fit))[2], fixed = TRUE)
+  # The advice line that follows is not counted as an issue
+  expect_match(msg, "flagged 1 potential issue:")
+})
+
+test_that("warn_fit_diagnostics() flags heavy tails", {
+  int <- INLAvaan:::get_inlavaan_internal(fit_sn)
+  int$engine$diagnostics$marginals$tails[3] <- FALSE
+  w <- expect_warning(
+    INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  expect_match(conditionMessage(w), "Heavy tails")
+  expect_match(conditionMessage(w), names(coef(fit_sn))[3], fixed = TRUE)
+  expect_equal(diagnostics_fit(int)$global[["n_heavy_tails"]], 1)
 })
 
 test_that("print.diagnostics.INLAvaan works", {

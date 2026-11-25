@@ -178,9 +178,9 @@ test_that("Covariances with a composite are scaled by its current variance", {
   pt <- get_inlavaan_internal(fit_s)$partable
   expect_equal(pt$mat[pt$lhs == "C1" & pt$rhs == "C2"], "psi_cov")
 
-  # The gradient includes the dependence of Var(C) on the weights
-  int <- get_inlavaan_internal(fit_2)
-  expect_lt(max(abs(int$opt$dx_analytic - int$opt$dx)), 1e-3)
+  # The gradient includes the dependence of Var(C) on the weights: it agrees
+  # with central differences of the log-posterior at the mode
+  expect_lt(diagnostics(fit_2)[["grad_gap_max"]], 0.1)
 })
 
 test_that("Weights start from a rank-one moment estimate", {
