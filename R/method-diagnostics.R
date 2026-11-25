@@ -353,7 +353,6 @@ cov_pd_check <- function(x_est, x_samp, lavmodel) {
 inlavaan_advice <- list(
   grad_gap = "The analytic gradient does not match the log-posterior",
   no_grad = "",
-  vb_full = "{.code vb_correction = \"full\"}",
   vb_none = "{.code vb_correction = \"none\"}",
   mode_limit = paste(
     "Raise {.code mode_maxit} or {.code mode_maxeval} in",
