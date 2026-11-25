@@ -26,10 +26,18 @@
 #'
 #' When the data object of the original call is no longer found, as after
 #' `rm(dd)` or in a new session, `update()` uses the data stored in the fit
-#' and says so. lavaan has read these data already, with the options and the
-#' model of the fit (for example, it has dropped the incomplete rows under
-#' listwise deletion, and it has put the observed variables in the order of
-#' the model). So `update()` then stops with an error of class
+#' and says so. lavaan has read these data already, with the model of the fit
+#' and its options on how the data are read (for example, it has dropped the
+#' incomplete rows under listwise deletion, and it has put the observed
+#' variables in the order of the model). So the refit then uses the model and
+#' these options with the values that the fit was made with, unless the update
+#' gives them. The fit records these values, and the objects that the original
+#' call names for them are not looked up again. A model `m` or a value
+#' `missing = mm` that has changed since the fit, or that no longer exists,
+#' has no effect, and `add` extends the model of the fit. The other arguments
+#' of the original call, such as `dp`, are evaluated again as usual.
+#'
+#' On the stored data, `update()` stops with an error of class
 #' `inlavaan_update_data_not_found` when the update gives a new value to an
 #' option on how the data are read, such as `group`, `cluster`, `missing`,
 #' `ordered`, `fixed.x` or `sampling.weights`. It also stops when the new model
@@ -102,23 +110,6 @@ setMethod(
     # auto-generated `.local` wrapper frame that `setMethod()` inserts.
     caller <- parent.frame(2L)
 
-    # Replace or extend the model
-    if (!missing(model)) {
-      cl$model <- model
-    } else if (!missing(add)) {
-      orig <- cl$model
-      if (is.symbol(orig) || is.call(orig)) {
-        orig <- eval(orig, caller)
-      }
-      if (!is.character(orig)) {
-        cli_abort(c(
-          "{.arg add} requires the original model to be lavaan syntax.",
-          "i" = "Supply a full replacement via {.arg model} instead."
-        ))
-      }
-      cl$model <- paste(paste(orig, collapse = "\n"), add, sep = "\n")
-    }
-
     # Override any inlavaan() argument passed through ..., preserving the
     # supplied expressions. Inside an S4 method `match.call()` sees the
     # `.local` wrapper, so match against this method's formals and the
@@ -165,37 +156,48 @@ setMethod(
       }
     }
 
+    # When the data object of the recorded call is gone from the caller's
+    # environment, the refit uses the data stored in the fit, with a message
+    # (unless the refit is silent). A refit on the stored data uses them
+    # again. lavaan has read the stored data already, with the model of the
+    # fit and its options on how the data are read, and would ignore new
+    # values of those options. So the refit keeps the values that the fit was
+    # made with (see pin_stored_call()), and an update that changes them stops
+    # (see check_stored_data_update()).
+    model_given <- !missing(model)
+    add_given <- !model_given && !missing(add)
+    data_lost <- (evaluate || add_given) &&
+      !data_given &&
+      data_not_found(cl$data, caller)
+    stored <- data_lost || (!data_given && length(slot_args) > 0L)
+    read_with <- if (stored) fit_read_values(object)
+
+    # Replace or extend the model. On the stored data, `add` extends the model
+    # that the fit was made with.
+    if (model_given) {
+      cl$model <- model
+    } else if (add_given) {
+      orig <- if (stored) read_with$model else cl$model
+      if (is.symbol(orig) || is.call(orig)) {
+        orig <- eval(orig, caller)
+      }
+      if (!is.character(orig)) {
+        cli_abort(c(
+          "{.arg add} requires the original model to be lavaan syntax.",
+          "i" = "Supply a full replacement via {.arg model} instead."
+        ))
+      }
+      cl$model <- paste(paste(orig, collapse = "\n"), add, sep = "\n")
+    }
+
     if (!evaluate) {
       return(cl)
     }
 
-    # When the data object of the recorded call is gone from the caller's
-    # environment, the refit uses the data stored in the fit, with a message
-    # (unless the refit is silent). lavaan has read them already, with the
-    # options of the fit on how the data are read, and would ignore new values
-    # of those options. So an update that changes one of them, or the observed
-    # variables of the model or their roles, stops (see
-    # check_stored_data_update()).
-    use_stored <- !data_given && length(slot_args) > 0L
-    data_lost <- FALSE
-    if (!data_given && (is.symbol(cl$data) || is.call(cl$data))) {
-      data_lost <- !tryCatch(
-        {
-          eval(cl$data, caller)
-          TRUE
-        },
-        error = function(e) FALSE
-      )
-    }
-    if (use_stored || data_lost) {
-      new_model <- if (!missing(model) || !missing(add)) cl$model
-      check_stored_data_update(
-        internal$call,
-        extras,
-        new_model,
-        object,
-        env = caller
-      )
+    if (stored) {
+      new_model <- if (model_given || add_given) cl$model
+      check_stored_data_update(object, extras, new_model, env = caller)
+      cl <- pin_stored_call(cl, read_with, names(extras), is.null(new_model))
     }
     if (data_lost) {
       silent <- tryCatch(
@@ -205,8 +207,10 @@ setMethod(
       if (!silent) {
         cli_inform(
           c(
-            "i" = "The data {.code {deparse1(cl$data)}} of the fit are not
-                   found, so {.fn update} uses the data stored in the fit.",
+            "i" = "The data {.code {deparse1(cl$data)}} of the fit
+                   are not found, so {.fn update} uses the data stored in the
+                   fit, with the model and the options on how the data are
+                   read that the fit was made with.",
             " " = "Give {.arg data} to refit with other options on how the
                    data are read, such as {.arg group}, {.arg cluster},
                    {.arg missing} or {.arg ordered}."
@@ -221,8 +225,8 @@ setMethod(
     # Warm start: the search for the mode starts at the mode of the fit. This
     # changes where the search starts, not the fit. It is skipped when the
     # model or its type changes, or when `start` is given.
-    structure_changed <- !missing(model) ||
-      !missing(add) ||
+    structure_changed <- model_given ||
+      add_given ||
       "model.type" %in% names(extras)
     if (!structure_changed && is.null(cl$start)) {
       # inlavaan() checks the names before it uses the mode as the start
@@ -275,6 +279,61 @@ data_role_args <- c("ordered", "fixed.x", "conditional.x")
 # Argument names as lavaan reads them: dot or snake case, upper or lower case
 arg_key <- function(x) {
   tolower(gsub("_", ".", x, fixed = TRUE))
+}
+
+# Whether the data expression of a recorded call names an object that is no
+# longer found in `env`.
+data_not_found <- function(data, env) {
+  if (!is.symbol(data) && !is.call(data)) {
+    return(FALSE)
+  }
+  tryCatch(
+    {
+      eval(data, env)
+      FALSE
+    },
+    error = function(e) TRUE
+  )
+}
+
+# The model and the options on how the data are read, with the values that
+# the fit was made with: a list with the model (`model`) and the values of
+# the arguments of `data_read_args` that the call gave (`args`, named by
+# arg_key()). inlavaan() records them in the field `read_with`. A fit made
+# by an older version has them only in lavaan's record of its call, where the
+# model may be rewritten (to a parameter table that fits the same model) and
+# where `ordered` names the ordinal variables of the fit, whatever the call
+# gave.
+fit_read_values <- function(object) {
+  internal <- get_inlavaan_internal(object)
+  if (!is.null(internal$read_with)) {
+    return(internal$read_with)
+  }
+  lav <- as.list(object@call)[-1L]
+  keys <- arg_key(names(lav))
+  keep <- keys %in% data_read_args & keys %in% arg_key(names(internal$call))
+  args <- stats::setNames(lav[keep], keys[keep])
+  list(model = lav$model, args = args)
+}
+
+# Pin the call of a refit on the stored data to the fit. Each argument of
+# `data_read_args` in the call that the update does not give (by
+# `given_names`) takes the value that the fit was made with, and so does the
+# model when `keep_model` is TRUE. So an object that the recorded call names
+# for these, such as the model `m` or `missing = mm`, is not looked up again.
+# A change to it since the fit cannot reach lavaan, and the refit works when
+# it no longer exists. The values that the update gives are checked by
+# check_stored_data_update().
+pin_stored_call <- function(cl, read_with, given_names, keep_model) {
+  keys <- arg_key(names(cl))
+  pin <- keys %in% data_read_args & !keys %in% arg_key(given_names)
+  for (nm in names(cl)[pin]) {
+    cl[nm] <- list(read_with$args[[arg_key(nm)]])
+  }
+  if (keep_model) {
+    cl$model <- read_with$model
+  }
+  cl
 }
 
 # The roles of the observed variables that lavaan fixes when it reads the data
@@ -373,19 +432,19 @@ partable_values <- function(pt, column) {
   unique(if (is.numeric(x)) x[x > 0] else x[nzchar(x)])
 }
 
-# Stop when update() refits on the stored data of a fit and changes how the
-# data are read: a new value of an argument of `data_read_args`, or a model
-# with other observed variables, or with the observed variables in other roles
-# or in another order. The new values are evaluated in `env` and compared with
-# the values that lavaan read the stored data with.
+
+# Stop when update() refits on the stored data of `object` and changes how the
+# data are read: a new value of an argument of `data_read_args` in `extras`,
+# or a model with other observed variables, or with the observed variables in
+# other roles or in another order. The new values are evaluated in `env` and
+# compared with the values that lavaan read the stored data with.
 check_stored_data_update <- function(
-  old_call,
+  object,
   extras,
   new_model,
-  object,
   env = parent.frame()
 ) {
-  old_keys <- arg_key(names(as.list(old_call)[-1L]))
+  read_with <- fit_read_values(object)
   keys <- arg_key(names(extras))
   given <- list()
   changed <- character()
@@ -400,7 +459,7 @@ check_stored_data_update <- function(
     )
     if (key %in% data_role_args) {
       given[key] <- list(value)
-    } else if (!stored_read_same(key, value, object, key %in% old_keys)) {
+    } else if (!stored_read_same(key, value, object, read_with$args)) {
       changed <- c(changed, names(extras)[[i]])
     }
   }
@@ -408,18 +467,24 @@ check_stored_data_update <- function(
     stop_stored_data_args(changed)
   }
   if (!is.null(new_model) || length(given) > 0L) {
-    check_stored_data_roles(object, new_model, given, old_keys, names(extras))
+    check_stored_data_roles(object, new_model, given, read_with, names(extras))
   }
   invisible()
 }
 
 # Whether lavaan reads the stored data of `object` with `value` for the
-# argument `key` (as from arg_key()) of `data_read_args`. A default (NULL)
-# is the same when the recorded call does not give the argument either. A
-# value that cannot be compared counts as a change.
-stored_read_same <- function(key, value, object, old_given) {
+# argument `key` (as from arg_key()) of `data_read_args`. `recorded` holds
+# the values that the fit was made with (see fit_read_values()). The same
+# value is the same, and a default (NULL) is the same when the fit did not
+# give the argument either. A value that cannot be compared counts as a
+# change.
+stored_read_same <- function(key, value, object, recorded) {
   if (inherits(value, "inlavaan_no_value")) {
     return(FALSE)
+  }
+  old_given <- key %in% names(recorded)
+  if (old_given && identical(value, recorded[[key]])) {
+    return(TRUE)
   }
   if (is.null(value) && !old_given) {
     return(TRUE)
@@ -492,13 +557,14 @@ missing_as_read <- function(value, opt) {
 # variables on a level, or the variables in another order. lavaan matches the
 # stored data to the model by position, not by name, so the refit would mix up
 # the variables. `given` holds the evaluated values of the role arguments of
-# the update. The new roles come from `new_model`, or from the fit when the
-# model stays.
+# the update, and `read_with` the values that the fit was made with (see
+# fit_read_values()). The new roles come from `new_model`, or from the fit
+# when the model stays.
 check_stored_data_roles <- function(
   object,
   new_model,
   given,
-  old_keys,
+  read_with,
   extra_names
 ) {
   data <- object@Data
@@ -538,7 +604,7 @@ check_stored_data_roles <- function(
     }
     value <- given[[key]]
     if (is.null(value) || identical(value, "default")) {
-      return(if (key %in% old_keys) NA else stored)
+      return(if (key %in% names(read_with$args)) NA else stored)
     }
     if (is.logical(value) && length(value) == 1L) value else NA
   }

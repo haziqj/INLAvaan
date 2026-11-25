@@ -4,6 +4,18 @@ mod <- "
   textual =~ x4 + x5 + x6
 "
 
+# A refit on the stored data must give the fit that the data given again give
+expect_same_fit <- function(fit, expected) {
+  expect_identical(names(coef(fit)), names(coef(expected)))
+  for (field in c("theta_star_novbc", "mloglik")) {
+    expect_equal(
+      get_inlavaan_internal(fit, field),
+      get_inlavaan_internal(expected, field),
+      tolerance = 1e-6
+    )
+  }
+}
+
 test_that("update() records the call and returns an INLAvaan fit", {
   fit <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
   expect_false(is.null(get_inlavaan_internal(fit, "call")))
@@ -242,6 +254,8 @@ test_that("update() on the stored data compares the values of the options", {
     "cannot change `group`",
     class = err
   )
+  # Without `group` in the update, the refit keeps the groups of the fit
+  expect_equal(lavaan::lavInspect(update(fit_group), "nobs"), c(136L, 145L))
   g <- "school"
   fit_school <- update(fit_group, group = g)
   expect_equal(lavaan::lavInspect(fit_school, "nobs"), c(136L, 145L))
@@ -363,15 +377,10 @@ test_that("update() on the stored data stops when other variables are ordinal", 
   # Without its thresholds x1 is numeric. Before, the refit kept it ordinal.
   expect_error(update(fit_thr, model = model), class = err)
   # `ordered` gives the ordinal variables with the thresholds of the model
-  old_call <- quote(acfa(model, dd))
-  expect_silent(
-    check_stored_data_update(old_call, list(ordered = "x1"), NULL, fit_thr)
-  )
-  expect_silent(
-    check_stored_data_update(old_call, list(ordered = NULL), NULL, fit_thr)
-  )
+  expect_silent(check_stored_data_update(fit_thr, list(ordered = "x1"), NULL))
+  expect_silent(check_stored_data_update(fit_thr, list(ordered = NULL), NULL))
   expect_error(
-    check_stored_data_update(old_call, list(ordered = "x2"), NULL, fit_thr),
+    check_stored_data_update(fit_thr, list(ordered = "x2"), NULL),
     "cannot change `ordered`",
     class = err
   )
@@ -388,66 +397,140 @@ test_that("check_stored_data_update() lets unchanged options and variables pass"
     vb_correction = "none",
     marginal_method = "gaussian"
   )
-  old_call <- quote(acfa(model, dd, std.ov = TRUE))
   err <- "inlavaan_update_data_not_found"
   # The same value, under the dot-case and the snake-case name of lavaan
-  expect_silent(
-    check_stored_data_update(old_call, list(std.ov = TRUE), NULL, fit)
-  )
-  expect_silent(
-    check_stored_data_update(old_call, list(std_ov = TRUE), NULL, fit)
-  )
+  expect_silent(check_stored_data_update(fit, list(std.ov = TRUE), NULL))
+  expect_silent(check_stored_data_update(fit, list(std_ov = TRUE), NULL))
   expect_error(
-    check_stored_data_update(old_call, list(std_ov = FALSE), NULL, fit),
+    check_stored_data_update(fit, list(std_ov = FALSE), NULL),
     "cannot change `std_ov`",
     class = err
   )
   # The value of an expression counts, not the expression
   scale_ov <- TRUE
   new_value <- list(std.ov = quote(scale_ov))
-  expect_silent(check_stored_data_update(old_call, new_value, NULL, fit))
+  expect_silent(check_stored_data_update(fit, new_value, NULL))
   scale_ov <- FALSE
   expect_error(
-    check_stored_data_update(old_call, new_value, NULL, fit),
+    check_stored_data_update(fit, new_value, NULL),
     class = err
   )
   # NULL is the default of lavaan, the same only when the call does not give
   # the argument either.
-  expect_silent(
-    check_stored_data_update(old_call, list(group = NULL), NULL, fit)
-  )
+  expect_silent(check_stored_data_update(fit, list(group = NULL), NULL))
   expect_error(
-    check_stored_data_update(old_call, list(std.ov = NULL), NULL, fit),
+    check_stored_data_update(fit, list(std.ov = NULL), NULL),
     class = err
   )
   # Data in another form cannot be compared
   expect_error(
-    check_stored_data_update(old_call, list(sample.cov = quote(S)), NULL, fit),
+    check_stored_data_update(fit, list(sample.cov = quote(S)), NULL),
     class = err
   )
   # Options that do not set how the data are read pass
-  expect_silent(
-    check_stored_data_update(old_call, list(std.lv = TRUE), NULL, fit)
-  )
+  expect_silent(check_stored_data_update(fit, list(std.lv = TRUE), NULL))
   # The same observed variables in the same order, with priors or as a
   # parameter table.
   same_vars <- 'visual =~ x1 + prior("normal(0,1)")*x2 + x3'
-  expect_silent(check_stored_data_update(old_call, list(), same_vars, fit))
-  expect_silent(
-    check_stored_data_update(old_call, list(), lavaan::parTable(fit), fit)
-  )
+  expect_silent(check_stored_data_update(fit, list(), same_vars))
+  expect_silent(check_stored_data_update(fit, list(), lavaan::parTable(fit)))
   # The same observed variables in another order
   expect_error(
-    check_stored_data_update(old_call, list(), "visual =~ x3 + x2 + x1", fit),
+    check_stored_data_update(fit, list(), "visual =~ x3 + x2 + x1"),
     "other roles",
     class = err
   )
   # A model that lavaan cannot parse here is left to lavaan
   expect_null(model_read_roles("visual =~ x1 +"))
-  expect_silent(check_stored_data_update(
-    old_call,
-    list(),
-    "visual =~ x1 +",
-    fit
-  ))
+  expect_silent(check_stored_data_update(fit, list(), "visual =~ x1 +"))
+})
+
+test_that("update() on the stored data keeps the model of the fit", {
+  # The objects that the recorded call names can change after the fit, or go.
+  # On the stored data, the refit uses the values that the fit was made with.
+  m <- "x1 ~ x2 + x3"
+  dx <- dat
+  fit_reg <- asem(
+    m,
+    dx,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dx)
+  # Before, the refit fitted the new model to the stored data of the old one,
+  # and gave the estimates under the names of x2 ~ x1 and x2 ~ x3.
+  m <- "x2 ~ x1 + x3"
+  fit_stored <- update(fit_reg)
+  m <- "x1 ~ x2 + x3"
+  expect_same_fit(fit_stored, update(fit_reg, data = dat))
+  # The refit works when the model is gone too, as in a new session
+  rm(m)
+  expect_same_fit(update(fit_reg), fit_stored)
+})
+
+test_that("update() on the stored data keeps the options of the fit", {
+  one_factor <- "visual =~ x1 + x2 + x3"
+  dd <- dat
+  dd$x1[1:20] <- NA
+  dd_given <- dd
+  mm <- "ml"
+  fit_ml <- acfa(
+    one_factor,
+    dd,
+    missing = mm,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  fit_given <- update(fit_ml, data = dd_given)
+  # Before, the refit read the stored data, with their incomplete rows, under
+  # listwise deletion. It gave 301 rows and a marginal log-likelihood that
+  # matched neither fit.
+  mm <- "listwise"
+  fit_stored <- update(fit_ml)
+  expect_equal(lavaan::lavInspect(fit_stored, "nobs"), 301L)
+  expect_same_fit(fit_stored, fit_given)
+  # An object changed to the value of the fit refits as on the data given
+  # again.
+  mm <- paste0("m", "l")
+  expect_same_fit(update(fit_ml), update(fit_ml, data = dd_given))
+  # `add` extends the model of the fit, not the object that names it now
+  one_factor <- "textual =~ x4 + x5 + x6"
+  expect_same_fit(
+    update(fit_ml, add = "x2 ~~ x3"),
+    update(fit_ml, model = "visual =~ x1 + x2 + x3\nx2 ~~ x3", data = dd_given)
+  )
+})
+
+test_that("update() on the stored data reads lavaan's record of an older fit", {
+  # A fit made before INLAvaan recorded the values of its call (the field
+  # `read_with`) has them in lavaan's record of its call.
+  m <- "visual =~ x1 + x2 + x3"
+  dd <- dat[dat$school == "Pasteur", ]
+  fit <- acfa(
+    m,
+    dd,
+    missing = "ml",
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    marginal_method = "gaussian"
+  )
+  fit@external$inlavaan_internal$read_with <- NULL
+  rm(dd, m)
+  read_with <- fit_read_values(fit)
+  expect_identical(read_with$model, "visual =~ x1 + x2 + x3")
+  expect_identical(read_with$args, list(missing = "ml"))
+  fit_new <- update(fit)
+  expect_equal(lavaan::lavInspect(fit_new, "nobs"), 156L)
+  expect_equal(
+    get_inlavaan_internal(fit_new, "mloglik"),
+    get_inlavaan_internal(fit, "mloglik"),
+    tolerance = 1e-6
+  )
+  expect_length(coef(update(fit, add = "x1 ~~ x2")), length(coef(fit)) + 1L)
 })

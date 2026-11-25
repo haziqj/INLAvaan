@@ -55,10 +55,18 @@ the same order. Otherwise, as after \code{std.lv = TRUE} or
 
 When the data object of the original call is no longer found, as after
 \code{rm(dd)} or in a new session, \code{update()} uses the data stored in the fit
-and says so. lavaan has read these data already, with the options and the
-model of the fit (for example, it has dropped the incomplete rows under
-listwise deletion, and it has put the observed variables in the order of
-the model). So \code{update()} then stops with an error of class
+and says so. lavaan has read these data already, with the model of the fit
+and its options on how the data are read (for example, it has dropped the
+incomplete rows under listwise deletion, and it has put the observed
+variables in the order of the model). So the refit then uses the model and
+these options with the values that the fit was made with, unless the update
+gives them. The fit records these values, and the objects that the original
+call names for them are not looked up again. A model \code{m} or a value
+\code{missing = mm} that has changed since the fit, or that no longer exists,
+has no effect, and \code{add} extends the model of the fit. The other arguments
+of the original call, such as \code{dp}, are evaluated again as usual.
+
+On the stored data, \code{update()} stops with an error of class
 \code{inlavaan_update_data_not_found} when the update gives a new value to an
 option on how the data are read, such as \code{group}, \code{cluster}, \code{missing},
 \code{ordered}, \code{fixed.x} or \code{sampling.weights}. It also stops when the new model
