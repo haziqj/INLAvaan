@@ -362,6 +362,106 @@ test_that("the advice on an unsettled VB correction names no ended argument", {
   expect_identical(message_of(int), msg)
 })
 
+test_that("warn_fit_diagnostics() reports a failed VB one-step check", {
+  int <- get_inlavaan_internal(fit_sn)
+  m <- length(coef(fit_sn))
+  worst <- names(coef(fit_sn))[2]
+  ed <- int$engine$diagnostics
+  ed$vb <- list(
+    iterations = 4L,
+    fallback = FALSE,
+    one_pass = FALSE,
+    solve = TRUE,
+    check = c(lhat = 1.8, j0 = -0.2, j1 = 0.3),
+    check_worst = worst,
+    kld_global = 0.01
+  )
+  ed$marginals$vb_shift_sigma <- rep(0.1, m)
+  ed$marginals$kld <- rep(0.005, m)
+  # Where the solve stopped is recorded, not flagged
+  ed$marginals$vb_step_sigma <- c(0.5, rep(0.01, m - 1L))
+  int$engine$diagnostics <- ed
+  expect_equal(diagnostics_fit(int)$global[["vb_solve"]], 1)
+  message_of <- function(int) {
+    w <- expect_warning(
+      warn_fit_diagnostics(int),
+      class = "inlavaan_diagnostics_warning"
+    )
+    gsub("\\s+", " ", cli::ansi_strip(conditionMessage(w)))
+  }
+  msg <- message_of(int)
+  expect_match(msg, "flagged 1 potential issue:", fixed = TRUE)
+  expect_match(msg, "The one-step VB correction failed its check", fixed = TRUE)
+  expect_match(msg, paste0("most of all for `", worst, "`"), fixed = TRUE)
+  expect_match(msg, "The VB equation was solved instead.", fixed = TRUE)
+  expect_match(msg, "compare with MCMC, such as blavaan", fixed = TRUE)
+  expect_no_match(msg, "did not settle", fixed = TRUE)
+  # The skew-normal marginals do not rest on the VB mean, and the Gaussian
+  # marginals do
+  expect_no_match(msg, "posterior means", fixed = TRUE)
+  int$marginal_method <- "gaussian"
+  expect_match(message_of(int), "Treat the posterior means,", fixed = TRUE)
+})
+
+test_that("a fit that fails the VB one-step check warns once, in INLAvaan's words", {
+  # On its first 60 rows the posterior of this model is far from Gaussian:
+  # the one step does not shrink the residual of the VB equation (vb_lhat is
+  # about 2).
+  caught <- list()
+  fit_vb <- withCallingHandlers(
+    acfa(
+      "visual =~ x1 + x2 + x3",
+      dat[1:60, ],
+      verbose = FALSE,
+      nsamp = 3,
+      test = "none"
+    ),
+    warning = function(w) {
+      caught[[length(caught) + 1L]] <<- w
+      tryInvokeRestart("muffleWarning")
+    }
+  )
+  dg <- diagnostics(fit_vb)
+  expect_equal(dg[["vb_solve"]], 1)
+  expect_gt(dg[["vb_lhat"]], 1)
+  # The engine's own warning is muffled, and the fit warning reports the check
+  expect_length(caught, 1L)
+  w <- caught[[1L]]
+  expect_s3_class(w, "inlavaan_diagnostics_warning")
+  expect_false(inherits(w, "inlavanilla_warning"))
+  msg <- gsub("\\s+", " ", cli::ansi_strip(conditionMessage(w)))
+  expect_match(msg, "The one-step VB correction failed its check", fixed = TRUE)
+  worst <- get_inlavaan_internal(fit_vb)$engine$diagnostics$vb$check_worst
+  expect_match(msg, paste0("most of all for `", worst, "`"), fixed = TRUE)
+  expect_identical(
+    get_inlavaan_internal(fit_vb, "warnings"),
+    cli::ansi_strip(conditionMessage(w))
+  )
+})
+
+test_that("a healthy fit passes the VB one-step check silently", {
+  fit_ok <- acfa(mod, dat, silent = TRUE, nsamp = 3, test = "none")
+  expect_identical(get_inlavaan_internal(fit_ok, "warnings"), character(0))
+  dg <- diagnostics(fit_ok)
+  expect_equal(dg[["vb_solve"]], 0)
+  expect_lt(dg[["vb_lhat"]], 1)
+  expect_true(all(abs(dg[c("vb_j0", "vb_j1")]) < 1))
+  # After a passed check the one step stands, with no step still to go
+  expect_true(get_inlavaan_internal(fit_ok)$engine$diagnostics$vb$one_pass)
+  expect_true(is.na(dg[["vb_step_max"]]))
+  # The full correction iterates to its fixed point, and has no check
+  fit_full <- acfa(
+    mod,
+    dat,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "full"
+  )
+  dg_full <- diagnostics(fit_full)
+  expect_true(all(is.na(dg_full[c("vb_lhat", "vb_j0", "vb_j1", "vb_solve")])))
+})
+
 test_that("warn_fit_diagnostics() flags a near-singular Hessian", {
   int <- INLAvaan:::get_inlavaan_internal(fit)
   # The check reads the condition number on the correlation scale
