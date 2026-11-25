@@ -199,52 +199,12 @@
   the mode took longer.
 
 * When the data object of a fit's call is no longer found, as after `rm()`
-  or in a new session, `update()` now uses the data stored in the fit, with
-  a message of class `inlavaan_update_stored_data` (none when the refit is
-  silent). So `fit <- update(fit)` refits a saved fit, also one made before
-  the engine. Before, `update()` stopped with "object not found". Data named
-  after a function, such as `df` or `data` in a new session, count as not
-  found. lavaan has read the stored data already, with the model and the
-  options of the fit. So the refit uses the model of the fit and its options
-  on how the data are read, with the values that the fit was made with,
-  unless the update gives them. The objects that the call names for them,
-  such as a model `m` or `missing = mm`, are not looked up again: a change
-  to them since the fit has no effect, and the refit works when they are
-  gone. `add` extends the model of the fit. The fit records these values in
-  the new field `read_with` of `get_inlavaan_internal()`. A fit made by an
-  older version has them in lavaan's record of its call. An update that
-  gives a new value to an option on how the data are read (`group`,
-  `cluster`, `missing`, `ordered`, `fixed.x`, `sampling.weights`,
-  `ov.order` and the like) stops with an error of class
-  `inlavaan_update_data_not_found`: give `data` again. The value counts, not
-  the expression: `missing = "fiml"` on a fit with `missing = "ml"` passes,
-  and `group = g` stops when `g` has changed since the fit. A model with
-  other observed variables stops too, and so does a model with the observed
-  variables in other roles (other exogenous or ordinal variables, or other
-  variables on a level) or in another order: lavaan matches the stored data
-  to the model by position, so `x1 ~ x3 + x2` on the data of `x1 ~ x2 + x3`
-  would swap the estimates of `x2` and `x3`. The order does not count for a
-  fit with `ov.order = "data"`, as lavaan then puts the variables in the
-  order of the data. A recorded `ordered = TRUE` names the endogenous
-  variables of the new model, and ordered factors of the data stay ordinal
-  whatever `ordered` gives. Data given again also replace the stored data of
-  a refit. Some updates stop although the refit could be the same, because
-  the fit does not show how lavaan would read the data for them:
-  - a new model with exogenous variables, on a fit without them, unless the
-    update or the fit gives `fixed.x = FALSE`;
-  - `fixed.x`, `conditional.x`, `group.label` or `level.label` given as
-    `NULL`, when the fit gave a value;
-  - a value of `ordered` that leaves out a variable that is an ordered
-    factor in the data, when `ordered` or a threshold of the fit also made
-    it ordinal;
-  - any new value of `ov.order` or `mimic`, and data in another form
-    (`sample.cov` and the like);
-  - a model in which `update()` cannot find the roles of the observed
-    variables;
-  - on a fit made by an older version: a new model, when the fit has
-    ordinal variables and its call gave `ordered`, unless the update gives
-    `ordered` too, and `add`, when the model has constraints written with
-    `==`, `<` or `>`.
+  or in a new session, `update()` now stops with an error of class
+  `inlavaan_update_data_not_found`, which says to give the data with
+  `data =` or to fit the model again with `inlavaan()`. Data named after a
+  function, such as `df` or `data` in a new session, count as not found.
+  Before, `update()` stopped with "object not found", or gave the function
+  to lavaan, which stopped with an error about the data.
 
 * `update()` now replaces an argument of the call that it is given under
   another spelling, such as `std_ov = FALSE` for `std.ov = TRUE`. Before,
@@ -263,7 +223,8 @@
   `inlavaan_old_fit`, which says how to fit it again. `waic()` still returns
   a WAIC that the fit stores. `summary()` and `show()` still work, but
   `summary(fit, standardised = TRUE)` stops. `update()` still works on these
-  fits, so `fit <- update(fit)` fits the model again.
+  fits, so `fit <- update(fit)` fits the model again when the data are
+  found.
 
 * In `get_inlavaan_internal()`, the field `Sigma_theta` is now `Omega`. It is
   the covariance matrix of the Laplace approximation, on the internal scale
