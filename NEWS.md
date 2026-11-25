@@ -3,21 +3,78 @@
 * INLAvaan now requires R 4.1.0 or later, and cli 3.6.0 or later.
 
 * New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
-  `silent = TRUE` prints nothing, whatever `verbose` says, and muffles the
-  warnings and messages raised during the fit, for simulations and other
-  repeated fits. Errors are still raised. Whether or not `silent` is `TRUE`,
-  the fit records the texts of its warnings in the field `warnings` of
-  `get_inlavaan_internal()`. `fitMeasures()`, `bfit_indices()` and `compare()`
-  now fit the independence baseline with `silent = TRUE`, so the warnings of
-  that fit are no longer shown.
+  `silent = TRUE` prints nothing and muffles the warnings and messages raised
+  during the fit, for simulations and other repeated fits. Errors are still
+  raised. Whether or not `silent` is `TRUE`, the fit records the texts of
+  its warnings in the field `warnings` of `get_inlavaan_internal()`.
+  `fitMeasures()`, `bfit_indices()` and `compare()` now fit the independence
+  baseline with `silent = TRUE`, so the warnings of that fit are no longer
+  shown.
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
   copies the 13 engine files of inlavanilla v26.11.24-1, byte for byte, as
   `R/vanilla-*.R`, and the lock lists them. Two of them,
   `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`, hold the
-  skew-normal functions, which INLAvaan defined itself before. INLAvaan does
-  not use the other 11 files yet, so fits do not change.
+  skew-normal functions, which INLAvaan defined itself before. The others
+  hold the stages of a fit (see the next item).
+
+* `inlavaan()`, `acfa()`, `asem()` and `agrowth()` now fit with the engine
+  files. The engine finds the posterior mode, takes the Laplace
+  approximation, applies the VB correction of the mean and fits the
+  skew-normal marginals, on the internal scale of the parameters. INLAvaan
+  still builds the model, the priors and the log-posterior, and does
+  everything after the marginals: the draws, the summaries on the lavaan
+  scale, the PPP, the DIC, the LOO and the WAIC. The posterior mode does not
+  change. What changes:
+  - The VB correction takes one deterministic step from the nodes of a rule
+    with 2m + 1 points, in place of 64 scrambled Sobol nodes. The shift of
+    the mean moves by up to 0.04 posterior SDs on the Holzinger and
+    Swineford three-factor model, 0.09 on the Political Democracy model and
+    0.16 on a two-level factor model. So the posterior means, the marginal
+    log-likelihood (by up to 0.08 on these models), the DIC and the LOO move
+    a little. The shift has no quadrature error, so `diagnostics()` gives
+    `NA` for `vb_mcse_max`, `vb_mcse_mean` and `vb_mcse_sigma`.
+  - The volume correction of the skew-normal marginals is computed for all
+    parameters at once. It is closer to the exact value, and moves the
+    posterior summaries by up to 0.002 posterior SDs on these models.
+  - With a saturated mean structure (the fast path of the intercepts), the
+    Hessian at the mode no longer takes the block between the intercepts and
+    the other parameters as zero. Without priors (`add_priors = FALSE`) it no
+    longer adds the prior precision of the intercepts. The intercepts have no
+    scan, so their rows of `approx_data` give `NA` for `logC`, `nmad` and
+    `gamma1`, and `diagnostics()` averages `nmad` over the scanned
+    parameters only.
+  - `n_qmc`, `vb_method`, `optim_method` and `sn_fit_temp` have no effect.
+    `marginal_method = "asymgaus"` gives skew-normal marginals, and
+    `"sampling"` gives Gaussian ones. `marginal_correction = "none"` (or
+    `FALSE`) scans with no volume correction, and the other values take the
+    engine's linear volume correction. With `numerical_grad = TRUE` the
+    engine uses no gradient.
+  - `control` still goes to `nlminb()`, but the limits are now
+    `iter.max = 5000` and `eval.max = 5000`, not 1000 and 2000. When the
+    gradient at the mode is too large, the engine runs `nlminb()` again from
+    there, and the iterations of both runs are counted.
+  - `sn_fit_ngrid` must be at least 7.
+  - A fit stops with an error when the log-posterior cannot be evaluated at
+    the starting values.
+  - `cores = NULL` follows `future::plan()`, which is serial unless a plan
+    is set. Before, a model with more than 120 free parameters ran its scans
+    in parallel.
+  - The engine warns when the Hessian at the mode is not symmetric, or does
+    not agree with the gradient.
+  - `get_inlavaan_internal()` has a new field `engine`, with the engine's
+    diagnostics, scans, counts and timing, and the release and commit of
+    inlavanilla. In the field `opt`, `dx` is now the analytic gradient at
+    the mode, as `dx_analytic` is. In the field `vb`, `method` is
+    `"onestep"`.
+
+* `verbose` has a new meaning, as in inlavanilla. `verbose = FALSE`, now the
+  default, prints one line per stage of the fit, as the old default
+  `verbose = TRUE` did. `verbose = TRUE` adds the details of each stage. To
+  print nothing, use `silent = TRUE`. `verbose = TRUE` with `silent = TRUE`
+  gives an error. `debug = TRUE` no longer sets `verbose = TRUE`, and no
+  longer prints a check of the gradient at the mode.
 
 * Thomas Luu is now listed as a copyright holder, for the skew-normal quantile
   approximation in `qsnorm_fast()` (Apache License 2.0).

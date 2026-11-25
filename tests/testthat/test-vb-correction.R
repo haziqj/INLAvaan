@@ -28,6 +28,8 @@ test_that("saturated-mean intercepts get exactly zero VB shift", {
 })
 
 test_that("diagnostics() reports the VB shift's own quadrature error", {
+  # Pins the VB correction of the old fit stages
+  local_engine(FALSE)
   mod <- "
     visual =~ x1 + x2 + x3
     textual =~ x4 + x5 + x6
@@ -82,6 +84,8 @@ test_that("no VB correction means no quadrature error to report", {
 })
 
 test_that("n_qmc sets the VB node count and is validated", {
+  # Pins the VB correction of the old fit stages
+  local_engine(FALSE)
   skip_on_cran()
   mod <- "visual =~ x1 + x2 + x3"
   fit_at <- function(n) {
@@ -134,6 +138,8 @@ test_that("the Gauss-Hermite node set matches Gaussian moments", {
 })
 
 test_that("vb_method = 'gauss_hermite' is deterministic and agrees with Sobol", {
+  # Pins the VB correction of the old fit stages
+  local_engine(FALSE)
   skip_on_cran()
   mod <- "
     visual =~ x1 + x2 + x3
@@ -172,6 +178,8 @@ test_that("vb_method = 'gauss_hermite' is deterministic and agrees with Sobol", 
 })
 
 test_that("the Gauss-Hermite rule keeps the fast path and reports no error", {
+  # Pins the VB correction of the old fit stages
+  local_engine(FALSE)
   mod <- "
     visual =~ x1 + x2 + x3
     textual =~ x4 + x5 + x6

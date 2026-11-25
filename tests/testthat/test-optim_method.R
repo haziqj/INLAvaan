@@ -6,6 +6,8 @@ mod <- "
 NSAMP <- 3
 
 test_that("Method: nlminb with numerical grad", {
+  # Pins the optimisers of the old fit stages
+  local_engine(FALSE)
   expect_no_error({
     fit <- asem(
       mod,
@@ -24,6 +26,8 @@ test_that("Method: nlminb with numerical grad", {
 })
 
 test_that("Method: ucminf", {
+  # Pins the optimisers of the old fit stages
+  local_engine(FALSE)
   expect_no_error({
     fit <- asem(
       mod,
@@ -41,6 +45,8 @@ test_that("Method: ucminf", {
 })
 
 test_that("Method: optim", {
+  # Pins the optimisers of the old fit stages
+  local_engine(FALSE)
   expect_no_error({
     fit <- asem(
       mod,

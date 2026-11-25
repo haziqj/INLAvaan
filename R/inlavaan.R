@@ -127,7 +127,10 @@
 #'   `iter.max = 1000` and `eval.max = 2000` (complex models can exhaust
 #'   `nlminb()`'s own defaults of 150 and 200); any value supplied here
 #'   overrides these.
-#' @param verbose Logical indicating whether to print progress messages.
+#' @param verbose Logical. With `FALSE` (default) the fit prints one line per
+#'   stage. With `TRUE` it also prints the details of each stage of the fit on
+#'   the internal scale: the start, the mode search, the VB correction and the
+#'   marginals, with their checks. Use `silent = TRUE` to print nothing.
 #' @param debug Logical indicating whether to return debug information.
 #' @param add_priors Logical indicating whether to include prior densities in
 #'   the posterior computation.
@@ -168,8 +171,8 @@
 #'   capped at `nsamp`. Draws that cannot be scored are left out, with a
 #'   warning. Ignored for single-level models.
 #' @param silent Logical. Print nothing at all, and muffle the warnings and
-#'   messages raised during the fit? Default `FALSE`. With `silent = TRUE`,
-#'   `verbose` is ignored. Errors are still raised. Whether or not `silent` is
+#'   messages raised during the fit? Default `FALSE`. `verbose` and `silent`
+#'   cannot both be `TRUE`. Errors are still raised. Whether or not `silent` is
 #'   `TRUE`, the texts of the warnings raised during the fit are recorded in
 #'   the field `warnings` of [get_inlavaan_internal()].
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
@@ -299,7 +302,7 @@ inlavaan <- function(
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
-  verbose = TRUE,
+  verbose = FALSE,
   debug = FALSE,
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
@@ -316,7 +319,11 @@ inlavaan <- function(
   mc$start <- NULL # warm start is transient; keep it out of the recorded call
   start_time0 <- proc.time()[3]
   timing <- list(start_time = start_time0)
+  check_flag(verbose, "verbose")
   check_flag(silent, "silent")
+  if (verbose && silent) {
+    cli_abort("{.arg verbose} and {.arg silent} cannot both be {.code TRUE}.")
+  }
 
   # Every warning raised during the fit, by INLAvaan or by lavaan, is recorded
   # once in the field `warnings` of the fit. With silent = TRUE it is then
@@ -364,14 +371,14 @@ inlavaan <- function(
     vb_method <- match.arg(vb_method)
     # "onestep", "full" or "none", with TRUE for "onestep" and FALSE for "none"
     vb_correction <- check_vb(vb_correction)
-    # The engine (R/engine-adapter.R) fits when the option inlavaan.engine is
-    # TRUE. It has no stage for some of the old values, which map to the
+    # The engine (R/engine-adapter.R) fits, unless the option inlavaan.engine
+    # is FALSE. It has no stage for some of the old values, which map to the
     # nearest stage it has: the asymmetric Gaussian marginals to skew-normal
     # ones, the sampling method to Gaussian marginals, and each correction of
     # the marginals to its linear volume term, or to none. It always uses
     # nlminb(), and the n_qmc, vb_method and sn_fit_temp of the old VB
     # correction and skew-normal fit have no use there.
-    use_engine <- isTRUE(getOption("inlavaan.engine", FALSE))
+    use_engine <- isTRUE(getOption("inlavaan.engine", TRUE))
     if (use_engine) {
       marginal_method <- switch(
         marginal_method,
@@ -399,13 +406,6 @@ inlavaan <- function(
         sn_fit_temp <= 0
     ) {
       cli_abort("{.arg sn_fit_temp} must be a single finite positive number.")
-    }
-    if (isTRUE(debug)) {
-      verbose <- TRUE
-    }
-    # silent = TRUE prints nothing, whatever verbose says
-    if (silent) {
-      verbose <- FALSE
     }
     # `test` is an INLAvaan-only selection of post-estimation quantities (see
     # resolve_test() in R/utils.R); it never reaches lavaan as typed
@@ -600,7 +600,7 @@ inlavaan <- function(
             ),
             class = "inlavaan_rs_ppp"
           )
-        } else if (isTRUE(verbose)) {
+        } else if (!silent) {
           # Kept to one source line: cli_alert_info() does not re-wrap
           cli_alert_info(
             "No PPP: a random-slope model has no saturated model."
@@ -799,8 +799,8 @@ inlavaan <- function(
           log_threshold = sn_fit_logthresh,
           nlminb = control
         ),
-        verbose = FALSE,
-        silent = !isTRUE(verbose)
+        verbose = verbose,
+        silent = silent
       )
       timing <- engine_timing(timing, core$timing)
 
@@ -873,7 +873,7 @@ inlavaan <- function(
         core$timing[["diagnostics"]]
     } else {
       ## ----- Start optimisation ----------------------------------------------
-      if (isTRUE(verbose)) {
+      if (!silent) {
         optim_stage <- "Mode finding and Hessian computation"
         cli_progress_step(
           "{optim_stage}.",
@@ -904,7 +904,7 @@ inlavaan <- function(
           control = ctrl
         )
         theta_star <- opt$par
-        if (isTRUE(verbose)) {
+        if (!silent) {
           optim_stage <- "Computing the Hessian"
           cli_progress_update()
         }
@@ -1025,7 +1025,7 @@ inlavaan <- function(
       vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- vb_mcse <- NA
       vb_n_qmc <- NA_integer_
       if (vb_correction != "none") {
-        if (isTRUE(verbose)) {
+        if (!silent) {
           cli_progress_step(
             if (vb_method == "sobol") {
               "Performing VB correction."
@@ -1329,7 +1329,7 @@ inlavaan <- function(
       timing <- add_timing(timing, "loglik")
 
       ## ----- Marginal approximations -----------------------------------------
-      if (isTRUE(verbose)) {
+      if (!silent) {
         cli_progress_done()
       }
 
@@ -1406,7 +1406,7 @@ inlavaan <- function(
             m = m,
             FUN = obtain_approx_data,
             cores = eff_cores,
-            verbose = verbose,
+            verbose = !silent,
             msg_serial = "Calibrating {j}/{m} asymmetric Gaussian{?s}.",
             msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores}\U00D7).",
             msg_done = "Calibrate {m}/{m} asymmetric Gaussian{?s}."
@@ -1493,7 +1493,7 @@ inlavaan <- function(
             m = m,
             FUN = obtain_approx_data,
             cores = eff_cores,
-            verbose = verbose,
+            verbose = !silent,
             msg_serial = "Fitting {j}/{m} skew-normal marginal{?s}.",
             msg_parallel = "Fitting {done}/{m} skew-normal marginals ({cores}\U00D7).",
             msg_done = "Fit {m}/{m} skew-normal marginal{?s}."
@@ -1550,7 +1550,7 @@ inlavaan <- function(
     if (
       marginal_method == "skewnorm" && isTRUE(samp_copula) && isTRUE(samp_norta)
     ) {
-      if (isTRUE(verbose)) {
+      if (!silent) {
         cli_progress_step(
           "Adjusting copula correlations (NORTA).",
           msg_done = "Adjust copula correlations (NORTA)."
@@ -1564,7 +1564,7 @@ inlavaan <- function(
     has_extra_samp_work <- needs_draw_summaries ||
       any(c("ppp", "dic") %in% test_req)
     samp_env <- NULL
-    if (isTRUE(verbose)) {
+    if (!silent) {
       samp_stage <- if (has_extra_samp_work) {
         "Posterior sampling and summarising"
       } else {
@@ -1717,7 +1717,7 @@ inlavaan <- function(
     ppp <- dic_list <- NULL
     skipped <- rs_skipped
     if (any(c("ppp", "dic") %in% test_req)) {
-      if (isTRUE(verbose)) {
+      if (!silent) {
         samp_stage <- paste0(
           "Computing fit indices (",
           paste(toupper(intersect(c("ppp", "dic"), test_req)), collapse = "/"),
@@ -1814,7 +1814,7 @@ inlavaan <- function(
     # the `test` record below rather than only in the transient warning.
     loo_res <- waic_res <- NULL
     if (any(c("loo", "waic") %in% test_req)) {
-      if (isTRUE(verbose)) {
+      if (!silent) {
         samp_stage <- "Computing Taylor LOO and WAIC"
         cli_progress_update(.envir = samp_env)
       }
@@ -1856,7 +1856,7 @@ inlavaan <- function(
       skipped = skipped
     )
 
-    if (isTRUE(verbose)) {
+    if (!silent) {
       # Close the sampling step with an overview; the specific fit measures
       # computed are listed on a separate info line below
       fit_measures <- toupper(computed)
@@ -1992,7 +1992,7 @@ acfa <- function(
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
-  verbose = TRUE,
+  verbose = FALSE,
   debug = FALSE,
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
@@ -2052,7 +2052,7 @@ asem <- function(
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
-  verbose = TRUE,
+  verbose = FALSE,
   debug = FALSE,
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
@@ -2110,7 +2110,7 @@ agrowth <- function(
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
-  verbose = TRUE,
+  verbose = FALSE,
   debug = FALSE,
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),

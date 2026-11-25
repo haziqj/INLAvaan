@@ -199,6 +199,17 @@ test_that("an engine error carries no call of inla_vanilla()", {
   expect_match(conditionMessage(e), "boom")
 })
 
+test_that("the fit prints a line per stage, and more with verbose = TRUE", {
+  local_engine()
+  fit_once <- function(...) {
+    acfa("visual =~ x1 + x2 + x3", hs, nsamp = 3, test = "none", ...)
+  }
+  lines <- capture_messages(fit_once())
+  expect_true(any(grepl("posterior mode", lines)))
+  expect_gt(length(capture_messages(fit_once(verbose = TRUE))), length(lines))
+  expect_silent(fit_once(silent = TRUE))
+})
+
 ## ----- Old values ------------------------------------------------------------
 
 test_that("old values map to the engine's stages", {

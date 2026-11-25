@@ -111,6 +111,8 @@ test_that("Prior Densities match manual calculation", {
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {
+  # The old fit stages print this table, and the engine does not
+  local_engine(FALSE)
   suppressMessages(
     tmp <- capture.output(fit <- asem(mod, dat, test = "none", debug = TRUE))
   )

@@ -23,7 +23,7 @@ agrowth(
   sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
-  verbose = TRUE,
+  verbose = FALSE,
   debug = FALSE,
   add_priors = TRUE,
   optim_method = c("nlminb", "ucminf", "optim"),
@@ -173,7 +173,10 @@ default \code{"nlminb"}, INLAvaan raises the stock iteration ceilings to
 \code{nlminb()}'s own defaults of 150 and 200); any value supplied here
 overrides these.}
 
-\item{verbose}{Logical indicating whether to print progress messages.}
+\item{verbose}{Logical. With \code{FALSE} (default) the fit prints one line per
+stage. With \code{TRUE} it also prints the details of each stage of the fit on
+the internal scale: the start, the mode search, the VB correction and the
+marginals, with their checks. Use \code{silent = TRUE} to print nothing.}
 
 \item{debug}{Logical indicating whether to return debug information.}
 
@@ -217,8 +220,8 @@ capped at \code{nsamp}. Draws that cannot be scored are left out, with a
 warning. Ignored for single-level models.}
 
 \item{silent}{Logical. Print nothing at all, and muffle the warnings and
-messages raised during the fit? Default \code{FALSE}. With \code{silent = TRUE},
-\code{verbose} is ignored. Errors are still raised. Whether or not \code{silent} is
+messages raised during the fit? Default \code{FALSE}. \code{verbose} and \code{silent}
+cannot both be \code{TRUE}. Errors are still raised. Whether or not \code{silent} is
 \code{TRUE}, the texts of the warnings raised during the fit are recorded in
 the field \code{warnings} of \code{\link[=get_inlavaan_internal]{get_inlavaan_internal()}}.}
 

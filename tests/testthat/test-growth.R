@@ -90,6 +90,8 @@ test_that("Method: sampling", {
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {
+  # The old fit stages print this table, and the engine does not
+  local_engine(FALSE)
   # Analytic-vs-finite-difference agreement is sensitive to BLAS/compiler
   # differences across CRAN check flavours -- too fragile to assert there.
   skip_on_cran()

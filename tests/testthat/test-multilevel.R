@@ -768,7 +768,8 @@ test_that("A two-level fit says that its PPP is experimental", {
     fit_with("dic"),
     message = "two-level PPP is experimental"
   )
-  expect_no_message(
+  # The note is a progress line, so silent = TRUE leaves it out with the rest
+  expect_silent(
     asem(
       "
       level: 1
@@ -778,11 +779,10 @@ test_that("A two-level fit says that its PPP is experimental", {
       ",
       lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ],
       cluster = "cluster",
-      verbose = FALSE,
+      silent = TRUE,
       nsamp = 10,
       ppp_nsamp = 10
-    ),
-    message = "experimental"
+    )
   )
 })
 

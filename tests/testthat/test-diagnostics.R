@@ -128,7 +128,6 @@ test_that("silent = TRUE prints nothing, and the fit records its warnings", {
       ...
     )
   }
-  # silent = TRUE overrides the default verbose = TRUE
   expect_silent(fit_s <- fit_unconverged(silent = TRUE))
   rec <- get_inlavaan_internal(fit_s, "warnings")
   expect_length(rec, 1L)
@@ -158,6 +157,12 @@ test_that("silent = TRUE prints nothing, and the fit records its warnings", {
   ))
   expect_identical(get_inlavaan_internal(fit, "warnings"), character(0))
   expect_error(acfa(mod, dat, silent = NA), "silent")
+  # verbose = TRUE prints the details, which silent = TRUE would muffle
+  expect_error(
+    acfa(mod, dat, verbose = TRUE, silent = TRUE),
+    "cannot both be"
+  )
+  expect_error(acfa(mod, dat, verbose = NA), "verbose")
 })
 
 test_that("warn_fit_diagnostics() flags high NMAD marginals by name", {

@@ -55,7 +55,9 @@ test_that("approx_data has one layout with and without sn_fit_sample", {
       unname(ad[fp, "omega"]),
       unname(sqrt(diag(int$Sigma_theta))[fp])
     )
-    expect_true(all(ad[fp, c("alpha", "logC", "nmad", "gamma1")] == 0))
+    # The fast-path rows are Gaussian marginals with no scan
+    expect_true(all(ad[fp, "alpha"] == 0))
+    expect_true(all(is.na(ad[fp, c("logC", "nmad", "gamma1")])))
     expect_true(all(is.finite(ad[scan, ])))
     expect_true(all(ad[scan, "omega"] > 0))
     expect_true(all(ad[scan, "nmad"] >= 0 & ad[scan, "nmad"] < 0.1))
@@ -76,7 +78,10 @@ test_that("approx_data has one layout with and without sn_fit_sample", {
     # The readers
     diag_g <- diagnostics(fit)
     diag_p <- diagnostics(fit, type = "param")
-    expect_equal(diag_g[["nmad_max"]], max(ad[seq_len(m), "nmad"]))
+    expect_equal(
+      diag_g[["nmad_max"]],
+      max(ad[seq_len(m), "nmad"], na.rm = TRUE)
+    )
     expect_equal(diag_p$alpha, unname(ad[seq_len(m), "alpha"]))
     out <- capture.output(summary(fit, nmad = TRUE))
     expect_true(any(grepl("NMAD", out)))
