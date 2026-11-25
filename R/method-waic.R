@@ -170,6 +170,7 @@ waic.inlavaan_internal <- function(
     }
     return(x$waic)
   }
+  check_fit_layout(x, "waic")
   inlav_waic(
     int = x,
     type = type,

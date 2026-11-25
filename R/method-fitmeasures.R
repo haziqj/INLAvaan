@@ -392,7 +392,7 @@ bfit_indices <- function(
     cli_abort("{.arg object} must be an {.cls INLAvaan} object.")
   }
 
-  int <- object@external$inlavaan_internal
+  int <- check_fit_layout(object@external$inlavaan_internal, "bfit_indices")
   lavmodel <- int$lavmodel
   lavsamplestats <- int$lavsamplestats
   lavdata <- int$lavdata

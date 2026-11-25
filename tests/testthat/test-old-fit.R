@@ -28,6 +28,12 @@ test_that("the methods that read the fields stop on a fit made before the engine
   expect_error(simulate(old), class = cls)
   expect_error(fitmeasures(old), class = cls)
   expect_error(fitMeasures(old, "BRMSEA"), class = cls)
+  expect_error(waic(old), class = cls)
+  expect_error(waic(int), class = cls)
+  expect_error(standardisedsolution(old, nsamp = 3), class = cls)
+  expect_error(standardizedSolution(old, nsamp = 3), class = cls)
+  expect_error(summary(old, standardised = TRUE), class = cls)
+  expect_error(bfit_indices(old), class = cls)
 })
 
 test_that("the error names the method, the version and the way to refit", {

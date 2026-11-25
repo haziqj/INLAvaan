@@ -102,10 +102,13 @@
     `inlavaan_control()`.
 
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
-  version. `diagnostics()`, `sampling()`, `loo()`, `predict()`, `simulate()`
-  and `fitMeasures()` now stop on such a fit with an error of class
-  `inlavaan_old_fit`, which says how to fit it again. `update()` still works
-  on these fits, so `fit <- update(fit)` fits the model again.
+  version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,
+  `simulate()`, `fitMeasures()`, `bfit_indices()` and
+  `standardisedsolution()` now stop on such a fit with an error of class
+  `inlavaan_old_fit`, which says how to fit it again. `waic()` still returns
+  a WAIC that the fit stores. `summary()` and `show()` still work, but
+  `summary(fit, standardised = TRUE)` stops. `update()` still works on these
+  fits, so `fit <- update(fit)` fits the model again.
 
 * In `get_inlavaan_internal()`, the field `Sigma_theta` is now `Omega`. It is
   the covariance matrix of the Laplace approximation, on the internal scale

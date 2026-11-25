@@ -64,7 +64,10 @@ standardisedsolution <- function(
   if (!isTRUE(nsamp >= 2)) {
     cli_abort("{.arg nsamp} must be at least 2 to summarise posterior draws.")
   }
-  fit_inlv <- get_inlavaan_internal(object)
+  fit_inlv <- check_fit_layout(
+    get_inlavaan_internal(object),
+    "standardisedsolution"
+  )
   pt <- fit_inlv$partable
 
   samp <- sample_params_posterior(fit_inlv, nsamp, samp_copula = TRUE)
