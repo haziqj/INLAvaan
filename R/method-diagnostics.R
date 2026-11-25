@@ -348,9 +348,11 @@ cov_pd_check <- function(x_est, x_samp, lavmodel) {
 # The wording of the engine's diagnostic_problems() for INLAvaan's users (see
 # advice_entries in R/vanilla-diagnostics.R): the arguments of inlavaan() that
 # act on each problem, and, in `help`, the help page that explains the checks.
+# INLAvaan always gives the engine the analytic gradient, so `no_grad`, the
+# advice for a fit without one, is empty, and the engine then gives none.
 inlavaan_advice <- list(
   grad_gap = "The analytic gradient does not match the log-posterior",
-  no_grad = "leave {.arg numerical_grad} at {.code FALSE}",
+  no_grad = "",
   vb_full = "{.code vb_correction = \"full\"}",
   vb_none = "{.code vb_correction = \"none\"}",
   mode_limit = paste(

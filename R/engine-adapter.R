@@ -20,9 +20,8 @@
 # gradient is computed. lavaan warns that Sigma.hat is not positive definite at
 # a failed point, so that warning is muffled. A one-entry memo of the last
 # value of joint_lp() saves the extra call when nlminb() asks for the gradient
-# at the point whose objective it has just taken. With `numerical_grad = TRUE`
-# there is no `gr`.
-engine_fns <- function(joint_lp, joint_lp_grad, numerical_grad = FALSE) {
+# at the point whose objective it has just taken.
+engine_fns <- function(joint_lp, joint_lp_grad) {
   memo <- new.env(parent = emptyenv())
   memo$theta <- NULL
   memo$value <- NA_real_
@@ -31,9 +30,6 @@ engine_fns <- function(joint_lp, joint_lp_grad, numerical_grad = FALSE) {
     memo$theta <- theta
     memo$value <- value
     value
-  }
-  if (isTRUE(numerical_grad)) {
-    return(list(lp = lp, gr = NULL))
   }
   gr <- function(theta) {
     value <- if (identical(theta, memo$theta)) {
@@ -159,7 +155,7 @@ engine_timing <- function(timing, et) {
 # keeps the engine's diagnostics, scans, counts and timing, whether the engine
 # had a gradient (`has_grad`), and the release of inlavanilla that the engine
 # files come from.
-engine_fields <- function(core, loglik_x_adj = 0, has_grad = TRUE) {
+engine_fields <- function(core, loglik_x_adj = 0) {
   m <- length(core$mode)
   parnames <- names(core$mode)
   vb_on <- core$vb_correction != "none"
@@ -213,9 +209,9 @@ engine_fields <- function(core, loglik_x_adj = 0, has_grad = TRUE) {
         "marginals",
         "marginal_scan",
         "fallback",
-        "workers"
+        "workers",
+        "has_grad"
       )],
-      list(has_grad = has_grad),
       as.list(engine_lock())
     )
   )

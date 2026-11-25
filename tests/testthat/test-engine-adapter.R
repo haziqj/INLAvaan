@@ -189,8 +189,6 @@ test_that("forward differences reach the engine, and a gradient always", {
   ))
   expect_true(is.function(ce_num$args$gr))
   expect_true(get_inlavaan_internal(ce_num$fit)$engine$has_grad)
-  # Without a gradient, the adapter gives the engine none
-  expect_null(engine_fns(identity, identity, numerical_grad = TRUE)$gr)
 })
 
 test_that("a start where the log-posterior fails stops with INLAvaan's words", {

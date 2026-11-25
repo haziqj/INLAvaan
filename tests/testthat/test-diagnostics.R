@@ -328,7 +328,7 @@ test_that("warn_fit_diagnostics() flags large VB shifts", {
   expect_match(conditionMessage(w), "vb_correction = \"full\"", fixed = TRUE)
 })
 
-test_that("the advice on an unsettled VB correction knows the gradient", {
+test_that("the advice on an unsettled VB correction names no ended argument", {
   int <- get_inlavaan_internal(fit_sn)
   expect_true(int$engine$has_grad)
   m <- length(coef(fit_sn))
@@ -354,12 +354,12 @@ test_that("the advice on an unsettled VB correction knows the gradient", {
   msg <- message_of(int)
   expect_match(msg, "did not settle", fixed = TRUE)
   expect_no_match(msg, "numerical_grad", fixed = TRUE)
-  # Without a gradient the advice says how to get one
+  # Every fit has the analytic gradient, so INLAvaan has no advice for a fit
+  # without one, and the warning is the same whatever has_grad says.
   int$engine$has_grad <- FALSE
-  expect_match(message_of(int), "numerical_grad", fixed = TRUE)
-  # A fit that does not record it had a gradient
+  expect_identical(message_of(int), msg)
   int$engine$has_grad <- NULL
-  expect_no_match(message_of(int), "numerical_grad", fixed = TRUE)
+  expect_identical(message_of(int), msg)
 })
 
 test_that("warn_fit_diagnostics() flags a near-singular Hessian", {

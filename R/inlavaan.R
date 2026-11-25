@@ -766,21 +766,18 @@ inlavaan <- function(
     init <- stats::setNames(parstart, parnames)
     engine_check_start(joint_lp, init)
     fns <- engine_fns(joint_lp, joint_lp_grad)
-    hess_mode <- NULL
-    if (!is.null(fns$gr)) {
-      hess_mode <- engine_hess_mode(
-        joint_lp_grad,
-        method = hessian_method,
-        fastpath = fastpath,
-        n = n,
-        implied_cov = function(theta) {
-          lavaan::lav_model_implied(
-            lavaan::lav_model_set_parameters(lavmodel, pars_to_x(theta, pt))
-          )$cov[[1L]]
-        },
-        add_priors = add_priors
-      )
-    }
+    hess_mode <- engine_hess_mode(
+      joint_lp_grad,
+      method = hessian_method,
+      fastpath = fastpath,
+      n = n,
+      implied_cov = function(theta) {
+        lavaan::lav_model_implied(
+          lavaan::lav_model_set_parameters(lavmodel, pars_to_x(theta, pt))
+        )$cov[[1L]]
+      },
+      add_priors = add_priors
+    )
     core <- engine_call(
       lp = fns$lp,
       gr = fns$gr,
@@ -810,7 +807,7 @@ inlavaan <- function(
       lavdata,
       lavsamplestats
     )
-    eng <- engine_fields(core, loglik_x_adj, has_grad = !is.null(fns$gr))
+    eng <- engine_fields(core, loglik_x_adj)
     # The locals that the rest of the fit reads: theta_star is the mode, and
     # theta_star_vbc the VB mean
     theta_star <- eng$theta_star_novbc
