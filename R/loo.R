@@ -974,80 +974,6 @@ loo_batched_hessians <- function(
   H_arr
 }
 
-# First- and second-order Taylor case-deletion (CPO) and full-posterior (LPD)
-# predictive densities for one unit. A second-order term is voided (NA) when
-# its curvature matrix is not positive definite; `ok` records the CPO status.
-taylor_loo_unit <- function(
-  l_star,
-  s_u,
-  H_u,
-  S_act,
-  S_inv,
-  R_act = NULL,
-  second_order = TRUE
-) {
-  d <- length(s_u)
-  quad1 <- as.numeric(crossprod(s_u, S_act %*% s_u))
-  out <- list(
-    log_cpo_1 = l_star - 0.5 * quad1,
-    lpd_1 = l_star + 0.5 * quad1,
-    log_cpo_2 = NA_real_,
-    lpd_2 = NA_real_,
-    det_term = NA_real_,
-    k_max = NA_real_,
-    k_min = NA_real_,
-    k_sum = NA_real_,
-    k_ssq = NA_real_,
-    ok = FALSE
-  )
-  if (second_order && !is.null(H_u)) {
-    # Curvature diagnostics: eigenvalues of -Sigma* H_u, obtained from the
-    # symmetric similarity R (-H_u) R' so the spectrum is real. k_max is the
-    # share of the posterior precision the unit carries along its worst
-    # direction, and k_max < 1 is the existence condition for the unit's
-    # second-order log CPO; k_min > -1 is the condition for its second-order
-    # lpd, reading the opposite end of the same spectrum; k_sum =
-    # tr(Sigma*(-H_u)) is its total leverage, and k_ssq = tr[(Sigma* H_u)^2]
-    # feeds the closed-form p_waic (see waic_from_taylor).
-    if (!is.null(R_act)) {
-      ev <- eigen(
-        -R_act %*% H_u %*% t(R_act),
-        symmetric = TRUE,
-        only.values = TRUE
-      )$values
-      out$k_max <- max(ev[1L], 0)
-      # not clamped, unlike k_max: the informative values are the negative
-      # ones, and k_min <= -1 is exactly where the lpd integral fails
-      out$k_min <- ev[length(ev)]
-      out$k_sum <- sum(ev)
-      out$k_ssq <- sum(ev^2)
-    }
-    A_u <- S_inv + H_u
-    Ac <- tryCatch(chol(A_u), error = function(e) NULL)
-    if (!is.null(Ac)) {
-      det_a <- determinant(diag(d) + S_act %*% H_u, logarithm = TRUE)
-      if (is.finite(det_a$modulus) && det_a$sign > 0) {
-        out$ok <- TRUE
-        out$det_term <- 0.5 * as.numeric(det_a$modulus)
-        out$log_cpo_2 <- l_star -
-          0.5 * as.numeric(crossprod(s_u, chol2inv(Ac) %*% s_u)) +
-          out$det_term
-      }
-    }
-    B_u <- S_inv - H_u
-    Bc <- tryCatch(chol(B_u), error = function(e) NULL)
-    if (!is.null(Bc)) {
-      det_b <- determinant(diag(d) - S_act %*% H_u, logarithm = TRUE)
-      if (is.finite(det_b$modulus) && det_b$sign > 0) {
-        out$lpd_2 <- l_star +
-          0.5 * as.numeric(crossprod(s_u, chol2inv(Bc) %*% s_u)) -
-          0.5 * as.numeric(det_b$modulus)
-      }
-    }
-  }
-  out
-}
-
 # Pointwise log CPO behind the headline ELPD, at whichever order that ELPD was
 # reported at. compare() pairs it across models so that the reported elpd_diff
 # and its se_diff rest on the same per-unit contributions.
@@ -1560,11 +1486,11 @@ inlav_loo <- function(
   # the corresponding diagonal of Sigma is exactly zero and Sigma is singular.
   # The second-order formula needs Sigma^{-1}, which exists only on this
   # block; restricting is exact (locked precisions are infinite, zeroing
-  # those dimensions) and is a no-op for an unconditioned summary.
+  # those dimensions) and is a no-op for an unconditioned summary. chol()
+  # stops when the block is not positive definite.
   free <- which(diag(Sigma) > .Machine$double.eps)
   S_act <- Sigma[free, free, drop = FALSE]
-  R_act <- chol(S_act) # upper factor, S_act = t(R_act) %*% R_act
-  S_inv <- chol2inv(R_act)
+  chol(S_act)
 
   if (isTRUE(verbose)) {
     cli_progress_step(
@@ -1763,56 +1689,53 @@ inlav_loo <- function(
     )
   }
 
-  raw <- lapply(seq_len(n_units), function(u) {
-    taylor_loo_unit(
-      l_star[u],
-      s_mat[u, ],
-      if (isTRUE(second_order)) H_arr[,, u] else NULL,
-      S_act,
-      S_inv,
-      R_act = R_act,
-      second_order = second_order
-    )
-  })
+  # The per-unit terms come from the engine's Taylor layer (taylor_terms() in
+  # R/vanilla-taylor.R), on the active block of Omega
+  terms <- taylor_terms(
+    l_star,
+    s_mat,
+    H = if (isTRUE(second_order)) H_arr,
+    Omega = S_act
+  )
+  # Composite indicator (co)variances re-fixed without each unit. The
+  # T-deletion term lowers the log CPO at both orders, and so joins the
+  # first-order p_loo of the unit, s' Omega s.
+  if (!is.null(t_delta)) {
+    terms$log_cpo_1 <- terms$log_cpo_1 - t_delta
+    terms$log_cpo_2 <- terms$log_cpo_2 - t_delta
+    terms$quad <- terms$quad + t_delta
+  }
 
   per_unit <- data.frame(
     unit = units,
     nobs = nobs,
-    l_star = l_star,
+    l_star = terms$l_star,
     score_norm = sqrt(rowSums(s_mat^2)),
-    lpd_1 = vapply(raw, `[[`, numeric(1), "lpd_1"),
-    lpd_2 = vapply(raw, `[[`, numeric(1), "lpd_2"),
-    log_cpo_1 = vapply(raw, `[[`, numeric(1), "log_cpo_1"),
-    log_cpo_2 = vapply(raw, `[[`, numeric(1), "log_cpo_2"),
-    det_term = vapply(raw, `[[`, numeric(1), "det_term"),
-    k_max = vapply(raw, `[[`, numeric(1), "k_max"),
-    k_min = vapply(raw, `[[`, numeric(1), "k_min"),
-    k_sum = vapply(raw, `[[`, numeric(1), "k_sum"),
-    k_ssq = vapply(raw, `[[`, numeric(1), "k_ssq"),
-    ok = vapply(raw, `[[`, logical(1), "ok")
+    terms[c(
+      "lpd_1",
+      "lpd_2",
+      "log_cpo_1",
+      "log_cpo_2",
+      "det_term",
+      "k_max",
+      "k_min",
+      "k_sum",
+      "k_ssq"
+    )],
+    ok = !is.na(terms$log_cpo_2)
   )
-  # Composite indicator (co)variances re-fixed without each unit
   if (!is.null(t_delta)) {
-    per_unit$log_cpo_1 <- per_unit$log_cpo_1 - t_delta
-    per_unit$log_cpo_2 <- per_unit$log_cpo_2 - t_delta
     per_unit$t_delta <- t_delta
   }
   per_unit <- add_loo_group_column(per_unit, unit_group, lavdata)
 
-  # loo-style SE of a total: sqrt(n * var(pointwise)), with n the number of
-  # units scored, known a priori. It stays n even where a variance is taken
-  # over fewer terms, so both orders scale by the same n.
-  elpd_1 <- sum(per_unit$log_cpo_1)
-  se_1 <- sqrt(n_units * var(per_unit$log_cpo_1))
-  p_diff_1 <- per_unit$lpd_1 - per_unit$log_cpo_1
-  p_loo_1 <- sum(p_diff_1)
-
   # Two existence conditions on the same H_u. A unit's second-order log CPO
-  # exists iff Sigma^-1 + H_u is positive definite (equivalently k_u < 1), its
-  # second-order lpd iff Sigma^-1 - H_u is; the second condition reads the
-  # opposite end of the spectrum of Sigma H_u and only p_loo needs it.
+  # exists iff Omega^-1 + H_u is positive definite (equivalently k_u < 1), its
+  # second-order lpd iff Omega^-1 - H_u is. The second condition reads the
+  # opposite end of the spectrum of Omega H_u, and only p_loo needs it.
   #
-  # The two divergences mean opposite things, so they get opposite remedies.
+  # The two divergences mean opposite things, so they get opposite remedies,
+  # which taylor_loo() applies.
   #
   # E[1/p(y_u|theta)] can genuinely be infinite, so a missing log CPO term
   # says the unit's true leave-one-out term really is extreme; a first-order
@@ -1827,25 +1750,29 @@ inlav_loo <- function(
   # feature of the unit: its true contribution is ordinary, and its
   # first-order contribution recovers roughly 90% of it against a sampled
   # reference, against 0% for dropping the unit. Hence: substitute.
-  n_ok <- sum(per_unit$ok)
-  has_lpd_2 <- !is.na(per_unit$lpd_2)
-  n_lpd_ok <- sum(has_lpd_2)
-  if (isTRUE(second_order) && n_ok == n_units) {
-    elpd_2 <- sum(per_unit$log_cpo_2)
-    se_2 <- sqrt(n_units * var(per_unit$log_cpo_2))
-    p_diff_2 <- ifelse(
-      has_lpd_2,
-      per_unit$lpd_2 - per_unit$log_cpo_2,
-      p_diff_1
-    )
-    p_loo_2 <- sum(p_diff_2)
+  #
+  # The loo-style SE of a total is sqrt(n * var(pointwise)), with n the number
+  # of units scored, at both orders (loo_se()).
+  terms_1 <- terms
+  terms_1$log_cpo_2 <- NA_real_
+  est_1 <- taylor_loo(terms_1)$estimates
+  elpd_1 <- est_1[["elpd_loo", "Estimate"]]
+  se_1 <- est_1[["elpd_loo", "SE"]]
+  p_loo_1 <- est_1[["p_loo", "Estimate"]]
+  loo_est <- taylor_loo(terms)
+  use_second <- isTRUE(second_order) && loo_est$order == 2L
+  if (use_second) {
+    elpd_2 <- loo_est$estimates[["elpd_loo", "Estimate"]]
+    se_2 <- loo_est$estimates[["elpd_loo", "SE"]]
+    p_loo_2 <- loo_est$estimates[["p_loo", "Estimate"]]
   } else {
     elpd_2 <- se_2 <- p_loo_2 <- NA_real_
-    p_diff_2 <- NULL
   }
+  n_ok <- sum(per_unit$ok)
+  n_lpd_ok <- sum(!is.na(per_unit$lpd_2))
   if (isTRUE(second_order) && n_ok < n_units) {
     n_bad <- n_units - n_ok
-    # Name them. Sigma^-1 + H_u is the *deleted* posterior precision, so this
+    # Name them. Omega^-1 + H_u is the *deleted* posterior precision, so this
     # condition is a statement about the unit rather than about arithmetic,
     # and the user's next move is to go and look at it.
     bad_units <- cli_vec(
@@ -1873,18 +1800,10 @@ inlav_loo <- function(
   # Announcing the smaller error while silent on the larger would misdirect,
   # so this is left to the printed summary and to `n_lpd_ok`.
 
-  # p_loo accompanies elpd at the same order; within second order it is summed
-  # over the units whose lpd term exists
-  use_second <- isTRUE(second_order) && is.finite(elpd_2)
-  elpd_loo <- if (use_second) elpd_2 else elpd_1
-  se_elpd <- if (use_second) se_2 else se_1
-  p_loo <- if (use_second) p_loo_2 else p_loo_1
-  p_diff <- if (use_second) p_diff_2 else p_diff_1
-  estimates <- cbind(
-    Estimate = c(elpd_loo, p_loo, -2 * elpd_loo),
-    SE = c(se_elpd, sqrt(n_units * var(p_diff)), 2 * se_elpd)
-  )
-  rownames(estimates) <- c("elpd_loo", "p_loo", "looic")
+  # p_loo accompanies elpd at the same order. Within second order it is summed
+  # over the units whose lpd term exists, and the others add their first-order
+  # term.
+  estimates <- loo_est$estimates
 
   # The summed first-to-second-order gap, and the trace form of p_D against
   # which it is checked: sum_u (log CPO_u^(1) - log CPO_u^(2)) = tr(Omega* I)/2
@@ -1925,7 +1844,7 @@ inlav_loo <- function(
 # WAIC from the same per-unit Taylor quantities as the LOO above -- no
 # posterior draws. Under the Gaussian posterior N(theta*, Sigma) and the
 # quadratic surrogate l_u(theta) ~= l*_u + s_u'd + d'H_u d / 2,
-#   lpd_u    = lpd_1 or lpd_2 (see taylor_loo_unit)
+#   lpd_u    = lpd_1 or lpd_2 (see taylor_terms() in R/vanilla-taylor.R)
 #   p_waic_u = Var[l_u(theta)] = s_u' Sigma s_u + tr[(H_u Sigma)^2] / 2
 # (the cross term is a third Gaussian moment, hence zero). Both pieces are
 # already computed: s_u' Sigma s_u = 2 * (lpd_1 - l*), and tr[(H_u Sigma)^2]
@@ -1984,11 +1903,19 @@ inlav_waic <- function(
 waic_from_taylor <- function(res) {
   pu <- res$per_unit
   n_units <- res$n_units
-  quad <- 2 * (pu$lpd_1 - pu$l_star) # s_u' Sigma s_u
+  # The terms that the engine's taylor_waic() reads. s_u' Omega s_u is
+  # 2 (lpd_1 - l_star). The T-deletion term of a composite fit (see
+  # loso_t_deletion_units()) joins it, which keeps lpd_1 - p_waic_1 =
+  # log_cpo_1.
+  terms <- data.frame(
+    quad = 2 * (pu$lpd_1 - pu$l_star) + (pu$t_delta %||% 0),
+    lpd_1 = pu$lpd_1,
+    lpd_2 = if (isTRUE(res$second_order)) pu$lpd_2 else NA_real_,
+    k_ssq = pu$k_ssq
+  )
 
   has_lpd_2 <- !is.na(pu$lpd_2)
   n_lpd_ok <- sum(has_lpd_2)
-  use_second <- isTRUE(res$second_order) && n_lpd_ok == n_units
 
   if (isTRUE(res$second_order) && n_lpd_ok < n_units) {
     n_bad <- n_units - n_lpd_ok
@@ -2011,36 +1938,16 @@ waic_from_taylor <- function(res) {
     )
   }
 
-  if (use_second) {
-    p_waic <- quad + 0.5 * pu$k_ssq
-    lpd <- pu$lpd_2
-  } else {
-    p_waic <- quad
-    lpd <- pu$lpd_1
-  }
-  # The T-deletion term of a composite fit (see loso_t_deletion_units()). It
-  # keeps lpd_1 - p_waic_1 = log_cpo_1.
-  if (!is.null(pu$t_delta)) {
-    p_waic <- p_waic + pu$t_delta
-  }
-  elpd_waic_u <- lpd - p_waic
-
-  estimates <- cbind(
-    Estimate = c(sum(elpd_waic_u), sum(p_waic), -2 * sum(elpd_waic_u)),
-    SE = c(
-      sqrt(n_units * var(elpd_waic_u)),
-      sqrt(n_units * var(p_waic)),
-      2 * sqrt(n_units * var(elpd_waic_u))
-    )
-  )
-  rownames(estimates) <- c("elpd_waic", "p_waic", "waic")
+  waic_est <- taylor_waic(terms)
+  use_second <- waic_est$order == 2L
+  estimates <- waic_est$estimates
 
   per_unit <- data.frame(
     unit = pu$unit,
     nobs = pu$nobs,
-    lpd = lpd,
-    p_waic = p_waic,
-    elpd_waic = elpd_waic_u
+    lpd = if (use_second) pu$lpd_2 else pu$lpd_1,
+    p_waic = waic_est$pointwise[, "p_waic"],
+    elpd_waic = waic_est$pointwise[, "elpd_waic"]
   )
   if (!is.null(pu$group)) {
     per_unit <- cbind(per_unit[1L], group = pu$group, per_unit[-1L])

@@ -203,3 +203,17 @@ test_that("Under missing data the term is close to the exact re-fix", {
     tolerance = 0.05
   )
 })
+
+test_that("The term is the last column of the per-unit table", {
+  expect_identical(
+    utils::tail(names(res_comp$per_unit), 2L),
+    c("ok", "t_delta")
+  )
+  pu <- res_comp$per_unit
+  # It joins the first-order p_loo, s' Omega s, and leaves the lpd alone
+  expect_equal(
+    pu$lpd_1 - pu$log_cpo_1,
+    2 * (pu$lpd_1 - pu$l_star) + pu$t_delta,
+    tolerance = 1e-10
+  )
+})

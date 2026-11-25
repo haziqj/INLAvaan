@@ -539,3 +539,49 @@ test_that("test = 'waic' alone also stores both, regardless of nsamp", {
   expect_s3_class(int$loo, "inlavaan_loo")
   expect_s3_class(int$waic, "inlavaan_waic")
 })
+
+test_that("the per-unit table holds the engine's Taylor terms", {
+  # The inputs of taylor_terms(), caught on their way in
+  seen <- NULL
+  engine_terms <- taylor_terms
+  local_mocked_bindings(
+    taylor_terms = function(l, s, H = NULL, Omega, ...) {
+      seen <<- list(l = l, s = s, H = H, Omega = Omega)
+      engine_terms(l, s, H = H, Omega = Omega, ...)
+    }
+  )
+  res5 <- loo(fit, units = 1:5)
+  expect_named(
+    res5$per_unit,
+    c(
+      "unit",
+      "nobs",
+      "l_star",
+      "score_norm",
+      "lpd_1",
+      "lpd_2",
+      "log_cpo_1",
+      "log_cpo_2",
+      "det_term",
+      "k_max",
+      "k_min",
+      "k_sum",
+      "k_ssq",
+      "ok"
+    )
+  )
+  expect_identical(res5$per_unit$ok, !is.na(res5$per_unit$log_cpo_2))
+  # The determinant term and the second-order log CPO by their direct formulas,
+  # log |I + Omega H_u| / 2 and l_u - s_u' (Omega^-1 + H_u)^-1 s_u / 2 + it
+  m <- ncol(seen$Omega)
+  for (u in 1:5) {
+    H_u <- seen$H[,, u]
+    det_u <- 0.5 * determinant(diag(m) + seen$Omega %*% H_u)$modulus[[1]]
+    expect_equal(res5$per_unit$det_term[u], det_u, tolerance = 1e-10)
+    s <- seen$s[u, ]
+    cpo_u <- seen$l[u] -
+      0.5 * sum(s * solve(solve(seen$Omega) + H_u, s)) +
+      det_u
+    expect_equal(res5$per_unit$log_cpo_2[u], cpo_u, tolerance = 1e-10)
+  }
+})

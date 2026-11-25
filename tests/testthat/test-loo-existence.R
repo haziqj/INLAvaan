@@ -1,5 +1,6 @@
 # Existence conditions for the second-order terms, checked on hand-built
 # curvature rather than on a fitted model, so the algebra is pinned directly.
+# The terms come from the engine's taylor_terms(), as in loo().
 #
 # With Sigma = I the spectrum of -Sigma H_u is just the spectrum of -H_u, so
 # a diagonal H_u places the eigenvalues exactly where a case needs them.
@@ -9,21 +10,26 @@
 #   Gate B: Sigma^-1 - H_u > 0  <=>  k_min > -1  -> lpd_2     (waic, p_loo)
 
 S_act <- diag(2)
-S_inv <- diag(2)
-R_act <- diag(2)
 s_u <- c(0.3, -0.4)
 l_star <- -10
 
+# The terms of the one unit with Hessian H_u (NULL for first order alone), with
+# `ok` as in the per-unit table of loo()
+taylor_unit <- function(H_u) {
+  terms <- INLAvaan:::taylor_terms(
+    l_star,
+    matrix(s_u, nrow = 1L),
+    H = if (!is.null(H_u)) array(H_u, c(dim(H_u), 1L)),
+    Omega = S_act
+  )
+  u <- as.list(terms)
+  u$ok <- !is.na(u$log_cpo_2)
+  u
+}
+
 # H_u whose -Sigma H_u spectrum is exactly `ev`
 unit_at <- function(ev) {
-  INLAvaan:::taylor_loo_unit(
-    l_star,
-    s_u,
-    -diag(ev),
-    S_act,
-    S_inv,
-    R_act = R_act
-  )
+  taylor_unit(-diag(ev))
 }
 
 test_that("the two existence gates are independent (full 2x2 table)", {
@@ -59,14 +65,7 @@ test_that("p_waic carries no existence condition of its own", {
 
 test_that("the closed-form p_waic matches a direct trace computation", {
   H_u <- matrix(c(-0.6, 0.15, 0.15, -0.35), 2L)
-  u <- INLAvaan:::taylor_loo_unit(
-    l_star,
-    s_u,
-    H_u,
-    S_act,
-    S_inv,
-    R_act = R_act
-  )
+  u <- taylor_unit(H_u)
   HS <- H_u %*% S_act
   expect_equal(
     2 * (u$lpd_1 - l_star) + 0.5 * u$k_ssq,
@@ -78,15 +77,7 @@ test_that("the closed-form p_waic matches a direct trace computation", {
 test_that("first-order terms need no gate and reproduce log_cpo_1", {
   # no eigendecomposition, no Cholesky: the quadratic form s' Sigma s is all
   # that is needed, so every second-order field stays NA
-  u <- INLAvaan:::taylor_loo_unit(
-    l_star,
-    s_u,
-    NULL,
-    S_act,
-    S_inv,
-    R_act = R_act,
-    second_order = FALSE
-  )
+  u <- taylor_unit(NULL)
   expect_true(all(is.na(c(
     u$log_cpo_2,
     u$lpd_2,

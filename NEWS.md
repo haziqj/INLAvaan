@@ -76,6 +76,13 @@
   - An invalid `vb_correction`, such as `NA`, now gives an error. Before,
     it turned the VB correction off.
 
+* `loo()`, `waic()` and the LOO and WAIC of `test` now take the terms of
+  each unit, and the estimates, from the engine's Taylor layer, which
+  inlavanilla's own `loo()` and `waic()` use too. INLAvaan still computes
+  the log-likelihood, the score and the Hessian of each unit. The numbers do
+  not change, apart from rounding (a relative change of at most 5e-13 on
+  the models checked).
+
 * New `inlavaan_control()` makes the `control` list of `inlavaan()`,
   `acfa()`, `asem()` and `agrowth()`. Its entries are `mode_maxit`,
   `mode_maxeval` and `mode_tol` for the search for the posterior mode,
