@@ -146,6 +146,15 @@ test_that("the warm start is used only when the parameters keep their names", {
   # More parameters: no warm start, and no error about its length
   fit_ms <- update(fit, meanstructure = TRUE)
   expect_length(coef(fit_ms), length(coef(fit)) + 3L)
+  # start = NULL turns the warm start off
+  expect_identical(
+    get_inlavaan_internal(update(fit, start = NULL), "theta_star_novbc"),
+    get_inlavaan_internal(fit, "theta_star_novbc")
+  )
+  expect_identical(
+    iterations(update(fit, start = NULL)),
+    iterations(fit)
+  )
   # As many parameters, under other names: the fit of a cold start
   expect_identical(
     get_inlavaan_internal(update(fit, std.lv = TRUE), "theta_star_novbc"),

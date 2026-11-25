@@ -22,7 +22,8 @@
 #' only when the refitted model has the same free parameters, by name and in
 #' the same order. Otherwise, as after `std.lv = TRUE` or
 #' `meanstructure = TRUE`, the fit starts from the usual values. Supply
-#' `start` explicitly to override it.
+#' `start` explicitly to override it, or `start = NULL` to start from the
+#' usual values.
 #'
 #' The refit needs the objects that the recorded call names: the data, the
 #' model, and the sample statistics of a fit to summary data (`sample.cov`,
@@ -185,7 +186,9 @@ setMethod(
     structure_changed <- model_given ||
       add_given ||
       "model.type" %in% names(extras)
-    if (!structure_changed && is.null(cl$start)) {
+    # `start = NULL` asks for the usual starting values, so any `start` given
+    # turns the warm start off.
+    if (!structure_changed && !"start" %in% names(extras)) {
       # inlavaan() checks the names before it uses the mode as the start
       cl$start <- structure(
         internal$theta_star_novbc,

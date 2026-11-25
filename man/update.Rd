@@ -51,7 +51,8 @@ changes the optimiser's starting point, not the fitted result. It is used
 only when the refitted model has the same free parameters, by name and in
 the same order. Otherwise, as after \code{std.lv = TRUE} or
 \code{meanstructure = TRUE}, the fit starts from the usual values. Supply
-\code{start} explicitly to override it.
+\code{start} explicitly to override it, or \code{start = NULL} to start from the
+usual values.
 
 The refit needs the objects that the recorded call names: the data, the
 model, and the sample statistics of a fit to summary data (\code{sample.cov},
