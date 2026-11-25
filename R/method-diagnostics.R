@@ -534,6 +534,7 @@ print.diagnostics.INLAvaan <- function(x, ...) {
     "iterations",
     "vb_applied",
     "vb_fallback",
+    "vb_solve",
     "n_heavy_tails"
   )
   # Quantities that span orders of magnitude, or sit far below the four
