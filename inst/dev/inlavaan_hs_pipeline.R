@@ -23,11 +23,11 @@
 #     the conditional mean path, applying a volume correction (γ₁ⱼ), and
 #     fitting a skew-normal density to the corrected profile.
 #
-#   Stage 4 — NORTA-adjusted copula posterior sampling
-#     The copula correlation matrix is adjusted to match the target rank
-#     correlations implied by the fitted skew-normal marginals. Joint samples
-#     are drawn from this corrected Gaussian copula to compute covariance
-#     parameters, fit indices, and other derived quantities.
+#   Stage 4 — Gaussian copula posterior sampling
+#     Joint samples are drawn from a Gaussian copula with the correlation
+#     matrix of the Laplace approximation and the fitted skew-normal marginals,
+#     to compute covariance parameters, fit indices, and other derived
+#     quantities.
 #
 # All computations are done on the unconstrained parameterisation θ, which is
 # related to the natural parameters x (loadings, variances, covariances) through
@@ -761,15 +761,14 @@ pars_to_x_demo <- function(theta, par_names) {
 }
 
 # ==============================================================================
-# SECTION 11: Stage 4 — NORTA-Adjusted Copula Sampling
+# SECTION 11: Stage 4 — Gaussian Copula Sampling
 # ==============================================================================
 #
-# The copula correlation matrix is adjusted using the NORTA (Normal-to-Anything)
-# procedure to match the target rank correlations implied by the fitted
-# skew-normal marginals. Joint samples are then drawn from this corrected
-# Gaussian copula.
+# Joint samples are drawn from a Gaussian copula with the correlation matrix of
+# the Laplace approximation, then transformed to the fitted skew-normal
+# marginals.
 
-cat("\n=== SECTION 11: Stage 4 — NORTA-Adjusted Copula Sampling ===\n")
+cat("\n=== SECTION 11: Stage 4 — Gaussian Copula Sampling ===\n")
 
 if (!is.null(Sigma_theta)) {
   # --- Step 1: Extract correlation matrix -----------------------------------
@@ -777,34 +776,12 @@ if (!is.null(Sigma_theta)) {
   cat("Original correlation matrix (first 3x3):\n")
   print(round(R[1:3, 1:3], 3))
 
-  # --- Step 2: NORTA adjustment ---------------------------------------------
-  # Prepare approx_data for NORTA (must match INLAvaan's expected format)
-  approx_data <- data.frame(
-    xi = sn_params$xi,
-    omega = sn_params$omega,
-    alpha = sn_params$alpha
-  )
-
-  cat("\nApplying NORTA adjustment...\n")
-  # Note: norta_adjust_R is an internal function, accessed via :::
-  R_star <- tryCatch(
-    INLAvaan:::norta_adjust_R(R, approx_data, use_spline = TRUE),
-    error = function(e) {
-      cat("WARNING: NORTA adjustment failed, using original R:\n")
-      cat(e$message, "\n")
-      R
-    }
-  )
-
-  cat("NORTA-adjusted correlation matrix (first 3x3):\n")
-  print(round(R_star[1:3, 1:3], 3))
-
-  # --- Step 3: Draw joint samples from the copula ---------------------------
+  # --- Step 2: Draw joint samples from the copula ---------------------------
   nsamp <- 1000  # number of posterior samples
-  cat("\nDrawing", nsamp, "joint samples from NORTA-adjusted copula...\n")
+  cat("\nDrawing", nsamp, "joint samples from the Gaussian copula...\n")
 
-  # Cholesky decomposition of adjusted correlation matrix
-  Lt <- chol(R_star)
+  # Cholesky decomposition of the correlation matrix
+  Lt <- chol(R)
 
   # Draw standard normal samples
   z_raw <- matrix(rnorm(nsamp * m), nrow = nsamp)
@@ -831,7 +808,7 @@ if (!is.null(Sigma_theta)) {
     )
   }
 
-  # --- Step 4: Transform to natural parameter space -------------------------
+  # --- Step 3: Transform to natural parameter space -------------------------
   cat("Transforming to natural parameter space...\n")
 
   x_samp <- matrix(NA_real_, nrow = nsamp, ncol = m)
@@ -841,7 +818,7 @@ if (!is.null(Sigma_theta)) {
     x_samp[i, ] <- pars_to_x_demo(theta_samp[i, ], par_names)
   }
 
-  # --- Step 5: Compute derived quantities -----------------------------------
+  # --- Step 4: Compute derived quantities -----------------------------------
   cat("Computing derived quantities...\n")
 
   # Extract natural-scale parameters
@@ -1071,7 +1048,7 @@ cat("All four stages of the INLAvaan algorithm have been executed:\n")
 cat("  Stage 1: MAP estimation → θ* found via BFGS optimisation\n")
 cat("  Stage 2: VB correction → mean shift δ̂ computed\n")
 cat("  Stage 3: SN marginals → skew-normal fitted for each parameter\n")
-cat("  Stage 4: NORTA sampling →", nsamp, "joint samples drawn\n")
+cat("  Stage 4: copula sampling →", nsamp, "joint samples drawn\n")
 cat("\nThe posterior summary above is reported on the natural x scale.\n")
 
 # ==============================================================================
