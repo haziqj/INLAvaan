@@ -4,14 +4,16 @@ mod <- "
   textual =~ x4 + x5 + x6
 "
 
-# A refit must give the fit of a fresh call
-expect_same_fit <- function(fit, expected) {
+# A refit must give the fit of a fresh call. A warm start ends the search for
+# the mode close to, not at, the mode of a fresh fit, so it needs a looser
+# tolerance.
+expect_same_fit <- function(fit, expected, tolerance = 1e-6) {
   expect_identical(names(coef(fit)), names(coef(expected)))
   for (field in c("theta_star_novbc", "mloglik")) {
     expect_equal(
       get_inlavaan_internal(fit, field),
       get_inlavaan_internal(expected, field),
-      tolerance = 1e-6
+      tolerance = tolerance
     )
   }
 }
@@ -383,5 +385,94 @@ test_that("update() with a new model gives the fit of a fresh call", {
   expect_same_fit(
     update(fit, model = "x2 ~ x1 + x3"),
     do.call(asem, c(list("x2 ~ x1 + x3"), args, extra))
+  )
+})
+
+test_that("update() of a parameter table with free thresholds is a fresh fit", {
+  skip_on_cran()
+  ordinal <- dat[, c("x1", "x2", "x3")]
+  for (v in names(ordinal)) {
+    cuts <- stats::quantile(ordinal[[v]], c(1, 2) / 3)
+    ordinal[[v]] <- findInterval(ordinal[[v]], cuts) + 1L
+  }
+  items <- c("x1", "x2", "x3")
+  pt <- lavaan::parTable(lavaan::cfa(
+    "visual =~ x1 + x2 + x3",
+    ordinal,
+    ordered = items,
+    do.fit = FALSE
+  ))
+  # The thresholds that lavaan adds have user = 0
+  expect_true(all(pt$user[pt$op == "|"] == 0L))
+  fit_pt <- function(model) {
+    acfa(
+      model,
+      ordinal,
+      ordered = items,
+      silent = TRUE,
+      nsamp = 3,
+      test = "none",
+      vb_correction = "none",
+      marginal_method = "gaussian"
+    )
+  }
+  # Fitted here: a fit in fit_pt() would record its argument `model`
+  fit <- acfa(
+    pt,
+    ordinal,
+    ordered = items,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  expect_same_fit(update(fit), fit_pt(pt), tolerance = 1e-4)
+  expect_same_fit(update(fit, start = NULL), fit_pt(pt))
+  # A changed parameter table, with the second loading fixed
+  pt2 <- pt
+  x2_loading <- pt2$op == "=~" & pt2$rhs == "x2"
+  pt2$free[x2_loading] <- 0L
+  pt2$ustart[x2_loading] <- 1
+  pt2$free[pt2$free > 0] <- seq_len(sum(pt2$free > 0))
+  expect_same_fit(update(fit, model = pt2), fit_pt(pt2))
+  # The data are recorded by name, so update() checks that they are found
+  rm(ordinal)
+  expect_error(update(fit), class = "inlavaan_update_data_not_found")
+})
+
+test_that("update() under ov.order = 'data' and conditional.x is a fresh fit", {
+  skip_on_cran()
+  dd <- dat[, c("x3", "x2", "x1")]
+  fit_cx <- function(model) {
+    asem(
+      model,
+      dd,
+      ov.order = "data",
+      conditional.x = TRUE,
+      silent = TRUE,
+      nsamp = 3,
+      test = "none",
+      vb_correction = "none",
+      marginal_method = "gaussian"
+    )
+  }
+  # Fitted here: a fit in fit_cx() would record its argument `model`
+  fit <- asem(
+    "x1 ~ x2 + x3",
+    dd,
+    ov.order = "data",
+    conditional.x = TRUE,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  expect_same_fit(update(fit), fit_cx("x1 ~ x2 + x3"), tolerance = 1e-4)
+  expect_same_fit(update(fit, start = NULL), fit_cx("x1 ~ x2 + x3"))
+  expect_same_fit(
+    update(fit, model = "x2 ~ x1 + x3"),
+    fit_cx("x2 ~ x1 + x3")
   )
 })
