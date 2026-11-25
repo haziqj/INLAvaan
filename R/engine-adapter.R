@@ -156,9 +156,10 @@ engine_timing <- function(timing, et) {
 # nlminb()'s objective, as opt$dx_analytic had. With no VB correction the VB
 # fields are NA, as before. A Gaussian marginal of the fast path has alpha 0
 # and NA for logC, nmad and gamma1, since it has no scan. The field `engine`
-# keeps the engine's diagnostics, scans, counts and timing, and the release of
-# inlavanilla that the engine files come from.
-engine_fields <- function(core, loglik_x_adj = 0) {
+# keeps the engine's diagnostics, scans, counts and timing, whether the engine
+# had a gradient (`has_grad`), and the release of inlavanilla that the engine
+# files come from.
+engine_fields <- function(core, loglik_x_adj = 0, has_grad = TRUE) {
   m <- length(core$mode)
   parnames <- names(core$mode)
   vb_on <- core$vb_correction != "none"
@@ -214,6 +215,7 @@ engine_fields <- function(core, loglik_x_adj = 0) {
         "fallback",
         "workers"
       )],
+      list(has_grad = has_grad),
       as.list(engine_lock())
     )
   )

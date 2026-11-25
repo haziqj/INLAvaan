@@ -865,7 +865,7 @@ inlavaan <- function(
       lavdata,
       lavsamplestats
     )
-    eng <- engine_fields(core, loglik_x_adj)
+    eng <- engine_fields(core, loglik_x_adj, has_grad = !is.null(fns$gr))
     # The locals that the rest of the fit reads: theta_star is the mode, and
     # theta_star_vbc the VB mean
     theta_star <- eng$theta_star_novbc

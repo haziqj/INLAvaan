@@ -380,10 +380,11 @@ warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
   dg <- diagnostics_fit(int)
   glob <- dg$global
   gaussian <- int$marginal_method != "skewnorm"
+  # A fit made before has_grad was recorded had a gradient
   problems <- diagnostic_problems(
     dg$engine,
     gaussian = gaussian,
-    has_grad = TRUE,
+    has_grad = !isFALSE(int$engine$has_grad),
     advice = inlavaan_advice
   )
   # The templates of the bullets are filled in from this environment

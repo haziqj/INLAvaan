@@ -69,12 +69,14 @@
   - The engine warns when the Hessian at the mode is not symmetric, or does
     not agree with the gradient.
   - `get_inlavaan_internal()` has a new field `engine`, with the engine's
-    diagnostics, scans, counts and timing, and the release and commit of
-    inlavanilla. In the field `opt`, `dx` is now the analytic gradient at
-    the mode, as `dx_analytic` is. In the field `vb`, `method` is the VB
-    route that the fit used: `"onestep"` by default, or `"full"` with
-    `vb_correction = "full"`. It is no longer `"sobol"` or
-    `"gauss_hermite"`.
+    diagnostics, scans, counts and timing, whether the engine had a
+    gradient (`has_grad`), and the release and commit of inlavanilla. With
+    `numerical_grad = TRUE`, the warning on a VB correction that did not
+    settle says to leave `numerical_grad` at `FALSE`. In the field `opt`,
+    `dx` is now the analytic gradient at the mode, as `dx_analytic` is. In
+    the field `vb`, `method` is the VB route that the fit used: `"onestep"`
+    by default, or `"full"` with `vb_correction = "full"`. It is no longer
+    `"sobol"` or `"gauss_hermite"`.
   - An invalid `vb_correction`, such as `NA`, now gives an error. Before,
     it turned the VB correction off.
 

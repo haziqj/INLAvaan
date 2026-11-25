@@ -328,6 +328,53 @@ test_that("warn_fit_diagnostics() flags large VB shifts", {
   expect_match(conditionMessage(w), "vb_correction = \"full\"", fixed = TRUE)
 })
 
+test_that("the advice on an unsettled VB correction knows the gradient", {
+  int <- get_inlavaan_internal(fit_sn)
+  expect_true(int$engine$has_grad)
+  m <- length(coef(fit_sn))
+  ed <- int$engine$diagnostics
+  ed$vb <- list(
+    iterations = 1L,
+    fallback = FALSE,
+    one_pass = TRUE,
+    gain_ratio = 0.9,
+    kld_global = 0.01
+  )
+  ed$marginals$vb_shift_sigma <- rep(0.1, m)
+  ed$marginals$kld <- rep(0.005, m)
+  ed$marginals$vb_step_sigma <- c(0.5, rep(0.01, m - 1L))
+  int$engine$diagnostics <- ed
+  message_of <- function(int) {
+    w <- expect_warning(
+      warn_fit_diagnostics(int),
+      class = "inlavaan_diagnostics_warning"
+    )
+    gsub("\\s+", " ", cli::ansi_strip(conditionMessage(w)))
+  }
+  msg <- message_of(int)
+  expect_match(msg, "did not settle", fixed = TRUE)
+  expect_no_match(msg, "numerical_grad", fixed = TRUE)
+  # Without a gradient the advice says how to get one
+  int$engine$has_grad <- FALSE
+  expect_match(message_of(int), "numerical_grad", fixed = TRUE)
+  # A fit that does not record it had a gradient
+  int$engine$has_grad <- NULL
+  expect_no_match(message_of(int), "numerical_grad", fixed = TRUE)
+  # The fit records whether the engine had a gradient
+  int_ng <- acfa(
+    mod,
+    dat,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = FALSE,
+    marginal_method = "marggaus",
+    numerical_grad = TRUE,
+    debug = TRUE
+  )
+  expect_false(int_ng$engine$has_grad)
+})
+
 test_that("warn_fit_diagnostics() flags a near-singular Hessian", {
   int <- INLAvaan:::get_inlavaan_internal(fit)
   # The check reads the condition number on the correlation scale
