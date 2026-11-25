@@ -159,6 +159,9 @@ resolve_control <- function(control, silent = FALSE) {
   if (length(old_names) > 0L && is.null(control$nlminb)) {
     control$nlminb <- list()
   }
+  # The entries that the old names of the iterations, the evaluations and the
+  # tolerance set, such as mode_maxit for iter.max
+  twin_of <- stats::setNames(names(nlminb_twins), nlminb_twins)
   for (old in old_names) {
     if (is.list(control$nlminb) && !is.null(control$nlminb[[old]])) {
       cli_abort(c(
@@ -167,8 +170,15 @@ resolve_control <- function(control, silent = FALSE) {
         "i" = "They are the same control of the search for the mode."
       ))
     }
-    new <- if (old %in% nlminb_twins) {
-      paste0(names(nlminb_twins)[nlminb_twins == old], " = ")
+    if (old %in% names(twin_of) && twin_of[[old]] %in% nms) {
+      entry <- twin_of[[old]]
+      cli_abort(c(
+        "Set {.code control${old}} or {.code control${entry}}, not both.",
+        "i" = "They are the same control of the search for the mode."
+      ))
+    }
+    new <- if (old %in% names(twin_of)) {
+      paste0(twin_of[[old]], " = ")
     } else {
       paste0("nlminb = list(", old, " = )")
     }
@@ -194,5 +204,30 @@ resolve_control <- function(control, silent = FALSE) {
       "i" = "Valid entries are {.val {valid}}. See {.fn inlavaan_control}."
     ))
   }
-  do.call(inlavaan_control, control)
+  # A bad value of an old name is checked under the entry that it sets, so
+  # the error says which old name that was
+  moved <- intersect(old_names, names(twin_of))
+  if (length(moved) == 0L) {
+    return(do.call(inlavaan_control, control))
+  }
+  tryCatch(
+    do.call(inlavaan_control, control),
+    inlavanilla_error = function(e) {
+      msg <- conditionMessage(e)
+      hit <- moved[vapply(
+        twin_of[moved],
+        function(entry) grepl(entry, msg, fixed = TRUE),
+        logical(1)
+      )]
+      if (length(hit) == 0L) {
+        stop(e)
+      }
+      old <- hit[[1L]]
+      entry <- twin_of[[old]]
+      cli_abort(
+        c("{msg}", "i" = "{.code control${old}} sets {.code {entry}}."),
+        call = NULL
+      )
+    }
+  )
 }

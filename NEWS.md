@@ -98,7 +98,9 @@
     still work, with a deprecation warning once per session, and give the
     same fit: `control$iter.max`, `control$eval.max` and `control$rel.tol`
     set `mode_maxit`, `mode_maxeval` and `mode_tol`, and the others, such as
-    `control$trace`, go to `nlminb`.
+    `control$trace`, go to `nlminb`. An old name and the entry that it sets,
+    such as `control$iter.max` and `control$mode_maxit`, together give an
+    error that names both.
   - When the search for the mode stops at its limit, the warning at the end
     of the fit now says to raise `mode_maxit` or `mode_maxeval` in
     `inlavaan_control()`.

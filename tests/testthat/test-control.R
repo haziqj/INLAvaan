@@ -239,8 +239,39 @@ test_that("the controls of nlminb() still work in control, with a warning", {
     "not both"
   )
   expect_error(
-    suppressWarnings(fit_with(control = list(rel.tol = 1e-8, mode_tol = 1e-8))),
+    fit_with(control = list(rel.tol = 1e-8, mode_tol = 1e-8)),
     "not both"
   )
   forget_deprecations(ids)
+})
+
+test_that("an old name and the entry it sets stop, in the names given", {
+  for (old in nlminb_twins) {
+    entry <- names(nlminb_twins)[nlminb_twins == old]
+    ctrl <- stats::setNames(list(10, 10), c(old, entry))
+    # Before the move, so with no deprecation warning
+    expect_no_warning(err <- expect_error(resolve_control(ctrl), "not both"))
+    msg <- cli::ansi_strip(conditionMessage(err))
+    expect_match(msg, paste0("control$", old), fixed = TRUE)
+    expect_match(msg, paste0("control$", entry), fixed = TRUE)
+    expect_no_match(msg, "nlminb", fixed = TRUE)
+  }
+  # A bad value of an old name says which old name it was
+  err <- expect_error(
+    suppressWarnings(resolve_control(list(iter.max = -1), silent = TRUE)),
+    "mode_maxit"
+  )
+  expect_match(
+    cli::ansi_strip(conditionMessage(err)),
+    "control$iter.max",
+    fixed = TRUE
+  )
+  # Other bad values keep the error of inlavaan_control()
+  expect_error(
+    suppressWarnings(resolve_control(
+      list(trace = 1, n_grid = 3),
+      silent = TRUE
+    )),
+    "n_grid"
+  )
 })
