@@ -30,8 +30,9 @@ starts are as in \code{\link[=fit_skew_normal]{fit_skew_normal()}}. With
 values from the sample skewness of \code{x} and their mirror image, with the
 opposite skew. When the moment-based values give \eqn{|\delta| < 0.2}, that
 is, when the sample skewness of \code{x} is below about 0.0018 in absolute value,
-these two starts are \eqn{\delta = \pm 0.5}. This is rare: even for 1000
-draws from a normal distribution, it happens in about 1 sample of 50.
+these two starts are \eqn{\delta = \pm 0.5}. This is rare: for 1000 draws
+from a normal distribution, it happens in about 1 sample of 50, and in about
+1 sample of 17 for 10000 draws.
 }
 \examples{
 x <- rnorm(100, mean = 5, sd = 1)

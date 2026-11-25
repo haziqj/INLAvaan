@@ -93,9 +93,10 @@
   `alpha` of about 1. The covariances and defined parameters in `summary()`
   come from this fit, so they could jump. For draws that do not vary or are
   not all finite, the fit returns the same values as before, with one warning
-  in place of the warnings of `nlminb()`. With the default settings, on the
-  Holzinger and Swineford three-factor model and the Political Democracy model
-  (also with two defined parameters added), over 150 seeds each:
+  in place of the warnings of `nlminb()` (and now also for empty draws). With
+  the default settings, on the Holzinger and Swineford three-factor model and
+  the Political Democracy model (also with two defined parameters added), over
+  150 seeds each:
   - For the same draws, a row changes only where the old fit stalled (`alpha`
     within 0.05 of 0): 40 of 450 covariances of the Holzinger and Swineford
     model, 37 of 900 covariances of the Political Democracy model and 139 of
