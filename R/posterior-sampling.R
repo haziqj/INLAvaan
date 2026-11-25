@@ -35,8 +35,15 @@ is_constant <- function(y) {
 }
 
 # ---------------------------------------------------------------------------
-# Core sampling function: draw from the Gaussian-copula posterior.
-# Returns a list with:
+# Core sampling function: draw from the Gaussian-copula posterior through the
+# engine's sn_draws(), which couples the marginals by the correlation matrix
+# of Sigma_theta, or by the NORTA-adjusted R_star of a skew-normal fit.
+# The skew-normal marginals are the first m rows of approx_data: the rows
+# after them are the fits to the draws of covariances and defined parameters
+# (sn_fit_sample). Gaussian marginals, and draws under samp_copula = FALSE
+# (method "sampling"), are those of the Laplace approximation: marginals at
+# theta_star with the Laplace SDs and alpha = 0, which sn_draws() maps
+# linearly. Returns a list with:
 #   $theta_samp  - nsamp x m matrix in the internal (theta) parameterisation
 #   $x_samp      - nsamp x p matrix in the lavaan (x) parameterisation
 # ---------------------------------------------------------------------------
@@ -50,49 +57,20 @@ sample_params <- function(
   nsamp = 1000,
   R_star = NULL # NORTA-adjusted correlation matrix for SN copula
 ) {
-  R <- cov2cor(Sigma_theta)
-  R_use <- if (method == "skewnorm" && !is.null(R_star)) R_star else R
-  Lt <- chol(R_use)
-  z_raw <- matrix(rnorm(nsamp * ncol(R)), nrow = nsamp)
-  z <- z_raw %*% Lt
-  u <- apply(z, 2, pnorm)
-  if (!is.matrix(u)) {
-    u <- matrix(u, nrow = 1)
-  } # nocov – nsamp == 1 edge case
-
-  # Use marginals to get theta
-  if (method == "sampling") {
-    D <- diag(sqrt(diag(Sigma_theta)), nrow = nrow(Sigma_theta))
-    theta <- t(D %*% qnorm(t(u)) + theta_star)
-  } else {
-    if (method == "skewnorm") {
-      # Map each normal score to its skew-normal quantile, as the engine's
-      # sn_draws() does. A marginal with alpha = 0 is Gaussian, so its map is
-      # linear.
-      theta <- do.call(
-        "cbind",
-        lapply(seq_len(ncol(z)), function(j) {
-          xi <- approx_data[j, "xi"]
-          omega <- approx_data[j, "omega"]
-          alpha <- approx_data[j, "alpha"]
-          if (alpha == 0) {
-            xi + omega * z[, j]
-          } else {
-            sn_score_map(xi, omega, alpha)(z[, j])
-          }
-        })
-      )
-    } else if (method == "marggaus") {
-      theta <- do.call(
-        "cbind",
-        lapply(seq_len(ncol(u)), function(j) {
-          mu_j <- theta_star[j]
-          sd_j <- sqrt(Sigma_theta[j, j])
-          qnorm(u[, j], mean = mu_j, sd = sd_j)
-        })
-      )
+  m <- length(theta_star)
+  corr <- stats::cov2cor(Sigma_theta)
+  if (method == "skewnorm") {
+    sn <- approx_data[seq_len(m), c("xi", "omega", "alpha"), drop = FALSE]
+    if (!is.null(R_star)) {
+      corr <- R_star
     }
-  }
+  } else if (method %in% c("marggaus", "sampling")) {
+    sn <- cbind(xi = theta_star, omega = sqrt(diag(Sigma_theta)), alpha = 0)
+  } else {
+    # nocov start
+    cli_abort("Unknown marginal method {.val {method}}.", .internal = TRUE)
+  } # nocov end
+  theta <- unname(sn_draws(sn, Sigma_theta, nsamp, corr = corr))
 
   # theta stays packed (one column per free parameter), and pars_to_x() takes it
   # unpacked to every free row.

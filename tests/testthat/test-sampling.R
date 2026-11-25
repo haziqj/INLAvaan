@@ -467,16 +467,39 @@ test_that("Skew-normal copula draws map the normal scores exactly", {
   }
 })
 
-test_that("Gaussian skew-normal marginals draw as the joint Gaussian", {
+test_that("The draws of theta come from the engine's sn_draws()", {
   int <- get_inlavaan_internal(fit_sn)
-  int$approx_data <- cbind(
+  m <- length(int$theta_star)
+  set.seed(3)
+  th <- sample_params_posterior(int, 50, TRUE)$theta_samp
+  set.seed(3)
+  ref <- unname(sn_draws(int$approx_data[seq_len(m), ], int$Sigma_theta, 50))
+  expect_identical(th, ref)
+  # Rows after the first m, such as the fits of sn_fit_sample to the draws
+  # of covariances, do not change them
+  int_more <- int
+  int_more$approx_data <- rbind(
+    int$approx_data,
+    extra = c(xi = 5, omega = 2, alpha = 3, logC = 0, nmad = 0, gamma1 = 0)
+  )
+  set.seed(3)
+  expect_identical(sample_params_posterior(int_more, 50, TRUE)$theta_samp, th)
+  # Gaussian marginals, and samp_copula = FALSE, draw from the Laplace
+  # approximation: marginals at theta_star with alpha = 0
+  sn_gauss <- cbind(
     xi = int$theta_star,
     omega = sqrt(diag(int$Sigma_theta)),
     alpha = 0
   )
   set.seed(3)
-  th_sn <- sample_params_posterior(int, 50, TRUE)$theta_samp
+  ref_gauss <- unname(sn_draws(sn_gauss, int$Sigma_theta, 50))
   set.seed(3)
   th_gauss <- sample_params_posterior(int, 50, FALSE)$theta_samp
-  expect_equal(th_sn, th_gauss, tolerance = 1e-8)
+  expect_identical(th_gauss, ref_gauss)
+  int_gauss <- int
+  int_gauss$marginal_method <- "marggaus"
+  int_gauss$approx_data <- NULL
+  set.seed(3)
+  th_mg <- sample_params_posterior(int_gauss, 50, TRUE)$theta_samp
+  expect_identical(th_mg, ref_gauss)
 })
