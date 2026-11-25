@@ -119,6 +119,35 @@ test_that("Skew-normal sample fit has the right gradient and Hessian", {
   }
 })
 
+test_that("Skew-normal sample fit runs the third start when it can win", {
+  # On these draws, the fits from the two mirrored starts both end at alpha of
+  # about -1.31, so the fit from alpha = 0 also runs. The result is the best
+  # fit from the three starts.
+  set.seed(17)
+  y <- rt(50, 5) + 0.3 * abs(rnorm(50))
+  z <- (y - stats::median(y)) / stats::sd(y)
+  nll <- sn_samp_nll(z)
+  zc <- z - mean(z)
+  d0 <- sn_delta_from_skew(mean(zc^3) / mean(zc^2)^1.5)
+  starts <- lapply(c(d0, -d0), function(d) {
+    om <- 1 / sqrt(1 - 2 * d^2 / pi)
+    c(mean(z) - om * d * sqrt(2 / pi), log(om), d / sqrt(1 - d^2))
+  })
+  fits <- lapply(c(starts, list(c(0, 0, 0))), function(st) {
+    stats::nlminb(st, nll$fn, nll$gr, nll$hs)
+  })
+  alphas <- vapply(fits, function(f) f$par[3], 0)
+  expect_gte(alphas[1] * alphas[2], 0)
+
+  best <- fits[[which.min(vapply(fits, `[[`, 0, "objective"))]]
+  res <- fit_skew_normal_samp(y)
+  expect_equal(res$alpha, best$par[3])
+  expect_equal(
+    c(res$xi, res$omega),
+    c(stats::median(y), 0) + stats::sd(y) * c(best$par[1], exp(best$par[2]))
+  )
+})
+
 test_that("Skew-normal sample fit warns when the draws cannot be fitted", {
   # Draws that do not vary give the point mass, with alpha = 0
   expect_warning(res <- fit_skew_normal_samp(rep(3, 100)), "must vary")

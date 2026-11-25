@@ -23,7 +23,7 @@ draws, so it does not depend on the scale of \code{x}. The optimiser,
 \code{\link[stats:nlminb]{stats::nlminb()}}, uses the analytic gradient and Hessian of the
 log-likelihood.
 
-The fit runs from three starts and keeps the one with the largest
+The fit runs from up to three starts and keeps the one with the largest
 likelihood. The first two starts are as in \code{\link[=fit_skew_normal]{fit_skew_normal()}}. With
 \eqn{\delta = \alpha / \sqrt{1 + \alpha^2}}, they are the moment-based
 values from the sample skewness of \code{x} and their mirror image, with the
@@ -36,7 +36,12 @@ from a normal distribution, it happens in about 1 sample of 50, and in about
 The third start is the normal distribution with the median and the SD of
 \code{x}, so \code{alpha = 0}. The likelihood has a stationary point at \code{alpha = 0}
 (the normal fit), so a fit from this start alone can stall there when the
-skew is mild.
+skew is mild. The third start runs only when the first two fits end on the
+same side of \code{alpha = 0}. When they end on opposite sides, each side has
+been searched from a start on that side. The fit from the start with the
+wrong sign of skew usually ends at the stationary point, and in practice a
+fit from \code{alpha = 0}, which lies between the two starts, ends at a fit that
+the first two have already found.
 }
 \examples{
 x <- rnorm(100, mean = 5, sd = 1)
