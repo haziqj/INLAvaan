@@ -292,3 +292,29 @@ check_wrapper_call <- function(sc, fn) {
   }
   invisible(sc)
 }
+
+## ----- model.type --------------------------------------------------------------
+
+# The lavaan functions that inlavaan() can build its model with
+inlavaan_model_types <- c("sem", "cfa", "growth", "lavaan")
+
+# model.type must name one of them. Before, any name of a lavaan function
+# reached lavaan, so a misspelt name gave "object not found", and "efa" an
+# error about the arguments of efa().
+check_model_type <- function(model.type, call = parent.frame()) {
+  ok <- is.character(model.type) &&
+    length(model.type) == 1L &&
+    !is.na(model.type) &&
+    model.type %in% inlavaan_model_types
+  if (!ok) {
+    cli_abort(
+      c(
+        "{.arg model.type} must be one of {.or {.val {inlavaan_model_types}}}.",
+        "x" = "It is {.code {deparse1(model.type)}}."
+      ),
+      class = "inlavaan_model_type",
+      call = call
+    )
+  }
+  invisible(model.type)
+}

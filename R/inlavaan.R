@@ -12,8 +12,9 @@
 #' @inheritParams blavaan::blavaan
 #' @param model.type The lavaan entry point used to fit `model`: `"cfa"`,
 #'   `"sem"`, or `"growth"` (matching lavaan's model-specific wrapper
-#'   functions), or `"lavaan"` for the general-purpose interface. Set
-#'   automatically by [acfa()], [asem()], and [agrowth()]; documented
+#'   functions), or `"lavaan"` for the general-purpose interface. Other
+#'   values give an error. Set automatically by [acfa()], [asem()], and
+#'   [agrowth()]; documented
 #'   explicitly here because lavaan >= 0.7-1 renamed the corresponding
 #'   `simulateData()` argument to `model_type`, so it can no longer be
 #'   inherited from there.
@@ -343,6 +344,7 @@ inlavaan <- function(
   }
   withCallingHandlers(warning = on_fit_warning, message = on_fit_message, {
     ## ----- Check arguments ---------------------------------------------------
+    check_model_type(model.type)
     # The settings of the fit, with the deprecated arguments mapped to them
     # (see R/inlavaan-args.R). The entries of `control` that are the engine's
     # go to the engine, and INLAvaan reads the others.

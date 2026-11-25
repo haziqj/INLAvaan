@@ -29,3 +29,25 @@ test_that("a model fits from sample.cov and sample.nobs alone", {
     tolerance = 1e-6
   )
 })
+
+## ----- model.type ------------------------------------------------------------
+
+test_that("model.type must name a lavaan function that inlavaan() uses", {
+  for (bad in list("foo", "efa", NA_character_, c("cfa", "sem"), 1)) {
+    err <- expect_error(
+      inlavaan(mod, hs, model.type = bad, silent = TRUE),
+      class = "inlavaan_model_type"
+    )
+    expect_match(conditionMessage(err), "growth", fixed = TRUE)
+  }
+  fit <- inlavaan(
+    mod,
+    hs,
+    model.type = "cfa",
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    marginal_method = "gaussian"
+  )
+  expect_identical(fit@Options$model.type, "cfa")
+})

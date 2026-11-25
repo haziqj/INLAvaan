@@ -148,6 +148,12 @@
   alone. Before, such a call stopped with an error, because `data` was
   missing.
 
+* `inlavaan()` now checks `model.type`, which must be `"sem"`, `"cfa"`,
+  `"growth"` or `"lavaan"`. Another value gives an error of class
+  `inlavaan_model_type` that lists these. Before, the value went to lavaan,
+  so a misspelt name gave "object not found", and `"efa"` an error about the
+  arguments of `efa()`.
+
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,
   `simulate()`, `fitMeasures()`, `bfit_indices()` and
