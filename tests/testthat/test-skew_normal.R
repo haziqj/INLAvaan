@@ -79,6 +79,31 @@ test_that("Skew-normal sample fit is stable under a little noise", {
   }
 })
 
+test_that("Skew-normal sample fit keeps the mirrored start when it is better", {
+  # Heavy-tailed draws with a sample skewness of about -0.007. The moment-based
+  # start, with negative skew, reaches alpha of about -0.63. The mirrored start
+  # reaches alpha of about 0.66, with a log-likelihood about 0.006 larger.
+  set.seed(306061)
+  y <- rt(4000, 8)
+  yc <- y - mean(y)
+  expect_lt(mean(yc^3) / mean(yc^2)^1.5, 0)
+
+  # The best fit with alpha >= 0 and the best fit with alpha <= 0
+  nll <- function(par) -sum(dsnorm(y, par[1], exp(par[2]), par[3], log = TRUE))
+  start <- c(mean(y), log(sd(y)), 0)
+  pos <- nlminb(start + c(-0.5, 0, 0.5), nll, lower = c(-Inf, -Inf, 0))
+  neg <- nlminb(start + c(0.5, 0, -0.5), nll, upper = c(Inf, Inf, 0))
+  expect_gt(neg$objective - pos$objective, 0.003)
+  expect_lt(neg$par[3], -0.5)
+
+  # The fit returns the larger likelihood, with positive skew
+  res <- fit_skew_normal_samp(y)
+  loglik <- sum(dsnorm(y, res$xi, res$omega, res$alpha, log = TRUE))
+  expect_gt(loglik + neg$objective, 0.003)
+  expect_equal(loglik, -pos$objective, tolerance = 1e-8)
+  expect_equal(res$alpha, pos$par[3], tolerance = 1e-3)
+})
+
 test_that("Skew-normal sample fit warns when the draws cannot be fitted", {
   # Draws that do not vary give the point mass, with alpha = 0
   expect_warning(res <- fit_skew_normal_samp(rep(3, 100)), "must vary")
