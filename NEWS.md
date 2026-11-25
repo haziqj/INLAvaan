@@ -17,7 +17,7 @@
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
-  copies the 13 engine files of inlavanilla v26.11.25, byte for byte, as
+  copies the 13 engine files of inlavanilla v26.11.25-1, byte for byte, as
   `R/vanilla-*.R`, and the lock lists them. Two of them,
   `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`, hold the
   skew-normal functions, which INLAvaan defined itself before. The others
@@ -39,6 +39,22 @@
     log-likelihood (by up to 0.08 on these models), the DIC and the LOO move
     a little. The shift has no quadrature error, so `diagnostics()` gives
     `NA` for `vb_mcse_max`, `vb_mcse_mean` and `vb_mcse_sigma`.
+  - The one-step VB correction checks its step, with a second pass of the
+    rule at the step. The step must shrink the residual of the VB equation
+    (`vb_lhat` below 1), and the slope of the fixed-point map along the step
+    must lie between -1 and 1 at the mode and at the step (`vb_j0` and
+    `vb_j1`). A fit that passes keeps its one step, as the Holzinger and
+    Swineford three-factor model and the Political Democracy model do. A fit
+    that fails solves the VB equation instead, from the mode, and the warning
+    at the end of the fit says that the posterior is far from Gaussian along
+    the mean correction, and names the parameter that the step moved
+    furthest. Small samples fail the check more often: a one-factor model of
+    `x1`, `x2` and `x3` fails it on the first 50 rows of
+    `HolzingerSwineford1939`, and passes on all 301. `diagnostics()` gives
+    `vb_lhat`, `vb_j0` and `vb_j1`, and `vb_solve`, which is 1 when the check
+    failed. The gain ratio of earlier development versions (`vb_gain_ratio`)
+    is gone, with its warning, and so is the iteration with capped steps
+    after a first step over 2.5 posterior SDs.
   - The volume correction of the skew-normal marginals is computed for all
     parameters at once. It is closer to the exact value, and moves the
     posterior summaries by up to 0.002 posterior SDs on these models.

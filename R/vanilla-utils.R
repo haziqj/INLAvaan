@@ -173,24 +173,23 @@ warning_text <- function(w) {
 }
 
 # The checks that summary() flags, each TRUE when flagged: the gap between
-# grad and logpost, the mode, the VB step, the Hessian condition number, the VB
-# shift, and, for skew-normal marginals, NMAD, the unscanned mass, the tails,
-# the ridge bend and the mean gap. `dg` is from diagnostics_internal(). The
-# levels are those of the fit-time warning (warn_levels), which raises every one
-# of these but the ridge bend and the mean gap (summary_levels). A check that
-# did not run is not flagged; a value that is not finite is. print() counts the
-# flags, and summary() prints one "!" line for each and colours the flagged
-# cells of its table, all from param_flags().
+# grad and logpost, the mode, the VB step and the check of the one step, the
+# Hessian condition number, the VB shift, and, for skew-normal
+# marginals, NMAD, the unscanned mass, the tails, the ridge bend and the mean
+# gap. `dg` is from diagnostics_internal(). The levels are those of the
+# fit-time warning (warn_levels), which raises every one of these but the ridge
+# bend and the mean gap (summary_levels), and the check of the one step, which
+# has a warning of its own (warn_vb_check()). A check that did not run is not
+# flagged; a value that is not finite is. print() counts the flags, and
+# summary() prints one "!" line for each and colours the flagged cells of its
+# table, all from param_flags().
 check_flags <- function(dg, gaussian) {
   pf <- param_flags(dg, gaussian)
   c(
     grad_gap = any(pf[, "grad_gap"]),
     mode = any(pf[, "mode_shift_sigma"]),
     vb_step = any(pf[, "vb_step_sigma"]),
-    vb_gain = isTRUE(below_level(
-      dg$global[["vb_gain_ratio"]],
-      warn_levels$vb_gain
-    )),
+    vb_check = vb_solved(dg),
     hess_cond = off_level(
       dg$global[["hess_cond_cor"]],
       warn_levels$hess_cond
@@ -204,6 +203,14 @@ check_flags <- function(dg, gaussian) {
   )
 }
 
+# Whether the one-step check failed and the VB equation was solved instead.
+# The fit is then flagged by `vb_check`, and the step still to go where the
+# solve stopped is recorded but is not a flag: the solve stops at a budget
+# that is not a setting of the user's.
+vb_solved <- function(dg) {
+  isTRUE(dg$global[["vb_solve"]] == 1)
+}
+
 # The per-parameter flags behind check_flags(): a logical matrix with a row
 # per parameter and a column per check, named as in dg$param.
 param_flags <- function(dg, gaussian) {
@@ -215,6 +222,7 @@ param_flags <- function(dg, gaussian) {
       off_level(p$grad_gap, warn_levels$grad_gap),
     mode_shift_sigma = off_level(p$mode_shift_sigma, warn_levels$mode_shift),
     vb_step_sigma = vb &
+      !vb_solved(dg) &
       check_ran(p$vb_step_sigma) &
       off_level(p$vb_step_sigma, warn_levels$vb_step),
     vb_shift_sigma = vb &

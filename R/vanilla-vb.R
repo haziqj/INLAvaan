@@ -13,10 +13,15 @@
 # vb_correction = "onestep", the default, takes the first step of that iteration
 # and stops. The fixed-point map is nearly flat (its slope is O(1/n)), so the
 # first step holds most of the movement, and exact VB is itself only O(n^-3/2)
-# posterior SDs from the posterior mean. With a gradient the step uses 2m + 1
-# nodes on the axes of cov_root() (axis_nodes()), about one numerical Hessian.
-# Without one it is one Stein pass on vb_nodes(), since Stein's identity needs
-# that rule's degree. See lab/ideas/2026-11-one-step-vb.
+# posterior SDs from the posterior mean. A second sweep at the step then checks
+# that the fixed-point map contracts there, which is what the one step assumes
+# (vb_checked_onestep()). Where it does not, a quasi-Newton solve on the same
+# sweeps takes over, capped by the calls of the mode and Hessian stage. With a
+# gradient a sweep is 2m + 1 gradients on the axes of cov_root()
+# (axis_nodes()), about one numerical Hessian. Without one it is one Stein
+# pass on vb_nodes(), since Stein's identity needs that rule's degree. The
+# check, the solve and the warning are the same code on both routes. See
+# lab/ideas/2026-11-one-step-vb.
 
 # Node set for the Gaussian expectation: a degree-5 rule built on a regular
 # simplex, in the whitened coordinates of cov_root(). There its nodes are the
@@ -75,30 +80,6 @@ axis_nodes <- function(Sigma, A = cov_root(Sigma)) {
     nodes = rbind(0, half, -half),
     weights = c(1 - m / 3, rep(1 / 6, 2 * m))
   )
-}
-
-# How much of the promised gain one step delivered. The step takes the expected
-# log-posterior to be a parabola with the Laplace curvature, which promises a
-# rise of 0.5 shift' H shift. The ratio is the rise that came about, over that
-# promise, so it is near 1 when the premise holds, and small or negative when
-# the step went too far or the posterior is far from Gaussian
-# (lab/ideas/2026-11-one-step-vb). The expectations use axis_nodes(), with or
-# without a gradient: 4m + 2 calls of logpost. A step too small to check is NA.
-vb_gain_ratio <- function(lp, mode, Sigma, R, shift, A = cov_root(Sigma)) {
-  promised <- 0.5 * sum((R %*% shift)^2)
-  if (promised < 1e-6) {
-    return(NA_real_)
-  }
-  rule <- axis_nodes(Sigma, A)
-  expected <- function(mu) {
-    lps <- vapply(
-      seq_len(nrow(rule$nodes)),
-      function(b) lp(mu + rule$nodes[b, ]),
-      0
-    )
-    lps[1] + sum(rule$weights[-1] * (lps[-1] - lps[1]))
-  }
-  (expected(mode + shift) - expected(mode)) / promised
 }
 
 # The whitening factor of every stage, A with A A' = Sigma: the symmetric
@@ -175,18 +156,368 @@ simplex_rule <- function(m) {
 # The largest fixed-point step, in posterior SDs (see vb_correct())
 vb_maxstep <- 1.5
 
-# The largest first step that vb_correction = "onestep" accepts, in posterior
-# SDs. Beyond it the premise of a small correction has failed, and the iteration
-# carries on with capped steps. The level is a heuristic: at 2 SDs the guard
-# fired on large logistic regressions where the plain step was mostly better,
-# and at 3 SDs it let through a strongly skewed posterior whose first step was
-# 2.9 SDs (lab/ideas/2026-11-one-step-vb).
-vb_onestep_guard <- 2.5
+# The step of the directional differences of vb_slope_along(), in the
+# whitened coordinates of cov_root()
+vb_slope_step <- 1e-3
 
-# `method` is "onestep" or "full". `budget` is the calls of the mode and
-# Hessian stage: when one-step VB has to iterate, it stops within that many
-# calls (at least two passes), and never calls nlminb() on account of its
-# length, so the VB stage stays within what the fit has already spent.
+# The cap on the sweeps of the checked one step, the two sweeps of its check
+# among them: the calls of the mode and Hessian stage (`budget`) over 2m + 1,
+# the calls of one sweep with a gradient. With a gradient the VB stage then
+# stays within the calls of that stage. The same count of sweeps holds without
+# a gradient (the owner's, 2026-11-25), where a sweep is a Stein pass of
+# (m + 1)(m + 2) calls: a flagged fit can then spend up to
+# (m + 1)(m + 2) / (2m + 1) times the calls of that stage, about m / 2, which
+# is the price of a fit without a gradient. The two sweeps of the check are
+# always taken.
+vb_max_sweeps <- function(budget, m) {
+  floor(budget / (2 * m + 1))
+}
+
+# One sweep with a gradient, on the axis rule at a shift: the gradient at
+# mode + shift and at +/- sqrt(3) along each axis of A, 2m + 1 calls. `step`
+# is the fixed-point step there, Sigma times the expected gradient with the
+# step of the fixed parameters at zero. `resid` is that step in the whitened
+# coordinates of A, where the Laplace Gaussian is N(0, I): the residual F(d)
+# of the VB equation F(d) = 0. `curv` estimates the expected Hessian there
+# from the same gradients. By Stein's identity
+# E[U_k grad(d + U)] = E[Hessian(d + U)] e_k, and the three-point rule along
+# axis k gives the left side as (g(+k) - g(-k)) / (2 sqrt(3)). It holds the
+# part of the expected Hessian along the axes only, with no mixed fourth
+# derivatives.
+vb_sweep_axis <- function(gr, mode, shift, rule, Sigma, A, A_inv, fixed) {
+  Z <- rule$nodes
+  w <- rule$weights
+  nn <- nrow(Z)
+  m <- length(mode)
+  mu <- mode + shift
+  g0 <- gr(mu)
+  s <- g0
+  G <- matrix(0, nn, m)
+  for (b in 2:nn) {
+    G[b, ] <- gr(mu + Z[b, ])
+    s <- s + w[b] * (G[b, ] - g0)
+  }
+  step <- as.numeric(Sigma %*% s)
+  step[fixed] <- 0
+  plus <- 1L + seq_len(m)
+  across <- G[plus, , drop = FALSE] - G[m + plus, , drop = FALSE]
+  curv <- crossprod(A, t(across)) / (2 * sqrt(3))
+  list(
+    step = step,
+    resid = as.numeric(A_inv %*% step),
+    curv = (curv + t(curv)) / 2,
+    finite = all(is.finite(step))
+  )
+}
+
+# One sweep without a gradient: a pass of Stein's identity on vb_nodes() at a
+# shift, E[z f(mu + z)] = Sigma E[grad f(mu + z)] for z ~ N(0, Sigma), summed
+# over antipodal pairs as w_b z_b (f(mu + z_b) - f(mu - z_b)), which cancels
+# the size of the log-posterior. At most (m + 1)(m + 2) values of the
+# log-posterior. `step` and `resid` are as in vb_sweep_axis(). There is no
+# `curv`: the slope along the step comes from vb_slope_along().
+vb_sweep_stein <- function(lp, mode, shift, rule, A_inv, fixed) {
+  Z <- rule$nodes
+  nn <- nrow(Z)
+  n_pairs <- (nn - 1L) %/% 2L
+  plus <- seq_len(n_pairs)
+  mu <- mode + shift
+  v <- numeric(nn - 1L)
+  for (b in 2:nn) {
+    v[b - 1L] <- lp(mu + Z[b, ])
+  }
+  Zp <- Z[1L + plus, , drop = FALSE]
+  wp <- rule$weights[1L + plus]
+  step <- as.numeric(crossprod(Zp, wp * (v[plus] - v[n_pairs + plus])))
+  step[fixed] <- 0
+  list(
+    step = step,
+    resid = as.numeric(A_inv %*% step),
+    finite = all(is.finite(v)) && all(is.finite(step))
+  )
+}
+
+# The slope of the fixed-point map along a whitened unit direction u at a
+# shift, without a gradient: u'(I + curv) u with `curv` the estimate of
+# vb_sweep_axis(), which needs only the gradient along u at each axis node.
+# That is a central difference of the log-posterior, `h` apart in whitened
+# units: 4 values per axis, 4m in all. The second-order Stein identity on the
+# values of vb_sweep_stein() would cost nothing, but it is not exact at
+# leading order under a degree-5 rule.
+vb_slope_along <- function(lp, mode, shift, u, A, h = vb_slope_step) {
+  mu <- mode + shift
+  hu <- h * as.numeric(A %*% u)
+  along <- function(x) (lp(x + hu) - lp(x - hu)) / (2 * h)
+  total <- 0
+  for (k in which(u != 0)) {
+    axis <- sqrt(3) * A[, k]
+    total <- total +
+      u[k] * (along(mu + axis) - along(mu - axis)) / (2 * sqrt(3))
+  }
+  1 + total
+}
+
+# The check of the one step d1 = F(0), from the sweep at the mode and the
+# sweep at d1. The one step is the first iterate of the fixed-point map
+# phi(d) = d + F(d), and its theory needs phi to be a contraction near the
+# mode. By the contraction mapping theorem the iteration then has one root
+# near the step, within L / (1 - L) |d1| of it, for a contraction constant
+# L < 1. The two sweeps measure this, by the same rule over the same width as
+# the step itself:
+#   lhat = |F(d1)| / |d1|, the contraction ratio of phi over the step, since
+#          phi(d1) - phi(0) = F(d1). Below 1 the step reduces the residual of
+#          the VB equation.
+#   j0   = the slope of phi along u = d1 / |d1| at the mode, u'(I + curv) u
+#   j1   = the same slope at the step
+# `slope(sw, u)` gives the slope at a sweep: from its `curv` with a gradient,
+# and from vb_slope_along() without one. lhat compares two points only, and
+# misses a map that is steep near the mode and flat beyond, so the slope is
+# checked at both ends. The check passes when all three are finite, lhat is
+# below 1, and j0 and j1 lie in (-1, 1). A value that is not finite is kept as
+# NaN or Inf, never NA, which means a check that did not run. The slope at a
+# step whose sweep is not finite is not taken, and is NaN.
+vb_onestep_check <- function(sw0, sw1, slope) {
+  d1 <- sw0$resid
+  len <- sqrt(sum(d1^2))
+  u <- d1 / len
+  vals <- c(
+    lhat = sqrt(sum(sw1$resid^2)) / len,
+    j0 = slope(sw0, u),
+    j1 = if (sw1$finite) slope(sw1, u) else NaN
+  )
+  vals[is.na(vals)] <- NaN
+  list(
+    vals = vals,
+    pass = all(is.finite(vals)) && all(abs(vals) < 1),
+    u = u
+  )
+}
+
+# Broyden's quasi-Newton method for the VB equation F(d) = 0, in whitened
+# coordinates, on the sweeps of either route. F is the expected gradient of
+# the log-posterior under the shifted Gaussian, so the solve is a maximisation
+# of the expected log-posterior, and its line search needs only the
+# directional derivative F(d + t p)'p, which the sweeps give. `sweep_at(d)` is
+# a sweep at d with `d` added to it, `start` the sweep at the mode, and `B`
+# the first estimate of the Jacobian of F.
+# Every finite sweep then gives a secant pair (s, y) and the rank-one update
+# B + (y - B s) s' / s's, so each curvature the solve uses is measured by the
+# same rule over the same width as the gradient.
+#
+# Each iteration takes p = -B^-1 F, or the plain fixed-point step F when that
+# is not an ascent direction, and searches t along it for the strong Wolfe
+# curvature condition |F(d + t p)'p| <= 0.9 F(d)'p: by regula falsi on the
+# directional derivative once a change of sign brackets the maximum along p,
+# and by doubling t before that. A trial that is not finite halves t. The
+# solve stops when the step still to go is below `tol` posterior SDs
+# (`step_sd()`), after `maxit` iterations, or when a line search ends with no
+# point accepted, because `room()` says that the cap on the sweeps is reached
+# or `maxit` trials have gone. It returns the last accepted point.
+vb_broyden <- function(sweep_at, start, B, room, project, step_sd, tol, maxit) {
+  m <- length(start$d)
+  cur <- start
+  steps <- step_sd(cur)
+  it <- 0L
+  while (it < maxit && step_sd(cur) >= tol) {
+    p <- tryCatch(
+      project(-solve(B, cur$resid)),
+      error = function(e) rep(NaN, m)
+    )
+    slope0 <- sum(cur$resid * p)
+    if (!all(is.finite(p)) || slope0 <= 0) {
+      p <- cur$resid
+      slope0 <- sum(p^2)
+    }
+    accepted <- FALSE
+    lo <- 0
+    slope_lo <- slope0
+    hi <- Inf
+    slope_hi <- NA_real_
+    t <- 1
+    trials <- 0L
+    while (trials < maxit && room()) {
+      trials <- trials + 1L
+      new <- sweep_at(cur$d + t * p)
+      if (!new$finite) {
+        hi <- t
+        slope_hi <- NA_real_
+        t <- (lo + t) / 2
+        next
+      }
+      s <- new$d - cur$d
+      y <- new$resid - cur$resid
+      B <- B + outer(y - as.numeric(B %*% s), s) / sum(s^2)
+      slope_t <- sum(new$resid * p)
+      if (abs(slope_t) <= 0.9 * slope0) {
+        cur <- new
+        accepted <- TRUE
+        break
+      }
+      if (slope_t < 0) {
+        hi <- t
+        slope_hi <- slope_t
+      } else {
+        lo <- t
+        slope_lo <- slope_t
+      }
+      t <- if (is.finite(hi) && is.finite(slope_hi)) {
+        lo + (hi - lo) * slope_lo / (slope_lo - slope_hi)
+      } else if (is.finite(hi)) {
+        (lo + hi) / 2
+      } else {
+        2 * t
+      }
+    }
+    if (!accepted) {
+      break
+    }
+    it <- it + 1L
+    steps <- c(steps, step_sd(cur))
+  }
+  list(
+    point = cur,
+    iterations = it,
+    steps = steps,
+    converged = step_sd(cur) < tol
+  )
+}
+
+# The checked one step: vb_correction = "onestep", with or without a gradient.
+# It takes the one step d1 from a sweep at the mode, and a second sweep at d1
+# for the check (vb_onestep_check()). With a gradient (`gr`) a sweep is
+# vb_sweep_axis(), and the check costs 4m + 2 gradient calls. Without one
+# (`gr = NULL`) a sweep is vb_sweep_stein() and the two slopes come from
+# vb_slope_along(): two Stein passes and about 8m values of the log-posterior.
+# Everything else is the same code. When the check passes, the shift is the
+# one step, unchanged. When it fails, the posterior is far from Gaussian along
+# the step and the one step is not an approximation of the VB mean, so the VB
+# equation is solved by vb_broyden(), and `solve` is TRUE. The caller warns
+# about every such fit, also when the solve converged, since the flag is about
+# the posterior and not about the solver.
+#
+# The solve starts from the mode, not from d1, which lies outside the region
+# where the check found a contraction and can be far out when a node touched
+# the edge of the support. Its first Jacobian is -I + j0 u u': the Laplace
+# curvature, with the slope measured along the step in place of the Laplace
+# one. The sweeps of the stage are capped at vb_max_sweeps(), the two of the
+# check among them. At the cap the last accepted point stands, the mode itself
+# when no sweep was left for the solve. `step_sigma` is then the step still to
+# go there, from the sweep that accepted it. After a passed check it is NA, as
+# the step is not iterated, and it is not a flag after a solve either.
+#
+# A first step below `vb_tol` in every parameter is taken with no second
+# sweep: the solve would stop at the mode, less than `vb_tol` away, so there
+# is nothing to check, and the ratio of two residuals that small is rounding
+# error. `solve` and the three numbers of the check are then NA. Returns NULL
+# when the sweep at the mode is not finite, which leaves no step to check:
+# vb_correct() then goes on to its fallback.
+vb_checked_onestep <- function(lp, gr, mode, Sigma, R, A, ctrl, budget, fixed) {
+  m <- length(mode)
+  sds <- sqrt(diag(Sigma))
+  stein <- is.null(gr)
+  rule <- if (stein) vb_nodes(Sigma, A) else axis_nodes(Sigma, A)
+  A_inv <- crossprod(A, crossprod(R))
+  max_sweeps <- vb_max_sweeps(budget, m)
+  sweeps <- 0L
+  to_shift <- function(d) {
+    shift <- as.numeric(A %*% d)
+    shift[fixed] <- 0
+    shift
+  }
+  sweep_at <- function(d, shift = to_shift(d)) {
+    sweeps <<- sweeps + 1L
+    sw <- if (stein) {
+      vb_sweep_stein(lp, mode, shift, rule, A_inv, fixed)
+    } else {
+      vb_sweep_axis(gr, mode, shift, rule, Sigma, A, A_inv, fixed)
+    }
+    c(list(d = d, shift = shift), sw)
+  }
+  slope <- function(sw, u) {
+    if (stein) {
+      vb_slope_along(lp, mode, sw$shift, u, A)
+    } else {
+      1 + sum(u * as.numeric(sw$curv %*% u))
+    }
+  }
+  step_sd <- function(sw) {
+    move <- max(abs(sw$step) / sds)
+    if (is.finite(move)) move else Inf
+  }
+
+  sw0 <- sweep_at(numeric(m), numeric(m))
+  if (!sw0$finite) {
+    return(NULL)
+  }
+  shift <- numeric(m) + sw0$step
+  steps <- step_sd(sw0)
+  iterations <- 1L
+  check <- c(lhat = NA_real_, j0 = NA_real_, j1 = NA_real_)
+  solve <- NA
+  settled <- NA
+  step_sigma <- rep(NA_real_, m)
+  if (steps >= ctrl$vb_tol) {
+    chk <- vb_onestep_check(sw0, sweep_at(sw0$resid, shift), slope)
+    check <- chk$vals
+    solve <- !chk$pass
+  }
+  if (isTRUE(solve)) {
+    B <- -diag(m)
+    if (is.finite(check[["j0"]]) && check[["j0"]] < 1) {
+      B <- B + check[["j0"]] * tcrossprod(chk$u)
+    }
+    br <- vb_broyden(
+      sweep_at,
+      start = sw0,
+      B = B,
+      room = function() sweeps < max_sweeps,
+      project = function(d) {
+        if (length(fixed) == 0L) d else as.numeric(A_inv %*% to_shift(d))
+      },
+      step_sd = step_sd,
+      tol = ctrl$vb_tol,
+      maxit = ctrl$vb_maxit
+    )
+    shift <- to_shift(br$point$d)
+    steps <- br$steps
+    iterations <- br$iterations
+    settled <- br$converged
+    step_sigma <- abs(br$point$step) / sds
+    step_sigma[!is.finite(step_sigma)] <- Inf
+  }
+
+  names(shift) <- names(mode)
+  list(
+    shift = shift,
+    iterations = iterations,
+    fallback = FALSE,
+    one_pass = !isTRUE(solve),
+    solve = solve,
+    check = check,
+    # The parameter that the one step moves furthest, in posterior SDs, which
+    # the caller's warning names
+    check_worst = names(mode)[which.max(abs(sw0$step) / sds)],
+    step_sigma = stats::setNames(step_sigma, names(mode)),
+    history = list(
+      steps = steps,
+      cut = logical(length(steps)),
+      accelerated = logical(length(steps)),
+      reason = NULL,
+      nlminb = NULL,
+      rerun = FALSE,
+      # The sweeps of the stage, the check's among them, and their cap
+      sweeps = sweeps,
+      max_sweeps = max_sweeps,
+      settled = settled
+    ),
+    kld_global = 0.5 * sum((R %*% shift)^2)
+  )
+}
+
+# `method` is "onestep" or "full". "onestep" is vb_checked_onestep(), whose
+# sweeps `budget`, the calls of the mode and Hessian stage, caps
+# (vb_max_sweeps()). Of the code below it reaches only the fallback, and only
+# when its sweep at the mode is not finite.
 # `fixed` holds the parameters whose shift is known to be zero, those with
 # Gaussian marginals (the `gaussian_marginals` of vanilla_core()): their step
 # is set to zero at every iteration, and their shift after the fallback, with
@@ -331,26 +662,37 @@ vb_correct <- function(
   # The history (the step at each iteration, in posterior SDs, whether it was
   # cut and whether the Anderson secant replaced it) and the reason for a
   # fallback are kept for verbose output.
-  #
-  # With vb_correction = "onestep" the first step is taken whole and the
-  # iteration stops there, unless it is not finite or larger than the guard.
-  # Then the iteration goes on as above, within the budget: on running out, the
-  # last point stands, and the settling check reports how far it still had to
-  # go.
   maxstep <- vb_maxstep
   maxit <- ctrl$vb_maxit
-  if (onestep) {
-    calls_per_pass <- if (stein) nn - 1L else nn
-    # One pass of the budget is kept for the step still to go, if it runs out
-    maxit <- min(maxit, max(2L, floor(budget / calls_per_pass) - 1L))
-  }
-  one_pass <- FALSE
   shift <- numeric(m)
   iter <- 0L
   move <- Inf
   fallback <- FALSE
   rerun <- FALSE
   reason <- NULL
+  if (onestep) {
+    checked <- vb_checked_onestep(
+      lp,
+      gr,
+      mode,
+      Sigma,
+      R,
+      A,
+      ctrl,
+      budget,
+      fixed
+    )
+    if (!is.null(checked)) {
+      return(checked)
+    }
+    fallback <- TRUE
+    reason <- if (stein) {
+      "the log-posterior was not finite at a node"
+    } else {
+      "the expected gradient was not finite"
+    }
+    maxit <- 0L
+  }
   steps <- numeric()
   cut <- logical()
   accelerated <- logical()
@@ -368,18 +710,10 @@ vb_correct <- function(
     }
     move <- max(abs(step) / sds)
     steps[it] <- move
-    if (onestep && it == 1L && move <= vb_onestep_guard) {
-      shift <- shift + step
-      iter <- 1L
-      cut[it] <- FALSE
-      accelerated[it] <- FALSE
-      one_pass <- TRUE
-      break
-    }
     raw <- step
     cut[it] <- move > maxstep
     if (cut[it]) {
-      if (!onestep && it > 1L && cut[it - 1L]) {
+      if (it > 1L && cut[it - 1L]) {
         fallback <- TRUE
         reason <- paste0("two steps in a row were over ", with_sd(maxstep))
         break
@@ -419,7 +753,6 @@ vb_correct <- function(
     shift <- shift + update
     iter <- it
   }
-  ran_out <- onestep && !one_pass && !fallback && move >= ctrl$vb_tol
   if (!onestep && move >= ctrl$vb_tol) {
     fallback <- TRUE
     if (is.null(reason)) {
@@ -512,41 +845,35 @@ vb_correct <- function(
     ) {
       stop_failed_nodes(shift + step / 1000, pinned = TRUE)
     }
-  } else if (!one_pass && max(abs(step) / sds) >= warn_levels$vb_step) {
-    # The iteration met a vb_tol above the settling level, or one-step VB ran
-    # out of budget, so the step just taken says little about the one still
-    # to go: take it. One more sweep, which the default vb_tol never needs.
+  } else if (max(abs(step) / sds) >= warn_levels$vb_step) {
+    # The iteration met a vb_tol above the settling level, so the step just
+    # taken says little about the one still to go: take it. One more sweep,
+    # which the default vb_tol never needs.
     step <- step_at(shift)
   }
   # The step still to go at the VB mean, per parameter in posterior SDs, as
   # the Newton step at the mode is for the mode: the step where the fallback
   # landed, or on the fixed-point path the last step taken, which was below
   # vb_tol and bounds the next (taken afresh when it was above the settling
-  # level). A step that is not finite is Inf. One step has no step still to
-  # go, as it would take another pass to know, so the check did not run: NA.
+  # level). A step that is not finite is Inf.
   step_sigma <- abs(step) / sds
   step_sigma[!is.finite(step_sigma)] <- Inf
-  if (one_pass) {
-    step_sigma[] <- NA_real_
-  }
 
   names(shift) <- names(mode)
   list(
     shift = shift,
     iterations = iter,
     fallback = fallback,
-    one_pass = one_pass,
-    gain_ratio = if (one_pass) {
-      vb_gain_ratio(lp, mode, Sigma, R, shift, A)
-    } else {
-      NA_real_
-    },
+    one_pass = FALSE,
+    # The check of the one step, which did not run here
+    solve = NA,
+    check = c(lhat = NA_real_, j0 = NA_real_, j1 = NA_real_),
+    check_worst = NA_character_,
     step_sigma = stats::setNames(step_sigma, names(mode)),
     history = list(
       steps = steps,
       cut = cut,
       accelerated = accelerated,
-      ran_out = ran_out,
       reason = reason,
       nlminb = if (fallback) nl$message,
       rerun = fallback && rerun
