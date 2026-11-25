@@ -51,3 +51,35 @@ test_that("model.type must name a lavaan function that inlavaan() uses", {
   )
   expect_identical(fit@Options$model.type, "cfa")
 })
+
+## ----- dp --------------------------------------------------------------------
+
+test_that("a name of dp that no parameter type uses warns", {
+  w <- expect_warning(
+    fit <- fit_quick(
+      hs,
+      dp = priors_for(lamda = "normal(0,1)"),
+      silent = FALSE
+    ),
+    class = "inlavaan_dp_unused"
+  )
+  expect_match(conditionMessage(w), "lamda", fixed = TRUE)
+  # The fit goes on with the default prior of the loadings
+  pt <- get_inlavaan_internal(fit, "partable")
+  expect_true(all(pt$prior[pt$op == "=~" & pt$free > 0] == "normal(0,10)"))
+  # Every type of priors_for() is used
+  expect_no_warning(
+    fit_quick(hs, dp = priors_for(lambda = "normal(0,1)"), silent = FALSE),
+    class = "inlavaan_dp_unused"
+  )
+})
+
+test_that("dp = blavaan::dpriors() gives no warning", {
+  skip_if_not_installed("blavaan")
+  dp <- blavaan::dpriors()
+  expect_true("ibpsi" %in% names(dp))
+  expect_no_warning(
+    fit_quick(hs, dp = dp, silent = FALSE),
+    class = "inlavaan_dp_unused"
+  )
+})

@@ -21,7 +21,8 @@
 #'
 #' @param dp Default prior distributions for the different types of model
 #'   parameters; a named character vector as returned by [priors_for()]. Types
-#'   left out take their default priors.
+#'   left out take their default priors. A name that is not a type, such as a
+#'   misspelt one, gives a warning. `dp = blavaan::dpriors()` works too.
 #' @param test Character vector naming the post-estimation quantities to
 #'   compute and store with the fit. The atoms are `"ppp"` (posterior
 #'   predictive p-value), `"dic"` (deviance information criterion and its
@@ -405,6 +406,7 @@ inlavaan <- function(
       )
     }
     dp_default <- priors_for()
+    warn_dp_unused(dp, names(dp_default))
     dp <- c(dp, dp_default[setdiff(names(dp_default), names(dp))])
     # What the user asked for, kept for the `test` record below: `test_req`
     # itself loses any atom that does not exist for this model class (see the

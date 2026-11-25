@@ -50,7 +50,8 @@ agrowth(
 
 \item{dp}{Default prior distributions for the different types of model
 parameters; a named character vector as returned by \code{\link[=priors_for]{priors_for()}}. Types
-left out take their default priors.}
+left out take their default priors. A name that is not a type, such as a
+misspelt one, gives a warning. \code{dp = blavaan::dpriors()} works too.}
 
 \item{test}{Character vector naming the post-estimation quantities to
 compute and store with the fit. The atoms are \code{"ppp"} (posterior

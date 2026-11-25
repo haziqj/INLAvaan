@@ -293,6 +293,28 @@ check_wrapper_call <- function(sc, fn) {
   invisible(sc)
 }
 
+## ----- dp ----------------------------------------------------------------------
+
+# Warn on names of `dp` that no parameter type uses, such as a misspelt type,
+# whose prior would otherwise be dropped without a word. `types` are the
+# names of priors_for(). blavaan::dpriors() also names ibpsi, a prior that
+# blavaan alone uses (for blocks of the latent covariance matrix), so
+# dp = blavaan::dpriors() gives no warning.
+warn_dp_unused <- function(dp, types) {
+  unused <- setdiff(names(dp), c(types, "ibpsi"))
+  if (length(unused) > 0L) {
+    cli_warn(
+      c(
+        "{.arg dp} has {qty(length(unused))}{?a name/names} that no parameter
+         type uses: {.val {unused}}.",
+        "i" = "The types are {.val {types}}. See {.fn priors_for}."
+      ),
+      class = "inlavaan_dp_unused"
+    )
+  }
+  invisible(unused)
+}
+
 ## ----- model.type --------------------------------------------------------------
 
 # The lavaan functions that inlavaan() can build its model with

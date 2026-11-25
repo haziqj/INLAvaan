@@ -154,6 +154,12 @@
   so a misspelt name gave "object not found", and `"efa"` an error about the
   arguments of `efa()`.
 
+* A name in `dp` that is not a type of parameter of `priors_for()`, such as
+  `priors_for(lamda = "normal(0,1)")`, now gives a warning of class
+  `inlavaan_dp_unused`. Before, such a prior was dropped without a word.
+  `dp = blavaan::dpriors()` gives no warning: its `ibpsi`, which only
+  blavaan uses, is left out of the check.
+
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,
   `simulate()`, `fitMeasures()`, `bfit_indices()` and
