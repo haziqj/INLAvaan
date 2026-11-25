@@ -40,6 +40,242 @@ test_that("Skew-normal sample fit is scale-equivariant", {
   }
 })
 
+test_that("Skew-normal sample fit does not stall at alpha = 0", {
+  # Draws with skewness about 0.3. A single start at alpha = 0 stalled at
+  # alpha of about 0.01, with a log-likelihood about 7.5 below the optimum.
+  set.seed(288)
+  d <- 1.5 / sqrt(1 + 1.5^2)
+  y <- d * abs(rnorm(1000)) + sqrt(1 - d^2) * rnorm(1000)
+  yc <- y - mean(y)
+  expect_equal(mean(yc^3) / mean(yc^2)^1.5, 0.3, tolerance = 0.05)
+
+  loglik <- function(p) sum(dsnorm(y, p$xi, p$omega, p$alpha, log = TRUE))
+  res <- fit_skew_normal_samp(y)
+  normal <- list(xi = mean(y), omega = sqrt(mean(yc^2)), alpha = 0)
+  expect_gt(res$alpha, 1)
+  expect_gt(loglik(res) - loglik(normal), 7)
+
+  # Draws with the opposite skew give the mirror image
+  neg <- fit_skew_normal_samp(-y)
+  expect_equal(
+    c(-neg$xi, neg$omega, -neg$alpha),
+    unlist(res),
+    ignore_attr = TRUE
+  )
+})
+
+test_that("Skew-normal sample fit is stable under a little noise", {
+  # On these draws, noise of 1e-3 SD tipped a single start at alpha = 0
+  # between alpha of about 0.01 and the optimum.
+  d <- 1 / sqrt(2)
+  for (seed in c(18, 37, 217)) {
+    set.seed(seed)
+    y <- d * abs(rnorm(1000)) + sqrt(1 - d^2) * rnorm(1000)
+    y_noisy <- y + 1e-3 * rnorm(1000)
+    alpha <- fit_skew_normal_samp(y)$alpha
+    alpha_noisy <- fit_skew_normal_samp(y_noisy)$alpha
+    expect_gt(min(alpha, alpha_noisy), 0.5)
+    expect_equal(alpha_noisy, alpha, tolerance = 0.01)
+  }
+})
+
+test_that("Skew-normal sample fit keeps the mirrored start when it is better", {
+  # Heavy-tailed draws with a sample skewness of about -0.007. The moment-based
+  # start, with negative skew, reaches alpha of about -0.63. The mirrored start
+  # reaches alpha of about 0.66, with a log-likelihood about 0.006 larger.
+  set.seed(306061)
+  y <- rt(4000, 8)
+  yc <- y - mean(y)
+  expect_lt(mean(yc^3) / mean(yc^2)^1.5, 0)
+
+  # The best fit with alpha >= 0 and the best fit with alpha <= 0
+  nll <- function(par) -sum(dsnorm(y, par[1], exp(par[2]), par[3], log = TRUE))
+  start <- c(mean(y), log(sd(y)), 0)
+  pos <- nlminb(start + c(-0.5, 0, 0.5), nll, lower = c(-Inf, -Inf, 0))
+  neg <- nlminb(start + c(0.5, 0, -0.5), nll, upper = c(Inf, Inf, 0))
+  expect_gt(neg$objective - pos$objective, 0.003)
+  expect_lt(neg$par[3], -0.5)
+
+  # The fit returns the larger likelihood, with positive skew
+  res <- fit_skew_normal_samp(y)
+  loglik <- sum(dsnorm(y, res$xi, res$omega, res$alpha, log = TRUE))
+  expect_gt(loglik + neg$objective, 0.003)
+  expect_equal(loglik, -pos$objective, tolerance = 1e-8)
+  expect_equal(res$alpha, pos$par[3], tolerance = 1e-3)
+})
+
+test_that("Skew-normal sample fit has the right gradient and Hessian", {
+  skip_if_not_installed("numDeriv")
+  set.seed(1)
+  z <- rt(200, 5)
+  nll <- sn_samp_nll(z)
+  ref <- function(par) -sum(dsnorm(z, par[1], exp(par[2]), par[3], log = TRUE))
+  pars <- list(c(0.1, -0.2, 0.7), c(-0.3, 0.1, -3), c(0, 0, 0), c(0.5, 0.3, 12))
+  for (par in pars) {
+    expect_equal(nll$fn(par), ref(par), tolerance = 1e-12)
+    expect_equal(nll$gr(par), numDeriv::grad(ref, par), tolerance = 1e-6)
+    expect_equal(nll$hs(par), numDeriv::jacobian(nll$gr, par), tolerance = 1e-6)
+    expect_equal(nll$hs(par), numDeriv::hessian(ref, par), tolerance = 1e-4)
+  }
+})
+
+test_that("Skew-normal sample fit has a stable Hessian when alpha u is very negative", {
+  skip_if_not_installed("numDeriv")
+  # The gap x + r of the Mills ratio r at x = -t against its asymptotic series
+  t <- 10^(2:6)
+  expect_equal(
+    sn_mills_gap(t),
+    1 / t - 2 / t^3 + 10 / t^5 - 74 / t^7,
+    tolerance = 1e-12
+  )
+
+  # Points where alpha u reaches about -5e4, -8e5 and -4e6. With the direct
+  # form -r (alpha u + r) of the derivative of r, which has the wrong sign at
+  # alpha u = -1e5, the Hessian is 75% and 100% off at the first two points.
+  set.seed(1)
+  z <- rt(200, 5)
+  nll <- sn_samp_nll(z)
+  pars <- list(c(0.1, -0.2, 1e4), c(0.1, -0.2, -1e5), c(0, 0, 1e6))
+  for (par in pars) {
+    expect_equal(nll$hs(par), numDeriv::jacobian(nll$gr, par), tolerance = 1e-8)
+  }
+})
+
+# Record the starts that fit_skew_normal_samp() runs. A function in `fake`, at
+# the position of a start, replaces the fit from that start.
+local_record_starts <- function(fake = list(), env = parent.frame()) {
+  rec <- new.env()
+  rec$starts <- list()
+  local_mocked_bindings(
+    sn_samp_nlminb = function(start, nll) {
+      i <- length(rec$starts) + 1
+      rec$starts[[i]] <- start
+      if (i <= length(fake) && is.function(fake[[i]])) {
+        return(fake[[i]](nll))
+      }
+      stats::nlminb(start, nll$fn, nll$gr, nll$hs)
+    },
+    .env = env
+  )
+  rec
+}
+
+# The fits from all three starts of fit_skew_normal_samp(), and the result
+# from the best of them
+all_three_fits <- function(y) {
+  m <- stats::median(y)
+  s <- stats::sd(y)
+  z <- (y - m) / s
+  nll <- sn_samp_nll(z)
+  zc <- z - mean(z)
+  d0 <- sn_delta_from_skew(mean(zc^3) / mean(zc^2)^1.5)
+  if (abs(d0) < 0.2) {
+    d0 <- 0.5
+  }
+  starts <- lapply(c(d0, -d0), function(d) {
+    om <- 1 / sqrt(1 - 2 * d^2 / pi)
+    c(mean(z) - om * d * sqrt(2 / pi), log(om), d / sqrt(1 - d^2))
+  })
+  fits <- lapply(c(starts, list(c(0, 0, 0))), function(st) {
+    stats::nlminb(st, nll$fn, nll$gr, nll$hs)
+  })
+  to_list <- function(f) {
+    list(xi = m + s * f$par[1], omega = s * exp(f$par[2]), alpha = f$par[3])
+  }
+  best <- fits[[which.min(vapply(fits, `[[`, 0, "objective"))]]
+  list(fits = fits, best = to_list(best), to_list = to_list)
+}
+
+test_that("Skew-normal sample fit skips the third start on opposite sides", {
+  # The fits from the two mirrored starts end at alpha of about -0.63 and 0.66,
+  # so the fit from alpha = 0 does not run. It would not improve the result.
+  set.seed(306061)
+  y <- rt(4000, 8)
+  ref <- all_three_fits(y)
+  alphas <- vapply(ref$fits, function(f) f$par[3], 0)
+  expect_lt(alphas[1] * alphas[2], 0)
+
+  rec <- local_record_starts()
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 2)
+  expect_false(any(vapply(rec$starts, function(st) all(st == 0), TRUE)))
+  expect_equal(res, ref$best)
+})
+
+test_that("Skew-normal sample fit runs the third start on the same side", {
+  # The fits from the two mirrored starts both end at alpha of about -1.31, so
+  # the fit from alpha = 0 also runs. The result is the best of the three.
+  set.seed(17)
+  y <- rt(50, 5) + 0.3 * abs(rnorm(50))
+  ref <- all_three_fits(y)
+  alphas <- vapply(ref$fits, function(f) f$par[3], 0)
+  expect_gte(alphas[1] * alphas[2], 0)
+
+  rec <- local_record_starts()
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 3)
+  expect_identical(rec$starts[[3]], c(0, 0, 0))
+  expect_equal(res, ref$best)
+})
+
+test_that("Skew-normal sample fit keeps the third start when it wins", {
+  # The fits from the two mirrored starts are replaced by fits that stall near
+  # alpha = 0 on the same side, so the fit from alpha = 0 runs and wins.
+  set.seed(17)
+  y <- rt(50, 5) + 0.3 * abs(rnorm(50))
+  ref <- all_three_fits(y)
+  stall <- function(alpha) {
+    function(nll) {
+      par <- c(0, 0, alpha)
+      list(par = par, objective = nll$fn(par))
+    }
+  }
+  rec <- local_record_starts(list(stall(0.01), stall(0.02)))
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 3)
+  expect_equal(res, ref$to_list(ref$fits[[3]]))
+})
+
+test_that("Skew-normal sample fit falls back when a fit is not finite", {
+  set.seed(17)
+  y <- rt(50, 5) + 0.3 * abs(rnorm(50))
+  ref <- all_three_fits(y)
+  nan_fit <- function(nll) list(par = rep(NaN, 3), objective = NaN)
+
+  # A non-finite first fit runs the third start, and the best finite fit wins
+  rec <- local_record_starts(list(nan_fit))
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 3)
+  objs <- vapply(ref$fits[2:3], `[[`, 0, "objective")
+  expect_equal(res, ref$to_list(ref$fits[[which.min(objs) + 1]]))
+
+  # With no finite fit, the result is the third start, alpha = 0
+  rec <- local_record_starts(list(nan_fit, nan_fit, nan_fit))
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 3)
+  expect_equal(
+    res,
+    list(xi = stats::median(y), omega = stats::sd(y), alpha = 0)
+  )
+})
+
+test_that("Skew-normal sample fit warns when the draws cannot be fitted", {
+  # Draws that do not vary give the point mass, with alpha = 0
+  expect_warning(res <- fit_skew_normal_samp(rep(3, 100)), "must vary")
+  expect_identical(res, list(xi = 3, omega = 0, alpha = 0))
+
+  # One draw, or draws with NA, give NA, and draws with Inf give NaN
+  set.seed(1)
+  y <- rnorm(99)
+  na <- list(xi = NA_real_, omega = NA_real_, alpha = 0)
+  expect_warning(res <- fit_skew_normal_samp(3), "must vary")
+  expect_identical(res, na)
+  expect_warning(res <- fit_skew_normal_samp(c(y, NA)), "must vary")
+  expect_identical(res, na)
+  expect_warning(res <- fit_skew_normal_samp(c(y, Inf)), "must vary")
+  expect_identical(res, list(xi = NaN, omega = NaN, alpha = 0))
+})
+
 test_that("Posterior modes are accurate on a small scale", {
   set.seed(1)
   d <- 4 / sqrt(17)

@@ -184,7 +184,38 @@ NULL
 #'
 #' @details Uses maximum likelihood estimation to fit a skew normal distribution
 #' to the provided numeric vector `x`. The fit is computed on standardised
-#' draws, so it does not depend on the scale of `x`.
+#' draws, so it does not depend on the scale of `x`. The optimiser,
+#' [stats::nlminb()], uses the analytic gradient and Hessian of the
+#' log-likelihood.
+#'
+#' The fit runs from up to three starts and keeps the one with the largest
+#' likelihood. The first two starts are as in [fit_skew_normal()]. With
+#' \eqn{\delta = \alpha / \sqrt{1 + \alpha^2}}, they are the moment-based
+#' values from the sample skewness of `x` and their mirror image, with the
+#' opposite skew. When the moment-based values give \eqn{|\delta| < 0.2}, that
+#' is, when the sample skewness of `x` is below about 0.0018 in absolute value,
+#' these two starts are \eqn{\delta = \pm 0.5}. This is rare: for 1000 draws
+#' from a normal distribution, it happens in about 1 sample of 50, and in about
+#' 1 sample of 17 for 10000 draws.
+#'
+#' The third start is the normal distribution with the median and the SD of
+#' `x`, so `alpha = 0`. The likelihood has a stationary point at `alpha = 0`
+#' (the normal fit), so a fit from this start alone can stall there when the
+#' skew is mild. The third start runs only when the first two fits end on the
+#' same side of `alpha = 0`, or when one of them is not finite. When they end
+#' on opposite sides, each side has been searched from a start on that side.
+#' This rests on an empirical assumption, not a proof: that the likelihood has
+#' at most one optimum on each side of `alpha = 0`. It held on every set of
+#' posterior draws checked. For small bimodal samples (100 draws), the
+#' likelihood can have a second, better optimum on the same side, with a
+#' larger \eqn{|\alpha|}. No start finds it, so the fit misses it, as did the
+#' fits of earlier versions.
+#'
+#' When the draws have no finite maximum likelihood estimate, for example a
+#' small sample of heavy-tailed draws, the likelihood rises along a ridge
+#' towards \eqn{|\alpha| = \infty}. The fit then stops somewhere on the
+#' ridge, at \eqn{|\alpha|} of about \eqn{10^6}. This point depends on the
+#' optimiser, so it can differ from that of earlier versions.
 #'
 #' @param x A numeric vector of sample data.
 #'
@@ -196,26 +227,61 @@ NULL
 #' x <- rnorm(100, mean = 5, sd = 1)
 #' unlist(fit_skew_normal_samp(x))
 fit_skew_normal_samp <- function(x) {
-  # Fit on standardised draws, starting from the standard normal, since
-  # nlminb() stalls at its start values when the draws have a small scale. The
-  # shape alpha is scale-free.
+  # Fit on standardised draws, since nlminb() stalls at its start values when
+  # the draws have a small scale. The shape alpha is scale-free.
   m <- stats::median(x)
   s <- stats::sd(x)
+  # Draws that do not vary, or that are not all finite, cannot be fitted. Return
+  # the third start below, alpha = 0 with the scale s. Then xi is the median and
+  # omega is 0 when the draws do not vary, and both are NA or NaN when s is.
+  if (!is.finite(s) || s == 0) {
+    cli_warn(c(
+      "{.arg x} must be finite and must vary to fit a skew normal.",
+      "i" = "Returning {.code alpha = 0}."
+    ))
+    return(list(xi = m + 0 * s, omega = s, alpha = 0))
+  }
   z <- (x - m) / s
+  nll <- sn_samp_nll(z)
+  fit_from <- function(start) sn_samp_nlminb(start, nll)
 
-  opt <- nlminb(
-    start = c(0, 0, 0),
-    objective = function(par) {
-      -1 *
-        sum(dsnorm(
-          z,
-          xi = par[1],
-          omega = exp(par[2]),
-          alpha = par[3],
-          log = TRUE
-        ))
-    }
-  )
+  # The first two starts are as in fit_skew_normal(): the moment-based
+  # delta = alpha / sqrt(1 + alpha^2) and its mirror image, or delta = +-0.5
+  # when the moment-based |delta| is below 0.2. This happens only when the
+  # sample skewness is below about 0.0018 in absolute value. The standardised
+  # draws have SD 1.
+  mean_z <- mean(z)
+  d0 <- sn_delta_from_skew(mean((z - mean_z)^3) / mean((z - mean_z)^2)^1.5)
+  if (!is.finite(d0) || abs(d0) < 0.2) {
+    d0 <- 0.5
+  }
+  fits <- lapply(c(d0, -d0), function(d) {
+    om <- 1 / sqrt(1 - 2 * d^2 / pi)
+    fit_from(c(mean_z - om * d * sqrt(2 / pi), log(om), d / sqrt(1 - d^2)))
+  })
+
+  # The third start is alpha = 0 at the median with the SD of the draws. The
+  # likelihood has a stationary point there, so a fit from it alone can stall
+  # when the draws are mildly skewed. Skip it when the first two fits end on
+  # opposite sides of alpha = 0. This assumes at most one optimum on each side,
+  # so that a fit from alpha = 0, which lies between the first two starts, can
+  # only find an optimum that they have found. The assumption is empirical. It
+  # held on every set of posterior draws checked, but small bimodal samples can
+  # have a second, better optimum on the same side, which every start misses.
+  # Run it also when a fit is not finite.
+  finite <- function(f) is.finite(f$objective) && all(is.finite(f$par))
+  ok <- vapply(fits, finite, TRUE)
+  if (!all(ok) || fits[[1]]$par[3] * fits[[2]]$par[3] >= 0) {
+    fits[[3]] <- fit_from(c(0, 0, 0))
+    ok[3] <- finite(fits[[3]])
+  }
+  # Keep the best finite fit, or the third start when no fit is finite
+  obj <- vapply(fits, function(f) as.numeric(f$objective), 0)
+  opt <- if (any(ok)) {
+    fits[[which.min(ifelse(ok, obj, Inf))]]
+  } else {
+    list(par = c(0, 0, 0))
+  }
 
   xi_hat <- m + s * opt$par[1]
   omega_hat <- s * exp(opt$par[2])
@@ -226,4 +292,116 @@ fit_skew_normal_samp <- function(x) {
     omega = omega_hat,
     alpha = alpha_hat
   )
+}
+
+# The fit of fit_skew_normal_samp() from one start, separate so that the tests
+# can see which starts run
+sn_samp_nlminb <- function(start, nll) {
+  stats::nlminb(start, nll$fn, nll$gr, nll$hs)
+}
+
+# The negative log-likelihood of SN(xi, exp(eta), alpha) for the draws z, with
+# its gradient and Hessian in par = (xi, eta, alpha), for nlminb(). With
+# u = (z - xi) / omega and the Mills ratio r = phi(alpha u) / Phi(alpha u), the
+# log-density is log(2) + log(phi(u)) + log(Phi(alpha u)) - eta, so
+# d/du = -u + alpha r, d/dalpha = u r, du/dxi = -1 / omega and du/deta = -u.
+# The derivative of r in its argument is -r (alpha u + r), where the gap
+# alpha u + r comes from sn_mills_gap() when alpha u < -5. The three functions
+# share the work at the last value of par, since nlminb() calls them in turn
+# at the same point.
+sn_samp_nll <- function(z) {
+  n <- length(z)
+  const <- n * (0.5 * log(2 * pi) - log(2))
+  last_par <- NULL
+  last <- NULL
+  at <- function(par) {
+    if (!identical(par, last_par)) {
+      inv_omega <- exp(-par[2])
+      u <- (z - par[1]) * inv_omega
+      au <- par[3] * u
+      log_cdf <- stats::pnorm(au, log.p = TRUE)
+      r <- exp(stats::dnorm(au, log = TRUE) - log_cdf)
+      # The gap au + r, for the Hessian. For au below -5, r is close to -au,
+      # so take the gap from its continued fraction and r from the gap.
+      gap <- au + r
+      tail <- au < -5
+      if (any(tail)) {
+        gap[tail] <- sn_mills_gap(-au[tail])
+        r[tail] <- gap[tail] - au[tail]
+      }
+      last_par <<- par
+      last <<- list(
+        inv_omega = inv_omega,
+        u = u,
+        au = au,
+        log_cdf = log_cdf,
+        r = r,
+        gap = gap
+      )
+    }
+    last
+  }
+
+  fn <- function(par) {
+    k <- at(par)
+    const + n * par[2] + sum(k$u^2) / 2 - sum(k$log_cdf)
+  }
+
+  gr <- function(par) {
+    k <- at(par)
+    a <- par[3]
+    sum_ur <- sum(k$u * k$r)
+    -c(
+      k$inv_omega * (sum(k$u) - a * sum(k$r)),
+      sum(k$u^2) - a * sum_ur - n,
+      sum_ur
+    )
+  }
+
+  hs <- function(par) {
+    k <- at(par)
+    a <- par[3]
+    s <- k$inv_omega
+    u <- k$u
+    r <- k$r
+    dr <- -r * k$gap
+    sum_r <- sum(r)
+    sum_ur <- sum(u * r)
+    sum_dr <- sum(dr)
+    sum_udr <- sum(u * dr)
+    sum_uudr <- sum(u^2 * dr)
+    # Second derivatives of the log-likelihood
+    h11 <- -s^2 * (n - a^2 * sum_dr)
+    h12 <- s * (-2 * sum(u) + a * sum_r + a^2 * sum_udr)
+    h13 <- -s * (sum_r + a * sum_udr)
+    h22 <- -2 * sum(u^2) + a * sum_ur + a^2 * sum_uudr
+    h23 <- -sum_ur - a * sum_uudr
+    h33 <- sum_uudr
+    -matrix(c(h11, h12, h13, h12, h22, h23, h13, h23, h33), nrow = 3)
+  }
+
+  list(fn = fn, gr = gr, hs = hs)
+}
+
+# The gap x + r(x) of the Mills ratio r(x) = phi(x) / Phi(x) at x = -t, for
+# t > 0. With x = -t, Laplace's continued fraction for (1 - Phi(t)) / phi(t)
+# gives the gap as 1 / (t + 2 / (t + 3 / (t + ...))). This has no cancellation,
+# while x + r computed directly loses about 1e-16 t^4 in relative terms. It is
+# 13% off at t = 1e4 and has the wrong sign at t = 1e5. With 40 terms, the
+# fraction is exact to double precision for t >= 5.
+sn_mills_gap <- function(t) {
+  g <- t
+  for (k in 40:2) {
+    g <- t + k / g
+  }
+  1 / g
+}
+
+# The delta = alpha / sqrt(1 + alpha^2) of the skew normal with skewness g, by
+# the method of moments. The skewness of a skew normal is below about 0.995 in
+# absolute value, so g is capped at +-0.9, as in fit_skew_normal().
+sn_delta_from_skew <- function(g) {
+  g <- max(min(g, 0.9), -0.9)
+  g23 <- abs(g)^(2 / 3)
+  sign(g) * sqrt(pi / 2 * g23 / (g23 + ((4 - pi) / 2)^(2 / 3)))
 }
