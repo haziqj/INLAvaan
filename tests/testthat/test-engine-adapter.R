@@ -463,6 +463,8 @@ test_that("only the adapter calls vanilla_core()", {
   dir <- test_path("..", "..", "R")
   skip_if_not(dir.exists(dir), "needs the source tree")
   files <- list.files(dir, pattern = "[.]R$", full.names = TRUE)
+  # An installed copy (as under covr) has no R files in R/
+  skip_if(length(files) == 0L, "needs the R files of the source tree")
   files <- files[!startsWith(basename(files), "vanilla-")]
   calls <- vapply(
     files,
@@ -479,6 +481,8 @@ test_that("no INLAvaan file reads the old field Sigma_theta", {
   dir <- test_path("..", "..", "R")
   skip_if_not(dir.exists(dir), "needs the source tree")
   files <- list.files(dir, pattern = "[.]R$", full.names = TRUE)
+  # An installed copy (as under covr) has no R files in R/
+  skip_if(length(files) == 0L, "needs the R files of the source tree")
   files <- files[!startsWith(basename(files), "vanilla-")]
   # A symbol, an argument name or a string, so that $Sigma_theta,
   # [["Sigma_theta"]] and Sigma_theta = all count
