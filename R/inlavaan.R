@@ -136,9 +136,10 @@
 #' @param start Optional numeric vector of starting values for the optimiser,
 #'   given as a full vector of free parameters in the internal (unconstrained)
 #'   parameterisation. Mainly for internal use by [update()], which warm-starts
-#'   mode-finding from a previous fit's posterior mode; supplying a hand-built
-#'   vector requires knowledge of the internal parameter ordering. Its length
-#'   must equal the number of free parameters or an error is raised.
+#'   mode-finding from a previous fit's posterior mode when the free
+#'   parameters keep their names; supplying a hand-built vector requires
+#'   knowledge of the internal parameter ordering. Its length must equal the
+#'   number of free parameters or an error is raised.
 #' @param cores Integer or `NULL`. The number of cores. With `NULL` (default),
 #'   the scans of the skew-normal marginals follow `future::plan()`, which is
 #'   serial unless a plan is set, and the LOO and the WAIC asked for in `test`
@@ -733,6 +734,17 @@ inlavaan <- function(
     # Warm start: `start` is a full vector of free parameters in the internal
     # (unconstrained) parameterisation, e.g. the posterior mode of an earlier
     # fit reused by `update()`. Only valid when the parameter structure matches.
+    # The warm start of update() carries the names of the parameters of the
+    # earlier fit. It is used only when they are the names of this model, in
+    # the same order, and otherwise left out. A change such as std.lv = TRUE
+    # keeps the number of parameters but not their names.
+    if (inherits(start, "inlavaan_warm_start")) {
+      start <- if (identical(names(start), parnames)) {
+        unname(unclass(start))
+      } else {
+        NULL
+      }
+    }
     if (!is.null(start)) {
       if (length(start) != length(parstart)) {
         cli_abort(c(

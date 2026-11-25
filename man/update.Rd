@@ -47,7 +47,10 @@ When the parameter structure is preserved (no change to \code{model}, \code{add}
 \code{model.type}), the previous posterior mode is passed as the optimiser's
 starting value (a warm start), so mode-finding is typically much faster than
 a cold fit. This makes prior sweeps particularly cheap. The warm start only
-changes the optimiser's starting point, not the fitted result. Supply
+changes the optimiser's starting point, not the fitted result. It is used
+only when the refitted model has the same free parameters, by name and in
+the same order. Otherwise, as after \code{std.lv = TRUE} or
+\code{meanstructure = TRUE}, the fit starts from the usual values. Supply
 \code{start} explicitly to override it.
 
 \code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So

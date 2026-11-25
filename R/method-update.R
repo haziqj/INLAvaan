@@ -18,7 +18,10 @@
 #' `model.type`), the previous posterior mode is passed as the optimiser's
 #' starting value (a warm start), so mode-finding is typically much faster than
 #' a cold fit. This makes prior sweeps particularly cheap. The warm start only
-#' changes the optimiser's starting point, not the fitted result. Supply
+#' changes the optimiser's starting point, not the fitted result. It is used
+#' only when the refitted model has the same free parameters, by name and in
+#' the same order. Otherwise, as after `std.lv = TRUE` or
+#' `meanstructure = TRUE`, the fit starts from the usual values. Supply
 #' `start` explicitly to override it.
 #'
 #' `verbose = TRUE` and `silent = TRUE` cannot go together. So
@@ -144,7 +147,12 @@ setMethod(
       !missing(add) ||
       "model.type" %in% names(extras)
     if (!structure_changed && is.null(cl$start)) {
-      cl$start <- internal$theta_star_novbc
+      # inlavaan() checks the names before it uses the mode as the start
+      cl$start <- structure(
+        internal$theta_star_novbc,
+        names = names(internal$coefficients),
+        class = "inlavaan_warm_start"
+      )
     }
 
     eval(cl, caller)

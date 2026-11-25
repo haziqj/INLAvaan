@@ -160,6 +160,15 @@
   `dp = blavaan::dpriors()` gives no warning: its `ibpsi`, which only
   blavaan uses, is left out of the check.
 
+* `update()` now starts the search for the mode at the mode of the fit (the
+  warm start) only when the refitted model has the same free parameters, by
+  name and in the same order. Otherwise it starts from the usual values. So
+  `update(fit, meanstructure = TRUE)` now works, where before it stopped
+  with an error about the length of `start`. `update(fit, std.lv = TRUE)`,
+  which keeps the number of parameters but changes them, no longer starts
+  from values of other parameters. The fit was the same, but the search for
+  the mode took longer.
+
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,
   `simulate()`, `fitMeasures()`, `bfit_indices()` and

@@ -121,3 +121,22 @@ test_that("update() swaps verbose = TRUE and silent = TRUE", {
   # Both asked for still gives the error of inlavaan()
   expect_error(update(fit_v, silent = TRUE, verbose = TRUE), "cannot both be")
 })
+
+test_that("the warm start is used only when the parameters keep their names", {
+  one_factor <- "visual =~ x1 + x2 + x3"
+  fit_one <- function(...) {
+    acfa(one_factor, dat, silent = TRUE, nsamp = 3, test = "none", ...)
+  }
+  iterations <- function(fit) get_inlavaan_internal(fit, "opt")$iterations
+  fit <- fit_one()
+  # The same parameters: the search for the mode starts at the mode
+  expect_lt(iterations(update(fit, nsamp = 5)), iterations(fit))
+  # More parameters: no warm start, and no error about its length
+  fit_ms <- update(fit, meanstructure = TRUE)
+  expect_length(coef(fit_ms), length(coef(fit)) + 3L)
+  # As many parameters, under other names: the fit of a cold start
+  expect_identical(
+    get_inlavaan_internal(update(fit, std.lv = TRUE), "theta_star_novbc"),
+    get_inlavaan_internal(fit_one(std.lv = TRUE), "theta_star_novbc")
+  )
+})

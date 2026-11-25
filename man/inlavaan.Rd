@@ -198,9 +198,10 @@ uses the analytic gradient.}
 \item{start}{Optional numeric vector of starting values for the optimiser,
 given as a full vector of free parameters in the internal (unconstrained)
 parameterisation. Mainly for internal use by \code{\link[=update]{update()}}, which warm-starts
-mode-finding from a previous fit's posterior mode; supplying a hand-built
-vector requires knowledge of the internal parameter ordering. Its length
-must equal the number of free parameters or an error is raised.}
+mode-finding from a previous fit's posterior mode when the free
+parameters keep their names; supplying a hand-built vector requires
+knowledge of the internal parameter ordering. Its length must equal the
+number of free parameters or an error is raised.}
 
 \item{cores}{Integer or \code{NULL}. The number of cores. With \code{NULL} (default),
 the scans of the skew-normal marginals follow \code{future::plan()}, which is
