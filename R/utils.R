@@ -160,6 +160,33 @@ get_inlavaan_internal <- function(object, what) {
   int[[what]]
 }
 
+# A fit made before INLAvaan fitted with the engine (0.3.5 and earlier) has no
+# field `engine`, and its other fields do not hold what the methods now read.
+# The methods that read them call this first, so that they stop with a clear
+# error, of class inlavaan_old_fit, instead of failing further in. The check
+# reads the field, not the version, because development builds of 0.4.0 made
+# fits without the engine too. update() does not call it, so that update(fit)
+# refits an old fit. `fn` names the method for the message.
+check_fit_layout <- function(int, fn) {
+  if (!is.null(int$engine)) {
+    return(invisible(int))
+  }
+  made_with <- if (is.null(int$version)) {
+    "an older version of INLAvaan"
+  } else {
+    paste("INLAvaan", int$version)
+  }
+  cli_abort(
+    c(
+      "{.fn {fn}} cannot read a fit made with {made_with}.",
+      "i" = "Fit the model again with this version, for example with
+             {.code fit <- update(fit)}."
+    ),
+    class = "inlavaan_old_fit",
+    call = NULL
+  )
+}
+
 # The post-estimation quantities `test` can name, in reporting order, and
 # the aliases that stand for sets of them.
 test_atoms <- c("ppp", "dic", "loo", "waic")

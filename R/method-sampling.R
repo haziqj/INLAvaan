@@ -880,6 +880,7 @@ sampling_impl <- function(
   ...
 ) {
   type <- match.arg(type)
+  check_fit_layout(int, "sampling")
 
   # For prior sampling with generative draws, use reject-and-redraw to preserve
   # the exact prior (no silent PD projection).

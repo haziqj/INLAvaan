@@ -220,7 +220,8 @@ setMethod(
   "INLAvaan",
   function(object, type = c("global", "param"), ...) {
     type <- match.arg(type)
-    dg <- diagnostics_fit(object@external$inlavaan_internal)
+    int <- check_fit_layout(object@external$inlavaan_internal, "diagnostics")
+    dg <- diagnostics_fit(int)
     if (type == "global") {
       dg$global
     } else {

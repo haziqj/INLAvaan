@@ -437,6 +437,7 @@ predict.inlavaan_internal <- function(
   ...
 ) {
   type <- match.arg(type)
+  check_fit_layout(object, "predict")
   # Aliases: "ov"/"yhat" -> "yhat"; "ypred"/"ydist" -> "ypred";
   #          "ymis"/"ovmis" -> "ymis"
   if (type == "ov") {

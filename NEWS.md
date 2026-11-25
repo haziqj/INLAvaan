@@ -81,6 +81,12 @@
   - An invalid `vb_correction`, such as `NA`, now gives an error. Before,
     it turned the VB correction off.
 
+* Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
+  version. `diagnostics()`, `sampling()`, `loo()`, `predict()`, `simulate()`
+  and `fitMeasures()` now stop on such a fit with an error of class
+  `inlavaan_old_fit`, which says how to fit it again. `update()` still works
+  on these fits, so `fit <- update(fit)` fits the model again.
+
 * `diagnostics()` now gives the engine's diagnostics, in the engine's order,
   and then INLAvaan's own: `nsamp`, `psi_npd_share` and `theta_npd_share`.
   Code that reads them by name still works, except for the changes below.

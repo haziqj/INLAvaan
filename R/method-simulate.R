@@ -76,12 +76,12 @@ setMethod(
     silent = FALSE,
     ...
   ) {
+    int <- check_fit_layout(object@external$inlavaan_internal, "simulate")
     if (!is.null(seed)) {
       set.seed(seed)
     }
     nsim <- as.integer(nsim)
 
-    int <- object@external$inlavaan_internal
     pt <- int$partable
     lavmodel <- int$lavmodel
 

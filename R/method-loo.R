@@ -205,6 +205,7 @@ loo.inlavaan_internal <- function(
   ...
 ) {
   type <- match.arg(type)
+  check_fit_layout(x, "loo")
   Omega <- resolve_deprecated_Sigma(Omega, ...)
 
   # Reuse a stored result (computed at fit time via test = "loo", or with

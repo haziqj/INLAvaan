@@ -584,6 +584,7 @@ inlav_fit_measures <- function(
   baseline.model = NULL,
   ...
 ) {
+  check_fit_layout(object@external$inlavaan_internal, "fitMeasures")
   dots <- list(...)
   rescale <- match.arg(dots$rescale %||% "devM", c("devM", "MCMC"))
 
