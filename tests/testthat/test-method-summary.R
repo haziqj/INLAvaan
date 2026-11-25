@@ -82,7 +82,18 @@ test_that("summary() names the VB route of the fit", {
   expect_identical(vb_line(fit_one), "ONESTEP")
   expect_identical(vb_line(fit_vb("full")), "FULL")
   expect_identical(vb_line(fit_vb("none")), "NONE")
-  # A fit that recorded no route
+  # A fit that recorded no route, or the quadrature of a fit made before the
+  # engine. Before, "GAUSS_HERMITE" ran past the column.
   fit_one@external$inlavaan_internal$vb$method <- NULL
   expect_identical(vb_line(fit_one), "YES")
+  for (quadrature in c("sobol", "gauss_hermite")) {
+    fit_one@external$inlavaan_internal$vb$method <- quadrature
+    out <- capture.output(summary(fit_one))
+    line <- grep("VB correction", out, value = TRUE, fixed = TRUE)
+    expect_identical(vb_line(fit_one), "YES")
+    expect_identical(
+      nchar(line),
+      nchar(grep("Marginalisation method", out, value = TRUE, fixed = TRUE))
+    )
+  }
 })

@@ -62,8 +62,13 @@ summary_inlavaan <- function(
   vb <- object@external$inlavaan_internal$vb
   vb_correction <- all(!is.na(vb$correction))
   # The VB route that the fit used, "onestep" or "full", or "none". A fit made
-  # before the engine stored "sobol" or "gauss_hermite", and an older one none.
+  # before the engine stored its quadrature ("sobol" or "gauss_hermite") in
+  # place of the route, and an older one nothing. Both print "yes", which
+  # fits the column of 10 characters ("gauss_hermite" does not).
   vb_label <- if (vb_correction) vb$method %||% "yes" else "none"
+  if (vb_label %in% c("sobol", "gauss_hermite")) {
+    vb_label <- "yes"
+  }
 
   ## ----- Header --------------------------------------------------------------
   if (isTRUE(header)) {

@@ -75,8 +75,8 @@
     fit used: `"onestep"` by default, or `"full"` with
     `vb_correction = "full"`. It is no longer `"sobol"` or `"gauss_hermite"`.
     The line "VB correction" of `summary()` now gives this route, `ONESTEP`
-    or `FULL`, or `NONE` with no VB correction. Before, it gave `TRUE` or
-    `FALSE`.
+    or `FULL`, or `NONE` with no VB correction, or `YES` for a fit made
+    before the engine. Before, it gave `TRUE` or `FALSE`.
   - An invalid `vb_correction`, such as `NA`, now gives an error. Before,
     it turned the VB correction off.
 
