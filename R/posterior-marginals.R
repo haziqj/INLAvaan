@@ -1,6 +1,18 @@
 # All functions here compute summaries and also table of (x, f(x)) values for
 # plotting of the jth component parameter's posterior marginal
 
+# Gauss-Hermite quadrature nodes and weights
+.gauss_hermite <- function(n) {
+  i <- seq_len(n - 1)
+  b <- sqrt(i / 2)
+  cm <- diag(0, n)
+  cm[cbind(i, i + 1)] <- b
+  cm[cbind(i + 1, i)] <- b
+  ev <- eigen(cm, symmetric = TRUE)
+  ord <- order(ev$values)
+  list(nodes = ev$values[ord], weights = sqrt(pi) * ev$vectors[1, ord]^2)
+}
+
 ## ----- Rows of approx_data ---------------------------------------------------
 # One row per skew-normal marginal: the fit (xi, omega, alpha, logC), its
 # normalised maximum absolute deviation from the scan (nmad) and the third-order

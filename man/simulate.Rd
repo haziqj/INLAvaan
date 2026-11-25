@@ -11,7 +11,7 @@
   seed = NULL,
   sample.nobs = NULL,
   prior = FALSE,
-  samp_copula = TRUE,
+  samp_copula = NULL,
   silent = FALSE,
   ...
 )
@@ -30,9 +30,9 @@ the sample size of the original data.}
 \item{prior}{Logical. When \code{TRUE}, parameters are drawn from the prior;
 when \code{FALSE} (default), from the posterior.}
 
-\item{samp_copula}{Logical. When \code{TRUE} (default) and \code{prior = FALSE},
-posterior parameter draws use the copula method. Ignored when
-\code{prior = TRUE}.}
+\item{samp_copula}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The posterior
+draws always couple the fitted marginals by a Gaussian copula, as the
+draws of the fit do.}
 
 \item{silent}{Logical. When \code{TRUE}, suppresses the informational message
 about rejected non-PD draws. Default \code{FALSE}.}

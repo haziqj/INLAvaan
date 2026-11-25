@@ -33,8 +33,8 @@ fit_inl <- get_inlavaan_internal(asem(
   mod,
   dat,
   meanstructure = TRUE,
-  add_priors = FALSE,
-  vb_correction = FALSE,
+  control = inlavaan_control(add_priors = FALSE),
+  vb_correction = "none",
   test = "none",
   silent = TRUE
 ))

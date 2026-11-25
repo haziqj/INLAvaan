@@ -39,7 +39,7 @@ pd_mod <- "
 hs_means <- function(
   centre = NULL,
   spread = NULL,
-  marginal_method = "marggaus",
+  marginal_method = "gaussian",
   ...
 ) {
   dat <- hs
@@ -53,7 +53,7 @@ hs_means <- function(
     meanstructure = TRUE,
     nsamp = 3,
     test = "none",
-    vb_correction = FALSE,
+    vb_correction = "none",
     marginal_method = marginal_method,
     ...
   ))
@@ -144,7 +144,10 @@ test_that("the Hessian at the mode mirrors the cross block of the fast path", {
 
 test_that("the intercept block has no prior precision without priors", {
   ce_on <- hs_means(silent = TRUE)
-  ce_off <- hs_means(silent = TRUE, add_priors = FALSE)
+  ce_off <- hs_means(
+    silent = TRUE,
+    control = inlavaan_control(add_priors = FALSE)
+  )
   theta <- ce_off$core$mode
   fp <- ce_off$args$gaussian_marginals
   H_on <- ce_on$args$hess_mode(theta)
@@ -155,16 +158,16 @@ test_that("the intercept block has no prior precision without priors", {
   expect_equal(H_off[fp, fp], H_fd[fp, fp], tolerance = 1e-6)
 })
 
-test_that("forward differences and numerical gradients reach the engine", {
+test_that("forward differences reach the engine, and a gradient always", {
   ce_fwd <- capture_engine(acfa(
     hs_mod,
     hs,
     silent = TRUE,
     nsamp = 3,
     test = "none",
-    vb_correction = FALSE,
-    marginal_method = "marggaus",
-    hessian_method = "forward"
+    vb_correction = "none",
+    marginal_method = "gaussian",
+    control = inlavaan_control(hessian = "forward")
   ))
   expect_true(is.function(ce_fwd$args$hess_mode))
   mode <- ce_fwd$core$mode
@@ -172,18 +175,21 @@ test_that("forward differences and numerical gradients reach the engine", {
     ce_fwd$args$hess_mode(mode),
     fast_jacobian(ce_fwd$args$gr, as.numeric(mode), method = "forward")
   )
+  # The deprecated numerical_grad has no effect
   ce_num <- capture_engine(acfa(
     "visual =~ x1 + x2 + x3",
     hs,
     silent = TRUE,
     nsamp = 3,
     test = "none",
-    vb_correction = FALSE,
-    marginal_method = "marggaus",
+    vb_correction = "none",
+    marginal_method = "gaussian",
     numerical_grad = TRUE
   ))
-  expect_null(ce_num$args$gr)
-  expect_null(ce_num$args$hess_mode)
+  expect_true(is.function(ce_num$args$gr))
+  expect_true(get_inlavaan_internal(ce_num$fit)$engine$has_grad)
+  # Without a gradient, the adapter gives the engine none
+  expect_null(engine_fns(identity, identity, numerical_grad = TRUE)$gr)
 })
 
 test_that("a start where the log-posterior fails stops with INLAvaan's words", {
@@ -238,15 +244,22 @@ test_that("old values map to the engine's stages", {
   expect_identical(ce$args$marginals, "skewnorm")
   expect_identical(ce$args$marginal_scan, "plain")
   expect_identical(get_inlavaan_internal(ce$fit)$marginal_method, "skewnorm")
-  ce <- fit_with(marginal_method = "sampling", optim_method = "optim")
+  ce <- fit_with(marginal_method = "marggaus", optim_method = "optim")
   expect_identical(ce$args$marginals, "gaussian")
   int <- get_inlavaan_internal(ce$fit)
-  expect_identical(int$marginal_method, "marggaus")
+  expect_identical(int$marginal_method, "gaussian")
   expect_identical(int$optim_method, "nlminb")
+  expect_error(
+    fit_with(marginal_method = "sampling"),
+    class = "inlavaan_unavailable"
+  )
   ce <- fit_with(marginal_correction = "hessian", n_qmc = 1L, sn_fit_ngrid = 31)
   expect_identical(ce$args$marginal_scan, "linear")
-  expect_identical(ce$args$control$n_grid, 31)
+  expect_identical(ce$args$control$n_grid, 31L)
   expect_identical(ce$args$vb_correction, "none")
+  ce <- fit_with(marginal_scan = "exact", marginal_method = "gaussian")
+  expect_identical(ce$args$marginal_scan, "exact")
+  expect_identical(ce$args$marginals, "gaussian")
 })
 
 ## ----- Fields ----------------------------------------------------------------

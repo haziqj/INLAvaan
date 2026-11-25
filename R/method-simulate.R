@@ -40,9 +40,9 @@
 #'   the sample size of the original data.
 #' @param prior Logical. When `TRUE`, parameters are drawn from the prior;
 #'   when `FALSE` (default), from the posterior.
-#' @param samp_copula Logical. When `TRUE` (default) and `prior = FALSE`,
-#'   posterior parameter draws use the copula method. Ignored when
-#'   `prior = TRUE`.
+#' @param samp_copula `r badge_deprecated()` Has no effect. The posterior
+#'   draws always couple the fitted marginals by a Gaussian copula, as the
+#'   draws of the fit do.
 #' @param silent Logical. When `TRUE`, suppresses the informational message
 #'   about rejected non-PD draws. Default `FALSE`.
 #' @param ... Additional arguments (currently unused).
@@ -72,11 +72,12 @@ setMethod(
     seed = NULL,
     sample.nobs = NULL,
     prior = FALSE,
-    samp_copula = TRUE,
+    samp_copula = NULL,
     silent = FALSE,
     ...
   ) {
     int <- check_fit_layout(object@external$inlavaan_internal, "simulate")
+    warn_samp_copula(samp_copula)
     if (!is.null(seed)) {
       set.seed(seed)
     }
@@ -87,14 +88,7 @@ setMethod(
 
     # lavaan's simulateData() has no random-slope generator
     if (has_random_slopes(lavmodel)) {
-      return(rs_simulate(
-        object,
-        nsim,
-        sample.nobs,
-        prior,
-        samp_copula,
-        silent
-      ))
+      return(rs_simulate(object, nsim, sample.nobs, prior, silent))
     }
 
     xnames <- pt$names[pt$free > 0 & !duplicated(pt$free)]
@@ -123,7 +117,7 @@ setMethod(
     if (isTRUE(prior)) {
       samp <- sample_params_prior(int, oversample)
     } else {
-      samp <- sample_params_posterior(int, oversample, samp_copula)
+      samp <- sample_params_posterior(int, oversample)
     }
     colnames(samp$x_samp) <- xnames
     colnames(samp$theta_samp) <- xnames
@@ -144,7 +138,7 @@ setMethod(
         if (isTRUE(prior)) {
           samp <- sample_params_prior(int, oversample)
         } else {
-          samp <- sample_params_posterior(int, oversample, samp_copula)
+          samp <- sample_params_posterior(int, oversample)
         }
         colnames(samp$x_samp) <- xnames
         colnames(samp$theta_samp) <- xnames

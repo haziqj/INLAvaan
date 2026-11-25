@@ -21,12 +21,12 @@
 #'   act with `vb_correction = "full"`, and when the default one-step
 #'   correction takes a step so large that it must iterate.
 #' @param n_grid The number of points of the scan of each skew-normal
-#'   marginal, over 4 posterior SDs on each side of the mode. At least 7. The
-#'   same as the argument `sn_fit_ngrid` of [inlavaan()].
+#'   marginal, over 4 posterior SDs on each side of the mode. At least 7. It
+#'   replaces the deprecated argument `sn_fit_ngrid` of [inlavaan()].
 #' @param log_threshold Points of the scan whose log-posterior falls more than
 #'   this below the maximum are left out of the skew-normal fit. The five
-#'   highest points are always kept. A single negative number. The same as the
-#'   argument `sn_fit_logthresh` of [inlavaan()].
+#'   highest points are always kept. A single negative number. It replaces the
+#'   deprecated argument `sn_fit_logthresh` of [inlavaan()].
 #' @param nlminb A named list of other controls of [stats::nlminb()] for the
 #'   search for the posterior mode, such as `trace = 1`, which prints its
 #'   iterations, or `abs.tol`. Its `iter.max`, `eval.max` and `rel.tol` stand
@@ -36,20 +36,21 @@
 #' @param hessian How the Hessian at the posterior mode is differenced from the
 #'   analytic gradient. `"central"` (default) costs two gradient evaluations
 #'   per parameter. `"forward"` costs about half as much but is less accurate,
-#'   and suits models with many parameters and large samples. The same as the
-#'   argument `hessian_method` of [inlavaan()].
+#'   and suits models with many parameters and large samples. It replaces the
+#'   deprecated argument `hessian_method` of [inlavaan()].
 #' @param debug Logical. With `TRUE`, the fit returns its internal list (see
 #'   [get_inlavaan_internal()]) instead of an [INLAvaan] object, for
-#'   development. Default `FALSE`. The same as the argument `debug` of
-#'   [inlavaan()].
+#'   development. Default `FALSE`. It replaces the deprecated argument `debug`
+#'   of [inlavaan()].
 #' @param add_priors Logical. With `FALSE`, the log-posterior leaves out the
 #'   priors, so that the posterior mode is the maximum likelihood estimate.
-#'   Only the mode is meaningful then. Default `TRUE`. The same as the argument
-#'   `add_priors` of [inlavaan()].
+#'   Only the mode is meaningful then. Default `TRUE`. It replaces the
+#'   deprecated argument `add_priors` of [inlavaan()].
 #'
-#' @details Give each setting in one place only: an entry and the argument of
-#'   [inlavaan()] that does the same (for example `n_grid` and `sn_fit_ngrid`)
-#'   cannot both be set, and neither can an entry and its twin in `nlminb`.
+#' @details Give each setting in one place only: an entry and the deprecated
+#'   argument of [inlavaan()] that it replaces (for example `n_grid` and
+#'   `sn_fit_ngrid`) cannot both be set, and neither can an entry and its twin
+#'   in `nlminb`.
 #'
 #'   Up to INLAvaan 0.3.5, `control` was a list of controls of
 #'   [stats::nlminb()], such as `control = list(iter.max = 2000)`. These names

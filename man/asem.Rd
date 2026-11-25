@@ -9,29 +9,30 @@ asem(
   data,
   dp = priors_for(),
   test = "standard",
-  vb_correction = TRUE,
-  n_qmc = 64L,
-  vb_method = c("sobol", "gauss_hermite"),
-  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  vb_correction = c("onestep", "full", "none"),
+  n_qmc = NULL,
+  vb_method = NULL,
+  marginal_method = c("skewnorm", "gaussian"),
+  marginal_correction = NULL,
   nsamp = 1000,
-  samp_copula = TRUE,
-  samp_norta = FALSE,
+  samp_copula = NULL,
+  samp_norta = NULL,
   cov_as_cor = FALSE,
-  sn_fit_ngrid = 21,
-  sn_fit_logthresh = -6,
-  sn_fit_temp = 1,
+  sn_fit_ngrid = NULL,
+  sn_fit_logthresh = NULL,
+  sn_fit_temp = NULL,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = FALSE,
-  debug = FALSE,
-  add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "optim"),
-  numerical_grad = FALSE,
-  hessian_method = c("central", "forward"),
+  debug = NULL,
+  add_priors = NULL,
+  optim_method = NULL,
+  numerical_grad = NULL,
+  hessian_method = NULL,
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
+  marginal_scan = c("linear", "exact", "laplace", "plain"),
   silent = FALSE,
   ...
 )
@@ -77,55 +78,45 @@ model \code{"ppp"} is dropped, with a warning when it was asked for and a
 message otherwise (see the Random slopes section of \code{\link[=inlavaan]{inlavaan()}}).
 \code{"dic"}, \code{"loo"} and \code{"waic"} are unaffected.}
 
-\item{vb_correction}{Logical indicating whether to apply a variational Bayes
-correction for the posterior mean vector of estimates. Defaults to \code{TRUE}.}
+\item{vb_correction}{The variational Bayes (VB) correction of the posterior
+mean of the Laplace approximation. \code{"onestep"} (default) takes one step
+from the mode, \code{"full"} iterates the correction to its fixed point, and
+\code{"none"} leaves it out. The correction moves the marginal log-likelihood,
+the point at which the DIC is computed, the centre of the LOO and the
+WAIC, and the Gaussian marginals of \code{marginal_method = "gaussian"} and
+their draws. It does not move the skew-normal marginals or their draws,
+which are scanned from the mode.}
 
-\item{n_qmc}{Number of quasi-Monte Carlo nodes used by the VB mean
-correction. Defaults to \code{64}; see the Details section of \code{\link[=inlavaan]{inlavaan()}}.
-Values above \code{128} (the size
-of the stored Sobol table) require the \pkg{spacefillr} package. Ignored when
-\code{vb_correction = FALSE} or \code{vb_method = "gauss_hermite"}.}
+\item{n_qmc}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The VB correction now
+takes a deterministic step, with no quasi-Monte Carlo nodes.}
 
-\item{vb_method}{Integration rule for the VB mean correction. \code{"sobol"}
-(default) averages over \code{n_qmc} scrambled Sobol nodes. \code{"gauss_hermite"}
-uses a deterministic rule instead: a three-point Gauss-Hermite rule along
-each principal axis of the Laplace covariance, \verb{2m + 1} nodes in all for
-\code{m} free parameters. It is exact whenever the log-posterior is quartic in
-whitened coordinates, and it gives the same shift on every run. Having no
-node sets to compare, it reports no quadrature error, so \code{vb_mcse_sigma}
-in \code{\link[=diagnostics]{diagnostics()}} is \code{NA}. Its cost grows with \code{m}: it is cheaper than
-the default below about 30 free parameters and dearer above. Experimental.}
+\item{vb_method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The VB correction now
+has one rule, and \code{vb_correction = "full"} iterates it.}
 
-\item{marginal_method}{The method for approximating the marginal posterior
-distributions. Options include \code{"skewnorm"} (skew-normal), \code{"asymgaus"}
-(two-piece asymmetric Gaussian), \code{"marggaus"} (marginalising the Laplace
-approximation), and \code{"sampling"} (sampling from the joint Laplace
-approximation).}
+\item{marginal_method}{How the marginal posterior of each parameter is
+approximated. \code{"skewnorm"} (default) fits a skew-normal distribution to a
+scan of the log-posterior along the parameter (see \code{marginal_scan}).
+\code{"gaussian"} takes the Gaussian marginal of the Laplace approximation,
+centred at the VB mean, which is faster. \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The old
+values warn: \code{"marggaus"} is the old name of \code{"gaussian"}, and
+\code{"asymgaus"} now runs \code{"skewnorm"}. \code{"sampling"} is kept for a sampler
+that is under development, and gives an error.}
 
-\item{marginal_correction}{Which type of correction to use when fitting the
-skew-normal or two-piece Gaussian marginals. \code{"shortcut"} (default)
-computes only diagonals via central differences (full z-trace plus Schur
-complement correction), \code{"shortcut_fd"} is the same formula using forward
-differences (roughly half the cost, less accurate), \code{"hessian"} computes
-the full Hessian-based correction (slow), and \code{"none"} (or \code{FALSE})
-applies no correction.}
+\item{marginal_correction}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{marginal_scan}.
+\code{"none"} and \code{FALSE} are \code{marginal_scan = "plain"}, which gives the same
+fit. \code{"shortcut"}, \code{"shortcut_fd"} and \code{"hessian"} run
+\code{marginal_scan = "linear"}.}
 
 \item{nsamp}{The number of samples to draw for all sampling-based approaches
 (including posterior sampling for model fit indices).}
 
-\item{samp_copula}{Logical. When \code{TRUE} (default), posterior samples are
-drawn using the copula method with the fitted marginals (e.g. skew-normal
-or asymmetric Gaussian). When \code{FALSE}, samples are drawn from the
-Gaussian (Laplace) approximation.}
+\item{samp_copula}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The draws always
+couple the fitted marginals by a Gaussian copula. With
+\code{marginal_method = "gaussian"} they are the draws of the Laplace
+approximation.}
 
-\item{samp_norta}{Logical. When \code{TRUE}, the latent correlation matrix of
-the skew-normal copula is adjusted by the NORmal-To-Anything (NORTA)
-scheme of Cario and Nelson (1997) so that the Pearson correlations of
-the copula draws match those of the Laplace approximation after the
-nonlinear quantile transform. The adjustment never changes a marginal;
-it affects only summaries that involve several parameters at once, and
-in practice moves the correlations very little. Default \code{FALSE}. Only
-used when \code{samp_copula = TRUE} and \code{marginal_method = "skewnorm"}.}
+\item{samp_norta}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The draws no longer
+adjust the correlations of the copula.}
 
 \item{cov_as_cor}{Logical. Residual and latent-disturbance covariance
 parameters (\verb{~~} between two observed or two latent variables) are
@@ -133,7 +124,7 @@ always estimated on the correlation scale internally (an \code{atanh} link,
 the same as for \code{std.ov}/\code{std.lv}-standardised parameters); by default
 their reported marginal is then re-derived on the covariance scale
 \eqn{\sigma_i \sigma_j \rho} from a posterior sample (see
-\code{samp_copula}), because that is the scale lavaan/blavaan report by
+\code{nsamp}), because that is the scale lavaan/blavaan report by
 default. When \code{TRUE}, that re-derivation is skipped and each such
 parameter's own directly profiled correlation-scale marginal
 \eqn{\rho \in (-1, 1)} is reported instead -- useful for comparing the
@@ -150,20 +141,14 @@ meaningful when \code{TRUE}. Not the same as lavaan's
 \code{std.ov}/\code{std.lv}, which re-parameterises the whole model on a
 standardised scale. Defaults to \code{FALSE}.}
 
-\item{sn_fit_ngrid}{Number of grid points to lay out per dimension when
-fitting the skew-normal marginals. A finer grid gives a better fit at the
-cost of more joint-log-posterior evaluations. Defaults to \code{21}. The same
-as \code{control = inlavaan_control(n_grid = )}: set only one of the two.}
+\item{sn_fit_ngrid}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{control = inlavaan_control(n_grid = )}, which gives the same fit.}
 
-\item{sn_fit_logthresh}{The log-threshold for fitting the skew-normal. Points
-with log-posterior drop below this threshold (relative to the maximum) will
-be excluded from the fit. Must be a single finite negative number. The five
-highest points of the scan are always kept. Defaults to \code{-6}. The same as
-\code{control = inlavaan_control(log_threshold = )}: set only one of the two.}
+\item{sn_fit_logthresh}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{control = inlavaan_control(log_threshold = )}, which gives the same fit.}
 
-\item{sn_fit_temp}{Temperature parameter for fitting the skew-normal. Must be
-a single finite positive number. Defaults to \code{1} (weights are the density
-values themselves).}
+\item{sn_fit_temp}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The skew-normal
+marginals are fitted with temperature 1.}
 
 \item{sn_fit_sample}{Logical. When \code{TRUE} (default), a parametric skew-normal
 is fitted to the posterior samples for covariance and defined parameters.
@@ -182,38 +167,31 @@ stage. With \code{TRUE} it also prints the details of each stage of the fit on
 the internal scale: the start, the mode search, the VB correction and the
 marginals, with their checks. Use \code{silent = TRUE} to print nothing.}
 
-\item{debug}{Logical. With \code{TRUE}, the fit returns its internal list (see
-\code{\link[=get_inlavaan_internal]{get_inlavaan_internal()}}) instead of an \link{INLAvaan} object, for
-development. The same as \code{control = inlavaan_control(debug = )}: set only
-one of the two.}
+\item{debug}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{control = inlavaan_control(debug = TRUE)}, which gives the same fit.}
 
-\item{add_priors}{Logical. With \code{FALSE}, the log-posterior leaves out the
-priors, so that the posterior mode is the maximum likelihood estimate.
-Only the mode is meaningful then. The same as
-\code{control = inlavaan_control(add_priors = )}: set only one of the two.}
+\item{add_priors}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{control = inlavaan_control(add_priors = FALSE)}, which gives the same
+fit.}
 
-\item{optim_method}{The optimisation method to use for finding the posterior
-mode. Options include \code{"nlminb"} (default), \code{"ucminf"}, and \code{"optim"}
-(BFGS).}
+\item{optim_method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The posterior mode
+is always found by \code{\link[stats:nlminb]{stats::nlminb()}}.}
 
-\item{numerical_grad}{Logical indicating whether to use numerical gradients
-for the optimisation. Defaults to \code{FALSE} to use analytical gradients.}
+\item{numerical_grad}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The fit always
+uses the analytic gradient.}
 
-\item{hessian_method}{How the Hessian at the posterior mode is differenced
-from the analytical gradient. \code{"central"} (default) costs two gradient
-evaluations per parameter. \code{"forward"} costs about half as much but is less
-accurate, and suits models with many parameters and large samples. Used
-only with \code{optim_method = "nlminb"} and \code{numerical_grad = FALSE}. The same
-as \code{control = inlavaan_control(hessian = )}: set only one of the two.}
+\item{hessian_method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
+\code{control = inlavaan_control(hessian = )}, which gives the same fit.}
 
-\item{cores}{Integer or \code{NULL}. Number of cores for parallel marginal
-fitting. When \code{NULL} (default), serial execution is used unless the number
-of free parameters exceeds 120, in which case parallelisation is enabled
-automatically using all available physical cores. Set to \code{1L} to force
-serial execution. If \code{cores > 1}, marginal fits are distributed across
-cores -- forked via \code{\link[parallel:mclapply]{parallel::mclapply()}} where that is safe, or over a
-PSOCK cluster (separate R processes) inside IDE R sessions (RStudio,
-Positron) and on Windows.}
+\item{cores}{Integer or \code{NULL}. The number of cores. With \code{NULL} (default),
+the scans of the skew-normal marginals follow \code{future::plan()}, which is
+serial unless a plan is set, and the LOO and the WAIC asked for in \code{test}
+run serially. With \code{cores > 1}, the scans run in parallel when the
+packages \pkg{future} and \pkg{parallelly} are installed, and serially
+otherwise. The LOO and the WAIC are then forked via
+\code{\link[parallel:mclapply]{parallel::mclapply()}} where that is safe, or run over a PSOCK cluster
+(separate R processes) inside IDE R sessions (RStudio, Positron) and on
+Windows. \code{1} is serial.}
 
 \item{ppp_method}{How the PPP of a two-level model scores the observed and
 the replicate data against the saturated model. \code{"onestep"} (default)
@@ -228,6 +206,17 @@ models.}
 set, that the PPP of a two-level model uses. Defaults to \code{250}, and is
 capped at \code{nsamp}. Draws that cannot be scored are left out, with a
 warning. Ignored for single-level models.}
+
+\item{marginal_scan}{How the scan behind each skew-normal marginal is taken.
+\code{"linear"} (default) scans along a straight line through the mode, and
+adds a linear correction for the changing volume of the other parameters.
+\code{"exact"} computes that volume term exactly at each point of the scan.
+\code{"laplace"} maximises the log-posterior over the other parameters at each
+point of the scan, and takes the height and the volume there. \code{"plain"}
+adds no volume correction. On the Holzinger and Swineford and the
+Political Democracy models, \code{"exact"} and \code{"laplace"} take 10 to 25 times
+as long as \code{"linear"}. Ignored with \code{marginal_method = "gaussian"}, which
+has no scan.}
 
 \item{silent}{Logical. Print nothing at all, and muffle the warnings and
 messages raised during the fit? Default \code{FALSE}. \code{verbose} and \code{silent}

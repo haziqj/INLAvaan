@@ -62,7 +62,7 @@ rs_draw_outcomes <- function(lavmodel, rs, lavdata) {
 
 # simulate() for a random-slope fit: `nsim` data sets at posterior (or prior)
 # draws, each with the observed covariates and cluster sizes.
-rs_simulate <- function(object, nsim, sample.nobs, prior, samp_copula, silent) {
+rs_simulate <- function(object, nsim, sample.nobs, prior, silent) {
   int <- object@external$inlavaan_internal
   spec <- rs_spec(int)
   if (spec$route == "B") {
@@ -96,7 +96,7 @@ rs_simulate <- function(object, nsim, sample.nobs, prior, samp_copula, silent) {
     samp <- if (isTRUE(prior)) {
       sample_params_prior(int, n)
     } else {
-      sample_params_posterior(int, n, samp_copula)
+      sample_params_posterior(int, n)
     }
     colnames(samp$x_samp) <- colnames(samp$theta_samp) <- xnames
     samp

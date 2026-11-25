@@ -11,7 +11,7 @@ bfit_indices(
   baseline.model = NULL,
   rescale = c("devM", "MCMC"),
   nsamp = NULL,
-  samp_copula = TRUE
+  samp_copula = NULL
 )
 
 \method{summary}{bfit_indices}(object, ...)
@@ -38,9 +38,9 @@ sample.}
 \item{nsamp}{Number of posterior samples to draw. Defaults to the value
 used when fitting the model.}
 
-\item{samp_copula}{Logical. When \code{TRUE} (default), posterior samples are
-drawn using the copula method with the fitted marginals. When \code{FALSE},
-samples are drawn from the Gaussian (Laplace) approximation.}
+\item{samp_copula}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The draws always
+couple the fitted marginals by a Gaussian copula, as the draws of the fit
+do.}
 
 \item{...}{Additional arguments passed to methods.}
 

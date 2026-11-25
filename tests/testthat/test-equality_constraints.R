@@ -76,22 +76,6 @@ test_that("Method: skewnorm", {
   expect_equal(gt_at_opt, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
-test_that("Method: asymgaus", {
-  dat <- sleep_wide()
-  expect_no_error({
-    fit <- agrowth(
-      mod,
-      dat,
-      marginal_method = "asymgaus",
-      silent = TRUE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
-})
-
 test_that("Method: marggaus", {
   dat <- sleep_wide()
   expect_no_error({
@@ -108,20 +92,11 @@ test_that("Method: marggaus", {
   expect_s4_class(fit, "INLAvaan")
 })
 
-test_that("Method: sampling", {
-  dat <- sleep_wide()
-  expect_no_error({
-    fit <- agrowth(
-      mod,
-      dat,
-      marginal_method = "sampling",
-      silent = TRUE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
+test_that("Method: sampling is not available", {
+  expect_error(
+    agrowth(mod, sleep_wide(), marginal_method = "sampling", silent = TRUE),
+    class = "inlavaan_unavailable"
+  )
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {

@@ -631,7 +631,7 @@ test_that("The one-step PPP frees a covariate the replicates draw", {
   ))
   int <- get_inlavaan_internal(fit)
   set.seed(7)
-  xs <- sample_params_posterior(int, 100, TRUE)$x_samp
+  xs <- sample_params_posterior(int, 100)$x_samp
   ppp_with <- function(method) {
     set.seed(8)
     get_ppp_twolevel(
@@ -680,7 +680,7 @@ test_that("The one-step PPP falls back to EM at the boundary", {
   int <- get_inlavaan_internal(fit)
   lp <- int$lavdata@Lp[[1]]
   set.seed(2)
-  xs <- sample_params_posterior(int, 60, TRUE)$x_samp
+  xs <- sample_params_posterior(int, 60)$x_samp
   # Some draws step outside the region and are scored by EM instead
   n_out <- sum(vapply(
     seq_len(nrow(xs)),
@@ -927,7 +927,7 @@ test_that("Replicate statistics fall back to rows when D'D is singular", {
   ylp_obs <- ppp2l_cluster_stats(int$lavdata@X[[1]], int$lavdata@Lp[[1]])
   expect_null(ppp2l_draw_stats(des, imp, 1L, ylp_obs))
   set.seed(2)
-  xs <- sample_params_posterior(int, 30, TRUE)$x_samp
+  xs <- sample_params_posterior(int, 30)$x_samp
   ppp <- suppressWarnings(get_ppp_twolevel(
     xs,
     int$lavmodel,

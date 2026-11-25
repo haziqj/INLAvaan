@@ -13,7 +13,7 @@ test_that("saturated-mean intercepts get exactly zero VB shift", {
       silent = TRUE,
       nsamp = 3,
       test = "none",
-      debug = TRUE
+      control = inlavaan_control(debug = TRUE)
     )
   )))
 

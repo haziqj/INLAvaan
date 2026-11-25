@@ -174,7 +174,7 @@ test_that("qsnorm() gives the infinite ends and NA outside [0, 1]", {
   expect_true(is.na(qsnorm(0.5, 0, 0, 2)))
 })
 
-test_that("inlavaan() checks sn_fit_logthresh, sn_fit_temp and sn_fit_ngrid", {
+test_that("inlavaan() checks the threshold and the grid of the scans", {
   fit_with <- function(...) {
     acfa(
       "visual =~ x1 + x2 + x3",
@@ -185,18 +185,20 @@ test_that("inlavaan() checks sn_fit_logthresh, sn_fit_temp and sn_fit_ngrid", {
       ...
     )
   }
-  for (bad in list(0, 2, -Inf, NA, NA_real_, NULL, c(-6, -4), "-6")) {
+  for (bad in list(0, 2, -Inf, NA, NA_real_, c(-6, -4), "-6")) {
+    expect_error(fit_with(control = list(log_threshold = bad)), "log_threshold")
+    # The deprecated argument is checked under its own name
     expect_error(fit_with(sn_fit_logthresh = bad), "sn_fit_logthresh")
   }
-  for (bad in list(0, -1, Inf, NA, NA_real_, NULL, c(1, 2), "1")) {
-    expect_error(fit_with(sn_fit_temp = bad), "sn_fit_temp")
-  }
-  # The error is INLAvaan's, which names the argument, not the engine's
-  for (bad in list(6, 0, Inf, NA, NA_real_, NULL, c(21, 31), "21")) {
+  for (bad in list(6, 0, Inf, NA, NA_real_, c(21, 31), "21")) {
+    expect_error(fit_with(control = list(n_grid = bad)), "n_grid")
     err <- expect_error(fit_with(sn_fit_ngrid = bad), "sn_fit_ngrid")
     expect_false(inherits(err, "inlavanilla_error"))
   }
+  expect_no_error(fit_with(control = list(n_grid = 7)))
   expect_no_error(fit_with(sn_fit_ngrid = 7))
+  # The temperature is always 1, and sn_fit_temp has no effect
+  expect_no_error(fit_with(sn_fit_temp = NA))
 })
 
 test_that("Skew-normal marginal quantiles are exact", {

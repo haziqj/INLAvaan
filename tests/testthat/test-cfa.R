@@ -29,23 +29,6 @@ test_that("Method: skewnorm", {
   expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
-test_that("Method: asymgaus", {
-  expect_no_error({
-    fit <- acfa(
-      mod,
-      dat,
-      marginal_method = "asymgaus",
-      silent = TRUE,
-      nsamp = NSAMP,
-      std.lv = STDLV
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
-  expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
-})
-
 test_that("Method: marggaus", {
   expect_no_error({
     fit <- acfa(
@@ -63,23 +46,11 @@ test_that("Method: marggaus", {
   expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
 })
 
-test_that("Method: sampling", {
-  expect_no_error({
-    fit <- acfa(
-      mod,
-      dat,
-      marginal_method = "sampling",
-      silent = TRUE,
-      # pure-sampling summaries are means of the draws, so a handful of
-      # draws is too seed-sensitive for the coef comparison below
-      nsamp = 100,
-      std.lv = STDLV
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
-  expect_equal(coef(fit), coef(fit_lav), tolerance = 0.1)
+test_that("Method: sampling is not available", {
+  expect_error(
+    acfa(mod, dat, marginal_method = "sampling", silent = TRUE),
+    class = "inlavaan_unavailable"
+  )
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {
@@ -140,7 +111,7 @@ test_that("A model with a single free parameter fits", {
     x8 ~~ .506*x8
     x9 ~~ .569*x9
   "
-  for (method in c("skewnorm", "sampling")) {
+  for (method in c("skewnorm", "gaussian")) {
     expect_no_error({
       fit <- acfa(
         mod_one,

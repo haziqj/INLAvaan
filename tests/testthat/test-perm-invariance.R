@@ -16,13 +16,13 @@ test_that("Results do not depend on the order of the latent variables", {
     "speed~~textual" = "textual~~speed"
   )
 
-  for (correction in c("shortcut", "shortcut_fd")) {
+  for (scan in c("linear", "plain")) {
     fits <- lapply(list(mod1, mod2), function(mod) {
       acfa(
         mod,
         dat,
         std.lv = TRUE,
-        marginal_correction = correction,
+        marginal_scan = scan,
         test = "none",
         nsamp = 3,
         silent = TRUE
@@ -34,12 +34,12 @@ test_that("Results do not depend on the order of the latent variables", {
       names(x)[hit] <- rename[names(x)[hit]]
       x[order(names(x))]
     })
-    expect_equal(coefs[[1]], coefs[[2]], tolerance = 1e-4, label = correction)
+    expect_equal(coefs[[1]], coefs[[2]], tolerance = 1e-4, label = scan)
     mloglik <- vapply(
       fits,
       function(fit) get_inlavaan_internal(fit)$mloglik,
       numeric(1)
     )
-    expect_equal(mloglik[1], mloglik[2], tolerance = 1e-6, label = correction)
+    expect_equal(mloglik[1], mloglik[2], tolerance = 1e-6, label = scan)
   }
 })

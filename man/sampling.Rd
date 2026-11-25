@@ -11,7 +11,7 @@ sampling(object, ...)
   object,
   type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
   nsamp = 1000L,
-  samp_copula = TRUE,
+  samp_copula = NULL,
   prior = FALSE,
   silent = FALSE,
   ...
@@ -54,10 +54,10 @@ a \code{within} and a \code{cluster} block, each holding a \code{cov} and a
 
 \item{nsamp}{Number of samples to draw.}
 
-\item{samp_copula}{Logical. When \code{TRUE} (default), posterior parameter
-samples use the copula method with the fitted marginals. When \code{FALSE},
-samples are drawn from the joint Gaussian (Laplace) approximation.
-Ignored when \code{prior = TRUE}.}
+\item{samp_copula}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The draws always
+couple the fitted marginals by a Gaussian copula, as the draws of the fit
+do. For a fit with \code{marginal_method = "gaussian"} they are the draws of
+the Laplace approximation.}
 
 \item{prior}{Logical. When \code{TRUE}, parameters are drawn from the prior
 distribution and then propagated through the generative model. When

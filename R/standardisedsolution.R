@@ -70,7 +70,7 @@ standardisedsolution <- function(
   )
   pt <- fit_inlv$partable
 
-  samp <- sample_params_posterior(fit_inlv, nsamp, samp_copula = TRUE)
+  samp <- sample_params_posterior(fit_inlv, nsamp)
   x_samp <- samp$x_samp
   comp_rows <- composite_derived_rows(pt)
 

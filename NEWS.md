@@ -49,12 +49,8 @@
     scan, so their rows of `approx_data` give `NA` for `logC`, `nmad` and
     `gamma1`, and `diagnostics()` averages `nmad` over the scanned
     parameters only.
-  - `n_qmc`, `vb_method`, `optim_method` and `sn_fit_temp` have no effect.
-    `marginal_method = "asymgaus"` gives skew-normal marginals, and
-    `"sampling"` gives Gaussian ones. `marginal_correction = "none"` (or
-    `FALSE`) scans with no volume correction, and the other values take the
-    engine's linear volume correction. With `numerical_grad = TRUE` the
-    engine uses no gradient.
+  - Some arguments and values of the old stages have no counterpart in the
+    engine. They are deprecated (see the table of arguments below).
   - The search for the posterior mode by `nlminb()` now allows 5000
     iterations and 5000 evaluations of the log-posterior, not 1000 and 2000.
     When the gradient at the mode is too large, the engine runs `nlminb()`
@@ -88,12 +84,12 @@
   `nlminb()`, and `hessian`, `debug` and `add_priors`. A plain list with some
   of these names works too, such as `control = list(n_grid = 31)`.
   - An unknown entry, or a bad value, gives an error that names the entry.
-  - `n_grid`, `log_threshold`, `hessian`, `debug` and `add_priors` do the
-    same as the arguments `sn_fit_ngrid`, `sn_fit_logthresh`,
-    `hessian_method`, `debug` and `add_priors` of `inlavaan()`. Give each
-    setting once: an entry and its argument together give an error, and so
-    do `mode_maxit` and `nlminb$iter.max` (and alike for `mode_maxeval` and
-    `mode_tol`).
+  - `n_grid`, `log_threshold`, `hessian`, `debug` and `add_priors` replace
+    the arguments `sn_fit_ngrid`, `sn_fit_logthresh`, `hessian_method`,
+    `debug` and `add_priors` of `inlavaan()`, which are deprecated and give
+    the same fit. Give each setting once: an entry and its old argument
+    together give an error, and so do `mode_maxit` and `nlminb$iter.max`
+    (and alike for `mode_maxeval` and `mode_tol`).
   - Up to 0.3.5, `control` was a list of controls of `nlminb()`. These names
     still work, with a deprecation warning once per session, and give the
     same fit: `control$iter.max`, `control$eval.max` and `control$rel.tol`
@@ -104,6 +100,48 @@
   - When the search for the mode stops at its limit, the warning at the end
     of the fit now says to raise `mode_maxit` or `mode_maxeval` in
     `inlavaan_control()`.
+
+* The arguments of `inlavaan()`, `acfa()`, `asem()` and `agrowth()` are now
+  those of INLAvaan 0.4.0. Old calls still run. A deprecated argument or
+  value warns once per session, with a warning of class
+  `inlavaan_deprecated` that says what to use instead, and stops from
+  INLAvaan 0.5.0. With `options(inlavaan.deprecation = "error")` it stops
+  now. The deprecated arguments keep their places, with the default `NULL`,
+  so calls that give arguments by position still work. Their help has a
+  "deprecated" badge. INLAvaan 0.3.5 has the old methods.
+
+  | Argument | In 0.4.0 |
+  |---|---|
+  | `vb_correction` | `"onestep"` (default), `"full"` or `"none"`. `TRUE` and `FALSE` still work, for `"onestep"` and `"none"`. |
+  | `marginal_method` | `"skewnorm"` (default) or `"gaussian"`. `"marggaus"` is deprecated: use `"gaussian"`, which gives the same fit. `"asymgaus"` is deprecated, and runs `"skewnorm"`. `"sampling"` gives an error of class `inlavaan_unavailable`: the name is kept for a sampler that is under development. |
+  | `marginal_scan` | New. How the scan of each skew-normal marginal is taken: `"linear"` (default), `"exact"`, `"laplace"` or `"plain"`. |
+  | `marginal_correction` | Deprecated. `"none"` and `FALSE` are `marginal_scan = "plain"`, which gives the same fit. `"shortcut"`, `"shortcut_fd"` and `"hessian"` run `marginal_scan = "linear"`. |
+  | `sn_fit_ngrid` | Deprecated. Use `control = inlavaan_control(n_grid = )`, which gives the same fit. |
+  | `sn_fit_logthresh` | Deprecated. Use `inlavaan_control(log_threshold = )`, which gives the same fit. |
+  | `hessian_method` | Deprecated. Use `inlavaan_control(hessian = )`, which gives the same fit. |
+  | `debug` | Deprecated. Use `inlavaan_control(debug = TRUE)`, which gives the same fit. |
+  | `add_priors` | Deprecated. Use `inlavaan_control(add_priors = FALSE)`, which gives the same fit. |
+  | `n_qmc` | Deprecated, with no effect. The VB correction has no quasi-Monte Carlo nodes. |
+  | `vb_method` | Deprecated, with no effect. The VB correction has one rule, and `vb_correction = "full"` iterates it. |
+  | `samp_copula` | Deprecated, with no effect, also in `sampling()`, `simulate()` and `bfit_indices()`. The draws always couple the fitted marginals by a Gaussian copula. For the draws of the Laplace approximation, use `marginal_method = "gaussian"`. |
+  | `samp_norta` | Deprecated, with no effect. The draws no longer adjust the correlations of the copula (NORTA). |
+  | `sn_fit_temp` | Deprecated, with no effect. The skew-normal marginals are fitted with temperature 1. |
+  | `optim_method` | Deprecated, with no effect. The posterior mode is always found by `nlminb()`. |
+  | `numerical_grad` | Deprecated, with no effect. The fit always uses the analytic gradient. |
+  | `silent` | New (see above). |
+
+  - Where an old call maps to the same setting, the numbers do not change.
+    In `get_inlavaan_internal()`, `marginal_method` is now `"gaussian"` for
+    Gaussian marginals, not `"marggaus"`. `samp_copula`, `samp_norta`,
+    `optim_method` and `R_star` are always `TRUE`, `FALSE`, `"nlminb"` and
+    `NULL`.
+  - `predict()` no longer reads `samp_copula` from the fit. It draws as the
+    fit does.
+  - `acfa()`, `asem()` and `agrowth()` set `model.type` themselves. Given
+    `model.type`, they now stop with an error of class
+    `inlavaan_wrapper_model_type`. Before, they ignored it.
+  - When the VB correction did not settle, the warning at the end of a fit
+    now names `vb_correction = "none"`, not `vb_correction = FALSE`.
 
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,
@@ -120,10 +158,6 @@
   `loo()` and with the notation of the documentation, where Sigma is the
   model-implied covariance matrix of the data. Code that reads `Sigma_theta`
   must now read `Omega`.
-
-* With `samp_norta = TRUE`, `standardisedsolution()` now draws with the NORTA
-  correlation matrix of the fit, as `sampling()` does. Before, it used the
-  correlation matrix of the Laplace approximation.
 
 * Deprecation warnings now have the class `inlavaan_deprecated`. The warning
   for the old `Sigma` argument of `loo()` has this class too, and still warns
@@ -171,8 +205,8 @@
   default, prints one line per stage of the fit, as the old default
   `verbose = TRUE` did. `verbose = TRUE` adds the details of each stage. To
   print nothing, use `silent = TRUE`. `verbose = TRUE` with `silent = TRUE`
-  gives an error. `debug = TRUE` no longer sets `verbose = TRUE`, and no
-  longer prints a check of the gradient at the mode.
+  gives an error. `inlavaan_control(debug = TRUE)` no longer sets
+  `verbose = TRUE`, and no longer prints a check of the gradient at the mode.
 
 * Thomas Luu is now listed as a copyright holder, for the skew-normal quantile
   approximation in `qsnorm_fast()` (Apache License 2.0).
@@ -220,23 +254,20 @@
   [0.01, 0.99], and about 0.09 times `omega` for `p` in [1e-6, 1 - 1e-6]. Its
   help now also gives the error further out in the tails.
 
-* `inlavaan()` now checks `sn_fit_logthresh` itself. Before, the check was
-  inside `fit_skew_normal()`, and it ran only for
-  `marginal_method = "skewnorm"`. `inlavaan()` now also checks `sn_fit_temp`.
-  Both checks run for every `marginal_method`.
-  - `sn_fit_logthresh` must be a finite negative number. Before, `-Inf` kept
-    every scan point. It now gives an error. To keep every scan point, give a
-    large negative number, such as `-100`.
-  - `sn_fit_temp` must be a finite positive number. `sn_fit_temp = NA` no
-    longer estimates the temperature: it gives an error.
+* `inlavaan()` now checks the threshold of the skew-normal fit
+  (`inlavaan_control(log_threshold = )`, or the deprecated
+  `sn_fit_logthresh`) itself, for every `marginal_method`. Before, the check
+  was inside `fit_skew_normal()`, and it ran only for
+  `marginal_method = "skewnorm"`. The threshold must be a finite negative
+  number. Before, `-Inf` kept every scan point. It now gives an error. To
+  keep every scan point, give a large negative number, such as `-100`.
 
 * `summary()` now uses the exact skew-normal quantile, `qsnorm()`, in place of
   the approximation `qsnorm_fast()`. The posterior draws now use a spline of
   the exact quantile (`sn_score_map()`, accurate to about 1e-6 posterior SDs)
-  in place of `qsnorm_fast()`. With `samp_norta = TRUE`, the NORTA correlation
-  also changes, because it now uses `qsnorm()`. With the default settings, on
-  the Holzinger and Swineford three-factor model and the Political Democracy
-  model, over 150 seeds:
+  in place of `qsnorm_fast()`. With the default settings, on the Holzinger and
+  Swineford three-factor model and the Political Democracy model, over 150
+  seeds:
   - For the rows that come from the fitted marginals, the Mean, SD and Mode do
     not change. Their quantiles move by at most 0.008 posterior SDs on the
     Holzinger and Swineford model, and by at most 0.006 posterior SDs on the

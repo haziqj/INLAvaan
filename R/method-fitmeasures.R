@@ -260,8 +260,8 @@ fit_independence_baseline <- function(object, nsamp = NULL) {
     conditional.x = opt$conditional.x %||% "default",
     likelihood = opt$likelihood %||% "default",
     estimator = int$lavmodel@estimator,
-    marginal_method = "marggaus",
-    vb_correction = FALSE,
+    marginal_method = "gaussian",
+    vb_correction = "none",
     test = "dic",
     nsamp = nsamp %||% int$nsamp %||% 1000L,
     silent = TRUE
@@ -343,9 +343,9 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
 #'   sample.
 #' @param nsamp Number of posterior samples to draw. Defaults to the value
 #'   used when fitting the model.
-#' @param samp_copula Logical. When `TRUE` (default), posterior samples are
-#'   drawn using the copula method with the fitted marginals. When `FALSE`,
-#'   samples are drawn from the Gaussian (Laplace) approximation.
+#' @param samp_copula `r badge_deprecated()` Has no effect. The draws always
+#'   couple the fitted marginals by a Gaussian copula, as the draws of the fit
+#'   do.
 #' @param x An object of class `bfit_indices` (for `print`).
 #' @param ... Additional arguments passed to methods.
 #'
@@ -385,12 +385,13 @@ bfit_indices <- function(
   baseline.model = NULL,
   rescale = c("devM", "MCMC"),
   nsamp = NULL,
-  samp_copula = TRUE
+  samp_copula = NULL
 ) {
   rescale <- match.arg(rescale)
   if (!is(object, "INLAvaan")) {
     cli_abort("{.arg object} must be an {.cls INLAvaan} object.")
   }
+  warn_samp_copula(samp_copula)
 
   int <- check_fit_layout(object@external$inlavaan_internal, "bfit_indices")
   lavmodel <- int$lavmodel
@@ -405,18 +406,7 @@ bfit_indices <- function(
   }
 
   nsamp <- nsamp %||% int$nsamp %||% 500L
-  method <- if (isTRUE(samp_copula)) int$marginal_method else "sampling"
-  samp <- sample_params(
-    theta_star = int$theta_star,
-    Omega = int$Omega,
-    method = method,
-    approx_data = int$approx_data,
-    pt = int$partable,
-    lavmodel = lavmodel,
-    nsamp = nsamp,
-    R_star = int$R_star
-  )
-  x_samp <- samp$x_samp
+  x_samp <- sample_params_posterior(int, nsamp)$x_samp
 
   if (lavmodel@estimator != "ML") {
     # nocov
@@ -472,18 +462,7 @@ bfit_indices <- function(
   if (!is.null(baseline.model)) {
     bint <- baseline.model@external$inlavaan_internal
 
-    bmethod <- if (isTRUE(samp_copula)) bint$marginal_method else "sampling"
-    samp_null <- sample_params(
-      theta_star = bint$theta_star,
-      Omega = bint$Omega,
-      method = bmethod,
-      approx_data = bint$approx_data,
-      pt = bint$partable,
-      lavmodel = bint$lavmodel,
-      nsamp = nsamp,
-      R_star = bint$R_star
-    )
-    x_samp_null <- samp_null$x_samp
+    x_samp_null <- sample_params_posterior(bint, nsamp)$x_samp
     n_use <- min(nrow(x_samp), nrow(x_samp_null))
 
     # The baseline's own moment count, which is larger than the model's when the

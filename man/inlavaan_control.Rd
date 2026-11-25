@@ -34,13 +34,13 @@ act with \code{vb_correction = "full"}, and when the default one-step
 correction takes a step so large that it must iterate.}
 
 \item{n_grid}{The number of points of the scan of each skew-normal
-marginal, over 4 posterior SDs on each side of the mode. At least 7. The
-same as the argument \code{sn_fit_ngrid} of \code{\link[=inlavaan]{inlavaan()}}.}
+marginal, over 4 posterior SDs on each side of the mode. At least 7. It
+replaces the deprecated argument \code{sn_fit_ngrid} of \code{\link[=inlavaan]{inlavaan()}}.}
 
 \item{log_threshold}{Points of the scan whose log-posterior falls more than
 this below the maximum are left out of the skew-normal fit. The five
-highest points are always kept. A single negative number. The same as the
-argument \code{sn_fit_logthresh} of \code{\link[=inlavaan]{inlavaan()}}.}
+highest points are always kept. A single negative number. It replaces the
+deprecated argument \code{sn_fit_logthresh} of \code{\link[=inlavaan]{inlavaan()}}.}
 
 \item{nlminb}{A named list of other controls of \code{\link[stats:nlminb]{stats::nlminb()}} for the
 search for the posterior mode, such as \code{trace = 1}, which prints its
@@ -52,18 +52,18 @@ back to.}
 \item{hessian}{How the Hessian at the posterior mode is differenced from the
 analytic gradient. \code{"central"} (default) costs two gradient evaluations
 per parameter. \code{"forward"} costs about half as much but is less accurate,
-and suits models with many parameters and large samples. The same as the
-argument \code{hessian_method} of \code{\link[=inlavaan]{inlavaan()}}.}
+and suits models with many parameters and large samples. It replaces the
+deprecated argument \code{hessian_method} of \code{\link[=inlavaan]{inlavaan()}}.}
 
 \item{debug}{Logical. With \code{TRUE}, the fit returns its internal list (see
 \code{\link[=get_inlavaan_internal]{get_inlavaan_internal()}}) instead of an \link{INLAvaan} object, for
-development. Default \code{FALSE}. The same as the argument \code{debug} of
-\code{\link[=inlavaan]{inlavaan()}}.}
+development. Default \code{FALSE}. It replaces the deprecated argument \code{debug}
+of \code{\link[=inlavaan]{inlavaan()}}.}
 
 \item{add_priors}{Logical. With \code{FALSE}, the log-posterior leaves out the
 priors, so that the posterior mode is the maximum likelihood estimate.
-Only the mode is meaningful then. Default \code{TRUE}. The same as the argument
-\code{add_priors} of \code{\link[=inlavaan]{inlavaan()}}.}
+Only the mode is meaningful then. Default \code{TRUE}. It replaces the
+deprecated argument \code{add_priors} of \code{\link[=inlavaan]{inlavaan()}}.}
 }
 \value{
 A list of the entries that were set, checked, for the \code{control}
@@ -81,9 +81,10 @@ rules: \code{control = list(n_grid = 31)} is the same as
 \code{control = inlavaan_control(n_grid = 31)}.
 }
 \details{
-Give each setting in one place only: an entry and the argument of
-\code{\link[=inlavaan]{inlavaan()}} that does the same (for example \code{n_grid} and \code{sn_fit_ngrid})
-cannot both be set, and neither can an entry and its twin in \code{nlminb}.
+Give each setting in one place only: an entry and the deprecated
+argument of \code{\link[=inlavaan]{inlavaan()}} that it replaces (for example \code{n_grid} and
+\code{sn_fit_ngrid}) cannot both be set, and neither can an entry and its twin
+in \code{nlminb}.
 
 Up to INLAvaan 0.3.5, \code{control} was a list of controls of
 \code{\link[stats:nlminb]{stats::nlminb()}}, such as \code{control = list(iter.max = 2000)}. These names

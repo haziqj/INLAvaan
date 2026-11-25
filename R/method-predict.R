@@ -504,14 +504,9 @@ predict.inlavaan_internal <- function(
   # the saturated means the fit conditions on), also for newdata.
   ybar_fit <- lapply(lavdata@X, colMeans)
 
-  # Draw exactly as the fit itself does: inherit the recorded `samp_copula`
-  # choice and pass the NORTA-adjusted correlation matrix, so the factor
-  # scores share a dependence structure with the fit's own draws.
-  samp <- sample_params_posterior(
-    object,
-    nsamp = nsamp,
-    samp_copula = object$samp_copula %||% TRUE
-  )
+  # Draw exactly as the fit itself does, so the factor scores share a
+  # dependence structure with the fit's own draws
+  samp <- sample_params_posterior(object, nsamp = nsamp)
   x_samp <- samp$x_samp
 
   # ---- type = "lv": Posterior draws of latent variable scores ----

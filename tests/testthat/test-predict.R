@@ -168,7 +168,7 @@ test_that("Factor scores are centred on the implied/saturated means", {
 
 # ---- Regression: predict() draws exactly as the fit does -----------------
 
-test_that("predict() passes R_star and honours the fit's samp_copula", {
+test_that("predict() draws with the marginals of the fit", {
   orig <- sample_params
   args <- NULL
   local_mocked_bindings(
@@ -177,40 +177,38 @@ test_that("predict() passes R_star and honours the fit's samp_copula", {
       orig(...)
     }
   )
-
-  fit_sn <- acfa(
-    mod,
-    dat,
-    silent = TRUE,
-    nsamp = NSAMP,
-    vb_correction = FALSE,
-    test = "none",
-    marginal_method = "skewnorm",
-    samp_norta = TRUE
-  )
-  int_sn <- get_inlavaan_internal(fit_sn)
-  expect_false(is.null(int_sn$R_star))
-  expect_true(isTRUE(int_sn$samp_norta))
-
-  args <- NULL
-  predict(fit_sn, nsamp = NSAMP)
-  expect_identical(args$method, "skewnorm")
-  expect_identical(args$R_star, int_sn$R_star)
-
-  # samp_copula = FALSE is recorded on the fit and inherited by predict()
+  for (method in c("skewnorm", "gaussian")) {
+    fit_m <- acfa(
+      mod,
+      dat,
+      silent = TRUE,
+      nsamp = NSAMP,
+      vb_correction = "none",
+      test = "none",
+      marginal_method = method
+    )
+    args <- NULL
+    predict(fit_m, nsamp = NSAMP)
+    expect_identical(args$method, method)
+  }
+  # The deprecated samp_copula and samp_norta of the fit change nothing
   fit_nc <- acfa(
     mod,
     dat,
     silent = TRUE,
     nsamp = NSAMP,
-    vb_correction = FALSE,
+    vb_correction = "none",
     test = "none",
-    marginal_method = "skewnorm",
-    samp_copula = FALSE
+    samp_copula = FALSE,
+    samp_norta = TRUE
   )
+  int_nc <- get_inlavaan_internal(fit_nc)
+  expect_null(int_nc$R_star)
+  expect_true(int_nc$samp_copula)
+  expect_false(int_nc$samp_norta)
   args <- NULL
   predict(fit_nc, nsamp = NSAMP)
-  expect_identical(args$method, "sampling")
+  expect_identical(args$method, "skewnorm")
 })
 
 # ---- Observed covariates and observed endogenous variables ----------------

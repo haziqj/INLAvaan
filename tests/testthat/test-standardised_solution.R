@@ -8,8 +8,8 @@ test_that("Standardised solution", {
   fit <- acfa(
     HS.model,
     data = HolzingerSwineford1939,
-    marginal_correction = FALSE,
-    vb_correction = FALSE,
+    marginal_scan = "plain",
+    vb_correction = "none",
     silent = TRUE,
     nsamp = 3
   )

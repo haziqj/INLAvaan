@@ -55,38 +55,11 @@ test_that("Method: skewnorm", {
   expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
-test_that("Method: asymgaus", {
-  expect_no_error({
-    fit <- agrowth(
-      mod,
-      dat,
-      marginal_method = "asymgaus",
-      vb_correction = FALSE,
-      test = "none",
-      silent = TRUE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
-})
-
-test_that("Method: sampling", {
-  expect_no_error({
-    fit <- agrowth(
-      mod,
-      dat,
-      marginal_method = "sampling",
-      vb_correction = FALSE,
-      test = "none",
-      silent = TRUE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
+test_that("Method: sampling is not available", {
+  expect_error(
+    agrowth(mod, dat, marginal_method = "sampling", silent = TRUE),
+    class = "inlavaan_unavailable"
+  )
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {

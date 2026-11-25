@@ -17,9 +17,9 @@
 #' by position. A posterior SD here is the Laplace SD at the mode, \eqn{s_j},
 #' the square root of the diagonal of \eqn{\Omega}, the covariance matrix of
 #' the Laplace approximation. Values that a fit did not compute are
-#' \code{NA}: the VB quantities with \code{vb_correction = FALSE}, and the
+#' \code{NA}: the VB quantities with \code{vb_correction = "none"}, and the
 #' scan quantities with Gaussian marginals (\code{marginal_method =
-#' "marggaus"}) and for the intercepts of a saturated mean structure, whose
+#' "gaussian"}) and for the intercepts of a saturated mean structure, whose
 #' marginals are Gaussian and have no scan.
 #'
 #' \strong{Global diagnostics} (\code{type = "global"}):
@@ -352,7 +352,7 @@ inlavaan_advice <- list(
   grad_gap = "The analytic gradient does not match the log-posterior",
   no_grad = "leave {.arg numerical_grad} at {.code FALSE}",
   vb_full = "{.code vb_correction = \"full\"}",
-  vb_none = "{.code vb_correction = FALSE}",
+  vb_none = "{.code vb_correction = \"none\"}",
   mode_limit = paste(
     "Raise {.code mode_maxit} or {.code mode_maxeval} in",
     "{.fn inlavaan_control}."

@@ -37,13 +37,12 @@ is_constant <- function(y) {
 # ---------------------------------------------------------------------------
 # Core sampling function: draw from the Gaussian-copula posterior through the
 # engine's sn_draws(), which couples the marginals by the correlation matrix
-# of Omega, or by the NORTA-adjusted R_star of a skew-normal fit.
-# The skew-normal marginals are the first m rows of approx_data: the rows
-# after them are the fits to the draws of covariances and defined parameters
-# (sn_fit_sample). Gaussian marginals, and draws under samp_copula = FALSE
-# (method "sampling"), are those of the Laplace approximation: marginals at
-# theta_star with the Laplace SDs and alpha = 0, which sn_draws() maps
-# linearly. Returns a list with:
+# of Omega. The skew-normal marginals are the first m rows of approx_data:
+# the rows after them are the fits to the draws of covariances and defined
+# parameters (sn_fit_sample). Gaussian marginals (method "gaussian", or
+# "marggaus" and "sampling" in fits made before 0.4.0) are those of the
+# Laplace approximation: marginals at theta_star with the Laplace SDs and
+# alpha = 0, which sn_draws() maps linearly. Returns a list with:
 #   $theta_samp  - nsamp x m matrix in the internal (theta) parameterisation
 #   $x_samp      - nsamp x p matrix in the lavaan (x) parameterisation
 # ---------------------------------------------------------------------------
@@ -54,17 +53,13 @@ sample_params <- function(
   approx_data,
   pt,
   lavmodel,
-  nsamp = 1000,
-  R_star = NULL # NORTA-adjusted correlation matrix for SN copula
+  nsamp = 1000
 ) {
   m <- length(theta_star)
   corr <- stats::cov2cor(Omega)
   if (method == "skewnorm") {
     sn <- approx_data[seq_len(m), c("xi", "omega", "alpha"), drop = FALSE]
-    if (!is.null(R_star)) {
-      corr <- R_star
-    }
-  } else if (method %in% c("marggaus", "sampling")) {
+  } else if (method %in% c("gaussian", "marggaus", "sampling")) {
     sn <- cbind(xi = theta_star, omega = sqrt(diag(Omega)), alpha = 0)
   } else {
     # nocov start

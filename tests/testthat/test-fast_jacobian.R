@@ -202,7 +202,7 @@ test_that("fast_jacobian Hessian matches numDeriv on the PoliticalDemocracy SEM"
   expect_equal(se_fast, se_numD, tolerance = 1e-3)
 })
 
-test_that("hessian_method = 'forward' gives the central posterior", {
+test_that("hessian = 'forward' gives the central posterior", {
   skip_on_cran()
   fit_c <- asem(mod, dat, test = "none", silent = TRUE, nsamp = 3)
   fit_f <- asem(
@@ -211,7 +211,7 @@ test_that("hessian_method = 'forward' gives the central posterior", {
     test = "none",
     silent = TRUE,
     nsamp = 3,
-    hessian_method = "forward"
+    control = inlavaan_control(hessian = "forward")
   )
   int_c <- get_inlavaan_internal(fit_c)
   int_f <- get_inlavaan_internal(fit_f)
@@ -222,6 +222,13 @@ test_that("hessian_method = 'forward' gives the central posterior", {
   )
   expect_equal(int_f$theta_star, int_c$theta_star, tolerance = 1e-5)
   expect_error(
-    asem(mod, dat, test = "none", silent = TRUE, hessian_method = "backward")
+    asem(
+      mod,
+      dat,
+      test = "none",
+      silent = TRUE,
+      control = list(hessian = "backward")
+    ),
+    "hessian"
   )
 })

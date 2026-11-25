@@ -1,10 +1,11 @@
 #' Fit an Approximate Bayesian Latent Variable Model
 #'
 #' This function fits a Bayesian latent variable model by approximating the
-#' posterior distributions of the model parameters using various methods,
-#' including skew-normal, asymmetric Gaussian, marginal Gaussian, or
-#' sampling-based approaches. It leverages the lavaan package for model
-#' specification and estimation.
+#' posterior distributions of the model parameters: it finds the posterior
+#' mode, takes the Laplace approximation there, corrects its mean by
+#' variational Bayes, and fits a skew-normal or a Gaussian marginal to each
+#' parameter. It leverages the lavaan package for model specification and
+#' estimation.
 #'
 #' @inheritParams lavaan::lavaan
 #' @inheritParams lavaan::simulateData
@@ -45,55 +46,45 @@
 #'   model `"ppp"` is dropped, with a warning when it was asked for and a
 #'   message otherwise (see the Random slopes section of [inlavaan()]).
 #'   `"dic"`, `"loo"` and `"waic"` are unaffected.
-#' @param vb_correction Logical indicating whether to apply a variational Bayes
-#'   correction for the posterior mean vector of estimates. Defaults to `TRUE`.
-#' @param n_qmc Number of quasi-Monte Carlo nodes used by the VB mean
-#'   correction. Defaults to `64`; see the Details section of [inlavaan()].
-#'   Values above `128` (the size
-#'   of the stored Sobol table) require the \pkg{spacefillr} package. Ignored when
-#'   `vb_correction = FALSE` or `vb_method = "gauss_hermite"`.
-#' @param vb_method Integration rule for the VB mean correction. `"sobol"`
-#'   (default) averages over `n_qmc` scrambled Sobol nodes. `"gauss_hermite"`
-#'   uses a deterministic rule instead: a three-point Gauss-Hermite rule along
-#'   each principal axis of the Laplace covariance, `2m + 1` nodes in all for
-#'   `m` free parameters. It is exact whenever the log-posterior is quartic in
-#'   whitened coordinates, and it gives the same shift on every run. Having no
-#'   node sets to compare, it reports no quadrature error, so `vb_mcse_sigma`
-#'   in [diagnostics()] is `NA`. Its cost grows with `m`: it is cheaper than
-#'   the default below about 30 free parameters and dearer above. Experimental.
-#' @param marginal_method The method for approximating the marginal posterior
-#'   distributions. Options include `"skewnorm"` (skew-normal), `"asymgaus"`
-#'   (two-piece asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
-#'   approximation), and `"sampling"` (sampling from the joint Laplace
-#'   approximation).
-#' @param marginal_correction Which type of correction to use when fitting the
-#'   skew-normal or two-piece Gaussian marginals. `"shortcut"` (default)
-#'   computes only diagonals via central differences (full z-trace plus Schur
-#'   complement correction), `"shortcut_fd"` is the same formula using forward
-#'   differences (roughly half the cost, less accurate), `"hessian"` computes
-#'   the full Hessian-based correction (slow), and `"none"` (or `FALSE`)
-#'   applies no correction.
+#' @param vb_correction The variational Bayes (VB) correction of the posterior
+#'   mean of the Laplace approximation. `"onestep"` (default) takes one step
+#'   from the mode, `"full"` iterates the correction to its fixed point, and
+#'   `"none"` leaves it out. The correction moves the marginal log-likelihood,
+#'   the point at which the DIC is computed, the centre of the LOO and the
+#'   WAIC, and the Gaussian marginals of `marginal_method = "gaussian"` and
+#'   their draws. It does not move the skew-normal marginals or their draws,
+#'   which are scanned from the mode.
+#' @param n_qmc `r badge_deprecated()` Has no effect. The VB correction now
+#'   takes a deterministic step, with no quasi-Monte Carlo nodes.
+#' @param vb_method `r badge_deprecated()` Has no effect. The VB correction now
+#'   has one rule, and `vb_correction = "full"` iterates it.
+#' @param marginal_method How the marginal posterior of each parameter is
+#'   approximated. `"skewnorm"` (default) fits a skew-normal distribution to a
+#'   scan of the log-posterior along the parameter (see `marginal_scan`).
+#'   `"gaussian"` takes the Gaussian marginal of the Laplace approximation,
+#'   centred at the VB mean, which is faster. `r badge_deprecated()` The old
+#'   values warn: `"marggaus"` is the old name of `"gaussian"`, and
+#'   `"asymgaus"` now runs `"skewnorm"`. `"sampling"` is kept for a sampler
+#'   that is under development, and gives an error.
+#' @param marginal_correction `r badge_deprecated()` Use `marginal_scan`.
+#'   `"none"` and `FALSE` are `marginal_scan = "plain"`, which gives the same
+#'   fit. `"shortcut"`, `"shortcut_fd"` and `"hessian"` run
+#'   `marginal_scan = "linear"`.
 #' @param nsamp The number of samples to draw for all sampling-based approaches
 #'   (including posterior sampling for model fit indices).
-#' @param samp_copula Logical. When `TRUE` (default), posterior samples are
-#'   drawn using the copula method with the fitted marginals (e.g. skew-normal
-#'   or asymmetric Gaussian). When `FALSE`, samples are drawn from the
-#'   Gaussian (Laplace) approximation.
-#' @param samp_norta Logical. When `TRUE`, the latent correlation matrix of
-#'   the skew-normal copula is adjusted by the NORmal-To-Anything (NORTA)
-#'   scheme of Cario and Nelson (1997) so that the Pearson correlations of
-#'   the copula draws match those of the Laplace approximation after the
-#'   nonlinear quantile transform. The adjustment never changes a marginal;
-#'   it affects only summaries that involve several parameters at once, and
-#'   in practice moves the correlations very little. Default `FALSE`. Only
-#'   used when `samp_copula = TRUE` and `marginal_method = "skewnorm"`.
+#' @param samp_copula `r badge_deprecated()` Has no effect. The draws always
+#'   couple the fitted marginals by a Gaussian copula. With
+#'   `marginal_method = "gaussian"` they are the draws of the Laplace
+#'   approximation.
+#' @param samp_norta `r badge_deprecated()` Has no effect. The draws no longer
+#'   adjust the correlations of the copula.
 #' @param cov_as_cor Logical. Residual and latent-disturbance covariance
 #'   parameters (`~~` between two observed or two latent variables) are
 #'   always estimated on the correlation scale internally (an `atanh` link,
 #'   the same as for `std.ov`/`std.lv`-standardised parameters); by default
 #'   their reported marginal is then re-derived on the covariance scale
 #'   \eqn{\sigma_i \sigma_j \rho} from a posterior sample (see
-#'   `samp_copula`), because that is the scale lavaan/blavaan report by
+#'   `nsamp`), because that is the scale lavaan/blavaan report by
 #'   default. When `TRUE`, that re-derivation is skipped and each such
 #'   parameter's own directly profiled correlation-scale marginal
 #'   \eqn{\rho \in (-1, 1)} is reported instead -- useful for comparing the
@@ -109,18 +100,12 @@
 #'   meaningful when `TRUE`. Not the same as lavaan's
 #'   `std.ov`/`std.lv`, which re-parameterises the whole model on a
 #'   standardised scale. Defaults to `FALSE`.
-#' @param sn_fit_ngrid Number of grid points to lay out per dimension when
-#'   fitting the skew-normal marginals. A finer grid gives a better fit at the
-#'   cost of more joint-log-posterior evaluations. Defaults to `21`. The same
-#'   as `control = inlavaan_control(n_grid = )`: set only one of the two.
-#' @param sn_fit_logthresh The log-threshold for fitting the skew-normal. Points
-#'   with log-posterior drop below this threshold (relative to the maximum) will
-#'   be excluded from the fit. Must be a single finite negative number. The five
-#'   highest points of the scan are always kept. Defaults to `-6`. The same as
-#'   `control = inlavaan_control(log_threshold = )`: set only one of the two.
-#' @param sn_fit_temp Temperature parameter for fitting the skew-normal. Must be
-#'   a single finite positive number. Defaults to `1` (weights are the density
-#'   values themselves).
+#' @param sn_fit_ngrid `r badge_deprecated()` Use
+#'   `control = inlavaan_control(n_grid = )`, which gives the same fit.
+#' @param sn_fit_logthresh `r badge_deprecated()` Use
+#'   `control = inlavaan_control(log_threshold = )`, which gives the same fit.
+#' @param sn_fit_temp `r badge_deprecated()` Has no effect. The skew-normal
+#'   marginals are fitted with temperature 1.
 #' @param sn_fit_sample Logical. When `TRUE` (default), a parametric skew-normal
 #'   is fitted to the posterior samples for covariance and defined parameters.
 #'   When `FALSE`, these are summarised using kernel density estimation instead.
@@ -135,39 +120,32 @@
 #'   stage. With `TRUE` it also prints the details of each stage of the fit on
 #'   the internal scale: the start, the mode search, the VB correction and the
 #'   marginals, with their checks. Use `silent = TRUE` to print nothing.
-#' @param debug Logical. With `TRUE`, the fit returns its internal list (see
-#'   [get_inlavaan_internal()]) instead of an [INLAvaan] object, for
-#'   development. The same as `control = inlavaan_control(debug = )`: set only
-#'   one of the two.
-#' @param add_priors Logical. With `FALSE`, the log-posterior leaves out the
-#'   priors, so that the posterior mode is the maximum likelihood estimate.
-#'   Only the mode is meaningful then. The same as
-#'   `control = inlavaan_control(add_priors = )`: set only one of the two.
-#' @param optim_method The optimisation method to use for finding the posterior
-#'   mode. Options include `"nlminb"` (default), `"ucminf"`, and `"optim"`
-#'   (BFGS).
-#' @param numerical_grad Logical indicating whether to use numerical gradients
-#'   for the optimisation. Defaults to `FALSE` to use analytical gradients.
-#' @param hessian_method How the Hessian at the posterior mode is differenced
-#'   from the analytical gradient. `"central"` (default) costs two gradient
-#'   evaluations per parameter. `"forward"` costs about half as much but is less
-#'   accurate, and suits models with many parameters and large samples. Used
-#'   only with `optim_method = "nlminb"` and `numerical_grad = FALSE`. The same
-#'   as `control = inlavaan_control(hessian = )`: set only one of the two.
+#' @param debug `r badge_deprecated()` Use
+#'   `control = inlavaan_control(debug = TRUE)`, which gives the same fit.
+#' @param add_priors `r badge_deprecated()` Use
+#'   `control = inlavaan_control(add_priors = FALSE)`, which gives the same
+#'   fit.
+#' @param optim_method `r badge_deprecated()` Has no effect. The posterior mode
+#'   is always found by [stats::nlminb()].
+#' @param numerical_grad `r badge_deprecated()` Has no effect. The fit always
+#'   uses the analytic gradient.
+#' @param hessian_method `r badge_deprecated()` Use
+#'   `control = inlavaan_control(hessian = )`, which gives the same fit.
 #' @param start Optional numeric vector of starting values for the optimiser,
 #'   given as a full vector of free parameters in the internal (unconstrained)
 #'   parameterisation. Mainly for internal use by [update()], which warm-starts
 #'   mode-finding from a previous fit's posterior mode; supplying a hand-built
 #'   vector requires knowledge of the internal parameter ordering. Its length
 #'   must equal the number of free parameters or an error is raised.
-#' @param cores Integer or `NULL`. Number of cores for parallel marginal
-#'   fitting. When `NULL` (default), serial execution is used unless the number
-#'   of free parameters exceeds 120, in which case parallelisation is enabled
-#'   automatically using all available physical cores. Set to `1L` to force
-#'   serial execution. If `cores > 1`, marginal fits are distributed across
-#'   cores -- forked via [parallel::mclapply()] where that is safe, or over a
-#'   PSOCK cluster (separate R processes) inside IDE R sessions (RStudio,
-#'   Positron) and on Windows.
+#' @param cores Integer or `NULL`. The number of cores. With `NULL` (default),
+#'   the scans of the skew-normal marginals follow `future::plan()`, which is
+#'   serial unless a plan is set, and the LOO and the WAIC asked for in `test`
+#'   run serially. With `cores > 1`, the scans run in parallel when the
+#'   packages \pkg{future} and \pkg{parallelly} are installed, and serially
+#'   otherwise. The LOO and the WAIC are then forked via
+#'   [parallel::mclapply()] where that is safe, or run over a PSOCK cluster
+#'   (separate R processes) inside IDE R sessions (RStudio, Positron) and on
+#'   Windows. `1` is serial.
 #' @param ppp_method How the PPP of a two-level model scores the observed and
 #'   the replicate data against the saturated model. `"onestep"` (default)
 #'   takes one Fisher-scoring step from the moments of each posterior draw
@@ -180,6 +158,16 @@
 #'   set, that the PPP of a two-level model uses. Defaults to `250`, and is
 #'   capped at `nsamp`. Draws that cannot be scored are left out, with a
 #'   warning. Ignored for single-level models.
+#' @param marginal_scan How the scan behind each skew-normal marginal is taken.
+#'   `"linear"` (default) scans along a straight line through the mode, and
+#'   adds a linear correction for the changing volume of the other parameters.
+#'   `"exact"` computes that volume term exactly at each point of the scan.
+#'   `"laplace"` maximises the log-posterior over the other parameters at each
+#'   point of the scan, and takes the height and the volume there. `"plain"`
+#'   adds no volume correction. On the Holzinger and Swineford and the
+#'   Political Democracy models, `"exact"` and `"laplace"` take 10 to 25 times
+#'   as long as `"linear"`. Ignored with `marginal_method = "gaussian"`, which
+#'   has no scan.
 #' @param silent Logical. Print nothing at all, and muffle the warnings and
 #'   messages raised during the fit? Default `FALSE`. `verbose` and `silent`
 #'   cannot both be `TRUE`. Errors are still raised. Whether or not `silent` is
@@ -188,16 +176,13 @@
 #' @param ... Additional arguments to be passed to the [lavaan] model fitting
 #'   function.
 #'
-#' @details The VB mean correction integrates over `n_qmc` quasi-Monte Carlo
-#'   nodes, so it carries a quadrature error that falls as `n_qmc` rises. The
-#'   default of `64` keeps this error at roughly 0.05 posterior SDs -- on par
-#'   with the Monte Carlo error of a routine MCMC run, and small against the
-#'   shifts being corrected. Users may increase `n_qmc` to reduce the error
-#'   further, at a proportional cost in computation time; `diagnostics()`
-#'   reports the realised error per fit as `vb_mcse_sigma` per parameter and
-#'   `vb_mcse_max` globally, both in posterior-SD units. Setting
-#'   `vb_method = "gauss_hermite"` removes the random node set altogether; see
-#'   the `vb_method` argument.
+#' @section Deprecated arguments:
+#' The arguments marked deprecated still work in INLAvaan 0.4.0, and stop
+#' from 0.5.0. Each warns once per session, with a warning of class
+#' `inlavaan_deprecated` that names what to use instead. With
+#' `options(inlavaan.deprecation = "error")` they stop now, so that tests can
+#' find old calls. Those that moved into `control` give the same fit. The
+#' others have no effect. INLAvaan 0.3.5 has the old methods.
 #'
 #' @section Random slopes:
 #' Wrapping a level-1 regression coefficient in lavaan's `rv()` modifier
@@ -298,51 +283,37 @@ inlavaan <- function(
   model.type = "sem",
   dp = priors_for(),
   test = "standard",
-  vb_correction = TRUE,
-  n_qmc = 64L,
-  vb_method = c("sobol", "gauss_hermite"),
-  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  vb_correction = c("onestep", "full", "none"),
+  n_qmc = NULL,
+  vb_method = NULL,
+  marginal_method = c("skewnorm", "gaussian"),
+  marginal_correction = NULL,
   nsamp = 1000,
-  samp_copula = TRUE,
-  samp_norta = FALSE,
+  samp_copula = NULL,
+  samp_norta = NULL,
   cov_as_cor = FALSE,
-  sn_fit_ngrid = 21,
-  sn_fit_logthresh = -6,
-  sn_fit_temp = 1,
+  sn_fit_ngrid = NULL,
+  sn_fit_logthresh = NULL,
+  sn_fit_temp = NULL,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = FALSE,
-  debug = FALSE,
-  add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "optim"),
-  numerical_grad = FALSE,
-  hessian_method = c("central", "forward"),
+  debug = NULL,
+  add_priors = NULL,
+  optim_method = NULL,
+  numerical_grad = NULL,
+  hessian_method = NULL,
   start = NULL,
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
+  marginal_scan = c("linear", "exact", "laplace", "plain"),
   silent = FALSE,
   ...
 ) {
   mc <- match.call()
   mc$start <- NULL # warm start is transient; keep it out of the recorded call
-  # The arguments that an entry of `control` does the same as, and whether
-  # each was given, taken before any of them is changed below
-  control_twins <- c(
-    n_grid = "sn_fit_ngrid",
-    log_threshold = "sn_fit_logthresh",
-    hessian = "hessian_method",
-    debug = "debug",
-    add_priors = "add_priors"
-  )
-  twin_given <- c(
-    sn_fit_ngrid = !missing(sn_fit_ngrid),
-    sn_fit_logthresh = !missing(sn_fit_logthresh),
-    hessian_method = !missing(hessian_method),
-    debug = !missing(debug),
-    add_priors = !missing(add_priors)
-  )
+  scan_given <- !missing(marginal_scan)
   start_time0 <- proc.time()[3]
   timing <- list(start_time = start_time0)
   check_flag(verbose, "verbose")
@@ -372,34 +343,46 @@ inlavaan <- function(
   }
   withCallingHandlers(warning = on_fit_warning, message = on_fit_message, {
     ## ----- Check arguments ---------------------------------------------------
-    # The entries of `control` set, checked (see inlavaan_control()). An entry
-    # stands in for the argument that does the same, which must then not be
-    # given too. The engine's entries go to the engine.
-    ctrl <- resolve_control(control, silent = silent)
-    for (entry in intersect(names(control_twins), names(ctrl))) {
-      arg <- control_twins[[entry]]
-      if (twin_given[[arg]]) {
-        cli_abort(c(
-          "Set {.arg {arg}} or {.code control${entry}}, not both.",
-          "i" = "They are the same setting."
-        ))
-      }
-    }
-    sn_fit_ngrid <- ctrl$n_grid %||% sn_fit_ngrid
-    sn_fit_logthresh <- ctrl$log_threshold %||% sn_fit_logthresh
-    hessian_method <- ctrl$hessian %||% hessian_method
-    debug <- ctrl$debug %||% debug
-    add_priors <- ctrl$add_priors %||% add_priors
+    # The settings of the fit, with the deprecated arguments mapped to them
+    # (see R/inlavaan-args.R). The entries of `control` that are the engine's
+    # go to the engine, and INLAvaan reads the others.
+    settings <- resolve_inlavaan_args(
+      old = list(
+        n_qmc = n_qmc,
+        vb_method = vb_method,
+        marginal_correction = marginal_correction,
+        samp_copula = samp_copula,
+        samp_norta = samp_norta,
+        sn_fit_ngrid = sn_fit_ngrid,
+        sn_fit_logthresh = sn_fit_logthresh,
+        sn_fit_temp = sn_fit_temp,
+        debug = debug,
+        add_priors = add_priors,
+        optim_method = optim_method,
+        numerical_grad = numerical_grad,
+        hessian_method = hessian_method
+      ),
+      vb_correction = vb_correction,
+      marginal_method = marginal_method,
+      marginal_scan = marginal_scan,
+      scan_given = scan_given,
+      control = control,
+      silent = silent
+    )
+    ctrl <- settings$control
     engine_entries <- intersect(names(ctrl), names(formals(vanilla_control)))
     engine_control <- ctrl[engine_entries]
-    engine_control$n_grid <- sn_fit_ngrid
-    engine_control$log_threshold <- sn_fit_logthresh
+    hessian_method <- ctrl$hessian %||% "central"
+    debug <- isTRUE(ctrl$debug)
+    add_priors <- ctrl$add_priors %||% TRUE
+    vb_correction <- settings$vb_correction
+    marginal_method <- settings$marginal_method
+    marginal_scan <- settings$marginal_scan
     if (!is.null(cores)) {
       # nocov start
       cores <- as.integer(cores)
       if (is.na(cores) || cores < 1L) cores <- 1L
     } # nocov end
-    marginal_method <- match.arg(marginal_method)
     ppp_method <- match.arg(ppp_method)
     if (
       !is.numeric(ppp_nsamp) ||
@@ -408,57 +391,6 @@ inlavaan <- function(
         ppp_nsamp < 1
     ) {
       cli_abort("{.arg ppp_nsamp} must be a number of at least 1.")
-    }
-    if (isFALSE(marginal_correction)) {
-      marginal_correction <- "none"
-    } else {
-      marginal_correction <- match.arg(marginal_correction)
-    }
-    optim_method <- match.arg(optim_method)
-    hessian_method <- match.arg(hessian_method)
-    vb_method <- match.arg(vb_method)
-    # "onestep", "full" or "none", with TRUE for "onestep" and FALSE for "none"
-    vb_correction <- check_vb(vb_correction)
-    # The engine (R/engine-adapter.R) has no stage for some of the old values,
-    # which map to the nearest stage it has: the asymmetric Gaussian marginals
-    # to skew-normal ones, the sampling method to Gaussian marginals, and each
-    # correction of the marginals to its linear volume term, or to none. It
-    # always uses nlminb(), and the n_qmc, vb_method and sn_fit_temp of the old
-    # VB correction and skew-normal fit have no use there.
-    marginal_method <- switch(
-      marginal_method,
-      asymgaus = "skewnorm",
-      sampling = "marggaus",
-      marginal_method
-    )
-    marginal_scan <- if (marginal_correction == "none") "plain" else "linear"
-    optim_method <- "nlminb"
-    if (
-      !is.numeric(sn_fit_logthresh) ||
-        length(sn_fit_logthresh) != 1L ||
-        !is.finite(sn_fit_logthresh) ||
-        sn_fit_logthresh >= 0
-    ) {
-      cli_abort(
-        "{.arg sn_fit_logthresh} must be a single finite negative number."
-      )
-    }
-    # The engine checks its grid too, but under its own name
-    if (
-      !is.numeric(sn_fit_ngrid) ||
-        length(sn_fit_ngrid) != 1L ||
-        !is.finite(sn_fit_ngrid) ||
-        sn_fit_ngrid < 7
-    ) {
-      cli_abort("{.arg sn_fit_ngrid} must be a single number of at least 7.")
-    }
-    if (
-      !is.numeric(sn_fit_temp) ||
-        length(sn_fit_temp) != 1L ||
-        !is.finite(sn_fit_temp) ||
-        sn_fit_temp <= 0
-    ) {
-      cli_abort("{.arg sn_fit_temp} must be a single finite positive number.")
     }
     # `test` is an INLAvaan-only selection of post-estimation quantities (see
     # resolve_test() in R/utils.R); it never reaches lavaan as typed
@@ -816,7 +748,7 @@ inlavaan <- function(
     # get Gaussian marginals and no VB shift.
     init <- stats::setNames(parstart, parnames)
     engine_check_start(joint_lp, init)
-    fns <- engine_fns(joint_lp, joint_lp_grad, numerical_grad)
+    fns <- engine_fns(joint_lp, joint_lp_grad)
     hess_mode <- NULL
     if (!is.null(fns$gr)) {
       hess_mode <- engine_hess_mode(
@@ -839,11 +771,7 @@ inlavaan <- function(
       hess_mode = hess_mode,
       gaussian_marginals = fp_idx,
       vb_correction = vb_correction,
-      marginals = if (marginal_method == "skewnorm") {
-        "skewnorm"
-      } else {
-        "gaussian"
-      },
+      marginals = marginal_method,
       marginal_scan = marginal_scan,
       cores = cores,
       control = engine_control,
@@ -919,20 +847,8 @@ inlavaan <- function(
     timing$marginals <- timing$marginals +
       core$timing[["marginals"]] +
       core$timing[["diagnostics"]]
-
-    ## ----- NORTA adjustment for SN copula sampling ---------------------------
-    R_star <- NULL
-    if (
-      marginal_method == "skewnorm" && isTRUE(samp_copula) && isTRUE(samp_norta)
-    ) {
-      if (!silent) {
-        cli_progress_step(
-          "Adjusting copula correlations (NORTA).",
-          msg_done = "Adjust copula correlations (NORTA)."
-        )
-      }
-      R_star <- norta_adjust_R(cov2cor(Omega), approx_data)
-    }
+    # The NORTA adjustment of the copula has ended, and its segment of the
+    # timing is kept, at about zero, for the segments of earlier versions
     timing <- add_timing(timing, "norta")
 
     ## ----- Draw posterior samples (once) -------------------------------------
@@ -959,12 +875,11 @@ inlavaan <- function(
     samp <- sample_params(
       theta_star = theta_star_vbc,
       Omega = Omega,
-      method = if (isTRUE(samp_copula)) marginal_method else "sampling",
+      method = marginal_method,
       approx_data = approx_data,
       pt = pt,
       lavmodel = lavmodel,
-      nsamp = nsamp,
-      R_star = R_star
+      nsamp = nsamp
     )
     theta_samp <- samp$theta_samp
     x_samp <- samp$x_samp
@@ -1170,8 +1085,7 @@ inlavaan <- function(
       Omega = Omega,
       marginal_method = marginal_method,
       approx_data = approx_data,
-      nsamp = nsamp,
-      R_star = R_star
+      nsamp = nsamp
     )
     # LOO and WAIC are one Taylor pass (waic_from_taylor() reads the per-unit
     # quantities inlav_loo() already computed), so asking for either atom
@@ -1268,15 +1182,17 @@ inlavaan <- function(
       loo = loo_res,
       waic = waic_res,
       test = test_rec,
-      optim_method = optim_method,
+      # Constants since 0.4.0, kept for code that reads them: the mode is
+      # found by nlminb(), and the draws use the copula with no NORTA
+      optim_method = "nlminb",
       marginal_method = marginal_method,
       cov_as_cor = isTRUE(cov_as_cor),
-      samp_copula = samp_copula,
-      samp_norta = samp_norta,
+      samp_copula = TRUE,
+      samp_norta = FALSE,
       theta_star_novbc = as.numeric(theta_star),
       theta_star = as.numeric(theta_star_vbc),
       Omega = Omega,
-      R_star = R_star,
+      R_star = NULL,
       vcov_x = vcov_x,
       theta_star_trans = theta_star_trans,
       approx_data = approx_data,
@@ -1306,7 +1222,7 @@ inlavaan <- function(
     # Filled last, so that it holds the fit-time warning too
     out$warnings <- fit_warnings
 
-    if (isTRUE(debug)) {
+    if (debug) {
       return(out)
     } else {
       out <- create_lav_from_inlavaan_internal(fit0, out)
@@ -1343,33 +1259,34 @@ acfa <- function(
   data,
   dp = priors_for(),
   test = "standard",
-  vb_correction = TRUE,
-  n_qmc = 64L,
-  vb_method = c("sobol", "gauss_hermite"),
-  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  vb_correction = c("onestep", "full", "none"),
+  n_qmc = NULL,
+  vb_method = NULL,
+  marginal_method = c("skewnorm", "gaussian"),
+  marginal_correction = NULL,
   nsamp = 1000,
-  samp_copula = TRUE,
-  samp_norta = FALSE,
+  samp_copula = NULL,
+  samp_norta = NULL,
   cov_as_cor = FALSE,
-  sn_fit_ngrid = 21,
-  sn_fit_logthresh = -6,
-  sn_fit_temp = 1,
+  sn_fit_ngrid = NULL,
+  sn_fit_logthresh = NULL,
+  sn_fit_temp = NULL,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = FALSE,
-  debug = FALSE,
-  add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "optim"),
-  numerical_grad = FALSE,
-  hessian_method = c("central", "forward"),
+  debug = NULL,
+  add_priors = NULL,
+  optim_method = NULL,
+  numerical_grad = NULL,
+  hessian_method = NULL,
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
+  marginal_scan = c("linear", "exact", "laplace", "plain"),
   silent = FALSE,
   ...
 ) {
-  sc <- sys.call()
+  sc <- check_wrapper_call(sys.call(), "acfa")
   sc[["model.type"]] <- quote("cfa")
   sc[[1L]] <- quote(INLAvaan::inlavaan)
   eval(sc, parent.frame())
@@ -1403,33 +1320,34 @@ asem <- function(
   data,
   dp = priors_for(),
   test = "standard",
-  vb_correction = TRUE,
-  n_qmc = 64L,
-  vb_method = c("sobol", "gauss_hermite"),
-  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  vb_correction = c("onestep", "full", "none"),
+  n_qmc = NULL,
+  vb_method = NULL,
+  marginal_method = c("skewnorm", "gaussian"),
+  marginal_correction = NULL,
   nsamp = 1000,
-  samp_copula = TRUE,
-  samp_norta = FALSE,
+  samp_copula = NULL,
+  samp_norta = NULL,
   cov_as_cor = FALSE,
-  sn_fit_ngrid = 21,
-  sn_fit_logthresh = -6,
-  sn_fit_temp = 1,
+  sn_fit_ngrid = NULL,
+  sn_fit_logthresh = NULL,
+  sn_fit_temp = NULL,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = FALSE,
-  debug = FALSE,
-  add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "optim"),
-  numerical_grad = FALSE,
-  hessian_method = c("central", "forward"),
+  debug = NULL,
+  add_priors = NULL,
+  optim_method = NULL,
+  numerical_grad = NULL,
+  hessian_method = NULL,
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
+  marginal_scan = c("linear", "exact", "laplace", "plain"),
   silent = FALSE,
   ...
 ) {
-  sc <- sys.call()
+  sc <- check_wrapper_call(sys.call(), "asem")
   sc[["model.type"]] <- quote("sem")
   sc[[1L]] <- quote(INLAvaan::inlavaan)
   eval(sc, parent.frame())
@@ -1461,33 +1379,34 @@ agrowth <- function(
   data,
   dp = priors_for(),
   test = "standard",
-  vb_correction = TRUE,
-  n_qmc = 64L,
-  vb_method = c("sobol", "gauss_hermite"),
-  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
-  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
+  vb_correction = c("onestep", "full", "none"),
+  n_qmc = NULL,
+  vb_method = NULL,
+  marginal_method = c("skewnorm", "gaussian"),
+  marginal_correction = NULL,
   nsamp = 1000,
-  samp_copula = TRUE,
-  samp_norta = FALSE,
+  samp_copula = NULL,
+  samp_norta = NULL,
   cov_as_cor = FALSE,
-  sn_fit_ngrid = 21,
-  sn_fit_logthresh = -6,
-  sn_fit_temp = 1,
+  sn_fit_ngrid = NULL,
+  sn_fit_logthresh = NULL,
+  sn_fit_temp = NULL,
   sn_fit_sample = TRUE,
   control = list(),
   verbose = FALSE,
-  debug = FALSE,
-  add_priors = TRUE,
-  optim_method = c("nlminb", "ucminf", "optim"),
-  numerical_grad = FALSE,
-  hessian_method = c("central", "forward"),
+  debug = NULL,
+  add_priors = NULL,
+  optim_method = NULL,
+  numerical_grad = NULL,
+  hessian_method = NULL,
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
+  marginal_scan = c("linear", "exact", "laplace", "plain"),
   silent = FALSE,
   ...
 ) {
-  sc <- sys.call()
+  sc <- check_wrapper_call(sys.call(), "agrowth")
   sc[["model.type"]] <- quote("growth")
   sc[[1L]] <- quote(INLAvaan::inlavaan)
   eval(sc, parent.frame())

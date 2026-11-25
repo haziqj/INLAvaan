@@ -48,24 +48,6 @@ test_that("Method: skewnorm", {
   expect_equal(fit@optim$dx, rep(0, length(coef(fit))), tolerance = 1e-3)
 })
 
-test_that("Method: asymgaus", {
-  expect_no_error({
-    fit <- asem(
-      mod,
-      dat,
-      marginal_method = "asymgaus",
-      marginal_correction = "none",
-      vb_correction = FALSE,
-      test = "none",
-      silent = TRUE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
-})
-
 test_that("Method: marggaus", {
   expect_no_error({
     fit <- asem(
@@ -83,21 +65,11 @@ test_that("Method: marggaus", {
   expect_s4_class(fit, "INLAvaan")
 })
 
-test_that("Method: sampling", {
-  expect_no_error({
-    fit <- asem(
-      mod,
-      dat,
-      marginal_method = "sampling",
-      vb_correction = FALSE,
-      test = "none",
-      silent = TRUE,
-      nsamp = NSAMP
-    )
-  })
-  expect_no_error(out <- capture.output(summary(fit)))
-
-  expect_s4_class(fit, "INLAvaan")
+test_that("Method: sampling is not available", {
+  expect_error(
+    asem(mod, dat, marginal_method = "sampling", silent = TRUE),
+    class = "inlavaan_unavailable"
+  )
 })
 
 test_that("cov_as_cor reports correlations without changing the fit", {
@@ -105,7 +77,7 @@ test_that("cov_as_cor reports correlations without changing the fit", {
   fit_off <- asem(
     mod,
     dat,
-    debug = TRUE,
+    control = inlavaan_control(debug = TRUE),
     test = "none",
     silent = TRUE,
     nsamp = NSAMP,
@@ -114,7 +86,7 @@ test_that("cov_as_cor reports correlations without changing the fit", {
   fit_on <- asem(
     mod,
     dat,
-    debug = TRUE,
+    control = inlavaan_control(debug = TRUE),
     test = "none",
     silent = TRUE,
     nsamp = NSAMP,

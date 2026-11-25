@@ -63,10 +63,10 @@
 #'       `latent`, `observed`, and `implied`.}
 #'   }
 #' @param nsamp Number of samples to draw.
-#' @param samp_copula Logical. When `TRUE` (default), posterior parameter
-#'   samples use the copula method with the fitted marginals. When `FALSE`,
-#'   samples are drawn from the joint Gaussian (Laplace) approximation.
-#'   Ignored when `prior = TRUE`.
+#' @param samp_copula `r badge_deprecated()` Has no effect. The draws always
+#'   couple the fitted marginals by a Gaussian copula, as the draws of the fit
+#'   do. For a fit with `marginal_method = "gaussian"` they are the draws of
+#'   the Laplace approximation.
 #' @param prior Logical. When `TRUE`, parameters are drawn from the prior
 #'   distribution and then propagated through the generative model. When
 #'   `FALSE` (default), parameters come from the posterior.
@@ -102,7 +102,7 @@ setMethod(
     object,
     type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
     nsamp = 1000L,
-    samp_copula = TRUE,
+    samp_copula = NULL,
     prior = FALSE,
     silent = FALSE,
     ...
@@ -125,7 +125,7 @@ sampling.inlavaan_internal <- function(
   object,
   type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
   nsamp = 1000L,
-  samp_copula = TRUE,
+  samp_copula = NULL,
   prior = FALSE,
   silent = FALSE,
   ...
@@ -144,17 +144,16 @@ sampling.inlavaan_internal <- function(
 
 # ---- Internal: draw parameter samples (theta/x) -----------------------------
 
-sample_params_posterior <- function(int, nsamp, samp_copula) {
-  method <- if (isTRUE(samp_copula)) int$marginal_method else "sampling"
+# The draws of the fit: its marginals, coupled by a Gaussian copula
+sample_params_posterior <- function(int, nsamp) {
   sample_params(
     theta_star = int$theta_star,
     Omega = int$Omega,
-    method = method,
+    method = int$marginal_method,
     approx_data = int$approx_data,
     pt = int$partable,
     lavmodel = int$lavmodel,
-    nsamp = nsamp,
-    R_star = int$R_star
+    nsamp = nsamp
   )
 }
 
@@ -873,7 +872,7 @@ sampling_impl <- function(
   int,
   type = c("lavaan", "theta", "latent", "observed", "implied", "all"),
   nsamp = 1000L,
-  samp_copula = TRUE,
+  samp_copula = NULL,
   prior = FALSE,
   meanstructure = FALSE,
   silent = FALSE,
@@ -881,6 +880,7 @@ sampling_impl <- function(
 ) {
   type <- match.arg(type)
   check_fit_layout(int, "sampling")
+  warn_samp_copula(samp_copula)
 
   # For prior sampling with generative draws, use reject-and-redraw to preserve
   # the exact prior (no silent PD projection).
@@ -898,7 +898,7 @@ sampling_impl <- function(
   if (isTRUE(prior)) {
     samp <- sample_params_prior(int, nsamp)
   } else {
-    samp <- sample_params_posterior(int, nsamp, samp_copula)
+    samp <- sample_params_posterior(int, nsamp)
   }
 
   pt <- int$partable

@@ -73,8 +73,8 @@ test_that("simulate() nsim = 1 returns length-1 list", {
   expect_length(sims, 1)
 })
 
-test_that("simulate() with samp_copula = FALSE works", {
-  sims <- simulate(fit, nsim = 2, samp_copula = FALSE)
+test_that("simulate() with the deprecated samp_copula works", {
+  sims <- suppressWarnings(simulate(fit, nsim = 2, samp_copula = FALSE))
   expect_length(sims, 2)
   expect_true(is.data.frame(sims[[1]]))
 })

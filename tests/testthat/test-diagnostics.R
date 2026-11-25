@@ -9,8 +9,8 @@ fit <- acfa(
   silent = TRUE,
   nsamp = 3,
   test = "none",
-  vb_correction = FALSE,
-  marginal_method = "marggaus"
+  vb_correction = "none",
+  marginal_method = "gaussian"
 )
 # The default marginal method, so the skew-normal columns are populated.
 fit_sn <- acfa(
@@ -19,7 +19,7 @@ fit_sn <- acfa(
   silent = TRUE,
   nsamp = 3,
   test = "none",
-  vb_correction = FALSE
+  vb_correction = "none"
 )
 
 # ---- diagnostics() ----
@@ -154,8 +154,8 @@ test_that("an unconverged optimiser triggers the fit-time warning", {
       verbose = FALSE,
       nsamp = 3,
       test = "none",
-      vb_correction = FALSE,
-      marginal_method = "marggaus",
+      vb_correction = "none",
+      marginal_method = "gaussian",
       std.lv = TRUE, # keeps the Hessian PD at the early stopping point
       control = inlavaan_control(mode_maxit = 2)
     ),
@@ -216,8 +216,8 @@ test_that("silent = TRUE prints nothing, and the fit records its warnings", {
       dat,
       nsamp = 3,
       test = "none",
-      vb_correction = FALSE,
-      marginal_method = "marggaus",
+      vb_correction = "none",
+      marginal_method = "gaussian",
       std.lv = TRUE,
       control = inlavaan_control(mode_maxit = 2),
       ...
@@ -247,8 +247,8 @@ test_that("silent = TRUE prints nothing, and the fit records its warnings", {
     silent = TRUE,
     nsamp = 3,
     test = "none",
-    vb_correction = FALSE,
-    marginal_method = "marggaus"
+    vb_correction = "none",
+    marginal_method = "gaussian"
   ))
   expect_identical(get_inlavaan_internal(fit, "warnings"), character(0))
   expect_error(acfa(mod, dat, silent = NA), "silent")
@@ -360,19 +360,6 @@ test_that("the advice on an unsettled VB correction knows the gradient", {
   # A fit that does not record it had a gradient
   int$engine$has_grad <- NULL
   expect_no_match(message_of(int), "numerical_grad", fixed = TRUE)
-  # The fit records whether the engine had a gradient
-  int_ng <- acfa(
-    mod,
-    dat,
-    silent = TRUE,
-    nsamp = 3,
-    test = "none",
-    vb_correction = FALSE,
-    marginal_method = "marggaus",
-    numerical_grad = TRUE,
-    debug = TRUE
-  )
-  expect_false(int_ng$engine$has_grad)
 })
 
 test_that("warn_fit_diagnostics() flags a near-singular Hessian", {

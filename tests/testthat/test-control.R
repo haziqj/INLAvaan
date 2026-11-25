@@ -22,8 +22,8 @@ fit_with <- function(..., silent = TRUE) {
     silent = silent,
     nsamp = 3,
     test = "none",
-    vb_correction = FALSE,
-    marginal_method = "marggaus",
+    vb_correction = "none",
+    marginal_method = "gaussian",
     ...
   ))
 }
@@ -72,10 +72,9 @@ test_that("the defaults are those of the engine and of inlavaan()", {
   fmls <- as.list(formals(inlavaan_control))
   engine <- as.list(formals(vanilla_control))
   expect_identical(fmls[names(engine)], engine)
-  own <- formals(inlavaan)
-  expect_identical(fmls$hessian, own$hessian_method)
-  expect_identical(fmls$debug, own$debug)
-  expect_identical(fmls$add_priors, own$add_priors)
+  expect_identical(fmls$hessian, quote(c("central", "forward")))
+  expect_false(fmls$debug)
+  expect_true(fmls$add_priors)
   expect_identical(
     names(fmls),
     c(names(engine), "hessian", "debug", "add_priors")
@@ -142,9 +141,9 @@ test_that("control takes inlavaan_control() or a plain list", {
   ce <- fit_with(control = list(n_grid = 31, log_threshold = -5))
   expect_identical(ce$args$control$n_grid, 31L)
   expect_identical(ce$args$control$log_threshold, -5)
-  # Without control, the arguments of inlavaan() give the grid
+  # The deprecated argument of inlavaan() gives the grid too
   ce <- fit_with(sn_fit_ngrid = 9)
-  expect_identical(ce$args$control$n_grid, 9)
+  expect_identical(ce$args$control$n_grid, 9L)
   for (bad in list("a", list(1), list(n_grid = 31, 9))) {
     expect_error(fit_with(control = bad), "control")
   }

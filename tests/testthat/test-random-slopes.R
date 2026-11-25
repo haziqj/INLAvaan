@@ -146,7 +146,7 @@ test_that("Random slopes: PPP is dropped from the default test", {
         cluster = "cluster",
         verbose = FALSE,
         test = "standard",
-        marginal_correction = "none",
+        marginal_scan = "plain",
         vb_correction = FALSE,
         nsamp = 3
       )
@@ -270,7 +270,7 @@ test_that("Random slopes: the closed-form route is silent", {
         cluster = "cluster",
         verbose = FALSE,
         test = "none",
-        marginal_correction = "none",
+        marginal_scan = "plain",
         vb_correction = FALSE,
         nsamp = 3
       )
@@ -500,7 +500,7 @@ test_that("Random slopes: a cross-level equality constraint fits", {
         cluster = "cluster",
         verbose = FALSE,
         test = "none",
-        marginal_correction = "none",
+        marginal_scan = "plain",
         vb_correction = FALSE,
         nsamp = 3
       )
@@ -603,7 +603,7 @@ test_that("Random slopes: constrained variances and shared slope labels fit", {
         cluster = "cluster",
         verbose = FALSE,
         test = "none",
-        marginal_correction = "none",
+        marginal_scan = "plain",
         vb_correction = FALSE,
         nsamp = 3
       )
@@ -634,7 +634,7 @@ test_that("Random slopes: constrained variances and shared slope labels fit", {
         cluster = "cluster",
         verbose = FALSE,
         test = "none",
-        marginal_correction = "none",
+        marginal_scan = "plain",
         vb_correction = FALSE,
         nsamp = 3
       )
