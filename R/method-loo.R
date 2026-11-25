@@ -237,7 +237,8 @@ loo.inlavaan_internal <- function(
 # The covariance argument was renamed from Sigma to Omega, the notation of the
 # accompanying manuscript. A legacy `Sigma =` no longer matches a formal and
 # lands in ..., where it is honoured so existing scripts keep running, with a
-# deprecation warning.
+# deprecation warning. Its class inlavaan_deprecated_sigma has the parent class
+# inlavaan_deprecated of R/deprecate.R, but it warns at every call.
 resolve_deprecated_Sigma <- function(Omega, ...) {
   dots <- list(...)
   if (!"Sigma" %in% names(dots)) {
@@ -251,7 +252,7 @@ resolve_deprecated_Sigma <- function(Omega, ...) {
   cli_warn(
     "The {.arg Sigma} argument of {.fn loo} is deprecated; use {.arg Omega}
      instead.",
-    class = "inlavaan_deprecated_sigma"
+    class = c("inlavaan_deprecated_sigma", "inlavaan_deprecated")
   )
   dots$Sigma
 }

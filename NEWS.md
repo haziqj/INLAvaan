@@ -98,6 +98,13 @@
   correlation matrix of the fit, as `sampling()` does. Before, it used the
   correlation matrix of the Laplace approximation.
 
+* Deprecation warnings now have the class `inlavaan_deprecated`. The warning
+  for the old `Sigma` argument of `loo()` has this class too, and still warns
+  at every call. Arguments and values deprecated from this version on warn
+  once per session, and `options(inlavaan.deprecation = "error")` makes them
+  errors, so that tests can find old code. Their help has a "deprecated"
+  badge.
+
 * `diagnostics()` now gives the engine's diagnostics, in the engine's order,
   and then INLAvaan's own: `nsamp`, `psi_npd_share` and `theta_npd_share`.
   Code that reads them by name still works, except for the changes below.

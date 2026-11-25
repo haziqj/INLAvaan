@@ -205,10 +205,11 @@ test_that("theta/Omega override scores arbitrary summaries", {
 
 test_that("deprecated Sigma argument is honoured with a warning", {
   int <- get_inlavaan_internal(fit)
-  expect_warning(
+  w <- expect_warning(
     res_dep <- loo(fit, Sigma = int$Omega, units = 1:10),
     class = "inlavaan_deprecated_sigma"
   )
+  expect_s3_class(w, "inlavaan_deprecated")
   res_new <- loo(fit, Omega = int$Omega, units = 1:10)
   expect_equal(res_dep$estimates, res_new$estimates)
 
