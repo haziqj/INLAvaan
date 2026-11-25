@@ -303,7 +303,8 @@ data_not_found <- function(data, env) {
 # by an older version has them only in lavaan's record of its call, where the
 # model may be rewritten (to a parameter table that fits the same model) and
 # where `ordered` names the ordinal variables of the fit, whatever the call
-# gave.
+# gave. So `ordered_known` is then FALSE when the call gave `ordered` and the
+# fit has ordinal variables.
 fit_read_values <- function(object) {
   internal <- get_inlavaan_internal(object)
   if (!is.null(internal$read_with)) {
@@ -313,7 +314,12 @@ fit_read_values <- function(object) {
   keys <- arg_key(names(lav))
   keep <- keys %in% data_read_args & keys %in% arg_key(names(internal$call))
   args <- stats::setNames(lav[keep], keys[keep])
-  list(model = lav$model, args = args)
+  list(
+    model = lav$model,
+    args = args,
+    ordered_known = !"ordered" %in% keys[keep] ||
+      length(lavaan::lavNames(object, "ov.ord")) == 0L
+  )
 }
 
 # Pin the call of a refit on the stored data to the fit. Each argument of
@@ -551,15 +557,16 @@ missing_as_read <- function(value, opt) {
   value
 }
 
-# Stop when the model of the refit, or the given values of `ordered`,
-# `fixed.x` or `conditional.x`, give the observed variables other roles than
-# those of the stored data: other exogenous or ordinal variables, other
-# variables on a level, or the variables in another order. lavaan matches the
-# stored data to the model by position, not by name, so the refit would mix up
-# the variables. `given` holds the evaluated values of the role arguments of
-# the update, and `read_with` the values that the fit was made with (see
-# fit_read_values()). The new roles come from `new_model`, or from the fit
-# when the model stays.
+# Stop when the model of the refit, or the values of `ordered`, `fixed.x` or
+# `conditional.x`, give the observed variables other roles than those of the
+# stored data: other exogenous or ordinal variables, other variables on a
+# level, or the variables in another order. lavaan matches the stored data to
+# the model by position, not by name, so the refit would mix up the
+# variables. `given` holds the evaluated values of the role arguments of the
+# update, and `read_with` the values that the fit was made with (see
+# fit_read_values()). The refit uses the values of the update, or else those
+# of the fit. The new roles come from `new_model`, or from the fit when the
+# model stays.
 check_stored_data_roles <- function(
   object,
   new_model,
@@ -569,13 +576,15 @@ check_stored_data_roles <- function(
 ) {
   data <- object@Data
   opt <- object@Options
+  recorded <- read_with$args
   pt_old <- lavaan::parTable(object)
   thr_old <- unique(pt_old$lhs[pt_old$op == "|" & pt_old$user == 1L])
+  roles_old <- model_read_roles(pt_old, data@ngroups)
+  if (is.list(roles_old)) {
+    roles_old$ov_thr <- thr_old
+  }
   if (is.null(new_model)) {
-    roles <- model_read_roles(pt_old, data@ngroups)
-    if (is.list(roles)) {
-      roles$ov_thr <- thr_old
-    }
+    roles <- roles_old
   } else {
     roles <- model_read_roles(new_model, data@ngroups)
     if (is.null(roles)) {
@@ -593,6 +602,8 @@ check_stored_data_roles <- function(
       class = "inlavaan_update_data_not_found"
     )
   }
+  ord_old <- data@ov$name[data@ov$type == "ordered"]
+  no_old_x <- length(lavaan::lavNames(object, "ov.x")) == 0L
 
   # fixed.x and conditional.x as lavaan resolved them for the fit, unless the
   # update gives them. A model without exogenous variables sets both to FALSE,
@@ -604,11 +615,10 @@ check_stored_data_roles <- function(
     }
     value <- given[[key]]
     if (is.null(value) || identical(value, "default")) {
-      return(if (key %in% names(read_with$args)) NA else stored)
+      return(if (key %in% names(recorded)) NA else stored)
     }
     if (is.logical(value) && length(value) == 1L) value else NA
   }
-  no_old_x <- length(lavaan::lavNames(object, "ov.x")) == 0L
   fixed_x <- role_flag("fixed.x", isTRUE(opt$fixed.x) || no_old_x)
   cond_x <- role_flag("conditional.x", isTRUE(opt$conditional.x))
 
@@ -621,19 +631,38 @@ check_stored_data_roles <- function(
       identical(unname(lapply(data@ov.names.l, unname)), unname(roles$ov_l))
   }
 
-  # The ordinal variables: those given by `ordered`, those with thresholds in
-  # the model, and those that are ordered factors in the data. The last are
-  # not known here, but they are ordinal in the stored data too.
-  ord_old <- data@ov$name[data@ov$type == "ordered"]
-  if (same && "ordered" %in% names(given)) {
-    declared <- ordered_as_read(given[["ordered"]], roles)
+  # The ordinal variables of the refit: those that `ordered` gives, those
+  # with thresholds in the model, and those that are ordered factors in the
+  # data. The last are not known here. But the ordinal variables of the
+  # stored data that neither `ordered` nor the thresholds of the fit give
+  # must be ordered factors, so they are ordinal in the refit too. `ordered`
+  # is read for the new roles, as TRUE names the endogenous variables. With
+  # the model and `ordered` of the fit, the ordinal variables stay.
+  ordered_given <- "ordered" %in% names(given)
+  if (same && (ordered_given || !is.null(new_model))) {
+    known <- !isFALSE(read_with$ordered_known)
+    from_factors <- character()
+    if (known && is.list(roles_old)) {
+      declared_old <- ordered_as_read(recorded[["ordered"]], roles_old)
+      if (!anyNA(declared_old)) {
+        from_factors <- setdiff(ord_old, union(declared_old, thr_old))
+      }
+    }
+    declared <- if (ordered_given) {
+      ordered_as_read(given[["ordered"]], roles)
+    } else if (known) {
+      ordered_as_read(recorded[["ordered"]], roles)
+    } else {
+      NA_character_
+    }
     same <- !anyNA(declared) &&
       setequal(
-        union(intersect(declared, data@ov$name), roles$ov_thr),
+        union(
+          union(intersect(declared, data@ov$name), roles$ov_thr),
+          from_factors
+        ),
         ord_old
       )
-  } else if (same) {
-    same <- all(roles$ov_thr %in% ord_old) && all(thr_old %in% roles$ov_thr)
   }
   if (same) {
     return(invisible())

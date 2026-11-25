@@ -534,3 +534,80 @@ test_that("update() on the stored data reads lavaan's record of an older fit", {
   )
   expect_length(coef(update(fit, add = "x1 ~~ x2")), length(coef(fit)) + 1L)
 })
+
+test_that("update() on the stored data reads the recorded `ordered` for a new model", {
+  dd <- dat[, c("x1", "x2", "x3", "x4")]
+  for (v in names(dd)) {
+    dd[[v]] <- findInterval(dd[[v]], stats::quantile(dd[[v]], c(1, 2) / 3)) + 1L
+  }
+  dd_given <- dd
+  fit_ord <- asem(
+    "visual =~ x1 + x2 + x3\n visual ~ x4",
+    dd,
+    ordered = TRUE,
+    fixed.x = FALSE,
+    conditional.x = FALSE,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  err <- "inlavaan_update_data_not_found"
+  # ordered = TRUE makes all the endogenous variables ordinal, so x4 too in
+  # this model. Before, the refit kept x4 numeric.
+  expect_error(
+    update(fit_ord, model = "visual =~ x1 + x2 + x3 + x4"),
+    "other roles",
+    class = err
+  )
+  # A model with the same endogenous variables refits as on the data given
+  # again.
+  model <- "visual ~ x4\n visual =~ x1 + x2 + x3"
+  expect_same_fit(
+    update(fit_ord, model = model),
+    update(fit_ord, model = model, data = dd_given)
+  )
+  # lavaan's record of the call of an older fit names the ordinal variables,
+  # not TRUE. So a new model stops, unless the update gives `ordered`.
+  fit_old <- fit_ord
+  fit_old@external$inlavaan_internal$read_with <- NULL
+  expect_false(fit_read_values(fit_old)$ordered_known)
+  expect_error(update(fit_old, model = model), "other roles", class = err)
+  expect_same_fit(
+    update(fit_old, model = model, ordered = TRUE),
+    update(fit_ord, model = model)
+  )
+  expect_same_fit(update(fit_old), update(fit_ord))
+})
+
+test_that("update() on the stored data keeps the ordered factors of the data ordinal", {
+  dd <- dat[, c("x1", "x2", "x3")]
+  for (v in names(dd)) {
+    dd[[v]] <- ordered(
+      findInterval(dd[[v]], stats::quantile(dd[[v]], c(1, 2) / 3))
+    )
+  }
+  dd_given <- dd
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dd,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  # lavaan reads ordered factors as ordinal, whatever `ordered` gives. Before,
+  # this stopped.
+  expect_same_fit(
+    update(fit, ordered = FALSE),
+    update(fit, ordered = FALSE, data = dd_given)
+  )
+  expect_same_fit(
+    update(fit, model = "visual =~ x1 + a*x2 + a*x3"),
+    update(fit, model = "visual =~ x1 + a*x2 + a*x3", data = dd_given)
+  )
+})
