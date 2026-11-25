@@ -202,10 +202,9 @@ setMethod(
       cl$slotData <- object@Data
     }
 
-    # Warm start (Tier A): reuse the previous posterior mode as the optimiser's
-    # starting value whenever the parameter structure is preserved. Harmless
-    # when only downstream settings changed (the optimiser simply begins at the
-    # mode); skipped when the model structure changed or `start` was set.
+    # Warm start: the search for the mode starts at the mode of the fit. This
+    # changes where the search starts, not the fit. It is skipped when the
+    # model or its type changes, or when `start` is given.
     structure_changed <- !missing(model) ||
       !missing(add) ||
       "model.type" %in% names(extras)

@@ -93,14 +93,6 @@ summary_inlavaan <- function(
   }
 
   marg_method <- object@external$inlavaan_internal$marginal_method
-  # if (marg_method == "skewnorm")
-  #   marg_method <- "Skew Normal"
-  # else if (marg_method == "asymgaus")
-  #   marg_method <- "Two-piece Gaussian"
-  # else if (marg_method == "marggaus")
-  #   marg_method <- "Marginal Gaussian"
-  # else if (marg_method == "sampling")
-  #   marg_method <- "Sampling"
 
   # The R-square of a random-slope fit is replaced below
   pe_object <- object
