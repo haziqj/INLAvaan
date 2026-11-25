@@ -286,9 +286,10 @@
   - `scan_end_mass` and `scan_end_mass_max` are now `unscanned_mass` and
     `unscanned_mass_max`. The old names are gone.
   - New global diagnostics: `hess_cond_cor`, `grad_gap_max`, `vb_fallback`,
-    `vb_step_max`, `vb_gain_ratio`, `mean_gap_max`, `ridge_bend_max` and
-    `n_heavy_tails`. New per-parameter columns: `grad_gap`,
-    `vb_step_sigma`, `mean_gap`, `gamma1`, `tails` and `ridge_bend`.
+    `vb_step_max`, `vb_lhat`, `vb_j0`, `vb_j1`, `vb_solve`, `mean_gap_max`,
+    `ridge_bend_max` and `n_heavy_tails`. New per-parameter columns:
+    `grad_gap`, `vb_step_sigma`, `mean_gap`, `gamma1`, `tails` and
+    `ridge_bend`.
   - `grad_num`, `grad_diff`, `vb_mcse_max`, `vb_mcse_mean` and
     `vb_mcse_sigma` are always `NA`, and will be removed in 0.5.0.
     `grad_gap` now checks the analytic gradient against finite differences.
@@ -301,17 +302,19 @@
   the convergence of `nlminb()` and of the latent and residual covariance
   matrices. New bullets say when the analytic gradient does not match the
   log-posterior (`grad_gap` above 0.1), when the VB correction did not
-  settle (`vb_step_max` above 0.1, or `vb_gain_ratio` below 0.5), when a
-  marginal has heavy tails, and when the mode may be far from the posterior
-  mass. When `nlminb()` does not converge, the warning now says what to try:
-  to raise `mode_maxit` or `mode_maxeval` in `inlavaan_control()` when it
-  stopped at one of these limits, and other starting values otherwise. It
-  gives the message of `nlminb()` once. The check of the condition number
-  now reads `hess_cond_cor`, which does not depend on the units of the
-  parameters. Values in posterior SDs carry the unit σ, or "SD" where the
-  console cannot show σ. The warning ends with a pointer to `?diagnostics`.
-  So some fits that were silent now warn: for example, `vb_gain_ratio` is
-  0.46 on a two-level factor model of `lavaan::Demo.twolevel`.
+  settle (`vb_step_max` above 0.1), when the one-step VB correction failed
+  its check (`vb_solve` is 1), when a marginal has heavy tails, and when the
+  mode may be far from the posterior mass. When `nlminb()` does not
+  converge, the warning now says what to try: to raise `mode_maxit` or
+  `mode_maxeval` in `inlavaan_control()` when it stopped at one of these
+  limits, and other starting values otherwise. It gives the message of
+  `nlminb()` once. The check of the condition number now reads
+  `hess_cond_cor`, which does not depend on the units of the parameters.
+  Values in posterior SDs carry the unit σ, or "SD" where the console cannot
+  show σ. The warning ends with a pointer to `?diagnostics`.
+  So some fits that were silent now warn: for example, a one-factor model of
+  `x1`, `x2` and `x3` fitted to the first 50 rows of
+  `HolzingerSwineford1939`, whose one-step VB correction fails its check.
 
 * `verbose` has a new meaning, as in inlavanilla. `verbose = FALSE`, now the
   default, prints one line per stage of the fit, as the old default
