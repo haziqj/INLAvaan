@@ -639,3 +639,35 @@ test_that("update() on the stored data uses the recorded fixed.x", {
     class = "inlavaan_update_data_not_found"
   )
 })
+
+test_that("update() on the stored data of a fit with ov.order = \"data\" refits", {
+  dd <- dat[, c("x3", "x2", "x1")]
+  dd_given <- dd
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dd,
+    ov.order = "data",
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  # lavaan puts the variables in the order of the data. Before, every model
+  # stopped, the model of the fit too.
+  model <- "visual =~ x1 + x2 + x3"
+  expect_same_fit(
+    update(fit, model = model),
+    update(fit, model = model, data = dd_given)
+  )
+  expect_same_fit(
+    update(fit, add = "x1 ~~ x2"),
+    update(fit, add = "x1 ~~ x2", data = dd_given)
+  )
+  expect_error(
+    update(fit, ov.order = "model"),
+    "cannot change",
+    class = "inlavaan_update_data_not_found"
+  )
+})

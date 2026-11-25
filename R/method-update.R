@@ -40,10 +40,12 @@
 #' On the stored data, `update()` stops with an error of class
 #' `inlavaan_update_data_not_found` when the update gives a new value to an
 #' option on how the data are read, such as `group`, `cluster`, `missing`,
-#' `ordered`, `fixed.x` or `sampling.weights`. It also stops when the new model
-#' has other observed variables, or gives them other roles (other exogenous or
-#' ordinal variables, or other variables on a level), or puts them in another
-#' order. To make such a change, give `data` again.
+#' `ordered`, `fixed.x`, `sampling.weights` or `ov.order`. It also stops when
+#' the new model has other observed variables, or gives them other roles
+#' (other exogenous or ordinal variables, or other variables on a level), or
+#' puts them in another order (unless the fit has `ov.order = "data"`, under
+#' which lavaan puts them in the order of the data). To make such a change,
+#' give `data` again.
 #'
 #' `verbose = TRUE` and `silent = TRUE` cannot go together. So
 #' `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
@@ -245,9 +247,9 @@ setMethod(
 # lav_lavdata() and lav_data_full() read them. With the stored data of a fit,
 # lavaan keeps the data as they were read and ignores a new value of any of
 # them. The data in another form (`sample.cov` and the like) are ignored too.
-# `mimic` sets the default of `missing`. `ordered`, `fixed.x` and
-# `conditional.x` set the roles of the observed variables (see
-# check_stored_data_roles()).
+# `mimic` sets the default of `missing`. `ov.order` sets the order of the
+# observed variables. `ordered`, `fixed.x` and `conditional.x` set the roles
+# of the observed variables (see check_stored_data_roles()).
 data_read_args <- c(
   "group",
   "group.label",
@@ -264,6 +266,7 @@ data_read_args <- c(
   "correlation",
   "allow.empty.cell",
   "aux",
+  "ov.order",
   "sample.cov",
   "sample.mean",
   "sample.th",
@@ -503,8 +506,13 @@ stored_read_same <- function(key, value, object, recorded) {
     is_flag(x) && identical(x, isTRUE(stored))
   }
   word_same <- function(x, stored) {
-    is.character(x) && length(x) == 1L && identical(tolower(x), tolower(stored))
+    is.character(x) &&
+      length(x) == 1L &&
+      is.character(stored) &&
+      length(stored) == 1L &&
+      identical(tolower(x), tolower(stored))
   }
+
   switch(
     key,
     group = ,
@@ -532,6 +540,10 @@ stored_read_same <- function(key, value, object, recorded) {
       flag_same(value, opt$correlation) &&
         (isFALSE(value %||% FALSE) || length(opt$.correlation.ov) == 0L)
     },
+    ov.order = word_same(
+      value %||% "model",
+      recorded[["ov.order"]] %||% "model"
+    ),
     FALSE
   )
 }
@@ -634,9 +646,26 @@ check_stored_data_roles <- function(
   if (same) {
     ov_read <- if (cond_x) roles$ov_nox else roles$ov
     ov_x_read <- if (fixed_x) roles$ov_x else lapply(roles$ov_x, `[`, 0L)
+    ov_l_read <- roles$ov_l
+    # Under ov.order = "data", lavaan puts the observed variables in the
+    # order of the data, which for the stored data is the order of their
+    # names (data@ov.names). When a variable of the model is not among
+    # these, lavaan warns and keeps the order of the model.
+    stored_order <- unique(unlist(data@ov.names))
+    by_data <- identical(
+      tolower(recorded[["ov.order"]] %||% "model"),
+      "data"
+    ) &&
+      all(unlist(roles$ov) %in% stored_order)
+    if (by_data) {
+      in_data_order <- function(x) x[order(match(x, stored_order))]
+      ov_read <- lapply(ov_read, in_data_order)
+      ov_x_read <- lapply(ov_x_read, in_data_order)
+      ov_l_read <- lapply(ov_l_read, lapply, in_data_order)
+    }
     same <- identical(unname(data@ov.names), unname(ov_read)) &&
       identical(unname(data@ov.names.x), unname(ov_x_read)) &&
-      identical(unname(lapply(data@ov.names.l, unname)), unname(roles$ov_l))
+      identical(unname(lapply(data@ov.names.l, unname)), unname(ov_l_read))
   }
 
   # The ordinal variables of the refit: those that `ordered` gives, those

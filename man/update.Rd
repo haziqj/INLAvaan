@@ -69,10 +69,12 @@ of the original call, such as \code{dp}, are evaluated again as usual.
 On the stored data, \code{update()} stops with an error of class
 \code{inlavaan_update_data_not_found} when the update gives a new value to an
 option on how the data are read, such as \code{group}, \code{cluster}, \code{missing},
-\code{ordered}, \code{fixed.x} or \code{sampling.weights}. It also stops when the new model
-has other observed variables, or gives them other roles (other exogenous or
-ordinal variables, or other variables on a level), or puts them in another
-order. To make such a change, give \code{data} again.
+\code{ordered}, \code{fixed.x}, \code{sampling.weights} or \code{ov.order}. It also stops when
+the new model has other observed variables, or gives them other roles
+(other exogenous or ordinal variables, or other variables on a level), or
+puts them in another order (unless the fit has \code{ov.order = "data"}, under
+which lavaan puts them in the order of the data). To make such a change,
+give \code{data} again.
 
 \code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So
 \code{update(fit, silent = TRUE)} drops \code{verbose} from the recorded call, and
