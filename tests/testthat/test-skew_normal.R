@@ -79,6 +79,23 @@ test_that("Skew-normal sample fit is stable under a little noise", {
   }
 })
 
+test_that("Skew-normal sample fit warns when the draws cannot be fitted", {
+  # Draws that do not vary give the point mass, with alpha = 0
+  expect_warning(res <- fit_skew_normal_samp(rep(3, 100)), "must vary")
+  expect_identical(res, list(xi = 3, omega = 0, alpha = 0))
+
+  # One draw, or draws with NA, give NA, and draws with Inf give NaN
+  set.seed(1)
+  y <- rnorm(99)
+  na <- list(xi = NA_real_, omega = NA_real_, alpha = 0)
+  expect_warning(res <- fit_skew_normal_samp(3), "must vary")
+  expect_identical(res, na)
+  expect_warning(res <- fit_skew_normal_samp(c(y, NA)), "must vary")
+  expect_identical(res, na)
+  expect_warning(res <- fit_skew_normal_samp(c(y, Inf)), "must vary")
+  expect_identical(res, list(xi = NaN, omega = NaN, alpha = 0))
+})
+
 test_that("Posterior modes are accurate on a small scale", {
   set.seed(1)
   d <- 4 / sqrt(17)

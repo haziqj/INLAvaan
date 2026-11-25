@@ -206,6 +206,17 @@ fit_skew_normal_samp <- function(x) {
   # the draws have a small scale. The shape alpha is scale-free.
   m <- stats::median(x)
   s <- stats::sd(x)
+  # Draws that do not vary, or that are not all finite, cannot be fitted. Return
+  # the start alpha = 0 with the scale s, as the single start did before. Then
+  # xi is the median and omega is 0 when the draws do not vary, and both are NA
+  # or NaN when s is.
+  if (!is.finite(s) || s == 0) {
+    cli_warn(c(
+      "{.arg x} must be finite and must vary to fit a skew normal.",
+      "i" = "Returning {.code alpha = 0}."
+    ))
+    return(list(xi = m + 0 * s, omega = s, alpha = 0))
+  }
   z <- (x - m) / s
 
   nll <- function(par) {
