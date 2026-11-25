@@ -200,6 +200,8 @@ test_that("update() on the stored data stops when it changes how they are read",
   expect_error(update(fit, group = "sex", silent = TRUE), class = err)
   expect_error(update(fit, ordered = c("x1", "x2", "x3")), class = err)
   expect_error(update(fit, sampling_weights = "grade"), class = err)
+  # mimic = "Mplus" sets the default of missing to "ml"
+  expect_error(update(fit, mimic = "Mplus"), "cannot change", class = err)
   # A model with other observed variables
   expect_error(
     update(fit, model = "visual =~ x1 + x2"),
@@ -217,24 +219,37 @@ test_that("update() on the stored data stops when it changes how they are read",
   expect_equal(lavaan::lavInspect(fit_full, "nobs"), c(156L, 145L))
 })
 
-test_that("update() on the stored data of a listwise fit stops on missing", {
+test_that("update() on the stored data compares the values of the options", {
+  # The fits are made in this frame, where update() evaluates their calls
+  one_factor <- "visual =~ x1 + x2 + x3"
   dd <- dat
   dd$x1[1:20] <- NA
-  fit <- acfa(
-    "visual =~ x1 + x2 + x3",
-    dd,
-    silent = TRUE,
-    nsamp = 3,
-    test = "none",
-    vb_correction = "none",
-    marginal_method = "gaussian"
-  )
+  g <- "school"
+  fit_ml <- acfa(one_factor, dd, missing = "ml", silent = TRUE, nsamp = 3)
+  fit_lw <- acfa(one_factor, dd, silent = TRUE, nsamp = 3)
+  fit_group <- acfa(one_factor, dd, group = g, silent = TRUE, nsamp = 3)
   rm(dd)
+  err <- "inlavaan_update_data_not_found"
+  # lavaan reads "fiml" as "ml", and std.ov = FALSE is its default. Before,
+  # both stopped because the expressions differed.
+  expect_no_error(update(fit_ml, missing = "fiml"))
+  expect_no_error(update(fit_lw, std.ov = FALSE))
+  # The same expression with another value. Before, this passed and fitted
+  # the groups of school.
+  g <- "sex"
+  expect_error(
+    update(fit_group, group = g),
+    "cannot change `group`",
+    class = err
+  )
+  g <- "school"
+  fit_school <- update(fit_group, group = g)
+  expect_equal(lavaan::lavInspect(fit_school, "nobs"), c(136L, 145L))
   # Before, this failed with an error of base R
   expect_error(
-    update(fit, missing = "ml"),
+    update(fit_lw, missing = "ml"),
     "cannot change `missing`",
-    class = "inlavaan_update_data_not_found"
+    class = err
   )
 })
 
@@ -274,6 +289,14 @@ test_that("update() on the stored data stops when the model gives the variables 
   # lavaan matches the stored data to the model by position, so the same
   # variables in another order would swap the estimates of x2 and x3
   expect_error(update(fit_reg, model = "x1 ~ x3 + x2"), class = err)
+  # fixed.x and conditional.x set the exogenous variables too
+  expect_error(
+    update(fit_reg, fixed.x = FALSE),
+    "cannot change `fixed.x`",
+    class = err
+  )
+  expect_error(update(fit_reg, conditional_x = TRUE), class = err)
+  expect_no_error(update(fit_reg, fixed.x = TRUE, conditional.x = FALSE))
   # Models that keep the roles refit as on the data given again: the
   # statements in another order, and an equality constraint
   for (model in c(
@@ -339,47 +362,73 @@ test_that("update() on the stored data stops when other variables are ordinal", 
   expect_error(update(fit_num, model = model_thr), "other roles", class = err)
   # Without its thresholds x1 is numeric. Before, the refit kept it ordinal.
   expect_error(update(fit_thr, model = model), class = err)
+  # `ordered` gives the ordinal variables with the thresholds of the model
+  old_call <- quote(acfa(model, dd))
+  expect_silent(
+    check_stored_data_update(old_call, list(ordered = "x1"), NULL, fit_thr)
+  )
+  expect_silent(
+    check_stored_data_update(old_call, list(ordered = NULL), NULL, fit_thr)
+  )
+  expect_error(
+    check_stored_data_update(old_call, list(ordered = "x2"), NULL, fit_thr),
+    "cannot change `ordered`",
+    class = err
+  )
 })
 
 test_that("check_stored_data_update() lets unchanged options and variables pass", {
   fit <- acfa(
     "visual =~ x1 + x2 + x3",
     dat,
+    std.ov = TRUE,
     silent = TRUE,
     nsamp = 3,
     test = "none",
     vb_correction = "none",
     marginal_method = "gaussian"
   )
-  old_call <- quote(acfa(model, dd, group = "school", std.ov = TRUE))
-  # The same expression, also under the snake-case name of lavaan
-  expect_silent(check_stored_data_update(
-    old_call,
-    list(group = "school"),
-    NULL,
-    fit
-  ))
-  expect_silent(check_stored_data_update(
-    old_call,
-    list(std_ov = TRUE),
-    NULL,
-    fit
-  ))
-  expect_error(
-    check_stored_data_update(old_call, list(group = "sex"), NULL, fit),
-    class = "inlavaan_update_data_not_found"
+  old_call <- quote(acfa(model, dd, std.ov = TRUE))
+  err <- "inlavaan_update_data_not_found"
+  # The same value, under the dot-case and the snake-case name of lavaan
+  expect_silent(
+    check_stored_data_update(old_call, list(std.ov = TRUE), NULL, fit)
   )
+  expect_silent(
+    check_stored_data_update(old_call, list(std_ov = TRUE), NULL, fit)
+  )
+  expect_error(
+    check_stored_data_update(old_call, list(std_ov = FALSE), NULL, fit),
+    "cannot change `std_ov`",
+    class = err
+  )
+  # The value of an expression counts, not the expression
+  scale_ov <- TRUE
+  new_value <- list(std.ov = quote(scale_ov))
+  expect_silent(check_stored_data_update(old_call, new_value, NULL, fit))
+  scale_ov <- FALSE
+  expect_error(
+    check_stored_data_update(old_call, new_value, NULL, fit),
+    class = err
+  )
+  # NULL is the default of lavaan, the same only when the call does not give
+  # the argument either
+  expect_silent(
+    check_stored_data_update(old_call, list(group = NULL), NULL, fit)
+  )
+  expect_error(
+    check_stored_data_update(old_call, list(std.ov = NULL), NULL, fit),
+    class = err
+  )
+  # Data in another form cannot be compared
   expect_error(
     check_stored_data_update(old_call, list(sample.cov = quote(S)), NULL, fit),
-    class = "inlavaan_update_data_not_found"
+    class = err
   )
   # Options that do not set how the data are read pass
-  expect_silent(check_stored_data_update(
-    old_call,
-    list(std.lv = TRUE),
-    NULL,
-    fit
-  ))
+  expect_silent(
+    check_stored_data_update(old_call, list(std.lv = TRUE), NULL, fit)
+  )
   # The same observed variables in the same order, with priors or as a
   # parameter table
   same_vars <- 'visual =~ x1 + prior("normal(0,1)")*x2 + x3'
@@ -391,7 +440,7 @@ test_that("check_stored_data_update() lets unchanged options and variables pass"
   expect_error(
     check_stored_data_update(old_call, list(), "visual =~ x3 + x2 + x1", fit),
     "other roles",
-    class = "inlavaan_update_data_not_found"
+    class = err
   )
   # A model that lavaan cannot parse here is left to lavaan
   expect_null(model_read_roles("visual =~ x1 +"))

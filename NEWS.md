@@ -187,15 +187,18 @@
   silent). So `fit <- update(fit)` refits a saved fit, also one made before
   the engine. Before, `update()` stopped with "object not found". lavaan has
   read the stored data already, with the options and the model of the fit.
-  So an update that changes how the data are read (`group`, `cluster`,
-  `missing`, `ordered`, `sampling.weights` and the like) stops with an error
-  of class `inlavaan_update_data_not_found`: give `data` again. So does a
-  model with other observed variables, or with the observed variables in
-  other roles (other exogenous or ordinal variables, or other variables on a
-  level) or in another order: lavaan matches the stored data to the model by
-  position, so `x1 ~ x3 + x2` on the data of `x1 ~ x2 + x3` would swap the
-  estimates of `x2` and `x3`. Data given again also replace the stored data
-  of a refit.
+  So an update that gives a new value to an option on how the data are read
+  (`group`, `cluster`, `missing`, `ordered`, `fixed.x`, `sampling.weights`
+  and the like) stops with an error of class
+  `inlavaan_update_data_not_found`: give `data` again. The value counts, not
+  the expression: `missing = "fiml"` on a fit with `missing = "ml"` passes,
+  and `group = g` stops when `g` has changed since the fit. A model with
+  other observed variables stops too, and so does a model with the observed
+  variables in other roles (other exogenous or ordinal variables, or other
+  variables on a level) or in another order: lavaan matches the stored data
+  to the model by position, so `x1 ~ x3 + x2` on the data of `x1 ~ x2 + x3`
+  would swap the estimates of `x2` and `x3`. Data given again also replace
+  the stored data of a refit.
 
 * `update(fit, arg = NULL)` now drops `arg` from the call of the fit, or
   gives it as `NULL` when the call does not have it, as `stats::update()`

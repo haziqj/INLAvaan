@@ -61,10 +61,10 @@ listwise deletion, and it has put the observed variables in the order of
 the model). So \code{update()} then stops with an error of class
 \code{inlavaan_update_data_not_found} when the update gives a new value to an
 option on how the data are read, such as \code{group}, \code{cluster}, \code{missing},
-\code{ordered} or \code{sampling.weights}. It also stops when the new model has other
-observed variables, or gives them other roles (other exogenous or ordinal
-variables, or other variables on a level), or puts them in another order.
-To make such a change, give \code{data} again.
+\code{ordered}, \code{fixed.x} or \code{sampling.weights}. It also stops when the new model
+has other observed variables, or gives them other roles (other exogenous or
+ordinal variables, or other variables on a level), or puts them in another
+order. To make such a change, give \code{data} again.
 
 \code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So
 \code{update(fit, silent = TRUE)} drops \code{verbose} from the recorded call, and

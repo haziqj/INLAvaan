@@ -32,10 +32,10 @@
 #' the model). So `update()` then stops with an error of class
 #' `inlavaan_update_data_not_found` when the update gives a new value to an
 #' option on how the data are read, such as `group`, `cluster`, `missing`,
-#' `ordered` or `sampling.weights`. It also stops when the new model has other
-#' observed variables, or gives them other roles (other exogenous or ordinal
-#' variables, or other variables on a level), or puts them in another order.
-#' To make such a change, give `data` again.
+#' `ordered`, `fixed.x` or `sampling.weights`. It also stops when the new model
+#' has other observed variables, or gives them other roles (other exogenous or
+#' ordinal variables, or other variables on a level), or puts them in another
+#' order. To make such a change, give `data` again.
 #'
 #' `verbose = TRUE` and `silent = TRUE` cannot go together. So
 #' `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
@@ -189,7 +189,13 @@ setMethod(
     }
     if (use_stored || data_lost) {
       new_model <- if (!missing(model) || !missing(add)) cl$model
-      check_stored_data_update(internal$call, extras, new_model, object)
+      check_stored_data_update(
+        internal$call,
+        extras,
+        new_model,
+        object,
+        env = caller
+      )
     }
     if (data_lost) {
       silent <- tryCatch(
@@ -235,6 +241,9 @@ setMethod(
 # lav_lavdata() and lav_data_full() read them. With the stored data of a fit,
 # lavaan keeps the data as they were read and ignores a new value of any of
 # them. The data in another form (`sample.cov` and the like) are ignored too.
+# `mimic` sets the default of `missing`. `ordered`, `fixed.x` and
+# `conditional.x` set the roles of the observed variables (see
+# check_stored_data_roles()).
 data_read_args <- c(
   "group",
   "group.label",
@@ -242,9 +251,11 @@ data_read_args <- c(
   "level.label",
   "ordered",
   "missing",
+  "mimic",
   "sampling.weights",
   "sampling.weights.normalization",
   "std.ov",
+  "fixed.x",
   "conditional.x",
   "correlation",
   "allow.empty.cell",
@@ -256,6 +267,10 @@ data_read_args <- c(
   "nacov",
   "wls.v"
 )
+
+# The arguments of `data_read_args` that set the roles of the observed
+# variables
+data_role_args <- c("ordered", "fixed.x", "conditional.x")
 
 # Argument names as lavaan reads them: dot or snake case, upper or lower case
 arg_key <- function(x) {
@@ -358,53 +373,148 @@ partable_values <- function(pt, column) {
   unique(if (is.numeric(x)) x[x > 0] else x[nzchar(x)])
 }
 
-
 # Stop when update() refits on the stored data of a fit and changes how the
-# data are read: an argument of `data_read_args` that the recorded call does
-# not give with the same expression, or a model with other observed variables,
-# or with the observed variables in other roles or in another order.
-check_stored_data_update <- function(old_call, extras, new_model, object) {
-  old_args <- as.list(old_call)[-1L]
-  old_keys <- arg_key(names(old_args))
+# data are read: a new value of an argument of `data_read_args`, or a model
+# with other observed variables, or with the observed variables in other roles
+# or in another order. The new values are evaluated in `env` and compared with
+# the values that lavaan read the stored data with.
+check_stored_data_update <- function(
+  old_call,
+  extras,
+  new_model,
+  object,
+  env = parent.frame()
+) {
+  old_keys <- arg_key(names(as.list(old_call)[-1L]))
+  keys <- arg_key(names(extras))
+  given <- list()
   changed <- character()
-  for (nm in names(extras)) {
-    key <- arg_key(nm)
+  for (i in seq_along(extras)) {
+    key <- keys[[i]]
     if (!key %in% data_read_args) {
       next
     }
-    old <- old_args[old_keys == key]
-    if (length(old) != 1L || !identical(old[[1L]], extras[[nm]])) {
-      changed <- c(changed, nm)
+    value <- tryCatch(
+      eval(extras[[i]], env),
+      error = function(e) structure(list(), class = "inlavaan_no_value")
+    )
+    if (key %in% data_role_args) {
+      given[key] <- list(value)
+    } else if (!stored_read_same(key, value, object, key %in% old_keys)) {
+      changed <- c(changed, names(extras)[[i]])
     }
   }
   if (length(changed) > 0L) {
-    cli_abort(
-      c(
-        "The original data of the fit are not found, so {.fn update} cannot
-         change {.arg {changed}}.",
-        "i" = "The data stored in the fit are read with the options of the
-               fit. Pass the data again with {.arg data}."
-      ),
-      class = "inlavaan_update_data_not_found"
-    )
+    stop_stored_data_args(changed)
   }
-  if (!is.null(new_model)) {
-    check_stored_data_roles(object, new_model)
+  if (!is.null(new_model) || length(given) > 0L) {
+    check_stored_data_roles(object, new_model, given, old_keys, names(extras))
   }
   invisible()
 }
 
-# Stop when the model of the refit gives the observed variables other roles
-# than those of the stored data: other exogenous or ordinal variables, other
-# variables on a level, or the variables in another order. lavaan matches the
-# stored data to the model by position, not by name, so the refit would mix up
-# the variables.
-check_stored_data_roles <- function(object, new_model) {
+# Whether lavaan reads the stored data of `object` with `value` for the
+# argument `key` (as from arg_key()) of `data_read_args`. A default (NULL)
+# is the same when the recorded call does not give the argument either. A
+# value that cannot be compared counts as a change.
+stored_read_same <- function(key, value, object, old_given) {
+  if (inherits(value, "inlavaan_no_value")) {
+    return(FALSE)
+  }
+  if (is.null(value) && !old_given) {
+    return(TRUE)
+  }
   data <- object@Data
   opt <- object@Options
-  roles <- model_read_roles(new_model, data@ngroups)
-  if (is.null(roles)) {
-    return(invisible())
+  is_flag <- function(x) is.logical(x) && length(x) == 1L && !is.na(x)
+  flag_same <- function(x, stored) {
+    x <- x %||% FALSE
+    is_flag(x) && identical(x, isTRUE(stored))
+  }
+  word_same <- function(x, stored) {
+    is.character(x) && length(x) == 1L && identical(tolower(x), tolower(stored))
+  }
+  switch(
+    key,
+    group = ,
+    cluster = ,
+    sampling.weights = identical(
+      as.character(value %||% character()),
+      as.character(methods::slot(data, key))
+    ),
+    # The labels by default come from the data
+    group.label = ,
+    level.label = !is.null(value) &&
+      identical(as.character(value), as.character(methods::slot(data, key))),
+    missing = identical(missing_as_read(value, opt), data@missing),
+    mimic = word_same(value %||% "lavaan", opt$mimic),
+    sampling.weights.normalization = word_same(
+      value %||% lavaan::lavOptions("sampling.weights.normalization")[[1L]],
+      opt$sampling.weights.normalization
+    ),
+    std.ov = flag_same(value, data@std.ov),
+    allow.empty.cell = flag_same(value, opt$allow.empty.cell),
+    # A character vector names the variables of the correlation structure
+    correlation = if (is.character(value)) {
+      isTRUE(opt$correlation) && setequal(value, opt$.correlation.ov)
+    } else {
+      flag_same(value, opt$correlation) &&
+        (isFALSE(value %||% FALSE) || length(opt$.correlation.ov) == 0L)
+    },
+    FALSE
+  )
+}
+
+# `missing` as lav_lavdata() reads it: the synonyms of "ml" and "ml.x" are
+# "ml" and "ml.x", and the default is "listwise" (except under mimic =
+# "Mplus", where it may be "ml", so NA)
+missing_as_read <- function(value, opt) {
+  value <- value %||% "default"
+  if (!is.character(value) || length(value) != 1L) {
+    return(NA_character_)
+  }
+  value <- tolower(value)
+  if (value %in% c("ml", "fiml", "direct")) {
+    return("ml")
+  }
+  if (value %in% c("ml.x", "fiml.x", "direct.x")) {
+    return("ml.x")
+  }
+  if (value == "default") {
+    return(if (identical(opt$mimic, "lavaan")) "listwise" else NA_character_)
+  }
+  value
+}
+
+# Stop when the model of the refit, or the given values of `ordered`,
+# `fixed.x` or `conditional.x`, give the observed variables other roles than
+# those of the stored data: other exogenous or ordinal variables, other
+# variables on a level, or the variables in another order. lavaan matches the
+# stored data to the model by position, not by name, so the refit would mix up
+# the variables. `given` holds the evaluated values of the role arguments of
+# the update. The new roles come from `new_model`, or from the fit when the
+# model stays.
+check_stored_data_roles <- function(
+  object,
+  new_model,
+  given,
+  old_keys,
+  extra_names
+) {
+  data <- object@Data
+  opt <- object@Options
+  pt_old <- lavaan::parTable(object)
+  thr_old <- unique(pt_old$lhs[pt_old$op == "|" & pt_old$user == 1L])
+  if (is.null(new_model)) {
+    roles <- model_read_roles(pt_old, data@ngroups)
+    if (is.list(roles)) {
+      roles$ov_thr <- thr_old
+    }
+  } else {
+    roles <- model_read_roles(new_model, data@ngroups)
+    if (is.null(roles)) {
+      return(invisible())
+    }
   }
   if (is.list(roles) && !setequal(unique(unlist(roles$ov)), data@ov$name)) {
     cli_abort(
@@ -418,14 +528,25 @@ check_stored_data_roles <- function(object, new_model) {
     )
   }
 
-  # fixed.x and conditional.x as lavaan resolved them for the fit. A model
-  # without exogenous variables sets both to FALSE, so then the value for a
-  # model with exogenous variables is unknown. It is taken as TRUE, which the
-  # stored data (with no exogenous variables) fail.
+  # fixed.x and conditional.x as lavaan resolved them for the fit, unless the
+  # update gives them. A model without exogenous variables sets both to FALSE,
+  # so then the value for a model with exogenous variables is unknown. It is
+  # taken as TRUE, which the stored data (with no exogenous variables) fail.
+  role_flag <- function(key, stored) {
+    if (!key %in% names(given)) {
+      return(stored)
+    }
+    value <- given[[key]]
+    if (is.null(value) || identical(value, "default")) {
+      return(if (key %in% old_keys) NA else stored)
+    }
+    if (is.logical(value) && length(value) == 1L) value else NA
+  }
   no_old_x <- length(lavaan::lavNames(object, "ov.x")) == 0L
-  fixed_x <- isTRUE(opt$fixed.x) || no_old_x
-  cond_x <- isTRUE(opt$conditional.x)
-  same <- is.list(roles)
+  fixed_x <- role_flag("fixed.x", isTRUE(opt$fixed.x) || no_old_x)
+  cond_x <- role_flag("conditional.x", isTRUE(opt$conditional.x))
+
+  same <- is.list(roles) && !is.na(fixed_x) && !is.na(cond_x)
   if (same) {
     ov_read <- if (cond_x) roles$ov_nox else roles$ov
     ov_x_read <- if (fixed_x) roles$ov_x else lapply(roles$ov_x, `[`, 0L)
@@ -435,17 +556,26 @@ check_stored_data_roles <- function(object, new_model) {
   }
 
   # The ordinal variables: those given by `ordered`, those with thresholds in
-  # the model, and those that are ordered factors in the data. The first and
-  # the last stay, so the thresholds of the model must make no other variable
-  # ordinal, and must keep those of the fit.
-  pt_old <- lavaan::parTable(object)
-  thr_old <- unique(pt_old$lhs[pt_old$op == "|" & pt_old$user == 1L])
+  # the model, and those that are ordered factors in the data. The last are
+  # not known here, but they are ordinal in the stored data too.
   ord_old <- data@ov$name[data@ov$type == "ordered"]
-  same <- same &&
-    all(roles$ov_thr %in% ord_old) &&
-    all(thr_old %in% roles$ov_thr)
+  if (same && "ordered" %in% names(given)) {
+    declared <- ordered_as_read(given[["ordered"]], roles)
+    same <- !anyNA(declared) &&
+      setequal(
+        union(intersect(declared, data@ov$name), roles$ov_thr),
+        ord_old
+      )
+  } else if (same) {
+    same <- all(roles$ov_thr %in% ord_old) && all(thr_old %in% roles$ov_thr)
+  }
   if (same) {
     return(invisible())
+  }
+  if (is.null(new_model)) {
+    stop_stored_data_args(
+      extra_names[arg_key(extra_names) %in% names(given)]
+    )
   }
   cli_abort(
     c(
@@ -454,6 +584,33 @@ check_stored_data_roles <- function(object, new_model) {
       "i" = "The data stored in the fit keep the exogenous and ordinal
              variables of the fit, the variables of each level, and their
              order. Pass the data again with {.arg data}."
+    ),
+    class = "inlavaan_update_data_not_found"
+  )
+}
+
+# `ordered` as lavaan reads it (lav_step01_ovnames_ordered()): TRUE names the
+# endogenous variables, FALSE or "" none. NA when it cannot be read here.
+ordered_as_read <- function(value, roles) {
+  if (is.null(value) || isFALSE(value)) {
+    return(character())
+  }
+  if (isTRUE(value)) {
+    return(unique(unlist(roles$ov_nox)))
+  }
+  if (!is.character(value) || anyNA(value)) {
+    return(NA_character_)
+  }
+  value[nzchar(value)]
+}
+
+stop_stored_data_args <- function(changed) {
+  cli_abort(
+    c(
+      "The original data of the fit are not found, so {.fn update} cannot
+       change {.arg {changed}}.",
+      "i" = "The data stored in the fit are read with the options of the
+             fit. Pass the data again with {.arg data}."
     ),
     class = "inlavaan_update_data_not_found"
   )
