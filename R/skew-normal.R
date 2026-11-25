@@ -254,12 +254,21 @@ fit_skew_normal_samp <- function(x) {
   # when the draws are mildly skewed. It lies between the first two starts, so
   # it can win only by reaching a side of alpha = 0 that the first two fits did
   # not end on. Skip it when they end on opposite sides. The fit from the start
-  # with the wrong sign of skew usually ends at the stationary point.
-  alphas <- vapply(fits, function(f) f$par[3], 0)
-  if (alphas[1] * alphas[2] >= 0) {
+  # with the wrong sign of skew usually ends at the stationary point. Run it
+  # also when a fit is not finite.
+  finite <- function(f) is.finite(f$objective) && all(is.finite(f$par))
+  ok <- vapply(fits, finite, TRUE)
+  if (!all(ok) || fits[[1]]$par[3] * fits[[2]]$par[3] >= 0) {
     fits[[3]] <- fit_from(c(0, 0, 0))
+    ok[3] <- finite(fits[[3]])
   }
-  opt <- fits[[which.min(vapply(fits, `[[`, 0, "objective"))]]
+  # Keep the best finite fit, or the third start when no fit is finite
+  obj <- vapply(fits, function(f) as.numeric(f$objective), 0)
+  opt <- if (any(ok)) {
+    fits[[which.min(ifelse(ok, obj, Inf))]]
+  } else {
+    list(par = c(0, 0, 0))
+  }
 
   xi_hat <- m + s * opt$par[1]
   omega_hat <- s * exp(opt$par[2])

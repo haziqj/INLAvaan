@@ -236,6 +236,29 @@ test_that("Skew-normal sample fit keeps the third start when it wins", {
   expect_equal(res, ref$to_list(ref$fits[[3]]))
 })
 
+test_that("Skew-normal sample fit falls back when a fit is not finite", {
+  set.seed(17)
+  y <- rt(50, 5) + 0.3 * abs(rnorm(50))
+  ref <- all_three_fits(y)
+  nan_fit <- function(nll) list(par = rep(NaN, 3), objective = NaN)
+
+  # A non-finite first fit runs the third start, and the best finite fit wins
+  rec <- local_record_starts(list(nan_fit))
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 3)
+  objs <- vapply(ref$fits[2:3], `[[`, 0, "objective")
+  expect_equal(res, ref$to_list(ref$fits[[which.min(objs) + 1]]))
+
+  # With no finite fit, the result is the third start, alpha = 0
+  rec <- local_record_starts(list(nan_fit, nan_fit, nan_fit))
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 3)
+  expect_equal(
+    res,
+    list(xi = stats::median(y), omega = stats::sd(y), alpha = 0)
+  )
+})
+
 test_that("Skew-normal sample fit warns when the draws cannot be fitted", {
   # Draws that do not vary give the point mass, with alpha = 0
   expect_warning(res <- fit_skew_normal_samp(rep(3, 100)), "must vary")
