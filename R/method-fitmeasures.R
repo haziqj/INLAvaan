@@ -408,7 +408,7 @@ bfit_indices <- function(
   method <- if (isTRUE(samp_copula)) int$marginal_method else "sampling"
   samp <- sample_params(
     theta_star = int$theta_star,
-    Sigma_theta = int$Sigma_theta,
+    Omega = int$Omega,
     method = method,
     approx_data = int$approx_data,
     pt = int$partable,
@@ -475,7 +475,7 @@ bfit_indices <- function(
     bmethod <- if (isTRUE(samp_copula)) bint$marginal_method else "sampling"
     samp_null <- sample_params(
       theta_star = bint$theta_star,
-      Sigma_theta = bint$Sigma_theta,
+      Omega = bint$Omega,
       method = bmethod,
       approx_data = bint$approx_data,
       pt = bint$partable,

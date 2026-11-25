@@ -37,7 +37,7 @@ is_constant <- function(y) {
 # ---------------------------------------------------------------------------
 # Core sampling function: draw from the Gaussian-copula posterior through the
 # engine's sn_draws(), which couples the marginals by the correlation matrix
-# of Sigma_theta, or by the NORTA-adjusted R_star of a skew-normal fit.
+# of Omega, or by the NORTA-adjusted R_star of a skew-normal fit.
 # The skew-normal marginals are the first m rows of approx_data: the rows
 # after them are the fits to the draws of covariances and defined parameters
 # (sn_fit_sample). Gaussian marginals, and draws under samp_copula = FALSE
@@ -49,7 +49,7 @@ is_constant <- function(y) {
 # ---------------------------------------------------------------------------
 sample_params <- function(
   theta_star,
-  Sigma_theta,
+  Omega,
   method,
   approx_data,
   pt,
@@ -58,19 +58,19 @@ sample_params <- function(
   R_star = NULL # NORTA-adjusted correlation matrix for SN copula
 ) {
   m <- length(theta_star)
-  corr <- stats::cov2cor(Sigma_theta)
+  corr <- stats::cov2cor(Omega)
   if (method == "skewnorm") {
     sn <- approx_data[seq_len(m), c("xi", "omega", "alpha"), drop = FALSE]
     if (!is.null(R_star)) {
       corr <- R_star
     }
   } else if (method %in% c("marggaus", "sampling")) {
-    sn <- cbind(xi = theta_star, omega = sqrt(diag(Sigma_theta)), alpha = 0)
+    sn <- cbind(xi = theta_star, omega = sqrt(diag(Omega)), alpha = 0)
   } else {
     # nocov start
     cli_abort("Unknown marginal method {.val {method}}.", .internal = TRUE)
   } # nocov end
-  theta <- unname(sn_draws(sn, Sigma_theta, nsamp, corr = corr))
+  theta <- unname(sn_draws(sn, Omega, nsamp, corr = corr))
 
   # theta stays packed (one column per free parameter), and pars_to_x() takes it
   # unpacked to every free row.
@@ -85,7 +85,7 @@ sample_params <- function(
   list(theta_samp = theta, x_samp = x)
 }
 
-# 1. Get correlation matrix R = cov2cor(Sigma_theta)
+# 1. Get correlation matrix R = cov2cor(Omega)
 # 2. Sample z ~ N(0, R)
 # 3. Compute u = Phi^{-1}(z)
 # 4. For each j, compute theta_j = F^{-1}_j(u_j) where F_j is the marginal posterior CDF for parameter j

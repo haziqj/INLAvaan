@@ -71,7 +71,7 @@ test_that("diagnostics(type = 'global') returns named numeric vector", {
   eng <- diagnostics_internal(ed$optim, ed$vb, ed$marginals, int$theta_star)
   expect_identical(unclass(dg)[1:24], unclass(eng$global)[1:24])
   # hess_cond is that of the covariance matrix, as before
-  ev <- eigen(int$Sigma_theta, only.values = TRUE)$values
+  ev <- eigen(int$Omega, only.values = TRUE)$values
   expect_equal(dg[["hess_cond"]], max(ev) / min(ev))
 })
 

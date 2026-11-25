@@ -29,7 +29,7 @@ post_marg_skewnorm <- function(
   ginv = identity,
   ginv_prime = function(x) 1,
   theta_star,
-  Sigma_theta,
+  Omega,
   sn_params
 ) {
   # Skew normal parameters
@@ -38,7 +38,7 @@ post_marg_skewnorm <- function(
   alpha <- sn_params[j, "alpha"]
 
   # Build the density by pdf transform
-  tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
+  tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Omega[j, j])
   fj <- function(par) dsnorm(par, xi, omega, alpha, log = FALSE)
   transform_density <- function(.fj, hinv, hinv_prime) {
     function(y) .fj(hinv(y)) * abs(hinv_prime(y))
@@ -91,11 +91,11 @@ post_marg_marggaus <- function(
   ginv = identity,
   ginv_prime = function(x) 1,
   theta_star,
-  Sigma_theta
+  Omega
 ) {
   # Posterior mean and SD in theta space
   thetaj_mean <- theta_star[j]
-  thetaj_sd <- sqrt(Sigma_theta[j, j])
+  thetaj_sd <- sqrt(Omega[j, j])
 
   # Mean and SD in original space by GH quadrature, since ginv(thetaj_mean) is
   # the median of x, not its mean, whenever ginv is nonlinear
@@ -114,7 +114,7 @@ post_marg_marggaus <- function(
   ))
 
   # Build PDF data
-  tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
+  tt <- theta_star[j] + seq(-4, 4, length = 100) * sqrt(Omega[j, j])
   fj <- function(par) dnorm(par, mean = thetaj_mean, sd = thetaj_sd)
   transform_density <- function(.fj, hinv, hinv_prime) {
     function(y) .fj(hinv(y)) * abs(hinv_prime(y))

@@ -827,7 +827,7 @@ inlavaan <- function(
     # theta_star_vbc the VB mean
     theta_star <- eng$theta_star_novbc
     theta_star_vbc <- eng$theta_star
-    Sigma_theta <- eng$Sigma_theta
+    Omega <- eng$Omega
     opt <- eng$opt
     vb <- eng$vb
     mloglik <- eng$mloglik
@@ -849,7 +849,7 @@ inlavaan <- function(
           ginv = ginv,
           ginv_prime = ginv_prime,
           theta_star = theta_star_vbc,
-          Sigma_theta = Sigma_theta,
+          Omega = Omega,
           sn_params = approx_data
         )
       } else {
@@ -860,7 +860,7 @@ inlavaan <- function(
           ginv = ginv,
           ginv_prime = ginv_prime,
           theta_star = theta_star_vbc,
-          Sigma_theta = Sigma_theta
+          Omega = Omega
         )
       }
     }
@@ -888,7 +888,7 @@ inlavaan <- function(
           msg_done = "Adjust copula correlations (NORTA)."
         )
       }
-      R_star <- norta_adjust_R(cov2cor(Sigma_theta), approx_data)
+      R_star <- norta_adjust_R(cov2cor(Omega), approx_data)
     }
     timing <- add_timing(timing, "norta")
 
@@ -915,7 +915,7 @@ inlavaan <- function(
     }
     samp <- sample_params(
       theta_star = theta_star_vbc,
-      Sigma_theta = Sigma_theta,
+      Omega = Omega,
       method = if (isTRUE(samp_copula)) marginal_method else "sampling",
       approx_data = approx_data,
       pt = pt,
@@ -944,7 +944,7 @@ inlavaan <- function(
     summ <- cbind(
       summ,
       kld = vb$kld,
-      vb_shift_sigma = vb$correction / sqrt(diag(Sigma_theta))
+      vb_shift_sigma = vb$correction / sqrt(diag(Omega))
     )
 
     pdf_data <- lapply(postmargres, function(x) x$pdf_data)
@@ -1124,7 +1124,7 @@ inlavaan <- function(
       lavcache = if (has_random_slopes(lavmodel)) lavcache else NULL,
       lavsamplestats = lavsamplestats,
       theta_star = as.numeric(theta_star_vbc),
-      Sigma_theta = Sigma_theta,
+      Omega = Omega,
       marginal_method = marginal_method,
       approx_data = approx_data,
       nsamp = nsamp,
@@ -1232,7 +1232,7 @@ inlavaan <- function(
       samp_norta = samp_norta,
       theta_star_novbc = as.numeric(theta_star),
       theta_star = as.numeric(theta_star_vbc),
-      Sigma_theta = Sigma_theta,
+      Omega = Omega,
       R_star = R_star,
       vcov_x = vcov_x,
       theta_star_trans = theta_star_trans,

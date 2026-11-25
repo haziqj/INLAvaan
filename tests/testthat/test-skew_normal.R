@@ -60,7 +60,7 @@ test_that("Posterior modes are accurate on a small scale", {
     ginv = exp,
     ginv_prime = exp,
     theta_star = m,
-    Sigma_theta = matrix(v)
+    Omega = matrix(v)
   )$summary
   expect_equal(unname(res["Mode"]), exp(m - v), tolerance = 1e-6)
 })
@@ -75,7 +75,7 @@ test_that("Gaussian marginal moments are taken on the original scale", {
     ginv = exp,
     ginv_prime = exp,
     theta_star = m,
-    Sigma_theta = matrix(s^2)
+    Omega = matrix(s^2)
   )$summary
   expect_equal(unname(res["Mean"]), exp(m + s^2 / 2))
   expect_equal(unname(res["SD"]), sqrt((exp(s^2) - 1) * exp(2 * m + s^2)))
@@ -207,7 +207,7 @@ test_that("Skew-normal marginal quantiles are exact", {
     res <- post_marg_skewnorm(
       j = 1,
       theta_star = 0.2,
-      Sigma_theta = matrix(0.09),
+      Omega = matrix(0.09),
       sn_params = cbind(xi = 0.2, omega = 0.3, alpha = alpha)
     )$summary
     expect_equal(

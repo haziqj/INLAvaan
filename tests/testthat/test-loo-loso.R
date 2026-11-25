@@ -182,7 +182,7 @@ test_that("first-order only and unit subsetting", {
 
 test_that("theta/Omega override scores arbitrary summaries", {
   int <- get_inlavaan_internal(fit)
-  res_same <- loo(fit, theta = int$theta_star, Omega = int$Sigma_theta)
+  res_same <- loo(fit, theta = int$theta_star, Omega = int$Omega)
   expect_true(res_same$theta_overridden)
   expect_equal(res_same$elpd_2, res$elpd_2)
 
@@ -193,9 +193,9 @@ test_that("theta/Omega override scores arbitrary summaries", {
   # block restriction handles it
   p <- 1L
   theta_c <- int$theta_star -
-    int$Sigma_theta[, p] * (int$theta_star[p] / int$Sigma_theta[p, p])
-  Omega_c <- int$Sigma_theta -
-    tcrossprod(int$Sigma_theta[, p]) / int$Sigma_theta[p, p]
+    int$Omega[, p] * (int$theta_star[p] / int$Omega[p, p])
+  Omega_c <- int$Omega -
+    tcrossprod(int$Omega[, p]) / int$Omega[p, p]
   res_cond <- loo(fit, theta = theta_c, Omega = Omega_c, units = 1:10)
   expect_true(all(is.finite(res_cond$per_unit$log_cpo_1)))
 
@@ -206,14 +206,14 @@ test_that("theta/Omega override scores arbitrary summaries", {
 test_that("deprecated Sigma argument is honoured with a warning", {
   int <- get_inlavaan_internal(fit)
   expect_warning(
-    res_dep <- loo(fit, Sigma = int$Sigma_theta, units = 1:10),
+    res_dep <- loo(fit, Sigma = int$Omega, units = 1:10),
     class = "inlavaan_deprecated_sigma"
   )
-  res_new <- loo(fit, Omega = int$Sigma_theta, units = 1:10)
+  res_new <- loo(fit, Omega = int$Omega, units = 1:10)
   expect_equal(res_dep$estimates, res_new$estimates)
 
   expect_error(
-    loo(fit, Omega = int$Sigma_theta, Sigma = int$Sigma_theta),
+    loo(fit, Omega = int$Omega, Sigma = int$Omega),
     "deprecated former name"
   )
 })

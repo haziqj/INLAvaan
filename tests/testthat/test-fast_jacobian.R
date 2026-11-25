@@ -124,9 +124,9 @@ test_that("fast_jacobian Hessian matches numDeriv on the PoliticalDemocracy SEM"
   # closure. Instead, build a lightweight version using INLAvaan internals.
   fit <- asem(mod, dat, test = "none", silent = TRUE, nsamp = 3)
 
-  # Extract the Sigma_theta (covariance) from the fit
+  # Extract the posterior covariance Omega from the fit
   int <- INLAvaan:::get_inlavaan_internal(fit)
-  Sigma_fast <- int$Sigma_theta
+  Sigma_fast <- int$Omega
 
   # Now refit with numDeriv to get the "reference" Hessian.
   # We do this by accessing the internal gradient function via the same
@@ -216,8 +216,8 @@ test_that("hessian_method = 'forward' gives the central posterior", {
   int_c <- get_inlavaan_internal(fit_c)
   int_f <- get_inlavaan_internal(fit_f)
   expect_equal(
-    sqrt(diag(int_f$Sigma_theta)),
-    sqrt(diag(int_c$Sigma_theta)),
+    sqrt(diag(int_f$Omega)),
+    sqrt(diag(int_c$Omega)),
     tolerance = 1e-5
   )
   expect_equal(int_f$theta_star, int_c$theta_star, tolerance = 1e-5)

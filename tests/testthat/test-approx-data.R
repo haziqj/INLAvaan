@@ -53,7 +53,7 @@ test_that("approx_data has one layout with and without sn_fit_sample", {
     expect_equal(unname(ad[fp, "xi"]), unname(int$theta_star_novbc[fp]))
     expect_equal(
       unname(ad[fp, "omega"]),
-      unname(sqrt(diag(int$Sigma_theta))[fp])
+      unname(sqrt(diag(int$Omega))[fp])
     )
     # The fast-path rows are Gaussian marginals with no scan
     expect_true(all(ad[fp, "alpha"] == 0))

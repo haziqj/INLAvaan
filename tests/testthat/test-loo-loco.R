@@ -147,7 +147,7 @@ test_that("curvature diagnostics satisfy their defining identities", {
 })
 
 test_that("a missing second-order term takes the whole statistic to first order", {
-  S <- get_inlavaan_internal(fit)$Sigma_theta
+  S <- get_inlavaan_internal(fit)$Omega
   # Inflating Omega scales every k_u linearly, driving A_u = Omega^-1 + H_u
   # toward the negative-definite H_u, so units lose their second-order term
   # deterministically rather than by a lucky data seed.
@@ -216,7 +216,7 @@ test_that("LOCO unit subsetting and theta/Omega override", {
   res_same <- loo(
     fit,
     theta = int$theta_star,
-    Omega = int$Sigma_theta,
+    Omega = int$Omega,
     units = sub
   )
   expect_true(res_same$theta_overridden)

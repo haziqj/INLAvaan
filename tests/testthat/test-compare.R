@@ -230,7 +230,7 @@ test_that("compare(loo = TRUE) scores every model at one common order", {
   # A doctored LOO stored on one model only: inflating Omega drives some of
   # its units past k = 1, so it has no second-order total while its rival
   # still does. compare() reuses stored results, so this reaches the table.
-  S <- get_inlavaan_internal(fit1_ms)$Sigma_theta
+  S <- get_inlavaan_internal(fit1_ms)$Omega
   bad <- suppressWarnings(loo(fit1_ms, Omega = S * 4, cores = 1L))
   expect_false(bad$use_second)
   fit1_bad <- fit1_ms

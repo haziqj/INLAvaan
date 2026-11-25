@@ -1544,7 +1544,7 @@ inlav_loo <- function(
     theta <- theta_star
   }
   if (is.null(Sigma)) {
-    Sigma <- int$Sigma_theta
+    Sigma <- int$Omega
   }
   theta <- as.numeric(theta)
   if (length(theta) != m) {

@@ -112,7 +112,7 @@ make_pd <- function(X, tol = 1e-8) {
 #' @param object An object of class [INLAvaan].
 #' @param what Character. Name of the element to extract from the internal
 #'   list. If missing, the entire list is returned. Common elements include
-#'   `"coefficients"`, `"summary"`, `"Sigma_theta"`, `"vcov_x"`,
+#'   `"coefficients"`, `"summary"`, `"Omega"`, `"vcov_x"`,
 #'   `"theta_star"`, `"approx_data"`, `"pdf_data"`, `"partable"`,
 #'   `"marginal_method"`, `"nsamp"`, `"mloglik"`, `"DIC"`, `"ppp"`, `"loo"`,
 #'   `"waic"`, `"test"`, `"vb"`, `"opt"`, `"timing"`, `"visual_debug"`.

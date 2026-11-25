@@ -455,7 +455,7 @@ test_that("Skew-normal copula draws map the normal scores exactly", {
   th <- sample_params_posterior(int, 200, TRUE)$theta_samp
   # The same normal scores, from the same seed
   set.seed(1)
-  z <- matrix(rnorm(200 * m), 200) %*% chol(cov2cor(int$Sigma_theta))
+  z <- matrix(rnorm(200 * m), 200) %*% chol(cov2cor(int$Omega))
   for (j in seq_len(m)) {
     exact <- qsnorm(
       pnorm(z[, j]),
@@ -473,7 +473,7 @@ test_that("The draws of theta come from the engine's sn_draws()", {
   set.seed(3)
   th <- sample_params_posterior(int, 50, TRUE)$theta_samp
   set.seed(3)
-  ref <- unname(sn_draws(int$approx_data[seq_len(m), ], int$Sigma_theta, 50))
+  ref <- unname(sn_draws(int$approx_data[seq_len(m), ], int$Omega, 50))
   expect_identical(th, ref)
   # Rows after the first m, such as the fits of sn_fit_sample to the draws
   # of covariances, do not change them
@@ -488,11 +488,11 @@ test_that("The draws of theta come from the engine's sn_draws()", {
   # approximation: marginals at theta_star with alpha = 0
   sn_gauss <- cbind(
     xi = int$theta_star,
-    omega = sqrt(diag(int$Sigma_theta)),
+    omega = sqrt(diag(int$Omega)),
     alpha = 0
   )
   set.seed(3)
-  ref_gauss <- unname(sn_draws(sn_gauss, int$Sigma_theta, 50))
+  ref_gauss <- unname(sn_draws(sn_gauss, int$Omega, 50))
   set.seed(3)
   th_gauss <- sample_params_posterior(int, 50, FALSE)$theta_samp
   expect_identical(th_gauss, ref_gauss)

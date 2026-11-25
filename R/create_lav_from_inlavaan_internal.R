@@ -159,7 +159,7 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   dimnames(vcov_x) <- rep(list(pt$names[pt$free > 0]), 2)
   fit0@vcov <- list(
     vcov = vcov_x, # Sample-based vcov (lavaan parameterisation)
-    vcov_theta = fit_inlv$Sigma_theta # Laplace vcov (theta parameterisation)
+    vcov_theta = fit_inlv$Omega # Laplace vcov (theta parameterisation)
   )
 
   ## ----- Update test slot ----------------------------------------------------

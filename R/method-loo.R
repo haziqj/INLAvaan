@@ -100,7 +100,7 @@
 #'   different dimension (see Details).
 #' @param theta,Omega Optional posterior mean vector and covariance matrix
 #'   (in the unconstrained parameter space, as stored in `theta_star` and
-#'   `Sigma_theta`) at which to evaluate the LOO instead of the fit's own
+#'   `Omega`) at which to evaluate the LOO instead of the fit's own
 #'   Laplace summary. See Details.
 #' @param cores Number of cores for the Hessian stage. The default `NULL`
 #'   runs serially; parallelism must be requested explicitly.

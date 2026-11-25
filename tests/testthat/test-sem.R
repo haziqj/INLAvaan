@@ -123,7 +123,7 @@ test_that("cov_as_cor reports correlations without changing the fit", {
 
   # Estimation is unaffected: same posterior mode and Hessian either way.
   expect_equal(fit_off$theta_star, fit_on$theta_star)
-  expect_equal(fit_off$Sigma_theta, fit_on$Sigma_theta)
+  expect_equal(fit_off$Omega, fit_on$Omega)
 
   covpars <- grep("~~", rownames(fit_off$summary), value = TRUE)
   covpars <- covpars[

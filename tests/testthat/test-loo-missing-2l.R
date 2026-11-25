@@ -814,7 +814,7 @@ test_that("two-level FIML scores fixed.x fits as the listwise path does", {
   res_ml <- loo(
     fit_x_ml,
     theta = int_lw$theta_star,
-    Omega = int_lw$Sigma_theta
+    Omega = int_lw$Omega
   )
   expect_equal(
     res_ml$per_unit[loo_cols],
@@ -826,7 +826,7 @@ test_that("two-level FIML scores fixed.x fits as the listwise path does", {
     type = "loso",
     units = rows_x,
     theta = int_lw$theta_star,
-    Omega = int_lw$Sigma_theta
+    Omega = int_lw$Omega
   ))
   res_lw_row <- suppressWarnings(loo(fit_lw, type = "loso", units = rows_x))
   expect_equal(
@@ -865,7 +865,7 @@ test_that("rescaling the covariates leaves the conditional score unchanged", {
   res_s <- loo(
     fit_s,
     theta = int$theta_star * D,
-    Omega = int$Sigma_theta * outer(D, D)
+    Omega = int$Omega * outer(D, D)
   )
   expect_equal(
     res_s$per_unit[loo_cols],
@@ -877,7 +877,7 @@ test_that("rescaling the covariates leaves the conditional score unchanged", {
     type = "loso",
     units = rows_x,
     theta = int$theta_star * D,
-    Omega = int$Sigma_theta * outer(D, D)
+    Omega = int$Omega * outer(D, D)
   ))
   res_row <- suppressWarnings(loo(fit_x_ml, type = "loso", units = rows_x))
   expect_equal(

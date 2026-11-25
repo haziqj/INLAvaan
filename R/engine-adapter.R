@@ -207,7 +207,7 @@ engine_fields <- function(core, loglik_x_adj = 0) {
   list(
     theta_star = unname(core$mean_vb),
     theta_star_novbc = unname(core$mode),
-    Sigma_theta = core$cov,
+    Omega = core$cov,
     approx_data = approx_data,
     mloglik = unname(core$logml) + loglik_x_adj,
     opt = opt,

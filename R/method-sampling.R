@@ -148,7 +148,7 @@ sample_params_posterior <- function(int, nsamp, samp_copula) {
   method <- if (isTRUE(samp_copula)) int$marginal_method else "sampling"
   sample_params(
     theta_star = int$theta_star,
-    Sigma_theta = int$Sigma_theta,
+    Omega = int$Omega,
     method = method,
     approx_data = int$approx_data,
     pt = int$partable,

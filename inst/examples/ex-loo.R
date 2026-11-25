@@ -16,7 +16,7 @@ head(res$per_unit)
 # visual ~~ speed covariance being zero, then evaluate at that summary
 int <- get_inlavaan_internal(fit)
 theta <- int$theta_star
-Omega <- int$Sigma_theta
+Omega <- int$Omega
 p <- which(names(coef(fit)) == "visual~~speed")
 theta_c <- theta - Omega[, p] * (theta[p] / Omega[p, p])
 Omega_c <- Omega - tcrossprod(Omega[, p]) / Omega[p, p]

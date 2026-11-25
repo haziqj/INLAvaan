@@ -87,6 +87,17 @@
   `inlavaan_old_fit`, which says how to fit it again. `update()` still works
   on these fits, so `fit <- update(fit)` fits the model again.
 
+* In `get_inlavaan_internal()`, the field `Sigma_theta` is now `Omega`. It is
+  the covariance matrix of the Laplace approximation, on the internal scale
+  of the parameters. The new name agrees with the `Omega` argument of
+  `loo()` and with the notation of the documentation, where Sigma is the
+  model-implied covariance matrix of the data. Code that reads `Sigma_theta`
+  must now read `Omega`.
+
+* With `samp_norta = TRUE`, `standardisedsolution()` now draws with the NORTA
+  correlation matrix of the fit, as `sampling()` does. Before, it used the
+  correlation matrix of the Laplace approximation.
+
 * `diagnostics()` now gives the engine's diagnostics, in the engine's order,
   and then INLAvaan's own: `nsamp`, `psi_npd_share` and `theta_npd_share`.
   Code that reads them by name still works, except for the changes below.

@@ -67,7 +67,7 @@ different dimension (see Details).}
 
 \item{theta, Omega}{Optional posterior mean vector and covariance matrix
 (in the unconstrained parameter space, as stored in \code{theta_star} and
-\code{Sigma_theta}) at which to evaluate the LOO instead of the fit's own
+\code{Omega}) at which to evaluate the LOO instead of the fit's own
 Laplace summary. See Details.}
 
 \item{cores}{Number of cores for the Hessian stage. The default \code{NULL}
@@ -227,7 +227,7 @@ head(res$per_unit)
 # visual ~~ speed covariance being zero, then evaluate at that summary
 int <- get_inlavaan_internal(fit)
 theta <- int$theta_star
-Omega <- int$Sigma_theta
+Omega <- int$Omega
 p <- which(names(coef(fit)) == "visual~~speed")
 theta_c <- theta - Omega[, p] * (theta[p] / Omega[p, p])
 Omega_c <- Omega - tcrossprod(Omega[, p]) / Omega[p, p]

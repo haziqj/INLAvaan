@@ -298,7 +298,7 @@ test_that("the fields of the internal list come from the engine", {
   expect_identical(int$theta_star, unname(core$mean_vb))
   expect_identical(int$theta_star_novbc, unname(core$mode))
   expect_null(names(int$theta_star))
-  expect_identical(int$Sigma_theta, core$cov)
+  expect_identical(int$Omega, core$cov)
   # The engine's evidence already holds the VB term
   expect_identical(int$mloglik, core$logml)
   expect_equal(
@@ -351,7 +351,7 @@ test_that("the layout of the internal list is that of the old stages", {
       "samp_norta",
       "theta_star_novbc",
       "theta_star",
-      "Sigma_theta",
+      "Omega",
       "R_star",
       "vcov_x",
       "theta_star_trans",
@@ -492,4 +492,23 @@ test_that("only the adapter calls vanilla_core()", {
     NA
   )
   expect_identical(unname(basename(files[calls])), "engine-adapter.R")
+})
+
+test_that("no INLAvaan file reads the old field Sigma_theta", {
+  dir <- test_path("..", "..", "R")
+  skip_if_not(dir.exists(dir), "needs the source tree")
+  files <- list.files(dir, pattern = "[.]R$", full.names = TRUE)
+  files <- files[!startsWith(basename(files), "vanilla-")]
+  # A symbol, an argument name or a string, so that $Sigma_theta,
+  # [["Sigma_theta"]] and Sigma_theta = all count
+  old <- c("Sigma_theta", "\"Sigma_theta\"", "'Sigma_theta'")
+  reads <- vapply(
+    files,
+    function(f) {
+      pd <- utils::getParseData(parse(f, keep.source = TRUE))
+      any(pd$token != "COMMENT" & pd$text %in% old)
+    },
+    NA
+  )
+  expect_identical(unname(basename(files[reads])), character(0))
 })

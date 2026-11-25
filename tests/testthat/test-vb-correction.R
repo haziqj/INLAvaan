@@ -102,7 +102,7 @@ test_that("the VB shift adds its location term to the marginal log-likelihood", 
   # VB-shifted copy.
   int <- get_inlavaan_internal(fit_on)
   delta <- int$vb$correction
-  kld <- 0.5 * drop(crossprod(delta, solve(int$Sigma_theta, delta)))
+  kld <- 0.5 * drop(crossprod(delta, solve(int$Omega, delta)))
   expect_equal(diagnostics(fit_on)[["vb_kld_global"]], kld)
 
   # The VB step changes neither the mode nor the Hessian, so the two fits

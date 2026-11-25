@@ -450,10 +450,6 @@ predict.inlavaan_internal <- function(
     type <- "ymis"
   }
 
-  theta_star <- object$theta_star
-  Sigma_theta <- object$Sigma_theta
-  approx_data <- object$approx_data
-  pt <- object$partable
   lavmodel <- object$lavmodel
   lavdata <- object$lavdata
   nlevels <- lavdata@nlevels

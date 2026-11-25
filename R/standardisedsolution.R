@@ -67,20 +67,7 @@ standardisedsolution <- function(
   fit_inlv <- get_inlavaan_internal(object)
   pt <- fit_inlv$partable
 
-  # The fit stores its own `nsamp`, which with() would find first
-  n_draws <- nsamp
-  samp <- with(
-    fit_inlv,
-    sample_params(
-      theta_star = theta_star,
-      Sigma_theta = Sigma_theta,
-      method = marginal_method,
-      approx_data = approx_data,
-      pt = partable,
-      lavmodel = lavmodel,
-      nsamp = n_draws
-    )
-  )
+  samp <- sample_params_posterior(fit_inlv, nsamp, samp_copula = TRUE)
   x_samp <- samp$x_samp
   comp_rows <- composite_derived_rows(pt)
 
