@@ -303,16 +303,15 @@ drop_other_spellings <- function(cl, nm) {
 }
 
 # Whether the data expression of a recorded call names an object that is no
-# longer found in `env`.
+# longer found in `env`. A function counts as not found: in a new session,
+# data named `df` or `data` find the functions stats::df() and utils::data(),
+# which lavaan cannot read as data.
 data_not_found <- function(data, env) {
   if (!is.symbol(data) && !is.call(data)) {
     return(FALSE)
   }
   tryCatch(
-    {
-      eval(data, env)
-      FALSE
-    },
+    is.function(eval(data, env)),
     error = function(e) TRUE
   )
 }

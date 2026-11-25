@@ -691,3 +691,20 @@ test_that("update() replaces an argument given under another spelling", {
   expect_true(lavaan::lavInspect(fit, "options")$std.ov)
   expect_false(lavaan::lavInspect(fit_new, "options")$std.ov)
 })
+
+test_that("update() uses the stored data when the data name a function", {
+  # In a new session, data named `df` find stats::df(). Before, update() gave
+  # the function to lavaan, which stopped.
+  df <- dat[dat$school == "Pasteur", ]
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    df,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    marginal_method = "gaussian"
+  )
+  rm(df)
+  expect_true(is.function(df))
+  expect_equal(lavaan::lavInspect(update(fit), "nobs"), 156L)
+})
