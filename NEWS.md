@@ -180,9 +180,13 @@
   or in a new session, `update()` now uses the data stored in the fit, with
   a message of class `inlavaan_update_stored_data` (none when the refit is
   silent). So `fit <- update(fit)` refits a saved fit, also one made before
-  the engine. lavaan has processed the stored data already, so to change how
-  the data are read (`group`, `cluster`, `missing`, `ordered`), give `data`
-  again. Before, `update()` stopped with "object not found".
+  the engine. Before, `update()` stopped with "object not found". lavaan has
+  read the stored data already, with the options of the fit. So an update
+  that changes how the data are read (`group`, `cluster`, `missing`,
+  `ordered`, `sampling.weights` and the like), or that fits a model with
+  other observed variables, stops with an error of class
+  `inlavaan_update_data_not_found`: give `data` again. Data given again also
+  replace the stored data of a refit.
 
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,

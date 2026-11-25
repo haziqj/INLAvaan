@@ -170,3 +170,108 @@ test_that("update() uses the stored data when the data object is gone", {
     class = "inlavaan_update_stored_data"
   )
 })
+
+test_that("update() on the stored data stops when it changes how they are read", {
+  dd <- dat[dat$school == "Pasteur", ]
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dd,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  err <- "inlavaan_update_data_not_found"
+  # Before, lavaan ignored the new options and fitted one group
+  expect_error(update(fit, group = "sex"), "cannot change", class = err)
+  expect_error(update(fit, group = "sex", silent = TRUE), class = err)
+  expect_error(update(fit, ordered = c("x1", "x2", "x3")), class = err)
+  expect_error(update(fit, sampling_weights = "grade"), class = err)
+  # A model with other observed variables
+  expect_error(
+    update(fit, model = "visual =~ x1 + x2"),
+    "other observed variables",
+    class = err
+  )
+  expect_error(update(fit, add = "visual =~ x4"), class = err)
+  # A refit on the stored data checks too, and data given again replace them
+  fit_stored <- update(fit, nsamp = 5)
+  expect_error(update(fit_stored, group = "sex"), class = err)
+  cl <- update(fit_stored, data = dat, evaluate = FALSE)
+  expect_false(any(c("slotData", "slot_data") %in% names(cl)))
+  fit_full <- update(fit_stored, data = dat, group = "school")
+  expect_equal(lavaan::lavInspect(fit_full, "ngroups"), 2L)
+  expect_equal(lavaan::lavInspect(fit_full, "nobs"), c(156L, 145L))
+})
+
+test_that("update() on the stored data of a listwise fit stops on missing", {
+  dd <- dat
+  dd$x1[1:20] <- NA
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dd,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dd)
+  # Before, this failed with an error of base R
+  expect_error(
+    update(fit, missing = "ml"),
+    "cannot change `missing`",
+    class = "inlavaan_update_data_not_found"
+  )
+})
+
+test_that("check_stored_data_update() lets unchanged options and variables pass", {
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dat,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  old_call <- quote(acfa(model, dd, group = "school"))
+  # The same expression, also under the other name of lavaan
+  expect_silent(check_stored_data_update(
+    old_call,
+    list(group = "school"),
+    NULL,
+    fit
+  ))
+  expect_error(
+    check_stored_data_update(old_call, list(group = "sex"), NULL, fit),
+    class = "inlavaan_update_data_not_found"
+  )
+  expect_error(
+    check_stored_data_update(old_call, list(sample.cov = quote(S)), NULL, fit),
+    class = "inlavaan_update_data_not_found"
+  )
+  # Options that do not set how the data are read pass
+  expect_silent(check_stored_data_update(
+    old_call,
+    list(std.lv = TRUE),
+    NULL,
+    fit
+  ))
+  # The same observed variables, in another order or with priors
+  same_vars <- 'visual =~ x3 + prior("normal(0,1)")*x2 + x1'
+  expect_silent(check_stored_data_update(old_call, list(), same_vars, fit))
+  expect_silent(
+    check_stored_data_update(old_call, list(), lavaan::parTable(fit), fit)
+  )
+  # A model that lavaan cannot parse here is left to lavaan
+  expect_null(model_ov_names("visual =~ x1 +"))
+  expect_silent(check_stored_data_update(
+    old_call,
+    list(),
+    "visual =~ x1 +",
+    fit
+  ))
+})

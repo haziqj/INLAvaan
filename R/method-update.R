@@ -26,10 +26,13 @@
 #'
 #' When the data object of the original call is no longer found, as after
 #' `rm(dd)` or in a new session, `update()` uses the data stored in the fit
-#' and says so. lavaan has processed these data already (for example, it has
-#' dropped the incomplete rows under listwise deletion), so this suits an
-#' update that keeps the options on how the data are read, such as `group`,
-#' `cluster`, `missing` and `ordered`. To change them, give `data` again.
+#' and says so. lavaan has read these data already, with the options of the
+#' fit (for example, it has dropped the incomplete rows under listwise
+#' deletion). So `update()` then stops with an error of class
+#' `inlavaan_update_data_not_found` when the update changes an option on how
+#' the data are read, such as `group`, `cluster`, `missing`, `ordered` or
+#' `sampling.weights`, or when the new model has other observed variables. To
+#' make such a change, give `data` again.
 #'
 #' `verbose = TRUE` and `silent = TRUE` cannot go together. So
 #' `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
@@ -142,44 +145,61 @@ setMethod(
       }
     }
 
+    # A refit on the stored data (see below) records them in its call as
+    # `slotData`, which lavaan reads before `data`. So data given again
+    # replace them.
+    data_given <- "data" %in% names(extras)
+    slot_args <- names(cl)[arg_key(names(cl)) %in% c("slotdata", "slot.data")]
+    if (data_given) {
+      for (nm in slot_args) {
+        cl[[nm]] <- NULL
+      }
+    }
+
     if (!evaluate) {
       return(cl)
     }
 
     # When the data object of the recorded call is gone from the caller's
     # environment, the refit uses the data stored in the fit, with a message
-    # (unless the refit is silent). lavaan has processed them already, so
-    # this suits an update that keeps the options on how the data are read.
-    if (
-      !"data" %in% names(extras) && (is.symbol(cl$data) || is.call(cl$data))
-    ) {
-      found <- tryCatch(
+    # (unless the refit is silent). lavaan has read them already, with the
+    # options of the fit on how the data are read, and would ignore new values
+    # of those options. So an update that changes one of them, or the observed
+    # variables of the model, stops (see check_stored_data_update()).
+    use_stored <- !data_given && length(slot_args) > 0L
+    data_lost <- FALSE
+    if (!data_given && (is.symbol(cl$data) || is.call(cl$data))) {
+      data_lost <- !tryCatch(
         {
           eval(cl$data, caller)
           TRUE
         },
         error = function(e) FALSE
       )
-      if (!found) {
-        silent <- tryCatch(
-          isTRUE(eval(cl$silent, caller)),
-          error = function(e) FALSE
+    }
+    if (use_stored || data_lost) {
+      new_model <- if (!missing(model) || !missing(add)) cl$model
+      check_stored_data_update(internal$call, extras, new_model, object)
+    }
+    if (data_lost) {
+      silent <- tryCatch(
+        isTRUE(eval(cl$silent, caller)),
+        error = function(e) FALSE
+      )
+      if (!silent) {
+        cli_inform(
+          c(
+            "i" = "The data {.code {deparse1(cl$data)}} of the fit are not
+                   found, so {.fn update} uses the data stored in the fit.",
+            " " = "Give {.arg data} to refit with other options on how the
+                   data are read, such as {.arg group}, {.arg cluster},
+                   {.arg missing} or {.arg ordered}."
+          ),
+          class = "inlavaan_update_stored_data"
         )
-        if (!silent) {
-          cli_inform(
-            c(
-              "i" = "The data {.code {deparse1(cl$data)}} of the fit are not
-                     found, so {.fn update} uses the data stored in the fit.",
-              " " = "Give {.arg data} to refit with other options on how the
-                     data are read, such as {.arg group}, {.arg cluster},
-                     {.arg missing} or {.arg ordered}."
-            ),
-            class = "inlavaan_update_stored_data"
-          )
-        }
-        cl$data <- NULL
-        cl$slotData <- object@Data
       }
+      cl$data <- NULL
+      cl$slotData <- object@Data
     }
 
     # Warm start (Tier A): reuse the previous posterior mode as the optimiser's
@@ -201,3 +221,97 @@ setMethod(
     eval(cl, caller)
   }
 )
+
+# The arguments of lavaan that set how the data are read, as lavaan's
+# lav_lavdata() and lav_data_full() read them. With the stored data of a fit,
+# lavaan keeps the data as they were read and ignores a new value of any of
+# them. The data in another form (`sample.cov` and the like) are ignored too.
+data_read_args <- c(
+  "group",
+  "group.label",
+  "cluster",
+  "level.label",
+  "ordered",
+  "missing",
+  "sampling.weights",
+  "sampling.weights.normalization",
+  "std.ov",
+  "conditional.x",
+  "correlation",
+  "allow.empty.cell",
+  "aux",
+  "sample.cov",
+  "sample.mean",
+  "sample.th",
+  "sample.nobs",
+  "nacov",
+  "wls.v"
+)
+
+# Argument names as lavaan reads them: dot or snake case, upper or lower case
+arg_key <- function(x) {
+  tolower(gsub("_", ".", x, fixed = TRUE))
+}
+
+# The observed variables of a model given as lavaan syntax or as a parameter
+# table, or NULL when the model cannot be parsed here. lavaan then reports the
+# problem when it reads the model.
+model_ov_names <- function(model) {
+  tryCatch(
+    {
+      if (is.character(model)) {
+        model <- lavaan::lavParseModelString(
+          split_modifiers(model),
+          parser = "old"
+        )
+      }
+      lavaan::lavNames(model, "ov")
+    },
+    error = function(e) NULL
+  )
+}
+
+# Stop when update() refits on the stored data of a fit and changes how the
+# data are read: an argument of `data_read_args` that the recorded call does
+# not give with the same expression, or a model with other observed variables.
+check_stored_data_update <- function(old_call, extras, new_model, object) {
+  old_args <- as.list(old_call)[-1L]
+  old_keys <- arg_key(names(old_args))
+  changed <- character()
+  for (nm in names(extras)) {
+    key <- arg_key(nm)
+    if (!key %in% data_read_args) {
+      next
+    }
+    old <- old_args[old_keys == key]
+    if (length(old) != 1L || !identical(old[[1L]], extras[[nm]])) {
+      changed <- c(changed, nm)
+    }
+  }
+  if (length(changed) > 0L) {
+    cli_abort(
+      c(
+        "The original data of the fit are not found, so {.fn update} cannot
+         change {.arg {changed}}.",
+        "i" = "The data stored in the fit are read with the options of the
+               fit. Pass the data again with {.arg data}."
+      ),
+      class = "inlavaan_update_data_not_found"
+    )
+  }
+  if (!is.null(new_model)) {
+    new_ov <- model_ov_names(new_model)
+    if (!is.null(new_ov) && !setequal(new_ov, lavaan::lavNames(object, "ov"))) {
+      cli_abort(
+        c(
+          "The original data of the fit are not found, so {.fn update} cannot
+           fit a model with other observed variables.",
+          "i" = "The data stored in the fit hold the observed variables of the
+                 fit. Pass the data again with {.arg data}."
+        ),
+        class = "inlavaan_update_data_not_found"
+      )
+    }
+  }
+  invisible()
+}
