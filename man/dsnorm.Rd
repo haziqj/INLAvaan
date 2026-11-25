@@ -35,7 +35,9 @@ multiplied by \code{exp(logC)}.}
 A numeric vector: the (log) density for \code{dsnorm()}, the
 probabilities for \code{psnorm()} and the quantiles for \code{qsnorm()}. \code{dsnorm()}
 has no defaults for \code{xi}, \code{omega} and \code{alpha}. \code{psnorm()} and \code{qsnorm()}
-recycle their arguments to the longest. \code{psnorm()} returns 0 and 1 at
+recycle their arguments to the longest, give a zero-length result when an
+argument has length zero, and keep the names and dimensions of \code{q} or \code{p},
+as \code{\link[stats:pnorm]{stats::pnorm()}} and \code{\link[stats:qnorm]{stats::qnorm()}} do. \code{psnorm()} returns 0 and 1 at
 \code{-Inf} and \code{Inf}, and \code{NA} for a missing \code{q}, a non-finite \code{alpha} or a
 non-positive or missing scale. \code{qsnorm()} returns \code{-Inf} and \code{Inf} at \code{p}
 of 0 and 1, and \code{NA} for \code{p} outside \eqn{[0, 1]}, a non-finite \code{alpha} or

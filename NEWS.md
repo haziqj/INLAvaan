@@ -4,10 +4,11 @@
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
-  copies two files from inlavanilla v26.11.24, byte for byte:
-  `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`. They hold the
-  skew-normal functions, which INLAvaan defined itself before, and the lock
-  lists them.
+  copies the 13 engine files of inlavanilla v26.11.24-1, byte for byte, as
+  `R/vanilla-*.R`, and the lock lists them. Two of them,
+  `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`, hold the
+  skew-normal functions, which INLAvaan defined itself before. INLAvaan does
+  not use the other 11 files yet, so fits do not change.
 
 * Thomas Luu is now listed as a copyright holder, for the skew-normal quantile
   approximation in `qsnorm_fast()` (Apache License 2.0).
@@ -18,8 +19,10 @@
   - It returns `xi`, `omega`, `alpha`, `logC` and `nmad`. It no longer returns
     `k` and `rmse`, and its help no longer lists `k` and `rsq` (it never
     returned `rsq`).
-  - It no longer rescales `y` to a maximum of 0, and it no longer checks that
-    `threshold_log_drop` is negative. Give it `y - max(y)`.
+  - It no longer rescales `y` to a maximum of 0. Give it `y - max(y)`.
+  - `threshold_log_drop` must be a single finite negative number, and `temp` a
+    single finite positive number. Otherwise it gives an error. Before,
+    `threshold_log_drop = -Inf` kept every point.
   - It always keeps the five highest points, also when fewer points lie above
     `threshold_log_drop`.
   - It fits from two starts and keeps the better fit. The second start is the
@@ -35,7 +38,9 @@
   function of the skew normal. They share the help page of `dsnorm()`.
   `qsnorm()` refines `qsnorm_fast()` by Newton's method. For tail probabilities
   of 1e-6 or more, `psnorm(qsnorm(p))` returns `p` to a relative error of about
-  1e-10.
+  1e-10. As `pnorm()` and `qnorm()` do, they recycle their arguments to the
+  longest, give a zero-length result when an argument has length zero, and
+  keep the names and dimensions of `q` or `p`.
 
 * `qsnorm_fast()` gave wrong values when one call mixed values of `alpha` or
   `p`. Where `alpha` was 0, 1 or -1, it gave 0 in place of the quantile. Where
@@ -43,6 +48,9 @@
   of `p` gave an infinite value with the wrong sign. Fits were not affected:
   `inlavaan()` passes one `alpha` at a time and, in practice, never a `p` of
   exactly 0 or 1.
+  `qsnorm_fast()` now recycles its arguments to the length of the longest, as
+  `qsnorm()` does, and a zero-length argument gives a zero-length result.
+  Before, an `alpha` longer than `p` gave `NA` or an error.
   The help of `qsnorm_fast()` no longer says that its relative error is below
   1e-7. Against `qsnorm()`, its error is about 7e-3 times `omega` for `p` in
   [0.01, 0.99], and about 0.09 times `omega` for `p` in [1e-6, 1 - 1e-6]. Its

@@ -44,7 +44,9 @@
 #' @returns A numeric vector: the (log) density for `dsnorm()`, the
 #'   probabilities for `psnorm()` and the quantiles for `qsnorm()`. `dsnorm()`
 #'   has no defaults for `xi`, `omega` and `alpha`. `psnorm()` and `qsnorm()`
-#'   recycle their arguments to the longest. `psnorm()` returns 0 and 1 at
+#'   recycle their arguments to the longest, give a zero-length result when an
+#'   argument has length zero, and keep the names and dimensions of `q` or `p`,
+#'   as [stats::pnorm()] and [stats::qnorm()] do. `psnorm()` returns 0 and 1 at
 #'   `-Inf` and `Inf`, and `NA` for a missing `q`, a non-finite `alpha` or a
 #'   non-positive or missing scale. `qsnorm()` returns `-Inf` and `Inf` at `p`
 #'   of 0 and 1, and `NA` for `p` outside \eqn{[0, 1]}, a non-finite `alpha` or
@@ -114,9 +116,9 @@ NULL
 #' @param omega Scale parameter, positive.
 #' @param alpha Shape parameter.
 #'
-#' @returns A numeric vector of approximate quantiles. `xi`, `omega` and
-#'   `alpha` shorter than `p` are recycled to its length. `p` of 0 and 1 give
-#'   `-Inf` and `Inf`.
+#' @returns A numeric vector of approximate quantiles. The arguments are
+#'   recycled to the length of the longest, and an argument of length zero
+#'   gives a zero-length result. `p` of 0 and 1 give `-Inf` and `Inf`.
 #'
 #' @name qsnorm_fast
 #' @usage qsnorm_fast(p, xi = 0, omega = 1, alpha = 0)
@@ -158,10 +160,10 @@ NULL
 #' @param y A numeric vector of log-density evaluations at `x`, normalised so
 #'   that `max(y) = 0`. The function does not normalise `y`, and the threshold
 #'   is measured from 0.
-#' @param threshold_log_drop Points with `y` below this value are left out of
-#'   the fit (default -6).
-#' @param temp A positive number, the temperature of the weights (default 1).
-#'   `NA` is not allowed: the temperature is no longer estimated.
+#' @param threshold_log_drop A single finite negative number (default -6).
+#'   Points with `y` below it are left out of the fit.
+#' @param temp A single finite positive number, the temperature of the weights
+#'   (default 1). `NA` is not allowed: the temperature is no longer estimated.
 #'
 #' @returns A list with the fitted parameters:
 #'   - `xi`: location parameter

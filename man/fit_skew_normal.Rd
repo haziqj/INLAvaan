@@ -13,11 +13,11 @@ fit_skew_normal(x, y, threshold_log_drop = -6, temp = 1)
 that \code{max(y) = 0}. The function does not normalise \code{y}, and the threshold
 is measured from 0.}
 
-\item{threshold_log_drop}{Points with \code{y} below this value are left out of
-the fit (default -6).}
+\item{threshold_log_drop}{A single finite negative number (default -6).
+Points with \code{y} below it are left out of the fit.}
 
-\item{temp}{A positive number, the temperature of the weights (default 1).
-\code{NA} is not allowed: the temperature is no longer estimated.}
+\item{temp}{A single finite positive number, the temperature of the weights
+(default 1). \code{NA} is not allowed: the temperature is no longer estimated.}
 }
 \value{
 A list with the fitted parameters:

@@ -1,7 +1,7 @@
-# Skew-normal utilities, ported from INLAvaan. Everything here is internal: the
-# fitted marginals are summarised by the package itself, on the natural scale
-# for the transforms of R/transform.R, and users who want densities or
-# quantiles on any other scale go through sampling().
+# Skew-normal utilities, ported from INLAvaan: the density, distribution
+# function, quantiles, moments and mode of SN(xi, omega, alpha), the map from
+# normal scores to its quantiles for the copula draws, and the fit of a
+# skew-normal to a scanned log-density.
 
 # Log or plain density of SN(xi, omega, alpha), with an optional log-constant.
 dsnorm <- function(x, xi, omega, alpha, logC = 0, log = FALSE) {
@@ -35,10 +35,11 @@ gl_owen <- gauss_legendre_01(48L)
 # vectorised over h and a. It is reduced to h >= 0 and 0 <= a <= 1 by the
 # symmetries T(-h, a) = T(h, a), T(h, -a) = -T(h, a) and, for a > 1,
 # T(h, a) = Q(h)/2 + Q(ah)/2 - Q(h) Q(ah) - T(ah, 1/a), with Q(x) = 1 - Phi(x).
-# (INLAvaan writes the last identity with Phi; it is the same algebraically,
-# but as a difference of numbers close to one it loses the relative accuracy
-# of small values of T, which the heavy tail of psnorm() needs.) On the
-# reduced range 48 Gauss-Legendre nodes give about 1e-15 absolute accuracy.
+# The last identity is written with Q rather than Phi. The two forms are the
+# same algebraically, but with Phi it is a difference of numbers close to one,
+# which loses the relative accuracy of small values of T that the heavy tail of
+# psnorm() needs. On the reduced range 48 Gauss-Legendre nodes give about 1e-15
+# absolute accuracy.
 owen_t <- function(h, a) {
   n <- max(length(h), length(a))
   h <- abs(rep_len(h, n))
@@ -87,11 +88,18 @@ log_sn_light_tail <- function(h, a) {
 
 # Skew-normal distribution function F(q) = Phi(z) - 2 T(z, alpha), with
 # z = (q - xi) / omega. The upper tail is computed by reflection,
-# 1 - F(z; alpha) = F(-z; -alpha), so a small tail probability never comes
-# out as the difference of two numbers close to one. It is 0 and 1 at -Inf
-# and Inf, and NA for a non-positive or missing scale.
+# 1 - F(z; alpha) = F(-z; -alpha), so a small tail probability never comes out
+# as the difference of two numbers close to one. It is 0 and 1 at -Inf and Inf,
+# and NA for a non-positive or missing scale. As in pnorm(), the arguments are
+# recycled to the longest, a zero-length argument gives a zero-length result,
+# and the result keeps the names and dim of q.
 psnorm <- function(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE) {
-  n <- max(length(q), length(xi), length(omega), length(alpha))
+  lens <- c(length(q), length(xi), length(omega), length(alpha))
+  if (min(lens) == 0L) {
+    return(keep_shape(numeric(0), q))
+  }
+  n <- max(lens)
+  shape <- q
   q <- rep_len(q, n)
   xi <- rep_len(xi, n)
   omega <- rep_len(omega, n)
@@ -108,14 +116,21 @@ psnorm <- function(q, xi = 0, omega = 1, alpha = 0, lower_tail = TRUE) {
   out[ok] <- pmin(pmax(out[ok], 0), 1)
   out[valid & z == -Inf] <- 0
   out[valid & z == Inf] <- 1
-  out
+  keep_shape(out, shape)
 }
 
-# Skew-normal quantiles, solved to near machine precision. Each probability
-# is turned into the log of its smaller tail, and qsn_std_logtail() solves for
-# the standardised quantile.
+# Skew-normal quantiles, solved to near machine precision. Each probability is
+# turned into the log of its smaller tail, and qsn_std_logtail() solves for the
+# standardised quantile. As in qnorm(), the arguments are recycled to the
+# longest, a zero-length argument gives a zero-length result, and the result
+# keeps the names and dim of p.
 qsnorm <- function(p, xi = 0, omega = 1, alpha = 0) {
-  n <- max(length(p), length(xi), length(omega), length(alpha))
+  lens <- c(length(p), length(xi), length(omega), length(alpha))
+  if (min(lens) == 0L) {
+    return(keep_shape(numeric(0), p))
+  }
+  n <- max(lens)
+  shape <- p
   p <- rep_len(p, n)
   xi <- rep_len(xi, n)
   omega <- rep_len(omega, n)
@@ -131,29 +146,41 @@ qsnorm <- function(p, xi = 0, omega = 1, alpha = 0) {
     z <- qsn_std_logtail(logp, alpha[mid], upper)
     out[mid] <- xi[mid] + omega[mid] * z
   }
+  keep_shape(out, shape)
+}
+
+# The names, dim and dimnames of x, given to out when the two have the same
+# length.
+keep_shape <- function(out, x) {
+  if (length(out) == length(x)) {
+    att <- attributes(x)
+    attributes(out) <- att[intersect(names(att), c("names", "dim", "dimnames"))]
+  }
   out
 }
 
 # Standardised skew-normal quantile from the log of a tail probability: solves
 # log F(q) = logp, or log(1 - F(q)) = logp where `upper` is TRUE, for
 # SN(0, 1, alpha). Newton's method on the log scale, from qsnorm_fast(). The
-# skew-normal is log-concave, so log F and log(1 - F) are concave and
-# monotone, and Newton's method converges monotonically from any start; steps
-# are capped at one unit as a safeguard. Working on the log of the smaller
-# tail keeps far-tail quantiles accurate. Deep in the light tail (tail
-# probabilities around 1e-12 and below), psnorm() loses relative accuracy to
-# cancellation and the iteration stops at the 30-step cap, still accurate to
-# well within the noise of the distribution function there.
+# skew-normal is log-concave, so log F and log(1 - F) are concave and monotone,
+# and Newton's method converges monotonically from any start. Steps are capped
+# at one unit as a safeguard. Working on the log of the smaller tail keeps
+# far-tail quantiles accurate. Deep in the light tail (beyond |q alpha| = 4),
+# where psnorm() loses relative accuracy to cancellation, the log of the tail
+# comes from log_sn_light_tail() instead.
 qsn_std_logtail <- function(logp, alpha, upper) {
   n <- length(logp)
   alpha <- rep_len(alpha, n)
   upper <- rep_len(upper, n)
   p <- exp(logp)
   q <- .qsn_std_fast(ifelse(upper, 1 - p, p), alpha)
-  # qsnorm_fast() breaks down below p of about 1e-12 (0 or +-Inf). Start
-  # there from the Gaussian tail behaviour instead: on the heavy side the
-  # density is about 2 phi(q), on the light side it decays like
-  # phi(q sqrt(1 + alpha^2)).
+  # Below a tail probability of exp(-27), about 1.9e-12, and wherever
+  # qsnorm_fast() is not finite, as in the heavier tail below a tail probability
+  # of about 1.7e-16, start instead from the Gaussian tail behaviour: on the
+  # heavy side the density is about 2 phi(q), on the light side it decays like
+  # phi(q sqrt(1 + alpha^2)). For |alpha| up to 30 this start is within about
+  # 0.6 of the root, but in most cases further from it than qsnorm_fast().
+  # Newton's method below converges from either.
   far <- logp < -27 | !is.finite(q)
   if (any(far)) {
     heavy <- (alpha >= 0) == upper
@@ -186,8 +213,8 @@ qsn_std_logtail <- function(logp, alpha, upper) {
     f <- dsnorm(qi, 0, 1, ai)
     # d/dq log F = f / F and d/dq log(1 - F) = -f / (1 - F)
     step <- (log_tail - logp[active]) * exp(log_tail) / ifelse(up, -f, f)
-    # A tail that underflows means q is far out: step back towards the
-    # centre (q - step moves up for a lower tail, down for an upper one)
+    # A tail that underflows means q is far out. Step back towards the centre:
+    # q - step moves up for a lower tail and down for an upper one.
     bad <- !is.finite(step)
     step[bad] <- ifelse(up[bad], 1, -1)
     step <- pmax(pmin(step, 1), -1)
@@ -252,22 +279,36 @@ sn_mode <- function(xi, omega, alpha) {
 mills_ratio <- function(u) {
   logphi <- stats::dnorm(u, log = TRUE)
   logPhi <- stats::pnorm(u, log.p = TRUE)
-  # guard against -Inf in logPhi; cap to avoid exp overflow
-  logPhi <- pmax(logPhi, -745) # ~exp(-745) ~ 5e-324
+  # Floor logPhi at -745, so that it is never -Inf (exp(-745) is about 5e-324).
+  # The floor also binds where logPhi is finite, below u of about -38.5, and
+  # there it makes the ratio wrong: mills_ratio(-40) gives 5e-25, not 40.
+  logPhi <- pmax(logPhi, -745)
   exp(logphi - logPhi)
 }
 
 # Fit a skew-normal to log-density evaluations y = log f(x) at points x, by
 # weighted least squares on the log scale. The weights are the density values
-# raised to the temperature `temp`, so the fit concentrates where the mass is;
-# points more than `threshold_log_drop` below the maximum are ignored. This is
-# the R-INLA approach (gmrflib/fit-sn.c), as ported in INLAvaan, with the
-# temperature fixed rather than estimated. `y` should be normalised so that
-# max(y) = 0.
+# raised to the temperature `temp`, so the fit concentrates where the mass is.
+# Points more than `threshold_log_drop` below the maximum are ignored, but the
+# five highest points are always kept. This is the R-INLA approach
+# (gmrflib/fit-sn.c), as ported in INLAvaan, with the temperature fixed rather
+# than estimated. `y` should be normalised so that max(y) = 0. `temp` must be a
+# single finite positive number, and `threshold_log_drop` a single finite
+# negative number.
 fit_skew_normal <- function(x, y, threshold_log_drop = -6, temp = 1) {
-  # Trapezoidal integration weights, for moment-based starting values. (The
-  # INLAvaan original gives the second point half its weight, which skews the
-  # starting values of a symmetric scan.)
+  is_num <- function(v) is.numeric(v) && length(v) == 1L && is.finite(v)
+  if (!is_num(temp) || temp <= 0) {
+    abort("{.arg temp} must be a single finite positive number.")
+  }
+  if (!is_num(threshold_log_drop) || threshold_log_drop >= 0) {
+    abort(
+      "{.arg threshold_log_drop} must be a single finite negative number."
+    )
+  }
+
+  # Trapezoidal integration weights, for moment-based starting values. Each
+  # point gets half the width of the intervals beside it, so a symmetric scan
+  # gives symmetric starting values.
   n <- length(x)
   dx <- diff(x)
   w_int <- 0.5 * (c(dx, 0) + c(0, dx))

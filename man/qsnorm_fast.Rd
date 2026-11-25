@@ -16,9 +16,9 @@ qsnorm_fast(p, xi = 0, omega = 1, alpha = 0)
 \item{alpha}{Shape parameter.}
 }
 \value{
-A numeric vector of approximate quantiles. \code{xi}, \code{omega} and
-\code{alpha} shorter than \code{p} are recycled to its length. \code{p} of 0 and 1 give
-\code{-Inf} and \code{Inf}.
+A numeric vector of approximate quantiles. The arguments are
+recycled to the length of the longest, and an argument of length zero
+gives a zero-length result. \code{p} of 0 and 1 give \code{-Inf} and \code{Inf}.
 }
 \description{
 A fast approximation of skew-normal quantiles, from the INLA GMRFLib C

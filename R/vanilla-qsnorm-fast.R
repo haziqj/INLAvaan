@@ -34,22 +34,37 @@
 # functions for random number generation. Doctoral thesis, UCL (University
 # College London). https://discovery.ucl.ac.uk/1482128/
 
-# Fast approximation of the skew-normal quantile function, from the INLA
-# GMRFLib C source and originally by Thomas Luu (2016), as ported in INLAvaan.
-# The domain is split into tail regions, handled through the Lambert W
-# function, and a central region, handled by a fifth-order Taylor expansion of
-# the inverse error function about a well-chosen expansion point. It needs no
-# iterative inversion, but it is only a starting value: away from
-# alpha = 0 and +-1 its error reaches about 5e-2 in standardised units (Luu's
-# original uses a tolerance of 0.01), so qsnorm() and sn_score_map() refine it
-# by Newton's method.
+# Fast approximation of the skew-normal quantile function, from the INLA GMRFLib
+# C source and originally by Thomas Luu (2016), as ported in INLAvaan. The
+# domain is split into tail regions, handled through the Lambert W function, and
+# a central region, handled by a fifth-order Taylor expansion of the inverse
+# error function about a well-chosen expansion point. It needs no iterative
+# inversion, but it is only a starting value (Luu's original uses a tolerance of
+# 0.01), so qsnorm() and sn_score_map() refine it by Newton's method. For
+# |alpha| up to 30 its error, in units of omega, is at most 7e-3 for p between
+# 0.01 and 0.99, and at most 0.085 down to a tail probability of 1e-15 (largest
+# near |alpha| = 1.06 and a tail probability of 1.5e-3), except in a narrow
+# window of |alpha| near 2.18, in the lighter tail below a tail probability of
+# about 1e-6. There the error grows with the depth: 0.36 at 1e-9, 0.9 at 1e-12,
+# 2 at 1e-16 and 40 at 1e-50. Below 1e-15 in the heavier tail, where 1 - p
+# rounds, it is off by up to 0.1, and it is +-Inf below about 1.7e-16. It is
+# exact when alpha is 0, and when alpha is +-1 except far in the heavier tail
+# (2e-5 at a tail probability of 1e-12).
 #
 # Luu, T. (2016). Fast and accurate parallel computation of quantile functions
 # for random number generation (Doctoral thesis). University College London.
 # https://discovery.ucl.ac.uk/1482128/
 qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
-  # Recycling inputs to match length of p
-  n <- length(p)
+  # Recycle every argument to the length of the longest, as qsnorm() does. A
+  # zero-length argument gives a zero-length result.
+  lens <- c(length(p), length(xi), length(omega), length(alpha))
+  if (min(lens) == 0L) {
+    return(numeric(0))
+  }
+  n <- max(lens)
+  if (length(p) < n) {
+    p <- rep(p, length.out = n)
+  }
   if (length(xi) < n) {
     xi <- rep(xi, length.out = n)
   }
@@ -221,8 +236,8 @@ qsnorm_fast <- function(p, xi = 0, omega = 1, alpha = 0) {
   }
 
   res[mask] <- final_vals
-  # Unmasked points (alpha of 0 or 1, or u at 0 or 1) take the normal
-  # quantile, as in the early return above
+  # Unmasked points (alpha of 0 or 1, or u at 0 or 1) take the normal quantile,
+  # as in the early return above.
   res[!mask] <- z[!mask]
 
   # Apply symmetry flip for originally-negative alpha

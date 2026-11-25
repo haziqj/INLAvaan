@@ -170,6 +170,14 @@ test_that("no object of an engine file is defined twice in R/", {
   expect_identical(kit$check_engine_names(kit$root), character())
 })
 
+# The parallel workers of the engine load the package that holds the copies,
+# named by utils::packageName() in R/vanilla-parallel.R.
+test_that("the parallel workers of the engine copies load INLAvaan", {
+  skip_if_not_installed("future")
+  setup <- par_globals(list(function(x) x))
+  expect_true("INLAvaan" %in% setup$packages)
+})
+
 ## ----- Check 1a: copy = lock -------------------------------------------------
 
 test_that("check 1a passes on good copies and fails on broken ones", {

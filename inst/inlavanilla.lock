@@ -1,12 +1,45 @@
 Upstream: https://github.com/haziqj/inlavanilla
-Release: v26.11.24
-Commit: 88056cfa545cee5a601af4485bbc2a3a5443e0fc
-Version: 26.11.24
-Synced: 2026-11-24
+Release: v26.11.24-1
+Commit: 0d3daa7cc8c12fdbda1c1f7a82923ab91dac0395
+Version: 26.11.24-1
+Synced: 2026-11-25
 Hash: md5 of the text with LF line endings
 
+File: R/vanilla-control.R
+MD5: 58d754b181b188bfda7d5f09d88bd0c3
+
+File: R/vanilla-core.R
+MD5: aa682883cae63b63b2f41b94c94f019d
+
+File: R/vanilla-diagnostics.R
+MD5: 48122c89a1411e6a66c634096a7f2d40
+
+File: R/vanilla-laplace.R
+MD5: 5a423e1060d8aab66f7cc6cd648cfb16
+
+File: R/vanilla-marginals.R
+MD5: aef4769f2c0a499bfee3d54efd37b018
+
+File: R/vanilla-parallel.R
+MD5: 879096dde549deb3c3853663bd542154
+
+File: R/vanilla-progress.R
+MD5: fad4e7fa66c7eba3888ba7e609cf1ac7
+
 File: R/vanilla-qsnorm-fast.R
-MD5: 000ab78ae2b4b2c2a8d7222704be8617
+MD5: 163e3bbf5d10e92866b46128852f0dc3
+
+File: R/vanilla-sampling.R
+MD5: 536627f61da1b6829ea9b3d16e8fec2f
 
 File: R/vanilla-skew-normal.R
-MD5: faa33742c788625510ca1b332aae47d5
+MD5: 2eacea042fc955a65f6974028cdf51fc
+
+File: R/vanilla-taylor.R
+MD5: 0132e13036dcc9ce524d674318baf1dd
+
+File: R/vanilla-utils.R
+MD5: 7b61b36bebc825af71ff8b9c6c784f86
+
+File: R/vanilla-vb.R
+MD5: ed718bf1ac276054862e596d33eeacde
