@@ -611,3 +611,31 @@ test_that("update() on the stored data keeps the ordered factors of the data ord
     update(fit, model = "visual =~ x1 + a*x2 + a*x3", data = dd_given)
   )
 })
+
+test_that("update() on the stored data uses the recorded fixed.x", {
+  dx <- dat
+  fit <- asem(
+    "visual =~ x1 + x2 + x3 + x4",
+    dx,
+    fixed.x = FALSE,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  rm(dx)
+  # lavaan sets fixed.x to FALSE for a model without exogenous variables, so
+  # the options of the fit do not show the value of its call. Before, the
+  # check took TRUE for the new model, which the stored data fail.
+  model <- "visual =~ x1 + x2 + x3\n visual ~ x4"
+  expect_same_fit(
+    update(fit, model = model),
+    update(fit, model = model, data = dat)
+  )
+  # The default of fixed.x for the new model is not known here
+  expect_error(
+    update(fit, model = model, fixed.x = NULL),
+    class = "inlavaan_update_data_not_found"
+  )
+})

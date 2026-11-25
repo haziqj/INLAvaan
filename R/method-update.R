@@ -605,22 +605,30 @@ check_stored_data_roles <- function(
   ord_old <- data@ov$name[data@ov$type == "ordered"]
   no_old_x <- length(lavaan::lavNames(object, "ov.x")) == 0L
 
-  # fixed.x and conditional.x as lavaan resolved them for the fit, unless the
-  # update gives them. A model without exogenous variables sets both to FALSE,
-  # so then the value for a model with exogenous variables is unknown. It is
-  # taken as TRUE, which the stored data (with no exogenous variables) fail.
+  # fixed.x and conditional.x of the refit: the value of the update, or else
+  # that of the fit. A flag counts as given. The default (NULL or "default")
+  # is resolved by lavaan as for the fit, unless the fit gave a flag. Then
+  # the default for the new model is unknown (NA). A model without exogenous
+  # variables sets both to FALSE, so the default for a model with exogenous
+  # variables is then taken as lavaan resolves it: fixed.x TRUE (as for most
+  # estimators) and conditional.x TRUE with ordinal variables only.
   role_flag <- function(key, stored) {
-    if (!key %in% names(given)) {
-      return(stored)
-    }
-    value <- given[[key]]
+    value <- if (key %in% names(given)) given[[key]] else recorded[[key]]
     if (is.null(value) || identical(value, "default")) {
-      return(if (key %in% names(recorded)) NA else stored)
+      fit_default <- is.null(recorded[[key]]) ||
+        identical(recorded[[key]], "default")
+      return(if (fit_default) stored else NA)
     }
     if (is.logical(value) && length(value) == 1L) value else NA
   }
-  fixed_x <- role_flag("fixed.x", isTRUE(opt$fixed.x) || no_old_x)
-  cond_x <- role_flag("conditional.x", isTRUE(opt$conditional.x))
+  fixed_x <- role_flag(
+    "fixed.x",
+    if (no_old_x) TRUE else isTRUE(opt$fixed.x)
+  )
+  cond_x <- role_flag(
+    "conditional.x",
+    if (no_old_x) length(ord_old) > 0L else isTRUE(opt$conditional.x)
+  )
 
   same <- is.list(roles) && !is.na(fixed_x) && !is.na(cond_x)
   if (same) {
