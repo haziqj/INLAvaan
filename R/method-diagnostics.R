@@ -400,11 +400,11 @@ inlavaan_advice <- list(
 # engine's diagnostic_problems(), in INLAvaan's words (inlavaan_advice).
 # INLAvaan adds two checks of its own: the return code of nlminb(), which the
 # engine leaves out, first, and the latent and residual covariance matrices
-# that are not positive definite, last. The check of the one-step VB
-# correction is the engine's, but the engine raises it in a warning of its
-# own, which engine_call() muffles, so its bullet is worded here, after the
-# engine's bullets. Only the "x" bullets count as issues: the engine adds "i"
-# lines with advice.
+# that are not positive definite, last. The check of the one-step VB correction
+# is the engine's, but the engine raises it in a warning of its own, which
+# engine_call() muffles, so its bullet is worded here, after the engine's
+# bullets. Only the "x" bullets count as issues: the engine adds "i" lines with
+# advice.
 warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
   dg <- diagnostics_fit(int)
   glob <- dg$global
