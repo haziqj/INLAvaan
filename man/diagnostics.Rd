@@ -86,10 +86,24 @@ the scanned marginals.}
 fallback optimiser, 0 otherwise. It is recorded only: the fallback is a
 route of the solver, and the other VB checks judge where it lands.}
 \item{\code{vb_step_max}}{Maximum \code{vb_step_sigma} (see below).}
-\item{\code{vb_gain_ratio}}{The rise in the expected log-posterior that
-the one-step VB correction delivered, as a share of the rise that it
-promised. Near 1 is healthy. \code{NA} when the correction iterated
-(\code{vb_correction = "full"}), or its step was too small to check.}
+\item{\code{vb_lhat}, \code{vb_j0}, \code{vb_j1}}{The check of the
+one-step VB correction, from a second pass of its rule at the step. The
+step is the first iterate of a fixed-point map whose fixed point is the
+VB mean, and it is close to that mean only where the map is a
+contraction. \code{vb_lhat} is the size of the residual of the VB
+equation at the step over its size at the mode. \code{vb_j0} and
+\code{vb_j1} are the slope of the map along the step, at the mode and
+at the step. The check passes when \code{vb_lhat} is below 1 and both
+slopes lie between -1 and 1, and a value that is not finite fails it.
+\code{NA} with \code{vb_correction = "full"}, and when the step was
+below \code{vb_tol} (see \code{\link[=inlavaan_control]{inlavaan_control()}}) in every parameter,
+which is too small to check.}
+\item{\code{vb_solve}}{1 if the check of the one-step VB correction
+failed, 0 if it passed, \code{NA} if it did not run. After a failed
+check the fit solves the VB equation instead, from the mode, at no more
+cost than the search for the mode and the Hessian took, and the
+fit-time warning says that the posterior is far from Gaussian along the
+mean correction (see below).}
 \item{\code{mean_gap_max}}{Maximum, across parameters, of
 |\code{mean_gap}| (see below).}
 \item{\code{ridge_bend_max}}{Maximum \code{ridge_bend} (see below).}
@@ -148,7 +162,10 @@ curvature (about the relative error it makes in a posterior SD).
 Should be ~0.}
 \item{\code{vb_step_sigma}}{The step still to go at the VB mean, in
 posterior-SD units, as \code{mode_shift_sigma} is for the mode.
-\code{NA} after the default one-step VB correction.}
+\code{NA} after the default one-step VB correction when its check
+passed. When the check failed (\code{vb_solve}), it is the step still
+to go where the solve stopped, which is recorded but not flagged, since
+the solve stops at a limit on its cost that is not a setting.}
 \item{\code{mean_gap}}{Gap between the mean of the skew-normal marginal
 and the VB mean, in posterior-SD units. Both estimate the shift from the
 mode to the posterior mean, so a large gap says that the posterior is
@@ -178,7 +195,11 @@ of every fit and emits a single consolidated warning (condition class
 \item any parameter with \code{grad_gap} above 0.1;
 \item \code{mode_shift_max} above 0.1 posterior SDs;
 \item the VB correction did not settle: \code{vb_step_max} above 0.1
-posterior SDs, or \code{vb_gain_ratio} below 0.5;
+posterior SDs, except after the solve that follows a failed one-step
+check;
+\item the one-step VB correction failed its check (\code{vb_solve} is
+1): the posterior is far from Gaussian along the mean correction, and
+the warning names the parameter that the one step moved furthest;
 \item any marginal with \code{nmad} above 0.1;
 \item any marginal with \code{unscanned_mass} above 0.05;
 \item any marginal with heavy tails;
