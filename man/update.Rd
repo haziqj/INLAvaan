@@ -54,48 +54,16 @@ the same order. Otherwise, as after \code{std.lv = TRUE} or
 \code{start} explicitly to override it.
 
 When the data object of the original call is no longer found, as after
-\code{rm(dd)} or in a new session, \code{update()} uses the data stored in the fit
-and says so. lavaan has read these data already, with the model of the fit
-and its options on how the data are read (for example, it has dropped the
-incomplete rows under listwise deletion, and it has put the observed
-variables in the order of the model). So the refit then uses the model and
-these options with the values that the fit was made with, unless the update
-gives them. The fit records these values, and the objects that the original
-call names for them are not looked up again. A model \code{m} or a value
-\code{missing = mm} that has changed since the fit, or that no longer exists,
-has no effect, and \code{add} extends the model of the fit. The other arguments
-of the original call, such as \code{dp}, are evaluated again as usual.
+\code{rm(dd)} or in a new session, \code{update()} stops with an error of class
+\code{inlavaan_update_data_not_found}. Give the data again with \code{data}, as in
+\code{update(fit, data = dd)}, or fit the model again with \code{\link[=inlavaan]{inlavaan()}}. Data
+named after a function, such as \code{df} or \code{data} in a new session, count as
+not found.
 
-On the stored data, \code{update()} stops with an error of class
-\code{inlavaan_update_data_not_found} when the update gives a new value to an
-option on how the data are read, such as \code{group}, \code{cluster}, \code{missing},
-\code{ordered}, \code{fixed.x}, \code{sampling.weights} or \code{ov.order}. It also stops when
-the new model has other observed variables, or gives them other roles
-(other exogenous or ordinal variables, or other variables on a level), or
-puts them in another order (unless the fit has \code{ov.order = "data"}, under
-which lavaan puts them in the order of the data). To make such a change,
-give \code{data} again.
-
-Some updates on the stored data stop although the refit could be the same,
-because the fit does not show how lavaan would read the data for them:
-\itemize{
-\item a new model with exogenous variables, on a fit without them, unless the
-update or the fit gives \code{fixed.x = FALSE} (lavaan sets \code{fixed.x} to
-\code{FALSE} for a model without exogenous variables);
-\item \code{fixed.x}, \code{conditional.x}, \code{group.label} or \code{level.label} given as
-\code{NULL}, their default, when the fit gave a value;
-\item a value of \code{ordered} that leaves out a variable that is an ordered factor
-in the data, when \code{ordered} or a threshold of the fit also made it
-ordinal;
-\item any new value of \code{ov.order} or \code{mimic}, and data in another form
-(\code{sample.cov} and the like);
-\item a model in which \code{update()} cannot find the roles of the observed
-variables;
-\item on a fit made by an older version of INLAvaan, which did not record these
-values: a new model, when the fit has ordinal variables and its call gave
-\code{ordered}, unless the update gives \code{ordered} too, and \code{add}, when the
-model has constraints written with \code{==}, \code{<} or \code{>}.
-}
+\code{update(fit, arg = NULL)} drops \code{arg} from the recorded call, as
+\code{\link[stats:update]{stats::update()}} does. An argument given under another spelling that
+lavaan reads as the same, such as \code{std_ov} for \code{std.ov}, replaces the
+recorded one.
 
 \code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So
 \code{update(fit, silent = TRUE)} drops \code{verbose} from the recorded call, and

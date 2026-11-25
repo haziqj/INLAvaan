@@ -344,9 +344,9 @@ check_model_type <- function(model.type, call = parent.frame()) {
 ## ----- data ------------------------------------------------------------------
 
 # A fit needs data: `data`, the sample statistics `sample.cov` (with
-# `sample.nobs`), or the stored data of a fit (`slotData`, which update() and
-# the baseline fits give). Without any of them, lavaan builds the model with no
-# data, and the fit stopped late with a misleading error.
+# `sample.nobs`), or the stored data of a fit (`slotData`, which the baseline
+# fits give). Without any of them, lavaan builds the model with no data, and
+# the fit stopped late with a misleading error.
 check_data_given <- function(data, lavargs, call = parent.frame()) {
   keys <- arg_key(names(lavargs))
   others <- lavargs[keys %in% c("sample.cov", "slotdata", "slot.data")]
