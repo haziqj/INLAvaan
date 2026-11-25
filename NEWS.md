@@ -81,16 +81,22 @@
   - DIC moves by about 0.06 (at most 0.084), and PPP by at most 0.006. The
     marginal likelihood (`mloglik`) and `Dhat` do not change.
 
-* `fit_skew_normal_samp()` now fits from three starts and keeps the fit with
-  the largest likelihood, so its likelihood is never below that of the old
-  fit. The first start is the old one, `alpha = 0`, where the likelihood has a
-  stationary point. The other two come from the skewness of the draws, as in
-  `fit_skew_normal()`: the moment-based shape and its mirror image, with the
-  opposite skew. When the sample skewness is below about 0.0018 in absolute
-  value, these two starts are `alpha` of about 0.58 and -0.58. For mildly
-  skewed draws, the old fit could stall near `alpha = 0`, at `alpha` of about
-  0.01, and a small change in the draws could tip it to the optimum, at
-  `alpha` of about 1. The covariances and defined parameters in `summary()`
+* `fit_skew_normal_samp()` now fits from up to three starts and keeps the fit
+  with the largest likelihood. Two starts come from the skewness of the draws,
+  as in `fit_skew_normal()`: the moment-based shape and its mirror image, with
+  the opposite skew. When the sample skewness is below about 0.0018 in
+  absolute value, these two starts are `alpha` of about 0.58 and -0.58. The
+  third start is the old one, `alpha = 0`, where the likelihood has a
+  stationary point. It runs only when the fits from the first two starts end
+  on the same side of `alpha = 0`, or when one of them is not finite. When
+  they end on opposite sides, the old fit is not computed, so the new fit is
+  not guaranteed by construction to have a likelihood at least that of the
+  old fit. On all the draws below, its likelihood is at least that of the old
+  fit, up to rounding (a relative difference of at most 4e-15). The optimiser
+  uses the analytic gradient and Hessian of the likelihood. For mildly skewed
+  draws, the old fit could stall near `alpha = 0`, at `alpha` of about 0.01,
+  and a small change in the draws could tip it to the optimum, at `alpha` of
+  about 1. The covariances and defined parameters in `summary()`
   come from this fit, so they could jump. For draws that do not vary or are
   not all finite, the fit returns the same values as before, with one warning
   in place of the warnings of `nlminb()` (and now also for empty draws). With
@@ -131,7 +137,9 @@
     posterior SDs.
   - The draws, the rows from the fitted marginals, `mloglik`, DIC and PPP do
     not change, and neither does the random number stream.
-  - The fit of one row takes about 12 ms in place of 4 ms for 1000 draws.
+  - On posterior draws of these models, the fit of one row of 1000 draws
+    takes about 1.1 ms, in place of about 4 ms in INLAvaan 0.3.5 (and about
+    12 ms in the development version before the analytic derivatives).
 
 * `approx_data` in `get_inlavaan_internal()` no longer has the columns `k` and
   `rmse`. `k` was the temperature of the skew-normal fit, and `rmse` was a mean
