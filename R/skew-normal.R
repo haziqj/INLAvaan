@@ -232,7 +232,7 @@ fit_skew_normal_samp <- function(x) {
   }
   z <- (x - m) / s
   nll <- sn_samp_nll(z)
-  fit_from <- function(start) stats::nlminb(start, nll$fn, nll$gr, nll$hs)
+  fit_from <- function(start) sn_samp_nlminb(start, nll)
 
   # The first two starts are as in fit_skew_normal(): the moment-based
   # delta = alpha / sqrt(1 + alpha^2) and its mirror image, or delta = +-0.5
@@ -270,6 +270,12 @@ fit_skew_normal_samp <- function(x) {
     omega = omega_hat,
     alpha = alpha_hat
   )
+}
+
+# The fit of fit_skew_normal_samp() from one start, separate so that the tests
+# can see which starts run
+sn_samp_nlminb <- function(start, nll) {
+  stats::nlminb(start, nll$fn, nll$gr, nll$hs)
 }
 
 # The negative log-likelihood of SN(xi, exp(eta), alpha) for the draws z, with

@@ -141,16 +141,37 @@ test_that("Skew-normal sample fit has a stable Hessian when alpha u is very nega
   }
 })
 
-test_that("Skew-normal sample fit runs the third start when it can win", {
-  # On these draws, the fits from the two mirrored starts both end at alpha of
-  # about -1.31, so the fit from alpha = 0 also runs. The result is the best
-  # fit from the three starts.
-  set.seed(17)
-  y <- rt(50, 5) + 0.3 * abs(rnorm(50))
-  z <- (y - stats::median(y)) / stats::sd(y)
+# Record the starts that fit_skew_normal_samp() runs. A function in `fake`, at
+# the position of a start, replaces the fit from that start.
+local_record_starts <- function(fake = list(), env = parent.frame()) {
+  rec <- new.env()
+  rec$starts <- list()
+  local_mocked_bindings(
+    sn_samp_nlminb = function(start, nll) {
+      i <- length(rec$starts) + 1
+      rec$starts[[i]] <- start
+      if (i <= length(fake) && is.function(fake[[i]])) {
+        return(fake[[i]](nll))
+      }
+      stats::nlminb(start, nll$fn, nll$gr, nll$hs)
+    },
+    .env = env
+  )
+  rec
+}
+
+# The fits from all three starts of fit_skew_normal_samp(), and the result
+# from the best of them
+all_three_fits <- function(y) {
+  m <- stats::median(y)
+  s <- stats::sd(y)
+  z <- (y - m) / s
   nll <- sn_samp_nll(z)
   zc <- z - mean(z)
   d0 <- sn_delta_from_skew(mean(zc^3) / mean(zc^2)^1.5)
+  if (abs(d0) < 0.2) {
+    d0 <- 0.5
+  }
   starts <- lapply(c(d0, -d0), function(d) {
     om <- 1 / sqrt(1 - 2 * d^2 / pi)
     c(mean(z) - om * d * sqrt(2 / pi), log(om), d / sqrt(1 - d^2))
@@ -158,16 +179,61 @@ test_that("Skew-normal sample fit runs the third start when it can win", {
   fits <- lapply(c(starts, list(c(0, 0, 0))), function(st) {
     stats::nlminb(st, nll$fn, nll$gr, nll$hs)
   })
-  alphas <- vapply(fits, function(f) f$par[3], 0)
+  to_list <- function(f) {
+    list(xi = m + s * f$par[1], omega = s * exp(f$par[2]), alpha = f$par[3])
+  }
+  best <- fits[[which.min(vapply(fits, `[[`, 0, "objective"))]]
+  list(fits = fits, best = to_list(best), to_list = to_list)
+}
+
+test_that("Skew-normal sample fit skips the third start on opposite sides", {
+  # The fits from the two mirrored starts end at alpha of about -0.63 and 0.66,
+  # so the fit from alpha = 0 does not run. It would not improve the result.
+  set.seed(306061)
+  y <- rt(4000, 8)
+  ref <- all_three_fits(y)
+  alphas <- vapply(ref$fits, function(f) f$par[3], 0)
+  expect_lt(alphas[1] * alphas[2], 0)
+
+  rec <- local_record_starts()
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 2)
+  expect_false(any(vapply(rec$starts, function(st) all(st == 0), TRUE)))
+  expect_equal(res, ref$best)
+})
+
+test_that("Skew-normal sample fit runs the third start on the same side", {
+  # The fits from the two mirrored starts both end at alpha of about -1.31, so
+  # the fit from alpha = 0 also runs. The result is the best of the three.
+  set.seed(17)
+  y <- rt(50, 5) + 0.3 * abs(rnorm(50))
+  ref <- all_three_fits(y)
+  alphas <- vapply(ref$fits, function(f) f$par[3], 0)
   expect_gte(alphas[1] * alphas[2], 0)
 
-  best <- fits[[which.min(vapply(fits, `[[`, 0, "objective"))]]
+  rec <- local_record_starts()
   res <- fit_skew_normal_samp(y)
-  expect_equal(res$alpha, best$par[3])
-  expect_equal(
-    c(res$xi, res$omega),
-    c(stats::median(y), 0) + stats::sd(y) * c(best$par[1], exp(best$par[2]))
-  )
+  expect_length(rec$starts, 3)
+  expect_identical(rec$starts[[3]], c(0, 0, 0))
+  expect_equal(res, ref$best)
+})
+
+test_that("Skew-normal sample fit keeps the third start when it wins", {
+  # The fits from the two mirrored starts are replaced by fits that stall near
+  # alpha = 0 on the same side, so the fit from alpha = 0 runs and wins.
+  set.seed(17)
+  y <- rt(50, 5) + 0.3 * abs(rnorm(50))
+  ref <- all_three_fits(y)
+  stall <- function(alpha) {
+    function(nll) {
+      par <- c(0, 0, alpha)
+      list(par = par, objective = nll$fn(par))
+    }
+  }
+  rec <- local_record_starts(list(stall(0.01), stall(0.02)))
+  res <- fit_skew_normal_samp(y)
+  expect_length(rec$starts, 3)
+  expect_equal(res, ref$to_list(ref$fits[[3]]))
 })
 
 test_that("Skew-normal sample fit warns when the draws cannot be fitted", {
