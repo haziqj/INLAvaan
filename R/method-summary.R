@@ -59,7 +59,11 @@ summary_inlavaan <- function(
   nd = 3L,
   ...
 ) {
-  vb_correction <- all(!is.na(object@external$inlavaan_internal$vb$correction))
+  vb <- object@external$inlavaan_internal$vb
+  vb_correction <- all(!is.na(vb$correction))
+  # The VB route that the fit used, "onestep" or "full", or "none". A fit made
+  # before the engine stored "sobol" or "gauss_hermite", and an older one none.
+  vb_label <- if (vb_correction) vb$method %||% "yes" else "none"
 
   ## ----- Header --------------------------------------------------------------
   if (isTRUE(header)) {
@@ -333,7 +337,7 @@ summary_inlavaan <- function(
     capture.output(cat(
       "\n",
       sprintf("  %-38s", "VB correction"),
-      sprintf("  %10s", toupper(vb_correction))
+      sprintf("  %10s", toupper(vb_label))
     ))[2],
     garb[(idxpehead + 2):length(garb)]
   )

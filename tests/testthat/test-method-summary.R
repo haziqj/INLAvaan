@@ -59,3 +59,30 @@ test_that("summary(rsquare = TRUE, standardized = TRUE) rows stay aligned", {
   expect_true(any(grepl("R-Square", out)))
   expect_true(any(grepl("Std.all", out)))
 })
+
+test_that("summary() names the VB route of the fit", {
+  vb_line <- function(fit) {
+    out <- capture.output(summary(fit))
+    line <- grep("VB correction", out, value = TRUE, fixed = TRUE)
+    trimws(sub("VB correction", "", line, fixed = TRUE))
+  }
+  fit_vb <- function(vb_correction) {
+    acfa(
+      "visual =~ x1 + x2 + x3",
+      dat,
+      silent = TRUE,
+      nsamp = 3,
+      test = "none",
+      vb_correction = vb_correction,
+      marginal_method = "gaussian"
+    )
+  }
+  # Before, "onestep" and "full" both gave TRUE
+  fit_one <- fit_vb("onestep")
+  expect_identical(vb_line(fit_one), "ONESTEP")
+  expect_identical(vb_line(fit_vb("full")), "FULL")
+  expect_identical(vb_line(fit_vb("none")), "NONE")
+  # A fit that recorded no route
+  fit_one@external$inlavaan_internal$vb$method <- NULL
+  expect_identical(vb_line(fit_one), "YES")
+})
