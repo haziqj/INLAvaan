@@ -1,5 +1,5 @@
 # Node set for the VB mean correction by a deterministic Gauss-Hermite rule,
-# the alternative to the scrambled Sobol cloud of vb_nodes(). Returns the
+# the alternative to the scrambled Sobol cloud of vb_nodes_sobol(). Returns the
 # node offsets (one row per node, the centre first) and their weights.
 #
 # In whitened coordinates z ~ N(0, I) every odd moment and every cross moment

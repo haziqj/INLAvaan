@@ -324,7 +324,7 @@ test_that("a small share of draws that are not PD stays silent", {
 test_that("fits saved without cov_pd report NA and do not warn", {
   int <- INLAvaan:::get_inlavaan_internal(fit_pd)
   int$cov_pd <- NULL
-  glob <- INLAvaan:::diagnostics_internal(int)$global
+  glob <- INLAvaan:::diagnostics_fit(int)$global
   expect_true(is.na(glob[["psi_npd_share"]]))
   expect_no_warning(INLAvaan:::warn_fit_diagnostics(int))
 })

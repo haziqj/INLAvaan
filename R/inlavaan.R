@@ -875,7 +875,7 @@ inlavaan <- function(
       if (is.na(vb_n_qmc) || vb_n_qmc < 2L) {
         cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
       }
-      zs <- vb_nodes(vb_n_qmc, L)
+      zs <- vb_nodes_sobol(vb_n_qmc, L)
     } else {
       # Deterministic rule on the principal axes of Sigma_theta. See
       # vb_nodes_gauss_hermite() for why 2m + 1 nodes suffice.

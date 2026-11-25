@@ -170,7 +170,7 @@ setMethod(
   "INLAvaan",
   function(object, type = c("global", "param"), ...) {
     type <- match.arg(type)
-    dg <- diagnostics_internal(object@external$inlavaan_internal)
+    dg <- diagnostics_fit(object@external$inlavaan_internal)
     if (type == "global") {
       dg$global
     } else {
@@ -204,7 +204,7 @@ optim_convergence <- function(opt, optim_method) {
 
 # Shared computation behind diagnostics() and the fit-time warning; works on
 # the internal list so it can run before the S4 object exists.
-diagnostics_internal <- function(int) {
+diagnostics_fit <- function(int) {
   grad_analytic <- int$opt$dx_analytic
   grad_num <- int$opt$dx
   pars <- int$theta_star
@@ -421,7 +421,7 @@ warn_fit_diagnostics <- function(
   hess_cond_tol = 1e8,
   npd_share_tol = 0.01
 ) {
-  dg <- diagnostics_internal(int)
+  dg <- diagnostics_fit(int)
   glob <- dg$global
   param <- dg$param
   issues <- character(0)

@@ -36,7 +36,7 @@ sobol_owen <- function(n, d) {
 # shift directly, whatever the shape of the posterior. Centring makes
 # `colMeans(zs)` exactly zero: the centred block has zero column sums and the
 # prepended row is zero.
-vb_nodes <- function(n, L) {
+vb_nodes_sobol <- function(n, L) {
   z_std <- qnorm(sobol_owen(n = n, d = ncol(L)))
   z_std <- sweep(z_std, 2, colMeans(z_std))
   rbind(0, z_std %*% t(L))
