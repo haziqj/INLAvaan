@@ -415,6 +415,7 @@ inlavaan <- function(
     test_requested <- test_req
 
     lavargs <- list(...)
+    check_data_given(data, lavargs)
     lavargs$model <- split_modifiers(model)
     lavargs$data <- data
     lavargs$ceq.simple <- TRUE # FIXME: Force ceq.simple rather than eq.constraints

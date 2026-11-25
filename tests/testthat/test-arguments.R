@@ -30,6 +30,21 @@ test_that("a model fits from sample.cov and sample.nobs alone", {
   )
 })
 
+test_that("a fit with no data stops with an error that says what to give", {
+  # Before, the fit stopped late with an error about the identification
+  for (fn in list(inlavaan, acfa, asem, agrowth)) {
+    err <- expect_error(fn(mod, silent = TRUE), class = "inlavaan_no_data")
+    expect_match(conditionMessage(err), "sample.nobs", fixed = TRUE)
+  }
+  expect_error(
+    fit_quick(data = NULL, sample.cov = NULL, sample.nobs = 301),
+    class = "inlavaan_no_data"
+  )
+  # The snake-case names of lavaan count too
+  S <- stats::cov(hs[, c("x1", "x2", "x3")])
+  expect_s4_class(fit_quick(sample_cov = S, sample_nobs = 301), "INLAvaan")
+})
+
 ## ----- model.type ------------------------------------------------------------
 
 test_that("model.type must name a lavaan function that inlavaan() uses", {

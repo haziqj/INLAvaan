@@ -153,7 +153,8 @@
 * `data` now defaults to `NULL` in `inlavaan()`, `acfa()`, `asem()` and
   `agrowth()`, so a model can be fitted from `sample.cov` and `sample.nobs`
   alone. Before, such a call stopped with an error, because `data` was
-  missing.
+  missing. With neither `data` nor `sample.cov`, the fit stops with an error
+  of class `inlavaan_no_data`, which says to give one of them.
 
 * `inlavaan()` now checks `model.type`, which must be `"sem"`, `"cfa"`,
   `"growth"` or `"lavaan"`. Another value gives an error of class
