@@ -285,11 +285,14 @@ columns:
   `mode_shift_sigma` is for the mode. `NA` after the default one-step VB
   correction when its check passed. When the check failed (`vb_solve`),
   it is the step still to go where the solve stopped: at `vb_tol`, at
-  `vb_maxit` (see
-  [`inlavaan_control()`](https://inlavaan.haziqj.ml/reference/inlavaan_control.md)),
-  or at a cap on its cost that is not a setting. It is then not a check
-  of its own, but the bullet on the failed check says how far the solve
-  stopped short when it is above 0.1.
+  `vb_maxit` or at the cap on its cost that `vb_budget` sets (see
+  [`inlavaan_control()`](https://inlavaan.haziqj.ml/reference/inlavaan_control.md)).
+  It is then not a check of its own, but the bullet on the failed check
+  says how far the solve stopped short when it is above 0.1. With
+  `vb_budget = 0` the fit stays at the mode, and it is the first step of
+  the fixed-point rule from the mode. That step can be much larger than
+  the distance from the mode to the VB mean, so it then overstates how
+  far the solve stopped short.
 
 - `mean_gap`:
 

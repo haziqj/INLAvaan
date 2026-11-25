@@ -230,14 +230,14 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ⠙ Finding the posterior mode, 224 calls</span></span>
+<span><span class="co">#&gt; ⠙ Finding the posterior mode, 288 calls</span></span>
 <span><span class="co">#&gt; ⠙ Finding the posterior mode, 384 calls</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 108 iterations [827ms]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.61σ [345ms]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 20 skew-normal marginals [951ms]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 108 iterations [704ms]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.61σ [285ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 20 skew-normal marginals [851ms]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [3.2s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [2.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="co">#&gt; ℹ The two-level PPP is experimental.</span></span>
@@ -261,12 +261,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                  -12175.498 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square, experimental)                0.632 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square, experimental)                0.604 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            24192.008 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    19.384 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24191.985 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    19.373 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -374,36 +374,26 @@
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_rs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod_rs</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
-<span><span class="co">#&gt; ⠙ Finding the posterior mode, 71 calls [2s]</span></span>
-<span><span class="co">#&gt; ⠹ Finding the posterior mode, 152 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠸ Finding the posterior mode, 241 calls [8s]</span></span>
-<span><span class="co">#&gt; ⠼ Finding the posterior mode, 386 calls [12s]</span></span>
-<span><span class="co">#&gt; ⠼ Finding the posterior mode, 411 calls [13s]</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 115 iterations [13.5s]</span></span>
-<span><span class="co">#&gt; ⠙ Applying the VB mean correction, 15 calls</span></span>
-<span><span class="co">#&gt; ⠹ Applying the VB mean correction, 56 calls [4s]</span></span>
-<span><span class="co">#&gt; ⠸ Applying the VB mean correction, 97 calls [7s]</span></span>
-<span><span class="co">#&gt; ⠼ Applying the VB mean correction, 137 calls [10s]</span></span>
-<span><span class="co">#&gt; ⠴ Applying the VB mean correction, 177 calls [13s]</span></span>
-<span><span class="co">#&gt; ⠦ Applying the VB mean correction, 217 calls [16s]</span></span>
-<span><span class="co">#&gt; ⠧ Applying the VB mean correction, 258 calls [19s]</span></span>
-<span><span class="co">#&gt; ⠇ Applying the VB mean correction, 300 calls [22s]</span></span>
-<span><span class="co">#&gt; ⠇ Applying the VB mean correction, 312 calls [23s]</span></span>
-<span><span class="co">#&gt; ! VB mean correction, max shift 0.78σ, one-step check flagged [23.0s]</span></span>
-<span><span class="co">#&gt; ⠙ Computing the volume corrections, 28 calls</span></span>
-<span><span class="co">#&gt; ⠹ Computing the volume corrections, 69 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠹ Computing the volume corrections, 77 calls [6s]</span></span>
-<span><span class="co">#&gt; ⠙ Fitting 7/19 skew-normal marginals [~5s left]</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 14/19 skew-normal marginals [~3s left]</span></span>
+<span><span class="co">#&gt; ⠙ Finding the posterior mode, 64 calls</span></span>
+<span><span class="co">#&gt; ⠹ Finding the posterior mode, 192 calls [4s]</span></span>
+<span><span class="co">#&gt; ⠸ Finding the posterior mode, 400 calls [8s]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 115 iterations [8.5s]</span></span>
+<span><span class="co">#&gt; ⠙ Applying the VB mean correction, 53 calls [2s]</span></span>
+<span><span class="co">#&gt; ⠹ Applying the VB mean correction, 117 calls [5s]</span></span>
+<span><span class="co">#&gt; ⠸ Applying the VB mean correction, 181 calls [8s]</span></span>
+<span><span class="co">#&gt; ⠼ Applying the VB mean correction, 245 calls [11s]</span></span>
+<span><span class="co">#&gt; ⠴ Applying the VB mean correction, 309 calls [14s]</span></span>
+<span><span class="co">#&gt; ! VB mean correction, max shift 0.78σ, one-step check flagged [14.5s]</span></span>
+<span><span class="co">#&gt; ⠙ Computing the volume corrections, 61 calls [3s]</span></span>
+<span><span class="co">#&gt; ⠙ Computing the volume corrections, 77 calls [4s]</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 8/19 skew-normal marginals</span></span>
 <span><span class="co">#&gt; ⠹ Fitting 19/19 skew-normal marginals [~1s left]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 19 skew-normal marginals [13.7s]</span></span>
+<span><span class="co">#&gt; ⠹ Fitting 19/19 skew-normal marginals [~1s left]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 19 skew-normal marginals [8.5s]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠦ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [13.5s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [8.1s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span>
 <span><span class="co">#&gt; Warning: Fit diagnostics flagged 2 potential issues:</span></span>
@@ -437,8 +427,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                            24627.805 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    18.274 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                            24627.192 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    17.968 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -517,7 +507,7 @@
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fitmeasures.html">fitmeasures</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         npar   margloglik          dic        p_dic       BRMSEA    BGammaHat </span></span>
-<span><span class="co">#&gt;           19   -12385.789    24627.805       18.274        0.002        1.000 </span></span>
+<span><span class="co">#&gt;           19   -12385.789    24627.192       17.968        0.003        1.000 </span></span>
 <span><span class="co">#&gt; adjBGammaHat          BMc         BCFI         BTLI         BNFI </span></span>
 <span><span class="co">#&gt;        1.000        1.000        0.999        1.002        0.990</span></span></code></pre></div>
 </div>
@@ -554,58 +544,45 @@
 <span><span class="st">"</span></span>
 <span><span class="va">fit_cli</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod_cli</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
-<span><span class="co">#&gt; ⠙ Finding the posterior mode, 15 calls</span></span>
-<span><span class="co">#&gt; ⠹ Finding the posterior mode, 61 calls [2s]</span></span>
-<span><span class="co">#&gt; ⠸ Finding the posterior mode, 146 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠼ Finding the posterior mode, 229 calls [8s]</span></span>
-<span><span class="co">#&gt; ⠴ Finding the posterior mode, 362 calls [11s]</span></span>
-<span><span class="co">#&gt; ⠴ Finding the posterior mode, 380 calls [12s]</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 105 iterations [12.4s]</span></span>
-<span><span class="co">#&gt; ⠙ Applying the VB mean correction, 23 calls</span></span>
-<span><span class="co">#&gt; ⠹ Applying the VB mean correction, 64 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠹ Applying the VB mean correction, 74 calls [5s]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.69σ [5.4s]</span></span>
-<span><span class="co">#&gt; ⠙ Computing the volume corrections, 31 calls [2s]</span></span>
-<span><span class="co">#&gt; ⠹ Computing the volume corrections, 72 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠹ Computing the volume corrections, 73 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠙ Fitting 8/18 skew-normal marginals [~5s left]</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 15/18 skew-normal marginals [~2s left]</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 18/18 skew-normal marginals [~1s left]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 18 skew-normal marginals [12.9s]</span></span>
+<span><span class="co">#&gt; ⠙ Finding the posterior mode, 32 calls</span></span>
+<span><span class="co">#&gt; ⠹ Finding the posterior mode, 112 calls [2s]</span></span>
+<span><span class="co">#&gt; ⠸ Finding the posterior mode, 256 calls [5s]</span></span>
+<span><span class="co">#&gt; ⠸ Finding the posterior mode, 368 calls [8s]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 105 iterations [7.7s]</span></span>
+<span><span class="co">#&gt; ⠙ Applying the VB mean correction, 20 calls</span></span>
+<span><span class="co">#&gt; ⠙ Applying the VB mean correction, 68 calls [3s]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.69σ [3.4s]</span></span>
+<span><span class="co">#&gt; ⠙ Computing the volume corrections, 26 calls</span></span>
+<span><span class="co">#&gt; ⠙ Computing the volume corrections, 58 calls [3s]</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 12/18 skew-normal marginals [~2s left]</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 18/18 skew-normal marginals [~1s left]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 18 skew-normal marginals [7.9s]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠦ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [13.6s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [7.8s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span>
 <span><span class="va">fit_fx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod_fx</span>, data <span class="op">=</span> <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ No PPP: a random-slope model has no saturated model.</span></span>
-<span><span class="co">#&gt; ⠙ Finding the posterior mode, 69 calls [2s]</span></span>
-<span><span class="co">#&gt; ⠹ Finding the posterior mode, 153 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠸ Finding the posterior mode, 300 calls [8s]</span></span>
-<span><span class="co">#&gt; ⠸ Finding the posterior mode, 330 calls [11s]</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 89 iterations [10.7s]</span></span>
-<span><span class="co">#&gt; ⠙ Applying the VB mean correction, 10 calls</span></span>
-<span><span class="co">#&gt; ⠹ Applying the VB mean correction, 52 calls [4s]</span></span>
-<span><span class="co">#&gt; ⠹ Applying the VB mean correction, 70 calls [5s]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.69σ [5.1s]</span></span>
-<span><span class="co">#&gt; ⠙ Computing the volume corrections, 23 calls</span></span>
-<span><span class="co">#&gt; ⠹ Computing the volume corrections, 63 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠹ Computing the volume corrections, 69 calls [5s]</span></span>
-<span><span class="co">#&gt; ⠙ Fitting 7/17 skew-normal marginals [~5s left]</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 14/17 skew-normal marginals [~2s left]</span></span>
-<span><span class="co">#&gt; ⠹ Fitting 17/17 skew-normal marginals [~1s left]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 17 skew-normal marginals [12.3s]</span></span>
+<span><span class="co">#&gt; ⠙ Finding the posterior mode, 112 calls [2s]</span></span>
+<span><span class="co">#&gt; ⠹ Finding the posterior mode, 304 calls [5s]</span></span>
+<span><span class="co">#&gt; ⠹ Finding the posterior mode, 320 calls [7s]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 89 iterations [6.5s]</span></span>
+<span><span class="co">#&gt; ⠙ Applying the VB mean correction, 53 calls [2s]</span></span>
+<span><span class="co">#&gt; ⠙ Applying the VB mean correction, 69 calls [3s]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.69σ [3.1s]</span></span>
+<span><span class="co">#&gt; ⠙ Computing the volume corrections, 47 calls [2s]</span></span>
+<span><span class="co">#&gt; ⠙ Computing the volume corrections, 63 calls [3s]</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 7/17 skew-normal marginals</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 17/17 skew-normal marginals [~1s left]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 17 skew-normal marginals [7.4s]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
 <span><span class="co">#&gt; ⠹ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠸ Computing fit indices (DIC).</span></span>
 <span><span class="co">#&gt; ⠼ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠴ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ⠦ Computing fit indices (DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [13.6s]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [7.9s]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: DIC.</span></span></code></pre></div>
 </div>
@@ -617,9 +594,9 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Model npar Marg.Loglik  logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;   fit_fx   17   -12376.76  0.000 24624.01 16.402</span></span>
-<span><span class="co">#&gt;  fit_cli   18   -12382.76 -5.997 24625.56 17.234</span></span>
-<span><span class="co">#&gt;   fit_rs   19   -12385.79 -9.029 24627.81 18.274</span></span></code></pre></div>
+<span><span class="co">#&gt;   fit_fx   17   -12376.76  0.000 24624.37 16.580</span></span>
+<span><span class="co">#&gt;  fit_cli   18   -12382.76 -5.997 24626.29 17.598</span></span>
+<span><span class="co">#&gt;   fit_rs   19   -12385.79 -9.029 24627.19 17.968</span></span></code></pre></div>
 </div>
 <p>Because a random-slope likelihood is the density of the outcomes <em>given</em> the covariates, every fit in a table like this one must score the same variables: the outcomes, plus any between-level variable the model explains rather than regresses on. <code><a href="../reference/compare.html">compare()</a></code> checks that, and aborts otherwise. The covariates themselves may differ, as for any fit with <code>fixed.x = TRUE</code>: a model without <code>w1</code> says that the outcomes do not depend on it, so dropping a covariate is a fair comparison too. The plain fixed-slope model written out directly (<code>fw ~ x1</code> at Level 1) is an equally valid member of the table, and it fits a good deal faster.</p>
 <p>On <code>Demo.twolevel</code> the maximum-likelihood estimate of the slope variance is slightly negative, so there is no slope variation in these data to find, and the models without it are duly preferred: a log Bayes factor of -5.997 for the cross-level-interaction model and -9.029 for the full random-slope model, both against the fixed-slope fit, with the DIC ordering the three the same way.</p>
@@ -654,8 +631,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;   Model npar Marg.Loglik  logBF      DIC     pD      ELPD      SE  p_loo</span></span>
-<span><span class="co">#&gt;  fit_fx   17   -12376.76  0.000 24624.01 16.402 -12313.25 394.398 18.418</span></span>
-<span><span class="co">#&gt;  fit_rs   19   -12385.79 -9.029 24627.81 18.274 -12314.49 394.415 19.653</span></span>
+<span><span class="co">#&gt;  fit_fx   17   -12376.76  0.000 24624.37 16.580 -12313.25 394.398 18.418</span></span>
+<span><span class="co">#&gt;  fit_rs   19   -12385.79 -9.029 24627.19 17.968 -12314.49 394.415 19.653</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;     -1.243   0.514</span></span></code></pre></div>
@@ -667,26 +644,24 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_rs</span>, type <span class="op">=</span> <span class="st">"lv"</span>, level <span class="op">=</span> <span class="fl">2</span>, summary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■                                8% | …</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■                              10% | …</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■                       33% | …</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■                55% | …</span></span>
-<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■          77% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■                             13% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■                      35% | …</span></span>
+<span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■           74% | …</span></span>
 <span><span class="co">#&gt; Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | …</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Mean of predicted values from inlavaan model</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         fb    s1</span></span>
-<span><span class="co">#&gt; 1   0.1066 0.502</span></span>
-<span><span class="co">#&gt; 2   0.0174 0.477</span></span>
-<span><span class="co">#&gt; 3  -1.8804 0.488</span></span>
-<span><span class="co">#&gt; 4  -0.6997 0.485</span></span>
-<span><span class="co">#&gt; 5   0.1928 0.498</span></span>
-<span><span class="co">#&gt; 6  -0.1113 0.487</span></span>
-<span><span class="co">#&gt; 7   0.7810 0.504</span></span>
-<span><span class="co">#&gt; 8  -0.1619 0.521</span></span>
-<span><span class="co">#&gt; 9  -1.0249 0.498</span></span>
-<span><span class="co">#&gt; 10  1.3894 0.540</span></span>
+<span><span class="co">#&gt;          fb    s1</span></span>
+<span><span class="co">#&gt; 1   0.07397 0.502</span></span>
+<span><span class="co">#&gt; 2   0.00723 0.472</span></span>
+<span><span class="co">#&gt; 3  -1.86638 0.484</span></span>
+<span><span class="co">#&gt; 4  -0.69882 0.479</span></span>
+<span><span class="co">#&gt; 5   0.17415 0.493</span></span>
+<span><span class="co">#&gt; 6  -0.10505 0.480</span></span>
+<span><span class="co">#&gt; 7   0.77156 0.500</span></span>
+<span><span class="co">#&gt; 8  -0.14420 0.515</span></span>
+<span><span class="co">#&gt; 9  -1.02134 0.490</span></span>
+<span><span class="co">#&gt; 10  1.42978 0.531</span></span>
 <span><span class="co">#&gt; # ℹ 190 more rows</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="implied-moments-and-standardised-estimates">Implied Moments and Standardised Estimates<a class="anchor" aria-label="anchor" href="#implied-moments-and-standardised-estimates"></a>
@@ -715,8 +690,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $cov</span></span>
 <span><span class="co">#&gt;            y1          y2          y3          x1</span></span>
-<span><span class="co">#&gt; y1 -1.4520851 -0.64138912 -0.53709791 -0.40964623</span></span>
-<span><span class="co">#&gt; y2 -0.6413891 -0.09675951 -0.18852738  0.54035977</span></span>
+<span><span class="co">#&gt; y1 -1.4520851 -0.64138912 -0.53709791 -0.40964622</span></span>
+<span><span class="co">#&gt; y2 -0.6413891 -0.09675952 -0.18852738  0.54035977</span></span>
 <span><span class="co">#&gt; y3 -0.5370979 -0.18852738 -0.36292077 -0.04056456</span></span>
 <span><span class="co">#&gt; x1 -0.4096462  0.54035977 -0.04056456  0.00000000</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -730,15 +705,15 @@
 <code class="sourceCode R"><span><span class="va">std</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/standardisedsolution.html">standardisedsolution</a></span><span class="op">(</span><span class="va">fit_rs</span><span class="op">)</span></span>
 <span><span class="va">std</span><span class="op">[</span><span class="va">std</span><span class="op">$</span><span class="va">lhs</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fw"</span>, <span class="st">"s1"</span><span class="op">)</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;    lhs op rhs est.std    se ci.lower ci.upper</span></span>
-<span><span class="co">#&gt; 1   fw =~  y1   0.711 0.019    0.674    0.744</span></span>
-<span><span class="co">#&gt; 2   fw =~  y2   0.603 0.019    0.562    0.637</span></span>
-<span><span class="co">#&gt; 3   fw =~  y3   0.593 0.019    0.560    0.628</span></span>
-<span><span class="co">#&gt; 4   fw  ~  x1   0.495 0.020    0.456    0.533</span></span>
-<span><span class="co">#&gt; 8   fw ~~  fw   0.749 0.020    0.711    0.787</span></span>
+<span><span class="co">#&gt; 1   fw =~  y1   0.708 0.019    0.672    0.743</span></span>
+<span><span class="co">#&gt; 2   fw =~  y2   0.602 0.020    0.566    0.641</span></span>
+<span><span class="co">#&gt; 3   fw =~  y3   0.592 0.019    0.556    0.629</span></span>
+<span><span class="co">#&gt; 4   fw  ~  x1   0.498 0.020    0.460    0.538</span></span>
+<span><span class="co">#&gt; 8   fw ~~  fw   0.746 0.021    0.705    0.782</span></span>
 <span><span class="co">#&gt; 14  fw ~1       0.000 0.000    0.000    0.000</span></span>
-<span><span class="co">#&gt; 19  s1  ~  w1   0.007 0.021   -0.032    0.051</span></span>
+<span><span class="co">#&gt; 19  s1  ~  w1   0.011 0.025   -0.032    0.063</span></span>
 <span><span class="co">#&gt; 25  s1 ~~  s1   0.005 0.005    0.000    0.016</span></span>
-<span><span class="co">#&gt; 32  s1 ~1       0.495 0.019    0.455    0.533</span></span></code></pre></div>
+<span><span class="co">#&gt; 32  s1 ~1       0.497 0.020    0.459    0.538</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="what-is-not-available">What Is Not Available<a class="anchor" aria-label="anchor" href="#what-is-not-available"></a>
 </h3>

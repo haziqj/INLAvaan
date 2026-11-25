@@ -27,7 +27,7 @@
 - The installed file `inlavanilla.lock` names the release of the
   inlavanilla engine whose files INLAvaan copies, with a hash of each
   copy. INLAvaan now copies the 13 engine files of inlavanilla
-  v26.11.25-1, byte for byte, as `R/vanilla-*.R`, and the lock lists
+  v26.11.25-2, byte for byte, as `R/vanilla-*.R`, and the lock lists
   them. Two of them, `R/vanilla-skew-normal.R` and
   `R/vanilla-qsnorm-fast.R`, hold the skew-normal functions, which
   INLAvaan defined itself before. The others hold the stages of a fit
@@ -63,11 +63,14 @@
     Democracy model do. A fit that fails solves the VB equation instead,
     from the mode, and the warning at the end of the fit says that the
     posterior is far from Gaussian along the mean correction, and names
-    the parameter that the step moved furthest. When the solve stops
-    more than 0.1 posterior SDs short of the VB mean, the warning says
-    so too. Small samples fail the check more often: a one-factor model
-    of `x1`, `x2` and `x3` fails it on the first 50 rows of
-    `HolzingerSwineford1939`, and passes on all 301.
+    the parameter that the step moved furthest. The solve takes at most
+    twice the evaluations of the mode and Hessian stage, in passes of
+    the rule (`vb_budget` in
+    [`inlavaan_control()`](https://inlavaan.haziqj.ml/reference/inlavaan_control.md)).
+    When the solve stops more than 0.1 posterior SDs short of the VB
+    mean, the warning says so too. Small samples fail the check more
+    often: a one-factor model of `x1`, `x2` and `x3` fails it on the
+    first 50 rows of `HolzingerSwineford1939`, and passes on all 301.
     [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
     gives `vb_lhat`, `vb_j0` and `vb_j1`, and `vb_solve`, which is 1
     when the check failed. The gain ratio of earlier development
@@ -143,14 +146,22 @@
   [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md) and
   [`agrowth()`](https://inlavaan.haziqj.ml/reference/agrowth.md). Its
   entries are `mode_maxit`, `mode_maxeval` and `mode_tol` for the search
-  for the posterior mode, `vb_maxit` and `vb_tol` for the VB correction,
-  `n_grid` and `log_threshold` for the skew-normal scans, `nlminb` for
-  other controls of [`nlminb()`](https://rdrr.io/r/stats/nlminb.html),
-  and `hessian`, `debug` and `add_priors`. A plain list with some of
-  these names works too, such as `control = list(n_grid = 31)`.
+  for the posterior mode, `vb_maxit`, `vb_tol` and `vb_budget` for the
+  VB correction, `n_grid` and `log_threshold` for the skew-normal scans,
+  `nlminb` for other controls of
+  [`nlminb()`](https://rdrr.io/r/stats/nlminb.html), and `hessian`,
+  `debug` and `add_priors`. A plain list with some of these names works
+  too, such as `control = list(n_grid = 31)`.
 
   - An unknown entry, or a bad value, gives an error that names the
     entry.
+  - `vb_budget` caps the solve that follows a failed check of the
+    one-step VB correction, as a multiple of the evaluations of the
+    search for the mode and of the Hessian. The default of 2 doubles the
+    cap of earlier development versions, which `vb_budget = 1` restores.
+    `vb_budget = Inf` lifts the cap, and `vb_budget = 0` leaves a
+    flagged fit at its mode. A fit that passes the check does not depend
+    on it.
   - `n_grid`, `log_threshold`, `hessian`, `debug` and `add_priors`
     replace the arguments `sn_fit_ngrid`, `sn_fit_logthresh`,
     `hessian_method`, `debug` and `add_priors` of

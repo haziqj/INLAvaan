@@ -21,6 +21,7 @@ inlavaan_control(
   mode_tol = 1e-10,
   vb_maxit = 25L,
   vb_tol = 0.001,
+  vb_budget = 2,
   n_grid = 21L,
   log_threshold = -6,
   nlminb = list(),
@@ -54,6 +55,23 @@ inlavaan_control(
   `vb_correction = "full"`, and on the solve that follows a failed check
   of the default one-step correction. A first step below `vb_tol` in
   every parameter is not checked.
+
+- vb_budget:
+
+  The cap on the solve that follows a failed check of the default
+  one-step correction. The solve and the two passes of the check
+  together take at most `vb_budget` times the evaluations of the
+  log-posterior, of its gradient and of the Hessian that the search for
+  the posterior mode and the Hessian made, in passes of the rule of 2m +
+  1 gradients each, for m parameters. Default 2. `1` is the cap of
+  earlier development versions, `Inf` lifts the cap, so that the solve
+  stops only at `vb_tol` or after `vb_maxit` iterations, and `0` leaves
+  a flagged fit at its mode. A single number of at least 0. A fit that
+  passes the check does not depend on it. The cap scales with the cost
+  of the search for the mode, so a search from a good start, as in a
+  warm-started
+  [`update()`](https://inlavaan.haziqj.ml/reference/update.md), leaves
+  less room for the solve.
 
 - n_grid:
 
@@ -169,11 +187,11 @@ fit <- acfa(
   test = "none",
   control = inlavaan_control(n_grid = 31)
 )
-#> ✔ Found the posterior mode in 25 iterations [48ms]
-#> ✔ VB mean correction, max shift 0.47σ [31ms]
-#> ✔ Fitted 6 skew-normal marginals [114ms]
+#> ✔ Found the posterior mode in 25 iterations [31ms]
+#> ✔ VB mean correction, max shift 0.47σ [18ms]
+#> ✔ Fitted 6 skew-normal marginals [85ms]
 #> ⠙ Drawing posterior samples.
-#> ✔ Draw 1000 posterior samples. [96ms]
+#> ✔ Draw 1000 posterior samples. [63ms]
 #> 
 
 # The same with a plain list
@@ -183,11 +201,11 @@ fit <- acfa(
   test = "none",
   control = list(n_grid = 31)
 )
-#> ✔ Found the posterior mode in 25 iterations [49ms]
-#> ✔ VB mean correction, max shift 0.47σ [22ms]
-#> ✔ Fitted 6 skew-normal marginals [124ms]
+#> ✔ Found the posterior mode in 25 iterations [31ms]
+#> ✔ VB mean correction, max shift 0.47σ [17ms]
+#> ✔ Fitted 6 skew-normal marginals [86ms]
 #> ⠙ Drawing posterior samples.
-#> ✔ Draw 1000 posterior samples. [94ms]
+#> ✔ Draw 1000 posterior samples. [63ms]
 #> 
 # }
 ```

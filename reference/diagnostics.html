@@ -315,9 +315,13 @@ posterior-SD units, as <code>mode_shift_sigma</code> is for the mode.
 <code>NA</code> after the default one-step VB correction when its check
 passed. When the check failed (<code>vb_solve</code>), it is the step still
 to go where the solve stopped: at <code>vb_tol</code>, at <code>vb_maxit</code>
-(see <code><a href="inlavaan_control.html">inlavaan_control()</a></code>), or at a cap on its cost that is not a
-setting. It is then not a check of its own, but the bullet on the
-failed check says how far the solve stopped short when it is above 0.1.</p></dd>
+or at the cap on its cost that <code>vb_budget</code> sets (see
+<code><a href="inlavaan_control.html">inlavaan_control()</a></code>). It is then not a check of its own, but the
+bullet on the failed check says how far the solve stopped short when it
+is above 0.1. With <code>vb_budget = 0</code> the fit stays at the mode, and
+it is the first step of the fixed-point rule from the mode. That step
+can be much larger than the distance from the mode to the VB mean, so
+it then overstates how far the solve stopped short.</p></dd>
 
 <dt><code>mean_gap</code></dt>
 <dd><p>Gap between the mean of the skew-normal marginal

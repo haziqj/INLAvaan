@@ -152,14 +152,14 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
-#> ⠙ Finding the posterior mode, 624 calls
+#> ⠙ Finding the posterior mode, 688 calls
 #> ⠙ Finding the posterior mode, 752 calls
-#> ✔ Found the posterior mode in 138 iterations [717ms]
-#> ✔ VB mean correction, max shift 0.61σ [416ms]
-#> ✔ Fitted 60 skew-normal marginals [1.8s]
+#> ✔ Found the posterior mode in 138 iterations [640ms]
+#> ✔ VB mean correction, max shift 0.61σ [368ms]
+#> ✔ Fitted 60 skew-normal marginals [1.6s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:
@@ -176,13 +176,12 @@ fit2 <- acfa(
   group = "school",
   group.equal = "loadings"
 )
-#> ✔ Found the posterior mode in 121 iterations [627ms]
-#> ✔ VB mean correction, max shift 0.42σ [387ms]
-#> ⠙ Fitting 35/54 skew-normal marginals
-#> ⠙ Fitting 54/54 skew-normal marginals
-#> ✔ Fitted 54 skew-normal marginals [1.6s]
+#> ✔ Found the posterior mode in 121 iterations [567ms]
+#> ✔ VB mean correction, max shift 0.42σ [333ms]
+#> ✔ Fitted 54 skew-normal marginals [1.4s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [772ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -193,13 +192,12 @@ fit3 <- acfa(
   group = "school",
   group.equal = c("intercepts", "loadings")
 )
-#> ✔ Found the posterior mode in 120 iterations [595ms]
-#> ✔ VB mean correction, max shift 0.33σ [350ms]
-#> ⠙ Fitting 14/48 skew-normal marginals
-#> ⠙ Fitting 48/48 skew-normal marginals
-#> ✔ Fitted 48 skew-normal marginals [1.3s]
+#> ✔ Found the posterior mode in 120 iterations [533ms]
+#> ✔ VB mean correction, max shift 0.33σ [303ms]
+#> ✔ Fitted 48 skew-normal marginals [1.2s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.4s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [785ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

@@ -40,21 +40,20 @@ datmiss[datmiss == 0] <- NA
 ``` r
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
-#> ✔ Found the posterior mode in 71 iterations [492ms]
-#> ! VB mean correction, max shift 0σ, one-step check flagged [289ms]
-#> ⠙ Fitting 15/42 skew-normal marginals
+#> ✔ Found the posterior mode in 71 iterations [429ms]
+#> ! VB mean correction, max shift 0.67σ, one-step check flagged [494ms]
+#> ⠙ Fitting 16/42 skew-normal marginals
 #> ⠙ Fitting 42/42 skew-normal marginals
-#> ✔ Fitted 42 skew-normal marginals [813ms]
+#> ✔ Fitted 42 skew-normal marginals [755ms]
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1000ms]
+#> ✔ Summarise 1000 posterior draws. [682ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:
 #> ✖ The one-step VB correction failed its check: the posterior is far from
 #>   Gaussian along the mean correction, most of all for `dem65~~dem65`. The solve
 #>   of the VB equation that followed stopped short: one more step would move
-#>   `dem65~~dem65` by 0.843σ.
+#>   `y5~~y5` by 1.33σ.
 #> ℹ Treat the marginal log-likelihood, the DIC, the LOO and the WAIC with care,
 #>   and compare with MCMC, such as blavaan, if they matter. This reflects the
 #>   model, the data or the priors, not a numerical failure.
@@ -74,7 +73,7 @@ print(fit1)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -797.220 
+#>    Marginal log-likelihood                    -795.947 
 #>    PPP (Chi-square)                              0.509
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
@@ -98,13 +97,14 @@ coef(fit1)
 ``` r
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
-#> ✔ Found the posterior mode in 91 iterations [704ms]
-#> ✔ VB mean correction, max shift 0.89σ [413ms]
-#> ⠙ Fitting 33/42 skew-normal marginals
-#> ⠙ Fitting 42/42 skew-normal marginals
-#> ✔ Fitted 42 skew-normal marginals [1.6s]
+#> ⠙ Finding the posterior mode, 496 calls
+#> ⠙ Finding the posterior mode, 544 calls
+#> ✔ Found the posterior mode in 91 iterations [645ms]
+#> ✔ VB mean correction, max shift 0.89σ [377ms]
+#> ✔ Fitted 42 skew-normal marginals [1.5s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.4s]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)

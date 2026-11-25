@@ -95,11 +95,11 @@ the variables.
 
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
-#> ✔ Found the posterior mode in 5 iterations [76ms]
-#> ✔ VB mean correction, max shift 0.28σ [110ms]
-#> ✔ Fitted 7 skew-normal marginals [194ms]
+#> ✔ Found the posterior mode in 5 iterations [57ms]
+#> ✔ VB mean correction, max shift 0.28σ [111ms]
+#> ✔ Fitted 7 skew-normal marginals [126ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [767ms]
+#> ✔ Summarise 1000 posterior draws. [457ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```

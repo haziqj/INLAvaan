@@ -117,11 +117,13 @@ mod <- "
   eta2 ~ eta1
 "
 fit <- asem(mod, dat)
-#> ✔ Found the posterior mode in 69 iterations [242ms]
-#> ✔ VB mean correction, max shift 0.1σ [84ms]
-#> ✔ Fitted 13 skew-normal marginals [226ms]
+#> ⠙ Finding the posterior mode, 208 calls
+#> ⠙ Finding the posterior mode, 256 calls
+#> ✔ Found the posterior mode in 69 iterations [658ms]
+#> ✔ VB mean correction, max shift 0.1σ [347ms]
+#> ✔ Fitted 13 skew-normal marginals [365ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [647ms]
+#> ✔ Summarise 1000 posterior draws. [913ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -438,7 +440,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.27 s
+#> 2.35 s
 ```
 
 ### Plot
@@ -471,11 +473,11 @@ mod2 <- "
   eta1 ~~ 0*eta2
 "
 fit2 <- asem(mod2, dat)
-#> ✔ Found the posterior mode in 68 iterations [131ms]
-#> ✔ VB mean correction, max shift 0.079σ [48ms]
-#> ✔ Fitted 12 skew-normal marginals [207ms]
+#> ✔ Found the posterior mode in 68 iterations [114ms]
+#> ✔ VB mean correction, max shift 0.079σ [43ms]
+#> ✔ Fitted 12 skew-normal marginals [181ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [592ms]
+#> ✔ Summarise 1000 posterior draws. [411ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)

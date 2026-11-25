@@ -90,6 +90,7 @@ rules: <code>control = list(n_grid = 31)</code> is the same as
 <span>  mode_tol <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  vb_maxit <span class="op">=</span> <span class="fl">25L</span>,</span>
 <span>  vb_tol <span class="op">=</span> <span class="fl">0.001</span>,</span>
+<span>  vb_budget <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  n_grid <span class="op">=</span> <span class="fl">21L</span>,</span>
 <span>  log_threshold <span class="op">=</span> <span class="op">-</span><span class="fl">6</span>,</span>
 <span>  nlminb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -122,6 +123,21 @@ in posterior SDs, of the fixed-point iteration of the VB correction. They
 act with <code>vb_correction = "full"</code>, and on the solve that follows a failed
 check of the default one-step correction. A first step below <code>vb_tol</code> in
 every parameter is not checked.</p></dd>
+
+
+<dt id="arg-vb-budget">vb_budget<a class="anchor" aria-label="anchor" href="#arg-vb-budget"></a></dt>
+<dd><p>The cap on the solve that follows a failed check of the
+default one-step correction. The solve and the two passes of the check
+together take at most <code>vb_budget</code> times the evaluations of the
+log-posterior, of its gradient and of the Hessian that the search for the
+posterior mode and the Hessian made, in passes of the rule of 2m + 1
+gradients each, for m parameters. Default 2. <code>1</code> is the cap of
+earlier development versions, <code>Inf</code> lifts the cap, so that the solve
+stops only at <code>vb_tol</code> or after <code>vb_maxit</code> iterations, and <code>0</code> leaves a
+flagged fit at its mode. A single number of at least 0. A fit that passes
+the check does not depend on it. The cap scales with the cost of the
+search for the mode, so a search from a good start, as in a warm-started
+<code><a href="update.html">update()</a></code>, leaves less room for the solve.</p></dd>
 
 
 <dt id="arg-n-grid">n_grid<a class="anchor" aria-label="anchor" href="#arg-n-grid"></a></dt>
@@ -225,11 +241,11 @@ INLAvaan 0.5.0: <code>iter.max</code>, <code>eval.max</code> and <code>rel.tol</
 <span class="r-in"><span>  test <span class="op">=</span> <span class="st">"none"</span>,</span></span>
 <span class="r-in"><span>  control <span class="op">=</span> <span class="fu">inlavaan_control</span><span class="op">(</span>n_grid <span class="op">=</span> <span class="fl">31</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">25</span> iterations <span style="color: #555555;">[48ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.47σ</span> <span style="color: #555555;">[31ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">6</span> skew-normal marginals <span style="color: #555555;">[114ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">25</span> iterations <span style="color: #555555;">[31ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.47σ</span> <span style="color: #555555;">[18ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">6</span> skew-normal marginals <span style="color: #555555;">[85ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Drawing posterior samples.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Draw 1000 posterior samples. <span style="color: #B2B2B2;">[96ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Draw 1000 posterior samples. <span style="color: #B2B2B2;">[63ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># The same with a plain list</span></span></span>
@@ -239,11 +255,11 @@ INLAvaan 0.5.0: <code>iter.max</code>, <code>eval.max</code> and <code>rel.tol</
 <span class="r-in"><span>  test <span class="op">=</span> <span class="st">"none"</span>,</span></span>
 <span class="r-in"><span>  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>n_grid <span class="op">=</span> <span class="fl">31</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">25</span> iterations <span style="color: #555555;">[49ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.47σ</span> <span style="color: #555555;">[22ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">6</span> skew-normal marginals <span style="color: #555555;">[124ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">25</span> iterations <span style="color: #555555;">[31ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.47σ</span> <span style="color: #555555;">[17ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">6</span> skew-normal marginals <span style="color: #555555;">[86ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Drawing posterior samples.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Draw 1000 posterior samples. <span style="color: #B2B2B2;">[94ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Draw 1000 posterior samples. <span style="color: #B2B2B2;">[63ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
