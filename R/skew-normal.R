@@ -200,11 +200,20 @@ NULL
 #' `x`, so `alpha = 0`. The likelihood has a stationary point at `alpha = 0`
 #' (the normal fit), so a fit from this start alone can stall there when the
 #' skew is mild. The third start runs only when the first two fits end on the
-#' same side of `alpha = 0`. When they end on opposite sides, each side has
-#' been searched from a start on that side. The fit from the start with the
-#' wrong sign of skew usually ends at the stationary point, and in practice a
-#' fit from `alpha = 0`, which lies between the two starts, ends at a fit that
-#' the first two have already found.
+#' same side of `alpha = 0`, or when one of them is not finite. When they end
+#' on opposite sides, each side has been searched from a start on that side.
+#' This rests on an empirical assumption, not a proof: that the likelihood has
+#' at most one optimum on each side of `alpha = 0`. It held on every set of
+#' posterior draws checked. For small bimodal samples (100 draws), the
+#' likelihood can have a second, better optimum on the same side, with a
+#' larger \eqn{|\alpha|}. No start finds it, so the fit misses it, as did the
+#' fits of earlier versions.
+#'
+#' When the draws have no finite maximum likelihood estimate, for example a
+#' small sample of heavy-tailed draws, the likelihood rises along a ridge
+#' towards \eqn{|\alpha| = \infty}. The fit then stops somewhere on the
+#' ridge, at \eqn{|\alpha|} of about \eqn{10^6}. This point depends on the
+#' optimiser, so it can differ from that of earlier versions.
 #'
 #' @param x A numeric vector of sample data.
 #'
@@ -251,11 +260,13 @@ fit_skew_normal_samp <- function(x) {
 
   # The third start is alpha = 0 at the median with the SD of the draws. The
   # likelihood has a stationary point there, so a fit from it alone can stall
-  # when the draws are mildly skewed. It lies between the first two starts, so
-  # it can win only by reaching a side of alpha = 0 that the first two fits did
-  # not end on. Skip it when they end on opposite sides. The fit from the start
-  # with the wrong sign of skew usually ends at the stationary point. Run it
-  # also when a fit is not finite.
+  # when the draws are mildly skewed. Skip it when the first two fits end on
+  # opposite sides of alpha = 0. This assumes at most one optimum on each side,
+  # so that a fit from alpha = 0, which lies between the first two starts, can
+  # only find an optimum that they have found. The assumption is empirical. It
+  # held on every set of posterior draws checked, but small bimodal samples can
+  # have a second, better optimum on the same side, which every start misses.
+  # Run it also when a fit is not finite.
   finite <- function(f) is.finite(f$objective) && all(is.finite(f$par))
   ok <- vapply(fits, finite, TRUE)
   if (!all(ok) || fits[[1]]$par[3] * fits[[2]]$par[3] >= 0) {
