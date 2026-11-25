@@ -44,9 +44,7 @@ Suggests:
     parallelly,
     quarto,
     sn,
-    spacefillr,
-    testthat (>= 3.2.0),
-    ucminf
+    testthat (>= 3.2.0)
 VignetteBuilder: 
     quarto
 Config/Needs/website: rmarkdown

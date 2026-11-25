@@ -111,17 +111,11 @@ test_that("Prior Densities match manual calculation", {
 })
 
 test_that("Gradients are correct (Finite Difference Check)", {
-  # The old fit stages print this table, and the engine does not
-  local_engine(FALSE)
-  suppressMessages(
-    tmp <- capture.output(fit <- asem(mod, dat, test = "none", debug = TRUE))
-  )
-  test_df <- read.table(text = tmp, skip = 1)[, -1]
-  colnames(test_df) <- c("fd", "analytic", "diff")
-
-  expect_equal(
-    as.numeric(test_df$fd),
-    as.numeric(test_df$diff),
-    tolerance = 1e-2
-  )
+  # The engine compares the analytic gradient at the mode with central
+  # differences of the log-posterior, and grad_gap is the gap in posterior
+  # SDs.
+  fit <- asem(mod, dat, test = "none", silent = TRUE, nsamp = 3)
+  gap <- get_inlavaan_internal(fit)$engine$diagnostics$marginals$grad_gap
+  expect_true(all(is.finite(gap)))
+  expect_lt(max(gap), 0.1)
 })

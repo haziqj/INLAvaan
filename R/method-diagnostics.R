@@ -179,27 +179,14 @@ setMethod(
   }
 )
 
-# Converged flag and iteration count from an optimiser result; mirrors how
-# create_lav_from_inlavaan_internal() fills the lavaan @Fit slot.
-optim_convergence <- function(opt, optim_method) {
-  if (optim_method == "nlminb") {
-    list(
-      converged = opt$convergence == 0L,
-      iterations = as.integer(opt$iterations)
-    )
-  } else if (optim_method == "optim") {
-    # nocov start
-    list(
-      converged = opt$convergence == 0L,
-      iterations = as.integer(opt$counts["function"])
-    )
-  } else {
-    # ucminf
-    list(
-      converged = opt$convergence == 1L,
-      iterations = as.integer(opt$info["neval"])
-    )
-  } # nocov end
+# Converged flag and iteration count from the result of nlminb(), the
+# engine's mode search; mirrors how create_lav_from_inlavaan_internal() fills
+# the lavaan @Fit slot.
+optim_convergence <- function(opt) {
+  list(
+    converged = opt$convergence == 0L,
+    iterations = as.integer(opt$iterations)
+  )
 }
 
 # Shared computation behind diagnostics() and the fit-time warning; works on
@@ -213,7 +200,7 @@ diagnostics_fit <- function(int) {
 
   Sigma_theta <- int$Sigma_theta
   se_laplace <- sqrt(diag(Sigma_theta))
-  conv <- optim_convergence(int$opt, int$optim_method)
+  conv <- optim_convergence(int$opt)
 
   # Newton step at the reported mode in posterior-SD units: a scale-free
   # measure of how far a non-zero gradient says the true mode is

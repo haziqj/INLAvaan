@@ -27,13 +27,6 @@ ginv_base <- function(X, tol = sqrt(.Machine$double.eps)) {
   } # nocov end
 }
 
-# Order of a character vector in C byte order, whatever the collation locale.
-# Plain order() follows LC_COLLATE, so the canonical parameter order (and with
-# it the Cholesky whitening) would change with the locale.
-canonical_order <- function(x) {
-  order(x, method = "radix")
-}
-
 # Exploratory (ESEM) blocks, marked by efa() in the syntax, need a rotation to
 # identify their loadings. INLAvaan has none, so it would report loadings of an
 # unidentified model.

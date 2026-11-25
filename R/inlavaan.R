@@ -371,24 +371,20 @@ inlavaan <- function(
     vb_method <- match.arg(vb_method)
     # "onestep", "full" or "none", with TRUE for "onestep" and FALSE for "none"
     vb_correction <- check_vb(vb_correction)
-    # The engine (R/engine-adapter.R) fits, unless the option inlavaan.engine
-    # is FALSE. It has no stage for some of the old values, which map to the
-    # nearest stage it has: the asymmetric Gaussian marginals to skew-normal
-    # ones, the sampling method to Gaussian marginals, and each correction of
-    # the marginals to its linear volume term, or to none. It always uses
-    # nlminb(), and the n_qmc, vb_method and sn_fit_temp of the old VB
-    # correction and skew-normal fit have no use there.
-    use_engine <- isTRUE(getOption("inlavaan.engine", TRUE))
-    if (use_engine) {
-      marginal_method <- switch(
-        marginal_method,
-        asymgaus = "skewnorm",
-        sampling = "marggaus",
-        marginal_method
-      )
-      marginal_scan <- if (marginal_correction == "none") "plain" else "linear"
-      optim_method <- "nlminb"
-    }
+    # The engine (R/engine-adapter.R) has no stage for some of the old values,
+    # which map to the nearest stage it has: the asymmetric Gaussian marginals
+    # to skew-normal ones, the sampling method to Gaussian marginals, and each
+    # correction of the marginals to its linear volume term, or to none. It
+    # always uses nlminb(), and the n_qmc, vb_method and sn_fit_temp of the old
+    # VB correction and skew-normal fit have no use there.
+    marginal_method <- switch(
+      marginal_method,
+      asymgaus = "skewnorm",
+      sampling = "marggaus",
+      marginal_method
+    )
+    marginal_scan <- if (marginal_correction == "none") "plain" else "linear"
+    optim_method <- "nlminb"
     if (
       !is.numeric(sn_fit_logthresh) ||
         length(sn_fit_logthresh) != 1L ||
@@ -646,9 +642,8 @@ inlavaan <- function(
     } # nocov end
 
     # Draw-based summaries: covariances, defined (:=) and delta (~*~)
-    # parameters, or (for the pure sampling method) every marginal.
+    # parameters
     needs_draw_summaries <-
-      marginal_method == "sampling" ||
       sum(pt$free > 0 & grepl("cov", pt$mat)) > 0 ||
       any(pt$op == ":=") ||
       any(pt$op == "~*~")
@@ -660,10 +655,11 @@ inlavaan <- function(
     prior_cache <- prepare_priors_for_optim(pt)
     inform_gamma_variance_scale(pt)
 
-    # Saturated-means fast path (see saturated_mean_idx): along the free
-    # intercept axes the posterior is exactly Gaussian and block-diagonal at
-    # the mode, so the Hessian block is analytic and the marginal scans are
-    # redundant for those coordinates.
+    # Saturated-means fast path (see saturated_mean_idx): along each free
+    # intercept axis the posterior is exactly Gaussian, so the intercept block
+    # of the Hessian is analytic and the marginal scans are redundant for those
+    # coordinates. The block between the intercepts and the other parameters
+    # is not zero at the mode, and engine_hess_mode() differences it.
     fastpath <- saturated_mean_idx(
       pt,
       lavmodel,
@@ -766,794 +762,120 @@ inlavaan <- function(
       parstart <- as.numeric(start)
     }
 
-    if (use_engine) {
-      ## ----- Engine stages ---------------------------------------------------
-      # The mode, the Laplace approximation, the VB correction and the
-      # marginals on the theta scale come from the engine (see
-      # R/engine-adapter.R). On the saturated-means fast path the intercepts
-      # get Gaussian marginals and no VB shift.
-      init <- stats::setNames(parstart, parnames)
-      engine_check_start(joint_lp, init)
-      fns <- engine_fns(joint_lp, joint_lp_grad, numerical_grad)
-      hess_mode <- NULL
-      if (!is.null(fns$gr)) {
-        hess_mode <- engine_hess_mode(
-          joint_lp_grad,
-          method = hessian_method,
-          fastpath = fastpath,
-          n = n,
-          implied_cov = function(theta) {
-            lavaan::lav_model_implied(
-              lavaan::lav_model_set_parameters(lavmodel, pars_to_x(theta, pt))
-            )$cov[[1L]]
-          },
-          add_priors = add_priors
-        )
-      }
-      core <- engine_call(
-        lp = fns$lp,
-        gr = fns$gr,
-        init = init,
-        hess_mode = hess_mode,
-        gaussian_marginals = fp_idx,
-        vb_correction = vb_correction,
-        marginals = if (marginal_method == "skewnorm") {
-          "skewnorm"
-        } else {
-          "gaussian"
-        },
-        marginal_scan = marginal_scan,
-        cores = cores,
-        control = list(
-          n_grid = sn_fit_ngrid,
-          log_threshold = sn_fit_logthresh,
-          nlminb = control
-        ),
-        verbose = verbose,
-        silent = silent
-      )
-      timing <- engine_timing(timing, core$timing)
-
-      # Two-level fits under fixed.x get a theta-free shift that makes the
-      # evidence (and the DIC below) conditional on the covariates.
-      theta_mode <- if (isTRUE(ceq.simple)) {
-        as.numeric(ceq.K %*% core$mode)
-      } else {
-        as.numeric(core$mode)
-      }
-      loglik_x_adj <- twolevel_fixedx_loglik_adj(
-        lavmodel,
-        pars_to_x(theta_mode, pt),
-        lavdata,
-        lavsamplestats
-      )
-      eng <- engine_fields(core, loglik_x_adj)
-      # The locals of the old stages: theta_star is the mode, theta_star_vbc
-      # the VB mean
-      theta_star <- eng$theta_star_novbc
-      theta_star_vbc <- eng$theta_star
-      Sigma_theta <- eng$Sigma_theta
-      opt <- eng$opt
-      vb <- eng$vb
-      mloglik <- eng$mloglik
-      approx_data <- eng$approx_data
-      visual_debug <- eng$visual_debug
-      if (ceq.simple) {
-        theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star_vbc), pt)
-      } else {
-        theta_star_trans <- pars_to_x(theta_star_vbc, pt)
-      }
-      timing <- add_timing(timing, "loglik")
-
-      post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
-        if (marginal_method == "skewnorm") {
-          post_marg_skewnorm(
-            j = j,
-            g = g,
-            g_prime = g_prime,
-            ginv = ginv,
-            ginv_prime = ginv_prime,
-            theta_star = theta_star_vbc,
-            Sigma_theta = Sigma_theta,
-            sn_params = approx_data
-          )
-        } else {
-          post_marg_marggaus(
-            j = j,
-            g = g,
-            g_prime = g_prime,
-            ginv = ginv,
-            ginv_prime = ginv_prime,
-            theta_star = theta_star_vbc,
-            Sigma_theta = Sigma_theta
-          )
-        }
-      }
-      postmargres <- Map(
-        f = post_marg,
-        j = seq_len(m),
-        g = pt$g[PTFREEIDX],
-        g_prime = pt$g_prime[PTFREEIDX],
-        ginv = pt$ginv[PTFREEIDX],
-        ginv_prime = pt$ginv_prime[PTFREEIDX]
-      )
-      timing <- add_timing(timing, "marginals")
-      timing$marginals <- timing$marginals +
-        core$timing[["marginals"]] +
-        core$timing[["diagnostics"]]
-    } else {
-      ## ----- Start optimisation ----------------------------------------------
-      if (!silent) {
-        optim_stage <- "Mode finding and Hessian computation"
-        cli_progress_step(
-          "{optim_stage}.",
-          msg_done = "Posterior mode and Hessian."
-        )
-      }
-
-      ob <- function(x) -1 * joint_lp(x)
-      gr <- if (isTRUE(numerical_grad)) {
-        NULL
-      } else {
-        function(x) -1 * joint_lp_grad(x)
-      }
-
-      if (optim_method == "nlminb") {
-        # nlminb()'s own defaults (iter.max = 150, eval.max = 200) are too tight
-        # for complex models, and running out is quiet: convergence = 1 surfaces
-        # only through diagnostics() or the fit-time warning. Raise the ceiling,
-        # letting an explicit user `control` win.
-        ctrl <- utils::modifyList(
-          list(iter.max = 1000L, eval.max = 2000L),
-          control
-        )
-        opt <- nlminb(
-          start = parstart,
-          objective = ob,
-          gradient = gr,
-          control = ctrl
-        )
-        theta_star <- opt$par
-        if (!silent) {
-          optim_stage <- "Computing the Hessian"
-          cli_progress_update()
-        }
-        if (isTRUE(numerical_grad)) {
-          H_neg <- fast_hessian(ob, theta_star)
-        } else if (length(fp_idx)) {
-          # assemble in blocks: finite differences over the covariance columns
-          # only; the intercept block is analytic (n Sigma^{-1} restricted to
-          # the free-intercept variables, plus the prior precision) and the
-          # cross block is exactly zero at the mode
-          cc <- setdiff(seq_len(m), fp_idx)
-          H_neg <- fast_jacobian(
-            function(x) -1 * joint_lp_grad(x),
-            theta_star,
-            cols = cc,
-            method = hessian_method
-          )
-          H_neg[fp_idx, ] <- 0
-          Sg_hat <- lavaan::lav_model_implied(
-            lavaan::lav_model_set_parameters(
-              lavmodel,
-              pars_to_x(theta_star, pt)
-            )
+    ## ----- Engine stages -----------------------------------------------------
+    # The mode, the Laplace approximation, the VB correction and the
+    # marginals on the theta scale come from the engine (see
+    # R/engine-adapter.R). On the saturated-means fast path the intercepts
+    # get Gaussian marginals and no VB shift.
+    init <- stats::setNames(parstart, parnames)
+    engine_check_start(joint_lp, init)
+    fns <- engine_fns(joint_lp, joint_lp_grad, numerical_grad)
+    hess_mode <- NULL
+    if (!is.null(fns$gr)) {
+      hess_mode <- engine_hess_mode(
+        joint_lp_grad,
+        method = hessian_method,
+        fastpath = fastpath,
+        n = n,
+        implied_cov = function(theta) {
+          lavaan::lav_model_implied(
+            lavaan::lav_model_set_parameters(lavmodel, pars_to_x(theta, pt))
           )$cov[[1L]]
-          sp <- fastpath$sigma_pos
-          H_neg[fp_idx, fp_idx] <- n *
-            chol2inv(chol(Sg_hat))[sp, sp, drop = FALSE] +
-            diag(fastpath$prec, length(fp_idx))
-        } else {
-          # H_neg <- numDeriv::jacobian(function(x) -1 * joint_lp_grad(x), theta_star)
-          H_neg <- fast_jacobian(
-            function(x) -1 * joint_lp_grad(x),
-            theta_star,
-            method = hessian_method
-          )
-        }
-      } else if (optim_method == "ucminf") {
-        # nocov start
-        if (!requireNamespace("ucminf", quietly = TRUE)) {
-          cli_abort(
-            "The `ucminf` package is required for this optimization method. Please install it using `install.packages('ucminf')`."
-          )
-        }
-
-        opt <- ucminf::ucminf(
-          par = parstart,
-          fn = ob,
-          gr = gr,
-          control = list(),
-          hessian = 1
-        )
-        theta_star <- opt$par
-        H_neg <- opt$hessian
-      } else {
-        # nocov end
-        opt <- stats::optim(
-          par = parstart,
-          fn = ob,
-          gr = gr,
-          method = "BFGS",
-          hessian = TRUE,
-          control = list()
-        )
-        theta_star <- opt$par
-        H_neg <- opt$hessian
-      }
-      # Cholesky-factorise the precision (neg. Hessian), then derive covariance
-      # via triangular backsolve. We first sort parameters into a canonical
-      # order (by name) so results don't depend on the latent-variable ordering
-      # in the model specification string.
-      H_sym <- 0.5 * (H_neg + t(H_neg))
-      canon_perm <- canonical_order(parnames)
-      inv_perm <- order(canon_perm)
-      H_canon <- H_sym[canon_perm, canon_perm]
-      # Upper Cholesky of the canonical precision
-      R_prec <- if (all(is.finite(H_canon))) {
-        tryCatch(chol(H_canon), error = function(e) NULL)
-      }
-      if (is.null(R_prec)) {
-        problem <- if (all(is.finite(H_canon))) {
-          "is not positive definite"
-        } else {
-          "has values that are not finite"
-        }
-        cli_abort(c(
-          "The Hessian at the posterior mode {problem}.",
-          "i" = "The optimiser may have stopped short of the mode, or the model
-               may not be identified."
-        ))
-      }
-      # L_c L_c^T = Sigma_canon (upper tri)
-      L_canon <- backsolve(R_prec, diag(m))
-      L <- L_canon[inv_perm, , drop = FALSE] # rows back to original param order
-      Sigma_theta <- tcrossprod(L) # reconstruct covariance
-      dimnames(Sigma_theta) <- list(parnames, parnames)
-      lp_max <- joint_lp(theta_star) # before correction
-
-      Vscan <- sweep(Sigma_theta, 2, sqrt(diag(Sigma_theta)), "/")
-
-      # Derivatives at optima
-      opt$dx <- fast_grad(function(x) -1 * joint_lp(x), theta_star) # fd grad
-      opt$dx_analytic <- -1 * joint_lp_grad(theta_star) # analytic grad
-      if (isTRUE(debug)) {
-        tab <- data.frame(
-          analytic = round(opt$dx_analytic, 6),
-          fd = round(opt$dx, 6),
-          diff = round(opt$dx_analytic - opt$dx, 6),
-          row.names = parnames
-        )
-        cli::cli_rule(left = "{.strong Gradient check at posterior mode}")
-        print(tab)
-        cli::cli_rule()
-      }
-
-      timing <- add_timing(timing, "optim")
-
-      ## ----- VB correction ---------------------------------------------------
-      vb_opt <- vb_shift <- vb_kld <- vb_kld_global <- vb_mcse <- NA
-      vb_n_qmc <- NA_integer_
-      if (vb_correction != "none") {
-        if (!silent) {
-          cli_progress_step(
-            if (vb_method == "sobol") {
-              "Performing VB correction."
-            } else {
-              "Performing VB correction (Gauss-Hermite rule)."
-            },
-            msg_done = "VB correction; mean |\U03B4| = {formatC(mean(abs(vb_shift) / sqrt(diag(Sigma_theta))),
-                      format = 'f', digits = 3)}\U03C3."
-          )
-        }
-
-        # Node weights stay NULL for the equal-weight Sobol rule. The
-        # Gauss-Hermite rule carries a weight per node, with the centre in the
-        # first row.
-        vb_w <- NULL
-        if (vb_method == "sobol") {
-          # QMC nodes (scrambled Sobol). The count is deliberately flat rather
-          # than scaled with m: the quadrature error is governed by the
-          # effective dimension and the smoothness of the integrand, not by m
-          # directly, and scaling down for small models simply starves them.
-          if (length(n_qmc) != 1L) {
-            cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
-          }
-          vb_n_qmc <- suppressWarnings(as.integer(n_qmc))
-          if (is.na(vb_n_qmc) || vb_n_qmc < 2L) {
-            cli_abort("{.arg n_qmc} must be a single integer of at least 2.")
-          }
-          zs <- vb_nodes_sobol(vb_n_qmc, L)
-        } else {
-          # Deterministic rule on the principal axes of Sigma_theta. See
-          # vb_nodes_gauss_hermite() for why 2m + 1 nodes suffice.
-          vb_rule <- vb_nodes_gauss_hermite(Sigma_theta)
-          zs <- vb_rule$nodes
-          vb_w <- vb_rule$weights
-        }
-
-        # Fixed-point solver settings; see the iteration below. Convergence is
-        # judged on the step measured in the units the shift is reported in --
-        # posterior SDs -- rather than on the whitened step, so the tolerance is
-        # directly comparable to the size of correction that matters downstream.
-        vb_maxit <- 25L
-        vb_tol <- 1e-3
-        vb_sd <- sqrt(diag(Sigma_theta))
-        # Cap on how far a single step may travel, in posterior SDs. The step is
-        # a Newton step for a curvature of -H, which is only valid while the
-        # third-order remainder is small; on strongly skewed posteriors the
-        # first step can otherwise land outside the region where Sigma(theta)
-        # stays positive definite. Genuine shifts are a fraction of an SD, so
-        # this never binds on a well-behaved fit.
-        vb_maxstep <- 1
-
-        vb_ob_shift <- function(shift, mu0, Z) {
-          mu_new <- mu0 + shift
-          ns <- nrow(Z)
-          if (!is.null(vb_w)) {
-            lp <- vapply(
-              seq_len(ns),
-              function(b) joint_lp(mu_new + Z[b, , drop = TRUE]),
-              numeric(1)
-            )
-            # The centre weight is negative once m > 3, so a failed
-            # log-likelihood (-1e40) at the centre would lower the objective.
-            # Treat any failed node as a failed objective instead.
-            if (any(!is.finite(lp) | lp <= -1e39)) {
-              return(1e40)
-            }
-            # Differences from the centre avoid cancelling large terms.
-            return(-1 * (lp[1] + sum(vb_w[-1] * (lp[-1] - lp[1]))))
-          }
-          lp_total <- 0
-          for (b in seq_len(ns)) {
-            thetab <- mu_new + Z[b, , drop = TRUE]
-            lp_total <- lp_total + joint_lp(thetab)
-          }
-          -1 * (lp_total / ns)
-        }
-
-        vb_ob <- function(delta, mu0, Z) {
-          vb_ob_shift(as.numeric(L %*% delta), mu0, Z)
-        }
-
-        # One sweep over the nodes: the mean score in the original parameter
-        # scale, plus its two half-set means. The halves come along free -- both
-        # are already computed here -- and their disagreement at the solution
-        # measures the quadrature error in the shift. Sobol points are nested,
-        # so the two halves are each a valid node set in their own right.
-        vb_sweep <- function(shift, mu0, Z) {
-          mu_new <- mu0 + shift
-          ns <- nrow(Z)
-          if (!is.null(vb_w)) {
-            # Weighted mean written as differences from the centre gradient, so
-            # the negative centre weight does not cancel large terms. The rule
-            # is deterministic, so there are no half-sets.
-            g0 <- joint_lp_grad(mu_new + Z[1, , drop = TRUE])
-            score <- g0
-            for (b in seq_len(ns)[-1]) {
-              g <- joint_lp_grad(mu_new + Z[b, , drop = TRUE])
-              score <- score + vb_w[b] * (g - g0)
-            }
-            return(list(score = score, gA = NULL, gB = NULL))
-          }
-          nhalf <- floor(ns / 2)
-          gA <- gB <- numeric(length(mu0))
-          for (b in seq_len(ns)) {
-            g <- joint_lp_grad(mu_new + Z[b, , drop = TRUE])
-            if (b <= nhalf) {
-              gA <- gA + g
-            } else {
-              gB <- gB + g
-            }
-          }
-          list(
-            score = (gA + gB) / ns,
-            gA = gA / nhalf,
-            gB = gB / (ns - nhalf)
-          )
-        }
-
-        vb_gA <- vb_gB <- numeric(m)
-        vb_gr <- function(delta, mu0, Z) {
-          sw <- vb_sweep(as.numeric(L %*% delta), mu0, Z)
-          vb_gA <<- sw$gA
-          vb_gB <<- sw$gB
-          as.numeric(t(L) %*% (-1 * sw$score))
-        }
-
-        # Fast path: fixed-point iteration. Splitting the objective into its
-        # quadratic part and a remainder r, and using t(L) %*% H %*% L = I with
-        # centred nodes, stationarity reduces to
-        # shift = shift + Sigma_theta %*% E[grad log pi] -- the Newton step for
-        # a curvature of -H is one multiplication by Sigma_theta. Where r really
-        # is third-order small this contracts in a few iterations and needs no
-        # objective evaluations, which is where nlminb spent half its node
-        # sweeps while still stopping short of convergence at its default
-        # tolerance.
-        #
-        # That premise fails on strongly skewed posteriors, where the first step
-        # can overshoot the region in which Sigma(theta) stays positive
-        # definite. An oversized step or a non-finite score is taken as the
-        # signal, and the solve falls back to nlminb, whose line search handles
-        # those cases.
-        # Anderson(1) acceleration on top of the fixed-point iteration. The
-        # plain map contracts at the spectral radius of I - Sigma_theta %*%
-        # Hbar, where Hbar is the curvature averaged over the node cloud rather
-        # than at the mode; that mismatch costs a near-constant factor per
-        # sweep, a sweep is a full pass of the gradient over the nodes, and on
-        # flat problems (the two-group models are the known case) the factor
-        # approaches 1 and the plain map stalls into the nlminb fallback. A
-        # secant estimate from consecutive steps removes the dominant error
-        # mode, roughly halving the sweep count and un-stalling the flat case.
-        # Convergence is still declared on the size of the raw Newton step --
-        # the fixed-point residual -- so the accelerated solve stops at exactly
-        # the same criterion, and the same solution, as the plain one;
-        # acceleration only changes how fast it gets there. The extrapolation
-        # is skipped (plain step taken) whenever the secant is degenerate or
-        # would move further than the plain step allows.
-        vb_shift <- numeric(m)
-        vb_iter <- 0L
-        vb_move <- Inf
-        vb_fallback <- FALSE
-        vb_step_prev <- NULL
-        vb_shift_prev <- NULL
-        for (it in seq_len(vb_maxit)) {
-          vb_sw <- vb_sweep(vb_shift, theta_star, zs)
-          if (!all(is.finite(vb_sw$score))) {
-            vb_fallback <- TRUE
-            break
-          }
-          vb_gA <- vb_sw$gA
-          vb_gB <- vb_sw$gB
-          vb_step <- as.numeric(Sigma_theta %*% vb_sw$score)
-          vb_step[fp_idx] <- 0
-          vb_move <- max(abs(vb_step) / vb_sd)
-          if (vb_move > vb_maxstep) {
-            vb_fallback <- TRUE
-            break
-          }
-          if (vb_move < vb_tol) {
-            vb_shift <- vb_shift + vb_step
-            vb_iter <- it
-            break
-          }
-          vb_update <- vb_step
-          if (!is.null(vb_step_prev)) {
-            df <- vb_step - vb_step_prev
-            dx <- vb_shift - vb_shift_prev
-            denom <- sum(df^2)
-            if (denom > 0) {
-              gam <- sum(vb_step * df) / denom
-              cand <- vb_step - gam * (dx + df)
-              cand[fp_idx] <- 0
-              if (
-                all(is.finite(cand)) &&
-                  max(abs(cand) / vb_sd) <= min(vb_maxstep, 2 * vb_move)
-              ) {
-                vb_update <- cand
-              }
-            }
-          }
-          vb_step_prev <- vb_step
-          vb_shift_prev <- vb_shift
-          vb_shift <- vb_shift + vb_update
-          vb_iter <- it
-        }
-        if (vb_move >= vb_tol) {
-          vb_fallback <- TRUE
-        }
-
-        if (isTRUE(vb_fallback)) {
-          # Optimise in whitened coordinates, where the problem is well
-          # conditioned.
-          vb_nl <- nlminb(
-            start = numeric(m),
-            objective = vb_ob,
-            gradient = vb_gr,
-            mu0 = theta_star,
-            Z = zs,
-            control = list(rel.tol = 1e-8)
-          )
-          vb_shift <- as.numeric(L %*% vb_nl$par)
-          # Under the fast path this block is independent of the rest, so
-          # imposing its known-zero optimum after the fact is exact.
-          vb_shift[fp_idx] <- 0
-          vb_iter <- vb_nl$iterations
-        }
-
-        # Quadrature error in the shift. With two half-sets the standard error
-        # of their mean is half their difference; a Newton step maps a score
-        # error into a shift error. QMC halves are negatively correlated and QMC
-        # error falls faster than root-n, so this errs on the conservative side.
-        if (is.null(vb_w)) {
-          vb_mcse <- abs(as.numeric(Sigma_theta %*% (vb_gA - vb_gB))) / 2
-          vb_mcse[fp_idx] <- 0
-        } else {
-          # The Gauss-Hermite rule has no node sets to compare, so it reports no
-          # error estimate.
-          vb_mcse <- rep(NA_real_, m)
-        }
-
-        vb_opt <- list(
-          par = vb_shift,
-          objective = vb_ob_shift(vb_shift, theta_star, zs),
-          iterations = vb_iter,
-          fallback = vb_fallback
-        )
-
-        vb_kld <- (vb_shift)^2 / (2 * diag(Sigma_theta))
-        # The joint counterpart of vb_kld: the KL divergence between the Laplace
-        # Gaussian and its VB-shifted copy, 0.5 * shift' H shift, read off the
-        # precision Cholesky in canonical order.
-        vb_kld_global <- 0.5 * sum((R_prec %*% vb_shift[canon_perm])^2)
-      }
-
-      vb <- list(
-        opt = vb_opt,
-        n_qmc = vb_n_qmc,
-        method = if (vb_correction != "none") vb_method else NA_character_,
-        correction = vb_shift,
-        mcse = vb_mcse,
-        kld = vb_kld,
-        kld_global = vb_kld_global
+        },
+        add_priors = add_priors
       )
-      timing <- add_timing(timing, "vb")
-
-      ## ----- Info at optima --------------------------------------------------
-      theta_star_vbc <- theta_star
-      if (vb_correction != "none") {
-        theta_star_vbc <- theta_star + vb_shift
-      }
-      if (ceq.simple) {
-        theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star_vbc), pt)
-      } else {
-        theta_star_trans <- pars_to_x(theta_star_vbc, pt)
-      }
-
-      # Marginal log-likelihood (for BF comparison)
-      # log det(Sigma) = -2 sum(log(diag(R_prec))) from the precision Cholesky
-      mloglik <- lp_max + (m / 2) * log(2 * pi) - sum(log(diag(R_prec)))
-      # Two-level fits under fixed.x get a theta-free shift that makes the
-      # evidence (and the DIC below) conditional on the covariates.
-      theta_mode <- if (isTRUE(ceq.simple)) {
-        as.numeric(ceq.K %*% theta_star)
-      } else {
-        theta_star
-      }
-      loglik_x_adj <- twolevel_fixedx_loglik_adj(
-        lavmodel,
-        pars_to_x(theta_mode, pt),
-        lavdata,
-        lavsamplestats
-      )
-      mloglik <- mloglik + loglik_x_adj
-      if (vb_correction != "none") {
-        # Laplace at the mode treats the posterior as symmetric about its peak.
-        # The VB shift shows that the mass leans to one side, and the mass this
-        # misses is, to O(1/n), the location term of the Laplace expansion. For
-        # the mode-to-mean shift that term is 0.5 * shift' H shift, so it is
-        # added.
-        mloglik <- mloglik + vb_kld_global
-      }
-      timing <- add_timing(timing, "loglik")
-
-      ## ----- Marginal approximations -----------------------------------------
-      if (!silent) {
-        cli_progress_done()
-      }
-
-      # pars_list <- setNames(as.list(1:m), paste0("pars[", 1:m, "]"))
-      pars_list <- setNames(as.list(1:m), parnames)
-      visual_debug <- NULL
-
-      # Asymgaus and skewnorm marginals need the correction factor gamma1
-      if (marginal_method %in% c("asymgaus", "skewnorm")) {
-        # Step size for finite difference / central difference
-        delta_outer <- 0.01 # for rate of change of Hessian (3rd deriv)
-        delta_inner <- 0.001 # for rate of change of gradients (2nd deriv)
-
-        get_gamma1 <- function(.j) {
-          compute_gamma1j(
-            j = .j,
-            method = marginal_correction,
-            theta_star = theta_star,
-            Vscan = Vscan,
-            L = L,
-            joint_lp_grad = joint_lp_grad,
-            delta_outer = delta_outer,
-            delta_inner = delta_inner,
-            m = m
-          )
-        }
-      }
-
-      if (marginal_method == "sampling") {
-        approx_data <- NULL
-      } else {
-        # --- Resolve effective core count for marginal fitting ----------------
-        if (is.null(cores)) {
-          # Auto: serial for small m, parallel for large m
-          if (m > 120L) {
-            eff_cores <- parallel::detectCores(logical = FALSE)
-            if (is.na(eff_cores) || eff_cores < 2L) eff_cores <- 1L
-          } else {
-            eff_cores <- 1L
-          }
-        } else {
-          eff_cores <- cores
-        }
-        if (eff_cores > 1L && .Platform$OS.type == "windows") {
-          # nocov start
-          cli_alert_warning(
-            "Parallel marginal fitting uses forking and is not available on
-          Windows. Falling back to serial."
-          )
-          eff_cores <- 1L
-        } # nocov end
-        eff_cores <- min(eff_cores, m)
-
-        if (marginal_method == "asymgaus") {
-          obtain_approx_data <- function(j) {
-            # Gauge the drop in joint_lp in whitened Z space
-            k <- 2
-            gamma1j <- get_gamma1(j)
-            dplus <- max(
-              0.01,
-              lp_max - joint_lp(theta_star + Vscan[, j] * k) + gamma1j * k
-            )
-            dminus <- max(
-              0.01,
-              lp_max - joint_lp(theta_star - Vscan[, j] * k) + gamma1j * k
-            )
-            c(
-              sigma_plus = sqrt(k^2 / (2 * dplus)),
-              sigma_minus = sqrt(k^2 / (2 * dminus))
-            )
-          }
-
-          approx_data <- run_parallel_or_serial(
-            m = m,
-            FUN = obtain_approx_data,
-            cores = eff_cores,
-            verbose = !silent,
-            msg_serial = "Calibrating {j}/{m} asymmetric Gaussian{?s}.",
-            msg_parallel = "Calibrating {done}/{m} asymmetric Gaussians ({cores}\U00D7).",
-            msg_done = "Calibrate {m}/{m} asymmetric Gaussian{?s}."
-          )
-          approx_data <- do.call(what = "rbind", approx_data)
-
-          post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
-            post_marg_asymgaus(
-              j = j,
-              g = g,
-              g_prime = g_prime,
-              ginv = ginv,
-              ginv_prime = ginv_prime,
-              theta_star = theta_star_vbc,
-              Sigma_theta = Sigma_theta,
-              sigma_asym = approx_data
-            )
-          }
-        } else if (marginal_method == "skewnorm") {
-          obtain_approx_data <- function(j) {
-            if (j %in% fp_idx) {
-              # saturated-means fast path: this axis is exactly Gaussian, and
-              # the scan would reproduce the Laplace marginal to numerical
-              # precision -- emit it directly
-              return(list(
-                fit = approx_data_row(list(
-                  xi = theta_star[[j]],
-                  omega = sqrt(Sigma_theta[j, j]),
-                  alpha = 0,
-                  logC = 0,
-                  nmad = 0,
-                  gamma1 = 0
-                )),
-                visual_debug = NULL
-              ))
-            }
-            z <- seq(-4, 4, length = sn_fit_ngrid)
-            yync <- yy <- numeric(length(z))
-            gamma1j <- get_gamma1(j)
-
-            for (k in seq_along(z)) {
-              yync[k] <- joint_lp(theta_star + Vscan[, j] * z[k])
-              yy[k] <- yync[k] + gamma1j * z[k]
-            }
-
-            fit_sn <- fit_skew_normal(
-              x = z,
-              y = yy - max(yy),
-              threshold_log_drop = sn_fit_logthresh,
-              temp = sn_fit_temp
-            )
-
-            vd <- data.frame(
-              x = z,
-              Original = exp(yync - max(yync)),
-              Corrected = exp(yy - max(yy)),
-              SN_Fit = dsnorm(
-                x = z,
-                xi = fit_sn$xi,
-                omega = fit_sn$omega,
-                alpha = fit_sn$alpha,
-                logC = fit_sn$logC
-              )
-            )
-            # The z-space fit, for visual_debug() to draw the smooth SN curve
-            attr(vd, "sn_params") <- unlist(fit_sn[c(
-              "xi",
-              "omega",
-              "alpha",
-              "logC"
-            )])
-
-            # Adjust back to theta space
-            fit_sn$xi <- theta_star[j] + fit_sn$xi * sqrt(Sigma_theta[j, j])
-            fit_sn$omega <- fit_sn$omega * sqrt(Sigma_theta[j, j])
-
-            list(
-              fit = approx_data_row(c(fit_sn, gamma1 = gamma1j)),
-              visual_debug = vd
-            )
-          }
-
-          all_results <- run_parallel_or_serial(
-            m = m,
-            FUN = obtain_approx_data,
-            cores = eff_cores,
-            verbose = !silent,
-            msg_serial = "Fitting {j}/{m} skew-normal marginal{?s}.",
-            msg_parallel = "Fitting {done}/{m} skew-normal marginals ({cores}\U00D7).",
-            msg_done = "Fit {m}/{m} skew-normal marginal{?s}."
-          )
-
-          approx_data <- approx_data_rows(lapply(all_results, `[[`, "fit"))
-          rownames(approx_data) <- parnames
-          visual_debug <- lapply(all_results, `[[`, "visual_debug")
-          names(visual_debug) <- parnames
-
-          post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
-            post_marg_skewnorm(
-              j = j,
-              g = g,
-              g_prime = g_prime,
-              ginv = ginv,
-              ginv_prime = ginv_prime,
-              theta_star = theta_star_vbc,
-              Sigma_theta = Sigma_theta,
-              sn_params = approx_data
-            )
-          }
-        } else if (marginal_method == "marggaus") {
-          approx_data <- NULL
-
-          post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
-            post_marg_marggaus(
-              j = j,
-              g = g,
-              g_prime = g_prime,
-              ginv = ginv,
-              ginv_prime = ginv_prime,
-              theta_star = theta_star_vbc,
-              Sigma_theta = Sigma_theta
-            )
-          }
-        }
-
-        # Compute posterior marginals ------------------------------------------
-        postmargres <- Map(
-          f = post_marg,
-          j = seq_len(m),
-          g = pt$g[PTFREEIDX],
-          g_prime = pt$g_prime[PTFREEIDX],
-          ginv = pt$ginv[PTFREEIDX],
-          ginv_prime = pt$ginv_prime[PTFREEIDX]
-        )
-      }
-      timing <- add_timing(timing, "marginals")
     }
+    core <- engine_call(
+      lp = fns$lp,
+      gr = fns$gr,
+      init = init,
+      hess_mode = hess_mode,
+      gaussian_marginals = fp_idx,
+      vb_correction = vb_correction,
+      marginals = if (marginal_method == "skewnorm") {
+        "skewnorm"
+      } else {
+        "gaussian"
+      },
+      marginal_scan = marginal_scan,
+      cores = cores,
+      control = list(
+        n_grid = sn_fit_ngrid,
+        log_threshold = sn_fit_logthresh,
+        nlminb = control
+      ),
+      verbose = verbose,
+      silent = silent
+    )
+    timing <- engine_timing(timing, core$timing)
+
+    # Two-level fits under fixed.x get a theta-free shift that makes the
+    # evidence (and the DIC below) conditional on the covariates.
+    theta_mode <- if (isTRUE(ceq.simple)) {
+      as.numeric(ceq.K %*% core$mode)
+    } else {
+      as.numeric(core$mode)
+    }
+    loglik_x_adj <- twolevel_fixedx_loglik_adj(
+      lavmodel,
+      pars_to_x(theta_mode, pt),
+      lavdata,
+      lavsamplestats
+    )
+    eng <- engine_fields(core, loglik_x_adj)
+    # The locals that the rest of the fit reads: theta_star is the mode, and
+    # theta_star_vbc the VB mean
+    theta_star <- eng$theta_star_novbc
+    theta_star_vbc <- eng$theta_star
+    Sigma_theta <- eng$Sigma_theta
+    opt <- eng$opt
+    vb <- eng$vb
+    mloglik <- eng$mloglik
+    approx_data <- eng$approx_data
+    visual_debug <- eng$visual_debug
+    if (ceq.simple) {
+      theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star_vbc), pt)
+    } else {
+      theta_star_trans <- pars_to_x(theta_star_vbc, pt)
+    }
+    timing <- add_timing(timing, "loglik")
+
+    post_marg <- function(j, g, g_prime, ginv, ginv_prime) {
+      if (marginal_method == "skewnorm") {
+        post_marg_skewnorm(
+          j = j,
+          g = g,
+          g_prime = g_prime,
+          ginv = ginv,
+          ginv_prime = ginv_prime,
+          theta_star = theta_star_vbc,
+          Sigma_theta = Sigma_theta,
+          sn_params = approx_data
+        )
+      } else {
+        post_marg_marggaus(
+          j = j,
+          g = g,
+          g_prime = g_prime,
+          ginv = ginv,
+          ginv_prime = ginv_prime,
+          theta_star = theta_star_vbc,
+          Sigma_theta = Sigma_theta
+        )
+      }
+    }
+    postmargres <- Map(
+      f = post_marg,
+      j = seq_len(m),
+      g = pt$g[PTFREEIDX],
+      g_prime = pt$g_prime[PTFREEIDX],
+      ginv = pt$ginv[PTFREEIDX],
+      ginv_prime = pt$ginv_prime[PTFREEIDX]
+    )
+    timing <- add_timing(timing, "marginals")
+    timing$marginals <- timing$marginals +
+      core$timing[["marginals"]] +
+      core$timing[["diagnostics"]]
 
     ## ----- NORTA adjustment for SN copula sampling ---------------------------
     R_star <- NULL
@@ -1607,10 +929,6 @@ inlavaan <- function(
     dimnames(vcov_x) <- list(parnames, parnames)
     timing <- add_timing(timing, "sampling")
 
-    if (marginal_method == "sampling") {
-      postmargres <- post_marg_sampling(x_samp)
-    }
-
     summ <- do.call(
       "rbind",
       Map(
@@ -1646,25 +964,21 @@ inlavaan <- function(
     # correlation, not the covariance. Nothing upstream (pars_to_x(), priors,
     # gradients) reads cov_as_cor, so estimation is unaffected either way.
     if (!isTRUE(cov_as_cor) && sum(pt$free > 0 & grepl("cov", pt$mat)) > 0) {
-      if (marginal_method == "sampling") {
-        # Already covered by post_marg_sampling above
+      if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
+        samp_cov <- sample_covariances_fit_sn(x_samp, pt)
+        sn_rows <- approx_data_rows(lapply(samp_cov, `[[`, "sn_params"))
+        approx_data <- rbind(approx_data, sn_rows)
       } else {
-        if (marginal_method == "skewnorm" && isTRUE(sn_fit_sample)) {
-          samp_cov <- sample_covariances_fit_sn(x_samp, pt)
-          sn_rows <- approx_data_rows(lapply(samp_cov, `[[`, "sn_params"))
-          approx_data <- rbind(approx_data, sn_rows)
-        } else {
-          samp_cov <- sample_covariances(x_samp, pt)
-        }
+        samp_cov <- sample_covariances(x_samp, pt)
+      }
 
-        for (cov_name in names(samp_cov)) {
-          tmp_new_summ <- samp_cov[[cov_name]]$summary
-          summ[cov_name, names(tmp_new_summ)] <- tmp_new_summ
-          # keep the coefficient vector on the covariance scale too; the
-          # per-parameter marginal mean is on the correlation (tanh) scale
-          coefs[cov_name] <- tmp_new_summ[["Mean"]]
-          pdf_data[[cov_name]] <- samp_cov[[cov_name]]$pdf_data
-        }
+      for (cov_name in names(samp_cov)) {
+        tmp_new_summ <- samp_cov[[cov_name]]$summary
+        summ[cov_name, names(tmp_new_summ)] <- tmp_new_summ
+        # keep the coefficient vector on the covariance scale too; the
+        # per-parameter marginal mean is on the correlation (tanh) scale
+        coefs[cov_name] <- tmp_new_summ[["Mean"]]
+        pdf_data[[cov_name]] <- samp_cov[[cov_name]]$pdf_data
       }
     }
     timing <- add_timing(timing, "covariances")
@@ -1937,12 +1251,10 @@ inlavaan <- function(
       vb = vb,
       cov_pd = cov_pd,
       call = mc,
-      version = as.character(utils::packageVersion("INLAvaan"))
+      version = as.character(utils::packageVersion("INLAvaan")),
+      # The engine's own record of the fit
+      engine = eng$engine
     )
-    # The engine's own record of the fit
-    if (use_engine) {
-      out$engine <- eng$engine
-    }
     class(out) <- "inlavaan_internal"
 
     # Warn (once, consolidated) if the convergence/approximation diagnostics

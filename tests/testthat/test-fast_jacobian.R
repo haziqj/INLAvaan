@@ -1,26 +1,3 @@
-## ---- Unit tests: fast_grad --------------------------------------------------
-
-test_that("fast_grad matches numDeriv::grad on a quadratic", {
-  set.seed(42)
-  m <- 6
-  Q <- crossprod(matrix(rnorm(m^2), m, m)) + diag(m)
-  fn <- function(x) 0.5 * as.numeric(t(x) %*% Q %*% x)
-
-  x0 <- rnorm(m)
-  g_fast <- fast_grad(fn, x0)
-  g_numD <- numDeriv::grad(fn, x0)
-  g_true <- as.numeric(Q %*% x0)
-
-  expect_equal(g_fast, g_numD, tolerance = 1e-6)
-  expect_equal(g_fast, g_true, tolerance = 1e-4)
-})
-
-test_that("fast_grad works for scalar case", {
-  fn <- function(x) 2 * x^3
-  g <- fast_grad(fn, 2.0)
-  expect_equal(as.numeric(g), 24, tolerance = 1e-4) # true: 6x^2 = 24
-})
-
 ## ---- Unit tests: fast_jacobian vs numDeriv::jacobian ------------------------
 
 # Test 1: Known quadratic function (exact Hessian is constant)
@@ -247,44 +224,4 @@ test_that("hessian_method = 'forward' gives the central posterior", {
   expect_error(
     asem(mod, dat, test = "none", silent = TRUE, hessian_method = "backward")
   )
-})
-
-## ---- Unit tests: fast_hessian -----------------------------------------------
-
-test_that("fast_hessian matches numDeriv::hessian on a quadratic", {
-  set.seed(42)
-  m <- 6
-  Q <- crossprod(matrix(rnorm(m^2), m, m)) + diag(m)
-  fn <- function(x) 0.5 * as.numeric(t(x) %*% Q %*% x)
-
-  x0 <- rnorm(m)
-  H_fast <- fast_hessian(fn, x0)
-  H_numD <- numDeriv::hessian(fn, x0)
-
-  expect_equal(H_fast, H_numD, tolerance = 1e-3)
-  # Both should recover the symmetric part of Q
-  expect_equal(H_fast, 0.5 * (Q + t(Q)), tolerance = 1e-3)
-})
-
-test_that("fast_hessian matches numDeriv on Rosenbrock", {
-  rosenbrock <- function(x) {
-    sum(100 * (x[-1] - x[-length(x)]^2)^2 + (1 - x[-length(x)])^2)
-  }
-  x0 <- rep(1.1, 4)
-  H_fast <- fast_hessian(rosenbrock, x0)
-  H_numD <- numDeriv::hessian(rosenbrock, x0)
-
-  expect_equal(H_fast, H_numD, tolerance = 1e-2)
-})
-
-test_that("fast_hessian is symmetric", {
-  fn <- function(x) sin(x[1]) * cos(x[2]) + x[3]^3
-  H <- fast_hessian(fn, c(1, 2, 3))
-  expect_equal(H, t(H), tolerance = 1e-10)
-})
-
-test_that("fast_hessian works for scalar case", {
-  fn <- function(x) 2 * x^3
-  H <- fast_hessian(fn, 2.0)
-  expect_equal(as.numeric(H), 24, tolerance = 1e-3) # true: 12x = 24
 })

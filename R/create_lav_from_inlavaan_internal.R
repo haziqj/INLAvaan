@@ -82,10 +82,6 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@pta$names <- names(pt)
 
   ## ----- Update Options slot -------------------------------------------------
-  optim_method <- fit_inlv$optim_method
-  if (optim_method == "optim") {
-    optim_method <- "BFGS"
-  }
   fit0@Options$optim.method <- fit_inlv$optim_method
   fit0@Options$do.fit <- TRUE
   fit0@Options$estimator <- "Bayes"
@@ -98,19 +94,10 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@Fit@se <- pt$se
   fit0@Fit@start <- pt$start
 
-  if (fit_inlv$optim_method == "nlminb") {
-    fit0@Fit@iterations <- as.integer(fit_inlv$opt$iterations)
-    fit0@Fit@converged <- fit_inlv$opt$convergence == 0L
-    fit0@Fit@fx <- fit_inlv$opt$objective
-  } else if (fit_inlv$optim_method == "optim") {
-    fit0@Fit@iterations <- as.integer(fit_inlv$opt$counts["function"])
-    fit0@Fit@converged <- fit_inlv$opt$convergence == 0L
-    fit0@Fit@fx <- fit_inlv$opt$value
-  } else if (fit_inlv$optim_method == "ucminf") {
-    fit0@Fit@iterations <- as.integer(fit_inlv$opt$info["neval"])
-    fit0@Fit@converged <- fit_inlv$opt$convergence == 1L
-    fit0@Fit@fx <- fit_inlv$opt$value
-  }
+  # The engine's mode search is nlminb()
+  fit0@Fit@iterations <- as.integer(fit_inlv$opt$iterations)
+  fit0@Fit@converged <- fit_inlv$opt$convergence == 0L
+  fit0@Fit@fx <- fit_inlv$opt$objective
   fit0@Fit@Sigma.hat <- fit0@implied
 
   fit0@Fit@test <- list(

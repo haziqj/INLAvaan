@@ -35,68 +35,18 @@ fast_jacobian <- function(
   H
 }
 
-# Central-difference Hessian of a scalar function (no analytic gradient needed).
-# Does 4m(m-1)/2 + 2m = 2m^2 evaluations of fn.
-fast_hessian <- function(fn, x, h = 1e-5) {
-  m <- length(x)
-  f0 <- fn(x)
-  H <- matrix(0, m, m)
-
-  # Diagonal: (f(x+h*ei) - 2*f(x) + f(x-h*ei)) / h^2
-  for (i in seq_len(m)) {
-    xp <- xm <- x
-    xp[i] <- x[i] + h
-    xm[i] <- x[i] - h
-    H[i, i] <- (fn(xp) - 2 * f0 + fn(xm)) / (h^2)
-  }
-
-  # Off-diagonal (symmetric): use the cross-partial formula
-  # (f(x+h*ei+h*ej) - f(x+h*ei-h*ej) - f(x-h*ei+h*ej) + f(x-h*ei-h*ej)) / (4h^2)
-  if (m > 1) {
-    for (i in seq_len(m - 1)) {
-      for (j in (i + 1):m) {
-        xpp <- xpm <- xmp <- xmm <- x
-        xpp[c(i, j)] <- x[c(i, j)] + h
-        xmm[c(i, j)] <- x[c(i, j)] - h
-        xpm[i] <- x[i] + h
-        xpm[j] <- x[j] - h
-        xmp[i] <- x[i] - h
-        xmp[j] <- x[j] + h
-        H[i, j] <- H[j, i] <-
-          (fn(xpp) - fn(xpm) - fn(xmp) + fn(xmm)) / (4 * h^2)
-      }
-    }
-  }
-
-  H
-}
-
-# Central-difference gradient of a scalar function.
-# Does 2m evaluations of fn.
-fast_grad <- function(fn, x, h = 1e-5) {
-  m <- length(x)
-  g <- numeric(m)
-  for (j in seq_len(m)) {
-    xp <- xm <- x
-    xp[j] <- x[j] + h
-    xm[j] <- x[j] - h
-    g[j] <- (fn(xp) - fn(xm)) / (2 * h)
-  }
-  g
-}
-
-
-# Saturated-means fast path: detect a mean block for which the posterior is
-# exactly block-diagonal at the mode. With Gaussian likelihood the cross
-# information between means and covariance parameters is n dSigma^{-1}/dtheta
-# (ybar - mu_hat), which vanishes when the mean structure is saturated
-# (mu_hat = ybar): all intercepts free and unconstrained with normal priors,
-# no free latent means, fixed intercepts only for frozen exogenous
-# covariates. Along those axes the posterior is exactly Gaussian, so the
-# Hessian block is analytic (n Sigma^{-1}[free, free] + prior precision) and
-# the skew-normal scans are redundant. Returns NULL when the fast path does
-# not apply, else the packed indices, prior precisions, and Sigma row
-# positions of the free intercepts.
+# Saturated-means fast path: detect a saturated mean structure, with all
+# intercepts free and unconstrained with normal priors, no free latent means,
+# and fixed intercepts only for frozen exogenous covariates. With a Gaussian
+# likelihood the posterior is then exactly Gaussian along the intercept axes,
+# so their Hessian block is analytic (n Sigma^{-1}[free, free] + prior
+# precision) and the skew-normal scans are redundant. The block between the
+# intercepts and the covariance parameters is n dSigma^{-1}/dtheta
+# (ybar - mu_hat), which vanishes only where the fitted means equal the sample
+# means. The prior of the intercepts pulls them apart, so this block is not
+# zero at the mode, and engine_hess_mode() takes it from the differenced
+# columns. Returns NULL when the fast path does not apply, else the packed
+# indices, prior precisions, and Sigma row positions of the free intercepts.
 saturated_mean_idx <- function(
   pt,
   lavmodel,

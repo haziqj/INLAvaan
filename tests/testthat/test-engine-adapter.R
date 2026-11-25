@@ -11,7 +11,6 @@ capture_engine <- function(expr) {
       seen$core
     }
   )
-  local_engine()
   seen$fit <- expr
   seen
 }
@@ -244,7 +243,6 @@ test_that("the controls of nlminb() are checked under the user's names", {
 })
 
 test_that("the fit prints a line per stage, and more with verbose = TRUE", {
-  local_engine()
   fit_once <- function(...) {
     acfa("visual =~ x1 + x2 + x3", hs, nsamp = 3, test = "none", ...)
   }
@@ -328,28 +326,57 @@ test_that("the fields of the internal list come from the engine", {
 })
 
 test_that("the layout of the internal list is that of the old stages", {
-  fit_once <- function(on) {
-    with_engine(
-      acfa(
-        "visual =~ x1 + x2 + x3",
-        hs,
-        silent = TRUE,
-        nsamp = 3,
-        test = "none"
-      ),
-      on = on
+  int <- get_inlavaan_internal(acfa(
+    "visual =~ x1 + x2 + x3",
+    hs,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none"
+  ))
+  expect_named(
+    int,
+    c(
+      "coefficients",
+      "mloglik",
+      "DIC",
+      "summary",
+      "ppp",
+      "loo",
+      "waic",
+      "test",
+      "optim_method",
+      "marginal_method",
+      "cov_as_cor",
+      "samp_copula",
+      "samp_norta",
+      "theta_star_novbc",
+      "theta_star",
+      "Sigma_theta",
+      "R_star",
+      "vcov_x",
+      "theta_star_trans",
+      "approx_data",
+      "nsamp",
+      "pdf_data",
+      "def_undefined",
+      "partable",
+      "lavmodel",
+      "lavsamplestats",
+      "lavdata",
+      "lavcache",
+      "opt",
+      "timing",
+      "visual_debug",
+      "vb",
+      "cov_pd",
+      "call",
+      "version",
+      "engine",
+      "warnings"
     )
-  }
-  int_old <- get_inlavaan_internal(fit_once(FALSE))
-  int_new <- get_inlavaan_internal(fit_once(TRUE))
-  expect_length(names(int_old), 36L)
-  expect_identical(
-    names(int_new),
-    append(names(int_old), "engine", after = 35L)
   )
-  expect_identical(names(int_new$timing), names(int_old$timing))
   expect_identical(
-    names(int_new$timing),
+    names(int$timing),
     c(
       "init",
       "optim",
@@ -364,12 +391,18 @@ test_that("the layout of the internal list is that of the old stages", {
       "test"
     )
   )
-  expect_true(all(unlist(int_new$timing) >= 0))
-  expect_identical(names(int_new$vb), names(int_old$vb))
-  expect_identical(names(int_new$approx_data), names(int_old$approx_data))
-  expect_true(all(c("dx", "dx_analytic") %in% names(int_new$opt)))
-  expect_type(int_new$theta_star_novbc, "double")
-  expect_null(names(int_new$theta_star_novbc))
+  expect_true(all(unlist(int$timing) >= 0))
+  expect_named(
+    int$vb,
+    c("opt", "n_qmc", "method", "correction", "mcse", "kld", "kld_global")
+  )
+  expect_identical(
+    colnames(int$approx_data),
+    c("xi", "omega", "alpha", "logC", "nmad", "gamma1")
+  )
+  expect_true(all(c("dx", "dx_analytic") %in% names(int$opt)))
+  expect_type(int$theta_star_novbc, "double")
+  expect_null(names(int$theta_star_novbc))
 })
 
 test_that("the evidence holds the constant of a two-level fit under fixed.x", {

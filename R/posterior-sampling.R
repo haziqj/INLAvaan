@@ -82,34 +82,6 @@ sample_params <- function(
           }
         })
       )
-    } else if (method == "asymgaus") {
-      theta <- do.call(
-        "cbind",
-        lapply(seq_len(ncol(u)), function(j) {
-          tt <- theta_star[j] +
-            seq(-4, 4, length = 100) * sqrt(Sigma_theta[j, j])
-          yy <- marg_lp(
-            tt,
-            j = j,
-            theta_star = theta_star,
-            Sigma_theta = Sigma_theta,
-            sigma_asym = approx_data
-          )
-          yy <- yy - max(yy) # stabilise
-          fj_lp <- stats::splinefun(tt, yy)
-          fj <- function(par) exp(fj_lp(par)) # unnormalised
-          dt <- diff(tt)
-          ft <- fj(tt)
-          fmid <- (head(ft, -1) + tail(ft, -1)) / 2
-          ymid <- (head(tt, -1) + tail(tt, -1)) / 2
-          C <- sum(fmid * dt)
-          ft <- ft / C
-          Ft <- c(0, cumsum(fmid * dt))
-          Ft <- Ft / tail(Ft, 1)
-          qfj <- splinefun(Ft, tt, method = "monoH.FC")
-          qfj(u[, j])
-        })
-      )
     } else if (method == "marggaus") {
       theta <- do.call(
         "cbind",

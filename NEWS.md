@@ -1,6 +1,8 @@
 # INLAvaan (development version)
 
-* INLAvaan now requires R 4.1.0 or later, and cli 3.6.0 or later.
+* INLAvaan now requires R 4.1.0 or later, and cli 3.6.0 or later. It no
+  longer suggests spacefillr and ucminf, which only the Sobol nodes of the
+  old VB correction and `optim_method = "ucminf"` used.
 
 * New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
   `silent = TRUE` prints nothing and muffles the warnings and messages raised

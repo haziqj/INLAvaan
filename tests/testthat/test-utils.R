@@ -117,18 +117,6 @@ set_collate <- function(locale) {
   suppressWarnings(Sys.setlocale("LC_COLLATE", locale)) != ""
 }
 
-test_that("canonical_order ignores the collation locale", {
-  old <- Sys.getlocale("LC_COLLATE")
-  on.exit(Sys.setlocale("LC_COLLATE", old), add = TRUE)
-  skip_if_not(set_collate("en_US.UTF-8"), "en_US.UTF-8 not available")
-
-  x <- c("Visual=~B2", "a1~~a1", "B2~~B2", "textual=~F6", ".p1.")
-  expected <- c(5L, 3L, 1L, 2L, 4L)
-  expect_identical(canonical_order(x), expected)
-  set_collate("C")
-  expect_identical(canonical_order(x), expected)
-})
-
 test_that("fit results do not depend on the collation locale", {
   old <- Sys.getlocale("LC_COLLATE")
   on.exit(Sys.setlocale("LC_COLLATE", old), add = TRUE)
