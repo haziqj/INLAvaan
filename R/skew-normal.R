@@ -184,13 +184,15 @@ NULL
 #' to the provided numeric vector `x`. The fit is computed on standardised
 #' draws, so it does not depend on the scale of `x`.
 #'
-#' The fit runs from two starts and keeps the one with the larger likelihood,
-#' as [fit_skew_normal()] does. With \eqn{\delta = \alpha / \sqrt{1 +
-#' \alpha^2}}, when the sample skewness of `x` gives \eqn{|\delta| \ge 0.2},
-#' the starts are the moment-based values and their mirror image, with the
-#' opposite skew. When `x` is near symmetric, the starts are \eqn{\delta = \pm
-#' 0.5}. A single start at `alpha = 0`, a stationary point of the likelihood,
-#' can stall there when the skew is mild.
+#' The fit runs from three starts and keeps the one with the largest
+#' likelihood. The first start is the normal distribution with the median and
+#' the SD of `x`, so `alpha = 0`. This is a stationary point of the likelihood,
+#' so a fit from it alone can stall there when the skew is mild. The other two
+#' starts are as in [fit_skew_normal()]. With
+#' \eqn{\delta = \alpha / \sqrt{1 + \alpha^2}}, they are the moment-based
+#' values from the sample skewness of `x` and their mirror image, with the
+#' opposite skew. When the moment-based values give \eqn{|\delta| < 0.2},
+#' these two starts are \eqn{\delta = \pm 0.5}.
 #'
 #' @param x A numeric vector of sample data.
 #'
@@ -207,9 +209,8 @@ fit_skew_normal_samp <- function(x) {
   m <- stats::median(x)
   s <- stats::sd(x)
   # Draws that do not vary, or that are not all finite, cannot be fitted. Return
-  # the start alpha = 0 with the scale s, as the single start did before. Then
-  # xi is the median and omega is 0 when the draws do not vary, and both are NA
-  # or NaN when s is.
+  # the first start below, alpha = 0 with the scale s. Then xi is the median and
+  # omega is 0 when the draws do not vary, and both are NA or NaN when s is.
   if (!is.finite(s) || s == 0) {
     cli_warn(c(
       "{.arg x} must be finite and must vary to fit a skew normal.",
@@ -230,21 +231,23 @@ fit_skew_normal_samp <- function(x) {
       ))
   }
 
-  # Fit from two starts and keep the larger likelihood, as fit_skew_normal()
-  # does. The likelihood has a stationary point at alpha = 0, so a single start
-  # there can stall when the draws are mildly skewed. The starts are the
-  # moment-based delta = alpha / sqrt(1 + alpha^2) and its mirror image, or
-  # delta = +-0.5 when the draws are near symmetric. The standardised draws
-  # have SD 1.
+  # Fit from three starts and keep the largest likelihood. The first start is
+  # alpha = 0 at the median with the SD of the draws, so the fit is never worse
+  # than a fit from alpha = 0 alone. The likelihood has a stationary point
+  # there, so that fit can stall when the draws are mildly skewed. The other
+  # two starts are as in fit_skew_normal(): the moment-based
+  # delta = alpha / sqrt(1 + alpha^2) and its mirror image, or delta = +-0.5
+  # when the draws are near symmetric. The standardised draws have SD 1.
   mean_z <- mean(z)
   d0 <- sn_delta_from_skew(mean((z - mean_z)^3) / mean((z - mean_z)^2)^1.5)
   if (!is.finite(d0) || abs(d0) < 0.2) {
     d0 <- 0.5
   }
-  starts <- lapply(c(d0, -d0), function(d) {
+  mirrored <- lapply(c(d0, -d0), function(d) {
     om <- 1 / sqrt(1 - 2 * d^2 / pi)
     c(mean_z - om * d * sqrt(2 / pi), log(om), d / sqrt(1 - d^2))
   })
+  starts <- c(list(c(0, 0, 0)), mirrored)
   fits <- lapply(starts, function(st) stats::nlminb(st, nll))
   opt <- fits[[which.min(vapply(fits, `[[`, 0, "objective"))]]
 
