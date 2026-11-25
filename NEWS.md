@@ -9,7 +9,9 @@
   its warnings in the field `warnings` of `get_inlavaan_internal()`.
   `fitMeasures()`, `bfit_indices()` and `compare()` now fit the independence
   baseline with `silent = TRUE`, so the warnings of that fit are no longer
-  shown.
+  shown. `update(fit, silent = TRUE)` drops `verbose` from the call of
+  `fit`, and `update(fit, verbose = TRUE)` drops `silent`, so either works
+  on a fit made with the other.
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now

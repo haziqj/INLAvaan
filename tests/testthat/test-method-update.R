@@ -99,3 +99,25 @@ test_that("update() re-parses a recorded test = c('standard', 'loo') call", {
   computed <- get_inlavaan_internal(fit2, "test")$computed
   expect_true(all(c("loo", "waic") %in% computed))
 })
+
+test_that("update() swaps verbose = TRUE and silent = TRUE", {
+  one_factor <- "visual =~ x1 + x2 + x3"
+  suppressMessages(
+    fit_v <- acfa(one_factor, dat, verbose = TRUE, nsamp = 3, test = "none")
+  )
+  cl <- update(fit_v, silent = TRUE, evaluate = FALSE)
+  expect_null(cl$verbose)
+  expect_true(cl$silent)
+  expect_silent(fit_s <- update(fit_v, silent = TRUE))
+  expect_s4_class(fit_s, "INLAvaan")
+  # The reverse, with the value in a variable
+  loud <- TRUE
+  cl <- update(fit_s, verbose = loud, evaluate = FALSE)
+  expect_null(cl$silent)
+  expect_identical(cl$verbose, quote(loud))
+  # silent = FALSE keeps verbose = TRUE
+  cl <- update(fit_v, silent = FALSE, evaluate = FALSE)
+  expect_true(cl$verbose)
+  # Both asked for still gives the error of inlavaan()
+  expect_error(update(fit_v, silent = TRUE, verbose = TRUE), "cannot both be")
+})

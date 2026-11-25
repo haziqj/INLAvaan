@@ -50,6 +50,10 @@ a cold fit. This makes prior sweeps particularly cheap. The warm start only
 changes the optimiser's starting point, not the fitted result. Supply
 \code{start} explicitly to override it.
 
+\code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So
+\code{update(fit, silent = TRUE)} drops \code{verbose} from the recorded call, and
+\code{update(fit, verbose = TRUE)} drops \code{silent}.
+
 Fits produced by INLAvaan versions that did not record their call cannot be
 updated; re-fit once with \code{\link[=inlavaan]{inlavaan()}} (or \code{\link[=acfa]{acfa()}}, \code{\link[=asem]{asem()}}, \code{\link[=agrowth]{agrowth()}})
 and \code{update()} will work on the new object.

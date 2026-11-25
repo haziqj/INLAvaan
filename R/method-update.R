@@ -21,6 +21,10 @@
 #' changes the optimiser's starting point, not the fitted result. Supply
 #' `start` explicitly to override it.
 #'
+#' `verbose = TRUE` and `silent = TRUE` cannot go together. So
+#' `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
+#' `update(fit, verbose = TRUE)` drops `silent`.
+#'
 #' Fits produced by INLAvaan versions that did not record their call cannot be
 #' updated; re-fit once with [inlavaan()] (or [acfa()], [asem()], [agrowth()])
 #' and `update()` will work on the new object.
@@ -111,6 +115,21 @@ setMethod(
     extras <- outer_call[["..."]]
     for (nm in names(extras)) {
       cl[[nm]] <- extras[[nm]]
+    }
+    # verbose = TRUE and silent = TRUE cannot go together, so asking for one
+    # drops the other from the recorded call, unless it is asked for too:
+    # update(fit, silent = TRUE) then works on a fit made with verbose = TRUE.
+    asked <- names(extras)
+    for (pair in list(c("silent", "verbose"), c("verbose", "silent"))) {
+      one <- pair[[1L]]
+      other <- pair[[2L]]
+      drop_other <- is.element(one, asked) &&
+        !is.element(other, asked) &&
+        is.element(other, names(cl)) &&
+        isTRUE(eval(extras[[one]], caller))
+      if (drop_other) {
+        cl[[other]] <- NULL
+      }
     }
 
     if (!evaluate) {
