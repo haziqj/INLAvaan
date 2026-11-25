@@ -277,7 +277,8 @@ fit_skew_normal_samp <- function(x) {
 # u = (z - xi) / omega and the Mills ratio r = phi(alpha u) / Phi(alpha u), the
 # log-density is log(2) + log(phi(u)) + log(Phi(alpha u)) - eta, so
 # d/du = -u + alpha r, d/dalpha = u r, du/dxi = -1 / omega and du/deta = -u.
-# The derivative of r in its argument is -r (alpha u + r). The three functions
+# The derivative of r in its argument is -r (alpha u + r), where the gap
+# alpha u + r comes from sn_mills_gap() when alpha u < -5. The three functions
 # share the work at the last value of par, since nlminb() calls them in turn
 # at the same point.
 sn_samp_nll <- function(z) {
@@ -292,13 +293,22 @@ sn_samp_nll <- function(z) {
       au <- par[3] * u
       log_cdf <- stats::pnorm(au, log.p = TRUE)
       r <- exp(stats::dnorm(au, log = TRUE) - log_cdf)
+      # The gap au + r, for the Hessian. For au below -5, r is close to -au,
+      # so take the gap from its continued fraction and r from the gap.
+      gap <- au + r
+      tail <- au < -5
+      if (any(tail)) {
+        gap[tail] <- sn_mills_gap(-au[tail])
+        r[tail] <- gap[tail] - au[tail]
+      }
       last_par <<- par
       last <<- list(
         inv_omega = inv_omega,
         u = u,
         au = au,
         log_cdf = log_cdf,
-        r = r
+        r = r,
+        gap = gap
       )
     }
     last
@@ -326,7 +336,7 @@ sn_samp_nll <- function(z) {
     s <- k$inv_omega
     u <- k$u
     r <- k$r
-    dr <- -r * (k$au + r)
+    dr <- -r * k$gap
     sum_r <- sum(r)
     sum_ur <- sum(u * r)
     sum_dr <- sum(dr)
@@ -343,6 +353,20 @@ sn_samp_nll <- function(z) {
   }
 
   list(fn = fn, gr = gr, hs = hs)
+}
+
+# The gap x + r(x) of the Mills ratio r(x) = phi(x) / Phi(x) at x = -t, for
+# t > 0. With x = -t, Laplace's continued fraction for (1 - Phi(t)) / phi(t)
+# gives the gap as 1 / (t + 2 / (t + 3 / (t + ...))). This has no cancellation,
+# while x + r computed directly loses about 1e-16 t^4 in relative terms. It is
+# 13% off at t = 1e4 and has the wrong sign at t = 1e5. With 40 terms, the
+# fraction is exact to double precision for t >= 5.
+sn_mills_gap <- function(t) {
+  g <- t
+  for (k in 40:2) {
+    g <- t + k / g
+  }
+  1 / g
 }
 
 # The delta = alpha / sqrt(1 + alpha^2) of the skew normal with skewness g, by

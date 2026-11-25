@@ -119,6 +119,28 @@ test_that("Skew-normal sample fit has the right gradient and Hessian", {
   }
 })
 
+test_that("Skew-normal sample fit has a stable Hessian when alpha u is very negative", {
+  skip_if_not_installed("numDeriv")
+  # The gap x + r of the Mills ratio r at x = -t against its asymptotic series
+  t <- 10^(2:6)
+  expect_equal(
+    sn_mills_gap(t),
+    1 / t - 2 / t^3 + 10 / t^5 - 74 / t^7,
+    tolerance = 1e-12
+  )
+
+  # Points where alpha u reaches about -5e4, -8e5 and -4e6. With the direct
+  # form -r (alpha u + r) of the derivative of r, which has the wrong sign at
+  # alpha u = -1e5, the Hessian is 75% and 100% off at the first two points.
+  set.seed(1)
+  z <- rt(200, 5)
+  nll <- sn_samp_nll(z)
+  pars <- list(c(0.1, -0.2, 1e4), c(0.1, -0.2, -1e5), c(0, 0, 1e6))
+  for (par in pars) {
+    expect_equal(nll$hs(par), numDeriv::jacobian(nll$gr, par), tolerance = 1e-8)
+  }
+})
+
 test_that("Skew-normal sample fit runs the third start when it can win", {
   # On these draws, the fits from the two mirrored starts both end at alpha of
   # about -1.31, so the fit from alpha = 0 also runs. The result is the best
