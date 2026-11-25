@@ -27,7 +27,7 @@ BugReports: https://github.com/haziqj/INLAvaan/issues
 Depends: 
     R (>= 4.1.0)
 Imports:
-    cli,
+    cli (>= 3.6.0),
     graphics,
     lavaan (>= 0.7-2),
     methods,
@@ -36,10 +36,12 @@ Imports:
     utils
 Suggests: 
     blavaan,
+    future,
     ggplot2,
     knitr,
     lme4,
     numDeriv,
+    parallelly,
     quarto,
     sn,
     spacefillr,

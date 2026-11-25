@@ -1,6 +1,6 @@
 # INLAvaan (development version)
 
-* INLAvaan now requires R 4.1.0 or later.
+* INLAvaan now requires R 4.1.0 or later, and cli 3.6.0 or later.
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
