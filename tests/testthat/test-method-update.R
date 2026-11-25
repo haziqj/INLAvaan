@@ -248,11 +248,17 @@ test_that("check_stored_data_update() lets unchanged options and variables pass"
     vb_correction = "none",
     marginal_method = "gaussian"
   )
-  old_call <- quote(acfa(model, dd, group = "school"))
-  # The same expression, also under the other name of lavaan
+  old_call <- quote(acfa(model, dd, group = "school", std.ov = TRUE))
+  # The same expression, also under the snake-case name of lavaan
   expect_silent(check_stored_data_update(
     old_call,
     list(group = "school"),
+    NULL,
+    fit
+  ))
+  expect_silent(check_stored_data_update(
+    old_call,
+    list(std_ov = TRUE),
     NULL,
     fit
   ))
