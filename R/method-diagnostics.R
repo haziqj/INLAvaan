@@ -375,8 +375,11 @@ inlavaan_advice <- list(
 # engine's diagnostic_problems(), in INLAvaan's words (inlavaan_advice).
 # INLAvaan adds two checks of its own: the return code of nlminb(), which the
 # engine leaves out, first, and the latent and residual covariance matrices
-# that are not positive definite, last. Only the "x" bullets count as issues:
-# the engine adds "i" lines with advice.
+# that are not positive definite, last. The check of the one-step VB
+# correction is the engine's, but the engine raises it in a warning of its
+# own, which engine_call() muffles, so its bullet is worded here, after the
+# engine's bullets. Only the "x" bullets count as issues: the engine adds "i"
+# lines with advice.
 warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
   dg <- diagnostics_fit(int)
   glob <- dg$global
@@ -390,13 +393,14 @@ warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
   )
   # The templates of the bullets are filled in from this environment
   env <- attr(problems, "envir")
+  flags <- check_flags(dg$engine, gaussian)
 
   issues <- character(0)
   if (glob[["converged"]] == 0) {
     # When the mode is flagged too, the engine's bullet on the mode gives the
     # message of nlminb() and the advice, so they are not repeated here.
     msg <- dg$engine$message
-    mode_flagged <- check_flags(dg$engine, gaussian)[["mode"]]
+    mode_flagged <- flags[["mode"]]
     env$conv_message <- msg
     issues <- c(
       "x" = if (!is.null(msg) && nzchar(msg) && !mode_flagged) {
@@ -417,6 +421,31 @@ warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
     }
   }
   issues <- c(issues, problems)
+
+  # The check of the one step failed, and the VB equation was solved instead.
+  # The VB mean centres the Gaussian marginals, but not the skew-normal ones.
+  if (flags[["vb_check"]]) {
+    env$vbc_worst <- int$engine$diagnostics$vb$check_worst
+    issues <- c(
+      issues,
+      "x" = paste0(
+        "The one-step VB correction failed its check: the posterior is far ",
+        "from Gaussian along the mean correction",
+        if (length(env$vbc_worst) == 1L && !is.na(env$vbc_worst)) {
+          ", most of all for {.code {vbc_worst}}"
+        },
+        ". The VB equation was solved instead."
+      ),
+      "i" = paste0(
+        "Treat ",
+        if (gaussian) "the posterior means, " else "",
+        "the marginal log-likelihood, the DIC, the LOO and the WAIC with ",
+        "care, and compare with MCMC, such as {.pkg blavaan}, if they ",
+        "matter. This reflects the model, the data or the priors, not a ",
+        "numerical failure."
+      )
+    )
+  }
 
   cov_labels <- c(
     psi = "covariance matrix of the latent variables ({.code psi})",

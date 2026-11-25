@@ -115,10 +115,19 @@ engine_check_start <- function(joint_lp, init) {
 
 # vanilla_core() with the arguments given. The engine raises its errors with
 # the call inla_vanilla(), the function of inlavanilla that users of INLAvaan
-# never call, so the call is dropped and the error raised again.
+# never call, so the call is dropped and the error raised again. When the
+# check of the one-step VB correction fails, the engine warns in its own words
+# and with its own class. That warning is muffled here: the fit records the
+# failed check in its diagnostics (vb_solve), and warn_fit_diagnostics()
+# reports it in INLAvaan's words, in the one warning at the end of the fit.
 engine_call <- function(...) {
   tryCatch(
-    vanilla_core(...),
+    withCallingHandlers(
+      vanilla_core(...),
+      inlavanilla_vb_check_warning = function(w) {
+        tryInvokeRestart("muffleWarning")
+      }
+    ),
     inlavanilla_error = function(e) {
       e$call <- NULL
       stop(e)
