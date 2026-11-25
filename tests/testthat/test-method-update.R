@@ -64,7 +64,7 @@ test_that("warm start reaches the same posterior mode as a cold fit", {
     test = "none"
   )
   # Compare the deterministic optimiser target (the mode), not sample-based
-  # summaries which carry Monte Carlo noise at nsamp = 3
+  # summaries which carry Monte Carlo noise at nsamp = 3.
   expect_equal(
     get_inlavaan_internal(fit_warm, "theta_star_novbc"),
     get_inlavaan_internal(fit_cold, "theta_star_novbc"),
@@ -176,7 +176,7 @@ test_that("update() drops an argument given as NULL", {
   cl <- update(fit, silent = NULL, evaluate = FALSE)
   expect_false("silent" %in% names(cl))
   # Before, NULL for an argument that the call does not have failed with an
-  # error of base R
+  # error of base R.
   cl <- update(fit, ordered = NULL, evaluate = FALSE)
   expect_true("ordered" %in% names(cl))
   expect_null(cl$ordered)
@@ -287,7 +287,7 @@ test_that("update() on the stored data stops when the model gives the variables 
     class = err
   )
   # lavaan matches the stored data to the model by position, so the same
-  # variables in another order would swap the estimates of x2 and x3
+  # variables in another order would swap the estimates of x2 and x3.
   expect_error(update(fit_reg, model = "x1 ~ x3 + x2"), class = err)
   # fixed.x and conditional.x set the exogenous variables too
   expect_error(
@@ -298,7 +298,7 @@ test_that("update() on the stored data stops when the model gives the variables 
   expect_error(update(fit_reg, conditional_x = TRUE), class = err)
   expect_no_error(update(fit_reg, fixed.x = TRUE, conditional.x = FALSE))
   # Models that keep the roles refit as on the data given again: the
-  # statements in another order, and an equality constraint
+  # statements in another order, and an equality constraint.
   for (model in c(
     "visual ~ x4\n visual =~ x1 + x2 + x3",
     "visual =~ x1 + a*x2 + a*x3\n visual ~ x4"
@@ -412,7 +412,7 @@ test_that("check_stored_data_update() lets unchanged options and variables pass"
     class = err
   )
   # NULL is the default of lavaan, the same only when the call does not give
-  # the argument either
+  # the argument either.
   expect_silent(
     check_stored_data_update(old_call, list(group = NULL), NULL, fit)
   )
@@ -430,7 +430,7 @@ test_that("check_stored_data_update() lets unchanged options and variables pass"
     check_stored_data_update(old_call, list(std.lv = TRUE), NULL, fit)
   )
   # The same observed variables in the same order, with priors or as a
-  # parameter table
+  # parameter table.
   same_vars <- 'visual =~ x1 + prior("normal(0,1)")*x2 + x3'
   expect_silent(check_stored_data_update(old_call, list(), same_vars, fit))
   expect_silent(

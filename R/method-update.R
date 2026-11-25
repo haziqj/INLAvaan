@@ -132,7 +132,7 @@ setMethod(
     for (nm in names(extras)) {
       if (is.null(extras[[nm]]) && !nm %in% names(cl)) {
         # As in stats::update(), `arg = NULL` drops an argument of the call,
-        # or gives it as NULL when the call does not have it
+        # or gives it as NULL when the call does not have it.
         cl[nm] <- list(NULL)
       } else {
         cl[[nm]] <- extras[[nm]]
@@ -269,7 +269,7 @@ data_read_args <- c(
 )
 
 # The arguments of `data_read_args` that set the roles of the observed
-# variables
+# variables.
 data_role_args <- c("ordered", "fixed.x", "conditional.x")
 
 # Argument names as lavaan reads them: dot or snake case, upper or lower case
@@ -467,7 +467,7 @@ stored_read_same <- function(key, value, object, old_given) {
 
 # `missing` as lav_lavdata() reads it: the synonyms of "ml" and "ml.x" are
 # "ml" and "ml.x", and the default is "listwise" (except under mimic =
-# "Mplus", where it may be "ml", so NA)
+# "Mplus", where it may be "ml", so NA).
 missing_as_read <- function(value, opt) {
   value <- value %||% "default"
   if (!is.character(value) || length(value) != 1L) {
