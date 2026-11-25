@@ -184,7 +184,6 @@ test_that("update() replaces an argument given under another spelling", {
   expect_false(lavaan::lavInspect(fit_new, "options")$std.ov)
 })
 
-
 test_that("update() stops with a clear error when it cannot find the data", {
   dd <- dat[dat$school == "Pasteur", ]
   fit <- acfa(
