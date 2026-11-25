@@ -62,6 +62,9 @@
   - `cores = NULL` follows `future::plan()`, which is serial unless a plan
     is set. Before, a model with more than 120 free parameters ran its scans
     in parallel.
+  - `cores` must be `NULL` or a single positive whole number, as the engine
+    checks. Other values, such as `0`, `2.5`, `NA` or `-3`, now give an
+    error. Before, they ran on one core, or on the whole part of the number.
   - The engine warns when the Hessian at the mode is not symmetric, or does
     not agree with the gradient.
   - `get_inlavaan_internal()` has a new field `engine`, with the engine's

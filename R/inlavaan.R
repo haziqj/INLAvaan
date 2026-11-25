@@ -140,7 +140,8 @@
 #'   parameters keep their names; supplying a hand-built vector requires
 #'   knowledge of the internal parameter ordering. Its length must equal the
 #'   number of free parameters or an error is raised.
-#' @param cores Integer or `NULL`. The number of cores. With `NULL` (default),
+#' @param cores A positive whole number or `NULL`. The number of cores. Other
+#'   values, such as `0`, `2.5` or `NA`, give an error. With `NULL` (default),
 #'   the scans of the skew-normal marginals follow `future::plan()`, which is
 #'   serial unless a plan is set, and the LOO and the WAIC asked for in `test`
 #'   run serially. With `cores > 1`, the scans run in parallel when the
@@ -382,11 +383,8 @@ inlavaan <- function(
     vb_correction <- settings$vb_correction
     marginal_method <- settings$marginal_method
     marginal_scan <- settings$marginal_scan
-    if (!is.null(cores)) {
-      # nocov start
-      cores <- as.integer(cores)
-      if (is.na(cores) || cores < 1L) cores <- 1L
-    } # nocov end
+    # The engine's check: a single positive whole number, or NULL
+    cores <- check_cores(cores)
     ppp_method <- match.arg(ppp_method)
     if (
       !is.numeric(ppp_nsamp) ||

@@ -203,7 +203,8 @@ parameters keep their names; supplying a hand-built vector requires
 knowledge of the internal parameter ordering. Its length must equal the
 number of free parameters or an error is raised.}
 
-\item{cores}{Integer or \code{NULL}. The number of cores. With \code{NULL} (default),
+\item{cores}{A positive whole number or \code{NULL}. The number of cores. Other
+values, such as \code{0}, \code{2.5} or \code{NA}, give an error. With \code{NULL} (default),
 the scans of the skew-normal marginals follow \code{future::plan()}, which is
 serial unless a plan is set, and the LOO and the WAIC asked for in \code{test}
 run serially. With \code{cores > 1}, the scans run in parallel when the

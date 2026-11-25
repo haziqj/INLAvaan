@@ -184,7 +184,8 @@ uses the analytic gradient.}
 \item{hessian_method}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use
 \code{control = inlavaan_control(hessian = )}, which gives the same fit.}
 
-\item{cores}{Integer or \code{NULL}. The number of cores. With \code{NULL} (default),
+\item{cores}{A positive whole number or \code{NULL}. The number of cores. Other
+values, such as \code{0}, \code{2.5} or \code{NA}, give an error. With \code{NULL} (default),
 the scans of the skew-normal marginals follow \code{future::plan()}, which is
 serial unless a plan is set, and the LOO and the WAIC asked for in \code{test}
 run serially. With \code{cores > 1}, the scans run in parallel when the

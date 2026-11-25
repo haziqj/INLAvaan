@@ -67,6 +67,24 @@ test_that("model.type must name a lavaan function that inlavaan() uses", {
   expect_identical(fit@Options$model.type, "cfa")
 })
 
+## ----- cores -----------------------------------------------------------------
+
+test_that("cores must be NULL or a single positive whole number", {
+  # Before, most of these ran, on one core or on the whole part of the number
+  for (bad in list(0, 2.5, NA, -3, Inf, "2", TRUE, c(1, 2))) {
+    expect_error(
+      fit_quick(hs, cores = bad),
+      "positive whole number",
+      class = "inlavanilla_error"
+    )
+  }
+  fit_one <- fit_quick(hs, cores = 1)
+  expect_identical(
+    get_inlavaan_internal(fit_one, "theta_star_novbc"),
+    get_inlavaan_internal(fit_quick(hs), "theta_star_novbc")
+  )
+})
+
 ## ----- dp --------------------------------------------------------------------
 
 test_that("a name of dp that no parameter type uses warns", {
