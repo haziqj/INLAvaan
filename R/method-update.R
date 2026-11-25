@@ -165,7 +165,9 @@ setMethod(
 
     # The refit evaluates the recorded call again, so it needs the data that
     # the call names.
-    if (!"data" %in% names(extras) && data_not_found(cl$data, caller)) {
+    data_missing <- !"data" %in% names(extras) &&
+      !is.null(missing_object(cl$data, caller))
+    if (data_missing) {
       cli_abort(
         c(
           "{.fn update} cannot find the data {.code {deparse1(cl$data)}} of
@@ -218,16 +220,42 @@ drop_other_spellings <- function(cl, nm) {
   cl[-other]
 }
 
-# Whether the data expression of a recorded call names an object that is no
-# longer found in `env`. A function counts as not found: in a new session,
-# data named `df` or `data` find the functions stats::df() and utils::data(),
-# which lavaan cannot read as data.
-data_not_found <- function(data, env) {
-  if (!is.symbol(data) && !is.call(data)) {
-    return(FALSE)
+# The name of the object that the expression `expr` of a recorded call reads
+# and that is no longer found in `env`, or NULL. The expression is not
+# evaluated: a call such as read.csv() or lavaan::simulateData() would run
+# twice, and an error inside it would read as "not found". So only the object
+# at the root is checked: `dd` in `dd`, `dd$x` or `dd[dd$g == 1, ]`, and `m`
+# in `simulateData(m, sample.nobs = n)`. Other symbols of a call are left to
+# the refit, since a call such as subset(dd, g == 1) can use symbols that are
+# not objects. For an object read directly or by `$`, `[[`, `[` or `@`, a
+# function counts as not found: in a new session, data named `df` or `data`
+# find the functions stats::df() and utils::data(), which lavaan cannot read.
+missing_object <- function(expr, env) {
+  extract <- c("$", "[[", "[", "@")
+  direct <- TRUE
+  while (is.call(expr)) {
+    fn <- expr[[1L]]
+    if (
+      length(expr) < 2L ||
+        identical(fn, as.name("::")) ||
+        identical(fn, as.name(":::"))
+    ) {
+      return(NULL)
+    }
+    if (!(is.symbol(fn) && as.character(fn) %in% extract)) {
+      direct <- FALSE
+    }
+    expr <- expr[[2L]]
   }
-  tryCatch(
-    is.function(eval(data, env)),
-    error = function(e) TRUE
-  )
+  if (!is.symbol(expr) || identical(as.character(expr), "")) {
+    return(NULL)
+  }
+  name <- as.character(expr)
+  if (!exists(name, envir = env)) {
+    return(name)
+  }
+  if (direct && is.function(get(name, envir = env))) {
+    return(name)
+  }
+  NULL
 }

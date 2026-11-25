@@ -234,6 +234,62 @@ test_that("update() counts data named after a function as not found", {
   )
 })
 
+test_that("update() does not evaluate a data call before the refit", {
+  one_factor <- "visual =~ x1 + x2 + x3"
+  fit_sim <- function() {
+    acfa(
+      one_factor,
+      data = lavaan::simulateData(one_factor, sample.nobs = 100),
+      silent = TRUE,
+      nsamp = 3,
+      test = "none",
+      vb_correction = "none",
+      marginal_method = "gaussian"
+    )
+  }
+  set.seed(1)
+  fit <- fit_sim()
+  # The data call runs once, so the refit gets the data of a fresh fit
+  set.seed(2)
+  fit_new <- update(fit)
+  set.seed(2)
+  fit_fresh <- fit_sim()
+  expect_identical(
+    lavaan::lavInspect(fit_new, "sampstat"),
+    lavaan::lavInspect(fit_fresh, "sampstat")
+  )
+  # An error inside the data call is the error of the call itself
+  path <- tempfile(fileext = ".rds")
+  saveRDS(dat, path)
+  fit <- acfa(
+    one_factor,
+    data = readRDS(path),
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  unlink(path)
+  err <- expect_error(suppressWarnings(update(fit)))
+  expect_false(inherits(err, "inlavaan_update_data_not_found"))
+  # Symbols of a call that are not objects, such as `school`, are not checked
+  dd <- dat
+  fit <- acfa(
+    one_factor,
+    data = subset(dd, school == "Pasteur"),
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none",
+    marginal_method = "gaussian"
+  )
+  expect_equal(lavaan::lavInspect(update(fit), "nobs"), 156L)
+  # The object at the root of a data call is checked
+  rm(dd)
+  expect_error(update(fit), class = "inlavaan_update_data_not_found")
+})
+
 test_that("update() with a new model gives the fit of a fresh call", {
   skip_on_cran()
   args <- list(
