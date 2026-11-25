@@ -198,33 +198,6 @@ setMethod(
   }
 )
 
-# The arguments of lavaan that set how the data are read, as lavaan's
-# lav_lavdata() and lav_data_full() read them.
-data_read_args <- c(
-  "group",
-  "group.label",
-  "cluster",
-  "level.label",
-  "ordered",
-  "missing",
-  "mimic",
-  "sampling.weights",
-  "sampling.weights.normalization",
-  "std.ov",
-  "fixed.x",
-  "conditional.x",
-  "correlation",
-  "allow.empty.cell",
-  "aux",
-  "ov.order",
-  "sample.cov",
-  "sample.mean",
-  "sample.th",
-  "sample.nobs",
-  "nacov",
-  "wls.v"
-)
-
 # Argument names as lavaan reads them: dot or snake case, upper or lower case
 arg_key <- function(x) {
   tolower(gsub("_", ".", x, fixed = TRUE))

@@ -416,17 +416,6 @@ inlavaan <- function(
 
     lavargs <- list(...)
     check_data_given(data, lavargs)
-    # The model and the options on how the data are read, as given. update()
-    # refits with these values when it uses the data stored in the fit (see
-    # fit_read_values() in R/method-update.R).
-    read_keys <- arg_key(names(lavargs))
-    read_with <- list(
-      model = model,
-      args = stats::setNames(
-        lavargs[read_keys %in% data_read_args],
-        read_keys[read_keys %in% data_read_args]
-      )
-    )
     lavargs$model <- split_modifiers(model)
     lavargs$data <- data
     lavargs$ceq.simple <- TRUE # FIXME: Force ceq.simple rather than eq.constraints
@@ -1235,7 +1224,6 @@ inlavaan <- function(
       vb = vb,
       cov_pd = cov_pd,
       call = mc,
-      read_with = read_with,
       version = as.character(utils::packageVersion("INLAvaan")),
       # The engine's own record of the fit
       engine = eng$engine

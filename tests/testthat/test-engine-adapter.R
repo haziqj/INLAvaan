@@ -351,7 +351,6 @@ test_that("the layout of the internal list is that of the old stages", {
       "vb",
       "cov_pd",
       "call",
-      "read_with",
       "version",
       "engine",
       "warnings"
