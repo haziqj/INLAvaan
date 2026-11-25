@@ -70,8 +70,12 @@
   - `get_inlavaan_internal()` has a new field `engine`, with the engine's
     diagnostics, scans, counts and timing, and the release and commit of
     inlavanilla. In the field `opt`, `dx` is now the analytic gradient at
-    the mode, as `dx_analytic` is. In the field `vb`, `method` is
-    `"onestep"`.
+    the mode, as `dx_analytic` is. In the field `vb`, `method` is the VB
+    route that the fit used: `"onestep"` by default, or `"full"` with
+    `vb_correction = "full"`. It is no longer `"sobol"` or
+    `"gauss_hermite"`.
+  - An invalid `vb_correction`, such as `NA`, now gives an error. Before,
+    it turned the VB correction off.
 
 * `verbose` has a new meaning, as in inlavanilla. `verbose = FALSE`, now the
   default, prints one line per stage of the fit, as the old default
