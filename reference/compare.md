@@ -152,13 +152,14 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
+#> ⠙ Finding the posterior mode, 624 calls
 #> ⠙ Finding the posterior mode, 752 calls
-#> ✔ Found the posterior mode in 138 iterations [686ms]
-#> ✔ VB mean correction, max shift 0.61σ [418ms]
+#> ✔ Found the posterior mode in 138 iterations [717ms]
+#> ✔ VB mean correction, max shift 0.61σ [416ms]
 #> ✔ Fitted 60 skew-normal marginals [1.8s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [1.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:
@@ -175,13 +176,13 @@ fit2 <- acfa(
   group = "school",
   group.equal = "loadings"
 )
-#> ✔ Found the posterior mode in 121 iterations [580ms]
-#> ✔ VB mean correction, max shift 0.42σ [355ms]
-#> ⠙ Fitting 50/54 skew-normal marginals
+#> ✔ Found the posterior mode in 121 iterations [627ms]
+#> ✔ VB mean correction, max shift 0.42σ [387ms]
+#> ⠙ Fitting 35/54 skew-normal marginals
 #> ⠙ Fitting 54/54 skew-normal marginals
 #> ✔ Fitted 54 skew-normal marginals [1.6s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [894ms]
+#> ✔ Summarise 1000 posterior draws. [1.2s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -192,13 +193,13 @@ fit3 <- acfa(
   group = "school",
   group.equal = c("intercepts", "loadings")
 )
-#> ✔ Found the posterior mode in 120 iterations [544ms]
-#> ✔ VB mean correction, max shift 0.33σ [307ms]
-#> ⠙ Fitting 31/48 skew-normal marginals
+#> ✔ Found the posterior mode in 120 iterations [595ms]
+#> ✔ VB mean correction, max shift 0.33σ [350ms]
+#> ⠙ Fitting 14/48 skew-normal marginals
 #> ⠙ Fitting 48/48 skew-normal marginals
 #> ✔ Fitted 48 skew-normal marginals [1.3s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.2s]
+#> ✔ Summarise 1000 posterior draws. [1.4s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

@@ -65,11 +65,11 @@ head(dat)
 # Fit INLAvaan model
 mod <- "eta  =~ y1 + y2 + y3 + y4 + y5"
 fit <- acfa(mod, dat, ordered = TRUE, std.lv = TRUE, estimator = "PML")
-#> ✔ Found the posterior mode in 40 iterations [272ms]
-#> ! VB mean correction, max shift 1.1σ [125ms]
-#> ✔ Fitted 10 skew-normal marginals [298ms]
+#> ✔ Found the posterior mode in 40 iterations [324ms]
+#> ! VB mean correction, max shift 1.1σ [138ms]
+#> ✔ Fitted 10 skew-normal marginals [386ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:

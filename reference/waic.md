@@ -192,11 +192,11 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
-#> ✔ Found the posterior mode in 105 iterations [235ms]
-#> ✔ VB mean correction, max shift 0.54σ [124ms]
-#> ✔ Fitted 30 skew-normal marginals [414ms]
+#> ✔ Found the posterior mode in 105 iterations [251ms]
+#> ✔ VB mean correction, max shift 0.54σ [159ms]
+#> ✔ Fitted 30 skew-normal marginals [433ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [600ms]
+#> ✔ Summarise 1000 posterior draws. [761ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 waic(fit)

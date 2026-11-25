@@ -307,11 +307,12 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
-#> ✔ Found the posterior mode in 105 iterations [233ms]
-#> ✔ VB mean correction, max shift 0.54σ [125ms]
-#> ✔ Fitted 30 skew-normal marginals [411ms]
+#> ✔ Found the posterior mode in 105 iterations [252ms]
+#> ✔ VB mean correction, max shift 0.54σ [158ms]
+#> ✔ Fitted 30 skew-normal marginals [429ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [599ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [756ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -388,14 +389,14 @@ model2l <- "
 "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
-#> ⠙ Finding the posterior mode, 656 calls
-#> ⠙ Finding the posterior mode, 688 calls
-#> ✔ Found the posterior mode in 197 iterations [1.2s]
-#> ✔ VB mean correction, max shift 0.61σ [488ms]
+#> ✔ Found the posterior mode in 194 iterations [1.2s]
+#> ✔ VB mean correction, max shift 0.61σ [518ms]
+#> ⠙ Fitting 10/34 skew-normal marginals
+#> ⠙ Fitting 34/34 skew-normal marginals
 #> ✔ Fitted 34 skew-normal marginals [1.7s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [2.4s]
+#> ✔ Summarise 1000 posterior draws. [3.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> ℹ The two-level PPP is experimental.
