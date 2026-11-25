@@ -30,7 +30,9 @@
 #'   earlier development versions, `Inf` lifts the cap, so that the solve
 #'   stops only at `vb_tol` or after `vb_maxit` iterations, and `0` leaves a
 #'   flagged fit at its mode. A single number of at least 0. A fit that passes
-#'   the check does not depend on it.
+#'   the check does not depend on it. The cap scales with the cost of the
+#'   search for the mode, so a search from a good start, as in a warm-started
+#'   [update()], leaves less room for the solve.
 #' @param n_grid The number of points of the scan of each skew-normal
 #'   marginal, over 4 posterior SDs on each side of the mode. At least 7. It
 #'   replaces the deprecated argument `sn_fit_ngrid` of [inlavaan()].

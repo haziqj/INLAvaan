@@ -44,7 +44,9 @@ gradients each, for m parameters. Default 2. \code{1} is the cap of
 earlier development versions, \code{Inf} lifts the cap, so that the solve
 stops only at \code{vb_tol} or after \code{vb_maxit} iterations, and \code{0} leaves a
 flagged fit at its mode. A single number of at least 0. A fit that passes
-the check does not depend on it.}
+the check does not depend on it. The cap scales with the cost of the
+search for the mode, so a search from a good start, as in a warm-started
+\code{\link[=update]{update()}}, leaves less room for the solve.}
 
 \item{n_grid}{The number of points of the scan of each skew-normal
 marginal, over 4 posterior SDs on each side of the mode. At least 7. It

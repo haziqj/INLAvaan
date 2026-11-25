@@ -50,6 +50,12 @@ so mode-finding is typically much faster than a cold fit. This makes prior
 sweeps particularly cheap. The warm start changes the optimiser's starting
 point, so the mode it finds agrees with that of a fresh fit only up to the
 optimiser's tolerance (differences of order \code{1e-5} on the internal scale).
+A fit that fails the check of the one-step VB correction is the exception.
+The warm search for the mode costs less, and so lowers the cap that
+\code{vb_budget} sets on the VB solve (see \code{\link[=inlavaan_control]{inlavaan_control()}}). The solve can
+then stop further short of the VB mean than in a fresh fit, and the VB mean
+and the log marginal likelihood differ more. Give \code{start = NULL} for the
+fit of a fresh call, or \code{control = list(vb_budget = Inf)} to lift the cap.
 It is used only when the refitted model has the same free parameters, by
 name and in the same order. Otherwise, as after \code{std.lv = TRUE} or
 \code{meanstructure = TRUE}, the fit starts from the usual values. It is not
