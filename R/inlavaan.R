@@ -1361,7 +1361,7 @@ asem <- function(
 #'
 #' Fit an Approximate Bayesian Growth Curve Model
 #'
-#' The [asem()] function is a wrapper for the more general [inlavaan()]
+#' The [agrowth()] function is a wrapper for the more general [inlavaan()]
 #' function, using the following default arguments:
 #'   - `meanstructure = TRUE`
 #'   - `int.ov.free = FALSE`

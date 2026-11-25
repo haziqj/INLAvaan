@@ -236,7 +236,7 @@ An S4 object of class \code{INLAvaan} which is a subclass of the
 Fit an Approximate Bayesian Growth Curve Model
 }
 \details{
-The \code{\link[=asem]{asem()}} function is a wrapper for the more general \code{\link[=inlavaan]{inlavaan()}}
+The \code{\link[=agrowth]{agrowth()}} function is a wrapper for the more general \code{\link[=inlavaan]{inlavaan()}}
 function, using the following default arguments:
 \itemize{
 \item \code{meanstructure = TRUE}
