@@ -32,10 +32,9 @@ deprecation_seen <- new.env(parent = emptyenv())
 # `id`. The condition has the class inlavaan_deprecated, after any more
 # specific `class`. `message` is a cli template, filled in from `.envir`. With
 # options(inlavaan.deprecation = "error"), every call is an error of the same
-# classes instead, so that the tests and the zoo find old calls. Under
-# `silent = TRUE` the fit muffles the warning, so it is not marked as seen,
-# and it warns again at the next call that is not silent. Returns TRUE,
-# invisibly, when it warns.
+# classes instead, so that tests find old calls. Under `silent = TRUE` the fit
+# muffles the warning, so it is not marked as seen, and it warns again at the
+# next call that is not silent. Returns TRUE, invisibly, when it warns.
 warn_deprecated <- function(
   id,
   message,
