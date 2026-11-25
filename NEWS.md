@@ -150,12 +150,15 @@
   log-posterior (`grad_gap` above 0.1), when the VB correction did not
   settle (`vb_step_max` above 0.1, or `vb_gain_ratio` below 0.5), when a
   marginal has heavy tails, and when the mode may be far from the posterior
-  mass. The check of the condition number now reads `hess_cond_cor`, which
-  does not depend on the units of the parameters. Values in posterior SDs
-  carry the unit σ, or "SD" where the console cannot show σ. The warning
-  ends with a pointer to `?diagnostics`. So some fits that were silent now
-  warn: for example, `vb_gain_ratio` is 0.46 on a two-level factor model of
-  `lavaan::Demo.twolevel`.
+  mass. When `nlminb()` does not converge, the warning now says what to try:
+  to raise `mode_maxit` or `mode_maxeval` in `inlavaan_control()` when it
+  stopped at one of these limits, and other starting values otherwise. It
+  gives the message of `nlminb()` once. The check of the condition number
+  now reads `hess_cond_cor`, which does not depend on the units of the
+  parameters. Values in posterior SDs carry the unit σ, or "SD" where the
+  console cannot show σ. The warning ends with a pointer to `?diagnostics`.
+  So some fits that were silent now warn: for example, `vb_gain_ratio` is
+  0.46 on a two-level factor model of `lavaan::Demo.twolevel`.
 
 * `verbose` has a new meaning, as in inlavanilla. `verbose = FALSE`, now the
   default, prints one line per stage of the fit, as the old default

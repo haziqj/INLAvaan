@@ -189,6 +189,9 @@ at the posterior estimates (the check that \pkg{lavaan} runs after a
 fit);
 \item \code{psi_npd_share} or \code{theta_npd_share} above 0.01.
 }
+When the optimiser did not converge, the warning says what to try: to raise
+\code{mode_maxit} or \code{mode_maxeval} in \code{\link[=inlavaan_control]{inlavaan_control()}} when it
+stopped at one of these limits, and other starting values otherwise.
 When \code{mode_shift_max} is above 1, or a marginal puts more than 0.9 of
 its mass outside its scan, the warning also says that the mode may be far
 from the posterior mass. The ridge bend and the mean gap never warn.

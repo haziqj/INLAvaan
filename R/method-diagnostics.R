@@ -171,6 +171,9 @@
 #'     fit);
 #'   \item \code{psi_npd_share} or \code{theta_npd_share} above 0.01.
 #' }
+#' When the optimiser did not converge, the warning says what to try: to raise
+#' \code{mode_maxit} or \code{mode_maxeval} in [inlavaan_control()] when it
+#' stopped at one of these limits, and other starting values otherwise.
 #' When \code{mode_shift_max} is above 1, or a marginal puts more than 0.9 of
 #' its mass outside its scan, the warning also says that the mode may be far
 #' from the posterior mass. The ridge bend and the mean gap never warn.
@@ -376,9 +379,10 @@ inlavaan_advice <- list(
 warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
   dg <- diagnostics_fit(int)
   glob <- dg$global
+  gaussian <- int$marginal_method != "skewnorm"
   problems <- diagnostic_problems(
     dg$engine,
-    gaussian = int$marginal_method != "skewnorm",
+    gaussian = gaussian,
     has_grad = TRUE,
     advice = inlavaan_advice
   )
@@ -387,15 +391,28 @@ warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
 
   issues <- character(0)
   if (glob[["converged"]] == 0) {
-    msg <- int$opt$message
+    # When the mode is flagged too, the engine's bullet on the mode gives the
+    # message of nlminb() and the advice, so they are not repeated here.
+    msg <- dg$engine$message
+    mode_flagged <- check_flags(dg$engine, gaussian)[["mode"]]
     env$conv_message <- msg
     issues <- c(
-      "x" = if (!is.null(msg) && nzchar(msg)) {
+      "x" = if (!is.null(msg) && nzchar(msg) && !mode_flagged) {
         "The optimiser did not converge: {conv_message}."
       } else {
         "The optimiser did not converge."
       }
     )
+    if (!mode_flagged) {
+      issues <- c(
+        issues,
+        "i" = if (isTRUE(grepl("limit", msg))) {
+          inlavaan_advice$mode_limit
+        } else {
+          inlavaan_advice$mode_retry
+        }
+      )
+    }
   }
   issues <- c(issues, problems)
 

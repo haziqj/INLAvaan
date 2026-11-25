@@ -161,11 +161,52 @@ test_that("an unconverged optimiser triggers the fit-time warning", {
     ),
     class = "inlavaan_diagnostics_warning"
   )
-  expect_match(conditionMessage(w), "did not converge")
-  expect_match(conditionMessage(w), "posterior mode is not zero")
+  msg <- gsub("\\s+", " ", cli::ansi_strip(conditionMessage(w)))
+  expect_match(msg, "did not converge")
+  expect_match(msg, "posterior mode is not zero")
   # The advice names the entries of inlavaan_control() that raise the limits
-  expect_match(conditionMessage(w), "mode_maxit", fixed = TRUE)
-  expect_match(conditionMessage(w), "inlavaan_control()", fixed = TRUE)
+  expect_match(msg, "mode_maxit", fixed = TRUE)
+  expect_match(msg, "inlavaan_control()", fixed = TRUE)
+  # The bullet on the mode gives the message of nlminb() and the advice, so
+  # the bullet on the convergence does not repeat them
+  expect_match(msg, "The optimiser did not converge.", fixed = TRUE)
+  count <- function(pattern) {
+    lengths(regmatches(msg, gregexpr(pattern, msg, fixed = TRUE)))
+  }
+  expect_identical(count("iteration limit reached"), 1L)
+  expect_identical(count("mode_maxit"), 1L)
+})
+
+test_that("an optimiser that stops short near the mode gets advice", {
+  int <- get_inlavaan_internal(fit)
+  warning_for <- function(message) {
+    int$engine$diagnostics$optim$convergence <- 1L
+    int$engine$diagnostics$optim$message <- message
+    w <- expect_warning(
+      warn_fit_diagnostics(int),
+      class = "inlavaan_diagnostics_warning"
+    )
+    gsub("\\s+", " ", cli::ansi_strip(conditionMessage(w)))
+  }
+  # Stopped at a limit, with the mode not flagged
+  msg <- warning_for("iteration limit reached without convergence (10)")
+  expect_match(msg, "flagged 1 potential issue:", fixed = TRUE)
+  expect_match(
+    msg,
+    "did not converge: iteration limit reached without convergence (10).",
+    fixed = TRUE
+  )
+  expect_match(
+    msg,
+    "Raise `mode_maxit` or `mode_maxeval` in `inlavaan_control()`.",
+    fixed = TRUE
+  )
+  expect_no_match(msg, "says:", fixed = TRUE)
+  # Stopped for another reason
+  msg <- warning_for("false convergence (8)")
+  expect_match(msg, "did not converge: false convergence (8).", fixed = TRUE)
+  expect_match(msg, "Try other starting values", fixed = TRUE)
+  expect_no_match(msg, "mode_maxit", fixed = TRUE)
 })
 
 test_that("silent = TRUE prints nothing, and the fit records its warnings", {
