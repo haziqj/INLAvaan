@@ -84,8 +84,8 @@
   each unit, and the estimates, from the engine's Taylor layer, which
   inlavanilla's own `loo()` and `waic()` use too. INLAvaan still computes
   the log-likelihood, the score and the Hessian of each unit. The numbers do
-  not change, apart from rounding (a relative change of at most 5e-13 on
-  the models checked).
+  not change, apart from rounding: on the models checked, each value moves
+  by at most 1e-12 relative to `max(1, |value|)`.
 
 * New `inlavaan_control()` makes the `control` list of `inlavaan()`,
   `acfa()`, `asem()` and `agrowth()`. Its entries are `mode_maxit`,
