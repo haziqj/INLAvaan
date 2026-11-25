@@ -6,7 +6,7 @@
 \usage{
 inlavaan(
   model,
-  data,
+  data = NULL,
   model.type = "sem",
   dp = priors_for(),
   test = "standard",

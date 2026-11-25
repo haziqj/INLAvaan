@@ -143,6 +143,11 @@
   - When the VB correction did not settle, the warning at the end of a fit
     now names `vb_correction = "none"`, not `vb_correction = FALSE`.
 
+* `data` now defaults to `NULL` in `inlavaan()`, `acfa()`, `asem()` and
+  `agrowth()`, so a model can be fitted from `sample.cov` and `sample.nobs`
+  alone. Before, such a call stopped with an error, because `data` was
+  missing.
+
 * Fits made with INLAvaan 0.3.5 or earlier must be fitted again with this
   version. `diagnostics()`, `sampling()`, `loo()`, `waic()`, `predict()`,
   `simulate()`, `fitMeasures()`, `bfit_indices()` and

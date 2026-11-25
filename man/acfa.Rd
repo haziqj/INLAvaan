@@ -6,7 +6,7 @@
 \usage{
 acfa(
   model,
-  data,
+  data = NULL,
   dp = priors_for(),
   test = "standard",
   vb_correction = c("onestep", "full", "none"),

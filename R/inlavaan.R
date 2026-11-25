@@ -279,7 +279,7 @@
 #' @export
 inlavaan <- function(
   model,
-  data,
+  data = NULL,
   model.type = "sem",
   dp = priors_for(),
   test = "standard",
@@ -1256,7 +1256,7 @@ inlavaan <- function(
 #' @export
 acfa <- function(
   model,
-  data,
+  data = NULL,
   dp = priors_for(),
   test = "standard",
   vb_correction = c("onestep", "full", "none"),
@@ -1317,7 +1317,7 @@ acfa <- function(
 #' @export
 asem <- function(
   model,
-  data,
+  data = NULL,
   dp = priors_for(),
   test = "standard",
   vb_correction = c("onestep", "full", "none"),
@@ -1376,7 +1376,7 @@ asem <- function(
 #' @export
 agrowth <- function(
   model,
-  data,
+  data = NULL,
   dp = priors_for(),
   test = "standard",
   vb_correction = c("onestep", "full", "none"),
