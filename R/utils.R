@@ -178,7 +178,8 @@ check_fit_layout <- function(int, fn) {
   }
   cli_abort(
     c(
-      "{.fn {fn}} cannot read a fit made with {made_with}.",
+      "{.fn {fn}} cannot read a fit made before the inlavanilla engine
+       ({made_with}).",
       "i" = "Fit the model again with this version, for example with
              {.code fit <- update(fit)}."
     ),

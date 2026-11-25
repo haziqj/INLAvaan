@@ -38,9 +38,13 @@ test_that("the methods that read the fields stop on a fit made before the engine
 
 test_that("the error names the method, the version and the way to refit", {
   err <- expect_error(loo(make_old_fit()), class = "inlavaan_old_fit")
-  msg <- cli::ansi_strip(conditionMessage(err))
+  msg <- gsub("\\s+", " ", cli::ansi_strip(conditionMessage(err)))
   expect_match(msg, "loo()", fixed = TRUE)
-  expect_match(msg, "INLAvaan 0.3.5", fixed = TRUE)
+  expect_match(
+    msg,
+    "a fit made before the inlavanilla engine (INLAvaan 0.3.5)",
+    fixed = TRUE
+  )
   expect_match(msg, "fit <- update(fit)", fixed = TRUE)
   expect_null(conditionCall(err))
 
@@ -48,8 +52,8 @@ test_that("the error names the method, the version and the way to refit", {
   old <- make_old_fit(version = NULL)
   err <- expect_error(simulate(old), class = "inlavaan_old_fit")
   expect_match(
-    cli::ansi_strip(conditionMessage(err)),
-    "an older version of INLAvaan",
+    gsub("\\s+", " ", cli::ansi_strip(conditionMessage(err))),
+    "before the inlavanilla engine (an older version of INLAvaan)",
     fixed = TRUE
   )
 })
