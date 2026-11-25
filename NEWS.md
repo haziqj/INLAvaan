@@ -48,7 +48,8 @@
     that fails solves the VB equation instead, from the mode, and the warning
     at the end of the fit says that the posterior is far from Gaussian along
     the mean correction, and names the parameter that the step moved
-    furthest. Small samples fail the check more often: a one-factor model of
+    furthest. When the solve stops more than 0.1 posterior SDs short of the
+    VB mean, the warning says so too. Small samples fail the check more often: a one-factor model of
     `x1`, `x2` and `x3` fails it on the first 50 rows of
     `HolzingerSwineford1939`, and passes on all 301. `diagnostics()` gives
     `vb_lhat`, `vb_j0` and `vb_j1`, and `vb_solve`, which is 1 when the check
