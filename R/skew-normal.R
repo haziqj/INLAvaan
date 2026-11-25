@@ -182,13 +182,12 @@ NULL
 #'
 #' @details Uses maximum likelihood estimation to fit a skew normal distribution
 #' to the provided numeric vector `x`. The fit is computed on standardised
-#' draws, so it does not depend on the scale of `x`.
+#' draws, so it does not depend on the scale of `x`. The optimiser,
+#' [stats::nlminb()], uses the analytic gradient and Hessian of the
+#' log-likelihood.
 #'
 #' The fit runs from three starts and keeps the one with the largest
-#' likelihood. The first start is the normal distribution with the median and
-#' the SD of `x`, so `alpha = 0`. This is a stationary point of the likelihood,
-#' so a fit from it alone can stall there when the skew is mild. The other two
-#' starts are as in [fit_skew_normal()]. With
+#' likelihood. The first two starts are as in [fit_skew_normal()]. With
 #' \eqn{\delta = \alpha / \sqrt{1 + \alpha^2}}, they are the moment-based
 #' values from the sample skewness of `x` and their mirror image, with the
 #' opposite skew. When the moment-based values give \eqn{|\delta| < 0.2}, that
@@ -196,6 +195,11 @@ NULL
 #' these two starts are \eqn{\delta = \pm 0.5}. This is rare: for 1000 draws
 #' from a normal distribution, it happens in about 1 sample of 50, and in about
 #' 1 sample of 17 for 10000 draws.
+#'
+#' The third start is the normal distribution with the median and the SD of
+#' `x`, so `alpha = 0`. The likelihood has a stationary point at `alpha = 0`
+#' (the normal fit), so a fit from this start alone can stall there when the
+#' skew is mild.
 #'
 #' @param x A numeric vector of sample data.
 #'
@@ -212,7 +216,7 @@ fit_skew_normal_samp <- function(x) {
   m <- stats::median(x)
   s <- stats::sd(x)
   # Draws that do not vary, or that are not all finite, cannot be fitted. Return
-  # the first start below, alpha = 0 with the scale s. Then xi is the median and
+  # the third start below, alpha = 0 with the scale s. Then xi is the median and
   # omega is 0 when the draws do not vary, and both are NA or NaN when s is.
   if (!is.finite(s) || s == 0) {
     cli_warn(c(
@@ -222,23 +226,10 @@ fit_skew_normal_samp <- function(x) {
     return(list(xi = m + 0 * s, omega = s, alpha = 0))
   }
   z <- (x - m) / s
+  nll <- sn_samp_nll(z)
+  fit_from <- function(start) stats::nlminb(start, nll$fn, nll$gr, nll$hs)
 
-  nll <- function(par) {
-    -1 *
-      sum(dsnorm(
-        z,
-        xi = par[1],
-        omega = exp(par[2]),
-        alpha = par[3],
-        log = TRUE
-      ))
-  }
-
-  # Fit from three starts and keep the largest likelihood. The first start is
-  # alpha = 0 at the median with the SD of the draws, so the fit is never worse
-  # than a fit from alpha = 0 alone. The likelihood has a stationary point
-  # there, so that fit can stall when the draws are mildly skewed. The other
-  # two starts are as in fit_skew_normal(): the moment-based
+  # The first two starts are as in fit_skew_normal(): the moment-based
   # delta = alpha / sqrt(1 + alpha^2) and its mirror image, or delta = +-0.5
   # when the moment-based |delta| is below 0.2. This happens only when the
   # sample skewness is below about 0.0018 in absolute value. The standardised
@@ -248,12 +239,15 @@ fit_skew_normal_samp <- function(x) {
   if (!is.finite(d0) || abs(d0) < 0.2) {
     d0 <- 0.5
   }
-  mirrored <- lapply(c(d0, -d0), function(d) {
+  fits <- lapply(c(d0, -d0), function(d) {
     om <- 1 / sqrt(1 - 2 * d^2 / pi)
-    c(mean_z - om * d * sqrt(2 / pi), log(om), d / sqrt(1 - d^2))
+    fit_from(c(mean_z - om * d * sqrt(2 / pi), log(om), d / sqrt(1 - d^2)))
   })
-  starts <- c(list(c(0, 0, 0)), mirrored)
-  fits <- lapply(starts, function(st) stats::nlminb(st, nll))
+
+  # The third start is alpha = 0 at the median with the SD of the draws. The
+  # likelihood has a stationary point there, so a fit from it alone can stall
+  # when the draws are mildly skewed.
+  fits[[3]] <- fit_from(c(0, 0, 0))
   opt <- fits[[which.min(vapply(fits, `[[`, 0, "objective"))]]
 
   xi_hat <- m + s * opt$par[1]
@@ -265,6 +259,79 @@ fit_skew_normal_samp <- function(x) {
     omega = omega_hat,
     alpha = alpha_hat
   )
+}
+
+# The negative log-likelihood of SN(xi, exp(eta), alpha) for the draws z, with
+# its gradient and Hessian in par = (xi, eta, alpha), for nlminb(). With
+# u = (z - xi) / omega and the Mills ratio r = phi(alpha u) / Phi(alpha u), the
+# log-density is log(2) + log(phi(u)) + log(Phi(alpha u)) - eta, so
+# d/du = -u + alpha r, d/dalpha = u r, du/dxi = -1 / omega and du/deta = -u.
+# The derivative of r in its argument is -r (alpha u + r). The three functions
+# share the work at the last value of par, since nlminb() calls them in turn
+# at the same point.
+sn_samp_nll <- function(z) {
+  n <- length(z)
+  const <- n * (0.5 * log(2 * pi) - log(2))
+  last_par <- NULL
+  last <- NULL
+  at <- function(par) {
+    if (!identical(par, last_par)) {
+      inv_omega <- exp(-par[2])
+      u <- (z - par[1]) * inv_omega
+      au <- par[3] * u
+      log_cdf <- stats::pnorm(au, log.p = TRUE)
+      r <- exp(stats::dnorm(au, log = TRUE) - log_cdf)
+      last_par <<- par
+      last <<- list(
+        inv_omega = inv_omega,
+        u = u,
+        au = au,
+        log_cdf = log_cdf,
+        r = r
+      )
+    }
+    last
+  }
+
+  fn <- function(par) {
+    k <- at(par)
+    const + n * par[2] + sum(k$u^2) / 2 - sum(k$log_cdf)
+  }
+
+  gr <- function(par) {
+    k <- at(par)
+    a <- par[3]
+    sum_ur <- sum(k$u * k$r)
+    -c(
+      k$inv_omega * (sum(k$u) - a * sum(k$r)),
+      sum(k$u^2) - a * sum_ur - n,
+      sum_ur
+    )
+  }
+
+  hs <- function(par) {
+    k <- at(par)
+    a <- par[3]
+    s <- k$inv_omega
+    u <- k$u
+    r <- k$r
+    dr <- -r * (k$au + r)
+    sum_r <- sum(r)
+    sum_ur <- sum(u * r)
+    sum_dr <- sum(dr)
+    sum_udr <- sum(u * dr)
+    sum_uudr <- sum(u^2 * dr)
+    # Second derivatives of the log-likelihood
+    h11 <- -s^2 * (n - a^2 * sum_dr)
+    h12 <- s * (-2 * sum(u) + a * sum_r + a^2 * sum_udr)
+    h13 <- -s * (sum_r + a * sum_udr)
+    h22 <- -2 * sum(u^2) + a * sum_ur + a^2 * sum_uudr
+    h23 <- -sum_ur - a * sum_uudr
+    h33 <- sum_uudr
+    -matrix(c(h11, h12, h13, h12, h22, h23, h13, h23, h33), nrow = 3)
+  }
+
+  list(fn = fn, gr = gr, hs = hs)
 }
 
 # The delta = alpha / sqrt(1 + alpha^2) of the skew normal with skewness g, by

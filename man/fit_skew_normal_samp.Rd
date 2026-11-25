@@ -19,13 +19,12 @@ Fit a skew normal distribution to a sample
 \details{
 Uses maximum likelihood estimation to fit a skew normal distribution
 to the provided numeric vector \code{x}. The fit is computed on standardised
-draws, so it does not depend on the scale of \code{x}.
+draws, so it does not depend on the scale of \code{x}. The optimiser,
+\code{\link[stats:nlminb]{stats::nlminb()}}, uses the analytic gradient and Hessian of the
+log-likelihood.
 
 The fit runs from three starts and keeps the one with the largest
-likelihood. The first start is the normal distribution with the median and
-the SD of \code{x}, so \code{alpha = 0}. This is a stationary point of the likelihood,
-so a fit from it alone can stall there when the skew is mild. The other two
-starts are as in \code{\link[=fit_skew_normal]{fit_skew_normal()}}. With
+likelihood. The first two starts are as in \code{\link[=fit_skew_normal]{fit_skew_normal()}}. With
 \eqn{\delta = \alpha / \sqrt{1 + \alpha^2}}, they are the moment-based
 values from the sample skewness of \code{x} and their mirror image, with the
 opposite skew. When the moment-based values give \eqn{|\delta| < 0.2}, that
@@ -33,6 +32,11 @@ is, when the sample skewness of \code{x} is below about 0.0018 in absolute value
 these two starts are \eqn{\delta = \pm 0.5}. This is rare: for 1000 draws
 from a normal distribution, it happens in about 1 sample of 50, and in about
 1 sample of 17 for 10000 draws.
+
+The third start is the normal distribution with the median and the SD of
+\code{x}, so \code{alpha = 0}. The likelihood has a stationary point at \code{alpha = 0}
+(the normal fit), so a fit from this start alone can stall there when the
+skew is mild.
 }
 \examples{
 x <- rnorm(100, mean = 5, sd = 1)

@@ -104,6 +104,21 @@ test_that("Skew-normal sample fit keeps the mirrored start when it is better", {
   expect_equal(res$alpha, pos$par[3], tolerance = 1e-3)
 })
 
+test_that("Skew-normal sample fit has the right gradient and Hessian", {
+  skip_if_not_installed("numDeriv")
+  set.seed(1)
+  z <- rt(200, 5)
+  nll <- sn_samp_nll(z)
+  ref <- function(par) -sum(dsnorm(z, par[1], exp(par[2]), par[3], log = TRUE))
+  pars <- list(c(0.1, -0.2, 0.7), c(-0.3, 0.1, -3), c(0, 0, 0), c(0.5, 0.3, 12))
+  for (par in pars) {
+    expect_equal(nll$fn(par), ref(par), tolerance = 1e-12)
+    expect_equal(nll$gr(par), numDeriv::grad(ref, par), tolerance = 1e-6)
+    expect_equal(nll$hs(par), numDeriv::jacobian(nll$gr, par), tolerance = 1e-6)
+    expect_equal(nll$hs(par), numDeriv::hessian(ref, par), tolerance = 1e-4)
+  }
+})
+
 test_that("Skew-normal sample fit warns when the draws cannot be fitted", {
   # Draws that do not vary give the point mass, with alpha = 0
   expect_warning(res <- fit_skew_normal_samp(rep(3, 100)), "must vary")
