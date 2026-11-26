@@ -24,6 +24,18 @@
   SDs. Patterns that miss many variables, as in planned missingness, keep the
   earlier code.
 
+* Two-level fits are faster. Random-slope models (`rv()`) with complete data
+  and the slope on an observed within-cluster covariate now take INLAvaan's
+  own log-likelihood and gradient, which work all clusters at once and do the
+  matrix algebra of the gradient once, not once per cluster. On three test
+  models a fit takes 83% to 91% less time (from 15.5 to 2.6 seconds on a
+  two-level factor model with a random slope), and `fitMeasures()` is faster
+  too. Two-level models with random intercepts and complete data take 20% to
+  23% less time. The log-posterior equals the earlier one up to rounding, so
+  a posterior summary of a fit whose mode search takes many iterations can
+  move by about 0.0002 posterior SDs. Other random-slope models and two-level
+  models with missing data keep the earlier code.
+
 * New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
   `silent = TRUE` prints nothing and muffles the warnings and messages raised
   during the fit, for simulations and other repeated fits. Errors are still
