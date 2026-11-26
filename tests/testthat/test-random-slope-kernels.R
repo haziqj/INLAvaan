@@ -176,7 +176,48 @@ test_that("the kernels return -Inf, or NULL to fall back to lavaan", {
   expect_null(rs_kernel_dphi(plan, bad_w))
   bad_v <- imp
   bad_v$sigma.v <- -diag(nrow(imp$sigma.v))
-  expect_null(rs_kernel_loglik(plan, bad_v))
+  expect_identical(rs_kernel_loglik(plan, bad_v), -Inf)
   expect_null(rs_kernel_dphi(plan, bad_v))
   expect_identical(rs_kernel_loglik(plan, NULL), -Inf)
+})
+
+test_that("an indefinite level-2 covariance is scored as lavaan scores it", {
+  # A covariance of the random intercept and slope beyond their SDs makes
+  # Sigma_v indefinite, while every Z_j keeps positive eigenvalues
+  for (fit in rsk_fits[c("lmm", "factor")]) {
+    plan <- multilevel_setup(
+      fit@Model,
+      fit@SampleStats,
+      fit@Data,
+      fit@Cache
+    )$rs
+    imp <- lavaan___lav_mvn_cl_rs_implied(
+      lavmodel = fit@Model,
+      rs_info = plan$info
+    )
+    sv <- diag(c(0.05, 0.3, rep(0.5, imp$pv - 2L)), imp$pv)
+    sv[1, 2] <- sv[2, 1] <- 0.2
+    imp$sigma.v <- sv
+    expect_lt(min(eigen(sv, symmetric = TRUE)$values), 0)
+    m2ll <- lavaan:::lav_mvn_cl_rs_loglik(
+      rs_stats = plan_stats <- fit@Cache[[1L]]$rs$stats,
+      imp = imp,
+      rs_info = plan$info
+    )
+    expect_true(is.finite(m2ll))
+    expect_equal(
+      rs_kernel_loglik(plan, imp),
+      -m2ll / 2,
+      tolerance = 1e-12
+    )
+    expect_equal(
+      rs_kernel_dphi(plan, imp),
+      colSums(lavaan:::lav_mvn_cl_rs_dfphi(
+        rs_stats = plan_stats,
+        imp = imp,
+        rs_info = plan$info
+      )),
+      tolerance = 1e-10
+    )
+  }
 })
