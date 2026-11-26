@@ -141,12 +141,61 @@ test_that("the gradient equals lavaan's and a numerical gradient", {
   }
 })
 
-test_that("a matrix with no Cholesky factor falls back to lavaan", {
+test_that("a matrix with no Cholesky factor gives NA, as lavaan does", {
   fit <- tlk_fits$cfa
   implied <- lavaan::lav_model_implied(fit@Model)
   implied$cov[[1L]][] <- -1
-  expect_null(twolevel_kernel_loglik(fit@SampleStats, fit@Data, implied))
+  expect_identical(
+    twolevel_kernel_loglik(fit@SampleStats, fit@Data, implied),
+    NA_real_
+  )
   expect_null(twolevel_dmoments(fit@SampleStats, fit@Data, implied))
+  # The fit's log-likelihood is then -1e40 and its gradient zero
+  x <- lavaan::lav_model_get_parameters(fit@Model)
+  pt <- lavaan::parTable(fit)
+  x[unique(pt$free[
+    pt$op == "~~" & pt$lhs == pt$rhs & pt$level == 1L & pt$free > 0
+  ])] <- -1
+  expect_identical(tlk_loglik(fit, x), -1e40)
+})
+
+test_that("the per-cluster forms equal lavaan's with its flags", {
+  lav_ns <- asNamespace("lavaan")
+  fit <- tlk_fits$between_outcome
+  imp <- lavaan::lav_model_implied(fit@Model)
+  args <- list(
+    ylp = fit@SampleStats@YLp[[1L]],
+    lp = fit@Data@Lp[[1L]],
+    mu_w = imp$mean[[1L]],
+    sigma_w = imp$cov[[1L]],
+    mu_b = imp$mean[[2L]],
+    sigma_b = imp$cov[[2L]]
+  )
+  for (flags in list(c(FALSE, TRUE), c(TRUE, TRUE), c(TRUE, FALSE))) {
+    expect_equal(
+      do.call(
+        twolevel_loglik_samp,
+        c(args, log2pi = flags[1L], minus_two = flags[2L])
+      ),
+      do.call(
+        lav_ns$lav_mvn_cl_loglik_samp_2l,
+        c(args, log2pi = flags[1L], minus_two = flags[2L])
+      ),
+      tolerance = 1e-12
+    )
+  }
+  expect_equal(
+    do.call(twolevel_dlogl_samp, args),
+    do.call(lav_ns$lav_mvn_cl_dlogl_2l_samp, args),
+    tolerance = 1e-12
+  )
+  lm <- fit@Model
+  expect_equal(
+    twolevel_delta(lm),
+    lav_ns$lav_model_delta(lm)[[1L]],
+    tolerance = 1e-12,
+    ignore_attr = TRUE
+  )
 })
 
 ## ----- Missing data (R/twolevel-fiml-kernels.R) ------------------------------
@@ -231,15 +280,52 @@ test_that("the FIML gradient equals lavaan's and a numerical gradient", {
   }
 })
 
-test_that("the FIML kernels go back to lavaan or give -Inf as lavaan does", {
+test_that("the FIML kernels give +Inf where lavaan does", {
   fit <- tlk_fits_na$cfa
   plan <- twolevel_fiml_plan(fit@Data, fit@SampleStats)
   implied <- lavaan::lav_model_implied(fit@Model)
   bad_b <- implied
   diag(bad_b$cov[[2L]]) <- -1
-  expect_identical(twolevel_fiml_loglik(plan, fit@SampleStats, bad_b), -Inf)
+  expect_identical(twolevel_fiml_loglik(plan, fit@SampleStats, bad_b), Inf)
   expect_null(twolevel_fiml_dmoments(plan, bad_b))
   bad_w <- implied
   bad_w$cov[[1L]][] <- 1
-  expect_null(twolevel_fiml_loglik(plan, fit@SampleStats, bad_w))
+  expect_identical(twolevel_fiml_loglik(plan, fit@SampleStats, bad_w), Inf)
+})
+
+test_that("the per-cluster FIML forms equal lavaan's with its flags", {
+  lav_ns <- asNamespace("lavaan")
+  for (fit in tlk_fits_na) {
+    imp <- lavaan::lav_model_implied(fit@Model)
+    args <- list(
+      y1 = fit@Data@X[[1L]],
+      y2 = fit@SampleStats@YLp[[1L]][[2L]]$Y2,
+      lp = fit@Data@Lp[[1L]],
+      mp = fit@Data@Mp[[1L]],
+      mu_w = imp$mean[[1L]],
+      sigma_w = imp$cov[[1L]],
+      mu_b = imp$mean[[2L]],
+      sigma_b = imp$cov[[2L]]
+    )
+    for (flags in list(c(FALSE, TRUE), c(TRUE, FALSE))) {
+      expect_equal(
+        do.call(
+          twolevel_mi_loglik_samp,
+          c(args, log2pi = flags[1L], minus_two = flags[2L])
+        ),
+        do.call(
+          lav_ns$lav_mvn_cl_mi_loglik_samp_2l,
+          c(args, log2pi = flags[1L], minus_two = flags[2L])
+        ),
+        tolerance = 1e-12
+      )
+    }
+    # At the estimates the derivative is near zero, so the tolerance is on
+    # its scale
+    expect_equal(
+      do.call(twolevel_mi_dlogl_samp, args),
+      do.call(lav_ns$lav_mvn_cl_mi_dlogl_2l_samp, args),
+      tolerance = 1e-8
+    )
+  }
 })

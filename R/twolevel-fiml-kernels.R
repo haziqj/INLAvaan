@@ -50,18 +50,26 @@ twolevel_fiml_ok <- function(lavmodel, lavsamplestats, lavdata) {
 # cluster, the patterns of the between-only variables, and the data, found
 # once per model
 twolevel_fiml_plan <- function(lavdata, lavsamplestats) {
-  lp <- lavdata@Lp[[1L]]
-  mp <- lavdata@Mp[[1L]]
+  twolevel_fiml_plan_raw(
+    lavdata@Lp[[1L]],
+    lavdata@Mp[[1L]],
+    lavdata@X[[1L]],
+    lavsamplestats@YLp[[1L]][[2L]]$Y2
+  )
+}
+
+# The same from lavaan's raw pieces: the cluster layout `lp`, the patterns
+# `mp`, the level-1 data `y1` (all columns) and the level-2 data `y2`
+twolevel_fiml_plan_raw <- function(lp, mp, y1, y2) {
   n_cl <- lp$nclusters[[2L]]
   between_idx <- lp$between.idx[[2L]]
-  y1 <- lavdata@X[[1L]]
   z <- NULL
   zpats <- list()
   z_empty <- integer(0L)
   z_nel <- 0
   if (length(between_idx) > 0L) {
     y1 <- y1[, -between_idx, drop = FALSE]
-    z <- lavsamplestats@YLp[[1L]][[2L]]$Y2[, between_idx, drop = FALSE]
+    z <- y2[, between_idx, drop = FALSE]
     zp <- mp$Zp
     zpats <- lapply(seq_len(zp$npatterns), function(p) {
       list(
@@ -104,7 +112,7 @@ twolevel_fiml_plan <- function(lavdata, lavsamplestats) {
 # Everything the log-likelihood and the gradient share: the pattern inverses,
 # the scaled residuals p_ij = W_i r_i of every case, and A_j and p_j of every
 # cluster (one cluster per row). `status` is "ok", "undefined" for lavaan's
-# +Inf, or "fallback" when the call goes back to lavaan.
+# +Inf, or "fallback" when a Cholesky factor does not exist.
 twolevel_fiml_parts <- function(plan, implied, s0 = FALSE) {
   out <- twolevel_implied22l(
     plan$lp,
@@ -260,6 +268,9 @@ twolevel_fiml_posterior <- function(a, pb, groups, k, s0) {
   }
   for (grp in groups) {
     rows <- grp$clusters
+    if (length(rows) == 0L) {
+      next
+    }
     post <- rs_cluster_posterior(
       a[rows, , drop = FALSE],
       pb[rows, , drop = FALSE],
@@ -281,32 +292,90 @@ twolevel_fiml_posterior <- function(a, pb, groups, k, s0) {
 
 ## ----- Log-likelihood --------------------------------------------------------
 
-# The log-likelihood with the 2 pi terms, as lavaan's
-# lav_mvn_cl_mi_loglik_samp_2l() returns it with `log2pi = TRUE,
-# minus_two = FALSE`, -Inf where lavaan gives +Inf, or NULL to go back to
-# lavaan
-twolevel_fiml_loglik <- function(plan, lavsamplestats, implied) {
+# lavaan's lav_mvn_cl_mi_loglik_samp_2l(), with its arguments and flags:
+# minus twice the log-likelihood with no 2 pi terms by default, the
+# log-likelihood with the 2 pi terms (less `loglik_x` when the model has
+# covariates) with `log2pi = TRUE, minus_two = FALSE`, and +Inf where lavaan's
+# checks fail or a Cholesky factor does not exist
+twolevel_mi_loglik_samp <- function(
+  y1,
+  y2,
+  lp,
+  mp,
+  mu_w,
+  sigma_w,
+  mu_b,
+  sigma_b,
+  log2pi = FALSE,
+  loglik_x = 0,
+  minus_two = TRUE
+) {
+  plan <- twolevel_fiml_plan_raw(lp, mp, y1, y2)
+  implied <- list(mean = list(mu_w, mu_b), cov = list(sigma_w, sigma_b))
+  twolevel_fiml_loglik_plan(plan, implied, log2pi, loglik_x, minus_two)
+}
+
+twolevel_fiml_loglik_plan <- function(
+  plan,
+  implied,
+  log2pi = FALSE,
+  loglik_x = 0,
+  minus_two = TRUE
+) {
   parts <- twolevel_fiml_parts(plan, implied)
-  if (parts$status == "undefined") {
-    return(-Inf)
-  }
-  if (parts$status == "fallback") {
-    return(NULL)
+  if (parts$status != "ok") {
+    return(Inf)
   }
   logdet <- parts$w_logdet + sum(parts$post$logdet) + parts$zs$zz_logdet
   dist <- parts$q_yy_a - sum(parts$post$quad) + parts$zs$q_zz_a
-  out <- -(plan$nel * log(2 * pi) + logdet + dist) / 2
-  if (length(unlist(plan$lp$ov.x.idx)) > 0L) {
-    out <- out - lavsamplestats@YLp[[1L]][[2L]]$loglik.x
+  if (log2pi && !minus_two) {
+    out <- -(plan$nel * log(2 * pi) + logdet + dist) / 2
+  } else {
+    out <- dist + logdet
+  }
+  if (length(unlist(plan$lp$ov.x.idx)) > 0L && log2pi && !minus_two) {
+    out <- out - loglik_x
   }
   out
 }
 
+# The log-likelihood with the 2 pi terms of a fit's data, as lavaan's
+# lav_model_loglik() returns it for a two-level model with missing data
+twolevel_fiml_loglik <- function(plan, lavsamplestats, implied) {
+  twolevel_fiml_loglik_plan(
+    plan,
+    implied,
+    log2pi = TRUE,
+    loglik_x = lavsamplestats@YLp[[1L]][[2L]]$loglik.x,
+    minus_two = FALSE
+  )
+}
+
 ## ----- Gradient --------------------------------------------------------------
 
-# The derivative of -2 log L with respect to the implied moments of each
-# level, as lavaan's lav_mvn_cl_mi_dlogl_2l_samp() returns it with
-# `return_list = TRUE`, or NULL to go back to lavaan
+# lavaan's lav_mvn_cl_mi_dlogl_2l_samp(): the derivative of -2 log L with
+# respect to the implied moments of each level, a list with
+# `return_list = TRUE`, else lavaan's vector form. NULL where it is not
+# defined.
+twolevel_mi_dlogl_samp <- function(
+  y1,
+  y2,
+  lp,
+  mp,
+  mu_w,
+  sigma_w,
+  mu_b,
+  sigma_b,
+  return_list = FALSE
+) {
+  plan <- twolevel_fiml_plan_raw(lp, mp, y1, y2)
+  implied <- list(mean = list(mu_w, mu_b), cov = list(sigma_w, sigma_b))
+  dout <- twolevel_fiml_dmoments(plan, implied)
+  if (is.null(dout) || return_list) dout else twolevel_dmoments_vec(dout)
+}
+
+# The derivative of -2 log L of a plan's data with respect to the implied
+# moments of each level, as a list, or NULL where it is not defined
 twolevel_fiml_dmoments <- function(plan, implied) {
   parts <- twolevel_fiml_parts(plan, implied, s0 = TRUE)
   if (parts$status != "ok") {

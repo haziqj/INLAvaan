@@ -49,14 +49,8 @@ twolevel_chol_inv <- function(s) {
 # size: the moments in lavaan's two-level form (twolevel_implied22l()) and
 # the inverses of Sigma_w and of Sigma_zz, the covariance of the between-only
 # variables. NULL when an inverse does not exist.
-twolevel_parts <- function(lp, implied) {
-  out <- twolevel_implied22l(
-    lp,
-    implied$mean[[1L]],
-    implied$mean[[2L]],
-    implied$cov[[1L]],
-    implied$cov[[2L]]
-  )
+twolevel_parts <- function(lp, mu_w, sigma_w, mu_b, sigma_b) {
+  out <- twolevel_implied22l(lp, mu_w, mu_b, sigma_w, sigma_b)
   w <- twolevel_chol_inv(out$sigma_w)
   if (is.null(w)) {
     return(NULL)
@@ -108,15 +102,26 @@ twolevel_s_pw <- function(ylp, lp) {
   }
 }
 
-# The log-likelihood with the 2 pi terms, as lavaan's
-# lav_mvn_cl_loglik_samp_2l() returns it with `log2pi = TRUE,
-# minus_two = FALSE`, or NULL when a Cholesky factor does not exist
-twolevel_kernel_loglik <- function(lavsamplestats, lavdata, implied) {
-  ylp <- lavsamplestats@YLp[[1L]]
-  lp <- lavdata@Lp[[1L]]
-  parts <- twolevel_parts(lp, implied)
+# lavaan's lav_mvn_cl_loglik_samp_2l(), with its arguments and flags: minus
+# twice the log-likelihood by default, the log-likelihood with
+# `minus_two = FALSE`, the 2 pi terms with `log2pi = TRUE` (lavaan adds them on
+# the scale it returns), and less the saturated log-likelihood of the
+# covariates when both are set as lavaan does. +Inf (or NA with
+# `minus_two = FALSE`) where a Cholesky factor does not exist.
+twolevel_loglik_samp <- function(
+  ylp,
+  lp,
+  mu_w,
+  sigma_w,
+  mu_b,
+  sigma_b,
+  log2pi = FALSE,
+  minus_two = TRUE
+) {
+  parts <- twolevel_parts(lp, mu_w, sigma_w, mu_b, sigma_b)
+  undefined <- if (minus_two) Inf else NA_real_
   if (is.null(parts)) {
-    return(NULL)
+    return(undefined)
   }
   cluster_sizes <- lp$cluster.sizes[[2L]]
   cluster_size_ns <- lp$cluster.size.ns[[2L]]
@@ -126,7 +131,7 @@ twolevel_kernel_loglik <- function(lavsamplestats, lavdata, implied) {
     nj <- cluster_sizes[clz]
     sj <- twolevel_chol_inv(nj * parts$sigma_b_z + parts$sigma_w)
     if (is.null(sj)) {
-      return(NULL)
+      return(undefined)
     }
     y2 <- twolevel_y2yc(ylp, parts, clz, b_idx)
     l[clz] <- parts$zz_logdet + sj$logdet
@@ -141,27 +146,54 @@ twolevel_kernel_loglik <- function(lavsamplestats, lavdata, implied) {
     m_b[clz] <- q_zz + 2 * q_yz - q_yyc
   }
   n_within <- sum(lp$cluster.size[[2L]] - 1)
-  m2ll <- sum(l * cluster_size_ns) +
+  out <- sum(l * cluster_size_ns) +
     sum(m_b * cluster_size_ns) +
     n_within * sum(parts$w_inv * twolevel_s_pw(ylp, lp)) +
     n_within * parts$w_logdet
-  p_within <- length(c(lp$both.idx[[2L]], lp$within.idx[[2L]]))
-  p_between <- length(lp$between.idx[[2L]])
-  n_obs <- lp$nclusters[[1L]] * p_within + lp$nclusters[[2L]] * p_between
-  out <- m2ll / (-2) - n_obs * log(2 * pi) / 2
-  if (length(unlist(lp$ov.x.idx)) > 0L) {
+  if (!minus_two) {
+    out <- out / (-2)
+  }
+  if (log2pi) {
+    p_within <- length(c(lp$both.idx[[2L]], lp$within.idx[[2L]]))
+    p_between <- length(lp$between.idx[[2L]])
+    n_obs <- lp$nclusters[[1L]] * p_within + lp$nclusters[[2L]] * p_between
+    out <- out - n_obs * log(2 * pi) / 2
+  }
+  if (length(unlist(lp$ov.x.idx)) > 0L && log2pi && !minus_two) {
     out <- out - ylp[[2L]]$loglik.x
   }
   out
 }
 
+# The log-likelihood with the 2 pi terms of a fit's data, as lavaan's
+# lav_model_loglik() returns it for a two-level model with complete data
+twolevel_kernel_loglik <- function(lavsamplestats, lavdata, implied) {
+  twolevel_loglik_samp(
+    lavsamplestats@YLp[[1L]],
+    lavdata@Lp[[1L]],
+    implied$mean[[1L]],
+    implied$cov[[1L]],
+    implied$mean[[2L]],
+    implied$cov[[2L]],
+    log2pi = TRUE,
+    minus_two = FALSE
+  )
+}
+
 # The derivative of -2 log L with respect to the implied moments of each
-# level, as lavaan's lav_mvn_cl_dlogl_2l_samp() returns it with
-# `return_list = TRUE`, or NULL when a Cholesky factor does not exist
-twolevel_dmoments <- function(lavsamplestats, lavdata, implied) {
-  ylp <- lavsamplestats@YLp[[1L]]
-  lp <- lavdata@Lp[[1L]]
-  parts <- twolevel_parts(lp, implied)
+# level, as lavaan's lav_mvn_cl_dlogl_2l_samp() returns it: a list with
+# `return_list = TRUE`, else the vector c(Mu.W, vech(Sigma.W), Mu.B,
+# vech(Sigma.B)). NULL when a Cholesky factor does not exist.
+twolevel_dlogl_samp <- function(
+  ylp,
+  lp,
+  mu_w,
+  sigma_w,
+  mu_b,
+  sigma_b,
+  return_list = FALSE
+) {
+  parts <- twolevel_parts(lp, mu_w, sigma_w, mu_b, sigma_b)
   if (is.null(parts)) {
     return(NULL)
   }
@@ -238,7 +270,7 @@ twolevel_dmoments <- function(lavsamplestats, lavdata, implied) {
     d_szz <- matrix(0, 0L, 0L)
     d_syz <- matrix(0, 0L, 0L)
   }
-  twolevel_2l2implied(
+  dout <- twolevel_2l2implied(
     lp = lp,
     sigma_w = d_sw,
     sigma_b = d_sb,
@@ -247,6 +279,26 @@ twolevel_dmoments <- function(lavsamplestats, lavdata, implied) {
     mu_y = d_muy,
     mu_z = d_muz
   )
+  if (return_list) dout else twolevel_dmoments_vec(dout)
+}
+
+# The derivative of a fit's data, as a list
+twolevel_dmoments <- function(lavsamplestats, lavdata, implied) {
+  twolevel_dlogl_samp(
+    lavsamplestats@YLp[[1L]],
+    lavdata@Lp[[1L]],
+    implied$mean[[1L]],
+    implied$cov[[1L]],
+    implied$mean[[2L]],
+    implied$cov[[2L]],
+    return_list = TRUE
+  )
+}
+
+# lavaan's vector form of a derivative with respect to the two-level moments
+twolevel_dmoments_vec <- function(dmom) {
+  vech <- function(m) m[lower.tri(m, diag = TRUE)]
+  c(dmom$Mu.W, vech(dmom$Sigma.W), dmom$Mu.B, vech(dmom$Sigma.B))
 }
 
 # A derivative with respect to the unique elements of a symmetric matrix, as
@@ -258,11 +310,92 @@ twolevel_sym_halve <- function(d) {
   out
 }
 
+# The derivative of a function F of the two-level moments with respect to the
+# free parameters (unpacked under ceq.simple), from its derivative `dmom`
+# with respect to the moments (lavaan's list form, unique elements): the
+# product dF/dmoments %*% Delta, with no Delta matrix built
+twolevel_moments_to_x <- function(lavmodel_x, dmom) {
+  d_sigma <- list(dmom$Sigma.W, dmom$Sigma.B)
+  d_mu <- list(dmom$Mu.W, dmom$Mu.B)
+  glist <- lavmodel_x@GLIST
+  nmat <- lavmodel_x@nmat
+  unco <- isTRUE(lavmodel_x@ceq.simple.only)
+  dx <- numeric(if (unco) lavmodel_x@nx.unco else lavmodel_x@nx.free)
+  for (b in 1:2) {
+    mm_in_block <- seq_len(nmat[b]) + cumsum(c(0, nmat))[b]
+    # lavaan's omega is -2 dF/dSigma and its omega_mu is -dF/dmu
+    dx_block <- lisrel_df_dmlist(
+      glist[mm_in_block],
+      -2 * twolevel_sym_halve(d_sigma[[b]]),
+      matrix(-as.numeric(d_mu[[b]]), ncol = 1L)
+    )
+    dx_block <- dx_block[names(glist[mm_in_block])]
+    for (k in seq_along(mm_in_block)) {
+      mm <- mm_in_block[k]
+      x_idx <- if (unco) {
+        lavmodel_x@x.unco.idx[[mm]]
+      } else {
+        lavmodel_x@x.free.idx[[mm]]
+      }
+      dx[x_idx] <- dx[x_idx] + dx_block[[k]][lavmodel_x@m.free.idx[[mm]]]
+    }
+  }
+  dx
+}
+
+# lavaan's Delta of a two-level model (lav_model_delta(), the one group): the
+# derivative of each unique moment, in the order c(Mu.W, vech(Sigma.W), Mu.B,
+# vech(Sigma.B)), with respect to each free parameter, one row per moment
+twolevel_delta <- function(lavmodel_x) {
+  implied <- lavaan::lav_model_implied(lavmodel_x)
+  p_w <- length(implied$mean[[1L]])
+  p_b <- length(implied$mean[[2L]])
+  # A symmetric matrix with a one at the k-th unique element (column-wise
+  # lower triangle) and at its mirror
+  unit <- function(p, k) {
+    pos <- which(lower.tri(matrix(0, p, p), diag = TRUE))[k]
+    i <- (pos - 1L) %% p + 1L
+    j <- (pos - 1L) %/% p + 1L
+    m <- matrix(0, p, p)
+    m[i, j] <- 1
+    m[j, i] <- 1
+    m
+  }
+  zero <- list(
+    Mu.W = numeric(p_w),
+    Sigma.W = matrix(0, p_w, p_w),
+    Mu.B = numeric(p_b),
+    Sigma.B = matrix(0, p_b, p_b)
+  )
+  rows <- list()
+  for (k in seq_len(p_w)) {
+    d <- zero
+    d$Mu.W[k] <- 1
+    rows[[length(rows) + 1L]] <- d
+  }
+  for (k in seq_len(p_w * (p_w + 1L) / 2L)) {
+    d <- zero
+    d$Sigma.W <- unit(p_w, k)
+    rows[[length(rows) + 1L]] <- d
+  }
+  for (k in seq_len(p_b)) {
+    d <- zero
+    d$Mu.B[k] <- 1
+    rows[[length(rows) + 1L]] <- d
+  }
+  for (k in seq_len(p_b * (p_b + 1L) / 2L)) {
+    d <- zero
+    d$Sigma.B <- unit(p_b, k)
+    rows[[length(rows) + 1L]] <- d
+  }
+  do.call(rbind, lapply(rows, function(d) twolevel_moments_to_x(lavmodel_x, d)))
+}
+
 # The gradient of lavaan's fit function with respect to the free parameters
 # (unpacked under ceq.simple), as lav_model_grad() returns it for a two-level
-# model, or NULL when it is not defined (the caller then falls back to
-# lavaan). With `fiml_plan` (from twolevel_fiml_plan()) the derivative with
-# respect to the moments is that of the FIML kernels.
+# model, or NULL when it is not defined. With `fiml_plan` (from
+# twolevel_fiml_plan()) the derivative with respect to the moments is that of
+# the FIML kernels.
 twolevel_kernel_grad <- function(
   lavmodel_x,
   lavsamplestats,
@@ -278,32 +411,5 @@ twolevel_kernel_grad <- function(
   if (is.null(dmom) || anyNA(unlist(dmom))) {
     return(NULL)
   }
-  n_total <- lavsamplestats@ntotal
-  d_sigma <- list(dmom$Sigma.W, dmom$Sigma.B)
-  d_mu <- list(dmom$Mu.W, dmom$Mu.B)
-  glist <- lavmodel_x@GLIST
-  nmat <- lavmodel_x@nmat
-  unco <- isTRUE(lavmodel_x@ceq.simple.only)
-  dx <- numeric(if (unco) lavmodel_x@nx.unco else lavmodel_x@nx.free)
-  for (b in 1:2) {
-    mm_in_block <- seq_len(nmat[b]) + cumsum(c(0, nmat))[b]
-    # With F = -2 log L / (2 n), lavaan's omega is -2 dF/dSigma and its
-    # omega_mu is -dF/dmu.
-    dx_block <- lavaan___lav_lisrel_df_dmlist(
-      glist[mm_in_block],
-      -twolevel_sym_halve(d_sigma[[b]]) / n_total,
-      matrix(-as.numeric(d_mu[[b]]) / (2 * n_total), ncol = 1L)
-    )
-    dx_block <- dx_block[names(glist[mm_in_block])]
-    for (k in seq_along(mm_in_block)) {
-      mm <- mm_in_block[k]
-      x_idx <- if (unco) {
-        lavmodel_x@x.unco.idx[[mm]]
-      } else {
-        lavmodel_x@x.free.idx[[mm]]
-      }
-      dx[x_idx] <- dx[x_idx] + dx_block[[k]][lavmodel_x@m.free.idx[[mm]]]
-    }
-  }
-  dx
+  twolevel_moments_to_x(lavmodel_x, dmom) / (2 * lavsamplestats@ntotal)
 }
