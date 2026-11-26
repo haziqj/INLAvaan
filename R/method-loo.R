@@ -79,8 +79,7 @@
 #'
 #' The default `cores = NULL` runs serially, and `cores > 1` parallelises the
 #' Hessian stage. Supported models are continuous-indicator models fitted with
-#' the `ML` estimator, single- or two-level, single-group or multigroup
-#' (multigroup two-level models are not supported yet).
+#' the `ML` estimator, single- or two-level, single-group or multigroup.
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).
 #' @param type Unit type: `"auto"` (default) resolves to `"loso"`
@@ -91,9 +90,11 @@
 #'   see Details).
 #' @param units Optional integer vector of unit indices to score; defaults
 #'   to all units. For LOSO these are case numbers (row numbers of the
-#'   analysed dataset); for LOCO, cluster positions. For a random-slope fit
-#'   the per-cluster kernels return every cluster on each call, so this
-#'   trims the reported table rather than the work.
+#'   analysed dataset); for LOCO, cluster positions. A multigroup two-level
+#'   fit numbers the clusters (or rows) of group 1 first, then those of group
+#'   2, and so on. For a random-slope fit the per-cluster kernels return
+#'   every cluster on each call, so this trims the reported table rather
+#'   than the work.
 #' @param second_order Logical; compute the second-order correction
 #'   (default `TRUE`). `FALSE` skips the Hessian stage and reports
 #'   first-order estimates, which cannot be compared across models of

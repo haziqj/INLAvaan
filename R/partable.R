@@ -155,6 +155,17 @@ partable_level_index <- function(pt) {
   match(lvl, unique(lvl[in_level]), nomatch = 0L)
 }
 
+# Block of each row of a two-level parameter table, with 0 for rows outside the
+# levels. Block (g - 1) * nlevels + l holds level l of group g, as in lavaan, so
+# with one group the block is the level index.
+partable_block_index <- function(pt) {
+  lvl_idx <- partable_level_index(pt)
+  if (is.null(pt$block)) {
+    return(lvl_idx)
+  }
+  ifelse(lvl_idx > 0L, pt$block, 0L)
+}
+
 # Level names of a two-level parameter table, in level order
 partable_level_labels <- function(pt) {
   idx <- partable_level_index(pt)
@@ -189,11 +200,11 @@ inlavaanify_partable <- function(
 ) {
   nlevels <- lavdata@nlevels
   is_multilvl <- nlevels > 1
-  if (is_multilvl && lavdata@ngroups > 1) {
-    cli_abort("Multigroup two-level models are not supported.")
-  }
+  # In a two-level table `group` becomes the block, so that the code below and
+  # downstream works on each level of each group in turn
+  lav_group <- pt$group
   if (is_multilvl) {
-    pt$group <- partable_level_index(pt)
+    pt$group <- partable_block_index(pt)
   }
   ngroups <- max(pt$group)
   std_ov <- lavoptions$std.ov
@@ -203,7 +214,7 @@ inlavaanify_partable <- function(
   for (g in c(0, seq_len(ngroups))) {
     # Identify stuff
     if (is_multilvl) {
-      ov.names <- lavdata@ov.names[[1]]
+      ov.names <- lavdata@ov.names[[max(1L, ceiling(g / nlevels))]]
     } else {
       ov.names <- if (g == 0) NULL else lavdata@ov.names[[g]]
     }
@@ -282,7 +293,7 @@ inlavaanify_partable <- function(
   # correlation there, so its start is lavaan's start covariance over the start
   # standard deviations.
   start <- pt$start
-  grp <- if ("level" %in% names(pt)) partable_level_index(pt) else pt$group
+  grp <- if ("level" %in% names(pt)) partable_block_index(pt) else pt$group
   for (j in which(grepl("cov", pt$mat))) {
     var_start <- vapply(
       c(pt$lhs[j], pt$rhs[j]),
@@ -303,14 +314,21 @@ inlavaanify_partable <- function(
 
   # Names as coef() gives them: the label if any, else lhs op rhs with a group
   # (".g2") or level (".l2", or ".lbetween" for a named level) suffix after the
-  # first. pt$group holds the level index in a two-level model, and := rows sit
-  # in group 0.
+  # first. pt$group holds the block in a two-level model, and := rows sit in
+  # group 0. A two-level model with groups takes both, as in lavaan
+  # ("fb=~y2.g2.l2").
   pt$names <- paste0(pt$lhs, pt$op, pt$rhs)
-  later <- pt$group > 1
-  suffix <- if (is_multilvl) {
-    paste0(".l", pt$level)
+  if (is_multilvl) {
+    grp <- ceiling(pt$group / nlevels)
+    lvl <- partable_level_index(pt)
+    suffix <- paste0(
+      ifelse(grp > 1, paste0(".g", grp), ""),
+      ifelse(lvl > 1, paste0(".l", pt$level), "")
+    )
+    later <- nzchar(suffix)
   } else {
-    paste0(".g", pt$group)
+    later <- pt$group > 1
+    suffix <- paste0(".g", pt$group)
   }
   pt$names[later] <- paste0(pt$names[later], suffix[later])
   where_label <- pt$label != ""
@@ -324,9 +342,10 @@ inlavaanify_partable <- function(
     )
   }
 
-  # Remove pt$group if multilevel (interacts with lav_partable_labels())
+  # Remove pt$group if multilevel (interacts with lav_partable_labels()). With
+  # groups, lavaan's own group column goes back, so labels take both suffixes.
   if (is_multilvl) {
-    pt$group <- NULL
+    pt$group <- if (lavdata@ngroups > 1L) lav_group else NULL
   }
 
   # FIXME: Perhaps add a 'inlavaan_partable' class to this object

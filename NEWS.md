@@ -53,6 +53,16 @@
   As in lavaan, missing data and random slopes cannot be combined with
   two-level `conditional.x = TRUE`.
 
+* Multigroup two-level models (a `group:` block for each group, each with
+  its `level:` blocks) now fit, with complete data and with missing values.
+  Before, INLAvaan refused them. The log-likelihood and gradient are
+  INLAvaan's own two-level code, summed over the groups, and `loo()`,
+  `waic()`, the PPP, `predict()`, `sampling()` and `simulate()` work on
+  these fits. The coefficient names follow lavaan's (`fb=~y2.g2.l2`). In
+  `loo(fit, units = )` the clusters (or rows) of group 1 come first, then
+  those of group 2, and so on. Random slopes cannot be combined with groups,
+  as in lavaan.
+
 * New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
   `silent = TRUE` prints nothing and muffles the warnings and messages raised
   during the fit, for simulations and other repeated fits. Errors are still

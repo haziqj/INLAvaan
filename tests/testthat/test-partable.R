@@ -396,15 +396,24 @@ test_that("Multigroup := parameters can be plotted by name", {
   expect_no_error(plot(fit, params = "d"))
 })
 
-test_that("Multigroup two-level models give an error", {
+test_that("Multigroup two-level tables work block by block", {
   dat <- lavaan::Demo.twolevel
   dat$g <- ifelse(dat$cluster %% 2 == 0, "a", "b")
   blk <- "level: 1\n fw =~ y1 + y2 + y3\n level: 2\n fb =~ y1 + y2 + y3\n"
   mod <- paste0("group: a\n", blk, "group: b\n", blk)
-  expect_error(
-    asem(mod, dat, cluster = "cluster", group = "g", silent = TRUE),
-    "Multigroup two-level"
-  )
+  fit0 <- suppressWarnings(lavaan::sem(
+    mod,
+    dat,
+    cluster = "cluster",
+    group = "g",
+    do.fit = FALSE
+  ))
+  pt0 <- lavaan::parTable(fit0)
+  expect_identical(partable_block_index(pt0), as.integer(pt0$block))
+  pt <- inlavaanify_partable(pt0, priors_for(), fit0@Data, fit0@Options)
+  free <- pt$free > 0L
+  expect_identical(pt$names[free], names(lavaan::coef(fit0)))
+  expect_identical(pt$group, pt0$group)
 })
 
 test_that("Covariances start from their correlation", {

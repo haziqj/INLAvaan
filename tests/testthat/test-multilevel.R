@@ -49,6 +49,63 @@ test_that("Two-level conditional.x gives the joint fit", {
   expect_false(isTRUE(int_cx$lavmodel@conditional.x))
 })
 
+test_that("A multigroup two-level fit is the sum of its groups", {
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:60, ]
+  dat$g <- ifelse(dat$cluster %% 2 == 0, "a", "b")
+  blk <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ x1
+    level: 2
+      fb =~ y1 + y2 + y3
+  "
+  mod <- paste0("group: a\n", blk, "group: b\n", blk)
+  fit_args <- list(
+    cluster = "cluster",
+    silent = TRUE,
+    test = "none",
+    marginal_method = "gaussian",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  fit_mg <- do.call(asem, c(list(mod, dat, group = "g"), fit_args))
+  labels <- fit_mg@Data@group.label
+  fit_g <- lapply(labels, function(lab) {
+    do.call(asem, c(list(blk, dat[dat$g == lab, ]), fit_args))
+  })
+  fit_lav <- suppressWarnings(
+    lavaan::sem(mod, dat, cluster = "cluster", group = "g")
+  )
+  expect_identical(names(coef(fit_mg)), names(coef(fit_lav)))
+  int_mg <- get_inlavaan_internal(fit_mg)
+  int_g <- lapply(fit_g, get_inlavaan_internal)
+  expect_equal(
+    int_mg$mloglik,
+    int_g[[1L]]$mloglik + int_g[[2L]]$mloglik,
+    tolerance = 1e-6
+  )
+  g2 <- grepl(".g2", names(coef(fit_mg)), fixed = TRUE)
+  expect_equal(
+    unname(coef(fit_mg)[!g2]),
+    unname(coef(fit_g[[1L]])),
+    tolerance = 1e-3
+  )
+  expect_equal(
+    unname(coef(fit_mg)[g2]),
+    unname(coef(fit_g[[2L]])),
+    tolerance = 1e-3
+  )
+  # The clusters of both groups are scored, with their group
+  loo_mg <- loo(fit_mg, second_order = FALSE)
+  loo_g <- lapply(fit_g, loo, second_order = FALSE)
+  expect_equal(
+    loo_mg$elpd_1,
+    loo_g[[1L]]$elpd_1 + loo_g[[2L]]$elpd_1,
+    tolerance = 1e-3
+  )
+  expect_identical(unique(loo_mg$per_unit$group), labels)
+})
+
 test_that("Multilevel predict lv", {
   nsamp <- 5
 

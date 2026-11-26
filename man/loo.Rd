@@ -56,9 +56,11 @@ see Details).}
 
 \item{units}{Optional integer vector of unit indices to score; defaults
 to all units. For LOSO these are case numbers (row numbers of the
-analysed dataset); for LOCO, cluster positions. For a random-slope fit
-the per-cluster kernels return every cluster on each call, so this
-trims the reported table rather than the work.}
+analysed dataset); for LOCO, cluster positions. A multigroup two-level
+fit numbers the clusters (or rows) of group 1 first, then those of group
+2, and so on. For a random-slope fit the per-cluster kernels return
+every cluster on each call, so this trims the reported table rather
+than the work.}
 
 \item{second_order}{Logical; compute the second-order correction
 (default \code{TRUE}). \code{FALSE} skips the Hessian stage and reports
@@ -205,8 +207,7 @@ result. Under the default \code{test = "standard"} nothing is stored and
 
 The default \code{cores = NULL} runs serially, and \code{cores > 1} parallelises the
 Hessian stage. Supported models are continuous-indicator models fitted with
-the \code{ML} estimator, single- or two-level, single-group or multigroup
-(multigroup two-level models are not supported yet).
+the \code{ML} estimator, single- or two-level, single-group or multigroup.
 }
 \examples{
 \donttest{

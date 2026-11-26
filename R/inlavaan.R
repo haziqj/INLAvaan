@@ -35,7 +35,7 @@
 #'   and the WAIC come from one Taylor pass, so asking for either stores
 #'   both. They run only when asked for, with no time budget. On a model
 #'   the casewise machinery does not support (PML or ordinal data,
-#'   `conditional.x = TRUE`, multigroup two-level) they are skipped with a
+#'   single-level `conditional.x = TRUE`) they are skipped with a
 #'   warning and the rest of the fit proceeds. For a two-level model the PPP
 #'   follows blavaan: each of `ppp_nsamp` posterior draws generates replicate
 #'   data, which are scored against the saturated model (see `ppp_method`).

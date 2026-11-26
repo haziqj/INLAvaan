@@ -111,7 +111,7 @@ composite_derived_draws <- function(x_samp, pt, lavmodel) {
 # which are the sample covariances where lavaan fixes T, and trow the row of
 # each entry (NA for a pair without a row, whose entry is zero).
 composite_blocks <- function(pt) {
-  grp <- if ("level" %in% names(pt)) partable_level_index(pt) else pt$group
+  grp <- if ("level" %in% names(pt)) partable_block_index(pt) else pt$group
   is_w <- pt$op == "<~"
   out <- list()
   for (g in unique(grp[is_w])) {

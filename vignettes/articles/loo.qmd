@@ -253,8 +253,7 @@ INLAvaan deliberately provides just this evaluation API; the search logic is you
   such fits are comparable only when they share the same data *and* the same
   holes; see the [missing-data article](missing.html).
 - **Scope and cost.** Supported are continuous-indicator `ML` fits, single-
-  or two-level, single-group or multigroup (not ordinal PML, not multigroup
-  two-level). Parallelism is opt-in via `cores`, and `units` scores a
+  or two-level, single-group or multigroup (not ordinal PML). Parallelism is opt-in via `cores`, and `units` scores a
   subset.
 
 ## References

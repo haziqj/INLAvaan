@@ -9,7 +9,7 @@
 # `ginv_prime` are called one row at a time.
 pars_to_x_map <- function(pt) {
   npt <- length(pt$free)
-  group <- if ("level" %in% names(pt)) partable_level_index(pt) else pt$group
+  group <- if ("level" %in% names(pt)) partable_block_index(pt) else pt$group
   is_free <- pt$free > 0L
   free_rows <- which(is_free)
   packed_rows <- which(is_free & !duplicated(pt$free))
