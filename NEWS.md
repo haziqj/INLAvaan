@@ -44,6 +44,16 @@
   of a fit whose mode search takes many iterations can move by about 0.0002
   posterior SDs.
 
+* The posterior predictive p-value (PPP) of two-level models with missing
+  data (`missing = "ml"`) is faster. Before, the saturated model of each
+  replicate data set was fitted by EM from a crude start. It is now found by
+  quasi-Newton steps from the moments of the posterior draw, which reach the
+  same maximum, and the EM is kept for replicates whose maximum lies on the
+  boundary. On three test models the PPP takes 2.1 to 8.7 seconds in place of
+  25 to 45, and the fit 71% to 87% less time; over 20 seeds each the PPP is
+  the same number as before. `ppp_method = "em"` keeps the EM, as blavaan
+  does.
+
 * Two-level models with `conditional.x = TRUE` now fit. Before, the fit
   stopped with "subscript out of bounds". INLAvaan fits them as the joint
   model with `fixed.x = TRUE`, which has the same free parameters and the
