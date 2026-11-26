@@ -701,19 +701,13 @@ test_that("Scoring steps reach the saturated maximum of incomplete data", {
   ))
   lavdata <- fit@Data
   lp <- lavdata@Lp[[1]]
-  X <- lavdata@X[[1]]
-  em_obs <- ppp2l_mi_em(X, ppp2l_y2(X, lp), 1L, lavdata, ppp2l_em_obs)
-  setup <- ppp2l_mi_setup(lavdata, 1L, em_obs)
-  expect_false(is.null(setup))
-  # The within means of the variables at both levels are not free
-  imp_obs <- list(
-    mean = list(em_obs$Mu.W, em_obs$Mu.B),
-    cov = list(em_obs$Sigma.W, em_obs$Sigma.B)
-  )
-  n_moments <- length(ppp2l_pack(imp_obs))
-  expect_length(setup$free, n_moments - length(lp$both.idx[[2]]))
   lavimplied <- lavaan::lav_model_implied(fit@Model)
   imp <- ppp2l_group_moments(lavimplied, 1L)
+  # The free moments are those of the closed-form information: all but the
+  # within means of the variables at both levels, in the order of the pack
+  free <- ppp2l_free(imp, lp)
+  expect_length(free, length(ppp2l_pack(imp)) - length(lp$both.idx[[2]]))
+  expect_identical(ppp2l_info(imp, lp, integer(0))$keep, free)
   tight <- list(tol = 1e-10, max_iter = 5000L, acceleration = "squarem")
   gaps <- vapply(
     1:5,
@@ -728,11 +722,11 @@ test_that("Scoring steps reach the saturated maximum of incomplete data", {
         loglik_x = 0,
         minus_two = FALSE
       )
-      sat <- ppp2l_mi_scoring(plan, imp, ll0, setup)
+      sat <- ppp2l_mi_scoring(plan, imp, lp, ll0)
       ref <- ppp2l_mi_em(Xr, y2, 1L, lavdata, tight)$logl
       # Too few steps give no maximum, which sends the replicate to the EM
       expect_identical(
-        ppp2l_mi_scoring(plan, imp, ll0, setup, max_iter = 1L),
+        ppp2l_mi_scoring(plan, imp, lp, ll0, max_iter = 1L),
         NA_real_
       )
       ref - sat

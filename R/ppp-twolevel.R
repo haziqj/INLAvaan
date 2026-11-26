@@ -16,9 +16,8 @@
 # data with one Fisher-scoring step from the moments psi_s of the posterior
 # draw, which lie within sampling error of it (see ppp2l_onestep()). The same
 # statistic scores the observed and the replicate data. For incomplete data it
-# finds the saturated maximum of each replicate by scoring steps from psi_s
-# with one information matrix for all draws (see ppp2l_mi_scoring()), which
-# reach the maximum that the EM finds.
+# finds the saturated maximum of each replicate by quasi-Newton steps from
+# psi_s (see ppp2l_mi_scoring()), which reach the maximum that the EM finds.
 
 # EM settings for the saturated fit of each replicate, as in pp_twolevel(),
 # and for the one fit of the observed data. The replicate fits stop at their
@@ -573,19 +572,19 @@ ppp2l_onestep <- function(ylp, imp, lp, info) {
 #
 #   psi_{k+1} = psi_k + H_k u(psi_k),
 #
-# with u the score of the replicate. H_0 = J^-1, with J the observed
-# information of the observed data at their saturated maximum, computed once
-# per fit. The replicates share the cluster design and the holes of the
-# observed data, so J is close to the information of each of them. Each step
-# then corrects H_k towards the replicate's own inverse information with the
-# BFGS update, so the steps converge faster than with a fixed J (which only
-# converges linearly where J is far from the replicate's information). A step
-# that lowers the log-likelihood, or that leaves the valid covariance matrices
-# (the within covariance positive definite, the between covariance positive
-# semi-definite, as in the EM), is halved. The steps stop when the gain that
-# the next step predicts, u' H u / 2, is less than `tol`, far below the
-# tolerance of the EM. Where they cannot get there (a maximum on the boundary,
-# or no information), NA tells the caller to fit the replicate by EM.
+# with u the score of the replicate. H_0 = I(psi_s)^-1, with I the expected
+# information of complete data at the draw's moments (ppp2l_info(), in closed
+# form). Missing values lower the information, so I is a little too large,
+# and the information of the observed data at their saturated maximum is no
+# better: where that maximum has a small between eigenvalue, it differs from
+# the replicates' information by a factor of 6 in some directions. Each step
+# corrects H_k towards the replicate's own inverse information with the BFGS
+# update. A step that lowers the log-likelihood, or that leaves the valid
+# covariance matrices (the within covariance positive definite, the between
+# covariance positive semi-definite, as in the EM), is halved. The steps stop
+# when the gain that the next step predicts, u' H u / 2, is less than `tol`,
+# far below the tolerance of the EM. Where they cannot get there (a maximum on
+# the boundary), NA tells the caller to fit the replicate by EM.
 
 # The positions in ppp2l_pack() of the saturated moments that are free: all
 # but the within means of the variables at both levels, of which the
@@ -614,56 +613,14 @@ ppp2l_mi_score <- function(plan, psi, imp) {
   if (is.null(d)) NULL else -twolevel_dmoments_vec(d) / 2
 }
 
-# The inverse of the observed information of the free moments `free` at
-# `psi`, by central differences of the score. NULL when the score fails or the
-# information is not positive definite.
-ppp2l_mi_info_inv <- function(plan, psi, imp, free) {
-  m <- length(free)
-  info <- matrix(0, m, m)
-  for (a in seq_len(m)) {
-    h <- 1e-4 * max(1, abs(psi[free[a]]))
-    e <- numeric(length(psi))
-    e[free[a]] <- h
-    up <- ppp2l_mi_score(plan, psi + e, imp)
-    dn <- ppp2l_mi_score(plan, psi - e, imp)
-    if (is.null(up) || is.null(dn)) {
-      return(NULL)
-    }
-    info[, a] <- -(up - dn)[free] / (2 * h)
-  }
-  r <- tryCatch(chol((info + t(info)) / 2), error = function(e) NULL)
-  if (is.null(r)) NULL else chol2inv(r)
-}
-
-# The scoring set-up of group g from the saturated EM fit `em_fit` of the
-# observed data: the free moments and the inverse information. NULL when the
-# information is not available, and then every replicate is fitted by EM.
-ppp2l_mi_setup <- function(lavdata, g, em_fit) {
-  lp <- lavdata@Lp[[g]]
-  X <- lavdata@X[[g]]
-  imp <- list(
-    mean = list(as.numeric(em_fit$Mu.W), as.numeric(em_fit$Mu.B)),
-    cov = list(em_fit$Sigma.W, em_fit$Sigma.B)
-  )
-  psi <- ppp2l_pack(imp)
-  free <- ppp2l_free(imp, lp)
-  plan <- twolevel_fiml_plan_raw(lp, lavdata@Mp[[g]], X, ppp2l_y2(X, lp))
-  if (length(ppp2l_mi_score(plan, psi, imp)) != length(psi)) {
-    return(NULL) # nocov
-  }
-  info_inv <- ppp2l_mi_info_inv(plan, psi, imp, free)
-  if (is.null(info_inv)) NULL else list(free = free, info_inv = info_inv)
-}
-
-# The saturated maximum of the log-likelihood of the data of `plan`, by
-# quasi-Newton steps from the moments `imp` of the draw, whose log-likelihood
-# is `ll0`. `setup` is from ppp2l_mi_setup(). NA when the steps do not
-# converge.
+# The saturated maximum of the log-likelihood of the data of `plan` (cluster
+# layout `lp`), by quasi-Newton steps from the moments `imp` of the draw,
+# whose log-likelihood is `ll0`. NA when the steps do not converge.
 ppp2l_mi_scoring <- function(
   plan,
   imp,
+  lp,
   ll0,
-  setup,
   tol = 1e-6,
   max_iter = 50L,
   max_halve = 10L
@@ -675,13 +632,18 @@ ppp2l_mi_scoring <- function(
     }
     min_eigen(im$cov[[1L]]) > 0 && min_eigen(im$cov[[2L]]) >= 0
   }
-  free <- setup$free
-  h <- setup$info_inv
   psi <- ppp2l_pack(imp)
   ll <- ll0
   if (!is.finite(ll) || !valid(psi)) {
     return(NA_real_)
   }
+  # All moments are free, the covariates' too, as in the EM
+  free <- ppp2l_free(imp, lp)
+  info <- tryCatch(ppp2l_info(imp, lp, integer(0L)), error = function(e) NULL)
+  if (is.null(info) || length(info$keep) != length(free)) {
+    return(NA_real_)
+  }
+  h <- info$inv
   u <- ppp2l_mi_score(plan, psi, imp)
   for (k in seq_len(max_iter)) {
     if (is.null(u)) {
@@ -753,35 +715,21 @@ get_ppp_twolevel <- function(
   })
   # The saturated log-likelihood of the observed data, once per group
   lavimplied0 <- lavaan::lav_model_implied(lavmodel)
-  mi_setup <- NULL
-  if (missing) {
-    em_obs <- lapply(groups, function(g) {
-      X <- lavdata@X[[g]]
-      ppp2l_mi_em(X, ppp2l_y2(X, lavdata@Lp[[g]]), g, lavdata, ppp2l_em_obs)
-    })
-    sat_obs_g <- vapply(em_obs, function(e) e$logl, numeric(1))
-    if (method == "onestep") {
-      mi_setup <- lapply(groups, function(g) {
-        ppp2l_mi_setup(lavdata, g, em_obs[[g]])
-      })
-    }
-  } else {
-    sat_obs_g <- vapply(
-      groups,
-      function(g) {
-        ppp2l_loglik(
-          lavdata@X[[g]],
-          g,
-          lavdata,
-          lavimplied0,
-          FALSE,
-          ppp2l_em_obs,
-          ylp = ylp_obs[[g]]
-        )[["sat"]]
-      },
-      numeric(1)
-    )
-  }
+  sat_obs_g <- vapply(
+    groups,
+    function(g) {
+      ppp2l_loglik(
+        lavdata@X[[g]],
+        g,
+        lavdata,
+        lavimplied0,
+        missing,
+        ppp2l_em_obs,
+        ylp = ylp_obs[[g]]
+      )[["sat"]]
+    },
+    numeric(1)
+  )
   sat_obs <- sum(sat_obs_g)
   # Complete data draw each replicate as its cluster statistics (see
   # ppp2l_draw_stats()). Incomplete data draw its rows.
@@ -868,8 +816,8 @@ get_ppp_twolevel <- function(
     }
     out
   }
-  # Incomplete data: the saturated maximum of each replicate by scoring steps
-  # from the draw's moments, or by EM where they do not converge (see
+  # Incomplete data: the saturated maximum of each replicate by quasi-Newton
+  # steps from the draw's moments, or by EM where they do not converge (see
   # ppp2l_mi_scoring())
   stat_scoring <- function(lavimplied, reps) {
     fit_obs <- fit_rep <- sat_rep <- 0
@@ -888,10 +836,7 @@ get_ppp_twolevel <- function(
         loglik_x = 0,
         minus_two = FALSE
       )
-      sat_g <- NA_real_
-      if (!is.null(mi_setup[[g]])) {
-        sat_g <- ppp2l_mi_scoring(plan, imp, fit_g, mi_setup[[g]])
-      }
+      sat_g <- ppp2l_mi_scoring(plan, imp, lp, fit_g)
       if (is.na(sat_g)) {
         sat_g <- ppp2l_mi_em(X, y2, g, lavdata, ppp2l_em)$logl
       }
