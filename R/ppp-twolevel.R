@@ -818,7 +818,10 @@ get_ppp_twolevel <- function(
   }
   # Incomplete data: the saturated maximum of each replicate by quasi-Newton
   # steps from the draw's moments, or by EM where they do not converge (see
-  # ppp2l_mi_scoring())
+  # ppp2l_mi_scoring()). When the first 10 replicates of a group all go to the
+  # EM, the maxima of that group lie on the boundary, and the others go to the
+  # EM at once.
+  n_try <- n_em <- integer(length(groups))
   stat_scoring <- function(lavimplied, reps) {
     fit_obs <- fit_rep <- sat_rep <- 0
     for (g in groups) {
@@ -836,7 +839,12 @@ get_ppp_twolevel <- function(
         loglik_x = 0,
         minus_two = FALSE
       )
-      sat_g <- ppp2l_mi_scoring(plan, imp, lp, fit_g)
+      sat_g <- NA_real_
+      if (n_try[g] < 10L || n_em[g] < n_try[g]) {
+        sat_g <- ppp2l_mi_scoring(plan, imp, lp, fit_g)
+        n_try[g] <<- n_try[g] + 1L
+        n_em[g] <<- n_em[g] + is.na(sat_g)
+      }
       if (is.na(sat_g)) {
         sat_g <- ppp2l_mi_em(X, y2, g, lavdata, ppp2l_em)$logl
       }
