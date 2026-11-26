@@ -196,10 +196,11 @@ rs_baseline_fit <- function(object) {
   pt <- rs_baseline_start(object@Model, info, lavaan::parTable(b0))
   pt <- inlavaanify_partable(pt, priors_for(), b0@Data, b0@Options)
   free <- which(pt$free > 0L)
+  x_map <- pars_to_x_map(pt)
   lavmodel <- b0@Model
   opts <- b0@Options
   negll <- function(theta) {
-    x <- pars_to_x(theta, pt)
+    x <- pars_to_x(theta, pt, x_map)
     -inlav_model_loglik(
       x,
       lavmodel,
@@ -210,21 +211,12 @@ rs_baseline_fit <- function(object) {
     )
   }
   negll_grad <- function(theta) {
-    x <- pars_to_x(theta, pt)
+    x <- pars_to_x(theta, pt, x_map)
     g <- inlav_model_grad(x, lavmodel, b0@SampleStats, b0@Data, b0@Cache)
     if (rs_grad_is_packed(length(g), lavmodel)) {
       g <- rs_unpack_grad(g, lavmodel) # nocov -- the reference has no labels
     }
-    jcb <- mapply(function(f, th) f(th), pt$ginv_prime[free], theta)
-    out <- jcb * attr(x, "sd1sd2") * g
-    jm <- attr(x, "jcb_mat")
-    if (!is.null(jm)) {
-      jm <- rbind(jm)
-      for (k in seq_len(nrow(jm))) {
-        out[jm[k, 1L]] <- out[jm[k, 1L]] + jm[k, 3L] * g[jm[k, 2L]]
-      }
-    }
-    -out
+    -pars_chain_rule(g, theta, x, pt, x_map)
   }
   # With few clusters the maximum can sit on the edge of the region where the
   # level-2 covariance is positive definite. nlminb() then stops close to it

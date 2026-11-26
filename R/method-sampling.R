@@ -226,7 +226,12 @@ sample_params_prior <- function(int, nsamp) {
   }
 
   # Map theta → lavaan x-space (handles covariance = cor * sqrt(var1 * var2))
-  x_samp <- apply_rows(theta_full, pars_to_x, pt = pt)
+  x_samp <- apply_rows(
+    theta_full,
+    pars_to_x,
+    pt = pt,
+    map = pars_to_x_map(pt)
+  )
 
   list(theta_samp = theta_samp, x_samp = x_samp)
 }
