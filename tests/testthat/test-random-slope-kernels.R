@@ -537,3 +537,45 @@ test_that("the quadrature route is scored as lavaan scores it", {
     expect_equal(as.numeric(g %*% rsk_k(fit)), g_num, tolerance = 1e-6)
   }
 })
+
+test_that("per-cluster log-likelihoods and scores equal lavaan's on both routes", {
+  lav_ns <- asNamespace("lavaan")
+  split <- suppressWarnings(lavaan::sem(
+    "
+    level: 1
+      y1 ~ rv('s1')*x1
+    level: 2
+      y1 ~ x1
+      s1 ~~ s1
+    ",
+    data = rsk_data,
+    cluster = "cluster",
+    se = "none",
+    integration.ngh = 11L
+  ))
+  for (fit in list(rsk_fits$factor, rsk_fits_na$lmm, split)) {
+    rs <- fit@Cache[[1L]]$rs
+    lm <- lavaan::lav_model_set_parameters(fit@Model, rsk_point(fit, 7))
+    plan <- rs_any_plan(rs)
+    expect_equal(
+      rs_cluster_loglik(plan, lm),
+      as.numeric(attr(
+        lav_ns$lav_mvn_cl_rs_m2ll(
+          lavmodel = lm,
+          rs = rs,
+          log2pi = TRUE,
+          minus_two = FALSE,
+          per_cluster = TRUE
+        ),
+        "loglik.cluster"
+      )),
+      tolerance = 1e-12
+    )
+    expect_equal(
+      rs_cluster_scores(plan, lm),
+      lav_ns$lav_mvn_cl_rs_scores(lavmodel = lm, rs = rs),
+      tolerance = 1e-6,
+      ignore_attr = TRUE
+    )
+  }
+})

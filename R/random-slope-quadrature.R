@@ -294,3 +294,61 @@ rs_imp_phi_vec <- function(imp) {
     as.numeric(imp$sigma.z)
   )
 }
+
+## ----- Per-cluster pieces for the casewise methods --------------------------------
+
+# The plan of a random-slope cache, on either route
+rs_any_plan <- function(rs, ntotal = sum(rs$stats$cluster.size)) {
+  if (isTRUE(rs$info$nl.flag)) {
+    rs_quad_plan(rs, ntotal)
+  } else {
+    rs_kernel_plan(rs, ntotal)
+  }
+}
+
+# The log-likelihood of every cluster, with the 2 pi terms, on either route
+# (lavaan's lav_mvn_cl_rs_m2ll() with `per_cluster = TRUE`), or a vector of
+# -Inf where it is not defined
+rs_cluster_loglik <- function(plan, lavmodel_x) {
+  ll <- if (!is.null(plan$quad)) {
+    rs_quad_loglik(plan, lavmodel_x, per_cluster = TRUE)
+  } else {
+    rs_kernel_loglik(
+      plan,
+      rs_implied(lavmodel_x, plan$info),
+      per_cluster = TRUE
+    )
+  }
+  if (length(ll) == 1L && plan$n_cl != 1L) rep(ll, plan$n_cl) else ll
+}
+
+# The score of every cluster with respect to lavaan's packed free parameters
+# (one row per cluster), by central differences of the per-cluster
+# log-likelihoods, as lavaan's lav_mvn_cl_rs_scores() does when it cannot
+# take its own derivative
+rs_cluster_scores <- function(plan, lavmodel_x, h = 1e-5) {
+  x0 <- lavaan::lav_model_get_parameters(lavmodel_x)
+  sc <- matrix(0, plan$n_cl, length(x0))
+  for (k in seq_along(x0)) {
+    h_k <- h * max(1, abs(x0[k]))
+    x_right <- x_left <- x0
+    x_right[k] <- x0[k] + h_k
+    x_left[k] <- x0[k] - h_k
+    ll_right <- rs_cluster_loglik(
+      plan,
+      lavaan::lav_model_set_parameters(lavmodel_x, x_right)
+    )
+    ll_left <- rs_cluster_loglik(
+      plan,
+      lavaan::lav_model_set_parameters(lavmodel_x, x_left)
+    )
+    if (any(!is.finite(ll_right)) || any(!is.finite(ll_left))) {
+      cli_abort(
+        "The per-cluster scores could not be computed (non-finite
+         log-likelihood near the parameter values)."
+      )
+    }
+    sc[, k] <- (ll_right - ll_left) / (2 * h_k)
+  }
+  sc
+}

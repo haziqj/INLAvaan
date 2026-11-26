@@ -72,7 +72,11 @@ loo_grad_cache <- function(theta, lavmodel, pt, two_level = FALSE) {
   list(
     x = x,
     mom = loo_implied_moments(lavmodel_x, two_level),
-    Delta = lavaan___lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST),
+    Delta = if (two_level) {
+      list(twolevel_delta(lavmodel_x))
+    } else {
+      lavaan___lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST)
+    },
     jcb_vec = pars_to_x_jcb(theta_unp, pt, map),
     sd1sd2 = attr(x, "sd1sd2"),
     jcb_mat = jcb_mat,
@@ -431,14 +435,13 @@ loco_unit_stats <- function(j, css) {
 }
 
 loco_loglik_us <- function(us, mom) {
-  as.numeric(lavaan___lav_mvn_cl_loglik_samp_2l(
-    ylp = us$YLp,
-    lp = us$Lp,
-    mu_w = mom$mu_w,
-    sigma_w = mom$Sigma_w,
-    mu_b = mom$mu_b,
-    sigma_b = mom$Sigma_b,
-    sinv_method = "eigen",
+  as.numeric(twolevel_loglik_samp(
+    us$YLp,
+    us$Lp,
+    mom$mu_w,
+    mom$Sigma_w,
+    mom$mu_b,
+    mom$Sigma_b,
     log2pi = TRUE,
     minus_two = FALSE
   ))
@@ -449,13 +452,13 @@ loco_loglik_one <- function(j, css, mom) {
 }
 
 loco_grad_x_us <- function(us, mom, Delta) {
-  DX <- lavaan___lav_mvn_cl_dlogl_2l_samp(
-    ylp = us$YLp,
-    lp = us$Lp,
-    mu_w = mom$mu_w,
-    sigma_w = mom$Sigma_w,
-    mu_b = mom$mu_b,
-    sigma_b = mom$Sigma_b
+  DX <- twolevel_dlogl_samp(
+    us$YLp,
+    us$Lp,
+    mom$mu_w,
+    mom$Sigma_w,
+    mom$mu_b,
+    mom$Sigma_b
   )
   # dlogl is the derivative of -2 * loglik w.r.t. the stacked moments
   -0.5 * as.numeric(DX %*% Delta[[1L]])
@@ -505,14 +508,7 @@ loco_rs_loglik_all <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
   }
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, cache$x)
-  ll <- lavaan___lav_mvn_cl_rs_m2ll(
-    lavmodel = lavmodel_x,
-    rs = rs,
-    log2pi = TRUE,
-    minus_two = FALSE,
-    per_cluster = TRUE
-  )
-  as.numeric(attr(ll, "loglik.cluster"))[units]
+  rs_cluster_loglik(rs_any_plan(rs), lavmodel_x)[units]
 }
 
 # All-cluster theta-scores at one theta. lavaan returns the per-cluster
@@ -523,7 +519,7 @@ loco_rs_scores_theta <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
   }
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, cache$x)
-  G_x <- lavaan___lav_mvn_cl_rs_scores(lavmodel = lavmodel_x, rs = rs)
+  G_x <- rs_cluster_scores(rs_any_plan(rs), lavmodel_x)
   # lavaan scores the packed free parameters here, one column per equality
   # group, while the chain rule works one column per free partable row
   if (rs_grad_is_packed(ncol(G_x), lavmodel)) {
@@ -692,16 +688,15 @@ loco_missing_info <- function(int) {
 }
 
 loco_missing_loglik_cj <- function(cj, mom) {
-  as.numeric(lavaan___lav_mvn_cl_mi_loglik_samp_2l(
-    y1 = cj$Y1,
-    y2 = cj$Y2,
-    lp = cj$Lp,
-    mp = cj$Mp,
-    mu_w = mom$mu_w,
-    sigma_w = mom$Sigma_w,
-    mu_b = mom$mu_b,
-    sigma_b = mom$Sigma_b,
-    sinv_method = "eigen",
+  as.numeric(twolevel_mi_loglik_samp(
+    cj$Y1,
+    cj$Y2,
+    cj$Lp,
+    cj$Mp,
+    mom$mu_w,
+    mom$Sigma_w,
+    mom$mu_b,
+    mom$Sigma_b,
     log2pi = TRUE,
     loglik_x = 0,
     minus_two = FALSE
@@ -713,15 +708,15 @@ loco_missing_loglik_one <- function(j, minfo, mom) {
 }
 
 loco_missing_grad_cj <- function(cj, mom, Delta) {
-  DX <- lavaan___lav_mvn_cl_mi_dlogl_2l_samp(
-    y1 = cj$Y1,
-    y2 = cj$Y2,
-    lp = cj$Lp,
-    mp = cj$Mp,
-    mu_w = mom$mu_w,
-    sigma_w = mom$Sigma_w,
-    mu_b = mom$mu_b,
-    sigma_b = mom$Sigma_b
+  DX <- twolevel_mi_dlogl_samp(
+    cj$Y1,
+    cj$Y2,
+    cj$Lp,
+    cj$Mp,
+    mom$mu_w,
+    mom$Sigma_w,
+    mom$mu_b,
+    mom$Sigma_b
   )
   # dlogl is the derivative of -2 * loglik w.r.t. the stacked moments
   -0.5 * as.numeric(DX %*% Delta[[1L]])
