@@ -138,7 +138,17 @@ rs_cond <- function(lavmodel, info, exo_b, glist = lavmodel@GLIST) {
       sigma.z = imp_i$sigma.z
     )
   }
-  list(imp = imp_list, logw = logw, nnodes = nnodes, logr = logr)
+  list(
+    imp = imp_list,
+    logw = logw,
+    nnodes = nnodes,
+    logr = logr,
+    bmat = bmat,
+    lin.v = lin_v,
+    nl.v = nl_v,
+    eta.names = imp0$eta.names,
+    meta = imp0$meta
+  )
 }
 
 # The description of the route-A problem at a node: the paths on observed
