@@ -164,66 +164,58 @@ rs_batch_t <- function(x, k) {
 
 # The same k x k matrix `cmat` times every row's matrix
 rs_const_mm <- function(cmat, x, k) {
+  idx <- matrix(seq_len(k * k), k, k)
   out <- matrix(0, nrow(x), k * k)
-  for (i in seq_len(k)) {
-    for (j in seq_len(k)) {
-      for (m in seq_len(k)) {
-        if (cmat[i, m] != 0) {
-          out[, rs_at(i, j, k)] <- out[, rs_at(i, j, k)] +
-            cmat[i, m] * x[, rs_at(m, j, k)]
-        }
-      }
-    }
+  for (j in seq_len(k)) {
+    out[, idx[, j]] <- x[, idx[, j], drop = FALSE] %*% t(cmat)
   }
   out
 }
 
 # Inverses by Gauss-Jordan elimination without pivoting, which is stable for
-# the symmetric positive definite B_j. NULL when a pivot is not positive.
+# the symmetric positive definite B_j. Each step works a whole row of every
+# matrix at once. NULL when a pivot is not positive.
 rs_batch_inverse <- function(b, k) {
+  idx <- matrix(seq_len(k * k), k, k)
   a <- b
   inv <- matrix(0, nrow(b), k * k)
-  inv[, rs_at(seq_len(k), seq_len(k), k)] <- 1
+  inv[, diag(idx)] <- 1
   for (j in seq_len(k)) {
-    piv <- a[, rs_at(j, j, k)]
+    row_j <- idx[j, ]
+    piv <- a[, idx[j, j]]
     if (any(!is.finite(piv)) || any(piv <= 0)) {
       return(NULL)
     }
-    for (c in seq_len(k)) {
-      a[, rs_at(j, c, k)] <- a[, rs_at(j, c, k)] / piv
-      inv[, rs_at(j, c, k)] <- inv[, rs_at(j, c, k)] / piv
-    }
-    for (i in setdiff(seq_len(k), j)) {
-      f <- a[, rs_at(i, j, k)]
-      for (c in seq_len(k)) {
-        a[, rs_at(i, c, k)] <- a[, rs_at(i, c, k)] - f * a[, rs_at(j, c, k)]
-        inv[, rs_at(i, c, k)] <- inv[, rs_at(i, c, k)] -
-          f * inv[, rs_at(j, c, k)]
-      }
+    a[, row_j] <- a[, row_j, drop = FALSE] / piv
+    inv[, row_j] <- inv[, row_j, drop = FALSE] / piv
+    for (i in seq_len(k)[-j]) {
+      row_i <- idx[i, ]
+      f <- a[, idx[i, j]]
+      a[, row_i] <- a[, row_i, drop = FALSE] - f * a[, row_j, drop = FALSE]
+      inv[, row_i] <- inv[, row_i, drop = FALSE] -
+        f * inv[, row_j, drop = FALSE]
     }
   }
   inv
 }
 
 rs_batch_mm <- function(x, y, k) {
+  idx <- matrix(seq_len(k * k), k, k)
   out <- matrix(0, nrow(x), k * k)
   for (i in seq_len(k)) {
+    xi <- x[, idx[i, ], drop = FALSE]
     for (j in seq_len(k)) {
-      for (m in seq_len(k)) {
-        out[, rs_at(i, j, k)] <- out[, rs_at(i, j, k)] +
-          x[, rs_at(i, m, k)] * y[, rs_at(m, j, k)]
-      }
+      out[, idx[i, j]] <- rowSums(xi * y[, idx[, j], drop = FALSE])
     }
   }
   out
 }
 
 rs_batch_mv <- function(x, v, k) {
+  idx <- matrix(seq_len(k * k), k, k)
   out <- matrix(0, nrow(x), k)
   for (i in seq_len(k)) {
-    for (m in seq_len(k)) {
-      out[, i] <- out[, i] + x[, rs_at(i, m, k)] * v[, m]
-    }
+    out[, i] <- rowSums(x[, idx[i, ], drop = FALSE] * v)
   }
   out
 }
