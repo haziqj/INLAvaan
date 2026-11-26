@@ -40,24 +40,27 @@ datmiss[datmiss == 0] <- NA
 ``` r
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [400ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.185σ. [903ms]
-#> 
-#> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 14/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [2.5s]
-#> 
+#> ✔ Found the posterior mode in 71 iterations [257ms]
+#> ! VB mean correction, max shift 0.67σ, one-step check flagged [253ms]
+#> ✔ Fitted 42 skew-normal marginals [402ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ✔ Summarise 1000 posterior draws. [497ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
+#> Warning: Fit diagnostics flagged 1 potential issue:
+#> ✖ The one-step VB correction failed its check: the posterior is far from
+#>   Gaussian along the mean correction, most of all for `dem65~~dem65`. The solve
+#>   of the VB equation that followed stopped short: one more step would move
+#>   `y5~~y5` by 1.33σ.
+#> ℹ Treat the marginal log-likelihood, the DIC, the LOO and the WAIC with care,
+#>   and compare with MCMC, such as blavaan, if they matter. This reflects the
+#>   model, the data or the priors, not a numerical failure.
+#> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`;
+#>   `?diagnostics` explains each check.
 fit1@Data@nobs[[1]] == nrow(datmiss[complete.cases(datmiss), ])
 #> [1] TRUE
 print(fit1)
-#> INLAvaan 0.3.5 ended normally after 71 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 71 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -68,21 +71,21 @@ print(fit1)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -795.580 
+#>    Marginal log-likelihood                    -795.947 
 #>    PPP (Chi-square)                              0.509
 coef(fit1)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
-#>        1.808        1.750        0.943        0.805        1.472        1.061 
+#>        1.808        1.750        0.944        0.806        1.473        1.062 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        0.721        1.354        0.913        0.567        1.080        0.470 
+#>        0.722        1.355        0.914        0.568        1.080        0.472 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        1.844        3.596        0.607       -0.668        1.283        0.071 
+#>        1.847        3.599        0.608       -0.666        1.289        0.071 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.144        0.424        1.698        7.790        4.086        2.786 
+#>        0.144        0.424        1.700        7.792        4.087        2.788 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
-#>        1.537        6.752        2.038        3.983        0.506        1.439 
+#>        1.538        6.756        2.039        3.987        0.506        1.439 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
-#>        0.139        5.424        5.534        4.107        7.250        6.635 
+#>        0.138        5.424        5.534        4.107        7.250        6.635 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
 #>        8.307        6.834        6.639        5.224        8.267        6.157
 ```
@@ -92,24 +95,17 @@ coef(fit1)
 ``` r
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
-#> ℹ Mode finding and Hessian computation.
-#> ℹ Computing the Hessian.
-#> ✔ Posterior mode and Hessian. [472ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.144σ. [531ms]
-#> 
-#> ⠙ Fitting 0/42 skew-normal marginals.
-#> ⠹ Fitting 18/42 skew-normal marginals.
-#> ⠸ Fitting 41/42 skew-normal marginals.
-#> ✔ Fit 42/42 skew-normal marginals. [5.4s]
-#> 
+#> ✔ Found the posterior mode in 91 iterations [405ms]
+#> ✔ VB mean correction, max shift 0.89σ [220ms]
+#> ⠙ Fitting 16/42 skew-normal marginals
+#> ⠙ Fitting 42/42 skew-normal marginals
+#> ✔ Fitted 42 skew-normal marginals [949ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [1.4s]
+#> ✔ Summarise 1000 posterior draws. [859ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)
-#> INLAvaan 0.3.5 ended normally after 91 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 91 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -120,23 +116,23 @@ print(fit2)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -1393.372 
+#>    Marginal log-likelihood                   -1393.023 
 #>    PPP (Chi-square)                              0.047
 coef(fit2)
 #>    ind60=~x2    ind60=~x3    dem60=~y2    dem60=~y3    dem60=~y4    dem65=~y6 
 #>        2.214        1.835        0.650        0.791        0.954        1.026 
 #>    dem65=~y7    dem65=~y8  dem60~ind60  dem65~ind60  dem65~dem60       y1~~y5 
-#>        1.050        1.287        1.299        0.524        0.756        0.482 
+#>        1.050        1.287        1.299        0.524        0.756        0.483 
 #>       y2~~y4       y2~~y6       y3~~y7       y4~~y8       y6~~y8       x1~~x1 
-#>        0.898        3.316        0.301        0.365        1.294        0.084 
+#>        0.899        3.317        0.302        0.366        1.295        0.084 
 #>       x2~~x2       x3~~x3       y1~~y1       y2~~y2       y3~~y3       y4~~y4 
-#>        0.136        0.511        1.699        7.448        3.408        2.945 
+#>        0.136        0.511        1.700        7.449        3.409        2.945 
 #>       y5~~y5       y6~~y6       y7~~y7       y8~~y8 ind60~~ind60 dem60~~dem60 
 #>        1.794        5.910        2.073        3.682        0.462        4.558 
 #> dem65~~dem65         x1~1         x2~1         x3~1         y1~1         y2~1 
 #>        0.206        5.060        4.791        3.557        5.462        5.787 
 #>         y3~1         y4~1         y5~1         y6~1         y7~1         y8~1 
-#>        7.158        5.253        5.356        4.092        6.855        4.422
+#>        7.159        5.254        5.356        4.092        6.855        4.422
 ```
 
 ``` r
@@ -170,15 +166,15 @@ loo(fit2)
 #> ── Leave-one-subject-out ────────────────────────── 75 subjects, second-order ──
 #> 
 #>          Estimate   SE
-#> elpd_loo  -1287.1 36.7
-#> p_loo        38.7  3.2
-#> looic      2574.2 73.3
+#> elpd_loo  -1286.9 36.6
+#> p_loo        38.3  3.1
+#> looic      2573.8 73.2
 #> 
 #> ── Curvature check ─────────────────────────────────────────────────────────────
 #> 
-#>   first-to-second-order gap        23.5
-#>   pD/2 (trace)                     19.2
-#>   excess over pD/2 (trace)       +22.1%
+#>   first-to-second-order gap        23.3
+#>   pD/2 (trace)                     19.1
+#>   excess over pD/2 (trace)       +21.9%
 #> 
 #> ℹ The gap approaches pD/2 (trace) from above. A large excess says the
 #>   second-order expansion has not settled over the sample.

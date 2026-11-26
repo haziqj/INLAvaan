@@ -15,7 +15,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@ INLAvaan model."><meta property="og:image" content="https://inlavaan.haziqj.ml/l
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Convergence and Approximation Diagnostics for INLAvaan Models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/method-diagnostics.R" class="external-link"><code>R/method-diagnostics.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/method-diagnostics.R" class="external-link"><code>R/method-diagnostics.R</code></a></small>
       <div class="d-none name"><code>diagnostics.Rd</code></div>
     </div>
 
@@ -101,17 +101,27 @@ row per free parameter containing per-parameter diagnostics.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><strong>Global diagnostics</strong> (<code>type = "global"</code>):</p><dl><dt><code>npar</code></dt>
+    <p>The diagnostics are those of the engine that fits the model (the files of
+inlavanilla that INLAvaan copies), in its order and under its names. Then
+come the diagnostics that INLAvaan adds for structural equation models, and
+last the names that INLAvaan 0.4.0 deprecates. Read the values by name, not
+by position. A posterior SD here is the Laplace SD at the mode, \(s_j\),
+the square root of the diagonal of \(\Omega\), the covariance matrix of
+the Laplace approximation. Values that a fit did not compute are
+<code>NA</code>: the VB quantities with <code>vb_correction = "none"</code>, and the
+scan quantities with Gaussian marginals (<code>marginal_method =
+"gaussian"</code>) and for the intercepts of a saturated mean structure, whose
+marginals are Gaussian and have no scan.</p>
+<p><strong>Global diagnostics</strong> (<code>type = "global"</code>):</p><dl><dt><code>npar</code></dt>
 <dd><p>Number of free parameters.</p></dd>
-
-<dt><code>nsamp</code></dt>
-<dd><p>Number of posterior samples drawn.</p></dd>
 
 <dt><code>converged</code></dt>
 <dd><p>1 if the optimiser converged, 0 otherwise.</p></dd>
 
 <dt><code>iterations</code></dt>
-<dd><p>Number of optimiser iterations.</p></dd>
+<dd><p>Number of optimiser iterations. When the
+gradient at the first mode is too large, the optimiser runs again from
+there, and this is the total of both runs.</p></dd>
 
 <dt><code>grad_inf</code></dt>
 <dd><p>L-infinity norm of the analytic gradient at the mode
@@ -127,27 +137,34 @@ row per free parameter containing per-parameter diagnostics.</p></dd>
 <dt><code>mode_shift_max</code></dt>
 <dd><p>Maximum, across parameters, of the Newton
 step at the reported mode in posterior-SD units
-(max |\(\Sigma_\theta\) grad| / se). Unlike the raw gradient norms
+(max |\(\Omega\) grad| / s). Unlike the raw gradient norms
 this is scale-free: it estimates how far the reported mode sits from
 the true posterior mode relative to the posterior uncertainty. Should
 be ~0 at convergence.</p></dd>
 
 <dt><code>hess_cond</code></dt>
-<dd><p>Condition number of the Hessian (precision matrix)
-computed from \(\Sigma_\theta\). Large values indicate near-singularity.</p></dd>
+<dd><p>Condition number of the Hessian at the mode, the
+ratio of the largest to the smallest eigenvalue of \(\Omega\). It
+depends on the units of the parameters.</p></dd>
 
-<dt><code>vb_kld_global</code></dt>
-<dd><p>Global KL divergence from the VB mean correction
-(NA if VB correction was not applied).</p></dd>
+<dt><code>hess_cond_cor</code></dt>
+<dd><p>The same for the posterior correlation
+matrix, with each parameter in its own posterior-SD units, so it is
+free of units. Large values mean that some combination of the
+parameters is weakly identified. The fit-time check reads this one.</p></dd>
 
 <dt><code>vb_applied</code></dt>
 <dd><p>1 if VB correction was applied, 0 otherwise.</p></dd>
 
 <dt><code>vb_shift_max</code></dt>
 <dd><p>Maximum, across parameters, of the absolute
-VB correction in posterior-SD units (max |<code>vb_shift_sigma</code>|). This
-is the quantity the fit-time check tests. NA if the VB correction was
-not applied.</p></dd>
+VB correction in posterior-SD units (max |<code>vb_shift_sigma</code>|).</p></dd>
+
+<dt><code>vb_kld_global</code></dt>
+<dd><p>KL divergence between the Laplace Gaussian
+and its VB-shifted copy, \(\frac12 \delta^\top \Omega^{-1}
+    \delta\), which is also the VB term of the
+marginal log-likelihood.</p></dd>
 
 <dt><code>kld_max</code></dt>
 <dd><p>Maximum per-parameter KL divergence from the VB correction.</p></dd>
@@ -155,27 +172,65 @@ not applied.</p></dd>
 <dt><code>kld_mean</code></dt>
 <dd><p>Mean per-parameter KL divergence.</p></dd>
 
-<dt><code>vb_mcse_max</code></dt>
-<dd><p>Maximum, across parameters, of the estimated
-quadrature error of the VB shift, in posterior-SD units. See
-<code>vb_mcse_sigma</code> below. NA under
-<code>vb_method = "gauss_hermite"</code>.</p></dd>
-
-<dt><code>vb_mcse_mean</code></dt>
-<dd><p>Mean estimated quadrature error of the VB
-shift, in posterior-SD units.</p></dd>
-
 <dt><code>nmad_max</code></dt>
 <dd><p>Maximum normalised max-absolute-deviation across
-marginals (skew-normal method only; NA otherwise).</p></dd>
+the scanned marginals.</p></dd>
 
 <dt><code>nmad_mean</code></dt>
-<dd><p>Mean NMAD across marginals.</p></dd>
+<dd><p>Mean NMAD across the scanned marginals.</p></dd>
 
-<dt><code>scan_end_mass_max</code></dt>
+<dt><code>unscanned_mass_max</code></dt>
 <dd><p>Maximum, across parameters, of
-<code>scan_end_mass</code> (see below). NA unless the skew-normal marginal
-method was used.</p></dd>
+<code>unscanned_mass</code> (see below). Before INLAvaan 0.4.0 it was
+<code>scan_end_mass_max</code>.</p></dd>
+
+<dt><code>grad_gap_max</code></dt>
+<dd><p>Maximum <code>grad_gap</code> (see below). Should be
+~0.</p></dd>
+
+<dt><code>vb_fallback</code></dt>
+<dd><p>1 if the VB correction handed over to its
+fallback optimiser, 0 otherwise. It is recorded only: the fallback is a
+route of the solver, and the other VB checks judge where it lands.</p></dd>
+
+<dt><code>vb_step_max</code></dt>
+<dd><p>Maximum <code>vb_step_sigma</code> (see below).</p></dd>
+
+<dt><code>vb_lhat</code>, <code>vb_j0</code>, <code>vb_j1</code></dt>
+<dd><p>The check of the
+one-step VB correction, from a second pass of its rule at the step. The
+step is the first iterate of a fixed-point map whose fixed point is the
+VB mean, and it is close to that mean only where the map is a
+contraction. <code>vb_lhat</code> is the size of the residual of the VB
+equation at the step over its size at the mode. <code>vb_j0</code> and
+<code>vb_j1</code> are the slope of the map along the step, at the mode and
+at the step. The check passes when <code>vb_lhat</code> is below 1 and both
+slopes lie between -1 and 1, and a value that is not finite fails it.
+<code>NA</code> with <code>vb_correction = "full"</code>, and when the step was
+below <code>vb_tol</code> (see <code><a href="inlavaan_control.html">inlavaan_control()</a></code>) in every parameter,
+which is too small to check.</p></dd>
+
+<dt><code>vb_solve</code></dt>
+<dd><p>1 if the check of the one-step VB correction
+failed, 0 if it passed, <code>NA</code> if it did not run. After a failed
+check the fit solves the VB equation instead, from the mode, at no more
+cost than the search for the mode and the Hessian took, and the
+fit-time warning says that the posterior is far from Gaussian along the
+mean correction (see below).</p></dd>
+
+<dt><code>mean_gap_max</code></dt>
+<dd><p>Maximum, across parameters, of
+|<code>mean_gap</code>| (see below).</p></dd>
+
+<dt><code>ridge_bend_max</code></dt>
+<dd><p>Maximum <code>ridge_bend</code> (see below).</p></dd>
+
+<dt><code>n_heavy_tails</code></dt>
+<dd><p>Number of marginals with heavy tails, those
+whose <code>tails</code> is <code>FALSE</code>.</p></dd>
+
+<dt><code>nsamp</code></dt>
+<dd><p>Number of posterior samples drawn.</p></dd>
 
 <dt><code>psi_npd_share</code></dt>
 <dd><p>Share of the posterior draws in which the
@@ -190,6 +245,11 @@ covariance.</p></dd>
 <dd><p>The same share for the residual covariance
 matrix of the observed variables (<code>theta</code>).</p></dd>
 
+<dt><code>vb_mcse_max</code>, <code>vb_mcse_mean</code></dt>
+<dd><p>Deprecated, and always
+<code>NA</code>: the VB correction uses a deterministic rule, which has no
+quadrature error. They will be removed in INLAvaan 0.5.0.</p></dd>
+
 
 </dl><p><strong>Per-parameter diagnostics</strong> (<code>type = "param"</code>):
 A data frame with columns:</p><dl><dt><code>names</code></dt>
@@ -199,92 +259,140 @@ A data frame with columns:</p><dl><dt><code>names</code></dt>
 <dd><p>Analytic gradient of the negative log-posterior at the
 mode. Should be ~0 at convergence.</p></dd>
 
-<dt><code>grad_num</code></dt>
-<dd><p>Numerical (finite-difference) gradient at the mode.
-Should agree with <code>grad</code>; large discrepancies indicate a bug in the
-analytic gradient.</p></dd>
-
-<dt><code>grad_diff</code></dt>
-<dd><p>Difference <code>grad_num - grad</code>: should be ~0.</p></dd>
-
 <dt><code>grad_abs</code></dt>
 <dd><p>Absolute analytic gradient.</p></dd>
 
 <dt><code>grad_rel</code></dt>
-<dd><p>Relative analytic gradient |grad| / (|par| + 1e-6).</p></dd>
+<dd><p>Relative analytic gradient |grad| / (|par| + 1e-6),
+with par the posterior mean on the internal scale.</p></dd>
 
 <dt><code>mode_shift_sigma</code></dt>
 <dd><p>Newton step at the reported mode in
 posterior-SD units. Should be ~0 at convergence.</p></dd>
 
 <dt><code>kld</code></dt>
-<dd><p>Per-parameter KL divergence from the VB correction.</p></dd>
+<dd><p>KL divergence between the Laplace Gaussian marginal and
+its VB-shifted copy, <code>vb_shift_sigma^2 / 2</code>.</p></dd>
 
 <dt><code>vb_shift</code></dt>
-<dd><p>VB correction shift (in original scale).</p></dd>
+<dd><p>VB correction shift (on the internal scale).</p></dd>
 
 <dt><code>vb_shift_sigma</code></dt>
 <dd><p>VB shift in units of posterior SD.</p></dd>
 
-<dt><code>vb_mcse_sigma</code></dt>
-<dd><p>Estimated quadrature error of the VB shift, in
-posterior-SD units. The shift is the solution of an integral evaluated by
-quasi-Monte Carlo over a finite node set, so it carries an integration
-error of its own. This estimates that error by splitting the node set in
-half and taking half the disagreement between the two half-set solutions.
-Read it as an error bar on <code>vb_shift_sigma</code>: a value of 0.05 means
-the reported posterior mean of that parameter could move by roughly that
-much, in SD units, purely from the choice of node set. It runs
-conservative, because the two halves are negatively correlated and
-quasi-Monte Carlo error falls faster than root-n. It is exactly zero for
-parameters whose shift is pinned by the saturated-means fast path, since
-no quadrature is used there. It is NA for every parameter under
-<code>vb_method = "gauss_hermite"</code>, whose rule is deterministic.</p></dd>
-
 <dt><code>nmad</code></dt>
-<dd><p>Normalised max-absolute-deviation of the skew-normal fit
-(NA when not using the skewnorm method).</p></dd>
+<dd><p>Normalised max-absolute-deviation of the skew-normal
+fit from the scanned posterior.</p></dd>
 
 <dt><code>alpha</code></dt>
 <dd><p>Shape parameter of the fitted skew-normal marginal,
-on the unconstrained scale. Zero is a Gaussian marginal, and the sign
-gives the direction of the skew (NA when not using the skewnorm
-method).</p></dd>
+on the internal scale. Zero is a Gaussian marginal, and the sign gives
+the direction of the skew.</p></dd>
 
-<dt><code>scan_end_mass</code></dt>
+<dt><code>unscanned_mass</code></dt>
 <dd><p>Mass the fitted marginal puts outside the
 window that was scanned to fit it,
 \(F(\hat\theta_j - 4 s_j) + 1 - F(\hat\theta_j + 4 s_j)\), where
-\(F\) is the fitted skew-normal distribution function,
-\(\hat\theta_j\) the posterior mode and \(s_j\) the Laplace
-posterior SD. The marginal is fitted inside that window only, so mass
-outside it is extrapolation, and when this is large the 2.5\<!-- % and -->
-97.5\<!-- % credible limits are the numbers to distrust. A Gaussian marginal -->
-gives \(2\Phi(-4)\) = 6.3e-05, and healthy fits sit between 1e-03 and
-1e-02 (NA when not using the skewnorm method).</p></dd>
+\(F\) is the fitted skew-normal distribution function and
+\(\hat\theta_j\) the posterior mode. The marginal is fitted inside
+that window only, so mass outside it is extrapolation, and when this is
+large the 2.5\<!-- % and 97.5\\% credible limits are the numbers to distrust. -->
+A Gaussian marginal gives \(2\Phi(-4)\) = 6.3e-05, and healthy fits
+sit between 1e-03 and 1e-02. Before INLAvaan 0.4.0 it was
+<code>scan_end_mass</code>.</p></dd>
+
+<dt><code>grad_gap</code></dt>
+<dd><p>How far the analytic gradient is from central
+differences of the log-posterior at the mode: the larger of the gap in
+slope per conditional posterior SD (about how far a wrong gradient
+moves the mode, in posterior SDs) and half the relative gap in
+curvature (about the relative error it makes in a posterior SD).
+Should be ~0.</p></dd>
+
+<dt><code>vb_step_sigma</code></dt>
+<dd><p>The step still to go at the VB mean, in
+posterior-SD units, as <code>mode_shift_sigma</code> is for the mode.
+<code>NA</code> after the default one-step VB correction when its check
+passed. When the check failed (<code>vb_solve</code>), it is the step still
+to go where the solve stopped: at <code>vb_tol</code>, at <code>vb_maxit</code>
+or at the cap on its cost that <code>vb_budget</code> sets (see
+<code><a href="inlavaan_control.html">inlavaan_control()</a></code>). It is then not a check of its own, but the
+bullet on the failed check says how far the solve stopped short when it
+is above 0.1. With <code>vb_budget = 0</code> the fit stays at the mode, and
+it is the first step of the fixed-point rule from the mode. That step
+can be much larger than the distance from the mode to the VB mean, so
+it then overstates how far the solve stopped short.</p></dd>
+
+<dt><code>mean_gap</code></dt>
+<dd><p>Gap between the mean of the skew-normal marginal
+and the VB mean, in posterior-SD units. Both estimate the shift from the
+mode to the posterior mean, so a large gap says that the posterior is
+far from Gaussian along this parameter.</p></dd>
+
+<dt><code>gamma1</code></dt>
+<dd><p>The volume correction of the scan: the slope, per
+posterior SD, added to the scanned log-posterior for the changing
+volume of the other parameters.</p></dd>
+
+<dt><code>tails</code></dt>
+<dd><p><code>FALSE</code> when the density at an end of the scan is
+still above 5\<!-- % of its peak: the tail is heavy there, and the -->
+skew-normal extrapolates it.</p></dd>
+
+<dt><code>ridge_bend</code></dt>
+<dd><p>The log-density, in nats, that the straight scan
+misses at 2 posterior SDs either side of the mode, where the ridge of
+high posterior density bends away from it. A large value means that
+the marginal may be too narrow: 0.25 is a posterior SD about 10\<!-- % too -->
+small.</p></dd>
+
+<dt><code>grad_num</code>, <code>grad_diff</code>, <code>vb_mcse_sigma</code></dt>
+<dd><p>Deprecated,
+and always <code>NA</code>: <code>grad_gap</code> checks the analytic gradient in
+place of <code>grad_num</code> and <code>grad_diff</code>, and the VB shift has no
+quadrature error. They will be removed in INLAvaan 0.5.0.</p></dd>
 
 
 </dl><p><strong>Fit-time warnings</strong>: <code><a href="inlavaan.html">inlavaan()</a></code> runs these checks once at the end
 of every fit and emits a single consolidated warning (condition class
 <code>"inlavaan_diagnostics_warning"</code>) when any of them looks off:</p><ul><li><p>the optimiser did not converge;</p></li>
+<li><p>any parameter with <code>grad_gap</code> above 0.1;</p></li>
 <li><p><code>mode_shift_max</code> above 0.1 posterior SDs;</p></li>
+<li><p>the VB correction did not settle: <code>vb_step_max</code> above 0.1
+posterior SDs, except after the solve that follows a failed one-step
+check;</p></li>
+<li><p>the one-step VB correction failed its check (<code>vb_solve</code> is
+1): the posterior is far from Gaussian along the mean correction. The
+warning names the parameter that the one step moved furthest, and when
+the solve that followed stopped with <code>vb_step_max</code> above 0.1
+posterior SDs, it says so;</p></li>
 <li><p>any marginal with <code>nmad</code> above 0.1;</p></li>
-<li><p>any marginal with <code>scan_end_mass</code> above 0.05;</p></li>
+<li><p>any marginal with <code>unscanned_mass</code> above 0.05;</p></li>
+<li><p>any marginal with heavy tails. When one of them is a loading of a
+factor that a marker identifies, the warning suggests
+<code>std.lv = TRUE</code>, because a marker that loads weakly gives the
+other loadings of its factor such tails;</p></li>
 <li><p><code>vb_shift_max</code> above 1 posterior SD;</p></li>
-<li><p><code>hess_cond</code> above 1e8;</p></li>
+<li><p><code>hess_cond_cor</code> above 1e8;</p></li>
 <li><p>the latent or residual covariance matrix is not positive definite
 at the posterior estimates (the check that <span class="pkg">lavaan</span> runs after a
 fit);</p></li>
 <li><p><code>psi_npd_share</code> or <code>theta_npd_share</code> above 0.01.</p></li>
-</ul><p>Three of these checks have calibration behind them. Over 1,046 simulated
+</ul><p>When the optimiser did not converge, the warning says what to try: to raise
+<code>mode_maxit</code> or <code>mode_maxeval</code> in <code><a href="inlavaan_control.html">inlavaan_control()</a></code> when it
+stopped at one of these limits, and other starting values otherwise.
+When <code>mode_shift_max</code> is above 1, or a marginal puts more than 0.9 of
+its mass outside its scan, the warning also says that the mode may be far
+from the posterior mass. The ridge bend and the mean gap never warn.
+Three of these checks have calibration behind them. Over 1,046 simulated
 fits with MCMC references, the Spearman correlation with the worst-case
 posterior-mean discrepancy was 0.64 for the VB shift in SD units, 0.59 for
-the scan-endpoint mass and 0.48 for the NMAD. The convergence, mode-shift
-and condition-number checks are rules of thumb. Every number above is a
-package default, chosen so that a healthy fit stays silent, and not a
-calibrated cut-off: a tripped check is a prompt to look again, and silence
-is not a certificate of accuracy. Silence the check with
-<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings()</a></code>, or selectively by handling the condition class.</p>
+the unscanned mass and 0.48 for the NMAD. The other checks are rules of
+thumb. Every number above is a package default, chosen so that a healthy
+fit stays silent, and not a calibrated cut-off: a tripped check is a prompt
+to look again, and silence is not a certificate of accuracy. Silence the
+check with <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings()</a></code>, or selectively by handling the
+condition class.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -301,69 +409,95 @@ is not a certificate of accuracy. Silence the check with
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Global convergence summary</span></span></span>
 <span class="r-in"><span><span class="fu">diagnostics</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              npar             nsamp         converged        iterations </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                21               100                 1                66 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          grad_inf      grad_inf_rel           grad_l2    mode_shift_max </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          2.02e-03          4.50e-03          3.01e-03          1.80e-04 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         hess_cond        vb_applied      vb_shift_max     vb_kld_global </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          4.51e+01                 1            0.1926            0.0721 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           kld_max          kld_mean       vb_mcse_max      vb_mcse_mean </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.0186            0.0057            0.1330            0.0532 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          nmad_max         nmad_mean scan_end_mass_max     psi_npd_share </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.0229            0.0060          1.03e-03            0.0000 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   theta_npd_share </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            0.0000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               npar          converged         iterations           grad_inf </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 21                  1                 66           2.02e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       grad_inf_rel            grad_l2     mode_shift_max          hess_cond </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           4.52e-03           3.01e-03           1.80e-04           4.51e+01 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      hess_cond_cor         vb_applied       vb_shift_max      vb_kld_global </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           1.36e+01                  1             0.1992             0.0784 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            kld_max           kld_mean           nmad_max          nmad_mean </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             0.0198             0.0065             0.0229             0.0060 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> unscanned_mass_max       grad_gap_max        vb_fallback        vb_step_max </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           1.02e-03           6.06e-04                  0                 NA </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            vb_lhat              vb_j0              vb_j1           vb_solve </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             0.1154            -0.0025             0.0421                  0 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       mean_gap_max     ridge_bend_max      n_heavy_tails              nsamp </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             0.0393             0.5783                  0                100 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      psi_npd_share    theta_npd_share        vb_mcse_max       vb_mcse_mean </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             0.0000             0.0000                 NA                 NA </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Per-parameter table</span></span></span>
 <span class="r-in"><span><span class="fu">diagnostics</span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"param"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              names   grad grad_num grad_diff grad_abs grad_rel mode_shift_sigma</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       visual=~x1  1e-04    1e-04         0    1e-04   0.0001            1e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       visual=~x2  0e+00    0e+00         0    0e+00   0.0000            1e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       visual=~x3  3e-04    3e-04         0    3e-04   0.0004            1e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      textual=~x4  9e-04    9e-04         0    9e-04   0.0009            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      textual=~x5 -2e-03   -2e-03         0    2e-03   0.0018            1e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      textual=~x6  1e-03    1e-03         0    1e-03   0.0011            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7        speed=~x7  1e-04    1e-04         0    1e-04   0.0001            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8        speed=~x8  0e+00    0e+00         0    0e+00   0.0000            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9        speed=~x9  1e-04    1e-04         0    1e-04   0.0001            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10          x1~~x1  6e-04    6e-04         0    6e-04   0.0011            2e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11          x2~~x2  1e-04    1e-04         0    1e-04   0.0010            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12          x3~~x3 -7e-04   -7e-04         0    7e-04   0.0041            1e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13          x4~~x4  4e-04    4e-04         0    4e-04   0.0004            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14          x5~~x5  0e+00    0e+00         0    0e+00   0.0000            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15          x6~~x6  5e-04    5e-04         0    5e-04   0.0005            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16          x7~~x7  9e-04    9e-04         0    9e-04   0.0045            1e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17          x8~~x8 -5e-04   -5e-04         0    5e-04   0.0007            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18          x9~~x9  2e-04    2e-04         0    2e-04   0.0004            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 visual~~textual -2e-04   -2e-04         0    2e-04   0.0004            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20   visual~~speed  7e-04    7e-04         0    7e-04   0.0014            1e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21  textual~~speed  2e-04    2e-04         0    2e-04   0.0009            0e+00</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       kld vb_shift vb_shift_sigma vb_mcse_sigma   nmad   alpha scan_end_mass</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.0045   0.0079         0.0947        0.0675 0.0094  0.5392      6.17e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  0.0010   0.0037         0.0454        0.0357 0.0004  0.5437      7.39e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  0.0040   0.0070         0.0900        0.0940 0.0024  0.6498      8.64e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  0.0141   0.0095         0.1681        0.0039 0.0032  0.9488      2.28e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.0161   0.0113         0.1797        0.0270 0.0033  0.9527      2.33e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.0147   0.0092         0.1714        0.0026 0.0032  0.9433      2.17e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  0.0022  -0.0049        -0.0669        0.0753 0.0027 -0.8595      1.26e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  0.0001  -0.0008        -0.0102        0.1330 0.0141 -0.7907      6.02e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  0.0186   0.0148         0.1926        0.0503 0.0160  0.8780      1.26e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 0.0011  -0.0103        -0.0477        0.1157 0.0112 -2.2918      6.26e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 0.0018   0.0056         0.0604        0.0516 0.0014  0.3314      7.18e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12 0.0001   0.0017         0.0152        0.0135 0.0026 -1.1178      1.54e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 0.0005   0.0041         0.0320        0.0156 0.0033 -1.0977      1.49e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14 0.0003   0.0030         0.0231        0.0290 0.0031 -1.0794      1.47e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15 0.0016   0.0069         0.0568        0.0119 0.0023 -0.9738      1.14e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16 0.0170   0.0201         0.1846        0.0759 0.0036  0.5696      1.05e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17 0.0035   0.0156         0.0835        0.0460 0.0229 -1.3189      6.17e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18 0.0101  -0.0223        -0.1421        0.0840 0.0067 -2.1898      1.03e-03</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19 0.0007  -0.0031        -0.0383        0.0534 0.0010  0.5158      6.55e-05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20 0.0051   0.0110         0.1009        0.0644 0.0111  1.2491      2.34e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 0.0027   0.0057         0.0741        0.0669 0.0026  0.5496      7.32e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              names   grad grad_abs grad_rel mode_shift_sigma    kld vb_shift</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       visual=~x1  1e-04    1e-04   0.0001            1e-04 0.0056   0.0088</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       visual=~x2  0e+00    0e+00   0.0000            1e-04 0.0008   0.0032</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       visual=~x3  3e-04    3e-04   0.0004            1e-04 0.0033   0.0063</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4      textual=~x4  9e-04    9e-04   0.0009            0e+00 0.0175   0.0106</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5      textual=~x5 -2e-03    2e-03   0.0018            1e-04 0.0182   0.0120</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6      textual=~x6  1e-03    1e-03   0.0011            0e+00 0.0159   0.0096</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7        speed=~x7  1e-04    1e-04   0.0001            0e+00 0.0029  -0.0056</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8        speed=~x8  0e+00    0e+00   0.0000            0e+00 0.0004  -0.0021</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9        speed=~x9  1e-04    1e-04   0.0001            0e+00 0.0198   0.0153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10          x1~~x1  6e-04    6e-04   0.0011            2e-04 0.0023  -0.0146</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11          x2~~x2  1e-04    1e-04   0.0010            0e+00 0.0021   0.0059</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12          x3~~x3 -7e-04    7e-04   0.0042            1e-04 0.0003   0.0027</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13          x4~~x4  4e-04    4e-04   0.0004            0e+00 0.0006   0.0045</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14          x5~~x5  0e+00    0e+00   0.0000            0e+00 0.0005   0.0039</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15          x6~~x6  5e-04    5e-04   0.0005            0e+00 0.0013   0.0063</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16          x7~~x7  9e-04    9e-04   0.0045            1e-04 0.0187   0.0211</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17          x8~~x8 -5e-04    5e-04   0.0007            0e+00 0.0045   0.0177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18          x9~~x9  2e-04    2e-04   0.0004            0e+00 0.0138  -0.0260</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 visual~~textual -2e-04    2e-04   0.0004            0e+00 0.0004  -0.0023</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20   visual~~speed  7e-04    7e-04   0.0014            1e-04 0.0056   0.0115</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21  textual~~speed  2e-04    2e-04   0.0009            0e+00 0.0023   0.0052</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    vb_shift_sigma   nmad   alpha unscanned_mass grad_gap vb_step_sigma mean_gap</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          0.1060 0.0094  0.5391       6.18e-05    5e-04            NA   0.0044</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          0.0397 0.0004  0.5437       7.39e-05    1e-04            NA  -0.0040</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          0.0814 0.0024  0.6498       8.65e-05    2e-04            NA  -0.0058</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4          0.1872 0.0032  0.9488       2.28e-04    6e-04            NA   0.0026</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5          0.1909 0.0033  0.9527       2.33e-04    6e-04            NA   0.0027</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6          0.1786 0.0032  0.9433       2.17e-04    6e-04            NA   0.0019</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7         -0.0759 0.0027 -0.8595       1.26e-04    2e-04            NA  -0.0003</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8         -0.0274 0.0141 -0.7908       6.02e-05    5e-04            NA   0.0134</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9          0.1992 0.0160  0.8778       1.26e-04    4e-04            NA  -0.0226</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10        -0.0676 0.0112 -2.2918       6.25e-04    1e-04            NA   0.0393</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11         0.0644 0.0014  0.3315       7.18e-05    1e-04            NA   0.0033</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12         0.0237 0.0026 -1.1177       1.54e-04    1e-04            NA   0.0058</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13         0.0350 0.0033 -1.0977       1.49e-04    0e+00            NA  -0.0012</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14         0.0302 0.0031 -1.0794       1.47e-04    0e+00            NA  -0.0011</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15         0.0514 0.0023 -0.9738       1.14e-04    0e+00            NA   0.0002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16         0.1933 0.0036  0.5696       1.05e-04    1e-04            NA  -0.0002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17         0.0951 0.0229 -1.3190       6.16e-05    0e+00            NA   0.0176</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18        -0.1662 0.0067 -2.1897       1.02e-03    0e+00            NA   0.0371</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19        -0.0288 0.0010  0.5158       6.55e-05    0e+00            NA  -0.0007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20         0.1063 0.0111  1.2491       2.35e-04    2e-04            NA  -0.0140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21         0.0679 0.0026  0.5496       7.33e-05    1e-04            NA  -0.0011</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     gamma1 tails ridge_bend grad_num grad_diff vb_mcse_sigma</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   0.0941  TRUE     0.1798       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   0.0204  TRUE     0.0127       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   0.0501  TRUE     0.0286       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   0.1267  TRUE     0.0140       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   0.1297  TRUE     0.0143       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   0.1184  TRUE     0.0144       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  -0.0261  TRUE     0.1379       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   0.0355  TRUE     0.2398       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   0.1149  TRUE     0.2188       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10  0.2904  TRUE     0.1184       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11  0.0639  TRUE     0.0108       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12  0.1164  TRUE     0.0469       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13  0.1160  TRUE     0.0137       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14  0.1084  TRUE     0.0125       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15  0.1148  TRUE     0.0142       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16  0.1739  TRUE     0.1442       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17  0.2583  TRUE     0.5783       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18  0.1710  TRUE     0.2025       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 -0.0422  TRUE     0.0335       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 -0.0239  TRUE     0.1077       NA        NA            NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21  0.0511  TRUE     0.0151       NA        NA            NA</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

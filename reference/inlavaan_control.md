@@ -187,11 +187,11 @@ fit <- acfa(
   test = "none",
   control = inlavaan_control(n_grid = 31)
 )
-#> ✔ Found the posterior mode in 25 iterations [55ms]
-#> ✔ VB mean correction, max shift 0.47σ [23ms]
-#> ✔ Fitted 6 skew-normal marginals [141ms]
+#> ✔ Found the posterior mode in 25 iterations [21ms]
+#> ✔ VB mean correction, max shift 0.47σ [13ms]
+#> ✔ Fitted 6 skew-normal marginals [66ms]
 #> ⠙ Drawing posterior samples.
-#> ✔ Draw 1000 posterior samples. [104ms]
+#> ✔ Draw 1000 posterior samples. [20ms]
 #> 
 
 # The same with a plain list
@@ -201,11 +201,11 @@ fit <- acfa(
   test = "none",
   control = list(n_grid = 31)
 )
-#> ✔ Found the posterior mode in 25 iterations [52ms]
-#> ✔ VB mean correction, max shift 0.47σ [24ms]
-#> ✔ Fitted 6 skew-normal marginals [132ms]
+#> ✔ Found the posterior mode in 25 iterations [23ms]
+#> ✔ VB mean correction, max shift 0.47σ [13ms]
+#> ✔ Fitted 6 skew-normal marginals [75ms]
 #> ⠙ Drawing posterior samples.
-#> ✔ Draw 1000 posterior samples. [106ms]
+#> ✔ Draw 1000 posterior samples. [17ms]
 #> 
 # }
 ```

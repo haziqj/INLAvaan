@@ -15,7 +15,7 @@ object, optionally extracting a single named element."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@ object, optionally extracting a single named element."><meta property="og:image"
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Extract the Internal INLAvaan Object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
       <div class="d-none name"><code>get_inlavaan_internal.Rd</code></div>
     </div>
 
@@ -83,7 +83,7 @@ object, optionally extracting a single named element.</p>
 <dt id="arg-what">what<a class="anchor" aria-label="anchor" href="#arg-what"></a></dt>
 <dd><p>Character. Name of the element to extract from the internal
 list. If missing, the entire list is returned. Common elements include
-<code>"coefficients"</code>, <code>"summary"</code>, <code>"Sigma_theta"</code>, <code>"vcov_x"</code>,
+<code>"coefficients"</code>, <code>"summary"</code>, <code>"Omega"</code>, <code>"vcov_x"</code>,
 <code>"theta_star"</code>, <code>"approx_data"</code>, <code>"pdf_data"</code>, <code>"partable"</code>,
 <code>"marginal_method"</code>, <code>"nsamp"</code>, <code>"mloglik"</code>, <code>"DIC"</code>, <code>"ppp"</code>, <code>"loo"</code>,
 <code>"waic"</code>, <code>"test"</code>, <code>"vb"</code>, <code>"opt"</code>, <code>"timing"</code>, <code>"visual_debug"</code>.</p></dd>
@@ -109,7 +109,7 @@ list. If missing, the entire list is returned. Common elements include
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Full internal object</span></span></span>
 <span class="r-in"><span><span class="va">int</span> <span class="op">&lt;-</span> <span class="fu">get_inlavaan_internal</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
@@ -117,25 +117,26 @@ list. If missing, the entire list is returned. Common elements include
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "coefficients"     "mloglik"          "DIC"              "summary"         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "ppp"              "loo"              "waic"             "test"            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "optim_method"     "marginal_method"  "cov_as_cor"       "samp_copula"     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "samp_norta"       "theta_star_novbc" "theta_star"       "Sigma_theta"     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "samp_norta"       "theta_star_novbc" "theta_star"       "Omega"           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [17] "R_star"           "vcov_x"           "theta_star_trans" "approx_data"     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [21] "nsamp"            "pdf_data"         "def_undefined"    "partable"        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [25] "lavmodel"         "lavsamplestats"   "lavdata"          "lavcache"        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [29] "opt"              "timing"           "visual_debug"     "vb"              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [33] "cov_pd"           "call"             "version"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [33] "cov_pd"           "call"             "version"          "engine"          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] "warnings"        </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Extract a specific element</span></span></span>
 <span class="r-in"><span><span class="fu">get_inlavaan_internal</span><span class="op">(</span><span class="va">fit</span>, <span class="st">"coefficients"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      visual=~x1      visual=~x2      visual=~x3     textual=~x4     textual=~x5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       0.9068772       0.5018342       0.6630069       1.0006151       1.1140968 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.9068902       0.5018459       0.6630238       1.0006177       1.1140996 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     textual=~x6       speed=~x7       speed=~x8       speed=~x9          x1~~x1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       0.9264937       0.6157067       0.7318348       0.6809695       0.5646793 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.9264960       0.6157219       0.7318575       0.6809992       0.5646811 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          x2~~x2          x3~~x3          x4~~x4          x5~~x5          x6~~x6 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       1.1503779       0.8556245       0.3786427       0.4545290       0.3636106 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       1.1503905       0.8556547       0.3786448       0.4545316       0.3636126 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          x7~~x7          x8~~x8          x9~~x9 visual~~textual   visual~~speed </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       0.8234093       0.5058848       0.5687897       0.4486379       0.4653365 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.8234393       0.5059085       0.5688250       0.4486451       0.4653833 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  textual~~speed </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       0.2797713 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       0.2797890 </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

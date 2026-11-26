@@ -191,24 +191,24 @@ fit <- acfa(
   data = HolzingerSwineford1939,
   test = "none",
   nsamp = 10,
-  vb_correction = FALSE,
-  verbose = FALSE
+  vb_correction = "none",
+  silent = TRUE
 )
 standardisedsolution(fit, nsamp = 10, se = FALSE, ci = FALSE)
 #>        lhs op     rhs est.std
-#> 1   visual =~      x1   0.739
-#> 2   visual =~      x2   0.449
-#> 3   visual =~      x3   0.601
-#> 4  textual =~      x4   0.851
-#> 5  textual =~      x5   0.842
-#> 6  textual =~      x6   0.836
-#> 7       x1 ~~      x1   0.450
-#> 8       x2 ~~      x2   0.794
-#> 9       x3 ~~      x3   0.636
-#> 10      x4 ~~      x4   0.276
-#> 11      x5 ~~      x5   0.291
-#> 12      x6 ~~      x6   0.301
+#> 1   visual =~      x1   0.753
+#> 2   visual =~      x2   0.430
+#> 3   visual =~      x3   0.578
+#> 4  textual =~      x4   0.841
+#> 5  textual =~      x5   0.869
+#> 6  textual =~      x6   0.824
+#> 7       x1 ~~      x1   0.430
+#> 8       x2 ~~      x2   0.814
+#> 9       x3 ~~      x3   0.664
+#> 10      x4 ~~      x4   0.293
+#> 11      x5 ~~      x5   0.245
+#> 12      x6 ~~      x6   0.321
 #> 13  visual ~~  visual   1.000
 #> 14 textual ~~ textual   1.000
-#> 15  visual ~~ textual   0.457
+#> 15  visual ~~ textual   0.460
 ```

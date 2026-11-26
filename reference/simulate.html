@@ -19,7 +19,7 @@ distribution at that parameter value."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@ distribution at that parameter value."><meta property="og:image" content="https:
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Simulate Datasets from the Generative Model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/method-simulate.R" class="external-link"><code>R/method-simulate.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/method-simulate.R" class="external-link"><code>R/method-simulate.R</code></a></small>
       <div class="d-none name"><code>simulate.Rd</code></div>
     </div>
 
@@ -82,7 +82,7 @@ distribution at that parameter value.</p>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sample.nobs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prior <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  samp_copula <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  samp_copula <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  silent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -116,9 +116,9 @@ when <code>FALSE</code> (default), from the posterior.</p></dd>
 
 
 <dt id="arg-samp-copula">samp_copula<a class="anchor" aria-label="anchor" href="#arg-samp-copula"></a></dt>
-<dd><p>Logical. When <code>TRUE</code> (default) and <code>prior = FALSE</code>,
-posterior parameter draws use the copula method. Ignored when
-<code>prior = TRUE</code>.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated" class="external-link"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]"></a> Has no effect. The posterior
+draws always couple the fitted marginals by a Gaussian copula, as the
+draws of the fit do.</p></dd>
 
 
 <dt id="arg-silent">silent<a class="anchor" aria-label="anchor" href="#arg-silent"></a></dt>
@@ -172,17 +172,11 @@ distribution (prior/posterior predictive checks).</p></div>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="st">"visual =~ x1 + x2 + x3"</span>, <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[39ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.285σ. <span style="color: #B2B2B2;">[163ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/6 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 6/6 skew-normal marginals. <span style="color: #B2B2B2;">[96ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">25</span> iterations <span style="color: #555555;">[24ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.47σ</span> <span style="color: #555555;">[13ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">6</span> skew-normal marginals <span style="color: #555555;">[61ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[532ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[251ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -190,22 +184,22 @@ distribution (prior/posterior predictive checks).</p></div>
 <span class="r-in"><span><span class="va">sims</span> <span class="op">&lt;-</span> <span class="fu">simulate</span><span class="op">(</span><span class="va">fit</span>, nsim <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sims</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>                    <span class="co"># data frame</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         x1       x2       x3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 4.747193 5.941388 3.677267</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 5.707789 4.511219 2.682244</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 4.731403 6.087476 2.180924</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 7.234331 7.611288 4.314945</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 4.281508 5.016598 0.700824</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 3.771808 7.639455 1.924619</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 5.555767 2.939660 3.565238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 5.435979 5.660462 1.071958</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 5.925919 6.998072 2.639845</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 3.502717 8.775188 1.277392</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 6.512296 7.355982 3.647969</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 5.506838 5.417858 1.656728</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sims</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="st">"truth"</span><span class="op">)</span>           <span class="co"># true lavaan-side (x-space) parameters</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.7848661      1.2976472      0.8726417      1.2234945      0.4749267 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.7794665      1.3239542      0.9189826      1.4817029      0.5567278 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> visual~~visual </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.5321061 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4052003 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sims</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="st">"truth_theta"</span><span class="op">)</span>     <span class="co"># corresponding unconstrained (theta-space) parameters</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.7848661      1.2976472     -0.1362303      0.2017111     -0.7445947 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     0.77946648     1.32395415    -0.08448809     0.39319204    -0.58567881 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> visual~~visual </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     -0.6309123 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    -0.90337386 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simulate from the prior (e.g., for SBC)</span></span></span>
 <span class="r-in"><span><span class="va">sims_prior</span> <span class="op">&lt;-</span> <span class="fu">simulate</span><span class="op">(</span><span class="va">fit</span>, nsim <span class="op">=</span> <span class="fl">5</span>, prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

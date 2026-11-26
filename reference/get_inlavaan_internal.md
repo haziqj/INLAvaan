@@ -21,11 +21,10 @@ get_inlavaan_internal(object, what)
 
   Character. Name of the element to extract from the internal list. If
   missing, the entire list is returned. Common elements include
-  `"coefficients"`, `"summary"`, `"Sigma_theta"`, `"vcov_x"`,
-  `"theta_star"`, `"approx_data"`, `"pdf_data"`, `"partable"`,
-  `"marginal_method"`, `"nsamp"`, `"mloglik"`, `"DIC"`, `"ppp"`,
-  `"loo"`, `"waic"`, `"test"`, `"vb"`, `"opt"`, `"timing"`,
-  `"visual_debug"`.
+  `"coefficients"`, `"summary"`, `"Omega"`, `"vcov_x"`, `"theta_star"`,
+  `"approx_data"`, `"pdf_data"`, `"partable"`, `"marginal_method"`,
+  `"nsamp"`, `"mloglik"`, `"DIC"`, `"ppp"`, `"loo"`, `"waic"`, `"test"`,
+  `"vb"`, `"opt"`, `"timing"`, `"visual_debug"`.
 
 ## Value
 
@@ -49,7 +48,7 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            test = "none", verbose = FALSE)
+            test = "none", silent = TRUE)
 
 # Full internal object
 int <- get_inlavaan_internal(fit)
@@ -57,24 +56,25 @@ names(int)
 #>  [1] "coefficients"     "mloglik"          "DIC"              "summary"         
 #>  [5] "ppp"              "loo"              "waic"             "test"            
 #>  [9] "optim_method"     "marginal_method"  "cov_as_cor"       "samp_copula"     
-#> [13] "samp_norta"       "theta_star_novbc" "theta_star"       "Sigma_theta"     
+#> [13] "samp_norta"       "theta_star_novbc" "theta_star"       "Omega"           
 #> [17] "R_star"           "vcov_x"           "theta_star_trans" "approx_data"     
 #> [21] "nsamp"            "pdf_data"         "def_undefined"    "partable"        
 #> [25] "lavmodel"         "lavsamplestats"   "lavdata"          "lavcache"        
 #> [29] "opt"              "timing"           "visual_debug"     "vb"              
-#> [33] "cov_pd"           "call"             "version"         
+#> [33] "cov_pd"           "call"             "version"          "engine"          
+#> [37] "warnings"        
 
 # Extract a specific element
 get_inlavaan_internal(fit, "coefficients")
 #>      visual=~x1      visual=~x2      visual=~x3     textual=~x4     textual=~x5 
-#>       0.9068772       0.5018342       0.6630069       1.0006151       1.1140968 
+#>       0.9068902       0.5018459       0.6630238       1.0006177       1.1140996 
 #>     textual=~x6       speed=~x7       speed=~x8       speed=~x9          x1~~x1 
-#>       0.9264937       0.6157067       0.7318348       0.6809695       0.5646793 
+#>       0.9264960       0.6157219       0.7318575       0.6809992       0.5646811 
 #>          x2~~x2          x3~~x3          x4~~x4          x5~~x5          x6~~x6 
-#>       1.1503779       0.8556245       0.3786427       0.4545290       0.3636106 
+#>       1.1503905       0.8556547       0.3786448       0.4545316       0.3636126 
 #>          x7~~x7          x8~~x8          x9~~x9 visual~~textual   visual~~speed 
-#>       0.8234093       0.5058848       0.5687897       0.4486379       0.4653365 
+#>       0.8234393       0.5059085       0.5688250       0.4486451       0.4653833 
 #>  textual~~speed 
-#>       0.2797713 
+#>       0.2797890 
 # }
 ```

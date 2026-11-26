@@ -15,7 +15,7 @@ statistics and (optionally) fit indices side by side."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,7 +58,7 @@ statistics and (optionally) fit indices side by side."><meta property="og:image"
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Compare Bayesian Models Fitted with INLAvaan</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/compare.R" class="external-link"><code>R/compare.R</code></a>, <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/method-anova.R" class="external-link"><code>R/method-anova.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/compare.R" class="external-link"><code>R/compare.R</code></a>, <a href="https://github.com/haziqj/INLAvaan/blob/main/R/method-anova.R" class="external-link"><code>R/method-anova.R</code></a></small>
       <div class="d-none name"><code>compare.Rd</code></div>
     </div>
 
@@ -195,22 +195,22 @@ analogue of the classical likelihood-ratio test – and points here instead.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Configural invariance</span></span></span>
 <span class="r-in"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, data <span class="op">=</span> <span class="va">HolzingerSwineford1939</span>, group <span class="op">=</span> <span class="st">"school"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[483ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.125σ. <span style="color: #B2B2B2;">[981ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 11/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 33/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠼ Fitting 59/60 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 60/60 skew-normal marginals. <span style="color: #B2B2B2;">[7.6s]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">138</span> iterations <span style="color: #555555;">[334ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.61σ</span> <span style="color: #555555;">[201ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">60</span> skew-normal marginals <span style="color: #555555;">[934ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[609ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Fit diagnostics flagged 1 potential issue:</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Heavy tails for `speed=~x9`, `speed=~x9.g2`: the density is still over 5% of</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   its peak at the ends of the scanned window (4σ either side of the mode), and</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   the skew-normal extrapolates beyond it.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> A loading with heavy tails can mean that the marker of its factor loads</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   weakly; try `std.lv = TRUE`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`;</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `?diagnostics` explains each check.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Weak invariance</span></span></span>
 <span class="r-in"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span></span></span>
@@ -219,20 +219,11 @@ analogue of the classical likelihood-ratio test – and points here instead.</p>
 <span class="r-in"><span>  group <span class="op">=</span> <span class="st">"school"</span>,</span></span>
 <span class="r-in"><span>  group.equal <span class="op">=</span> <span class="st">"loadings"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[428ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.092σ. <span style="color: #B2B2B2;">[265ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/54 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 7/54 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 35/54 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 54/54 skew-normal marginals. <span style="color: #B2B2B2;">[6s]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">121</span> iterations <span style="color: #555555;">[288ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.42σ</span> <span style="color: #555555;">[179ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">54</span> skew-normal marginals <span style="color: #555555;">[839ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[601ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -243,19 +234,13 @@ analogue of the classical likelihood-ratio test – and points here instead.</p>
 <span class="r-in"><span>  group <span class="op">=</span> <span class="st">"school"</span>,</span></span>
 <span class="r-in"><span>  group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"intercepts"</span>, <span class="st">"loadings"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Mode finding and Hessian computation.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Posterior mode and Hessian. <span style="color: #B2B2B2;">[394ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Performing VB correction.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB correction; mean |δ| = 0.077σ. <span style="color: #B2B2B2;">[344ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 0/48 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Fitting 12/48 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠸ Fitting 43/48 skew-normal marginals.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fit 48/48 skew-normal marginals. <span style="color: #B2B2B2;">[5.3s]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">120</span> iterations <span style="color: #555555;">[273ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.33σ</span> <span style="color: #555555;">[151ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 25/48 skew-normal marginals</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 48/48 skew-normal marginals</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">48</span> skew-normal marginals <span style="color: #555555;">[682ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[1.1s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[590ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -264,10 +249,10 @@ analogue of the classical likelihood-ratio test – and points here instead.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bayesian Model Comparison (INLAvaan)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Models ordered by marginal log-likelihood</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Model npar Marg.Loglik  logBF      DIC     pD</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fit3   48   -3889.776   0.00 7508.823 47.735</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fit2   54   -3907.496 -17.72 7481.401 54.015</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fit1   60   -3926.905 -37.13 7483.001 58.543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Model npar Marg.Loglik   logBF      DIC     pD</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit3   48   -3889.775   0.000 7508.746 47.721</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit2   54   -3907.471 -17.696 7481.267 53.932</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit1   60   -3926.870 -37.095 7482.718 58.312</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With extra fit measures</span></span></span>
 <span class="r-in"><span><span class="fu">compare</span><span class="op">(</span><span class="va">fit1</span>, <span class="va">fit2</span>, fit.measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BRMSEA"</span>, <span class="st">"BMc"</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -275,18 +260,18 @@ analogue of the classical likelihood-ratio test – and points here instead.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Models ordered by marginal log-likelihood</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Model npar Marg.Loglik   logBF      DIC     pD BRMSEA    BMc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fit1   60   -3926.905 -19.409 7483.001 58.543 0.0949 0.8942</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fit2   54   -3907.496   0.000 7481.401 54.015 0.0931 0.8891</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit1   60   -3926.870 -19.399 7482.718 58.312 0.0946 0.8943</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit2   54   -3907.471   0.000 7481.267 53.932 0.0930 0.8892</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># With incremental indices (baseline = fit1, passed to fitMeasures())</span></span></span>
 <span class="r-in"><span><span class="fu">compare</span><span class="op">(</span><span class="va">fit1</span>, <span class="va">fit2</span>, <span class="va">fit3</span>, fit.measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BCFI"</span>, <span class="st">"BTLI"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bayesian Model Comparison (INLAvaan)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Models ordered by marginal log-likelihood</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Model npar Marg.Loglik  logBF      DIC     pD   BCFI   BTLI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fit1   60   -3926.905 -37.13 7483.001 58.543 0.9230 0.8882</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fit2   54   -3907.496 -17.72 7481.401 54.015 0.9201 0.8937</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   fit3   48   -3889.776   0.00 7508.823 47.735 0.8822 0.8596</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Model npar Marg.Loglik   logBF      DIC     pD   BCFI   BTLI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit1   60   -3926.870 -37.095 7482.718 58.312 0.9231 0.8888</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit2   54   -3907.471 -17.696 7481.267 53.932 0.9202 0.8939</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   fit3   48   -3889.775   0.000 7508.746 47.721 0.8823 0.8597</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

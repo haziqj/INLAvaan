@@ -19,7 +19,7 @@ is present) evaluated at the parameter estimates – here the posterior means.">
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,7 @@ is present) evaluated at the parameter estimates – here the posterior means.">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Model-Implied Moments for INLAvaan Models</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/method-fitted.R" class="external-link"><code>R/method-fitted.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/method-fitted.R" class="external-link"><code>R/method-fitted.R</code></a></small>
       <div class="d-none name"><code>fitted.Rd</code></div>
     </div>
 
@@ -155,7 +155,7 @@ outcomes' means given the covariates (closed-form route only).</p>
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span>, nsamp <span class="op">=</span> <span class="fl">100</span>,</span></span>
-<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>            test <span class="op">=</span> <span class="st">"none"</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Model-implied covariance matrix (posterior means)</span></span></span>
 <span class="r-in"><span><span class="fu">fitted</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
@@ -168,26 +168,26 @@ outcomes' means given the covariates (closed-form route only).</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> x5 0.453 0.251 0.331 1.115 1.696                        </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> x6 0.377 0.209 0.276 0.927 1.032 1.222                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> x7 0.260 0.144 0.190 0.172 0.192 0.160 1.203            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> x8 0.309 0.171 0.226 0.205 0.228 0.190 0.451 1.041      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> x8 0.309 0.171 0.226 0.205 0.228 0.190 0.451 1.042      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> x9 0.287 0.159 0.210 0.191 0.212 0.177 0.419 0.498 1.033</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Casewise model-predicted observed values</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">fitted</span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"ov"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            x1       x2       x3       x4       x5        x6       x7       x8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 4.118731 5.635919 1.653088 2.926310 4.190668 2.0609440 4.254147 5.608193</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 4.989095 6.117548 2.289401 2.047171 3.211824 1.2469280 4.815793 6.275771</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 4.182414 5.671159 1.699646 1.186824 2.253904 0.4503122 3.359411 4.544701</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 5.359268 6.322389 2.560030 3.078493 4.360111 2.2018545 3.918648 5.209416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 4.514878 5.855133 1.942706 2.939067 4.204872 2.0727562 4.378565 5.756077</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 4.962713 6.102950 2.270114 1.729739 2.858392 0.9530101 4.892349 6.366766</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 4.118745 5.635923 1.653092 2.926310 4.190668 2.0609443 4.254132 5.608175</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 4.989110 6.117557 2.289412 2.047172 3.211826 1.2469290 4.815780 6.275761</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 4.182398 5.671147 1.699629 1.186826 2.253906 0.4503137 3.359415 4.544700</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 5.359256 6.322384 2.560024 3.078493 4.360111 2.2018544 3.918660 5.209428</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 4.514891 5.855138 1.942712 2.939067 4.204873 2.0727566 4.378554 5.756065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 4.962730 6.102959 2.270126 1.729740 2.858393 0.9530114 4.892335 6.366754</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            x9</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 5.449602</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 6.070781</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 4.460027</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 5.078541</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 5.587207</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 6.155451</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 5.449586</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 6.070780</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 4.460014</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 5.078549</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 5.587199</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 6.155450</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

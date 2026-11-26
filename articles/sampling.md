@@ -80,7 +80,7 @@ mod <- "
   textual =~ x4 + x5 + x6
   speed   =~ x7 + x8 + x9
 "
-fit <- acfa(mod, dat, verbose = FALSE)
+fit <- acfa(mod, dat, silent = TRUE)
 ```
 
 ### Parameter samples
@@ -95,12 +95,12 @@ dim(theta_post)
 #> [1] 2000   21
 head(theta_post[, 1:4])
 #>      visual=~x2 visual=~x3 textual=~x5 textual=~x6
-#> [1,]  0.6217858  0.9059799   1.1243678   0.9963116
-#> [2,]  0.5512358  0.8047548   1.2136347   0.9165987
-#> [3,]  0.5589911  0.7005689   0.9801584   0.9244508
-#> [4,]  0.5567474  0.7637694   1.1415690   1.0360694
-#> [5,]  0.5948947  1.0227129   1.0731345   0.8664567
-#> [6,]  0.3630961  0.7057305   1.0889870   0.8696284
+#> [1,]  0.6218149  0.9054224   1.1243687   0.9962427
+#> [2,]  0.5512860  0.8047698   1.2134491   0.9165999
+#> [3,]  0.5590414  0.7006104   0.9801455   0.9244519
+#> [4,]  0.5567977  0.7638096   1.1415673   1.0356761
+#> [5,]  0.5949406  1.0227456   1.0731359   0.8664578
+#> [6,]  0.3631219  0.7057723   1.0889885   0.8696295
 ```
 
 ### Latent and observed samples
@@ -129,13 +129,14 @@ names(all_samps)
 INLAvaan approximates each marginal posterior with a skew-normal
 density. We can overlay the
 [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md)
-histogram (drawn via the copula method) on top of the fitted density
-curve stored in `pdf_data` to verify that they agree.
+histogram (drawn via the copula method, which couples the fitted
+marginals by a Gaussian copula) on top of the fitted density curve
+stored in `pdf_data` to verify that they agree.
 
 ``` r
 
 # 1. Draw copula samples
-samp_cop <- sampling(fit, type = "lavaan", nsamp = 1000, samp_copula = TRUE)
+samp_cop <- sampling(fit, type = "lavaan", nsamp = 1000)
 
 # 2. Retrieve the fitted skew-normal densities
 int <- fit@external$inlavaan_internal
@@ -170,54 +171,6 @@ ggplot(hist_df, aes(x = value)) +
 
 Figure 1: Copula samples (histogram) versus the fitted skew-normal
 marginal (red curve) for all free parameters.
-
-## Copula vs. Gaussian sampling
-
-By default,
-[`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) uses
-the copula method, which respects the skew-normal marginals. Setting
-`samp_copula = FALSE` uses the multivariate Gaussian (Laplace)
-approximation instead. The difference is most visible for parameters
-with asymmetric posteriors, such as variance components.
-
-``` r
-
-samp_gauss <- sampling(fit, type = "lavaan", nsamp = 5000, samp_copula = FALSE)
-
-cop_df <- data.frame(
-  param = rep(par_names, each = nrow(samp_cop)),
-  value = as.vector(samp_cop),
-  method = "Copula"
-)
-gauss_df <- data.frame(
-  param = rep(par_names, each = nrow(samp_gauss)),
-  value = as.vector(samp_gauss),
-  method = "Gaussian"
-)
-both_df <- rbind(cop_df, gauss_df)
-both_df$param <- factor(both_df$param, levels = par_names)
-both_df$method <- factor(both_df$method, levels = c("Copula", "Gaussian"))
-
-ggplot(both_df, aes(x = value, fill = method)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 50,
-                 alpha = 0.45, position = "identity") +
-  facet_wrap(~param, scales = "free") +
-  scale_fill_manual(values = c(Copula = "#00A6AA", Gaussian = "#F18F00")) +
-  labs(x = "Parameter value", y = "Density", fill = "Method",
-       title = "Copula vs. Gaussian posterior sampling") +
-  theme_minimal(base_size = 11) +
-  theme(legend.position = "top")
-```
-
-![](sampling_files/figure-html/fig-copula-vs-gaussian-1.png)
-
-Figure 2: Comparison of marginal histograms from copula sampling (blue)
-and Gaussian sampling (orange) for all parameters.
-
-For symmetric posteriors (e.g., factor loadings), the two methods are
-nearly identical. For positively-skewed posteriors (e.g., residual
-variances), the copula method captures the asymmetry while the Gaussian
-approximation is symmetric by construction.
 
 ## Prior sampling
 

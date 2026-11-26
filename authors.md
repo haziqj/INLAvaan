@@ -13,10 +13,13 @@
 - **[Alvin Bong](https://alvinbjl.github.io)**. Contributor.  
   Initial site build
 
+- **Thomas Luu**. Copyright holder.  
+  Skew-normal quantile approximation (Apache License 2.0)
+
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/haziqj/INLAvaan/blob/v0.3.5/inst/CITATION)
+[`inst/CITATION`](https://github.com/haziqj/INLAvaan/blob/main/inst/CITATION)
 
 Jamil H, Rue H (2026). “Approximate Bayesian inference for structural
 equation models using integrated nested Laplace approximations.”

@@ -97,11 +97,11 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            test = "standard", verbose = FALSE)
+            test = "standard", silent = TRUE)
 
 # Marginal log-likelihood (log evidence)
 logLik(fit)
-#> 'log Lik.' -3838.108 (marginal)
+#> 'log Lik.' -3838.101 (marginal)
 #> # ℹ Laplace-approximated log evidence -- not comparable to classical
 #> # ℹ logLik()/AIC()/BIC(). See `compare()` for Bayes-factor comparison.
 #> 
@@ -109,6 +109,6 @@ logLik(fit)
 # Classical log-likelihood at the posterior mean, AIC/BIC-compatible
 ll <- logLik(fit, type = "plugin")
 AIC(ll)
-#> [1] 7553.166
+#> [1] 7553.174
 # }
 ```

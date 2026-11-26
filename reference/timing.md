@@ -28,11 +28,15 @@ timing(object, what = "total", ...)
   Character vector of timing segment names to return, or `"all"` to
   return every segment. Defaults to `"total"`. Available segments
   (depending on model options): `"init"` (which includes the lavaan
-  model setup), `"optim"`, `"vb"`, `"loglik"`, `"marginals"`, `"norta"`,
+  model setup), `"optim"` (the search for the posterior mode and the
+  Laplace approximation), `"vb"` (the VB correction), `"loglik"`,
+  `"marginals"` (the marginals and the checks of the fit), `"norta"`,
   `"sampling"`, `"covariances"`, `"definedpars"`, `"deltapars"`,
   `"test"`, `"loo"`, `"waic"`, `"total"`. The segments are disjoint and
-  `"total"` is their sum. `"loo"` and `"waic"` are recorded only when
-  the fit computed them, i.e. `test` (see
+  `"total"` is their sum. `"norta"` is about 0: the draws no longer
+  adjust the correlations of their copula (NORTA), and the segment is
+  kept so that code that asks for it still works. `"loo"` and `"waic"`
+  are recorded only when the fit computed them, i.e. `test` (see
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md))
   included `"loo"`, `"waic"` or `"full"` and the model is supported (see
   [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md)); requesting
@@ -61,23 +65,23 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            test = "none", verbose = FALSE)
+            test = "none", silent = TRUE)
 
 # Total elapsed time
 timing(fit)
 #>  total 
-#> 0.95 s 
+#> 0.44 s 
 
 # All stages
 timing(fit, what = "all")
 #>        init       optim          vb      loglik   marginals       norta 
-#>      0.02 s      0.11 s      0.14 s      0.00 s      0.66 s      0.00 s 
+#>      0.02 s      0.10 s      0.04 s      0.00 s      0.24 s      0.00 s 
 #>    sampling covariances definedpars   deltapars        test       total 
-#>      0.01 s      0.00 s      0.00 s      0.00 s      0.00 s      0.95 s 
+#>      0.03 s      0.00 s      0.00 s      0.00 s      0.00 s      0.44 s 
 
 # Specific stages
 timing(fit, what = c("optim", "marginals"))
 #>     optim marginals 
-#>    0.11 s    0.66 s 
+#>    0.10 s    0.24 s 
 # }
 ```

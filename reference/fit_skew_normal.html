@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Fit a skew normal distribution to log-density evaluations</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/skew-normal.R" class="external-link"><code>R/skew-normal.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/skew-normal.R" class="external-link"><code>R/skew-normal.R</code></a></small>
       <div class="d-none name"><code>fit_skew_normal.Rd</code></div>
     </div>
 
@@ -66,7 +66,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fit_skew_normal</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, threshold_log_drop <span class="op">=</span> <span class="op">-</span><span class="fl">6</span>, temp <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fit_skew_normal</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, threshold_log_drop <span class="op">=</span> <span class="op">-</span><span class="fl">6</span>, temp <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -78,41 +78,51 @@
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>A numeric vector of log-density evaluations at points x.</p></dd>
+<dd><p>A numeric vector of log-density evaluations at <code>x</code>, normalised so
+that <code>max(y) = 0</code>. The function does not normalise <code>y</code>, and the threshold
+is measured from 0.</p></dd>
 
 
 <dt id="arg-threshold-log-drop">threshold_log_drop<a class="anchor" aria-label="anchor" href="#arg-threshold-log-drop"></a></dt>
-<dd><p>A negative numeric value indicating the log-density
-drop threshold below which points are ignored in the fitting. Default is
--6.</p></dd>
+<dd><p>A single finite negative number (default -6).
+Points with <code>y</code> below it are left out of the fit.</p></dd>
 
 
 <dt id="arg-temp">temp<a class="anchor" aria-label="anchor" href="#arg-temp"></a></dt>
-<dd><p>A numeric value for the temperature parameter k. If NA (default),
-it is included in the optimisation.</p></dd>
+<dd><p>A single finite positive number, the temperature of the weights
+(default 1). <code>NA</code> is not allowed: the temperature is no longer estimated.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with fitted parameters:</p><ul><li><p><code>xi</code>: location parameter</p></li>
+    <p>A list with the fitted parameters:</p><ul><li><p><code>xi</code>: location parameter</p></li>
 <li><p><code>omega</code>: scale parameter</p></li>
 <li><p><code>alpha</code>: shape parameter</p></li>
-<li><p><code>logC</code>: log-normalization constant</p></li>
-<li><p><code>k</code>: temperature parameter</p></li>
-<li><p><code>rsq</code>: R-squared of the fit</p></li>
-</ul><p>Note that <code>logC</code> and <code>k</code> are not used when fitting from a sample.</p>
-    </div>
+<li><p><code>logC</code>: log-constant, so that <code>exp(y)</code> is approximated by
+<code>dsnorm(x, xi, omega, alpha, logC)</code></p></li>
+<li><p><code>nmad</code>: the largest absolute difference between <code>exp(y)</code> and the
+fitted density over all points, divided by <code>max(exp(y))</code></p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This skew normal fitting function uses a weighted least squares
-approach to fit the log-density evaluations provided in <code>y</code> at points <code>x</code>.
-The weights are set to be the density evaluations raised to the power of
-the temperature parameter <code>k</code>. This has somewhat an interpretation of
-finding the skew normal fit that minimises the Kullback-Leibler divergence
-from the true density to it.</p>
-<p>In R-INLA, the C code implementation from which this was translated from
-can be found
-<a href="https://github.com/hrue/r-inla/blob/b63eb379f69d6553f965b360f1b88877cfef20d1/gmrflib/fit-sn.c" class="external-link">here</a>.</p>
+    <p>The fit is by weighted least squares on the log scale: it
+minimises \(\sum_i w_i \{y_i - \log f(x_i)\}^2\) over the location,
+scale and shape of a skew-normal density \(f\) and a log-constant
+<code>logC</code>. The weights \(w_i \propto \exp(\tau y_i)\), with
+\(\tau\) = <code>temp</code>, put the fit where the mass is. Points with <code>y</code>
+below <code>threshold_log_drop</code> are left out of the fit, but the five highest
+points are always kept.</p>
+<p>The fit runs from two starts and keeps the better fit. With \(\delta
+  = \alpha / \sqrt{1 + \alpha^2}\), when the skewness of the scan (from
+trapezoidal moments of <code>exp(y)</code>) gives \(|\delta| \ge 0.2\), the
+starts are the moment-based values and their mirror image, with the
+opposite skew. When the scan is near symmetric, the starts are
+\(\delta = \pm 0.5\) (<code>alpha</code> of about \(\pm 0.577\)), with the mean
+and standard deviation of the scan. A single start with the wrong sign of
+skew can stall at <code>alpha = 0</code> when the skew is mild.</p>
+<p>This is the approach of R-INLA, whose C code
+<a href="https://github.com/hrue/r-inla/blob/b63eb379f69d6553f965b360f1b88877cfef20d1/gmrflib/fit-sn.c" class="external-link">fit-sn.c</a>
+it translates, with the temperature fixed rather than estimated.</p>
     </div>
 
     <div class="section level2">
@@ -126,10 +136,8 @@ can be found
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">fit_skew_normal</span><span class="op">(</span><span class="va">x_grid</span>, <span class="va">y_log</span>, temp <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           xi        omega        alpha         logC            k         rmse </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.842445393  2.539226101  3.310505376  1.332422700 10.000000000  0.002109188 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         nmad </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.173298470 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        xi     omega     alpha      logC      nmad </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.8424454 2.5392261 3.3105054 1.3324227 0.1732985 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare truth vs skew-normal approximation</span></span></span>
 <span class="r-in"><span><span class="va">x_fine</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">8</span>, length.out <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>

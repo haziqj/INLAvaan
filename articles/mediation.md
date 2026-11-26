@@ -95,17 +95,11 @@ the variables.
 
 library(INLAvaan)
 fit <- asem(mod, dat, meanstructure = TRUE)
-#> ℹ Mode finding and Hessian computation.
-#> ✔ Posterior mode and Hessian. [72ms]
-#> 
-#> ℹ Performing VB correction.
-#> ✔ VB correction; mean |δ| = 0.073σ. [245ms]
-#> 
-#> ⠙ Fitting 0/7 skew-normal marginals.
-#> ✔ Fit 7/7 skew-normal marginals. [170ms]
-#> 
+#> ✔ Found the posterior mode in 5 iterations [39ms]
+#> ✔ VB mean correction, max shift 0.28σ [71ms]
+#> ✔ Fitted 7 skew-normal marginals [106ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [750ms]
+#> ✔ Summarise 1000 posterior draws. [371ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -123,7 +117,7 @@ The summary output provides the posterior mean, standard deviation, and
 ``` r
 
 summary(fit)
-#> INLAvaan 0.3.5 ended normally after 5 iterations
+#> INLAvaan 0.3.99.9001 ended normally after 5 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -133,18 +127,18 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                    -308.482 
+#>    Marginal log-likelihood                    -308.480 
 #>    PPP (Chi-square)                              0.519 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                              568.329 
-#>    Effective parameters (pD)                     6.719 
+#>    Deviance (DIC)                              568.318 
+#>    Effective parameters (pD)                     6.710 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
-#>    VB correction                                  TRUE
+#>    VB correction                               ONESTEP
 #> 
 #> Regressions:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -162,13 +156,13 @@ summary(fit)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
-#>    .Y                 0.977    0.143    0.735    1.297    0.004 gamma(1,.5)[sd]
-#>    .M                 0.998    0.146    0.752    1.324    0.004 gamma(1,.5)[sd]
+#>    .Y                 0.977    0.143    0.735    1.296    0.004 gamma(1,.5)[sd]
+#>    .M                 0.998    0.146    0.752    1.322    0.004 gamma(1,.5)[sd]
 #> 
 #> Defined Parameters:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>     ab                0.406    0.097    0.227    0.609                         
-#>     total             0.349    0.136    0.083    0.615
+#>     total             0.349    0.136    0.078    0.611
 ```
 
 Looking at the Regressions and Defined Parameters sections of the
