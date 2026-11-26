@@ -192,7 +192,10 @@
 #'     posterior SDs, it says so;
 #'   \item any marginal with \code{nmad} above 0.1;
 #'   \item any marginal with \code{unscanned_mass} above 0.05;
-#'   \item any marginal with heavy tails;
+#'   \item any marginal with heavy tails. When one of them is a loading of a
+#'     factor that a marker identifies, the warning suggests
+#'     \code{std.lv = TRUE}, because a marker that loads weakly gives the
+#'     other loadings of its factor such tails;
 #'   \item \code{vb_shift_max} above 1 posterior SD;
 #'   \item \code{hess_cond_cor} above 1e8;
 #'   \item the latent or residual covariance matrix is not positive definite
@@ -398,6 +401,23 @@ inlavaan_advice <- list(
   help = "{.code ?diagnostics}"
 )
 
+# Whether a marginal with heavy tails belongs to a free loading of a factor
+# that a marker identifies, which is a loading fixed at a value other than
+# zero. When the marker loads weakly, the scale of its factor is poorly
+# determined, and the other loadings of that factor get heavy tails. With
+# std.lv = TRUE the variance of the factor is fixed instead. `heavy` holds the
+# names of the flagged parameters, and `pt` is the parameter table of the fit.
+heavy_marker_loading <- function(heavy, pt) {
+  if (length(heavy) == 0L || is.null(pt)) {
+    return(FALSE)
+  }
+  loading <- pt$op == "=~"
+  factor_id <- paste(pt$lhs, pt$block)
+  marker <- loading & pt$free == 0L & !is.na(pt$ustart) & pt$ustart != 0
+  flagged <- loading & pt$free > 0L & pt$names %in% heavy
+  any(factor_id[flagged] %in% factor_id[marker])
+}
+
 # Fit-time diagnostics check, called once at the end of inlavaan(). Emits a
 # single consolidated warning when the checks reported by diagnostics() look
 # off. The bullets of the engine's checks, and their levels, come from the
@@ -408,7 +428,8 @@ inlavaan_advice <- list(
 # is the engine's, but the engine raises it in a warning of its own, which
 # engine_call() muffles, so its bullet is worded here, after the engine's
 # bullets. Only the "x" bullets count as issues: the engine adds "i" lines with
-# advice.
+# advice, and INLAvaan adds one after the bullet on heavy tails (see
+# heavy_marker_loading()).
 warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
   dg <- diagnostics_fit(int)
   glob <- dg$global
@@ -446,6 +467,26 @@ warn_fit_diagnostics <- function(int, npd_share_tol = 0.01) {
         } else {
           inlavaan_advice$mode_retry
         }
+      )
+    }
+  }
+  # INLAvaan's hint for the engine's bullet on heavy tails, when one of its
+  # parameters is a loading of a factor with a marker. It goes right after
+  # that bullet, or last if the engine words the bullet in another way.
+  if (flags[["tails"]]) {
+    p <- dg$engine$param
+    heavy <- p$names[check_ran(p$tails) & !p$tails %in% TRUE]
+    if (heavy_marker_loading(heavy, int$partable)) {
+      at <- which(names(problems) == "x" & startsWith(problems, "Heavy tails"))
+      problems <- append(
+        problems,
+        c(
+          "i" = paste0(
+            "A loading with heavy tails can mean that the marker of its ",
+            "factor loads weakly; try {.code std.lv = TRUE}."
+          )
+        ),
+        after = if (length(at) > 0L) at[1L] else length(problems)
       )
     }
   }

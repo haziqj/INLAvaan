@@ -210,7 +210,10 @@ the solve that followed stopped with \code{vb_step_max} above 0.1
 posterior SDs, it says so;
 \item any marginal with \code{nmad} above 0.1;
 \item any marginal with \code{unscanned_mass} above 0.05;
-\item any marginal with heavy tails;
+\item any marginal with heavy tails. When one of them is a loading of a
+factor that a marker identifies, the warning suggests
+\code{std.lv = TRUE}, because a marker that loads weakly gives the
+other loadings of its factor such tails;
 \item \code{vb_shift_max} above 1 posterior SD;
 \item \code{hess_cond_cor} above 1e8;
 \item the latent or residual covariance matrix is not positive definite

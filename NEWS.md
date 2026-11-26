@@ -296,7 +296,10 @@
   `nlminb()` once. The check of the condition number now reads
   `hess_cond_cor`, which does not depend on the units of the parameters.
   Values in posterior SDs carry the unit σ, or "SD" where the console cannot
-  show σ. The warning ends with a pointer to `?diagnostics`.
+  show σ. The warning ends with a pointer to `?diagnostics`. When a marginal
+  with heavy tails is a loading of a factor that a marker identifies, the
+  warning adds a hint to try `std.lv = TRUE`, because a marker that loads
+  weakly gives the other loadings of its factor such tails.
   So some fits that were silent now warn: for example, a one-factor model of
   `x1`, `x2` and `x3` fitted to the first 50 rows of
   `HolzingerSwineford1939`, whose one-step VB correction fails its check.

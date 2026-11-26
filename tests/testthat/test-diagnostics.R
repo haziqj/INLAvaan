@@ -517,6 +517,70 @@ test_that("warn_fit_diagnostics() flags heavy tails", {
   expect_equal(diagnostics_fit(int)$global[["n_heavy_tails"]], 1)
 })
 
+test_that("heavy tails on a loading of a factor with a marker get a hint", {
+  int <- INLAvaan:::get_inlavaan_internal(fit_sn)
+  loading <- match("visual=~x2", names(coef(fit_sn)))
+  int$engine$diagnostics$marginals$tails[loading] <- FALSE
+  w <- expect_warning(
+    issues <- INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  msg <- conditionMessage(w)
+  expect_match(msg, "std.lv = TRUE", fixed = TRUE)
+  # The hint is not an issue of its own
+  expect_match(msg, "flagged 1 potential issue:")
+  # It follows the bullet that it explains
+  at <- which(startsWith(issues, "Heavy tails"))
+  expect_identical(names(issues)[at + 1L], "i")
+  expect_match(issues[[at + 1L]], "std.lv = TRUE", fixed = TRUE)
+})
+
+test_that("heavy tails get no hint where std.lv = TRUE cannot help", {
+  # A residual variance
+  int <- INLAvaan:::get_inlavaan_internal(fit_sn)
+  variance <- match("x1~~x1", names(coef(fit_sn)))
+  int$engine$diagnostics$marginals$tails[variance] <- FALSE
+  w <- expect_warning(
+    INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  expect_match(conditionMessage(w), "Heavy tails")
+  expect_false(grepl("std.lv", conditionMessage(w), fixed = TRUE))
+
+  # A loading of a factor with a fixed variance and no marker
+  fit_lv <- acfa(
+    mod,
+    dat,
+    std.lv = TRUE,
+    silent = TRUE,
+    nsamp = 3,
+    test = "none",
+    vb_correction = "none"
+  )
+  int <- INLAvaan:::get_inlavaan_internal(fit_lv)
+  loading <- match("visual=~x2", names(coef(fit_lv)))
+  int$engine$diagnostics$marginals$tails[loading] <- FALSE
+  w <- expect_warning(
+    INLAvaan:::warn_fit_diagnostics(int),
+    class = "inlavaan_diagnostics_warning"
+  )
+  expect_match(conditionMessage(w), "Heavy tails")
+  expect_false(grepl("std.lv", conditionMessage(w), fixed = TRUE))
+})
+
+test_that("heavy_marker_loading() needs a flagged loading and a marker", {
+  pt <- INLAvaan:::get_inlavaan_internal(fit_sn)$partable
+  expect_true(INLAvaan:::heavy_marker_loading("textual=~x6", pt))
+  expect_true(INLAvaan:::heavy_marker_loading(c("x1~~x1", "visual=~x3"), pt))
+  expect_false(INLAvaan:::heavy_marker_loading("visual~~textual", pt))
+  expect_false(INLAvaan:::heavy_marker_loading(character(0), pt))
+  # A loading freed by hand, on a factor with a fixed variance
+  pt$free[pt$names == "textual=~x4"] <- max(pt$free) + 1L
+  pt$ustart[pt$names == "textual=~x4"] <- NA
+  expect_false(INLAvaan:::heavy_marker_loading("textual=~x6", pt))
+  expect_true(INLAvaan:::heavy_marker_loading("visual=~x2", pt))
+})
+
 test_that("print.diagnostics.INLAvaan works", {
   dg <- diagnostics(fit)
   expect_output(print(dg))
