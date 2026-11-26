@@ -12,10 +12,13 @@
 # noisier than a Wishart draw around the implied between covariance, so a
 # replicate drawn that way rejects a correct model.
 #
-# The default, method = "onestep", replaces the saturated maximum with one
-# Fisher-scoring step from the moments psi_s of the posterior draw, which lie
-# within sampling error of it (see ppp2l_onestep()). The same statistic scores
-# the observed and the replicate data. Incomplete data use the EM.
+# The default, method = "onestep", replaces the saturated maximum of complete
+# data with one Fisher-scoring step from the moments psi_s of the posterior
+# draw, which lie within sampling error of it (see ppp2l_onestep()). The same
+# statistic scores the observed and the replicate data. For incomplete data it
+# finds the saturated maximum of each replicate by scoring steps from psi_s
+# with one information matrix for all draws (see ppp2l_mi_scoring()), which
+# reach the maximum that the EM finds.
 
 # EM settings for the saturated fit of each replicate, as in pp_twolevel(),
 # and for the one fit of the observed data. The replicate fits stop at their
@@ -321,21 +324,7 @@ ppp2l_loglik <- function(
       loglik_x = 0,
       minus_two = FALSE
     )
-    sat <- if (saturated) {
-      run_em(
-        twolevel_mi_em_sat(
-          y1 = X,
-          y2 = y2,
-          lp = lp,
-          mp = lavdata@Mp[[g]],
-          loglik_x = 0,
-          tol = em$tol,
-          max_iter = em$max_iter,
-          min_variance = 1e-05,
-          acceleration = em$acceleration
-        )$logl
-      )
-    }
+    sat <- if (saturated) ppp2l_mi_em(X, y2, g, lavdata, em)$logl
   } else {
     if (is.null(ylp)) {
       ylp <- ppp2l_cluster_stats(X, lp)
@@ -364,6 +353,31 @@ ppp2l_loglik <- function(
     }
   }
   c(fit = fit, sat = if (saturated) sat else NA_real_)
+}
+
+# The saturated EM fit of one group's incomplete data, with the level-2 data
+# `y2`: the moments at the maximum and the log-likelihood there
+ppp2l_mi_em <- function(X, y2, g, lavdata, em) {
+  run_em <- if (isTRUE(em$quiet)) muffle_em_warnings else identity
+  run_em(
+    twolevel_mi_em_sat(
+      y1 = X,
+      y2 = y2,
+      lp = lavdata@Lp[[g]],
+      mp = lavdata@Mp[[g]],
+      loglik_x = 0,
+      tol = em$tol,
+      max_iter = em$max_iter,
+      min_variance = 1e-05,
+      acceleration = em$acceleration
+    )
+  )
+}
+
+# The level-2 data of one group's rows: the cluster means
+ppp2l_y2 <- function(X, lp) {
+  rowsum.default(X, group = lp$cluster.idx[[2L]], reorder = FALSE) /
+    lp$cluster.size[[2L]]
 }
 
 muffle_em_warnings <- function(expr) {
@@ -548,6 +562,170 @@ ppp2l_onestep <- function(ylp, imp, lp, info) {
   t_1
 }
 
+## ----- Scoring steps for incomplete data -------------------------------------
+
+# With missing values the data enter the likelihood only through their rows,
+# so the saturated EM of each replicate is the cost of the PPP. The EM starts
+# far from the maximum (at diagonal moments) and converges linearly, which
+# takes 10 to 20 steps. Here the fit starts at the moments psi_s of the
+# posterior draw, from which the replicate was drawn, and takes the
+# quasi-Newton steps
+#
+#   psi_{k+1} = psi_k + H_k u(psi_k),
+#
+# with u the score of the replicate. H_0 = J^-1, with J the observed
+# information of the observed data at their saturated maximum, computed once
+# per fit. The replicates share the cluster design and the holes of the
+# observed data, so J is close to the information of each of them. Each step
+# then corrects H_k towards the replicate's own inverse information with the
+# BFGS update, so the steps converge faster than with a fixed J (which only
+# converges linearly where J is far from the replicate's information). A step
+# that lowers the log-likelihood, or that leaves the valid covariance matrices
+# (the within covariance positive definite, the between covariance positive
+# semi-definite, as in the EM), is halved. The steps stop when the gain that
+# the next step predicts, u' H u / 2, is less than `tol`, far below the
+# tolerance of the EM. Where they cannot get there (a maximum on the boundary,
+# or no information), NA tells the caller to fit the replicate by EM.
+
+# The positions in ppp2l_pack() of the saturated moments that are free: all
+# but the within means of the variables at both levels, of which the
+# likelihood sees only the sum with the between means
+ppp2l_free <- function(imp, lp) {
+  drop <- which(lp$ov.idx[[1L]] %in% lp$both.idx[[2L]])
+  setdiff(seq_along(ppp2l_pack(imp)), drop)
+}
+
+# The log-likelihood, with the 2 pi terms, of the data of `plan` at the
+# packed moments `psi` (shaped as `imp`). -Inf outside the valid moments.
+ppp2l_mi_loglik <- function(plan, psi, imp) {
+  ll <- twolevel_fiml_loglik_plan(
+    plan,
+    ppp2l_unpack(psi, imp),
+    log2pi = TRUE,
+    loglik_x = 0,
+    minus_two = FALSE
+  )
+  if (is.finite(ll)) ll else -Inf
+}
+
+# The score (the derivative of the log-likelihood) at `psi`, or NULL
+ppp2l_mi_score <- function(plan, psi, imp) {
+  d <- twolevel_fiml_dmoments(plan, ppp2l_unpack(psi, imp))
+  if (is.null(d)) NULL else -twolevel_dmoments_vec(d) / 2
+}
+
+# The inverse of the observed information of the free moments `free` at
+# `psi`, by central differences of the score. NULL when the score fails or the
+# information is not positive definite.
+ppp2l_mi_info_inv <- function(plan, psi, imp, free) {
+  m <- length(free)
+  info <- matrix(0, m, m)
+  for (a in seq_len(m)) {
+    h <- 1e-4 * max(1, abs(psi[free[a]]))
+    e <- numeric(length(psi))
+    e[free[a]] <- h
+    up <- ppp2l_mi_score(plan, psi + e, imp)
+    dn <- ppp2l_mi_score(plan, psi - e, imp)
+    if (is.null(up) || is.null(dn)) {
+      return(NULL)
+    }
+    info[, a] <- -(up - dn)[free] / (2 * h)
+  }
+  r <- tryCatch(chol((info + t(info)) / 2), error = function(e) NULL)
+  if (is.null(r)) NULL else chol2inv(r)
+}
+
+# The scoring set-up of group g from the saturated EM fit `em_fit` of the
+# observed data: the free moments and the inverse information. NULL when the
+# information is not available, and then every replicate is fitted by EM.
+ppp2l_mi_setup <- function(lavdata, g, em_fit) {
+  lp <- lavdata@Lp[[g]]
+  X <- lavdata@X[[g]]
+  imp <- list(
+    mean = list(as.numeric(em_fit$Mu.W), as.numeric(em_fit$Mu.B)),
+    cov = list(em_fit$Sigma.W, em_fit$Sigma.B)
+  )
+  psi <- ppp2l_pack(imp)
+  free <- ppp2l_free(imp, lp)
+  plan <- twolevel_fiml_plan_raw(lp, lavdata@Mp[[g]], X, ppp2l_y2(X, lp))
+  if (length(ppp2l_mi_score(plan, psi, imp)) != length(psi)) {
+    return(NULL) # nocov
+  }
+  info_inv <- ppp2l_mi_info_inv(plan, psi, imp, free)
+  if (is.null(info_inv)) NULL else list(free = free, info_inv = info_inv)
+}
+
+# The saturated maximum of the log-likelihood of the data of `plan`, by
+# quasi-Newton steps from the moments `imp` of the draw, whose log-likelihood
+# is `ll0`. `setup` is from ppp2l_mi_setup(). NA when the steps do not
+# converge.
+ppp2l_mi_scoring <- function(
+  plan,
+  imp,
+  ll0,
+  setup,
+  tol = 1e-6,
+  max_iter = 50L,
+  max_halve = 10L
+) {
+  valid <- function(psi) {
+    im <- ppp2l_unpack(psi, imp)
+    min_eigen <- function(S) {
+      min(eigen(S, symmetric = TRUE, only.values = TRUE)$values)
+    }
+    min_eigen(im$cov[[1L]]) > 0 && min_eigen(im$cov[[2L]]) >= 0
+  }
+  free <- setup$free
+  h <- setup$info_inv
+  psi <- ppp2l_pack(imp)
+  ll <- ll0
+  if (!is.finite(ll) || !valid(psi)) {
+    return(NA_real_)
+  }
+  u <- ppp2l_mi_score(plan, psi, imp)
+  for (k in seq_len(max_iter)) {
+    if (is.null(u)) {
+      return(NA_real_)
+    }
+    u_f <- u[free]
+    step <- as.numeric(h %*% u_f)
+    if (sum(u_f * step) / 2 < tol) {
+      return(ll)
+    }
+    t <- 1
+    repeat {
+      psi_n <- psi
+      psi_n[free] <- psi[free] + t * step
+      ll_n <- if (valid(psi_n)) ppp2l_mi_loglik(plan, psi_n, imp) else -Inf
+      if (ll_n >= ll) {
+        break
+      }
+      t <- t / 2
+      if (t < 2^-max_halve) {
+        return(NA_real_)
+      }
+    }
+    u_n <- ppp2l_mi_score(plan, psi_n, imp)
+    if (!is.null(u_n)) {
+      # BFGS update of the inverse curvature, with s the step and y the change
+      # of the gradient of -log L, skipped where the curvature is not positive
+      s <- t * step
+      y <- u_f - u_n[free]
+      sy <- sum(s * y)
+      if (sy > 1e-10 * sqrt(sum(s * s) * sum(y * y))) {
+        hy <- as.numeric(h %*% y)
+        h <- h -
+          (tcrossprod(s, hy) + tcrossprod(hy, s)) / sy +
+          (1 + sum(y * hy) / sy) * tcrossprod(s) / sy
+      }
+    }
+    psi <- psi_n
+    ll <- ll_n
+    u <- u_n
+  }
+  NA_real_
+}
+
 ## ----- PPP -------------------------------------------------------------------
 
 # The moments of group g from lavaan's implied moments, within block first
@@ -557,7 +735,7 @@ ppp2l_group_moments <- function(lavimplied, g) {
 }
 
 # The PPP of a two-level fit over the posterior draws `x_samp`. `method` is
-# "onestep" or "em". Incomplete data use the EM.
+# "onestep" or "em". With "em" every saturated fit is an EM, as in blavaan.
 get_ppp_twolevel <- function(
   x_samp,
   lavmodel,
@@ -568,9 +746,6 @@ get_ppp_twolevel <- function(
 ) {
   method <- match.arg(method, c("onestep", "em"))
   missing <- isTRUE(lavsamplestats@missing.flag)
-  if (missing) {
-    method <- "em"
-  }
   groups <- seq_len(lavdata@ngroups)
   # The cluster statistics of the observed data, once
   ylp_obs <- lapply(groups, function(g) {
@@ -578,21 +753,35 @@ get_ppp_twolevel <- function(
   })
   # The saturated log-likelihood of the observed data, once per group
   lavimplied0 <- lavaan::lav_model_implied(lavmodel)
-  sat_obs_g <- vapply(
-    groups,
-    function(g) {
-      ppp2l_loglik(
-        lavdata@X[[g]],
-        g,
-        lavdata,
-        lavimplied0,
-        missing,
-        ppp2l_em_obs,
-        ylp = ylp_obs[[g]]
-      )[["sat"]]
-    },
-    numeric(1)
-  )
+  mi_setup <- NULL
+  if (missing) {
+    em_obs <- lapply(groups, function(g) {
+      X <- lavdata@X[[g]]
+      ppp2l_mi_em(X, ppp2l_y2(X, lavdata@Lp[[g]]), g, lavdata, ppp2l_em_obs)
+    })
+    sat_obs_g <- vapply(em_obs, function(e) e$logl, numeric(1))
+    if (method == "onestep") {
+      mi_setup <- lapply(groups, function(g) {
+        ppp2l_mi_setup(lavdata, g, em_obs[[g]])
+      })
+    }
+  } else {
+    sat_obs_g <- vapply(
+      groups,
+      function(g) {
+        ppp2l_loglik(
+          lavdata@X[[g]],
+          g,
+          lavdata,
+          lavimplied0,
+          FALSE,
+          ppp2l_em_obs,
+          ylp = ylp_obs[[g]]
+        )[["sat"]]
+      },
+      numeric(1)
+    )
+  }
   sat_obs <- sum(sat_obs_g)
   # Complete data draw each replicate as its cluster statistics (see
   # ppp2l_draw_stats()). Incomplete data draw its rows.
@@ -679,7 +868,45 @@ get_ppp_twolevel <- function(
     }
     out
   }
-  stat <- if (method == "em") stat_em else stat_onestep
+  # Incomplete data: the saturated maximum of each replicate by scoring steps
+  # from the draw's moments, or by EM where they do not converge (see
+  # ppp2l_mi_scoring())
+  stat_scoring <- function(lavimplied, reps) {
+    fit_obs <- fit_rep <- sat_rep <- 0
+    for (g in groups) {
+      fit_obs <- fit_obs +
+        ppp2l_loglik(lavdata@X[[g]], g, lavdata, lavimplied, TRUE)[["fit"]]
+      X <- reps[[g]]
+      lp <- lavdata@Lp[[g]]
+      y2 <- ppp2l_y2(X, lp)
+      imp <- ppp2l_group_moments(lavimplied, g)
+      plan <- twolevel_fiml_plan_raw(lp, lavdata@Mp[[g]], X, y2)
+      fit_g <- twolevel_fiml_loglik_plan(
+        plan,
+        imp,
+        log2pi = TRUE,
+        loglik_x = 0,
+        minus_two = FALSE
+      )
+      sat_g <- NA_real_
+      if (!is.null(mi_setup[[g]])) {
+        sat_g <- ppp2l_mi_scoring(plan, imp, fit_g, mi_setup[[g]])
+      }
+      if (is.na(sat_g)) {
+        sat_g <- ppp2l_mi_em(X, y2, g, lavdata, ppp2l_em)$logl
+      }
+      fit_rep <- fit_rep + fit_g
+      sat_rep <- sat_rep + sat_g
+    }
+    c(-2 * (fit_obs - sat_obs), -2 * (fit_rep - sat_rep))
+  }
+  stat <- if (method == "em") {
+    stat_em
+  } else if (missing) {
+    stat_scoring
+  } else {
+    stat_onestep
+  }
   hit <- rep(NA, nrow(x_samp))
   for (i in seq_len(nrow(x_samp))) {
     if (!is.null(cli_env)) {

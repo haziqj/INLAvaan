@@ -678,27 +678,100 @@ test_that("The one-step and EM PPPs agree, and ppp_nsamp sets the draws", {
   expect_equal(p_inf * 9, round(p_inf * 9))
 })
 
-test_that("Incomplete two-level data use the EM PPP", {
-  skip_on_cran()
-  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
-  dat$y2[c(3, 40, 77)] <- NA
-  fit <- suppressWarnings(asem(
+test_that("Scoring steps reach the saturated maximum of incomplete data", {
+  # Within-only (x1), between-only (w1, with missing clusters) and both-level
+  # variables, and holes in y1 and y2
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 80, ]
+  set.seed(3)
+  dat$y1[sample.int(nrow(dat), 60)] <- NA
+  dat$y2[sample.int(nrow(dat), 60)] <- NA
+  dat$w1[dat$cluster %in% c(4, 17, 33)] <- NA
+  fit <- suppressWarnings(lavaan::sem(
     "
     level: 1
       fw =~ y1 + y2 + y3
+      fw ~ x1
     level: 2
       fb =~ y1 + y2 + y3
+      fb ~ w1
     ",
     dat,
     cluster = "cluster",
-    missing = "ml",
-    test = "ppp",
-    silent = TRUE,
-    nsamp = 30,
-    ppp_nsamp = 30
+    missing = "ml"
   ))
-  ppp <- get_inlavaan_internal(fit, "ppp")
-  expect_true(ppp >= 0 && ppp <= 1)
+  lavdata <- fit@Data
+  lp <- lavdata@Lp[[1]]
+  X <- lavdata@X[[1]]
+  em_obs <- ppp2l_mi_em(X, ppp2l_y2(X, lp), 1L, lavdata, ppp2l_em_obs)
+  setup <- ppp2l_mi_setup(lavdata, 1L, em_obs)
+  expect_false(is.null(setup))
+  # The within means of the variables at both levels are not free
+  imp_obs <- list(
+    mean = list(em_obs$Mu.W, em_obs$Mu.B),
+    cov = list(em_obs$Sigma.W, em_obs$Sigma.B)
+  )
+  n_moments <- length(ppp2l_pack(imp_obs))
+  expect_length(setup$free, n_moments - length(lp$both.idx[[2]]))
+  lavimplied <- lavaan::lav_model_implied(fit@Model)
+  imp <- ppp2l_group_moments(lavimplied, 1L)
+  tight <- list(tol = 1e-10, max_iter = 5000L, acceleration = "squarem")
+  gaps <- vapply(
+    1:5,
+    function(r) {
+      Xr <- ppp2l_draw(lavdata, lavimplied)[[1]]
+      y2 <- ppp2l_y2(Xr, lp)
+      plan <- twolevel_fiml_plan_raw(lp, lavdata@Mp[[1]], Xr, y2)
+      ll0 <- twolevel_fiml_loglik_plan(
+        plan,
+        imp,
+        log2pi = TRUE,
+        loglik_x = 0,
+        minus_two = FALSE
+      )
+      sat <- ppp2l_mi_scoring(plan, imp, ll0, setup)
+      ref <- ppp2l_mi_em(Xr, y2, 1L, lavdata, tight)$logl
+      # Too few steps give no maximum, which sends the replicate to the EM
+      expect_identical(
+        ppp2l_mi_scoring(plan, imp, ll0, setup, max_iter = 1L),
+        NA_real_
+      )
+      ref - sat
+    },
+    numeric(1)
+  )
+  expect_lt(max(abs(gaps)), 1e-4)
+})
+
+test_that("The scoring and EM PPPs of incomplete data agree", {
+  skip_on_cran()
+  dat <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster <= 30, ]
+  dat$y2[c(3, 40, 77)] <- NA
+  fit_with <- function(...) {
+    suppressWarnings(asem(
+      "
+      level: 1
+        fw =~ y1 + y2 + y3
+      level: 2
+        fb =~ y1 + y2 + y3
+      ",
+      dat,
+      cluster = "cluster",
+      missing = "ml",
+      test = "ppp",
+      silent = TRUE,
+      nsamp = 40,
+      ppp_nsamp = 40,
+      ...
+    ))
+  }
+  # The same seed draws the same replicates, which differ only in how their
+  # saturated maximum is found
+  set.seed(11)
+  p_scoring <- get_inlavaan_internal(fit_with(), "ppp")
+  set.seed(11)
+  p_em <- get_inlavaan_internal(fit_with(ppp_method = "em"), "ppp")
+  expect_true(p_scoring >= 0 && p_scoring <= 1)
+  expect_lte(abs(p_scoring - p_em), 1 / 40)
 })
 
 test_that("The one-step PPP frees a covariate the replicates draw", {
