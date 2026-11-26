@@ -159,6 +159,8 @@ tlk_data_na <- local({
   }
   # One case that misses every level-1 variable of the model
   dat[5L, c("y1", "y2", "y3")] <- NA
+  # A between-only variable missing in three clusters
+  dat$w2[dat$cluster %in% c(4, 9, 17)] <- NA
   dat
 })
 
@@ -171,7 +173,9 @@ tlk_fits_na <- lapply(
         fw =~ y1 + a*y2 + b*y3 + x1
       level: 2
         fb =~ y1 + a*y2 + b*y3
-    "
+    ",
+    # Between-only variables, one of them missing in some clusters
+    between = tlk_models$between_outcome
   ),
   function(m) {
     suppressWarnings(lavaan::sem(
@@ -190,18 +194,8 @@ test_that("the FIML kernels take two-level models with missing data", {
     expect_true(twolevel_fiml_ok(fit@Model, fit@SampleStats, fit@Data))
     expect_false(twolevel_kernel_ok(fit@Model, fit@SampleStats, fit@Data))
   }
-  between <- suppressWarnings(lavaan::sem(
-    tlk_models$between_outcome,
-    data = tlk_data_na,
-    cluster = "cluster",
-    missing = "ml",
-    se = "none"
-  ))
-  expect_false(twolevel_fiml_ok(
-    between@Model,
-    between@SampleStats,
-    between@Data
-  ))
+  zp <- tlk_fits_na$between@Data@Mp[[1L]]$Zp
+  expect_gt(zp$npatterns, 1L)
 })
 
 test_that("the FIML log-likelihood equals lavaan's", {
@@ -239,7 +233,7 @@ test_that("the FIML gradient equals lavaan's and a numerical gradient", {
 
 test_that("the FIML kernels go back to lavaan or give -Inf as lavaan does", {
   fit <- tlk_fits_na$cfa
-  plan <- twolevel_fiml_plan(fit@Data)
+  plan <- twolevel_fiml_plan(fit@Data, fit@SampleStats)
   implied <- lavaan::lav_model_implied(fit@Model)
   bad_b <- implied
   diag(bad_b$cov[[2L]]) <- -1

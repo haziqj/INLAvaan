@@ -182,7 +182,7 @@ multilevel_setup <- function(lavmodel, lavsamplestats, lavdata, lavcache) {
   }
   twolevel_fiml <- NULL
   if (twolevel_fiml_ok(lavmodel, lavsamplestats, lavdata)) {
-    twolevel_fiml <- twolevel_fiml_plan(lavdata)
+    twolevel_fiml <- twolevel_fiml_plan(lavdata, lavsamplestats)
   }
   list(
     rs = rs,

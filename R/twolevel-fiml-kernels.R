@@ -18,6 +18,15 @@
 # Sigma_b in the place of Sigma_v). In the gradient, every sum over the cases
 # of a cluster is a sum over the patterns, so the within-level terms take one
 # p x p product per pattern and none per cluster.
+#
+# Between-only variables z (observed once per cluster, possibly with missing
+# values) enter as their own normal likelihood times the likelihood of the
+# other variables given z. Given z_j, the between effects of cluster j have
+# their mean shifted by Sigma_yz Sigma_zz^-1 (z_j - mu_z) and their covariance
+# reduced to Sigma_b - Sigma_yz Sigma_zz^-1 Sigma_zy, with the inverse taken
+# over the variables z_j observes. So the residuals of a cluster are shifted,
+# and the clusters are worked in groups that share a pattern of observed z.
+# The sum is lavaan's log-likelihood, term by term.
 
 # The models these kernels take. Everything else keeps lavaan's code.
 twolevel_fiml_ok <- function(lavmodel, lavsamplestats, lavdata) {
@@ -25,7 +34,6 @@ twolevel_fiml_ok <- function(lavmodel, lavsamplestats, lavdata) {
     lavdata@nlevels == 2L &&
     lavdata@ngroups == 1L &&
     isTRUE(lavsamplestats@missing.flag) &&
-    length(lavdata@Lp[[1L]]$between.idx[[2L]]) == 0L &&
     !isTRUE(lavmodel@conditional.x) &&
     !has_random_slopes(lavmodel) &&
     lavmodel@representation == "LISREL" &&
@@ -39,12 +47,32 @@ twolevel_fiml_ok <- function(lavmodel, lavsamplestats, lavdata) {
 ## ----- Plan ------------------------------------------------------------------
 
 # The missing-data patterns of level 1, the counts of each pattern in each
-# cluster, and the data, found once per model
-twolevel_fiml_plan <- function(lavdata) {
+# cluster, the patterns of the between-only variables, and the data, found
+# once per model
+twolevel_fiml_plan <- function(lavdata, lavsamplestats) {
   lp <- lavdata@Lp[[1L]]
   mp <- lavdata@Mp[[1L]]
   n_cl <- lp$nclusters[[2L]]
+  between_idx <- lp$between.idx[[2L]]
   y1 <- lavdata@X[[1L]]
+  z <- NULL
+  zpats <- list()
+  z_empty <- integer(0L)
+  z_nel <- 0
+  if (length(between_idx) > 0L) {
+    y1 <- y1[, -between_idx, drop = FALSE]
+    z <- lavsamplestats@YLp[[1L]][[2L]]$Y2[, between_idx, drop = FALSE]
+    zp <- mp$Zp
+    zpats <- lapply(seq_len(zp$npatterns), function(p) {
+      list(
+        obs = which(zp$pat[p, ]),
+        clusters = zp$case.idx[[p]],
+        freq = zp$freq[p]
+      )
+    })
+    z_empty <- zp$empty.idx
+    z_nel <- zp$nel
+  }
   counts <- matrix(0, n_cl, mp$npatterns)
   pats <- vector("list", mp$npatterns)
   for (p in seq_len(mp$npatterns)) {
@@ -62,9 +90,12 @@ twolevel_fiml_plan <- function(lavdata) {
     both = lp$both.idx[[2L]],
     cluster_idx = lp$cluster.idx[[2L]],
     y1 = y1,
+    z = z,
+    zpats = zpats,
+    z_empty = z_empty,
     counts = counts,
     pats = pats,
-    nel = mp$nel
+    nel = mp$nel + z_nel
   )
 }
 
@@ -95,7 +126,15 @@ twolevel_fiml_parts <- function(plan, implied, s0 = FALSE) {
     return(list(status = "undefined"))
   }
   ny <- plan$ny
+  zs <- twolevel_fiml_between(plan, out, sigma_b)
+  if (zs$status != "ok") {
+    return(zs)
+  }
   y_c <- sweep(plan$y1, 2L, out$mu_y)
+  if (!is.null(zs$shift)) {
+    y_c[, both] <- y_c[, both, drop = FALSE] -
+      zs$shift[plan$cluster_idx, , drop = FALSE]
+  }
   y_c[is.na(y_c)] <- 0
   pij <- matrix(0, nrow(y_c), ny)
   w_pat <- vector("list", length(plan$pats))
@@ -125,8 +164,8 @@ twolevel_fiml_parts <- function(plan, implied, s0 = FALSE) {
   pj <- matrix(0, plan$n_cl, ny)
   sums <- rowsum(pij, plan$cluster_idx)
   pj[as.integer(rownames(sums)), ] <- sums
-  post <- rs_cluster_posterior(a, pj[, both, drop = FALSE], sigma_b, k, s0 = s0)
-  if (post$status != "ok") {
+  post <- twolevel_fiml_posterior(a, pj[, both, drop = FALSE], zs$groups, k, s0)
+  if (is.null(post)) {
     return(list(status = "fallback"))
   }
   list(
@@ -139,8 +178,105 @@ twolevel_fiml_parts <- function(plan, implied, s0 = FALSE) {
     q_yy_a = sum(pij * y_c),
     a = a,
     pj = pj,
-    post = post
+    post = post,
+    zs = zs
   )
+}
+
+# The pieces of the between-only variables: for each pattern of observed z,
+# the clusters, the inverse of the observed block of Sigma_zz, and the reduced
+# covariance of the between effects; the shift of each cluster's between
+# effects, the scaled residuals Sigma_zz^-1 (z_j - mu_z), and their own
+# log-determinant and quadratic form. With no between-only variables, one
+# group of all clusters with Sigma_b.
+twolevel_fiml_between <- function(plan, out, sigma_b) {
+  if (is.null(plan$z)) {
+    return(list(
+      status = "ok",
+      groups = list(list(clusters = seq_len(plan$n_cl), sigma = sigma_b)),
+      zz_logdet = 0,
+      q_zz_a = 0
+    ))
+  }
+  sigma_zz <- out$sigma_zz
+  ev <- eigen(sigma_zz, symmetric = TRUE, only.values = TRUE)$values
+  if (any(ev < sqrt(.Machine$double.eps))) {
+    return(list(status = "undefined"))
+  }
+  y_z <- out$sigma_yz[plan$both, , drop = FALSE]
+  z_c <- sweep(plan$z, 2L, out$mu_z)
+  z_c[is.na(z_c)] <- 0
+  gz <- matrix(0, plan$n_cl, ncol(z_c))
+  groups <- vector("list", length(plan$zpats))
+  zz_logdet <- 0
+  for (p in seq_along(plan$zpats)) {
+    zpat <- plan$zpats[[p]]
+    obs <- zpat$obs
+    ch <- tryCatch(
+      chol(sigma_zz[obs, obs, drop = FALSE]),
+      error = function(e) NULL
+    )
+    if (is.null(ch)) {
+      return(list(status = "fallback"))
+    }
+    z_inv <- chol2inv(ch)
+    zz_logdet <- zz_logdet + zpat$freq * 2 * sum(log(diag(ch)))
+    gz[zpat$clusters, obs] <- z_c[zpat$clusters, obs, drop = FALSE] %*% z_inv
+    y_o <- y_z[, obs, drop = FALSE]
+    groups[[p]] <- list(
+      clusters = zpat$clusters,
+      sigma = sigma_b - y_o %*% z_inv %*% t(y_o),
+      obs = obs,
+      z_inv = z_inv,
+      freq = zpat$freq
+    )
+  }
+  if (length(plan$z_empty) > 0L) {
+    groups[[length(groups) + 1L]] <- list(
+      clusters = plan$z_empty,
+      sigma = sigma_b
+    )
+  }
+  list(
+    status = "ok",
+    groups = groups,
+    y_z = y_z,
+    z_c = z_c,
+    gz = gz,
+    shift = gz %*% t(y_z),
+    zz_logdet = zz_logdet,
+    q_zz_a = sum(gz * z_c)
+  )
+}
+
+# The cluster effects integrated out group by group (each group with its own
+# covariance of the between effects), put back in the order of the clusters.
+# NULL when lavaan's code is needed.
+twolevel_fiml_posterior <- function(a, pb, groups, k, s0) {
+  n_cl <- nrow(a)
+  out <- list(logdet = numeric(n_cl), quad = numeric(n_cl))
+  if (s0) {
+    out$s0 <- matrix(0, n_cl, k * k)
+  }
+  for (grp in groups) {
+    rows <- grp$clusters
+    post <- rs_cluster_posterior(
+      a[rows, , drop = FALSE],
+      pb[rows, , drop = FALSE],
+      grp$sigma,
+      k,
+      s0 = s0
+    )
+    if (post$status != "ok") {
+      return(NULL)
+    }
+    out$logdet[rows] <- post$logdet
+    out$quad[rows] <- post$quad
+    if (s0) {
+      out$s0[rows, ] <- post$s0
+    }
+  }
+  out
 }
 
 ## ----- Log-likelihood --------------------------------------------------------
@@ -157,8 +293,8 @@ twolevel_fiml_loglik <- function(plan, lavsamplestats, implied) {
   if (parts$status == "fallback") {
     return(NULL)
   }
-  logdet <- parts$w_logdet + sum(parts$post$logdet)
-  dist <- parts$q_yy_a - sum(parts$post$quad)
+  logdet <- parts$w_logdet + sum(parts$post$logdet) + parts$zs$zz_logdet
+  dist <- parts$q_yy_a - sum(parts$post$quad) + parts$zs$q_zz_a
   out <- -(plan$nel * log(2 * pi) + logdet + dist) / 2
   if (length(unlist(plan$lp$ov.x.idx)) > 0L) {
     out <- out - lavsamplestats@YLp[[1L]][[2L]]$loglik.x
@@ -228,13 +364,52 @@ twolevel_fiml_dmoments <- function(plan, implied) {
   }
   d_sw <- dd(a_total + (aa + t(aa)) / 2)
   d_muy <- 2 * (a_t - colSums(parts$pj))
+
+  # Between-only variables: through the shift of each cluster (whose
+  # derivative is -2 z_j), the reduced covariance of each group, and the
+  # likelihood of z itself
+  zs <- parts$zs
+  nz <- if (is.null(plan$z)) 0L else ncol(plan$z)
+  d_syz <- matrix(0, nrow(parts$out$sigma_yz), nz)
+  d_szz <- matrix(0, nz, nz)
+  d_muz <- numeric(nz)
+  if (nz > 0L) {
+    h <- -2 * zp
+    g_y <- matrix(0, k, nz)
+    g_zz <- matrix(0, nz, nz)
+    for (grp in zs$groups) {
+      if (is.null(grp$obs)) {
+        next
+      }
+      rows <- grp$clusters
+      obs <- grp$obs
+      z_inv <- grp$z_inv
+      y_o <- zs$y_z[, obs, drop = FALSE]
+      g_s <- matrix(colSums(g_b[rows, , drop = FALSE]), k, k)
+      h_g <- h[rows, , drop = FALSE]
+      gz_g <- zs$gz[rows, obs, drop = FALSE]
+      g_y[, obs] <- g_y[, obs, drop = FALSE] -
+        2 * g_s %*% y_o %*% z_inv +
+        crossprod(h_g, gz_g)
+      g_zz[obs, obs] <- g_zz[obs, obs, drop = FALSE] +
+        z_inv %*% t(y_o) %*% g_s %*% y_o %*% z_inv -
+        z_inv %*% t(y_o) %*% crossprod(h_g, gz_g) +
+        grp$freq * z_inv -
+        crossprod(gz_g)
+      d_muz[obs] <- d_muz[obs] -
+        as.numeric(z_inv %*% t(y_o) %*% colSums(h_g)) -
+        2 * colSums(gz_g)
+    }
+    d_syz[both, ] <- g_y
+    d_szz <- dd(g_zz)
+  }
   twolevel_2l2implied(
     lp = plan$lp,
     sigma_w = d_sw,
     sigma_b = d_sb,
-    sigma_yz = matrix(0, nrow(parts$out$sigma_yz), 0L),
-    sigma_zz = matrix(0, 0L, 0L),
+    sigma_yz = d_syz,
+    sigma_zz = d_szz,
     mu_y = d_muy,
-    mu_z = numeric(0L)
+    mu_z = d_muz
   )
 }
