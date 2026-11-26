@@ -52,6 +52,9 @@ inlav_model_loglik <- function(
           lavimplied
         )
       }
+      if (!is.null(out) && !is.null(multilevel$rs_x)) {
+        out <- out + rs_x_term(multilevel$rs_x, lavimplied)
+      }
       if (is.null(out)) {
         out <- lavaan___lav_model_loglik(
           lavdata = lavdata,
@@ -174,6 +177,14 @@ inlav_model_grad <- function(
   if (rs_grad_is_packed(length(grad_F), lavmodel)) {
     grad_F <- rs_unpack_grad(grad_F, lavmodel)
   }
+  # The covariate density of a random-slope fit with fixed.x = FALSE, whose
+  # derivative is of log L, where grad_F is of -log L / N
+  if (!is.null(multilevel$rs_x)) {
+    g_x <- rs_x_grad(multilevel$rs_x, lavmodel_x)
+    if (!is.null(g_x)) {
+      grad_F <- grad_F - g_x / lavsamplestats@ntotal
+    }
+  }
 
   out <-
     if (lavmodel@estimator == "ML") {
@@ -211,6 +222,11 @@ multilevel_setup <- function(lavmodel, lavsamplestats, lavdata, lavcache) {
   }
   list(
     rs = rs,
+    # The covariate density of a random-slope fit with fixed.x = FALSE
+    # (R/random-slope-covariates.R), or NULL
+    rs_x = if (!is.null(rs)) {
+      rs_x_setup(lavmodel, lavdata, lavsamplestats, lavcache)
+    },
     twolevel = twolevel_kernel_ok(lavmodel, lavsamplestats, lavdata),
     twolevel_fiml = twolevel_fiml
   )

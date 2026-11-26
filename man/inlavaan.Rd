@@ -303,13 +303,18 @@ governed by \code{integration.ngh}, passed through to lavaan. The node count
 is an accuracy setting as much as a cost setting, so give every fit that
 is to be compared with another the same \code{integration.ngh}.
 
-A model with observed exogenous covariates requires \code{fixed.x = TRUE}
-(the default): the likelihood is the density of the outcomes \emph{given}
-those covariates, so their own means and (co)variances are unidentified
-and would be reported back as their priors. A \code{fixed.x = FALSE} fit is
-refused. A model whose covariates are all latent or modelled has nothing
-to hold fixed, and lavaan reports \code{fixed.x = FALSE} for it of its own
-accord; such a fit is accepted as it stands.
+With \code{fixed.x = TRUE} (the default) the likelihood is the density of the
+outcomes \emph{given} the observed exogenous covariates. With
+\code{fixed.x = FALSE} the covariates are modelled too: their two-level normal
+density, with their means, variances and covariances as parameters, is
+added to the likelihood, which lavaan itself does not do. The other
+parameters then have the same posterior as under \code{fixed.x = TRUE}. This
+needs a slope on an observed within-cluster covariate, every covariate
+without a slope observed at one level only, and complete covariates;
+other \code{fixed.x = FALSE} fits are refused. A model whose covariates are
+all latent has nothing to hold fixed, and lavaan reports
+\code{fixed.x = FALSE} for it of its own accord; such a fit is accepted as it
+stands.
 
 Equality constraints work as for other models, except that covariances
 cannot be held equal. Composites (\verb{<~}) cannot be combined with random

@@ -221,13 +221,18 @@
 #' is an accuracy setting as much as a cost setting, so give every fit that
 #' is to be compared with another the same `integration.ngh`.
 #'
-#' A model with observed exogenous covariates requires `fixed.x = TRUE`
-#' (the default): the likelihood is the density of the outcomes *given*
-#' those covariates, so their own means and (co)variances are unidentified
-#' and would be reported back as their priors. A `fixed.x = FALSE` fit is
-#' refused. A model whose covariates are all latent or modelled has nothing
-#' to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own
-#' accord; such a fit is accepted as it stands.
+#' With `fixed.x = TRUE` (the default) the likelihood is the density of the
+#' outcomes *given* the observed exogenous covariates. With
+#' `fixed.x = FALSE` the covariates are modelled too: their two-level normal
+#' density, with their means, variances and covariances as parameters, is
+#' added to the likelihood, which lavaan itself does not do. The other
+#' parameters then have the same posterior as under `fixed.x = TRUE`. This
+#' needs a slope on an observed within-cluster covariate, every covariate
+#' without a slope observed at one level only, and complete covariates;
+#' other `fixed.x = FALSE` fits are refused. A model whose covariates are
+#' all latent has nothing to hold fixed, and lavaan reports
+#' `fixed.x = FALSE` for it of its own accord; such a fit is accepted as it
+#' stands.
 #'
 #' Equality constraints work as for other models, except that covariances
 #' cannot be held equal. Composites (`<~`) cannot be combined with random
@@ -556,25 +561,10 @@ inlavaan <- function(
     # otherwise do. Everything here is a no-op without an `rv()` modifier.
     rs_skipped <- character(0)
     if (has_random_slopes(lavmodel)) {
-      # lavaan reports `fixed.x = FALSE` of its own accord for a model with
-      # no observed exogenous variables at all -- a slope on a latent
-      # covariate, say -- so the slot alone would refuse such a fit over an
-      # argument the user never passed. The syntax-level set decides.
-      if (
-        !isTRUE(lavmodel@fixed.x) &&
-          length(lavaan::lavNames(lavpartable, "ov.x")) > 0L
-      ) {
-        cli_abort(
-          c(
-            "Random-slope models require {.code fixed.x = TRUE}.",
-            "x" = "The likelihood conditions on the exogenous covariates, so
-                 their means and (co)variances are unidentified and would be
-                 reported back as their priors.",
-            "i" = "Refit with {.code fixed.x = TRUE}."
-          ),
-          class = "inlavaan_rs_fixedx"
-        )
-      }
+      # With fixed.x = FALSE the observed covariates are modelled, through
+      # their own density added to the kernel (R/random-slope-covariates.R),
+      # in the cases where that is exact
+      check_rs_fixedx(lavmodel, lavdata, lavcache)
       if ("ppp" %in% test_req) {
         test_req <- setdiff(test_req, "ppp")
         # Collapsed to one line because the reason is handed back to the

@@ -611,3 +611,106 @@ test_that("empirical Bayes values equal lavaan's on both routes", {
     expect_identical(out$cluster.idx, ref$cluster.idx)
   }
 })
+
+## ----- Covariates under fixed.x = FALSE (R/random-slope-covariates.R) -------
+
+rsk_fit_x <- suppressWarnings(lavaan::sem(
+  "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ rv('s1')*x1 + x2
+  level: 2
+    fb =~ y1 + y2 + y3
+    s1 ~ w1
+    fb ~ w1 + w2
+  ",
+  data = rsk_data,
+  cluster = "cluster",
+  fixed.x = FALSE,
+  se = "none"
+))
+
+# The log-density of the covariates `cols` of rsk_fit_x at x, summed over the
+# clusters with the frozen-density code of the LOO, a separate route
+rsk_x_ref <- function(x, cols) {
+  fit <- rsk_fit_x
+  lm <- lavaan::lav_model_set_parameters(fit@Model, x)
+  int <- list(lavdata = fit@Data, lavsamplestats = fit@SampleStats)
+  int$lavsamplestats@x.idx[[1L]] <- match(cols, fit@Data@ov.names[[1L]])
+  lp <- fit@Data@Lp[[1L]]
+  info <- loo_fixedx_info_loco(
+    int,
+    list(Lp = lp),
+    loo_implied_moments(lm, TRUE),
+    g = 1L
+  )
+  X <- fit@Data@X[[1L]]
+  cl <- lp$cluster.idx[[2L]]
+  y2 <- fit@SampleStats@YLp[[1L]][[2L]]$Y2
+  sum(vapply(
+    seq_len(lp$nclusters[[2L]]),
+    function(j) {
+      loo_fixedx_const_raw(
+        X[cl == j, , drop = FALSE],
+        y2[j, , drop = FALSE],
+        info
+      )
+    },
+    numeric(1)
+  ))
+}
+
+test_that("the kernel scores the covariates without a slope on their own", {
+  fit <- rsk_fit_x
+  ml0 <- multilevel_setup(fit@Model, fit@SampleStats, fit@Data, fit@Cache)
+  # x1 (the slope) and w1, w2 are conditioned on, x2 is a response
+  expect_equal(c(ml0$rs_x$all$qv, ml0$rs_x$all$qz), c(2L, 2L))
+  expect_equal(c(ml0$rs_x$resp$qv, ml0$rs_x$resp$qz), c(1L, 0L))
+  ml0$rs_x <- NULL
+  x <- rsk_point(fit, 1)
+  pt <- lavaan::parTable(fit)
+  part <- function(z) rsk_loglik(fit, z, ml0) - rsk_x_ref(z, "x2")
+  for (nm in c("x2~~x2", "x2~1", "x1~~x2", "x1~~x1")) {
+    z <- x
+    i <- pt$free[paste0(pt$lhs, pt$op, pt$rhs) == nm & pt$free > 0]
+    z[i] <- z[i] + 0.05
+    expect_equal(part(z), part(x), tolerance = 1e-10)
+  }
+})
+
+test_that("the covariate term, its gradient and its cluster terms are exact", {
+  skip_if_not_installed("numDeriv")
+  fit <- rsk_fit_x
+  ml <- multilevel_setup(fit@Model, fit@SampleStats, fit@Data, fit@Cache)
+  ml0 <- ml
+  ml0$rs_x <- NULL
+  x <- rsk_point(fit, 2)
+  expect_equal(
+    rsk_loglik(fit, x, ml) - rsk_loglik(fit, x, ml0),
+    rsk_x_ref(x, c("x1", "x2", "w1", "w2")) - rsk_x_ref(x, "x2"),
+    tolerance = 1e-10
+  )
+  g <- rsk_grad(fit, x, ml)
+  g_num <- numDeriv::grad(function(z) rsk_loglik(fit, z, ml), x)
+  expect_equal(as.numeric(g), g_num, tolerance = 1e-6)
+  lm <- lavaan::lav_model_set_parameters(fit@Model, x)
+  units <- c(1L, 7L, 30L)
+  ct <- rs_x_cluster_term(ml$rs_x, lm, units, grad = TRUE)
+  all_ct <- rs_x_cluster_term(ml$rs_x, lm, seq_len(30L))
+  expect_equal(
+    sum(all_ct$loglik),
+    rs_x_term(ml$rs_x, lavaan::lav_model_implied(lm)),
+    tolerance = 1e-10
+  )
+  ct_num <- numDeriv::jacobian(
+    function(z) {
+      rs_x_cluster_term(
+        ml$rs_x,
+        lavaan::lav_model_set_parameters(fit@Model, z),
+        units
+      )$loglik
+    },
+    x
+  )
+  expect_equal(ct$grad, ct_num, tolerance = 1e-6, ignore_attr = TRUE)
+})
