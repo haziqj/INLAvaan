@@ -40,7 +40,7 @@ tlk_fits <- lapply(tlk_models, function(m) {
   ))
 })
 
-tlk_lavaan <- list(rs = NULL, twolevel = FALSE)
+tlk_lavaan <- list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
 
 tlk_loglik <- function(fit, x, multilevel = NULL) {
   inlav_model_loglik(
@@ -147,4 +147,105 @@ test_that("a matrix with no Cholesky factor falls back to lavaan", {
   implied$cov[[1L]][] <- -1
   expect_null(twolevel_kernel_loglik(fit@SampleStats, fit@Data, implied))
   expect_null(twolevel_dmoments(fit@SampleStats, fit@Data, implied))
+})
+
+## ----- Missing data (R/twolevel-fiml-kernels.R) ------------------------------
+
+tlk_data_na <- local({
+  dat <- tlk_data
+  set.seed(27)
+  for (v in c("y1", "y2", "y3", "x1")) {
+    dat[[v]][stats::runif(nrow(dat)) < 0.12] <- NA
+  }
+  # One case that misses every level-1 variable of the model
+  dat[5L, c("y1", "y2", "y3")] <- NA
+  dat
+})
+
+tlk_fits_na <- lapply(
+  list(
+    cfa = tlk_models$cfa,
+    # A within-only variable and loadings held equal across the levels
+    within_only = "
+      level: 1
+        fw =~ y1 + a*y2 + b*y3 + x1
+      level: 2
+        fb =~ y1 + a*y2 + b*y3
+    "
+  ),
+  function(m) {
+    suppressWarnings(lavaan::sem(
+      m,
+      data = tlk_data_na,
+      cluster = "cluster",
+      missing = "ml",
+      ceq.simple = TRUE,
+      se = "none"
+    ))
+  }
+)
+
+test_that("the FIML kernels take two-level models with missing data", {
+  for (fit in tlk_fits_na) {
+    expect_true(twolevel_fiml_ok(fit@Model, fit@SampleStats, fit@Data))
+    expect_false(twolevel_kernel_ok(fit@Model, fit@SampleStats, fit@Data))
+  }
+  between <- suppressWarnings(lavaan::sem(
+    tlk_models$between_outcome,
+    data = tlk_data_na,
+    cluster = "cluster",
+    missing = "ml",
+    se = "none"
+  ))
+  expect_false(twolevel_fiml_ok(
+    between@Model,
+    between@SampleStats,
+    between@Data
+  ))
+})
+
+test_that("the FIML log-likelihood equals lavaan's", {
+  for (fit in tlk_fits_na) {
+    x <- lavaan::lav_model_get_parameters(fit@Model)
+    expect_equal(tlk_loglik(fit, x), as.numeric(lavaan::logLik(fit)))
+    for (seed in 1:3) {
+      x <- tlk_point(fit, seed)
+      expect_equal(
+        tlk_loglik(fit, x),
+        tlk_loglik(fit, x, multilevel = tlk_lavaan),
+        tolerance = 1e-12
+      )
+    }
+  }
+})
+
+test_that("the FIML gradient equals lavaan's and a numerical gradient", {
+  skip_if_not_installed("numDeriv")
+  for (fit in tlk_fits_na) {
+    for (seed in 1:2) {
+      x <- tlk_point(fit, seed)
+      g <- tlk_grad(fit, x)
+      expect_length(g, fit@Model@nx.unco)
+      expect_equal(
+        g,
+        tlk_grad(fit, x, multilevel = tlk_lavaan),
+        tolerance = 1e-10
+      )
+      g_num <- numDeriv::grad(function(z) tlk_loglik(fit, z), x)
+      expect_equal(as.numeric(g %*% tlk_k(fit)), g_num, tolerance = 1e-6)
+    }
+  }
+})
+
+test_that("the FIML kernels go back to lavaan or give -Inf as lavaan does", {
+  fit <- tlk_fits_na$cfa
+  plan <- twolevel_fiml_plan(fit@Data)
+  implied <- lavaan::lav_model_implied(fit@Model)
+  bad_b <- implied
+  diag(bad_b$cov[[2L]]) <- -1
+  expect_identical(twolevel_fiml_loglik(plan, fit@SampleStats, bad_b), -Inf)
+  expect_null(twolevel_fiml_dmoments(plan, bad_b))
+  bad_w <- implied
+  bad_w$cov[[1L]][] <- 1
+  expect_null(twolevel_fiml_loglik(plan, fit@SampleStats, bad_w))
 })

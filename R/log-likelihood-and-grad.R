@@ -46,6 +46,12 @@ inlav_model_loglik <- function(
         )
       } else if (multilevel$twolevel) {
         out <- twolevel_kernel_loglik(lavsamplestats, lavdata, lavimplied)
+      } else if (!is.null(multilevel$twolevel_fiml)) {
+        out <- twolevel_fiml_loglik(
+          multilevel$twolevel_fiml,
+          lavsamplestats,
+          lavimplied
+        )
       }
       if (is.null(out)) {
         out <- lavaan___lav_model_loglik(
@@ -126,8 +132,13 @@ inlav_model_grad <- function(
     grad_F <- fiml_grad_samp(lavmodel_x, lavsamplestats, fiml$plan)
   } else if (!is.null(multilevel$rs)) {
     grad_F <- rs_kernel_grad(lavmodel_x, multilevel$rs)
-  } else if (multilevel$twolevel) {
-    grad_F <- twolevel_kernel_grad(lavmodel_x, lavsamplestats, lavdata)
+  } else if (multilevel$twolevel || !is.null(multilevel$twolevel_fiml)) {
+    grad_F <- twolevel_kernel_grad(
+      lavmodel_x,
+      lavsamplestats,
+      lavdata,
+      multilevel$twolevel_fiml
+    )
   }
   if (is.null(grad_F)) {
     grad_F <- lavaan___lav_model_grad(
@@ -163,17 +174,23 @@ inlav_model_grad <- function(
 }
 
 # What a fit needs to know about the multilevel kernels, found once per model:
-# the plan of the random-slope kernels (R/random-slope-kernels.R), or NULL, and
-# if the two-level kernels (R/twolevel-kernels.R) apply. Models that take
-# neither keep lavaan's code.
+# the plan of the random-slope kernels (R/random-slope-kernels.R), or NULL, if
+# the two-level kernels (R/twolevel-kernels.R) apply, and the plan of the
+# two-level FIML kernels (R/twolevel-fiml-kernels.R), or NULL. Models that take
+# none of them keep lavaan's code.
 multilevel_setup <- function(lavmodel, lavsamplestats, lavdata, lavcache) {
   rs <- NULL
   if (rs_kernel_ok(lavmodel, lavdata, lavcache)) {
     rs <- rs_kernel_plan(lavcache[[1L]]$rs)
   }
+  twolevel_fiml <- NULL
+  if (twolevel_fiml_ok(lavmodel, lavsamplestats, lavdata)) {
+    twolevel_fiml <- twolevel_fiml_plan(lavdata)
+  }
   list(
     rs = rs,
-    twolevel = twolevel_kernel_ok(lavmodel, lavsamplestats, lavdata)
+    twolevel = twolevel_kernel_ok(lavmodel, lavsamplestats, lavdata),
+    twolevel_fiml = twolevel_fiml
   )
 }
 

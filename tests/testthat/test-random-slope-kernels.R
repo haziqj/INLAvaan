@@ -130,7 +130,11 @@ test_that("the log-likelihood equals lavaan's", {
       x <- rsk_point(fit, seed)
       expect_equal(
         rsk_loglik(fit, x),
-        rsk_loglik(fit, x, multilevel = list(rs = NULL, twolevel = FALSE)),
+        rsk_loglik(
+          fit,
+          x,
+          multilevel = list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
+        ),
         tolerance = 1e-12
       )
     }
@@ -146,7 +150,11 @@ test_that("the gradient equals lavaan's and a numerical gradient", {
       expect_length(g, fit@Model@nx.unco)
       expect_equal(
         g,
-        rsk_grad(fit, x, multilevel = list(rs = NULL, twolevel = FALSE)),
+        rsk_grad(
+          fit,
+          x,
+          multilevel = list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
+        ),
         tolerance = 1e-10
       )
       # The gradient comes back with one entry per free row, the packed

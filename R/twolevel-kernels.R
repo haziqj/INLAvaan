@@ -260,14 +260,21 @@ twolevel_sym_halve <- function(d) {
 
 # The gradient of lavaan's fit function with respect to the free parameters
 # (unpacked under ceq.simple), as lav_model_grad() returns it for a two-level
-# model with complete data, or NULL when it is not defined (the caller then
-# falls back to lavaan)
-twolevel_kernel_grad <- function(lavmodel_x, lavsamplestats, lavdata) {
-  dmom <- twolevel_dmoments(
-    lavsamplestats,
-    lavdata,
-    lavaan::lav_model_implied(lavmodel_x)
-  )
+# model, or NULL when it is not defined (the caller then falls back to
+# lavaan). With `fiml_plan` (from twolevel_fiml_plan()) the derivative with
+# respect to the moments is that of the FIML kernels.
+twolevel_kernel_grad <- function(
+  lavmodel_x,
+  lavsamplestats,
+  lavdata,
+  fiml_plan = NULL
+) {
+  implied <- lavaan::lav_model_implied(lavmodel_x)
+  dmom <- if (is.null(fiml_plan)) {
+    twolevel_dmoments(lavsamplestats, lavdata, implied)
+  } else {
+    twolevel_fiml_dmoments(fiml_plan, implied)
+  }
   if (is.null(dmom) || anyNA(unlist(dmom))) {
     return(NULL)
   }
