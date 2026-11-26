@@ -499,6 +499,18 @@ inlavaan <- function(
         do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
       )
     }
+    # A two-level fit with conditional.x = TRUE is fitted as the joint model
+    # with fixed.x = TRUE. The two have the same free parameters, and
+    # log p(y | x) = log p(y, x) - log p(x), where p(x) holds no free
+    # parameter, so the posterior is the same. The joint form runs INLAvaan's
+    # own two-level kernels, as the single-level conditional and joint fits
+    # agree. lavaan has already refused this model with missing data.
+    if (fit0@Data@nlevels > 1L && isTRUE(fit0@Model@conditional.x)) {
+      lavargs$conditional.x <- FALSE
+      fit0 <- muffle_nan_warnings(muffle_rs_test_warning(
+        do.call(get(model.type, envir = asNamespace("lavaan")), lavargs)
+      ))
+    }
     if (!fit0@Model@estimator %in% c("ML", "PML")) {
       cli_abort(c(
         "lavaan chose the {.val {fit0@Model@estimator}} estimator, which INLAvaan

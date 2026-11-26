@@ -44,6 +44,15 @@
   of a fit whose mode search takes many iterations can move by about 0.0002
   posterior SDs.
 
+* Two-level models with `conditional.x = TRUE` now fit. Before, the fit
+  stopped with "subscript out of bounds". INLAvaan fits them as the joint
+  model with `fixed.x = TRUE`, which has the same free parameters and the
+  same posterior: the log-likelihood of the outcomes given the covariates is
+  the joint log-likelihood less that of the covariates, which holds no free
+  parameter. `loo()`, `waic()`, the PPP and `predict()` work on these fits.
+  As in lavaan, missing data and random slopes cannot be combined with
+  two-level `conditional.x = TRUE`.
+
 * New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
   `silent = TRUE` prints nothing and muffles the warnings and messages raised
   during the fit, for simulations and other repeated fits. Errors are still

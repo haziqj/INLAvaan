@@ -30,6 +30,25 @@ test_that("Multilevel: fit and summary", {
   expect_equal(fit_ml@optim$dx, rep(0, length(coef(fit_ml))), tolerance = 1e-2)
 })
 
+test_that("Two-level conditional.x gives the joint fit", {
+  fit_cx <- asem(
+    mod_ml,
+    lavaan::Demo.twolevel,
+    cluster = "cluster",
+    conditional.x = TRUE,
+    silent = TRUE,
+    test = "none",
+    marginal_method = "gaussian",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  int_cx <- get_inlavaan_internal(fit_cx)
+  int_ml <- get_inlavaan_internal(fit_ml)
+  expect_equal(coef(fit_cx), coef(fit_ml), tolerance = 1e-8)
+  expect_equal(int_cx$mloglik, int_ml$mloglik, tolerance = 1e-8)
+  expect_false(isTRUE(int_cx$lavmodel@conditional.x))
+})
+
 test_that("Multilevel predict lv", {
   nsamp <- 5
 
