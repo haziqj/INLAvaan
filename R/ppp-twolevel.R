@@ -308,22 +308,22 @@ ppp2l_loglik <- function(
   if (missing) {
     y2 <- rowsum.default(X, group = lp$cluster.idx[[2L]], reorder = FALSE) /
       lp$cluster.size[[2L]]
-    fit <- lavaan___lav_mvn_cl_mi_loglik_samp_2l(
-      y1 = X,
-      y2 = y2,
-      lp = lp,
-      mp = lavdata@Mp[[g]],
-      mu_w = lavimplied$mean[[bw]],
-      sigma_w = lavimplied$cov[[bw]],
-      mu_b = lavimplied$mean[[bb]],
-      sigma_b = lavimplied$cov[[bb]],
-      loglik_x = 0,
+    fit <- twolevel_mi_loglik_samp(
+      X,
+      y2,
+      lp,
+      lavdata@Mp[[g]],
+      lavimplied$mean[[bw]],
+      lavimplied$cov[[bw]],
+      lavimplied$mean[[bb]],
+      lavimplied$cov[[bb]],
       log2pi = TRUE,
+      loglik_x = 0,
       minus_two = FALSE
     )
     sat <- if (saturated) {
       run_em(
-        lavaan___lav_mvn_cl_mi_em_sat(
+        twolevel_mi_em_sat(
           y1 = X,
           y2 = y2,
           lp = lp,
@@ -340,19 +340,19 @@ ppp2l_loglik <- function(
     if (is.null(ylp)) {
       ylp <- ppp2l_cluster_stats(X, lp)
     }
-    fit <- lavaan___lav_mvn_cl_loglik_samp_2l(
-      ylp = ylp,
-      lp = lp,
-      mu_w = lavimplied$mean[[bw]],
-      sigma_w = lavimplied$cov[[bw]],
-      mu_b = lavimplied$mean[[bb]],
-      sigma_b = lavimplied$cov[[bb]],
+    fit <- twolevel_loglik_samp(
+      ylp,
+      lp,
+      lavimplied$mean[[bw]],
+      lavimplied$cov[[bw]],
+      lavimplied$mean[[bb]],
+      lavimplied$cov[[bb]],
       log2pi = TRUE,
       minus_two = FALSE
     )
     sat <- if (saturated) {
       run_em(
-        lavaan___lav_mvn_cl_em_sat(
+        twolevel_em_sat(
           ylp = ylp,
           lp = lp,
           tol = em$tol,
@@ -415,12 +415,12 @@ ppp2l_kron_dup_half <- function(A) {
 # lav_mvn_cl_info_expected() times the number of clusters, with its products
 # of selection matrices replaced by placing blocks at their rows and columns.
 ppp2l_info <- function(imp, lp, x_idx) {
-  out <- lavaan___lav_mvn_cl_implied22l(
-    lp = lp,
-    mu_w = imp$mean[[1L]],
-    mu_b = imp$mean[[2L]],
-    sigma_w = imp$cov[[1L]],
-    sigma_b = imp$cov[[2L]]
+  out <- twolevel_implied22l(
+    lp,
+    imp$mean[[1L]],
+    imp$mean[[2L]],
+    imp$cov[[1L]],
+    imp$cov[[2L]]
   )
   # lavaan 0.7-2 names these pieces with dots, later versions with underscores
   names(out) <- sub(".", "_", names(out), fixed = TRUE)
@@ -499,13 +499,13 @@ ppp2l_unpack <- function(psi, imp) {
 }
 
 ppp2l_m2ll <- function(ylp, imp, lp) {
-  lavaan___lav_mvn_cl_loglik_samp_2l(
-    ylp = ylp,
-    lp = lp,
-    mu_w = imp$mean[[1L]],
-    sigma_w = imp$cov[[1L]],
-    mu_b = imp$mean[[2L]],
-    sigma_b = imp$cov[[2L]],
+  twolevel_loglik_samp(
+    ylp,
+    lp,
+    imp$mean[[1L]],
+    imp$cov[[1L]],
+    imp$mean[[2L]],
+    imp$cov[[2L]],
     log2pi = TRUE,
     minus_two = TRUE
   )
@@ -519,14 +519,17 @@ ppp2l_m2ll <- function(ylp, imp, lp) {
 # the log-likelihood, is outside the reach of the quadratic approximation, so
 # NA tells the caller to fit the saturated model by EM instead.
 ppp2l_onestep <- function(ylp, imp, lp, info) {
-  g <- lavaan___lav_mvn_cl_dlogl_2l_samp(
-    ylp = ylp,
-    lp = lp,
-    mu_w = imp$mean[[1L]],
-    sigma_w = imp$cov[[1L]],
-    mu_b = imp$mean[[2L]],
-    sigma_b = imp$cov[[2L]]
+  g <- twolevel_dlogl_samp(
+    ylp,
+    lp,
+    imp$mean[[1L]],
+    imp$cov[[1L]],
+    imp$mean[[2L]],
+    imp$cov[[2L]]
   )
+  if (is.null(g)) {
+    return(NA_real_)
+  }
   psi_1 <- ppp2l_pack(imp)
   psi_1[info$keep] <- psi_1[info$keep] +
     as.numeric(info$inv %*% (-g[info$keep] / 2))
