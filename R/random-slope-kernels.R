@@ -1,7 +1,7 @@
 # Random-slope kernels: the log-likelihood of a two-level model with random
 # slopes (lavaan's rv() modifier) and its gradient, for lavaan's closed-form
-# route with no between-only responses (rs_kernel_ok()), with complete data
-# or with missing values at level 1.
+# route (rs_kernel_ok()), with complete data or with missing values at level
+# 1, and with or without between-only responses.
 #
 # Given the covariates, the data of cluster j are
 #   y_ij = mu_y + P x_ij + Z_ij v_j + e_ij,  v_j ~ N(d_j, Sigma_v),
@@ -53,7 +53,7 @@ rs_kernel_ok <- function(lavmodel, lavdata, lavcache) {
   rs <- lavcache[[1L]]$rs
   !is.null(rs) &&
     !isTRUE(rs$info$nl.flag) &&
-    identical(as.integer(rs$info$kz), 0L)
+    !anyNA(rs$stats$zb)
 }
 
 ## ----- Plan ------------------------------------------------------------------
@@ -131,6 +131,8 @@ rs_kernel_plan <- function(rs, ntotal = sum(rs$stats$cluster.size)) {
     sets = sets,
     ntotal = ntotal,
     exo_b = st$exo.b,
+    zb = st$zb,
+    kz = info$kz,
     path_x = info$path.tab$x.idx,
     path_z = info$path.tab$z.idx,
     nx = nx,
@@ -244,6 +246,23 @@ rs_cluster_terms <- function(plan, imp) {
     quad0 <- quad0 + rs_set_quad0(set, imp, w$inv)
     per_set[[k]] <- list(w_mat = w$inv, ct = ct)
   }
+  zb_terms <- NULL
+  if (plan$kz > 0L) {
+    # A between-only response z_j adds G' W_z G to every A_j, its scaled
+    # residual to p_j, and its own log-density
+    ch <- tryCatch(chol(imp$sigma.z), error = function(e) NULL)
+    if (is.null(ch)) {
+      return(NULL)
+    }
+    w_z <- chol2inv(ch)
+    e_z <- sweep(plan$zb, 2L, imp$mu_z)
+    w_zg <- w_z %*% imp$gmat
+    a <- sweep(a, 2L, as.numeric(crossprod(imp$gmat, w_zg)), "+")
+    p <- p + e_z %*% w_zg
+    quad0 <- quad0 + sum(e_z * (e_z %*% w_z))
+    ld <- ld + n_cl * (2 * sum(log(diag(ch))) + plan$kz * log(2 * pi))
+    zb_terms <- list(w_z = w_z, e_z = e_z)
+  }
   d <- matrix(imp$mu.v, n_cl, pv, byrow = TRUE)
   exo_c <- NULL
   if (plan$nexo > 0L) {
@@ -257,7 +276,8 @@ rs_cluster_terms <- function(plan, imp) {
     exo_c = exo_c,
     ld = ld,
     quad0 = quad0,
-    per_set = per_set
+    per_set = per_set,
+    zb_terms = zb_terms
   )
 }
 
@@ -356,6 +376,27 @@ rs_kernel_dphi <- function(plan, imp) {
     g_cc <- as.numeric(crossprod(g_d, ct$exo_c))
     g_me <- -as.numeric(t(imp$cc) %*% colSums(g_d))
   }
+  kz <- plan$kz
+  g_mz <- numeric(kz)
+  g_g <- matrix(0, kz, pv)
+  g_sz <- matrix(0, kz, kz)
+  if (kz > 0L) {
+    # lavaan's add_zcell(), summed over the clusters
+    w_z <- ct$zb_terms$w_z
+    e_z <- ct$zb_terms$e_z
+    gmat <- imp$gmat
+    ga_sum <- matrix(colSums(g_a), pv, pv)
+    gp_sum <- colSums(g_p)
+    g_g <- 2 * (w_z %*% gmat %*% ga_sum) + w_z %*% crossprod(e_z, g_p)
+    g_mz <- -as.numeric(w_z %*% (gmat %*% gp_sum + 2 * colSums(e_z)))
+    gw_z <- gmat %*%
+      ga_sum %*%
+      t(gmat) +
+      gmat %*% crossprod(g_p, e_z) +
+      crossprod(e_z)
+    gw_z <- (gw_z + t(gw_z)) / 2
+    g_sz <- plan$n_cl * w_z - w_z %*% gw_z %*% w_z
+  }
   list(
     sigma_w = gw_total$gsw,
     mu_y = gw_total$gmy,
@@ -365,7 +406,10 @@ rs_kernel_dphi <- function(plan, imp) {
     sigma.v = matrix(colSums(g_sv), pv, pv),
     mu.v = colSums(g_d),
     cc = matrix(g_cc, pv, plan$nexo),
-    mu.exo = g_me
+    mu.exo = g_me,
+    mu_z = g_mz,
+    gmat = g_g,
+    sigma.z = g_sz
   )
 }
 
@@ -471,8 +515,7 @@ rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
 }
 
 # The derivative of rs_kernel_dphi() as one vector, in the order of lavaan's
-# lav_mvn_cl_rs_phi_vec(). Between-only responses are outside these kernels,
-# so their pieces are empty.
+# lav_mvn_cl_rs_phi_vec()
 rs_dphi_vec <- function(g) {
   c(
     as.numeric(g$sigma_w),
@@ -483,7 +526,10 @@ rs_dphi_vec <- function(g) {
     as.numeric(g$sigma.v),
     g$mu.v,
     as.numeric(g$cc),
-    g$mu.exo
+    g$mu.exo,
+    g$mu_z,
+    as.numeric(g$gmat),
+    as.numeric(g$sigma.z)
   )
 }
 

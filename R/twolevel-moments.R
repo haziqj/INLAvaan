@@ -14,7 +14,7 @@ twolevel_implied22l <- function(lp, mu_w, mu_b, sigma_w, sigma_b) {
   ov_idx <- lp$ov.idx
   p_tilde <- length(unique(c(ov_idx[[1L]], ov_idx[[2L]])))
 
-  ## ----- Covariances -----------------------------------------------------------
+  ## ----- Covariances ---------------------------------------------------------
   sigma_w_tilde <- matrix(0, p_tilde, p_tilde)
   sigma_w_tilde[ov_idx[[1L]], ov_idx[[1L]]] <- sigma_w
   sigma_b_tilde <- matrix(0, p_tilde, p_tilde)
@@ -29,7 +29,7 @@ twolevel_implied22l <- function(lp, mu_w, mu_b, sigma_w, sigma_b) {
     sigma_yz <- matrix(0, length(y_idx), 0L)
   }
 
-  ## ----- Means -----------------------------------------------------------------
+  ## ----- Means ---------------------------------------------------------------
   mu_w_tilde <- numeric(p_tilde)
   mu_w_tilde[ov_idx[[1L]]] <- mu_w
   mu_b_tilde <- numeric(p_tilde)

@@ -64,7 +64,7 @@ rs_sym_inverse <- function(s) {
 rs_implied_steps <- function(lavmodel, info, glist = lavmodel@GLIST) {
   nmat <- lavmodel@nmat
 
-  ## ----- Level 1 ---------------------------------------------------------------
+  ## ----- Level 1 -------------------------------------------------------------
   mm_w <- seq_len(nmat[1L])
   mw <- glist[mm_w]
   ov_w <- lavmodel@dimNames[mm_w][[which(names(mw) == "lambda")]][[1L]]
@@ -104,7 +104,7 @@ rs_implied_steps <- function(lavmodel, info, glist = lavmodel@GLIST) {
     }
   }
 
-  ## ----- Level 2 ---------------------------------------------------------------
+  ## ----- Level 2 -------------------------------------------------------------
   mm_b <- seq_len(nmat[2L]) + nmat[1L]
   mb <- glist[mm_b]
   dn_b <- lavmodel@dimNames[mm_b][[which(names(mb) == "lambda")]]
@@ -237,9 +237,9 @@ rs_implied <- function(lavmodel, info, glist = lavmodel@GLIST) {
 ## ----- Reverse ---------------------------------------------------------------
 
 # `g` holds the derivative of a function F with respect to each piece:
-# sigma_w, mu_y, P, lmat, q0, sigma.v, mu.v, cc and mu.exo, every element taken
-# on its own. Returns dF/dx for lavaan's free parameters (packed, one per
-# equality group).
+# sigma_w, mu_y, P, lmat, q0, sigma.v, mu.v, cc, mu.exo and, with between-only
+# responses, mu_z, gmat and sigma.z, every element taken on its own. Returns
+# dF/dx for lavaan's free parameters (packed, one per equality group).
 rs_implied_back <- function(lavmodel, steps, g) {
   mw <- steps$mw
   mb <- steps$mb
@@ -248,7 +248,7 @@ rs_implied_back <- function(lavmodel, steps, g) {
   pv <- imp$pv
   glist_g <- lapply(lavmodel@GLIST, function(m) m * 0)
 
-  ## ----- Level 1 ---------------------------------------------------------------
+  ## ----- Level 1 -------------------------------------------------------------
   w <- steps$mm_w
   names_w <- names(mw)
   slot_w <- function(nm) w[which(names_w == nm)]
@@ -294,7 +294,7 @@ rs_implied_back <- function(lavmodel, steps, g) {
     glist_g[[slot_w("alpha")]] <- g_alpha_w
   }
 
-  ## ----- Level 2 ---------------------------------------------------------------
+  ## ----- Level 2 -------------------------------------------------------------
   b <- steps$mm_b
   names_b <- names(mb)
   slot_b <- function(nm) b[which(names_b == nm)]
@@ -349,16 +349,37 @@ rs_implied_back <- function(lavmodel, steps, g) {
     ]
     glist_g[[slot_b("theta")]] <- g_theta_b
   }
+  if (length(steps$zb_idx) > 0L) {
+    g_lambda_b <- glist_g[[slot_b("lambda")]]
+    g_lambda_b[steps$zb_idx, eta_idx] <- g_lambda_b[
+      steps$zb_idx,
+      eta_idx,
+      drop = FALSE
+    ] +
+      g$gmat[, meta_seq, drop = FALSE]
+    glist_g[[slot_b("lambda")]] <- g_lambda_b
+    g_theta_b <- glist_g[[slot_b("theta")]]
+    g_theta_b[steps$zb_idx, steps$zb_idx] <- g_theta_b[
+      steps$zb_idx,
+      steps$zb_idx,
+      drop = FALSE
+    ] +
+      g$sigma.z
+    glist_g[[slot_b("theta")]] <- g_theta_b
+  }
   if (!is.null(mb$nu)) {
     g_nu_b <- glist_g[[slot_b("nu")]]
     g_nu_b[steps$yb_idx, 1L] <- g$mu_y[steps$yb_y_idx]
+    if (length(steps$zb_idx) > 0L) {
+      g_nu_b[steps$zb_idx, 1L] <- g_nu_b[steps$zb_idx, 1L] + g$mu_z
+    }
     if (length(steps$exo_ov_idx) > 0L) {
       g_nu_b[steps$exo_ov_idx, 1L] <- g_nu_b[steps$exo_ov_idx, 1L] + g$mu.exo
     }
     glist_g[[slot_b("nu")]] <- g_nu_b
   }
 
-  ## ----- To the free parameters ------------------------------------------------
+  ## ----- To the free parameters ----------------------------------------------
   dx <- numeric(lavmodel@nx.free)
   for (mm in seq_along(glist_g)) {
     x_idx <- lavmodel@x.free.idx[[mm]]

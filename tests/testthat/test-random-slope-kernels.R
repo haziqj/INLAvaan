@@ -393,3 +393,45 @@ test_that("the implied pieces equal lavaan's and their chain rule is exact", {
     expect_equal(an, num, tolerance = 1e-7)
   }
 })
+
+## ----- Between-only responses -----------------------------------------------------
+
+test_that("between-only responses are scored as lavaan scores them", {
+  skip_if_not_installed("numDeriv")
+  model <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+    level: 2
+      fb =~ y1 + y2 + y3 + w2
+      fb ~ w1
+  "
+  lavaan_route <- list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
+  for (dat in list(rsk_data, rsk_data_na)) {
+    fit <- suppressWarnings(lavaan::sem(
+      model,
+      data = dat,
+      cluster = "cluster",
+      missing = if (anyNA(dat$y1)) "ml" else "listwise",
+      se = "none"
+    ))
+    expect_gt(fit@Cache[[1L]]$rs$info$kz, 0L)
+    expect_true(rs_kernel_ok(fit@Model, fit@Data, fit@Cache))
+    x <- lavaan::lav_model_get_parameters(fit@Model)
+    expect_equal(rsk_loglik(fit, x), as.numeric(lavaan::logLik(fit)))
+    x <- rsk_point(fit, 2)
+    expect_equal(
+      rsk_loglik(fit, x),
+      rsk_loglik(fit, x, multilevel = lavaan_route),
+      tolerance = 1e-12
+    )
+    g <- rsk_grad(fit, x)
+    expect_equal(
+      g,
+      rsk_grad(fit, x, multilevel = lavaan_route),
+      tolerance = 1e-8
+    )
+    g_num <- numDeriv::grad(function(z) rsk_loglik(fit, z), x)
+    expect_equal(as.numeric(g %*% rsk_k(fit)), g_num, tolerance = 1e-6)
+  }
+})

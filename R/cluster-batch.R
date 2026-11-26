@@ -5,7 +5,7 @@
 # over the k indices. rs_cluster_posterior() integrates out the cluster
 # effects of all clusters, given A_j, p_j and the covariance of the effects.
 
-## ----- Helpers -----------------------------------------------------------------
+## ----- Helpers ---------------------------------------------------------------
 
 rs_at <- function(i, j, k) (j - 1L) * k + i
 
@@ -134,7 +134,7 @@ rs_batch_mv <- function(x, v, k) {
   out
 }
 
-## ----- Cluster effects, integrated out ----------------------------------------
+## ----- Cluster effects, integrated out ---------------------------------------
 
 # The symmetric square root of Sigma_v, or NULL when Sigma_v is not positive
 # semidefinite (lavaan's tolerance)
