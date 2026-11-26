@@ -73,17 +73,19 @@ fiml_test_setup <- function(fit, shared) {
 }
 
 test_that("the plan sends patterns to the shared and to the direct route", {
-  # A complete pattern is shared, and so are the two patterns that miss one
-  # variable. A lone pattern is direct.
+  # The complete pattern and the six patterns that miss one variable are
+  # shared. A lone pattern is direct.
   expect_identical(
-    fiml_route_shared(c(0L, 1L, 1L, 2L, 6L, 4L), p = 9L),
-    c(TRUE, TRUE, TRUE, FALSE, FALSE, FALSE)
+    fiml_route_shared(c(0L, rep(1L, 6L), 2L, 6L), p = 9L),
+    c(rep(TRUE, 7L), FALSE, FALSE)
   )
+  # With few patterns the shared route does not pay for its set-up
+  expect_identical(fiml_route_shared(c(0L, 1L, 1L), p = 9L), rep(FALSE, 3L))
   plan <- fiml_plan(fiml_test_fits$scattered@SampleStats)[[1L]]
   expect_gt(length(plan$sets), 1L)
   expect_lt(length(plan$direct), length(plan$pats))
   plan <- fiml_plan(fiml_test_fits$planned@SampleStats)[[1L]]
-  expect_length(plan$direct, 3L)
+  expect_length(plan$direct, 4L)
   expect_length(plan$pats, 4L)
 })
 
