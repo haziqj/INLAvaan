@@ -15,6 +15,7 @@ test_that("Multigroup fitting and testing", {
       dat,
       silent = TRUE,
       test = "none",
+      nsamp = NSAMP,
       std.lv = STDLV,
       group = "school"
     )
@@ -32,6 +33,7 @@ test_that("Multigroup fitting and testing", {
       dat,
       silent = TRUE,
       test = "none",
+      nsamp = NSAMP,
       std.lv = STDLV,
       group = "school",
       group.equal = "loadings"
@@ -46,6 +48,7 @@ test_that("Multigroup fitting and testing", {
       dat,
       silent = TRUE,
       test = "none",
+      nsamp = NSAMP,
       std.lv = STDLV,
       group = "school",
       group.equal = c("intercepts", "loadings")
