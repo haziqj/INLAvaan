@@ -117,11 +117,11 @@ single-observation draws from the predictive distribution
 ``` r
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
-#> ✔ Found the posterior mode in 25 iterations [38ms]
-#> ✔ VB mean correction, max shift 0.47σ [17ms]
-#> ✔ Fitted 6 skew-normal marginals [71ms]
+#> ✔ Found the posterior mode in 25 iterations [24ms]
+#> ✔ VB mean correction, max shift 0.47σ [14ms]
+#> ✔ Fitted 6 skew-normal marginals [61ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [296ms]
+#> ✔ Summarise 1000 posterior draws. [297ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

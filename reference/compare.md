@@ -152,20 +152,21 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
-#> ⠙ Finding the posterior mode, 688 calls
+#> ⠙ Finding the posterior mode, 736 calls
 #> ⠙ Finding the posterior mode, 752 calls
-#> ✔ Found the posterior mode in 138 iterations [640ms]
-#> ✔ VB mean correction, max shift 0.61σ [368ms]
-#> ✔ Fitted 60 skew-normal marginals [1.6s]
+#> ✔ Found the posterior mode in 138 iterations [545ms]
+#> ✔ VB mean correction, max shift 0.61σ [306ms]
+#> ✔ Fitted 60 skew-normal marginals [1.4s]
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1s]
+#> ✔ Summarise 1000 posterior draws. [756ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:
 #> ✖ Heavy tails for `speed=~x9`, `speed=~x9.g2`: the density is still over 5% of
 #>   its peak at the ends of the scanned window (4σ either side of the mode), and
 #>   the skew-normal extrapolates beyond it.
+#> ℹ A loading with heavy tails can mean that the marker of its factor loads
+#>   weakly; try `std.lv = TRUE`.
 #> ℹ Inspect with `diagnostics(fit)` and `diagnostics(fit, type = "param")`;
 #>   `?diagnostics` explains each check.
 
@@ -176,12 +177,13 @@ fit2 <- acfa(
   group = "school",
   group.equal = "loadings"
 )
-#> ✔ Found the posterior mode in 121 iterations [567ms]
-#> ✔ VB mean correction, max shift 0.42σ [333ms]
+#> ✔ Found the posterior mode in 121 iterations [479ms]
+#> ✔ VB mean correction, max shift 0.42σ [290ms]
+#> ⠙ Fitting 15/54 skew-normal marginals
+#> ⠙ Fitting 54/54 skew-normal marginals
 #> ✔ Fitted 54 skew-normal marginals [1.4s]
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [772ms]
+#> ✔ Summarise 1000 posterior draws. [798ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -192,12 +194,14 @@ fit3 <- acfa(
   group = "school",
   group.equal = c("intercepts", "loadings")
 )
-#> ✔ Found the posterior mode in 120 iterations [533ms]
-#> ✔ VB mean correction, max shift 0.33σ [303ms]
-#> ✔ Fitted 48 skew-normal marginals [1.2s]
+#> ✔ Found the posterior mode in 120 iterations [461ms]
+#> ✔ VB mean correction, max shift 0.33σ [277ms]
+#> ⠙ Fitting 15/48 skew-normal marginals
+#> ⠙ Fitting 48/48 skew-normal marginals
+#> ✔ Fitted 48 skew-normal marginals [1.4s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [785ms]
+#> ✔ Summarise 1000 posterior draws. [725ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

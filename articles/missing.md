@@ -40,13 +40,13 @@ datmiss[datmiss == 0] <- NA
 ``` r
 
 fit1 <- asem(mod, datmiss, meanstructure = TRUE)
-#> ✔ Found the posterior mode in 71 iterations [429ms]
-#> ! VB mean correction, max shift 0.67σ, one-step check flagged [494ms]
-#> ⠙ Fitting 16/42 skew-normal marginals
+#> ✔ Found the posterior mode in 71 iterations [413ms]
+#> ! VB mean correction, max shift 0.67σ, one-step check flagged [404ms]
+#> ⠙ Fitting 19/42 skew-normal marginals
 #> ⠙ Fitting 42/42 skew-normal marginals
-#> ✔ Fitted 42 skew-normal marginals [755ms]
+#> ✔ Fitted 42 skew-normal marginals [627ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [682ms]
+#> ✔ Summarise 1000 posterior draws. [620ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:
@@ -97,14 +97,14 @@ coef(fit1)
 ``` r
 
 fit2 <- asem(mod, datmiss, missing = "ML", meanstructure = TRUE)
-#> ⠙ Finding the posterior mode, 496 calls
+#> ⠙ Finding the posterior mode, 512 calls
 #> ⠙ Finding the posterior mode, 544 calls
-#> ✔ Found the posterior mode in 91 iterations [645ms]
-#> ✔ VB mean correction, max shift 0.89σ [377ms]
-#> ✔ Fitted 42 skew-normal marginals [1.5s]
+#> ✔ Found the posterior mode in 91 iterations [577ms]
+#> ✔ VB mean correction, max shift 0.89σ [301ms]
+#> ✔ Fitted 42 skew-normal marginals [1.3s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 print(fit2)

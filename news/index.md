@@ -394,10 +394,13 @@
   σ, or “SD” where the console cannot show σ. The warning ends with a
   pointer to
   [`?diagnostics`](https://inlavaan.haziqj.ml/reference/diagnostics.md).
-  So some fits that were silent now warn: for example, a one-factor
-  model of `x1`, `x2` and `x3` fitted to the first 50 rows of
-  `HolzingerSwineford1939`, whose one-step VB correction fails its
-  check.
+  When a marginal with heavy tails is a loading of a factor that a
+  marker identifies, the warning adds a hint to try `std.lv = TRUE`,
+  because a marker that loads weakly gives the other loadings of its
+  factor such tails. So some fits that were silent now warn: for
+  example, a one-factor model of `x1`, `x2` and `x3` fitted to the first
+  50 rows of `HolzingerSwineford1939`, whose one-step VB correction
+  fails its check.
 
 - `verbose` has a new meaning, as in inlavanilla. `verbose = FALSE`, now
   the default, prints one line per stage of the fit, as the old default
