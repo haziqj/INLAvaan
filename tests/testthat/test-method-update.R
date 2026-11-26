@@ -476,3 +476,29 @@ test_that("update() under ov.order = 'data' and conditional.x is a fresh fit", {
     fit_cx("x2 ~ x1 + x3")
   )
 })
+
+test_that("update() stops on an abbreviated argument name", {
+  fit <- acfa(
+    "visual =~ x1 + x2 + x3",
+    dat,
+    silent = TRUE,
+    marginal_method = "gaussian",
+    vb_correction = "none",
+    test = "none",
+    nsamp = 3
+  )
+  expect_error(
+    update(fit, dat = dat[1:150, ]),
+    class = "inlavaan_update_abbreviated"
+  )
+  err <- tryCatch(update(fit, marg = "skewnorm"), error = identity)
+  msg <- cli::ansi_strip(conditionMessage(err))
+  expect_match(msg, "marginal_method")
+  expect_match(msg, "marginal_scan")
+  # A deprecated argument is never suggested
+  expect_no_match(msg, "marginal_correction")
+  # Full names under either spelling pass, before any refit
+  expect_true(is.call(
+    update(fit, data = dat[1:150, ], std_lv = TRUE, evaluate = FALSE)
+  ))
+})

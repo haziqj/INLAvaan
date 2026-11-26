@@ -232,6 +232,11 @@
   the call held both, and lavaan stopped with "At least one snake_cased name
   (std_ov) is duplicated!".
 
+* `update()` now stops with an error of class `inlavaan_update_abbreviated`
+  when it is given an abbreviated argument name, such as `dat` for `data`,
+  and names the arguments it may mean. Before, lavaan stopped with "unknown
+  argument", or R with "argument matches multiple formal arguments".
+
 * `update(fit, arg = NULL)` now drops `arg` from the call of the fit, or
   gives it as `NULL` when the call does not have it, as `stats::update()`
   does. Before, an argument that the call did not have failed with

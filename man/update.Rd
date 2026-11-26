@@ -80,7 +80,9 @@ error of the refit.
 \code{update(fit, arg = NULL)} drops \code{arg} from the recorded call, as
 \code{\link[stats:update]{stats::update()}} does. An argument given under another spelling that
 lavaan reads as the same, such as \code{std_ov} for \code{std.ov}, replaces the
-recorded one.
+recorded one. An abbreviated argument name, such as \code{dat} for \code{data}, is
+not completed: \code{update()} stops with an error of class
+\code{inlavaan_update_abbreviated} that names the arguments it may mean.
 
 \code{verbose = TRUE} and \code{silent = TRUE} cannot go together. So
 \code{update(fit, silent = TRUE)} drops \code{verbose} from the recorded call, and

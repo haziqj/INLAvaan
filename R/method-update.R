@@ -51,7 +51,9 @@
 #' `update(fit, arg = NULL)` drops `arg` from the recorded call, as
 #' [stats::update()] does. An argument given under another spelling that
 #' lavaan reads as the same, such as `std_ov` for `std.ov`, replaces the
-#' recorded one.
+#' recorded one. An abbreviated argument name, such as `dat` for `data`, is
+#' not completed: `update()` stops with an error of class
+#' `inlavaan_update_abbreviated` that names the arguments it may mean.
 #'
 #' `verbose = TRUE` and `silent = TRUE` cannot go together. So
 #' `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and
@@ -128,6 +130,7 @@ setMethod(
       expand.dots = FALSE
     )
     extras <- outer_call[["..."]]
+    check_update_names(names(extras))
     for (nm in names(extras)) {
       # lavaan reads `std_ov` as `std.ov`. So the argument under another
       # spelling goes, or lavaan would stop on a name given twice.
@@ -236,6 +239,51 @@ drop_other_spellings <- function(cl, nm) {
     return(cl)
   }
   cl[-other]
+}
+
+# Stop when a name given to update() is an abbreviation: not an argument of
+# inlavaan(), lavaan() or an option of lavaan, under any spelling, but the start
+# of one or more of them. R would complete it to an argument of inlavaan() only
+# where that is unique, and lavaan stops on a name it does not know, so the
+# refit would fail with an error that does not say why. Names that start none
+# of them pass, so that lavaan reports them as it does for inlavaan().
+check_update_names <- function(nms) {
+  nms <- nms[nzchar(nms)]
+  known <- setdiff(
+    unique(c(
+      names(formals(inlavaan)),
+      names(formals(lavaan::lavaan)),
+      names(lavaan::lavOptions())
+    )),
+    "..."
+  )
+  keys <- arg_key(known)
+  # The deprecated arguments are known, but never suggested
+  deprecated <- c(
+    names(inlavaan_moved_args),
+    names(inlavaan_ended_args),
+    "marginal_correction"
+  )
+  for (nm in nms) {
+    key <- arg_key(nm)
+    if (key %in% keys) {
+      next
+    }
+    full <- unique(known[startsWith(keys, key) & !known %in% deprecated])
+    full <- full[!duplicated(arg_key(full))]
+    if (length(full) > 0L) {
+      cli_abort(
+        c(
+          "{.fn update} does not complete abbreviated argument names.",
+          "x" = "{.arg {nm}} is not an argument of {.fn inlavaan} or of
+                 lavaan.",
+          "i" = "Did you mean {.or {.arg {full}}}?"
+        ),
+        class = "inlavaan_update_abbreviated"
+      )
+    }
+  }
+  invisible(nms)
 }
 
 # The arguments of a recorded call that name objects which the refit needs:
