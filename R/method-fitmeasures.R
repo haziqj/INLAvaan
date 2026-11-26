@@ -61,6 +61,7 @@ compute_chisq_dev <- function(
   if (is.null(loglik_sat)) {
     loglik_sat <- compute_loglik_sat(object, lavsamplestats, lavdata)
   }
+  fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
   vapply(
     seq_len(nrow(x_samp)),
     function(i) {
@@ -71,7 +72,8 @@ compute_chisq_dev <- function(
         lavdata,
         lavoptions,
         lavcache,
-        marginalise_means = FALSE
+        marginalise_means = FALSE,
+        fiml = fiml
       )
       2 * (loglik_sat - ll_i)
     },

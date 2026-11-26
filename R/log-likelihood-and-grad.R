@@ -5,7 +5,8 @@ inlav_model_loglik <- function(
   lavdata,
   lavoptions,
   lavcache = NULL,
-  marginalise_means = TRUE
+  marginalise_means = TRUE,
+  fiml = NULL
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -20,8 +21,11 @@ inlav_model_loglik <- function(
       # ones -- otherwise the log-likelihood is constant in `x`. Passing
       # `lavmodel_x` is inert for every other model, which reads
       # `lavimplied`, itself already built from `lavmodel_x`.
-      out <- if (fiml_fast_path(lavmodel, lavsamplestats, lavdata)) {
-        fiml_loglik_samp(lavsamplestats, lavimplied)
+      if (is.null(fiml)) {
+        fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
+      }
+      out <- if (fiml$loglik) {
+        fiml_loglik_samp(lavsamplestats, lavimplied, fiml$plan)
       } else {
         lavaan___lav_model_loglik(
           lavdata = lavdata,
@@ -65,138 +69,18 @@ inlav_model_loglik <- function(
   out
 }
 
-# lavaan scores each missing-data pattern with the inverse of its observed block
-# of Sigma, which it gets by downdating the full inverse once per missing
-# variable. That costs O(p^2) per missing variable and dominates when most items
-# are missing by design (planned missingness), so single-level fits without
-# covariates or weights score each pattern from the Cholesky factor of its
-# observed block instead. The two give the same log-likelihood.
-fiml_fast_path <- function(lavmodel, lavsamplestats, lavdata) {
-  isTRUE(lavsamplestats@missing.flag) &&
-    lavdata@nlevels == 1L &&
-    !isTRUE(lavmodel@conditional.x) &&
-    all(lengths(lavsamplestats@x.idx) == 0L) &&
-    all(vapply(lavdata@weights, is.null, logical(1))) &&
-    !has_random_slopes(lavmodel)
-}
-
-# Only the first group's Sigma is checked upstream, so a failed factorisation
-# in another group returns the optimiser's sentinel.
-fiml_loglik_samp <- function(lavsamplestats, lavimplied) {
-  log_2pi <- log(2 * pi)
-  tryCatch(
-    {
-      out <- 0
-      for (g in seq_along(lavsamplestats@missing)) {
-        mu <- as.numeric(lavimplied$mean[[g]])
-        Sigma <- lavimplied$cov[[g]]
-        for (pat in lavsamplestats@missing[[g]]) {
-          o <- pat$var.idx
-          L <- chol(Sigma[o, o, drop = FALSE])
-          z <- backsolve(L, pat$MY - mu[o], transpose = TRUE)
-          dist <- sum(z^2)
-          if (pat$freq > 1L) {
-            dist <- dist + sum(chol2inv(L) * pat$SY)
-          }
-          out <- out -
-            0.5 *
-              pat$freq *
-              (length(z) * log_2pi + 2 * sum(log(diag(L))) + dist)
-        }
-      }
-      out
-    },
-    error = function(e) -1e40
-  )
-}
-
-# The FIML gradient has the same bottleneck in lav_model_omega(), whose loop
-# over patterns forms Sigma_oo^-1 (W - Sigma_oo) Sigma_oo^-1 with two matrix
-# products under try(). The same matrix is a a' + Sigma_oo^-1 S Sigma_oo^-1 -
-# Sigma_oo^-1 with a = Sigma_oo^-1 (ybar - mu), and S is zero for a pattern of
-# one case. The rest follows lav_model_grad() for single-level ML: its own
-# LISREL derivative of the moments and its own map to the free parameters, so
-# the result is lavaan's gradient for any model it would treat this way.
-fiml_grad_fast_path <- function(lavmodel, lavsamplestats, lavdata) {
-  lavmodel@estimator == "ML" &&
-    fiml_fast_path(lavmodel, lavsamplestats, lavdata) &&
-    lavmodel@representation == "LISREL" &&
-    isTRUE(lavmodel@meanstructure) &&
-    !isTRUE(lavmodel@composites) &&
-    !isTRUE(lavmodel@correlation) &&
-    !isTRUE(lavmodel@group.w.free)
-}
-
-# lavaan's Omega and Omega_mu (lav_model_omega(), FIML branch), one list
-# element per group
-fiml_omega_samp <- function(lavsamplestats, lavimplied) {
-  n_total <- lavsamplestats@ntotal
-  lapply(seq_along(lavsamplestats@missing), function(g) {
-    mu <- as.numeric(lavimplied$mean[[g]])
-    Sigma <- lavimplied$cov[[g]]
-    p <- length(mu)
-    omega <- matrix(0, p, p)
-    omega_mu <- matrix(0, p, 1L)
-    for (pat in lavsamplestats@missing[[g]]) {
-      o <- which(pat$var.idx)
-      S_inv <- chol2inv(chol(Sigma[o, o, drop = FALSE]))
-      a <- S_inv %*% (pat$MY - mu[o])
-      omega_o <- tcrossprod(a) - S_inv
-      if (pat$freq > 1L) {
-        omega_o <- omega_o + S_inv %*% pat$SY %*% S_inv
-      }
-      w <- pat$freq / n_total
-      omega[o, o] <- omega[o, o] + w * omega_o
-      omega_mu[o, 1L] <- omega_mu[o, 1L] + w * a
-    }
-    list(omega = omega, omega_mu = omega_mu)
-  })
-}
-
-# Gradient of lavaan's FIML fit function w.r.t. the free parameters (unpacked
-# under ceq.simple), or NULL when a pattern's block cannot be factorised, in
-# which case the caller falls back to lav_model_grad()
-fiml_grad_samp <- function(lavmodel_x, lavsamplestats) {
-  om <- tryCatch(
-    fiml_omega_samp(lavsamplestats, lavaan::lav_model_implied(lavmodel_x)),
-    error = function(e) NULL
-  )
-  if (is.null(om)) {
-    return(NULL) # nocov
-  }
-  glist <- lavmodel_x@GLIST
-  nmat <- lavmodel_x@nmat
-  unco <- isTRUE(lavmodel_x@ceq.simple.only)
-  dx <- numeric(if (unco) lavmodel_x@nx.unco else lavmodel_x@nx.free)
-  for (g in seq_len(lavmodel_x@nblocks)) {
-    mm_in_group <- seq_len(nmat[g]) + cumsum(c(0, nmat))[g]
-    dx_group <- lavaan___lav_lisrel_df_dmlist(
-      glist[mm_in_group],
-      om[[g]]$omega,
-      om[[g]]$omega_mu
-    )
-    dx_group <- dx_group[names(glist[mm_in_group])]
-    for (k in seq_along(mm_in_group)) {
-      mm <- mm_in_group[k]
-      x_idx <- if (unco) {
-        lavmodel_x@x.unco.idx[[mm]]
-      } else {
-        lavmodel_x@x.free.idx[[mm]]
-      }
-      dx[x_idx] <- dx_group[[k]][lavmodel_x@m.free.idx[[mm]]]
-    }
-  }
-  dx
-}
-
 inlav_model_grad <- function(
   x,
   lavmodel,
   lavsamplestats,
   lavdata,
-  lavcache
+  lavcache,
+  fiml = NULL
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
+  if (is.null(fiml)) {
+    fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
+  }
 
   # Without a mean structure, the gradient of the marginalised log-likelihood
   # is lavaan's ML gradient at rescaled sample statistics (see
@@ -213,8 +97,8 @@ inlav_model_grad <- function(
     lavmodel@estimator == "PML" ||
     lavdata@nlevels > 1L)
   grad_F <- NULL
-  if (fiml_grad_fast_path(lavmodel, lavsamplestats, lavdata)) {
-    grad_F <- fiml_grad_samp(lavmodel_x, lavsamplestats)
+  if (fiml$grad) {
+    grad_F <- fiml_grad_samp(lavmodel_x, lavsamplestats, fiml$plan)
   }
   if (is.null(grad_F)) {
     grad_F <- lavaan___lav_model_grad(

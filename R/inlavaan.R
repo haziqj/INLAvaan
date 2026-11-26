@@ -640,6 +640,7 @@ inlavaan <- function(
     # pars_to_x() and of the chain rule of the gradient
     prior_cache <- prepare_priors_for_optim(pt)
     x_map <- pars_to_x_map(pt)
+    fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
     inform_gamma_variance_scale(pt)
 
     # Saturated-means fast path (see saturated_mean_idx): along each free
@@ -670,7 +671,8 @@ inlavaan <- function(
         lavsamplestats,
         lavdata,
         lavoptions,
-        lavcache
+        lavcache,
+        fiml = fiml
       )
       pld <- 0
       if (isTRUE(add_priors)) {
@@ -689,7 +691,14 @@ inlavaan <- function(
         pars
       }
       x <- pars_to_x(pars_unpacked, pt, x_map)
-      gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
+      gll <- inlav_model_grad(
+        x,
+        lavmodel,
+        lavsamplestats,
+        lavdata,
+        lavcache,
+        fiml = fiml
+      )
 
       # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ (see
       # pars_chain_rule())
@@ -1066,7 +1075,8 @@ inlavaan <- function(
               lavsamplestats,
               lavdata,
               lavoptions,
-              lavcache
+              lavcache,
+              fiml = fiml
             ) +
               loglik_x_adj
           },
