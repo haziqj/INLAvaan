@@ -65,26 +65,34 @@ twolevel_implied22l <- function(lp, mu_w, mu_b, sigma_w, sigma_b) {
   )
 }
 
-# Derivatives with respect to the y-and-z moments, mapped back to the moments
-# of the two levels
+# Derivatives with respect to the y-and-z moments, or the y-and-z moments
+# themselves (with `mu_w` and `mu_b` in place of `mu_y`), mapped back to the
+# moments of the two levels
 twolevel_2l2implied <- function(
   lp,
   sigma_w,
   sigma_b,
   sigma_yz,
   sigma_zz,
-  mu_y,
-  mu_z
+  mu_y = NULL,
+  mu_z,
+  mu_w = NULL,
+  mu_b = NULL
 ) {
   between_idx <- lp$between.idx[[2L]]
   within_idx <- lp$within.idx[[2L]]
   ov_idx <- lp$ov.idx
   p_tilde <- length(unique(c(ov_idx[[1L]], ov_idx[[2L]])))
+  # Either one mean for both levels (a derivative), or the two means
+  if (!is.null(mu_y)) {
+    mu_b <- mu_y
+    mu_w <- mu_y
+  }
   mu_w_tilde <- numeric(p_tilde)
-  mu_w_tilde[ov_idx[[1L]]] <- mu_y
+  mu_w_tilde[ov_idx[[1L]]] <- mu_w
   mu_w <- mu_w_tilde[ov_idx[[1L]]]
   mu_b_tilde <- numeric(p_tilde)
-  mu_b_tilde[ov_idx[[1L]]] <- mu_y
+  mu_b_tilde[ov_idx[[1L]]] <- mu_b
   mu_b_tilde[between_idx] <- mu_z
   if (length(within_idx) > 0L) {
     mu_b_tilde[within_idx] <- 0

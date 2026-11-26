@@ -49,8 +49,10 @@ twolevel_chol_inv <- function(s) {
 # size: the moments in lavaan's two-level form (twolevel_implied22l()) and
 # the inverses of Sigma_w and of Sigma_zz, the covariance of the between-only
 # variables. NULL when an inverse does not exist.
-twolevel_parts <- function(lp, mu_w, sigma_w, mu_b, sigma_b) {
-  out <- twolevel_implied22l(lp, mu_w, mu_b, sigma_w, sigma_b)
+twolevel_parts <- function(lp, mu_w, sigma_w, mu_b, sigma_b, out = NULL) {
+  if (is.null(out)) {
+    out <- twolevel_implied22l(lp, mu_w, mu_b, sigma_w, sigma_b)
+  }
   w <- twolevel_chol_inv(out$sigma_w)
   if (is.null(w)) {
     return(NULL)
@@ -107,18 +109,20 @@ twolevel_s_pw <- function(ylp, lp) {
 # `minus_two = FALSE`, the 2 pi terms with `log2pi = TRUE` (lavaan adds them on
 # the scale it returns), and less the saturated log-likelihood of the
 # covariates when both are set as lavaan does. +Inf (or NA with
-# `minus_two = FALSE`) where a Cholesky factor does not exist.
+# `minus_two = FALSE`) where a Cholesky factor does not exist. `out` may give
+# the moments in the y-and-z form of twolevel_implied22l() instead.
 twolevel_loglik_samp <- function(
   ylp,
   lp,
-  mu_w,
-  sigma_w,
-  mu_b,
-  sigma_b,
+  mu_w = NULL,
+  sigma_w = NULL,
+  mu_b = NULL,
+  sigma_b = NULL,
   log2pi = FALSE,
-  minus_two = TRUE
+  minus_two = TRUE,
+  out = NULL
 ) {
-  parts <- twolevel_parts(lp, mu_w, sigma_w, mu_b, sigma_b)
+  parts <- twolevel_parts(lp, mu_w, sigma_w, mu_b, sigma_b, out)
   undefined <- if (minus_two) Inf else NA_real_
   if (is.null(parts)) {
     return(undefined)

@@ -113,14 +113,16 @@ twolevel_fiml_plan_raw <- function(lp, mp, y1, y2) {
 # the scaled residuals p_ij = W_i r_i of every case, and A_j and p_j of every
 # cluster (one cluster per row). `status` is "ok", "undefined" for lavaan's
 # +Inf, or "fallback" when a Cholesky factor does not exist.
-twolevel_fiml_parts <- function(plan, implied, s0 = FALSE) {
-  out <- twolevel_implied22l(
-    plan$lp,
-    implied$mean[[1L]],
-    implied$mean[[2L]],
-    implied$cov[[1L]],
-    implied$cov[[2L]]
-  )
+twolevel_fiml_parts <- function(plan, implied, s0 = FALSE, out = NULL) {
+  if (is.null(out)) {
+    out <- twolevel_implied22l(
+      plan$lp,
+      implied$mean[[1L]],
+      implied$mean[[2L]],
+      implied$cov[[1L]],
+      implied$cov[[2L]]
+    )
+  }
   sigma_w <- out$sigma_w
   both <- plan$both
   k <- length(both)
@@ -296,23 +298,25 @@ twolevel_fiml_posterior <- function(a, pb, groups, k, s0) {
 # minus twice the log-likelihood with no 2 pi terms by default, the
 # log-likelihood with the 2 pi terms (less `loglik_x` when the model has
 # covariates) with `log2pi = TRUE, minus_two = FALSE`, and +Inf where lavaan's
-# checks fail or a Cholesky factor does not exist
+# checks fail or a Cholesky factor does not exist. `out` may give the moments
+# in the y-and-z form of twolevel_implied22l() instead.
 twolevel_mi_loglik_samp <- function(
   y1,
   y2,
   lp,
   mp,
-  mu_w,
-  sigma_w,
-  mu_b,
-  sigma_b,
+  mu_w = NULL,
+  sigma_w = NULL,
+  mu_b = NULL,
+  sigma_b = NULL,
   log2pi = FALSE,
   loglik_x = 0,
-  minus_two = TRUE
+  minus_two = TRUE,
+  out = NULL
 ) {
   plan <- twolevel_fiml_plan_raw(lp, mp, y1, y2)
   implied <- list(mean = list(mu_w, mu_b), cov = list(sigma_w, sigma_b))
-  twolevel_fiml_loglik_plan(plan, implied, log2pi, loglik_x, minus_two)
+  twolevel_fiml_loglik_plan(plan, implied, log2pi, loglik_x, minus_two, out)
 }
 
 twolevel_fiml_loglik_plan <- function(
@@ -320,9 +324,10 @@ twolevel_fiml_loglik_plan <- function(
   implied,
   log2pi = FALSE,
   loglik_x = 0,
-  minus_two = TRUE
+  minus_two = TRUE,
+  out = NULL
 ) {
-  parts <- twolevel_fiml_parts(plan, implied)
+  parts <- twolevel_fiml_parts(plan, implied, out = out)
   if (parts$status != "ok") {
     return(Inf)
   }
