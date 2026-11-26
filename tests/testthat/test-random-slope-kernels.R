@@ -579,3 +579,35 @@ test_that("per-cluster log-likelihoods and scores equal lavaan's on both routes"
     )
   }
 })
+
+test_that("empirical Bayes values equal lavaan's on both routes", {
+  lav_ns <- asNamespace("lavaan")
+  latent <- suppressWarnings(lavaan::sem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      y4 ~ rv('s1')*fw
+    level: 2
+      fb =~ y1 + y2 + y3
+      y4 ~ w1
+      s1 ~ w1
+    ",
+    data = rsk_data,
+    cluster = "cluster",
+    se = "none",
+    integration.ngh = 11L
+  ))
+  for (fit in list(rsk_fits$factor, rsk_fits_na$factor, latent)) {
+    ref <- lav_ns$lav_mvn_cl_rs_eb(
+      lavmodel = fit@Model,
+      lavdata = fit@Data,
+      lavcache = fit@Cache,
+      se = TRUE
+    )
+    out <- rs_eb(fit@Model, fit@Data, fit@Cache, se = TRUE)
+    expect_equal(out$l2, ref$l2, tolerance = 1e-10)
+    expect_equal(out$se2, ref$se2, tolerance = 1e-10)
+    expect_equal(out$l1, ref$l1, tolerance = 1e-10)
+    expect_identical(out$cluster.idx, ref$cluster.idx)
+  }
+})

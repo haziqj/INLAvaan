@@ -525,7 +525,7 @@ predict.inlavaan_internal <- function(
       spec <- rs_spec(object)
       sample_lv_rs <- function(xx) {
         lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
-        eb <- lavaan___lav_mvn_cl_rs_eb(
+        eb <- rs_eb(
           lavmodel = lavmodel_x,
           lavdata = lavdata,
           lavcache = object$lavcache,

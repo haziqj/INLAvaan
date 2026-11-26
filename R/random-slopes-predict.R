@@ -167,12 +167,7 @@ rs_predict_y <- function(object, lavmodel, lavdata, x_samp, type) {
   lapply(seq_len(nrow(x_samp)), function(i) {
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x_samp[i, ])
     imp <- rs_implied_pieces(lavmodel_x, info)
-    eb <- lavaan___lav_mvn_cl_rs_eb(
-      lavmodel = lavmodel_x,
-      lavdata = lavdata,
-      lavcache = object$lavcache,
-      se = TRUE
-    )
+    eb <- rs_eb(lavmodel_x, lavdata, object$lavcache, se = TRUE)
     V <- rs_v_mean(imp, info, spec$rs)
     lat <- seq_len(imp$meta)
     V[, lat] <- eb$l2 + eb$se2 * stats::rnorm(length(eb$l2))
