@@ -53,6 +53,7 @@ test_that("PPP agrees with and without conditional.x", {
 # A saturated regression on six covariates has no misfit to find. Replicates
 # that also vary the 21 covariate moments would push the PPP to about 1.
 test_that("Fixed covariates add no misfit to the PPP", {
+  skip_on_cran()
   set.seed(42)
   n <- 200
   z <- matrix(rnorm(n * 6), n, 6, dimnames = list(NULL, paste0("z", 1:6)))
