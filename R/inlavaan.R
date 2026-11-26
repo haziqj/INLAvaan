@@ -157,9 +157,11 @@
 #'   takes one Fisher-scoring step from the moments of each posterior draw
 #'   towards the saturated fit, and fits by EM where the step would leave the
 #'   valid covariance matrices (with few clusters or a small between
-#'   variance). `"em"` always fits the saturated model by EM, as blavaan does.
-#'   Fits with `missing = "ml"` always use `"em"`. Ignored for single-level
-#'   models.
+#'   variance). With `missing = "ml"`, `"onestep"` instead finds the saturated
+#'   fit of each replicate by quasi-Newton steps from the moments of the
+#'   posterior draw, which reach the maximum that the EM finds, and fits by EM
+#'   where they do not converge. `"em"` always fits the saturated model by EM,
+#'   as blavaan does. Ignored for single-level models.
 #' @param ppp_nsamp The number of posterior draws, each with one replicate data
 #'   set, that the PPP of a two-level model uses. Defaults to `250`, and is
 #'   capped at `nsamp`. Draws that cannot be scored are left out, with a

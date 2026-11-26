@@ -202,9 +202,11 @@ the replicate data against the saturated model. \code{"onestep"} (default)
 takes one Fisher-scoring step from the moments of each posterior draw
 towards the saturated fit, and fits by EM where the step would leave the
 valid covariance matrices (with few clusters or a small between
-variance). \code{"em"} always fits the saturated model by EM, as blavaan does.
-Fits with \code{missing = "ml"} always use \code{"em"}. Ignored for single-level
-models.}
+variance). With \code{missing = "ml"}, \code{"onestep"} instead finds the saturated
+fit of each replicate by quasi-Newton steps from the moments of the
+posterior draw, which reach the maximum that the EM finds, and fits by EM
+where they do not converge. \code{"em"} always fits the saturated model by EM,
+as blavaan does. Ignored for single-level models.}
 
 \item{ppp_nsamp}{The number of posterior draws, each with one replicate data
 set, that the PPP of a two-level model uses. Defaults to \code{250}, and is
