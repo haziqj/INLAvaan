@@ -75,12 +75,12 @@ twolevel_fiml_plan <- function(lavdata) {
 # cluster (one cluster per row). `status` is "ok", "undefined" for lavaan's
 # +Inf, or "fallback" when the call goes back to lavaan.
 twolevel_fiml_parts <- function(plan, implied, s0 = FALSE) {
-  out <- lavaan___lav_mvn_cl_implied22l(
-    lp = plan$lp,
-    mu_w = implied$mean[[1L]],
-    mu_b = implied$mean[[2L]],
-    sigma_w = implied$cov[[1L]],
-    sigma_b = implied$cov[[2L]]
+  out <- twolevel_implied22l(
+    plan$lp,
+    implied$mean[[1L]],
+    implied$mean[[2L]],
+    implied$cov[[1L]],
+    implied$cov[[2L]]
   )
   sigma_w <- out$sigma_w
   both <- plan$both
@@ -228,7 +228,7 @@ twolevel_fiml_dmoments <- function(plan, implied) {
   }
   d_sw <- dd(a_total + (aa + t(aa)) / 2)
   d_muy <- 2 * (a_t - colSums(parts$pj))
-  lavaan___lav_mvn_cl_2l2implied(
+  twolevel_2l2implied(
     lp = plan$lp,
     sigma_w = d_sw,
     sigma_b = d_sb,

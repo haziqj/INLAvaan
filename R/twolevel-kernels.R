@@ -46,16 +46,16 @@ twolevel_chol_inv <- function(s) {
 }
 
 # The pieces of the two-level likelihood that do not depend on the cluster
-# size: the moments in lavaan's two-level form (lav_mvn_cl_implied22l()) and
+# size: the moments in lavaan's two-level form (twolevel_implied22l()) and
 # the inverses of Sigma_w and of Sigma_zz, the covariance of the between-only
 # variables. NULL when an inverse does not exist.
 twolevel_parts <- function(lp, implied) {
-  out <- lavaan___lav_mvn_cl_implied22l(
-    lp = lp,
-    mu_w = implied$mean[[1L]],
-    mu_b = implied$mean[[2L]],
-    sigma_w = implied$cov[[1L]],
-    sigma_b = implied$cov[[2L]]
+  out <- twolevel_implied22l(
+    lp,
+    implied$mean[[1L]],
+    implied$mean[[2L]],
+    implied$cov[[1L]],
+    implied$cov[[2L]]
   )
   w <- twolevel_chol_inv(out$sigma_w)
   if (is.null(w)) {
@@ -238,7 +238,7 @@ twolevel_dmoments <- function(lavsamplestats, lavdata, implied) {
     d_szz <- matrix(0, 0L, 0L)
     d_syz <- matrix(0, 0L, 0L)
   }
-  lavaan___lav_mvn_cl_2l2implied(
+  twolevel_2l2implied(
     lp = lp,
     sigma_w = d_sw,
     sigma_b = d_sb,
