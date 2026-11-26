@@ -148,11 +148,7 @@ rs_avg_implied <- function(lavmodel, info, glist = lavmodel@GLIST) {
 # lavaan's own pieces of the per-cluster kernel. lavaan 0.7-2 spelled three
 # of them with dots, later versions with underscores, so both are accepted.
 rs_implied_pieces <- function(lavmodel, info, glist = lavmodel@GLIST) {
-  imp <- lavaan___lav_mvn_cl_rs_implied(
-    lavmodel = lavmodel,
-    glist = glist,
-    rs_info = info
-  )
+  imp <- rs_implied(lavmodel, info, glist)
   for (nm in c("mu_y", "sigma_w", "mu_z")) {
     if (is.null(imp[[nm]])) {
       imp[[nm]] <- imp[[sub("_", ".", nm)]]
