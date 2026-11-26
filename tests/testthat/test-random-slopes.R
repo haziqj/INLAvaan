@@ -449,7 +449,26 @@ mod_ceq <- "
     fb ~ w1
     s1 ~ w1
 "
-fit_ceq <- NULL
+# The constrained fit, made on first use and kept for the later blocks, so
+# that each block of this group also runs on its own
+ceq_fit <- local({
+  fit <- NULL
+  function() {
+    if (is.null(fit)) {
+      fit <<- asem(
+        mod_ceq,
+        d_rs,
+        cluster = "cluster",
+        verbose = FALSE,
+        test = "none",
+        marginal_scan = "plain",
+        vb_correction = FALSE,
+        nsamp = 3
+      )
+    }
+    fit
+  }
+})
 
 # The log-likelihood and its gradient in the theta space the optimiser
 # works in, assembled exactly as joint_lp()/joint_lp_grad() assemble them
@@ -492,20 +511,7 @@ ceq_theta_grad <- function(int, pars) {
 
 test_that("Random slopes: a cross-level equality constraint fits", {
   skip_on_cran()
-  expect_no_warning(
-    muffle_fit_diagnostics(
-      fit_ceq <<- asem(
-        mod_ceq,
-        d_rs,
-        cluster = "cluster",
-        verbose = FALSE,
-        test = "none",
-        marginal_scan = "plain",
-        vb_correction = FALSE,
-        nsamp = 3
-      )
-    )
-  )
+  expect_no_warning(fit_ceq <- muffle_fit_diagnostics(ceq_fit()))
 
   fit_ceq_lav <- suppressWarnings(
     lavaan::sem(mod_ceq, d_rs, cluster = "cluster")
@@ -516,6 +522,7 @@ test_that("Random slopes: a cross-level equality constraint fits", {
 
 test_that("Random slopes: the constrained gradient is the exact one", {
   skip_on_cran()
+  fit_ceq <- muffle_fit_diagnostics(ceq_fit())
   int <- get_inlavaan_internal(fit_ceq)
   opts <- fit_ceq@Options
   opts$estimator <- "ML"
@@ -541,6 +548,7 @@ test_that("Random slopes: the constrained gradient is the exact one", {
 
 test_that("Random slopes: LOCO carries the constraint too", {
   skip_on_cran()
+  fit_ceq <- muffle_fit_diagnostics(ceq_fit())
   int <- get_inlavaan_internal(fit_ceq)
   spec <- rs_spec(int)
   opts <- fit_ceq@Options
