@@ -24,22 +24,23 @@
   SDs. Patterns that miss many variables, as in planned missingness, keep the
   earlier code.
 
-* Two-level fits are faster. Random-slope models (`rv()`) with the slope on
-  an observed within-cluster covariate, and two-level models with random
-  intercepts, now take INLAvaan's own log-likelihood and gradient, which work
-  all clusters at once and do the matrix algebra of the gradient once, not
-  once per cluster. This holds with complete data and with missing values at
-  level 1 (`missing = "ml"`). On four random-slope test models a fit takes 85%
-  to 91% less time (from 36.2 to 3.2 seconds on a two-level factor model with
-  a random slope and missing data), and `fitMeasures()` is faster too.
-  Two-level models with random intercepts take 21% to 23% less time with
-  complete data and 13% to 17% less with missing data, where the posterior
-  predictive p-value is now most of the time. The log-posterior equals the
-  earlier one up to rounding, so a posterior summary of a fit whose mode
-  search takes many iterations can move by about 0.0001 posterior SDs.
-  Random slopes on a latent or split covariate, random-slope models with a
-  between-only outcome, and two-level models with between-only variables and
-  missing data keep the earlier code.
+* Two-level fits are faster. All two-level models with ML now take
+  INLAvaan's own log-likelihood and gradient, except two-level models with
+  `conditional.x = TRUE`: random slopes (`rv()`) on observed and on latent
+  or split covariates, with or without between-only outcomes, and random
+  intercepts with or without between-only variables, each with complete data
+  and with missing values (`missing = "ml"`). The new code works all clusters
+  at once and does the matrix algebra of the gradient once, not once per
+  cluster, and the derivative of the random-slope pieces is exact. On four
+  random-slope test models a fit takes 90% to 93% less time (from 35.7 to 2.5
+  seconds on a two-level factor model with a random slope and missing data),
+  and 77% less with a slope on a latent covariate, where the cluster effects
+  are integrated by quadrature; `fitMeasures()` is faster too. Two-level
+  models with random intercepts take 21% to 24% less time with complete data
+  and 16% to 23% less with missing data, where the posterior predictive
+  p-value is now most of the time. The log-posterior equals the earlier one
+  up to rounding, so a posterior summary of a fit whose mode search takes
+  many iterations can move by about 0.0001 posterior SDs.
 
 * New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
   `silent = TRUE` prints nothing and muffles the warnings and messages raised
