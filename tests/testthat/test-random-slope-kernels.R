@@ -435,3 +435,41 @@ test_that("between-only responses are scored as lavaan scores them", {
     expect_equal(as.numeric(g %*% rsk_k(fit)), g_num, tolerance = 1e-6)
   }
 })
+
+test_that("per-cluster log-likelihoods and weighted gradients equal lavaan's", {
+  lav_ns <- asNamespace("lavaan")
+  for (fit in c(rsk_fits, rsk_fits_na["factor"])) {
+    rs <- fit@Cache[[1L]]$rs
+    plan <- rs_kernel_plan(rs, fit@SampleStats@ntotal)
+    lm <- lavaan::lav_model_set_parameters(fit@Model, rsk_point(fit, 5))
+    imp <- rs_implied(lm, rs$info)
+    expect_equal(
+      rs_kernel_loglik(plan, imp, per_cluster = TRUE),
+      attr(
+        lav_ns$lav_mvn_cl_rs_m2ll(
+          lavmodel = lm,
+          rs = rs,
+          log2pi = TRUE,
+          minus_two = FALSE,
+          per_cluster = TRUE
+        ),
+        "loglik.cluster"
+      ),
+      tolerance = 1e-12
+    )
+    set.seed(6)
+    w <- stats::runif(rs$stats$nclusters)
+    expect_equal(
+      rs_dphi_vec(rs_kernel_dphi(plan, imp, weights = w)),
+      colSums(
+        w *
+          lav_ns$lav_mvn_cl_rs_dfphi(
+            rs_stats = rs$stats,
+            imp = imp,
+            rs_info = rs$info
+          )
+      ),
+      tolerance = 1e-10
+    )
+  }
+})

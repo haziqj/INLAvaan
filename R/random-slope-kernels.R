@@ -64,10 +64,12 @@ rs_cell_set <- function(n, sy, sx, sxx, sxy, syy, nx, p1, obs, j1 = NULL) {
   n_c <- length(n)
   sxx_a <- array(0, dim = c(n_c, nx, nx))
   sxy_a <- array(0, dim = c(n_c, nx, p1))
+  syy_m <- matrix(0, n_c, p1 * p1)
   syy_total <- matrix(0, p1, p1)
   for (j in seq_len(n_c)) {
     sxx_a[j, , ] <- sxx[[j]]
     sxy_a[j, , ] <- sxy[[j]]
+    syy_m[j, ] <- as.numeric(syy[[j]])
     syy_total <- syy_total + syy[[j]]
   }
   sy <- matrix(sy, n_c, p1)
@@ -80,6 +82,7 @@ rs_cell_set <- function(n, sy, sx, sxx, sxy, syy, nx, p1, obs, j1 = NULL) {
     sx = sx,
     sxx = sxx_a,
     sxy = sxy_a,
+    syy = syy_m,
     n_total = sum(n),
     sy_total = colSums(sy),
     sx_total = colSums(sx),
@@ -202,6 +205,25 @@ rs_set_quad0 <- function(set, imp, w_mat) {
     sum(crossprod(pmat, wp) * set$sxx_total)
 }
 
+# The same part, one value per cell of the set
+rs_cell_quad0 <- function(set, imp, w_mat) {
+  pmat <- imp$P
+  mu_y <- imp$mu_y
+  wp <- w_mat %*% pmat
+  mu_y_w <- as.numeric(w_mat %*% mu_y)
+  n_c <- length(set$nj)
+  nx <- dim(set$sxx)[2L]
+  as.numeric(
+    set$syy %*%
+      as.numeric(w_mat) -
+      2 * set$sy %*% mu_y_w +
+      set$nj * sum(mu_y_w * mu_y) -
+      2 * matrix(set$sxy, n_c) %*% as.numeric(t(wp)) +
+      2 * set$sx %*% as.numeric(mu_y_w %*% pmat) +
+      matrix(set$sxx, n_c, nx * nx) %*% as.numeric(crossprod(pmat, wp))
+  )
+}
+
 # The inverse of the block of Sigma_w that `obs` observes, padded with zeros,
 # and its log-determinant, or NULL
 rs_w_block <- function(sigma_w, obs) {
@@ -219,14 +241,16 @@ rs_w_block <- function(sigma_w, obs) {
 
 # A_j and p_j of every cluster (one cluster per row), with the cell terms and
 # the inverses of every set, the 2 pi and log-determinant terms of Sigma_w and
-# the parts that do not depend on the cluster effects. NULL when a block of
-# Sigma_w has no Cholesky factor.
-rs_cluster_terms <- function(plan, imp) {
+# the parts that do not depend on the cluster effects, in total and, with
+# `per_cluster`, for each cluster. NULL when a block of Sigma_w has no
+# Cholesky factor.
+rs_cluster_terms <- function(plan, imp, per_cluster = FALSE) {
   pv <- imp$pv
   n_cl <- plan$n_cl
   a <- matrix(0, n_cl, pv * pv)
   p <- matrix(0, n_cl, pv)
   ld <- quad0 <- 0
+  ld_j <- quad0_j <- numeric(n_cl)
   per_set <- vector("list", length(plan$sets))
   for (k in seq_along(plan$sets)) {
     set <- plan$sets[[k]]
@@ -244,6 +268,12 @@ rs_cluster_terms <- function(plan, imp) {
     }
     ld <- ld + set$n_total * (w$logdet + length(set$obs) * log(2 * pi))
     quad0 <- quad0 + rs_set_quad0(set, imp, w$inv)
+    if (per_cluster) {
+      rows <- if (is.null(set$j1)) seq_len(n_cl) else set$j1
+      ld_j[rows] <- ld_j[rows] +
+        set$nj * (w$logdet + length(set$obs) * log(2 * pi))
+      quad0_j[rows] <- quad0_j[rows] + rs_cell_quad0(set, imp, w$inv)
+    }
     per_set[[k]] <- list(w_mat = w$inv, ct = ct)
   }
   zb_terms <- NULL
@@ -259,8 +289,12 @@ rs_cluster_terms <- function(plan, imp) {
     w_zg <- w_z %*% imp$gmat
     a <- sweep(a, 2L, as.numeric(crossprod(imp$gmat, w_zg)), "+")
     p <- p + e_z %*% w_zg
-    quad0 <- quad0 + sum(e_z * (e_z %*% w_z))
-    ld <- ld + n_cl * (2 * sum(log(diag(ch))) + plan$kz * log(2 * pi))
+    quad0_z <- rowSums(e_z * (e_z %*% w_z))
+    ld_z <- 2 * sum(log(diag(ch))) + plan$kz * log(2 * pi)
+    quad0 <- quad0 + sum(quad0_z)
+    ld <- ld + n_cl * ld_z
+    quad0_j <- quad0_j + quad0_z
+    ld_j <- ld_j + ld_z
     zb_terms <- list(w_z = w_z, e_z = e_z)
   }
   d <- matrix(imp$mu.v, n_cl, pv, byrow = TRUE)
@@ -276,6 +310,8 @@ rs_cluster_terms <- function(plan, imp) {
     exo_c = exo_c,
     ld = ld,
     quad0 = quad0,
+    ld_j = ld_j,
+    quad0_j = quad0_j,
     per_set = per_set,
     zb_terms = zb_terms
   )
@@ -285,13 +321,14 @@ rs_cluster_terms <- function(plan, imp) {
 
 # The log-likelihood with the 2 pi terms, as lavaan's lav_mvn_cl_rs_m2ll()
 # returns it with `log2pi = TRUE, minus_two = FALSE`, or -Inf when it is not
-# defined. NULL sends the call back to lavaan (see rs_cluster_posterior()).
-rs_kernel_loglik <- function(plan, imp) {
+# defined. With `per_cluster`, one value per cluster. NULL sends the call back
+# to lavaan (see rs_cluster_posterior()).
+rs_kernel_loglik <- function(plan, imp, per_cluster = FALSE) {
   if (is.null(imp)) {
     return(-Inf)
   }
   pv <- imp$pv
-  ct <- rs_cluster_terms(plan, imp)
+  ct <- rs_cluster_terms(plan, imp, per_cluster)
   if (is.null(ct)) {
     return(-Inf)
   }
@@ -304,6 +341,10 @@ rs_kernel_loglik <- function(plan, imp) {
   }
   if (post$status == "undefined") {
     return(-Inf)
+  }
+  if (per_cluster) {
+    m2ll_j <- ct$ld_j + post$logdet + quad_d - post$quad + ct$quad0_j
+    return(-m2ll_j / 2)
   }
   m2ll <- ct$ld +
     sum(post$logdet) +
@@ -318,8 +359,9 @@ rs_kernel_loglik <- function(plan, imp) {
 # The derivative of minus twice the log-likelihood with respect to each of the
 # implied pieces of rs_implied(), every element taken on its own, as a named
 # list. In the order of lav_mvn_cl_rs_phi_vec() (rs_dphi_vec()) it equals
-# colSums() of lavaan's lav_mvn_cl_rs_dfphi(). NULL when it is not defined.
-rs_kernel_dphi <- function(plan, imp) {
+# colSums() of lavaan's lav_mvn_cl_rs_dfphi(), or with `weights` (one per
+# cluster) colSums(weights * dfphi). NULL when it is not defined.
+rs_kernel_dphi <- function(plan, imp, weights = NULL) {
   pv <- imp$pv
   ct <- rs_cluster_terms(plan, imp)
   if (is.null(ct)) {
@@ -349,6 +391,12 @@ rs_kernel_dphi <- function(plan, imp) {
   }
   g_p <- -2 * mu0
   g_d <- -2 * zp
+  if (!is.null(weights)) {
+    g_a <- weights * g_a
+    g_p <- weights * g_p
+    g_d <- weights * g_d
+    g_sv <- weights * g_sv
+  }
 
   ## ----- Within-level terms, set by set --------------------------------------
   gw_total <- NULL
@@ -362,7 +410,8 @@ rs_kernel_dphi <- function(plan, imp) {
       ct$per_set[[k]]$w_mat,
       ct$per_set[[k]]$ct,
       g_a[rows, , drop = FALSE],
-      g_p[rows, , drop = FALSE]
+      g_p[rows, , drop = FALSE],
+      if (is.null(weights)) NULL else weights[rows]
     )
     gw_total <- if (is.null(gw_total)) {
       part
@@ -384,18 +433,19 @@ rs_kernel_dphi <- function(plan, imp) {
     # lavaan's add_zcell(), summed over the clusters
     w_z <- ct$zb_terms$w_z
     e_z <- ct$zb_terms$e_z
+    cw <- if (is.null(weights)) rep(1, plan$n_cl) else weights
     gmat <- imp$gmat
     ga_sum <- matrix(colSums(g_a), pv, pv)
     gp_sum <- colSums(g_p)
     g_g <- 2 * (w_z %*% gmat %*% ga_sum) + w_z %*% crossprod(e_z, g_p)
-    g_mz <- -as.numeric(w_z %*% (gmat %*% gp_sum + 2 * colSums(e_z)))
+    g_mz <- -as.numeric(w_z %*% (gmat %*% gp_sum + 2 * colSums(cw * e_z)))
     gw_z <- gmat %*%
       ga_sum %*%
       t(gmat) +
       gmat %*% crossprod(g_p, e_z) +
-      crossprod(e_z)
+      crossprod(e_z, cw * e_z)
     gw_z <- (gw_z + t(gw_z)) / 2
-    g_sz <- plan$n_cl * w_z - w_z %*% gw_z %*% w_z
+    g_sz <- sum(cw) * w_z - w_z %*% gw_z %*% w_z
   }
   list(
     sigma_w = gw_total$gsw,
@@ -417,7 +467,7 @@ rs_kernel_dphi <- function(plan, imp) {
 # cells, from the posterior moments of the clusters of its cells (`g_a`,
 # `g_p`, one cell per row). The sums over the cells come first, as vector
 # operations, and the p1 x p1 algebra is done once.
-rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
+rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p, cw = NULL) {
   pv <- imp$pv
   p1 <- plan$p1
   nx <- plan$nx
@@ -433,6 +483,22 @@ rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
   se <- ct$se
   sxe <- ct$sxe
   at <- function(i, j) rs_at(i, j, pv)
+  # With weights (one per cell), the data-only sums are weighted sums. `g_a`
+  # and `g_p` come weighted already.
+  tot <- set
+  if (!is.null(cw)) {
+    tot$n_total <- sum(cw * nj)
+    tot$sy_total <- colSums(cw * set$sy)
+    tot$sx_total <- colSums(cw * set$sx)
+    tot$sxx_total <- matrix(apply(cw * set$sxx, c(2L, 3L), sum), nx, nx)
+    tot$sxy_total <- matrix(apply(cw * set$sxy, c(2L, 3L), sum), nx, p1)
+    tot$syy_total <- matrix(colSums(cw * set$syy), p1, p1)
+    se_w <- cw * se
+    sxe_w <- lapply(sxe, function(m) cw * m)
+  } else {
+    se_w <- se
+    sxe_w <- sxe
+  }
 
   ## ----- Sums over the cells -------------------------------------------------
   ga_n <- matrix(colSums(nj * g_a), pv, pv)
@@ -458,16 +524,16 @@ rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
     function(r) sum(set$sx[, path_x[r]] * g_p[, path_zcol[r]]),
     numeric(1)
   )
-  psx <- pmat %*% set$sx_total
-  see <- set$syy_total -
-    outer(set$sy_total, mu_y) -
-    outer(mu_y, set$sy_total) +
-    set$n_total * tcrossprod(mu_y) -
-    t(set$sxy_total) %*% t(pmat) -
-    pmat %*% set$sxy_total +
+  psx <- pmat %*% tot$sx_total
+  see <- tot$syy_total -
+    outer(tot$sy_total, mu_y) -
+    outer(mu_y, tot$sy_total) +
+    tot$n_total * tcrossprod(mu_y) -
+    t(tot$sxy_total) %*% t(pmat) -
+    pmat %*% tot$sxy_total +
     mu_y %*% t(psx) +
     psx %*% t(mu_y) +
-    pmat %*% set$sxx_total %*% t(pmat)
+    pmat %*% tot$sxx_total %*% t(pmat)
 
   ## ----- The p1 x p1 algebra, once -------------------------------------------
   gw <- q0 %*% ga_n %*% t(q0) + q0 %*% gp_se + see
@@ -482,7 +548,7 @@ rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
     }
   }
   gw <- (gw + t(gw)) / 2
-  gsw <- set$n_total * w_mat - w_mat %*% gw %*% w_mat
+  gsw <- tot$n_total * w_mat - w_mat %*% gw %*% w_mat
   gq0 <- 2 * (w_mat %*% sq_ga) + w_mat %*% crossprod(se, g_p)
   glm <- matrix(0, p1, npaths)
   for (r in seq_len(npaths)) {
@@ -498,7 +564,7 @@ rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
   for (r in seq_len(npaths)) {
     sq_gp <- sq_gp + sx_gp[r] * lmat[, r]
   }
-  gmy <- -as.numeric(w_mat %*% (sq_gp + 2 * colSums(se)))
+  gmy <- -as.numeric(w_mat %*% (sq_gp + 2 * colSums(se_w)))
   g_pmat <- numeric(0)
   if (nx > 0L) {
     mm <- q0 %*% crossprod(g_p, set$sx)
@@ -508,7 +574,7 @@ rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
         outer(lmat[, r], as.numeric(crossprod(g_p[, path_zcol[r]], sxx_r)))
     }
     # One row per covariate, one column per outcome
-    sxe_sum <- matrix(vapply(sxe, colSums, numeric(p1)), p1, nx)
+    sxe_sum <- matrix(vapply(sxe_w, colSums, numeric(p1)), p1, nx)
     g_pmat <- as.numeric(-(w_mat %*% (mm + 2 * sxe_sum)))
   }
   list(gsw = gsw, gmy = gmy, g_pmat = g_pmat, glm = glm, gq0 = gq0)
