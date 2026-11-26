@@ -181,7 +181,7 @@ inlav_model_grad <- function(
 multilevel_setup <- function(lavmodel, lavsamplestats, lavdata, lavcache) {
   rs <- NULL
   if (rs_kernel_ok(lavmodel, lavdata, lavcache)) {
-    rs <- rs_kernel_plan(lavcache[[1L]]$rs)
+    rs <- rs_kernel_plan(lavcache[[1L]]$rs, lavsamplestats@ntotal)
   }
   twolevel_fiml <- NULL
   if (twolevel_fiml_ok(lavmodel, lavsamplestats, lavdata)) {

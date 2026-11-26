@@ -87,7 +87,7 @@ rsk_k <- function(fit) {
   if (length(K) == 0L) diag(fit@Model@nx.free) else K
 }
 
-test_that("the kernels take route A with complete data, and nothing else", {
+test_that("the kernels take route A, and not the quadrature route", {
   for (fit in rsk_fits) {
     expect_true(rs_kernel_ok(fit@Model, fit@Data, fit@Cache))
   }
@@ -103,23 +103,6 @@ test_that("the kernels take route A with complete data, and nothing else", {
     cluster = "cluster"
   ))
   expect_false(rs_kernel_ok(split@Model, split@Data, split@Cache))
-  dat_na <- rsk_data
-  dat_na$y1[c(3, 40, 77)] <- NA
-  fit_na <- suppressWarnings(lavaan::sem(
-    rsk_models$lmm,
-    data = dat_na,
-    cluster = "cluster",
-    missing = "ml"
-  ))
-  expect_false(rs_kernel_ok(fit_na@Model, fit_na@Data, fit_na@Cache))
-  expect_null(
-    multilevel_setup(
-      fit_na@Model,
-      fit_na@SampleStats,
-      fit_na@Data,
-      fit_na@Cache
-    )$rs
-  )
 })
 
 test_that("the log-likelihood equals lavaan's", {
@@ -227,5 +210,77 @@ test_that("an indefinite level-2 covariance is scored as lavaan scores it", {
       )),
       tolerance = 1e-10
     )
+  }
+})
+
+## ----- Missing data -------------------------------------------------------------
+
+rsk_data_na <- local({
+  dat <- rsk_data
+  set.seed(28)
+  for (v in c("y1", "y2", "y3")) {
+    dat[[v]][stats::runif(nrow(dat)) < 0.12] <- NA
+  }
+  dat
+})
+
+rsk_fits_na <- lapply(
+  rsk_models[c("lmm", "factor", "equal_loadings")],
+  function(m) {
+    suppressWarnings(lavaan::sem(
+      m,
+      data = rsk_data_na,
+      cluster = "cluster",
+      missing = "ml",
+      ceq.simple = TRUE,
+      se = "none"
+    ))
+  }
+)
+
+test_that("the kernels take random slopes with missing data", {
+  for (fit in rsk_fits_na) {
+    expect_false(is.null(fit@Cache[[1L]]$rs$stats$mp))
+    expect_true(rs_kernel_ok(fit@Model, fit@Data, fit@Cache))
+  }
+})
+
+test_that("with missing data the log-likelihood equals lavaan's", {
+  for (fit in rsk_fits_na) {
+    x <- lavaan::lav_model_get_parameters(fit@Model)
+    expect_equal(rsk_loglik(fit, x), as.numeric(lavaan::logLik(fit)))
+    for (seed in 1:3) {
+      x <- rsk_point(fit, seed)
+      expect_equal(
+        rsk_loglik(fit, x),
+        rsk_loglik(
+          fit,
+          x,
+          multilevel = list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
+        ),
+        tolerance = 1e-12
+      )
+    }
+  }
+})
+
+test_that("with missing data the gradient equals lavaan's and a numerical one", {
+  skip_if_not_installed("numDeriv")
+  for (fit in rsk_fits_na) {
+    for (seed in 1:2) {
+      x <- rsk_point(fit, seed)
+      g <- rsk_grad(fit, x)
+      expect_equal(
+        g,
+        rsk_grad(
+          fit,
+          x,
+          multilevel = list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
+        ),
+        tolerance = 1e-10
+      )
+      g_num <- numDeriv::grad(function(z) rsk_loglik(fit, z), x)
+      expect_equal(as.numeric(g %*% rsk_k(fit)), g_num, tolerance = 1e-6)
+    }
   }
 })

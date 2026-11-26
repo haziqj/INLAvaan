@@ -1,6 +1,7 @@
 # Random-slope kernels: the log-likelihood of a two-level model with random
 # slopes (lavaan's rv() modifier) and its gradient, for lavaan's closed-form
-# route with complete data and no between-only responses (rs_kernel_ok()).
+# route with no between-only responses (rs_kernel_ok()), with complete data
+# or with missing values at level 1.
 #
 # Given the covariates, the data of cluster j are
 #   y_ij = mu_y + P x_ij + Z_ij v_j + e_ij,  v_j ~ N(d_j, Sigma_v),
@@ -26,6 +27,13 @@
 # does the p1 x p1 algebra once. Everything that depends only on the data is in
 # the plan of rs_kernel_plan().
 #
+# With missing values at level 1, lavaan splits the data of each cluster into
+# cells, one per missing-data pattern, each with the inverse of the block of
+# Sigma_w that its pattern observes. A_j and p_j are then sums over the cells
+# of cluster j. Here the cells of one pattern are worked together as the
+# clusters are with complete data, pattern by pattern, and the gradient adds
+# the within-level terms of every pattern.
+#
 # The derivative with respect to lavaan's free parameters takes lavaan's
 # central differences of the implied pieces (lav_mvn_cl_rs_implied()), so it
 # is lavaan's gradient up to rounding.
@@ -44,43 +52,84 @@ rs_kernel_ok <- function(lavmodel, lavdata, lavcache) {
   rs <- lavcache[[1L]]$rs
   !is.null(rs) &&
     !isTRUE(rs$info$nl.flag) &&
-    is.null(rs$stats$mp) &&
     identical(as.integer(rs$info$kz), 0L)
 }
 
 ## ----- Plan ------------------------------------------------------------------
 
-# The cluster sums as matrices and arrays with one row per cluster, and their
-# totals over the clusters
-rs_kernel_plan <- function(rs) {
+# The sums of a set of cells (the clusters with complete data, or the cells of
+# one missing-data pattern), one cell per row, with their totals
+rs_cell_set <- function(n, sy, sx, sxx, sxy, syy, nx, p1, obs, j1 = NULL) {
+  n_c <- length(n)
+  sxx_a <- array(0, dim = c(n_c, nx, nx))
+  sxy_a <- array(0, dim = c(n_c, nx, p1))
+  syy_total <- matrix(0, p1, p1)
+  for (j in seq_len(n_c)) {
+    sxx_a[j, , ] <- sxx[[j]]
+    sxy_a[j, , ] <- sxy[[j]]
+    syy_total <- syy_total + syy[[j]]
+  }
+  sy <- matrix(sy, n_c, p1)
+  sx <- matrix(sx, n_c, nx)
+  list(
+    obs = obs,
+    j1 = j1,
+    nj = n,
+    sy = sy,
+    sx = sx,
+    sxx = sxx_a,
+    sxy = sxy_a,
+    n_total = sum(n),
+    sy_total = colSums(sy),
+    sx_total = colSums(sx),
+    sxx_total = matrix(apply(sxx_a, c(2L, 3L), sum), nx, nx),
+    sxy_total = matrix(apply(sxy_a, c(2L, 3L), sum), nx, p1),
+    syy_total = syy_total
+  )
+}
+
+# The cell sets of the data and what the clusters share, built once per model.
+# `ntotal` is lavaan's sample size, which scales its gradient. With missing
+# data it also counts the cases whose outcomes are all missing.
+rs_kernel_plan <- function(rs, ntotal = sum(rs$stats$cluster.size)) {
   st <- rs$stats
   info <- rs$info
-  n_cl <- st$nclusters
   nx <- info$nx
   p1 <- info$p1
-  sxx <- array(0, dim = c(n_cl, nx, nx))
-  sxy <- array(0, dim = c(n_cl, nx, p1))
-  syy_total <- matrix(0, p1, p1)
-  for (j in seq_len(n_cl)) {
-    sxx[j, , ] <- st$sxx[[j]]
-    sxy[j, , ] <- st$sxy[[j]]
-    syy_total <- syy_total + st$syy[[j]]
+  sets <- if (is.null(st$mp)) {
+    list(rs_cell_set(
+      st$cluster.size,
+      st$sy,
+      st$sx,
+      st$sxx,
+      st$sxy,
+      st$syy,
+      nx,
+      p1,
+      obs = seq_len(p1)
+    ))
+  } else {
+    lapply(st$mp$pattern, function(cell) {
+      rs_cell_set(
+        cell$n,
+        cell$sy,
+        cell$sx,
+        cell$sxx,
+        cell$sxy,
+        cell$syy,
+        nx,
+        p1,
+        obs = cell$o,
+        j1 = cell$j1
+      )
+    })
   }
   list(
     info = info,
-    n_cl = n_cl,
-    nj = st$cluster.size,
-    sy = matrix(st$sy, n_cl, p1),
-    sx = matrix(st$sx, n_cl, nx),
-    sxx = sxx,
-    sxy = sxy,
+    n_cl = st$nclusters,
+    sets = sets,
+    ntotal = ntotal,
     exo_b = st$exo.b,
-    n_total = sum(st$cluster.size),
-    sy_total = colSums(matrix(st$sy, n_cl, p1)),
-    sx_total = colSums(matrix(st$sx, n_cl, nx)),
-    sxx_total = matrix(apply(sxx, c(2L, 3L), sum), nx, nx),
-    sxy_total = matrix(apply(sxy, c(2L, 3L), sum), nx, p1),
-    syy_total = syy_total,
     path_x = info$path.tab$x.idx,
     path_z = info$path.tab$z.idx,
     nx = nx,
@@ -220,15 +269,16 @@ rs_batch_mv <- function(x, v, k) {
   out
 }
 
-## ----- Cluster terms ---------------------------------------------------------
+## ----- Cell terms ------------------------------------------------------------
 
-# A_j, p_j and the residual sums of every cluster, as lavaan's loops build
-# them. `w_mat` is the inverse of Sigma_w.
-rs_cluster_terms <- function(plan, imp, w_mat) {
+# The contributions to A_j and p_j of every cell of a set, and its residual
+# sums, as lavaan's loops build them. `w_mat` is the inverse of the block of
+# Sigma_w that the set observes, padded with zeros.
+rs_cell_terms <- function(plan, set, imp, w_mat) {
   pv <- imp$pv
   p1 <- plan$p1
   nx <- plan$nx
-  n_cl <- plan$n_cl
+  n_c <- length(set$nj)
   path_x <- plan$path_x
   path_zcol <- imp$z.v.idx[plan$path_z]
   lmat <- imp$lmat
@@ -239,28 +289,90 @@ rs_cluster_terms <- function(plan, imp, w_mat) {
   ltwl <- crossprod(lmat, wl)
   wq0 <- w_mat %*% q0
   q0twl <- crossprod(q0, wl)
-  a <- tcrossprod(plan$nj, as.numeric(crossprod(q0, wq0)))
-  se <- plan$sy - tcrossprod(plan$nj, mu_y) - plan$sx %*% t(pmat)
+  a <- tcrossprod(set$nj, as.numeric(crossprod(q0, wq0)))
+  se <- set$sy - tcrossprod(set$nj, mu_y) - set$sx %*% t(pmat)
   p <- se %*% wq0
   sxe <- vector("list", nx)
   for (xi in seq_len(nx)) {
-    sxe[[xi]] <- matrix(plan$sxy[, xi, ], n_cl, p1) -
-      tcrossprod(plan$sx[, xi], mu_y) -
-      matrix(plan$sxx[, xi, ], n_cl, nx) %*% t(pmat)
+    sxe[[xi]] <- matrix(set$sxy[, xi, ], n_c, p1) -
+      tcrossprod(set$sx[, xi], mu_y) -
+      matrix(set$sxx[, xi, ], n_c, nx) %*% t(pmat)
   }
   for (i in seq_along(path_x)) {
     zi <- path_zcol[i]
     xi <- path_x[i]
     for (r in seq_len(pv)) {
-      term <- q0twl[r, i] * plan$sx[, xi]
+      term <- q0twl[r, i] * set$sx[, xi]
       a[, rs_at(r, zi, pv)] <- a[, rs_at(r, zi, pv)] + term
       a[, rs_at(zi, r, pv)] <- a[, rs_at(zi, r, pv)] + term
     }
     for (k in seq_along(path_x)) {
       a[, rs_at(zi, path_zcol[k], pv)] <- a[, rs_at(zi, path_zcol[k], pv)] +
-        ltwl[i, k] * plan$sxx[, xi, path_x[k]]
+        ltwl[i, k] * set$sxx[, xi, path_x[k]]
     }
     p[, zi] <- p[, zi] + as.numeric(sxe[[xi]] %*% wl[, i])
+  }
+  list(a = a, p = p, se = se, sxe = sxe)
+}
+
+# The part of -2 log L of a set that does not depend on the cluster effects,
+# from the totals of the set
+rs_set_quad0 <- function(set, imp, w_mat) {
+  pmat <- imp$P
+  mu_y <- imp$mu_y
+  wp <- w_mat %*% pmat
+  mu_y_w <- as.numeric(w_mat %*% mu_y)
+  sum(w_mat * set$syy_total) -
+    2 * sum(mu_y_w * set$sy_total) +
+    set$n_total * sum(mu_y_w * mu_y) -
+    2 * sum(t(wp) * set$sxy_total) +
+    2 * sum(as.numeric(mu_y_w %*% pmat) * set$sx_total) +
+    sum(crossprod(pmat, wp) * set$sxx_total)
+}
+
+# The inverse of the block of Sigma_w that `obs` observes, padded with zeros,
+# and its log-determinant, or NULL
+rs_w_block <- function(sigma_w, obs) {
+  ch <- tryCatch(
+    chol(sigma_w[obs, obs, drop = FALSE]),
+    error = function(e) NULL
+  )
+  if (is.null(ch)) {
+    return(NULL)
+  }
+  inv <- matrix(0, nrow(sigma_w), ncol(sigma_w))
+  inv[obs, obs] <- chol2inv(ch)
+  list(inv = inv, logdet = 2 * sum(log(diag(ch))))
+}
+
+# A_j and p_j of every cluster (one cluster per row), with the cell terms and
+# the inverses of every set, the 2 pi and log-determinant terms of Sigma_w and
+# the parts that do not depend on the cluster effects. NULL when a block of
+# Sigma_w has no Cholesky factor.
+rs_cluster_terms <- function(plan, imp) {
+  pv <- imp$pv
+  n_cl <- plan$n_cl
+  a <- matrix(0, n_cl, pv * pv)
+  p <- matrix(0, n_cl, pv)
+  ld <- quad0 <- 0
+  per_set <- vector("list", length(plan$sets))
+  for (k in seq_along(plan$sets)) {
+    set <- plan$sets[[k]]
+    w <- rs_w_block(imp$sigma_w, set$obs)
+    if (is.null(w)) {
+      return(NULL)
+    }
+    ct <- rs_cell_terms(plan, set, imp, w$inv)
+    if (is.null(set$j1)) {
+      a <- a + ct$a
+      p <- p + ct$p
+    } else {
+      a[set$j1, ] <- a[set$j1, , drop = FALSE] + ct$a
+      p[set$j1, ] <- p[set$j1, , drop = FALSE] + ct$p
+    }
+    ld <- ld + set$n_total * (w$logdet + length(set$obs) * log(2 * pi))
+    quad0 <- quad0 + rs_set_quad0(set, imp, w$inv)
+    per_set[[k]] <- list(w_mat = w$inv, ct = ct)
   }
   d <- matrix(imp$mu.v, n_cl, pv, byrow = TRUE)
   exo_c <- NULL
@@ -268,7 +380,15 @@ rs_cluster_terms <- function(plan, imp, w_mat) {
     exo_c <- sweep(plan$exo_b, 2L, imp$mu.exo)
     d <- d + exo_c %*% t(imp$cc)
   }
-  list(a = a, p = p, se = se, sxe = sxe, d = d, exo_c = exo_c)
+  list(
+    a = a,
+    p = p,
+    d = d,
+    exo_c = exo_c,
+    ld = ld,
+    quad0 = quad0,
+    per_set = per_set
+  )
 }
 
 # The symmetric square root of Sigma_v, or NULL when Sigma_v is not positive
@@ -345,14 +465,6 @@ rs_cluster_posterior <- function(a, p_tilde, sigma_v, pv, s0 = FALSE) {
   out
 }
 
-rs_w_inverse <- function(sigma_w) {
-  ch <- tryCatch(chol(sigma_w), error = function(e) NULL)
-  if (is.null(ch)) {
-    return(NULL)
-  }
-  list(inv = chol2inv(ch), logdet = 2 * sum(log(diag(ch))))
-}
-
 ## ----- Log-likelihood --------------------------------------------------------
 
 # The log-likelihood with the 2 pi terms, as lavaan's lav_mvn_cl_rs_m2ll()
@@ -363,26 +475,10 @@ rs_kernel_loglik <- function(plan, imp) {
     return(-Inf)
   }
   pv <- imp$pv
-  w <- rs_w_inverse(imp$sigma_w)
-  if (is.null(w)) {
+  ct <- rs_cluster_terms(plan, imp)
+  if (is.null(ct)) {
     return(-Inf)
   }
-  w_mat <- w$inv
-  ct <- rs_cluster_terms(plan, imp, w_mat)
-  pmat <- imp$P
-  mu_y <- imp$mu_y
-  wp <- w_mat %*% pmat
-  mu_y_w <- as.numeric(w_mat %*% mu_y)
-
-  # The part that does not depend on the cluster effects, from the totals
-  quad0 <- sum(w_mat * plan$syy_total) -
-    2 * sum(mu_y_w * plan$sy_total) +
-    plan$n_total * sum(mu_y_w * mu_y) -
-    2 * sum(t(wp) * plan$sxy_total) +
-    2 * sum(as.numeric(mu_y_w %*% pmat) * plan$sx_total) +
-    sum(crossprod(pmat, wp) * plan$sxx_total)
-
-  # The cluster effects, integrated out
   ad <- rs_batch_mv(ct$a, ct$d, pv)
   p_tilde <- ct$p - ad
   quad_d <- -2 * rowSums(ct$d * ct$p) + rowSums(ct$d * ad)
@@ -393,13 +489,11 @@ rs_kernel_loglik <- function(plan, imp) {
   if (post$status == "undefined") {
     return(-Inf)
   }
-  m2ll <- sum(plan$nj) *
-    w$logdet +
+  m2ll <- ct$ld +
     sum(post$logdet) +
     sum(quad_d) -
     sum(post$quad) +
-    quad0 +
-    plan$n_total * plan$p1 * log(2 * pi)
+    ct$quad0
   -m2ll / 2
 }
 
@@ -410,26 +504,11 @@ rs_kernel_loglik <- function(plan, imp) {
 # of lavaan's lav_mvn_cl_rs_dfphi(). NULL when it is not defined.
 rs_kernel_dphi <- function(plan, imp) {
   pv <- imp$pv
-  p1 <- plan$p1
-  nx <- plan$nx
-  n_cl <- plan$n_cl
-  nj <- plan$nj
-  path_x <- plan$path_x
-  path_zcol <- imp$z.v.idx[plan$path_z]
-  npaths <- length(path_x)
-  lmat <- imp$lmat
-  q0 <- imp$q0
-  pmat <- imp$P
-  mu_y <- imp$mu_y
-  w <- rs_w_inverse(imp$sigma_w)
-  if (is.null(w)) {
+  ct <- rs_cluster_terms(plan, imp)
+  if (is.null(ct)) {
     return(NULL)
   }
-  w_mat <- w$inv
-  ct <- rs_cluster_terms(plan, imp, w_mat)
   a <- ct$a
-  se <- ct$se
-  sxe <- ct$sxe
   at <- function(i, j) rs_at(i, j, pv)
 
   ## ----- Posterior moments of v_j --------------------------------------------
@@ -454,16 +533,76 @@ rs_kernel_dphi <- function(plan, imp) {
   g_p <- -2 * mu0
   g_d <- -2 * zp
 
-  ## ----- Sums over the clusters ----------------------------------------------
+  ## ----- Within-level terms, set by set --------------------------------------
+  gw_total <- NULL
+  for (k in seq_along(plan$sets)) {
+    set <- plan$sets[[k]]
+    rows <- if (is.null(set$j1)) seq_len(plan$n_cl) else set$j1
+    part <- rs_dphi_within(
+      plan,
+      set,
+      imp,
+      ct$per_set[[k]]$w_mat,
+      ct$per_set[[k]]$ct,
+      g_a[rows, , drop = FALSE],
+      g_p[rows, , drop = FALSE]
+    )
+    gw_total <- if (is.null(gw_total)) {
+      part
+    } else {
+      Map(`+`, gw_total, part)
+    }
+  }
+  g_cc <- numeric(0)
+  g_me <- numeric(0)
+  if (plan$nexo > 0L) {
+    g_cc <- as.numeric(crossprod(g_d, ct$exo_c))
+    g_me <- -as.numeric(t(imp$cc) %*% colSums(g_d))
+  }
+  c(
+    as.numeric(gw_total$gsw),
+    gw_total$gmy,
+    gw_total$g_pmat,
+    as.numeric(gw_total$glm),
+    as.numeric(gw_total$gq0),
+    colSums(g_sv),
+    colSums(g_d),
+    g_cc,
+    g_me
+  )
+}
+
+# The derivatives with respect to Sigma_w, mu_y, P, L and Q_0 of one set of
+# cells, from the posterior moments of the clusters of its cells (`g_a`,
+# `g_p`, one cell per row). The sums over the cells come first, as vector
+# operations, and the p1 x p1 algebra is done once.
+rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
+  pv <- imp$pv
+  p1 <- plan$p1
+  nx <- plan$nx
+  n_c <- length(set$nj)
+  nj <- set$nj
+  path_x <- plan$path_x
+  path_zcol <- imp$z.v.idx[plan$path_z]
+  npaths <- length(path_x)
+  lmat <- imp$lmat
+  q0 <- imp$q0
+  pmat <- imp$P
+  mu_y <- imp$mu_y
+  se <- ct$se
+  sxe <- ct$sxe
+  at <- function(i, j) rs_at(i, j, pv)
+
+  ## ----- Sums over the cells -------------------------------------------------
   ga_n <- matrix(colSums(nj * g_a), pv, pv)
   sx_ga <- lapply(seq_len(npaths), function(r) {
-    colSums(plan$sx[, path_x[r]] * g_a[, at(seq_len(pv), path_zcol[r])])
+    colSums(set$sx[, path_x[r]] * g_a[, at(seq_len(pv), path_zcol[r])])
   })
   sxx_ga <- matrix(0, npaths, npaths)
   for (r in seq_len(npaths)) {
     for (s in seq_len(npaths)) {
       sxx_ga[r, s] <- sum(
-        plan$sxx[, path_x[r], path_x[s]] * g_a[, at(path_zcol[r], path_zcol[s])]
+        set$sxx[, path_x[r], path_x[s]] * g_a[, at(path_zcol[r], path_zcol[s])]
       )
     }
   }
@@ -473,19 +612,19 @@ rs_kernel_dphi <- function(plan, imp) {
   })
   sx_gp <- vapply(
     seq_len(npaths),
-    function(r) sum(plan$sx[, path_x[r]] * g_p[, path_zcol[r]]),
+    function(r) sum(set$sx[, path_x[r]] * g_p[, path_zcol[r]]),
     numeric(1)
   )
-  psx <- pmat %*% plan$sx_total
-  see <- plan$syy_total -
-    outer(plan$sy_total, mu_y) -
-    outer(mu_y, plan$sy_total) +
-    plan$n_total * tcrossprod(mu_y) -
-    t(plan$sxy_total) %*% t(pmat) -
-    pmat %*% plan$sxy_total +
+  psx <- pmat %*% set$sx_total
+  see <- set$syy_total -
+    outer(set$sy_total, mu_y) -
+    outer(mu_y, set$sy_total) +
+    set$n_total * tcrossprod(mu_y) -
+    t(set$sxy_total) %*% t(pmat) -
+    pmat %*% set$sxy_total +
     mu_y %*% t(psx) +
     psx %*% t(mu_y) +
-    pmat %*% plan$sxx_total %*% t(pmat)
+    pmat %*% set$sxx_total %*% t(pmat)
 
   ## ----- The p1 x p1 algebra, once -------------------------------------------
   gw <- q0 %*% ga_n %*% t(q0) + q0 %*% gp_se + see
@@ -500,7 +639,7 @@ rs_kernel_dphi <- function(plan, imp) {
     }
   }
   gw <- (gw + t(gw)) / 2
-  gsw <- plan$n_total * w_mat - w_mat %*% gw %*% w_mat
+  gsw <- set$n_total * w_mat - w_mat %*% gw %*% w_mat
   gq0 <- 2 * (w_mat %*% sq_ga) + w_mat %*% crossprod(se, g_p)
   glm <- matrix(0, p1, npaths)
   for (r in seq_len(npaths)) {
@@ -519,9 +658,9 @@ rs_kernel_dphi <- function(plan, imp) {
   gmy <- -as.numeric(w_mat %*% (sq_gp + 2 * colSums(se)))
   g_pmat <- numeric(0)
   if (nx > 0L) {
-    mm <- q0 %*% crossprod(g_p, plan$sx)
+    mm <- q0 %*% crossprod(g_p, set$sx)
     for (r in seq_len(npaths)) {
-      sxx_r <- matrix(plan$sxx[, path_x[r], ], n_cl, nx)
+      sxx_r <- matrix(set$sxx[, path_x[r], ], n_c, nx)
       mm <- mm +
         outer(lmat[, r], as.numeric(crossprod(g_p[, path_zcol[r]], sxx_r)))
     }
@@ -529,23 +668,7 @@ rs_kernel_dphi <- function(plan, imp) {
     sxe_sum <- matrix(vapply(sxe, colSums, numeric(p1)), p1, nx)
     g_pmat <- as.numeric(-(w_mat %*% (mm + 2 * sxe_sum)))
   }
-  g_cc <- numeric(0)
-  g_me <- numeric(0)
-  if (plan$nexo > 0L) {
-    g_cc <- as.numeric(crossprod(g_d, ct$exo_c))
-    g_me <- -as.numeric(t(imp$cc) %*% colSums(g_d))
-  }
-  c(
-    as.numeric(gsw),
-    gmy,
-    g_pmat,
-    as.numeric(glm),
-    as.numeric(gq0),
-    colSums(g_sv),
-    colSums(g_d),
-    g_cc,
-    g_me
-  )
+  list(gsw = gsw, gmy = gmy, g_pmat = g_pmat, glm = glm, gq0 = gq0)
 }
 
 # The implied pieces as one vector, in the order of lavaan's
@@ -599,5 +722,5 @@ rs_kernel_grad <- function(lavmodel_x, plan, h = 1e-6) {
     }
     jac[, k] <- (rs_phi_vec(imp_r) - rs_phi_vec(imp_l)) / (2 * h_k)
   }
-  as.numeric(gphi %*% jac) / (2 * plan$n_total)
+  as.numeric(gphi %*% jac) / (2 * plan$ntotal)
 }
