@@ -512,7 +512,7 @@ fiml_grad_samp <- function(lavmodel_x, lavsamplestats, plan = NULL) {
   dx <- numeric(if (unco) lavmodel_x@nx.unco else lavmodel_x@nx.free)
   for (g in seq_len(lavmodel_x@nblocks)) {
     mm_in_group <- seq_len(nmat[g]) + cumsum(c(0, nmat))[g]
-    dx_group <- lavaan___lav_lisrel_df_dmlist(
+    dx_group <- lisrel_df_dmlist(
       glist[mm_in_group],
       om[[g]]$omega,
       om[[g]]$omega_mu
