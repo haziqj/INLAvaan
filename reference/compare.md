@@ -152,13 +152,15 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
-#> ⠙ Finding the posterior mode, 736 calls
+#> ⠙ Finding the posterior mode, 576 calls
 #> ⠙ Finding the posterior mode, 752 calls
-#> ✔ Found the posterior mode in 138 iterations [545ms]
-#> ✔ VB mean correction, max shift 0.61σ [306ms]
-#> ✔ Fitted 60 skew-normal marginals [1.4s]
+#> ✔ Found the posterior mode in 138 iterations [784ms]
+#> ✔ VB mean correction, max shift 0.61σ [479ms]
+#> ⠙ Fitting 12/60 skew-normal marginals
+#> ⠙ Fitting 60/60 skew-normal marginals
+#> ✔ Fitted 60 skew-normal marginals [2.0s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [756ms]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:
@@ -177,13 +179,13 @@ fit2 <- acfa(
   group = "school",
   group.equal = "loadings"
 )
-#> ✔ Found the posterior mode in 121 iterations [479ms]
-#> ✔ VB mean correction, max shift 0.42σ [290ms]
-#> ⠙ Fitting 15/54 skew-normal marginals
+#> ✔ Found the posterior mode in 121 iterations [706ms]
+#> ✔ VB mean correction, max shift 0.42σ [428ms]
+#> ⠙ Fitting 50/54 skew-normal marginals
 #> ⠙ Fitting 54/54 skew-normal marginals
-#> ✔ Fitted 54 skew-normal marginals [1.4s]
+#> ✔ Fitted 54 skew-normal marginals [1.9s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [798ms]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -194,14 +196,13 @@ fit3 <- acfa(
   group = "school",
   group.equal = c("intercepts", "loadings")
 )
-#> ✔ Found the posterior mode in 120 iterations [461ms]
-#> ✔ VB mean correction, max shift 0.33σ [277ms]
-#> ⠙ Fitting 15/48 skew-normal marginals
+#> ✔ Found the posterior mode in 120 iterations [662ms]
+#> ✔ VB mean correction, max shift 0.33σ [407ms]
+#> ⠙ Fitting 12/48 skew-normal marginals
 #> ⠙ Fitting 48/48 skew-normal marginals
-#> ✔ Fitted 48 skew-normal marginals [1.4s]
+#> ✔ Fitted 48 skew-normal marginals [1.5s]
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [725ms]
+#> ✔ Summarise 1000 posterior draws. [1.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

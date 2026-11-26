@@ -132,14 +132,16 @@ the `cluster` argument to identify the grouping variable.
 ``` r
 
 fit <- asem(mod, data = Demo.twolevel, cluster = "cluster")
-#> ⠙ Finding the posterior mode, 336 calls
+#> ⠙ Finding the posterior mode, 176 calls
 #> ⠙ Finding the posterior mode, 384 calls
-#> ✔ Found the posterior mode in 108 iterations [634ms]
-#> ✔ VB mean correction, max shift 0.61σ [229ms]
-#> ✔ Fitted 20 skew-normal marginals [742ms]
+#> ✔ Found the posterior mode in 108 iterations [961ms]
+#> ✔ VB mean correction, max shift 0.61σ [393ms]
+#> ⠙ Fitting 10/20 skew-normal marginals
+#> ⠙ Fitting 20/20 skew-normal marginals
+#> ✔ Fitted 20 skew-normal marginals [1.1s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.7s]
+#> ✔ Summarise 1000 posterior draws. [3.7s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> ℹ The two-level PPP is experimental.
@@ -166,12 +168,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                  -12175.498 
-#>    PPP (Chi-square, experimental)                0.576 
+#>    PPP (Chi-square, experimental)                0.560 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24192.389 
-#>    Effective parameters (pD)                    19.575 
+#>    Deviance (DIC)                            24192.116 
+#>    Effective parameters (pD)                    19.438 
 #> 
 #> Parameter Estimates:
 #> 
@@ -311,26 +313,38 @@ exactly as before.
 
 fit_rs <- asem(mod_rs, data = Demo.twolevel, cluster = "cluster")
 #> ℹ No PPP: a random-slope model has no saturated model.
-#> ⠙ Finding the posterior mode, 96 calls
-#> ⠹ Finding the posterior mode, 256 calls [5s]
-#> ⠹ Finding the posterior mode, 400 calls [8s]
-#> ✔ Found the posterior mode in 115 iterations [7.7s]
-#> ⠙ Applying the VB mean correction, 21 calls
-#> ⠹ Applying the VB mean correction, 85 calls [4s]
-#> ⠸ Applying the VB mean correction, 149 calls [6s]
-#> ⠼ Applying the VB mean correction, 229 calls [10s]
-#> ⠴ Applying the VB mean correction, 293 calls [12s]
-#> ⠴ Applying the VB mean correction, 309 calls [13s]
-#> ! VB mean correction, max shift 0.78σ, one-step check flagged [13.2s]
-#> ⠙ Computing the volume corrections, 45 calls
-#> ⠙ Computing the volume corrections, 77 calls [3s]
-#> ⠙ Fitting 8/19 skew-normal marginals
-#> ⠙ Fitting 19/19 skew-normal marginals [~1s left]
-#> ✔ Fitted 19 skew-normal marginals [7.9s]
+#> ⠙ Finding the posterior mode, 43 calls
+#> ⠹ Finding the posterior mode, 120 calls [5s]
+#> ⠸ Finding the posterior mode, 197 calls [8s]
+#> ⠼ Finding the posterior mode, 319 calls [11s]
+#> ⠴ Finding the posterior mode, 401 calls [14s]
+#> ⠴ Finding the posterior mode, 411 calls [14s]
+#> ✔ Found the posterior mode in 115 iterations [14.5s]
+#> ⠙ Applying the VB mean correction, 28 calls [2s]
+#> ⠹ Applying the VB mean correction, 66 calls [5s]
+#> ⠸ Applying the VB mean correction, 104 calls [8s]
+#> ⠼ Applying the VB mean correction, 143 calls [11s]
+#> ⠴ Applying the VB mean correction, 180 calls [14s]
+#> ⠦ Applying the VB mean correction, 218 calls [17s]
+#> ⠧ Applying the VB mean correction, 256 calls [20s]
+#> ⠇ Applying the VB mean correction, 294 calls [23s]
+#> ⠇ Applying the VB mean correction, 312 calls [25s]
+#> ! VB mean correction, max shift 0.78σ, one-step check flagged [24.6s]
+#> ⠙ Computing the volume corrections, 20 calls
+#> ⠹ Computing the volume corrections, 58 calls [4s]
+#> ⠹ Computing the volume corrections, 77 calls [6s]
+#> ⠙ Fitting 4/19 skew-normal marginals
+#> ⠹ Fitting 11/19 skew-normal marginals [~4s left]
+#> ⠸ Fitting 17/19 skew-normal marginals [~1s left]
+#> ⠸ Fitting 19/19 skew-normal marginals [~1s left]
+#> ✔ Fitted 19 skew-normal marginals [15.0s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (DIC).
 #> ⠸ Computing fit indices (DIC).
-#> ✔ Summarise 1000 posterior draws. [7.6s]
+#> ⠼ Computing fit indices (DIC).
+#> ⠴ Computing fit indices (DIC).
+#> ⠦ Computing fit indices (DIC).
+#> ✔ Summarise 1000 posterior draws. [14.9s]
 #> 
 #> ℹ Fit measures: DIC.
 #> Warning: Fit diagnostics flagged 2 potential issues:
@@ -365,8 +379,8 @@ summary(fit_rs)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                            24626.490 
-#>    Effective parameters (pD)                    17.617 
+#>    Deviance (DIC)                            24627.575 
+#>    Effective parameters (pD)                    18.159 
 #> 
 #> Parameter Estimates:
 #> 
@@ -453,7 +467,7 @@ and its regression on `w1` under *Regressions*.
 
 fitmeasures(fit_rs)
 #>         npar   margloglik          dic        p_dic       BRMSEA    BGammaHat 
-#>           19   -12385.789    24626.490       17.617        0.002        1.000 
+#>           19   -12385.789    24627.575       18.159        0.003        1.000 
 #> adjBGammaHat          BMc         BCFI         BTLI         BNFI 
 #>        1.000        1.000        0.999        1.002        0.990
 ```
@@ -520,45 +534,59 @@ mod_fx <- "
 "
 fit_cli <- asem(mod_cli, data = Demo.twolevel, cluster = "cluster")
 #> ℹ No PPP: a random-slope model has no saturated model.
-#> ⠙ Finding the posterior mode, 28 calls
-#> ⠹ Finding the posterior mode, 163 calls [3s]
-#> ⠸ Finding the posterior mode, 362 calls [6s]
-#> ⠸ Finding the posterior mode, 380 calls [7s]
-#> ✔ Found the posterior mode in 105 iterations [7.1s]
-#> ⠙ Applying the VB mean correction, 53 calls [2s]
-#> ⠙ Applying the VB mean correction, 74 calls [3s]
-#> ✔ VB mean correction, max shift 0.69σ [3.1s]
-#> ⠙ Computing the volume corrections, 50 calls [2s]
-#> ⠙ Computing the volume corrections, 73 calls [3s]
-#> ⠙ Fitting 9/18 skew-normal marginals [~3s left]
-#> ⠙ Fitting 18/18 skew-normal marginals [~1s left]
-#> ✔ Fitted 18 skew-normal marginals [7.5s]
+#> ⠙ Finding the posterior mode, 14 calls
+#> ⠹ Finding the posterior mode, 47 calls
+#> ⠸ Finding the posterior mode, 129 calls [5s]
+#> ⠼ Finding the posterior mode, 209 calls [8s]
+#> ⠴ Finding the posterior mode, 348 calls [11s]
+#> ⠴ Finding the posterior mode, 380 calls [13s]
+#> ✔ Found the posterior mode in 105 iterations [13.2s]
+#> ⠙ Applying the VB mean correction, 8 calls
+#> ⠹ Applying the VB mean correction, 46 calls [3s]
+#> ⠹ Applying the VB mean correction, 74 calls [6s]
+#> ✔ VB mean correction, max shift 0.69σ [5.7s]
+#> ⠙ Computing the volume corrections, 10 calls
+#> ⠹ Computing the volume corrections, 49 calls [4s]
+#> ⠹ Computing the volume corrections, 73 calls [6s]
+#> ⠙ Fitting 4/18 skew-normal marginals
+#> ⠹ Fitting 10/18 skew-normal marginals [~4s left]
+#> ⠸ Fitting 17/18 skew-normal marginals [~1s left]
+#> ⠸ Fitting 18/18 skew-normal marginals [~1s left]
+#> ✔ Fitted 18 skew-normal marginals [14.0s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (DIC).
 #> ⠸ Computing fit indices (DIC).
 #> ⠼ Computing fit indices (DIC).
-#> ✔ Summarise 1000 posterior draws. [7.9s]
+#> ⠴ Computing fit indices (DIC).
+#> ⠦ Computing fit indices (DIC).
+#> ✔ Summarise 1000 posterior draws. [15s]
 #> 
 #> ℹ Fit measures: DIC.
 fit_fx <- asem(mod_fx, data = Demo.twolevel, cluster = "cluster")
 #> ℹ No PPP: a random-slope model has no saturated model.
-#> ⠙ Finding the posterior mode, 80 calls
-#> ⠹ Finding the posterior mode, 288 calls [5s]
-#> ⠹ Finding the posterior mode, 320 calls [6s]
-#> ✔ Found the posterior mode in 89 iterations [6.2s]
-#> ⠙ Applying the VB mean correction, 37 calls
-#> ⠙ Applying the VB mean correction, 69 calls [3s]
-#> ✔ VB mean correction, max shift 0.69σ [3.0s]
-#> ⠙ Computing the volume corrections, 47 calls [2s]
-#> ⠙ Computing the volume corrections, 63 calls [3s]
-#> ⠙ Fitting 7/17 skew-normal marginals
-#> ⠙ Fitting 17/17 skew-normal marginals [~1s left]
-#> ✔ Fitted 17 skew-normal marginals [7.1s]
+#> ⠙ Finding the posterior mode, 37 calls
+#> ⠹ Finding the posterior mode, 117 calls [4s]
+#> ⠸ Finding the posterior mode, 203 calls [7s]
+#> ⠼ Finding the posterior mode, 317 calls [10s]
+#> ⠼ Finding the posterior mode, 330 calls [11s]
+#> ✔ Found the posterior mode in 89 iterations [11.5s]
+#> ⠙ Applying the VB mean correction, 25 calls
+#> ⠹ Applying the VB mean correction, 64 calls [5s]
+#> ⠹ Applying the VB mean correction, 70 calls [5s]
+#> ✔ VB mean correction, max shift 0.69σ [5.5s]
+#> ⠙ Computing the volume corrections, 32 calls [2s]
+#> ⠹ Computing the volume corrections, 69 calls [5s]
+#> ⠙ Fitting 8/17 skew-normal marginals [~5s left]
+#> ⠹ Fitting 14/17 skew-normal marginals [~2s left]
+#> ⠹ Fitting 17/17 skew-normal marginals [~1s left]
+#> ✔ Fitted 17 skew-normal marginals [13.2s]
 #> ⠙ Posterior sampling and summarising.
 #> ⠹ Computing fit indices (DIC).
 #> ⠸ Computing fit indices (DIC).
 #> ⠼ Computing fit indices (DIC).
-#> ✔ Summarise 1000 posterior draws. [7.2s]
+#> ⠴ Computing fit indices (DIC).
+#> ⠦ Computing fit indices (DIC).
+#> ✔ Summarise 1000 posterior draws. [15s]
 #> 
 #> ℹ Fit measures: DIC.
 ```
@@ -571,9 +599,9 @@ cmp
 #> Models ordered by marginal log-likelihood
 #> 
 #>    Model npar Marg.Loglik  logBF      DIC     pD
-#>   fit_fx   17   -12376.76  0.000 24624.60 16.698
-#>  fit_cli   18   -12382.76 -5.997 24625.49 17.200
-#>   fit_rs   19   -12385.79 -9.029 24626.49 17.617
+#>   fit_fx   17   -12376.76  0.000 24624.09 16.440
+#>  fit_cli   18   -12382.76 -5.997 24626.28 17.591
+#>   fit_rs   19   -12385.79 -9.029 24627.58 18.159
 ```
 
 Because a random-slope likelihood is the density of the outcomes *given*
@@ -637,8 +665,8 @@ compare(fit_rs, fit_fx, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>   Model npar Marg.Loglik  logBF      DIC     pD      ELPD      SE  p_loo
-#>  fit_fx   17   -12376.76  0.000 24624.60 16.698 -12313.25 394.398 18.418
-#>  fit_rs   19   -12385.79 -9.029 24626.49 17.617 -12314.49 394.415 19.653
+#>  fit_fx   17   -12376.76  0.000 24624.09 16.440 -12313.25 394.398 18.418
+#>  fit_rs   19   -12385.79 -9.029 24627.58 18.159 -12314.49 394.415 19.653
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>     -1.243   0.514
@@ -657,25 +685,27 @@ slopes are available, alongside the other Level 2 latent variables.
 ``` r
 
 predict(fit_rs, type = "lv", level = 2, summary = TRUE)
-#> Sampling latent variables (multilevel) ■■■■■                             15% | …
-#> Sampling latent variables (multilevel) ■■■■■■                            16% | …
-#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■                56% | …
-#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■    98% | …
+#> Sampling latent variables (multilevel) ■■■                                7% | …
+#> Sampling latent variables (multilevel) ■■■■■■                            17% | …
+#> Sampling latent variables (multilevel) ■■■■■■■■■■■■                      38% | …
+#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■                57% | …
+#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■          78% | …
+#> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% | …
 #> Sampling latent variables (multilevel) ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | …
 #> 
 #> Mean of predicted values from inlavaan model
 #> 
-#>           fb    s1
-#> 1   0.094142 0.499
-#> 2   0.000602 0.479
-#> 3  -1.886165 0.483
-#> 4  -0.719047 0.483
-#> 5   0.202552 0.492
-#> 6  -0.098173 0.485
-#> 7   0.765710 0.503
-#> 8  -0.159719 0.521
-#> 9  -1.026085 0.494
-#> 10  1.390720 0.534
+#>         fb    s1
+#> 1   0.1057 0.503
+#> 2  -0.0127 0.477
+#> 3  -1.8725 0.483
+#> 4  -0.7018 0.480
+#> 5   0.1644 0.490
+#> 6  -0.0984 0.482
+#> 7   0.7651 0.494
+#> 8  -0.1628 0.519
+#> 9  -1.0228 0.495
+#> 10  1.4095 0.532
 #> # ℹ 190 more rows
 ```
 
@@ -722,8 +752,8 @@ residuals(fit_rs, per_cluster = TRUE)[["1"]]
 #> 
 #> $cov
 #>            y1          y2          y3          x1
-#> y1 -1.4520851 -0.64138912 -0.53709791 -0.40964622
-#> y2 -0.6413891 -0.09675952 -0.18852738  0.54035977
+#> y1 -1.4520851 -0.64138912 -0.53709791 -0.40964623
+#> y2 -0.6413891 -0.09675951 -0.18852738  0.54035977
 #> y3 -0.5370979 -0.18852738 -0.36292077 -0.04056456
 #> x1 -0.4096462  0.54035977 -0.04056456  0.00000000
 #> 
@@ -746,15 +776,15 @@ the standardised slopes across schools.
 std <- standardisedsolution(fit_rs)
 std[std$lhs %in% c("fw", "s1"), ]
 #>    lhs op rhs est.std    se ci.lower ci.upper
-#> 1   fw =~  y1   0.711 0.019    0.673    0.743
-#> 2   fw =~  y2   0.603 0.019    0.572    0.640
-#> 3   fw =~  y3   0.592 0.019    0.556    0.631
-#> 4   fw  ~  x1   0.495 0.022    0.451    0.538
-#> 8   fw ~~  fw   0.749 0.023    0.703    0.788
+#> 1   fw =~  y1   0.711 0.017    0.680    0.742
+#> 2   fw =~  y2   0.603 0.019    0.565    0.640
+#> 3   fw =~  y3   0.595 0.018    0.564    0.629
+#> 4   fw  ~  x1   0.496 0.020    0.460    0.533
+#> 8   fw ~~  fw   0.748 0.021    0.712    0.787
 #> 14  fw ~1       0.000 0.000    0.000    0.000
-#> 19  s1  ~  w1   0.006 0.023   -0.039    0.053
-#> 25  s1 ~~  s1   0.005 0.006    0.000    0.020
-#> 32  s1 ~1       0.494 0.022    0.452    0.537
+#> 19  s1  ~  w1   0.008 0.023   -0.041    0.054
+#> 25  s1 ~~  s1   0.005 0.005    0.000    0.020
+#> 32  s1 ~1       0.496 0.020    0.460    0.533
 ```
 
 ### What Is Not Available

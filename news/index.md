@@ -73,10 +73,7 @@
     first 50 rows of `HolzingerSwineford1939`, and passes on all 301.
     [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
     gives `vb_lhat`, `vb_j0` and `vb_j1`, and `vb_solve`, which is 1
-    when the check failed. The gain ratio of earlier development
-    versions (`vb_gain_ratio`) is gone, with its warning, and so is the
-    iteration with capped steps after a first step over 2.5 posterior
-    SDs.
+    when the check failed.
   - The volume correction of the skew-normal marginals is computed for
     all parameters at once. It is closer to the exact value, and moves
     the posterior summaries by up to 0.002 posterior SDs on these
@@ -303,6 +300,12 @@
   call held both, and lavaan stopped with “At least one snake_cased name
   (std_ov) is duplicated!”.
 
+- [`update()`](https://inlavaan.haziqj.ml/reference/update.md) now stops
+  with an error of class `inlavaan_update_abbreviated` when it is given
+  an abbreviated argument name, such as `dat` for `data`, and names the
+  arguments it may mean. Before, lavaan stopped with “unknown argument”,
+  or R with “argument matches multiple formal arguments”.
+
 - `update(fit, arg = NULL)` now drops `arg` from the call of the fit, or
   gives it as `NULL` when the call does not have it, as
   [`stats::update()`](https://rdrr.io/r/stats/update.html) does. Before,
@@ -349,6 +352,14 @@
   from this version on warn once per session, and
   `options(inlavaan.deprecation = "error")` makes them errors, so that
   tests can find old code. Their help has a “deprecated” badge.
+
+- When the check of the Hessian at the mode fails (the Jacobian of the
+  gradient is not symmetric, or the Hessian on the fast path of the
+  intercepts or from `inlavaan_control(hessian = "forward")` is not
+  symmetric or differs from central differences of the gradient), the
+  warning now says so in INLAvaan’s words, with the class
+  `inlavaan_hessian_warning`. Before, it named the arguments of the
+  engine (`grad`, `logpost`, `hess`), which INLAvaan users never give.
 
 - [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
   now gives the engine’s diagnostics, in the engine’s order, and then

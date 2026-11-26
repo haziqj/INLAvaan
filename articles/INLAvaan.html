@@ -215,11 +215,11 @@
 <span><span class="st">  eta2 ~ eta1</span></span>
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 69 iterations [236ms]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.1σ [60ms]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 13 skew-normal marginals [160ms]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 69 iterations [304ms]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.1σ [99ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 13 skew-normal marginals [257ms]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [437ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [705ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
 </div>
@@ -425,7 +425,7 @@
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 0.95 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 1.45 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -452,11 +452,11 @@
 <span><span class="st">  eta1 ~~ 0*eta2</span></span>
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 68 iterations [87ms]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.079σ [33ms]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 12 skew-normal marginals [143ms]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 68 iterations [144ms]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.079σ [53ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 12 skew-normal marginals [237ms]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [368ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [645ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>

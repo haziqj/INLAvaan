@@ -38,11 +38,13 @@ str(Demo.growth)
 #>  $ c4: num  -1.0064 1.2293 -0.3273 -1.0324 -0.0275 ...
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
-#> ✔ Found the posterior mode in 83 iterations [475ms]
-#> ✔ VB mean correction, max shift 0.11σ [138ms]
-#> ✔ Fitted 17 skew-normal marginals [568ms]
+#> ⠙ Finding the posterior mode, 256 calls
+#> ⠙ Finding the posterior mode, 304 calls
+#> ✔ Found the posterior mode in 83 iterations [701ms]
+#> ✔ VB mean correction, max shift 0.11σ [221ms]
+#> ✔ Fitted 17 skew-normal marginals [762ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [171ms]
+#> ✔ Summarise 100 posterior draws. [216ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -57,12 +59,12 @@ summary(fit)
 #> Model Test (User Model):
 #> 
 #>    Marginal log-likelihood                   -2557.534 
-#>    PPP (Chi-square)                              0.440 
+#>    PPP (Chi-square)                              0.510 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4994.482 
-#>    Effective parameters (pD)                    16.072 
+#>    Deviance (DIC)                             4995.513 
+#>    Effective parameters (pD)                    16.588 
 #> 
 #> Parameter Estimates:
 #> 
@@ -102,7 +104,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.074    0.041   -0.015    0.148    0.006       beta(1,1)
+#>    .s                 0.074    0.043   -0.005    0.162    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

@@ -58,9 +58,9 @@ compare(fit_configural, fit_metric, fit_scalar)
 #> Models ordered by marginal log-likelihood
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD
-#>      fit_scalar   48   -3889.775   0.000 7508.042 47.368
-#>      fit_metric   54   -3907.471 -17.696 7480.518 53.558
-#>  fit_configural   60   -3926.870 -37.095 7482.304 58.105
+#>      fit_scalar   48   -3889.775   0.000 7508.067 47.381
+#>      fit_metric   54   -3907.471 -17.696 7481.209 53.903
+#>  fit_configural   60   -3926.870 -37.095 7483.396 58.651
 ```
 
 These are within-flavour comparisons (all three fits model the means
@@ -87,9 +87,9 @@ compare(fit_configural, fit_metric, fit_scalar, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>      fit_metric   54   -3907.471 -17.696 7480.518 53.558 -3743.253 44.460
-#>  fit_configural   60   -3926.870 -37.095 7482.304 58.105 -3746.079 44.559
-#>      fit_scalar   48   -3889.775   0.000 7508.042 47.368 -3757.523 43.830
+#>      fit_metric   54   -3907.471 -17.696 7481.209 53.903 -3743.253 44.460
+#>  fit_configural   60   -3926.870 -37.095 7483.396 58.651 -3746.079 44.559
+#>      fit_scalar   48   -3889.775   0.000 7508.067 47.381 -3757.523 43.830
 #>   p_loo elpd_diff se_diff
 #>  57.653     0.000   0.000
 #>  68.548    -2.827   3.554
@@ -125,8 +125,8 @@ compare(fit_pooled, fit_configural, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>           Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE
-#>  fit_configural   60   -3926.870 -56.814 7482.304 58.105 -3746.079 44.559
-#>      fit_pooled   30   -3870.056   0.000 7534.819 29.459 -3769.122 43.027
+#>  fit_configural   60   -3926.870 -56.814 7483.396 58.651 -3746.079 44.559
+#>      fit_pooled   30   -3870.056   0.000 7534.816 29.457 -3769.122 43.027
 #>   p_loo elpd_diff se_diff
 #>  68.548     0.000    0.00
 #>  32.576   -23.042   11.56

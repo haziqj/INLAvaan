@@ -109,7 +109,10 @@ the error of the refit.
 `update(fit, arg = NULL)` drops `arg` from the recorded call, as
 [`stats::update()`](https://rdrr.io/r/stats/update.html) does. An
 argument given under another spelling that lavaan reads as the same,
-such as `std_ov` for `std.ov`, replaces the recorded one.
+such as `std_ov` for `std.ov`, replaces the recorded one. An abbreviated
+argument name, such as `dat` for `data`, is not completed: `update()`
+stops with an error of class `inlavaan_update_abbreviated` that names
+the arguments it may mean.
 
 `verbose = TRUE` and `silent = TRUE` cannot go together. So
 `update(fit, silent = TRUE)` drops `verbose` from the recorded call, and

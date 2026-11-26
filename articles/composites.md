@@ -51,14 +51,15 @@ model <- "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 
 fit <- asem(model, HolzingerSwineford1939)
-#> ⠙ Finding the posterior mode, 176 calls
+#> ⠙ Finding the posterior mode, 80 calls
 #> ⠙ Finding the posterior mode, 192 calls
-#> ✔ Found the posterior mode in 40 iterations [648ms]
-#> ✔ VB mean correction, max shift 0.29σ [314ms]
-#> ✔ Fitted 13 skew-normal marginals [651ms]
+#> ✔ Found the posterior mode in 40 iterations [925ms]
+#> ✔ VB mean correction, max shift 0.29σ [520ms]
+#> ⠙ Fitting 7/13 skew-normal marginals
+#> ⠙ Fitting 13/13 skew-normal marginals
+#> ✔ Fitted 13 skew-normal marginals [1.1s]
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [1.1s]
+#> ✔ Summarise 1000 posterior draws. [2.1s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)

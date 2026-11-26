@@ -17,11 +17,11 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
-#> ✔ Found the posterior mode in 66 iterations [247ms]
-#> ✔ VB mean correction, max shift 0.2σ [85ms]
-#> ✔ Fitted 21 skew-normal marginals [265ms]
+#> ✔ Found the posterior mode in 66 iterations [322ms]
+#> ✔ VB mean correction, max shift 0.2σ [154ms]
+#> ✔ Fitted 21 skew-normal marginals [401ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [96ms]
+#> ✔ Summarise 100 posterior draws. [139ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -40,8 +40,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7550.611 
-#>    Effective parameters (pD)                    19.718 
+#>    Deviance (DIC)                             7552.119 
+#>    Effective parameters (pD)                    20.472 
 #> 
 #> Parameter Estimates:
 #> 

@@ -160,7 +160,9 @@ error of the refit.</p>
 <p><code>update(fit, arg = NULL)</code> drops <code>arg</code> from the recorded call, as
 <code><a href="https://rdrr.io/r/stats/update.html" class="external-link">stats::update()</a></code> does. An argument given under another spelling that
 lavaan reads as the same, such as <code>std_ov</code> for <code>std.ov</code>, replaces the
-recorded one.</p>
+recorded one. An abbreviated argument name, such as <code>dat</code> for <code>data</code>, is
+not completed: <code>update()</code> stops with an error of class
+<code>inlavaan_update_abbreviated</code> that names the arguments it may mean.</p>
 <p><code>verbose = TRUE</code> and <code>silent = TRUE</code> cannot go together. So
 <code>update(fit, silent = TRUE)</code> drops <code>verbose</code> from the recorded call, and
 <code>update(fit, verbose = TRUE)</code> drops <code>silent</code>.</p>
