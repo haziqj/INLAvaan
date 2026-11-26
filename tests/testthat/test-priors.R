@@ -378,3 +378,39 @@ test_that("An unqualified gamma prior on a variance is flagged once", {
     class = "inlavaan_gamma_variance_scale"
   )
 })
+
+test_that("A prior cache gives the same numbers with and without its index", {
+  mod <- "
+    visual  =~ x1 + x2 + x3
+    textual =~ x4 + x5 + x6
+  "
+  obj <- get_test_objects(mod, lavaan::HolzingerSwineford1939)
+  # Every family and qualifier: normal loadings, gamma on the sd, on the
+  # variance and on the precision, and a beta on the correlation
+  pt <- obj$pt
+  pt$prior[pt$lhs == "x1" & pt$op == "~~"] <- "gamma(2,1)"
+  pt$prior[pt$lhs == "x2" & pt$op == "~~"] <- "gamma(1,1)[prec]"
+  pt$prior[pt$lhs == "visual" & pt$rhs == "textual"] <- "beta(2,2)"
+  cache <- prepare_priors_for_optim(pt)
+  expect_identical(
+    lengths(cache$index[c("norm", "gam", "beta")]),
+    c(
+      norm = 4L,
+      gam = 8L,
+      beta = 1L
+    )
+  )
+  expect_length(cache$index$gam_sd, 6L)
+  expect_length(cache$index$prec, 1L)
+
+  bare <- cache
+  bare$index <- NULL
+  expect_identical(
+    prior_logdens_vectorized(obj$theta, cache),
+    prior_logdens_vectorized(obj$theta, bare)
+  )
+  expect_identical(
+    prior_grad_vectorized(obj$theta, cache),
+    prior_grad_vectorized(obj$theta, bare)
+  )
+})
