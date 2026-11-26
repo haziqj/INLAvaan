@@ -62,24 +62,27 @@ fiml_plan <- function(lavsamplestats) {
   lapply(lavsamplestats@missing, fiml_plan_group)
 }
 
-# TRUE for the patterns that take the shared route. The rule compares rough
-# costs of one call of the log-likelihood plus one call of the gradient, in
-# microseconds, from timings on models of 10 to 60 variables. A set of
-# patterns that miss k variables each costs about 11 + 2 k^2 on the shared
-# route, however many patterns it holds, and a pattern that observes q
-# variables costs about 12 + q^3 / 2000 on the direct route. So many patterns
-# that miss few variables are shared, and a few patterns that miss many are
-# direct. The shared route also pays about 45 + p^3 / 900 once per group for
-# the inverse of Sigma and the sufficient statistics. When that is more than
-# the direct route costs for the patterns it would take, every pattern is
-# direct: this is a small model with few patterns.
-fiml_route_shared <- function(k, p) {
-  cost_direct <- 12 + (p - k)^3 / 2000
-  cost_set <- 11 + 2 * k^2
-  n_same_k <- as.numeric(table(k)[as.character(k)])
-  shared <- k == 0L | cost_set < n_same_k * cost_direct
-  cost_shared <- 45 +
-    p^3 / 900 +
+# TRUE for the patterns that take the shared route. `k` is the number of
+# missing variables of each pattern, and `many` is TRUE for a pattern with
+# more than one case. The rule compares rough costs of one call of the
+# log-likelihood plus one call of the gradient, in microseconds, from timings
+# on models of 10 to 60 variables. A set of patterns that miss k variables each
+# costs about 15 + 8 k + 2.4 k^2 on the shared route, however many patterns it
+# holds. A pattern that observes q variables costs about 12 + q^3 / 2400 on
+# the direct route, and about 14 + q^3 / 900 when it has more than one case.
+# So many patterns that miss few variables are shared, and a few patterns that
+# miss many are direct. The shared route also pays about 30 + p^3 / 800 once
+# per group for the inverse of Sigma and the sufficient statistics. When that
+# is more than the direct route costs for the patterns it would take, every
+# pattern is direct: this is a small model with few patterns.
+fiml_route_shared <- function(k, p, many = rep(FALSE, length(k))) {
+  q <- p - k
+  cost_direct <- ifelse(many, 14 + q^3 / 900, 12 + q^3 / 2400)
+  cost_set <- 15 + 8 * k + 2.4 * k^2
+  cost_direct_set <- tapply(cost_direct, k, sum)[as.character(k)]
+  shared <- k == 0L | cost_set < as.numeric(cost_direct_set)
+  cost_shared <- 30 +
+    p^3 / 800 +
     sum(cost_set[shared & k > 0L & !duplicated(k)])
   if (sum(cost_direct[shared]) < cost_shared) {
     shared[] <- FALSE
@@ -99,7 +102,8 @@ fiml_plan_group <- function(missing_g) {
     )
   })
   k <- vapply(pats, function(pat) length(pat$m), integer(1))
-  shared <- fiml_route_shared(k, p)
+  many <- vapply(pats, function(pat) pat$freq > 1L, logical(1))
+  shared <- fiml_route_shared(k, p, many)
 
   # The means are held as deviations from the mean of the available cases, so
   # that the sums of squares below lose no digits when a variable has a mean

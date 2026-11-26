@@ -67,7 +67,7 @@ fiml_test_grad <- function(fit, x, fiml = NULL) {
 # The plan of a fit with every pattern on one route
 fiml_test_setup <- function(fit, shared) {
   local_mocked_bindings(
-    fiml_route_shared = function(k, p) rep(shared, length(k))
+    fiml_route_shared = function(k, p, many) rep(shared, length(k))
   )
   fiml_setup(fit@Model, fit@SampleStats, fit@Data)
 }
@@ -172,7 +172,9 @@ test_that("a group without a Cholesky factor of Sigma is scored by block", {
     list(var.idx = c(TRUE, FALSE), freq = 3L, MY = 0.2, SY = matrix(1.5)),
     list(var.idx = c(FALSE, TRUE), freq = 1L, MY = -0.4, SY = NULL)
   )
-  local_mocked_bindings(fiml_route_shared = function(k, p) rep(TRUE, length(k)))
+  local_mocked_bindings(fiml_route_shared = function(k, p, many) {
+    rep(TRUE, length(k))
+  })
   plan <- list(fiml_plan_group(pats))
   expect_length(plan[[1L]]$direct, 0L)
   implied <- list(
