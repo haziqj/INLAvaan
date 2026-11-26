@@ -112,6 +112,63 @@ write_engine_lock <- function(path, header, files) {
   invisible(path)
 }
 
+## ----- The badge -------------------------------------------------------------
+
+# The README badge of the engine release, from inlavanilla's
+# use_vanilla_badge(): a shields.io endpoint file that names the release of the
+# lock, with the same bytes as inlavanilla writes. The sync rewrites it when
+# it exists, so that the badge follows the lock.
+engine_badge_file <- file.path(".github", "inlavanilla-badge.json")
+
+engine_badge_lines <- function(release) {
+  c(
+    "{",
+    '  "schemaVersion": 1,',
+    '  "label": "vanilla",',
+    paste0('  "message": "', release, '",'),
+    '  "labelColor": "#4B3621",',
+    '  "color": "#F3E5AB"',
+    "}"
+  )
+}
+
+# Rewrite the badge of the package at `pkg` for the release `release`, when
+# the package has one. Returns TRUE when the file changed.
+write_engine_badge <- function(pkg, release) {
+  path <- file.path(pkg, engine_badge_file)
+  if (!file.exists(path)) {
+    return(FALSE)
+  }
+  lines <- engine_badge_lines(release)
+  if (identical(readLines(path, warn = FALSE), lines)) {
+    return(FALSE)
+  }
+  con <- file(path, open = "wb")
+  on.exit(close(con))
+  writeLines(lines, con, sep = "\n")
+  TRUE
+}
+
+# The problems of the badge of the package at `pkg`: none when it has no badge,
+# or when the badge names the release of the lock
+check_engine_badge <- function(pkg) {
+  path <- file.path(pkg, engine_badge_file)
+  if (!file.exists(path)) {
+    return(character())
+  }
+  release <- read_engine_lock(file.path(pkg, engine_lock_file))$header[[
+    "Release"
+  ]]
+  if (identical(readLines(path, warn = FALSE), engine_badge_lines(release))) {
+    return(character())
+  }
+  sprintf(
+    "%s does not name the release %s of the lock in the form of the badge",
+    engine_badge_file,
+    release
+  )
+}
+
 upstream_name <- function(lock) {
   sub("[.]git$", "", basename(lock$header[["Upstream"]]))
 }
@@ -989,6 +1046,7 @@ run_engine_sync <- function(
   )
   write_engine_lock(lock_path, header, new_files)
   lock <- read_engine_lock(lock_path)
+  badge_changed <- write_engine_badge(pkg, tag)
 
   # Report the files and the upstream log since the last sync
   old_md5 <- if (is.null(old)) {
@@ -1010,6 +1068,9 @@ run_engine_sync <- function(
     desc[["Package"]]
   ))
   cat(sprintf("  %-9s %s\n", state, wanted), sep = "")
+  if (badge_changed) {
+    cat("Updated the badge ", engine_badge_file, " to ", tag, ".\n", sep = "")
+  }
   if (!is.null(old)) {
     old_commit <- old$header[["Commit"]]
     if (identical(old_commit, commit)) {

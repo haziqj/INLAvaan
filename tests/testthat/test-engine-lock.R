@@ -165,6 +165,33 @@ test_that("the engine copies of the package match the lock (check 1a)", {
   expect_identical(kit$check_engine_copy(kit$root), character())
 })
 
+test_that("the README badge of the package names the release of the lock", {
+  kit <- engine_tools()
+  expect_true(file.exists(file.path(kit$root, kit$engine_badge_file)))
+  expect_identical(kit$check_engine_badge(kit$root), character())
+})
+
+test_that("the badge check passes, fails, and follows a sync", {
+  kit <- engine_tools()
+  pkg <- make_pkg(kit, list("R/vanilla-a.R" = "a <- 1\n"))
+  badge <- file.path(pkg, kit$engine_badge_file)
+  # No badge: nothing to check, and nothing to rewrite
+  expect_identical(kit$check_engine_badge(pkg), character())
+  expect_false(kit$write_engine_badge(pkg, "v26.11.23"))
+  expect_false(file.exists(badge))
+  # A badge of another release fails, and the sync's rewrite mends it
+  write_text(badge, "{}\n")
+  expect_length(kit$check_engine_badge(pkg), 1L)
+  expect_true(kit$write_engine_badge(pkg, "v26.11.23"))
+  expect_identical(kit$check_engine_badge(pkg), character())
+  expect_match(
+    paste(readLines(badge), collapse = "\n"),
+    "\"message\": \"v26.11.23\"",
+    fixed = TRUE
+  )
+  expect_false(kit$write_engine_badge(pkg, "v26.11.23"))
+})
+
 test_that("no object of an engine file is defined twice in R/", {
   kit <- engine_tools()
   expect_identical(kit$check_engine_names(kit$root), character())
