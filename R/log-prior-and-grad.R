@@ -137,7 +137,7 @@ prepare_priors_for_optim <- function(pt) {
   }
 
   # Return a lightweight list optimized for the gradient function
-  list(
+  cache <- list(
     parname = pt$names[idx], # Just for names(theta)
     idx_in_pt = idx, # Indices in original pt
     free_id = pt$free[idx], # Which theta index this corresponds to
@@ -149,9 +149,33 @@ prepare_priors_for_optim <- function(pt) {
     is_prec_prior = is_prec_prior,
     prior_names = raw_priors # Just for names(grad)
   )
+  cache$index <- prior_cache_index(cache)
+  cache
+}
+
+# Which priors have each transform, each family and each qualifier, as index
+# vectors. They depend on the codes of the cache only, so they are found once
+# per model, and prior_logdens_vectorized() and prior_grad_vectorized() do
+# vector work only. A cache without `index` gets one on each call.
+prior_cache_index <- function(cache) {
+  gam <- which(cache$prior_type == 2L)
+  gam_is_sd <- cache$is_sd_prior[gam]
+  list(
+    exp = which(cache$trans_type == 1L),
+    tanh = which(cache$trans_type == 2L),
+    norm = which(cache$prior_type == 1L),
+    gam = gam,
+    gam_is_sd = gam_is_sd,
+    any_gam_sd = any(gam_is_sd),
+    gam_sd = gam[gam_is_sd],
+    beta = which(cache$prior_type == 3L),
+    prec = which(cache$is_prec_prior %||% logical(length(cache$free_id)))
+  )
 }
 
 prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
+  index <- cache$index %||% prior_cache_index(cache)
+
   # 1. Map theta to relevant parameters (vectorized)
   th <- theta[cache$free_id]
   n <- length(th)
@@ -162,7 +186,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   dx_dth <- rep(1, n)
 
   # A. Exp (Log-link) - e.g., Variances
-  idx_exp <- which(cache$trans_type == 1L)
+  idx_exp <- index$exp
   if (length(idx_exp) > 0) {
     ex <- exp(th[idx_exp])
     xval[idx_exp] <- ex
@@ -170,7 +194,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   }
 
   # B. Tanh (Atanh-link) - e.g., Correlations
-  idx_tanh <- which(cache$trans_type == 2L)
+  idx_tanh <- index$tanh
   if (length(idx_tanh) > 0) {
     # Replicating your safe_tanh logic roughly, or use standard tanh
     # Note: d/dx tanh(x) = 1 - tanh^2(x)
@@ -186,7 +210,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   lp <- numeric(n)
 
   # Type 1: Normal
-  idx_norm <- which(cache$prior_type == 1L)
+  idx_norm <- index$norm
   if (length(idx_norm) > 0) {
     # dnorm is fully vectorized
     lp[idx_norm] <- dnorm(
@@ -198,12 +222,8 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   }
 
   # Type 2: Gamma
-  idx_gam <- which(cache$prior_type == 2L)
+  idx_gam <- index$gam
   if (length(idx_gam) > 0) {
-    # Separate standard Gamma vs Gamma[sd]
-    # We can do this with masking to keep it vectorized
-    sub_sd <- cache$is_sd_prior[idx_gam]
-
     # 1. Standard Gamma Logic (applied to all first)
     # Note: Gamma check for x > 0 is handled by dgamma returning -Inf/NaN if invalid
     lp[idx_gam] <- dgamma(
@@ -214,9 +234,9 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
     )
 
     # 2. Fix up Gamma[sd] cases
-    if (any(sub_sd)) {
+    if (index$any_gam_sd) {
       # Indices of the [sd] items within the global vectors
-      global_sd_idx <- idx_gam[sub_sd]
+      global_sd_idx <- index$gam_sd
 
       # Get current xval (which is variance)
       vars <- xval[global_sd_idx]
@@ -241,7 +261,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
   }
 
   # Type 3: Beta (Boxed on -1, 1)
-  idx_beta <- which(cache$prior_type == 3L)
+  idx_beta <- index$beta
   if (length(idx_beta) > 0) {
     # Inline dbeta_box logic for speed:
     # dbeta_box(x, a, b, min=-1, max=1) = dbeta((x - min)/(max-min), a, b) / (max-min)
@@ -267,7 +287,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
 
   # 4. Handle [prec] qualifier: prior is on precision (1/x) rather than x
   # Re-evaluate lp at 1/xval and apply Jacobian |d(1/x)/dx| = 1/x^2
-  idx_prec <- which(cache$is_prec_prior %||% logical(n))
+  idx_prec <- index$prec
   if (length(idx_prec) > 0) {
     # nocov start
     ip_norm <- idx_prec[cache$prior_type[idx_prec] == 1L]
@@ -327,6 +347,7 @@ prior_logdens_vectorized <- function(theta, cache, debug = FALSE) {
 
 prior_grad_vectorized <- function(theta, cache) {
   # 'cache' is the object returned by prepare_priors_for_optim()
+  index <- cache$index %||% prior_cache_index(cache)
 
   # 1. Map theta to relevant parameters
   th <- theta[cache$free_id]
@@ -339,7 +360,7 @@ prior_grad_vectorized <- function(theta, cache) {
   ddx_dth2 <- rep(0, n)
 
   # Type 1: Exp (Log-link) -> for Variances
-  idx_exp <- which(cache$trans_type == 1L)
+  idx_exp <- index$exp
   if (length(idx_exp) > 0) {
     ex <- exp(th[idx_exp])
     xval[idx_exp] <- ex
@@ -348,7 +369,7 @@ prior_grad_vectorized <- function(theta, cache) {
   }
 
   # Type 2: Tanh (Atanh-link) -> for Correlations
-  idx_tanh <- which(cache$trans_type == 2L)
+  idx_tanh <- index$tanh
   if (length(idx_tanh) > 0) {
     # Using your safe_tanh logic: (1 - eps) * tanh(x)
     # Note: Your original code applied safe_tanh on the INVERSE (ginv).
@@ -381,7 +402,7 @@ prior_grad_vectorized <- function(theta, cache) {
   jac_extra <- numeric(n) # Defaults to 0
 
   # A. Normal (Type 1)
-  idx_norm <- which(cache$prior_type == 1L)
+  idx_norm <- index$norm
   if (length(idx_norm) > 0) {
     # -(x - mu) / sd^2
     dlp_dx[idx_norm] <- -(xval[idx_norm] - cache$p1[idx_norm]) /
@@ -389,11 +410,11 @@ prior_grad_vectorized <- function(theta, cache) {
   }
 
   # B. Gamma (Type 2)
-  idx_gam <- which(cache$prior_type == 2L)
+  idx_gam <- index$gam
   if (length(idx_gam) > 0) {
     # Split into standard Gamma vs Gamma[sd]
     # We use logical masking within the gamma group
-    sub_sd <- cache$is_sd_prior[idx_gam]
+    sub_sd <- index$gam_is_sd
 
     # Parameters for all gammas
     shape <- cache$p1[idx_gam]
@@ -406,7 +427,7 @@ prior_grad_vectorized <- function(theta, cache) {
     res_gam <- (shape - 1) / xv - rate
 
     # Correction for Gamma[sd]
-    if (any(sub_sd)) {
+    if (index$any_gam_sd) {
       # Indices within the gamma subset that are [sd]
       # Re-implementing:
       # s = sqrt(x); dlp_ds = (shape-1)/s - rate; dlp_dx = dlp_ds / (2s)
@@ -423,14 +444,14 @@ prior_grad_vectorized <- function(theta, cache) {
       # Add Jacobian extra
       # We need the dx_dth specific to these rows
       dx_dth_gam <- dx_dth[idx_gam]
-      jac_extra[idx_gam[sub_sd]] <- -dx_dth_gam[sub_sd] / (2 * xv_sd)
+      jac_extra[index$gam_sd] <- -dx_dth_gam[sub_sd] / (2 * xv_sd)
     }
 
     dlp_dx[idx_gam] <- res_gam
   }
 
   # C. Beta (Type 3)
-  idx_beta <- which(cache$prior_type == 3L)
+  idx_beta <- index$beta
   if (length(idx_beta) > 0) {
     a <- cache$p1[idx_beta]
     b <- cache$p2[idx_beta]
@@ -445,7 +466,7 @@ prior_grad_vectorized <- function(theta, cache) {
   # Handle [prec] qualifier: prior is on precision (1/x)
   # Chain rule: dlp_dx = (d log p(tau) / d tau)|_{tau=1/x} * (-1/x^2)
   # Jacobian extra: d/d(theta) log|d(1/x)/dx| = -2 * x'(theta) / x
-  idx_prec <- which(cache$is_prec_prior %||% logical(n))
+  idx_prec <- index$prec
   if (length(idx_prec) > 0) {
     # nocov start
     pv <- 1 / xval[idx_prec] # precision values

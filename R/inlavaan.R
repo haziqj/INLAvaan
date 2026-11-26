@@ -636,8 +636,10 @@ inlavaan <- function(
       cli_abort("{.arg nsamp} must be at least 2 to summarise posterior draws.")
     }
 
-    # Cache partable for prior logdens and grad
+    # Cache partable for prior logdens and grad, and the parameter map of
+    # pars_to_x() and of the chain rule of the gradient
     prior_cache <- prepare_priors_for_optim(pt)
+    x_map <- pars_to_x_map(pt)
     inform_gamma_variance_scale(pt)
 
     # Saturated-means fast path (see saturated_mean_idx): along each free
@@ -658,9 +660,9 @@ inlavaan <- function(
     joint_lp <- function(pars) {
       if (isTRUE(ceq.simple)) {
         pars_unpacked <- as.numeric(ceq.K %*% pars)
-        x <- pars_to_x(pars_unpacked, pt)
+        x <- pars_to_x(pars_unpacked, pt, x_map)
       } else {
-        x <- pars_to_x(pars, pt)
+        x <- pars_to_x(pars, pt, x_map)
       }
       ll <- inlav_model_loglik(
         x,
@@ -681,37 +683,17 @@ inlavaan <- function(
 
     joint_lp_grad <- function(pars) {
       # First, the likelihood gradient
-      if (isTRUE(ceq.simple)) {
-        pars_unpacked <- as.numeric(ceq.K %*% pars)
-        x <- pars_to_x(pars_unpacked, pt)
-        jcb <- mapply(
-          function(f, x) f(x),
-          pt$ginv_prime[pt$free > 0],
-          pars_unpacked
-        )
+      pars_unpacked <- if (isTRUE(ceq.simple)) {
+        as.numeric(ceq.K %*% pars)
       } else {
-        x <- pars_to_x(pars, pt)
-        jcb <- mapply(function(f, x) f(x), pt$ginv_prime[pt$free > 0], pars)
+        pars
       }
+      x <- pars_to_x(pars_unpacked, pt, x_map)
       gll <- inlav_model_grad(x, lavmodel, lavsamplestats, lavdata, lavcache)
 
-      # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ.
-      # The chain-rule Jacobian is a diagonal (per-parameter ginv_prime, times
-      # sd1sd2 for the correlation parameters) plus a handful of off-diagonal
-      # variance-into-covariance terms listed in jcb_mat, so the product is
-      # applied as vector work plus a short loop over those terms rather than
-      # ever forming the dense m x m matrix -- this sits inside every gradient
-      # call (optimiser, Hessian columns, VB node sweeps, marginal scans).
-      gll_th <- jcb * attr(x, "sd1sd2") * gll
-      jcb_mat <- attr(x, "jcb_mat")
-
-      if (!is.null(jcb_mat)) {
-        for (k in seq_len(nrow(jcb_mat))) {
-          i <- jcb_mat[k, 1]
-          j <- jcb_mat[k, 2]
-          gll_th[i] <- gll_th[i] + jcb_mat[k, 3] * gll[j]
-        }
-      }
+      # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ (see
+      # pars_chain_rule())
+      gll_th <- pars_chain_rule(gll, pars_unpacked, x, pt, x_map)
       if (isTRUE(ceq.simple)) {
         gll_th <- as.numeric(gll_th %*% ceq.K)
       } # Repack
@@ -773,7 +755,10 @@ inlavaan <- function(
       n = n,
       implied_cov = function(theta) {
         lavaan::lav_model_implied(
-          lavaan::lav_model_set_parameters(lavmodel, pars_to_x(theta, pt))
+          lavaan::lav_model_set_parameters(
+            lavmodel,
+            pars_to_x(theta, pt, x_map)
+          )
         )$cov[[1L]]
       },
       add_priors = add_priors
@@ -803,7 +788,7 @@ inlavaan <- function(
     }
     loglik_x_adj <- twolevel_fixedx_loglik_adj(
       lavmodel,
-      pars_to_x(theta_mode, pt),
+      pars_to_x(theta_mode, pt, x_map),
       lavdata,
       lavsamplestats
     )
@@ -819,9 +804,13 @@ inlavaan <- function(
     approx_data <- eng$approx_data
     visual_debug <- eng$visual_debug
     if (ceq.simple) {
-      theta_star_trans <- pars_to_x(as.numeric(ceq.K %*% theta_star_vbc), pt)
+      theta_star_trans <- pars_to_x(
+        as.numeric(ceq.K %*% theta_star_vbc),
+        pt,
+        x_map
+      )
     } else {
-      theta_star_trans <- pars_to_x(theta_star_vbc, pt)
+      theta_star_trans <- pars_to_x(theta_star_vbc, pt, x_map)
     }
     timing <- add_timing(timing, "loglik")
 

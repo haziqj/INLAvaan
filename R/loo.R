@@ -65,18 +65,15 @@ loo_grad_cache <- function(theta, lavmodel, pt, two_level = FALSE) {
     K <- lavmodel@ceq.simple.K
   }
   theta_unp <- if (is.null(K)) theta else as.numeric(K %*% theta)
-  x <- pars_to_x(theta_unp, pt)
+  map <- pars_to_x_map(pt)
+  x <- pars_to_x(theta_unp, pt, map)
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   jcb_mat <- attr(x, "jcb_mat")
   list(
     x = x,
     mom = loo_implied_moments(lavmodel_x, two_level),
     Delta = lavaan___lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST),
-    jcb_vec = as.numeric(mapply(
-      function(f, th) f(th),
-      pt$ginv_prime[pt$free > 0],
-      theta_unp
-    )),
+    jcb_vec = pars_to_x_jcb(theta_unp, pt, map),
     sd1sd2 = attr(x, "sd1sd2"),
     jcb_mat = jcb_mat,
     K = K

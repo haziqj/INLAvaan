@@ -75,7 +75,12 @@ sample_params <- function(
     theta_full <- tcrossprod(theta, K)
   }
 
-  x <- apply_rows(theta_full, pars_to_x, pt = pt)
+  x <- apply_rows(
+    theta_full,
+    pars_to_x,
+    pt = pt,
+    map = pars_to_x_map(pt)
+  )
 
   list(theta_samp = theta, x_samp = x)
 }

@@ -4,6 +4,14 @@
   longer suggests spacefillr and ucminf, which only the Sobol nodes of the
   old VB correction and `optim_method = "ucminf"` used.
 
+* Fits are faster, with the same results. The map from the internal
+  parameters to lavaan's parameters, the chain rule of the gradient and the
+  prior now find their index tables once per model, and not on every
+  evaluation of the log-posterior. On single-level models with complete data
+  a fit takes 19% to 57% less time (57% on a panel model with 156
+  parameters), and 9% to 14% less on models with missing data and on
+  two-level models with random intercepts. Random-slope fits do not change.
+
 * New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
   `silent = TRUE` prints nothing and muffles the warnings and messages raised
   during the fit, for simulations and other repeated fits. Errors are still
