@@ -112,7 +112,14 @@ test_that("the kernels take route A with complete data, and nothing else", {
     missing = "ml"
   ))
   expect_false(rs_kernel_ok(fit_na@Model, fit_na@Data, fit_na@Cache))
-  expect_null(multilevel_setup(fit_na@Model, fit_na@Data, fit_na@Cache)$rs)
+  expect_null(
+    multilevel_setup(
+      fit_na@Model,
+      fit_na@SampleStats,
+      fit_na@Data,
+      fit_na@Cache
+    )$rs
+  )
 })
 
 test_that("the log-likelihood equals lavaan's", {
@@ -123,7 +130,7 @@ test_that("the log-likelihood equals lavaan's", {
       x <- rsk_point(fit, seed)
       expect_equal(
         rsk_loglik(fit, x),
-        rsk_loglik(fit, x, multilevel = list(rs = NULL)),
+        rsk_loglik(fit, x, multilevel = list(rs = NULL, twolevel = FALSE)),
         tolerance = 1e-12
       )
     }
@@ -139,7 +146,7 @@ test_that("the gradient equals lavaan's and a numerical gradient", {
       expect_length(g, fit@Model@nx.unco)
       expect_equal(
         g,
-        rsk_grad(fit, x, multilevel = list(rs = NULL)),
+        rsk_grad(fit, x, multilevel = list(rs = NULL, twolevel = FALSE)),
         tolerance = 1e-10
       )
       # The gradient comes back with one entry per free row, the packed
@@ -153,7 +160,12 @@ test_that("the gradient equals lavaan's and a numerical gradient", {
 
 test_that("the kernels return -Inf, or NULL to fall back to lavaan", {
   fit <- rsk_fits$lmm
-  plan <- multilevel_setup(fit@Model, fit@Data, fit@Cache)$rs
+  plan <- multilevel_setup(
+    fit@Model,
+    fit@SampleStats,
+    fit@Data,
+    fit@Cache
+  )$rs
   imp <- lavaan___lav_mvn_cl_rs_implied(
     lavmodel = fit@Model,
     rs_info = plan$info

@@ -43,17 +43,6 @@ rs_kernel_ok <- function(lavmodel, lavdata, lavcache) {
     identical(as.integer(rs$info$kz), 0L)
 }
 
-# What a fit needs to know about the multilevel kernels, found once per model:
-# the plan of the random-slope kernels, or NULL when the model keeps lavaan's
-# code
-multilevel_setup <- function(lavmodel, lavdata, lavcache) {
-  rs <- NULL
-  if (rs_kernel_ok(lavmodel, lavdata, lavcache)) {
-    rs <- rs_kernel_plan(lavcache[[1L]]$rs)
-  }
-  list(rs = rs)
-}
-
 ## ----- Plan ------------------------------------------------------------------
 
 # The cluster sums as matrices and arrays with one row per cluster, and their

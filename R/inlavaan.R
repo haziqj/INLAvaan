@@ -641,7 +641,12 @@ inlavaan <- function(
     prior_cache <- prepare_priors_for_optim(pt)
     x_map <- pars_to_x_map(pt)
     fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
-    multilevel <- multilevel_setup(lavmodel, lavdata, lavcache)
+    multilevel <- multilevel_setup(
+      lavmodel,
+      lavsamplestats,
+      lavdata,
+      lavcache
+    )
     inform_gamma_variance_scale(pt)
 
     # Saturated-means fast path (see saturated_mean_idx): along each free

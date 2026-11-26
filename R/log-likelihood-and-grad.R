@@ -26,7 +26,12 @@ inlav_model_loglik <- function(
         fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
       }
       if (is.null(multilevel)) {
-        multilevel <- multilevel_setup(lavmodel, lavdata, lavcache)
+        multilevel <- multilevel_setup(
+          lavmodel,
+          lavsamplestats,
+          lavdata,
+          lavcache
+        )
       }
       out <- NULL
       if (fiml$loglik) {
@@ -39,6 +44,8 @@ inlav_model_loglik <- function(
             rs_info = multilevel$rs$info
           )
         )
+      } else if (multilevel$twolevel) {
+        out <- twolevel_kernel_loglik(lavsamplestats, lavdata, lavimplied)
       }
       if (is.null(out)) {
         out <- lavaan___lav_model_loglik(
@@ -97,7 +104,7 @@ inlav_model_grad <- function(
     fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
   }
   if (is.null(multilevel)) {
-    multilevel <- multilevel_setup(lavmodel, lavdata, lavcache)
+    multilevel <- multilevel_setup(lavmodel, lavsamplestats, lavdata, lavcache)
   }
 
   # Without a mean structure, the gradient of the marginalised log-likelihood
@@ -119,6 +126,8 @@ inlav_model_grad <- function(
     grad_F <- fiml_grad_samp(lavmodel_x, lavsamplestats, fiml$plan)
   } else if (!is.null(multilevel$rs)) {
     grad_F <- rs_kernel_grad(lavmodel_x, multilevel$rs)
+  } else if (multilevel$twolevel) {
+    grad_F <- twolevel_kernel_grad(lavmodel_x, lavsamplestats, lavdata)
   }
   if (is.null(grad_F)) {
     grad_F <- lavaan___lav_model_grad(
@@ -151,6 +160,21 @@ inlav_model_grad <- function(
     } # nocov end
 
   out
+}
+
+# What a fit needs to know about the multilevel kernels, found once per model:
+# the plan of the random-slope kernels (R/random-slope-kernels.R), or NULL, and
+# if the two-level kernels (R/twolevel-kernels.R) apply. Models that take
+# neither keep lavaan's code.
+multilevel_setup <- function(lavmodel, lavsamplestats, lavdata, lavcache) {
+  rs <- NULL
+  if (rs_kernel_ok(lavmodel, lavdata, lavcache)) {
+    rs <- rs_kernel_plan(lavcache[[1L]]$rs)
+  }
+  list(
+    rs = rs,
+    twolevel = twolevel_kernel_ok(lavmodel, lavsamplestats, lavdata)
+  )
 }
 
 # Without a mean structure, lavaan's log-likelihood profiles the saturated
