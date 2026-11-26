@@ -46,7 +46,7 @@ inlav_model_loglik <- function(
       } else if (multilevel$twolevel) {
         out <- twolevel_kernel_loglik(lavsamplestats, lavdata, lavimplied)
       } else if (!is.null(multilevel$twolevel_fiml)) {
-        out <- twolevel_fiml_loglik(
+        out <- twolevel_fiml_loglik_all(
           multilevel$twolevel_fiml,
           lavsamplestats,
           lavimplied
@@ -192,9 +192,9 @@ inlav_model_grad <- function(
 
 # What a fit needs to know about the multilevel kernels, found once per model:
 # the plan of the random-slope kernels (R/random-slope-kernels.R), or NULL, if
-# the two-level kernels (R/twolevel-kernels.R) apply, and the plan of the
-# two-level FIML kernels (R/twolevel-fiml-kernels.R), or NULL. Models that take
-# none of them keep lavaan's code.
+# the two-level kernels (R/twolevel-kernels.R) apply, and the plans of the
+# two-level FIML kernels (R/twolevel-fiml-kernels.R), one per group, or NULL.
+# Models that take none of them keep lavaan's code.
 multilevel_setup <- function(lavmodel, lavsamplestats, lavdata, lavcache) {
   rs <- NULL
   if (rs_kernel_ok(lavmodel, lavdata, lavcache)) {
@@ -207,7 +207,7 @@ multilevel_setup <- function(lavmodel, lavsamplestats, lavdata, lavcache) {
   }
   twolevel_fiml <- NULL
   if (twolevel_fiml_ok(lavmodel, lavsamplestats, lavdata)) {
-    twolevel_fiml <- twolevel_fiml_plan(lavdata, lavsamplestats)
+    twolevel_fiml <- twolevel_fiml_plans(lavdata, lavsamplestats)
   }
   list(
     rs = rs,
@@ -324,32 +324,35 @@ twolevel_fixedx_loglik_adj <- function(lavmodel, x, lavdata, lavsamplestats) {
   if (!isTRUE(lavmodel@fixed.x) || lavdata@nlevels < 2L) {
     return(0)
   }
-  if (length(lavsamplestats@x.idx[[1L]]) == 0L) {
-    return(0)
-  }
-  Lp <- lavdata@Lp[[1L]]
-  ylp <- lavsamplestats@YLp[[1L]][[2L]]
-  info <- loo_fixedx_info_loco(
-    list(lavdata = lavdata, lavsamplestats = lavsamplestats),
-    list(Lp = Lp),
-    loo_implied_moments(
-      lavaan::lav_model_set_parameters(lavmodel, x),
-      two_level = TRUE
+  lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
+  out <- 0
+  for (g in seq_len(lavdata@ngroups)) {
+    if (length(lavsamplestats@x.idx[[g]]) == 0L) {
+      next
+    }
+    Lp <- lavdata@Lp[[g]]
+    ylp <- lavsamplestats@YLp[[g]][[2L]]
+    info <- loo_fixedx_info_loco(
+      list(lavdata = lavdata, lavsamplestats = lavsamplestats),
+      list(Lp = Lp),
+      loo_implied_moments(lavmodel_x, two_level = TRUE, g = g),
+      g = g
     )
-  )
-  X <- lavdata@X[[1L]]
-  cl <- Lp$cluster.idx[[2L]]
-  c_sum <- sum(vapply(
-    seq_len(Lp$nclusters[[2L]]),
-    function(j) {
-      loo_fixedx_const_raw(
-        X[cl == j, , drop = FALSE],
-        ylp$Y2[j, , drop = FALSE],
-        info
-      )
-    },
-    numeric(1)
-  ))
-  loglik_x <- if (is.null(ylp$loglik.x)) 0 else ylp$loglik.x
-  loglik_x - c_sum
+    X <- lavdata@X[[g]]
+    cl <- Lp$cluster.idx[[2L]]
+    c_sum <- sum(vapply(
+      seq_len(Lp$nclusters[[2L]]),
+      function(j) {
+        loo_fixedx_const_raw(
+          X[cl == j, , drop = FALSE],
+          ylp$Y2[j, , drop = FALSE],
+          info
+        )
+      },
+      numeric(1)
+    ))
+    loglik_x <- if (is.null(ylp$loglik.x)) 0 else ylp$loglik.x
+    out <- out + loglik_x - c_sum
+  }
+  out
 }

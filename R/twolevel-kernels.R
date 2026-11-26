@@ -21,7 +21,6 @@
 twolevel_kernel_ok <- function(lavmodel, lavsamplestats, lavdata) {
   lavmodel@estimator == "ML" &&
     lavdata@nlevels == 2L &&
-    lavdata@ngroups == 1L &&
     !isTRUE(lavsamplestats@missing.flag) &&
     !isTRUE(lavmodel@conditional.x) &&
     !has_random_slopes(lavmodel) &&
@@ -169,19 +168,33 @@ twolevel_loglik_samp <- function(
   out
 }
 
+# The implied moments of group g of a two-level model: lavaan stores level l
+# of group g as block 2 (g - 1) + l
+twolevel_group_implied <- function(implied, g) {
+  b <- c(2L * g - 1L, 2L * g)
+  list(mean = implied$mean[b], cov = implied$cov[b])
+}
+
 # The log-likelihood with the 2 pi terms of a fit's data, as lavaan's
-# lav_model_loglik() returns it for a two-level model with complete data
+# lav_model_loglik() returns it for a two-level model with complete data. The
+# groups are independent, so their log-likelihoods add.
 twolevel_kernel_loglik <- function(lavsamplestats, lavdata, implied) {
-  twolevel_loglik_samp(
-    lavsamplestats@YLp[[1L]],
-    lavdata@Lp[[1L]],
-    implied$mean[[1L]],
-    implied$cov[[1L]],
-    implied$mean[[2L]],
-    implied$cov[[2L]],
-    log2pi = TRUE,
-    minus_two = FALSE
-  )
+  out <- 0
+  for (g in seq_len(lavdata@ngroups)) {
+    imp_g <- twolevel_group_implied(implied, g)
+    out <- out +
+      twolevel_loglik_samp(
+        lavsamplestats@YLp[[g]],
+        lavdata@Lp[[g]],
+        imp_g$mean[[1L]],
+        imp_g$cov[[1L]],
+        imp_g$mean[[2L]],
+        imp_g$cov[[2L]],
+        log2pi = TRUE,
+        minus_two = FALSE
+      )
+  }
+  out
 }
 
 # The derivative of -2 log L with respect to the implied moments of each
@@ -286,15 +299,16 @@ twolevel_dlogl_samp <- function(
   if (return_list) dout else twolevel_dmoments_vec(dout)
 }
 
-# The derivative of a fit's data, as a list
-twolevel_dmoments <- function(lavsamplestats, lavdata, implied) {
+# The derivative of the data of group g of a fit, as a list
+twolevel_dmoments <- function(lavsamplestats, lavdata, implied, g = 1L) {
+  imp_g <- twolevel_group_implied(implied, g)
   twolevel_dlogl_samp(
-    lavsamplestats@YLp[[1L]],
-    lavdata@Lp[[1L]],
-    implied$mean[[1L]],
-    implied$cov[[1L]],
-    implied$mean[[2L]],
-    implied$cov[[2L]],
+    lavsamplestats@YLp[[g]],
+    lavdata@Lp[[g]],
+    imp_g$mean[[1L]],
+    imp_g$cov[[1L]],
+    imp_g$mean[[2L]],
+    imp_g$cov[[2L]],
     return_list = TRUE
   )
 }
@@ -318,20 +332,21 @@ twolevel_sym_halve <- function(d) {
 # free parameters (unpacked under ceq.simple), from its derivative `dmom`
 # with respect to the moments (lavaan's list form, unique elements): the
 # product dF/dmoments %*% Delta, with no Delta matrix built
-twolevel_moments_to_x <- function(lavmodel_x, dmom) {
+twolevel_moments_to_x <- function(lavmodel_x, dmom, g = 1L) {
   d_sigma <- list(dmom$Sigma.W, dmom$Sigma.B)
   d_mu <- list(dmom$Mu.W, dmom$Mu.B)
   glist <- lavmodel_x@GLIST
   nmat <- lavmodel_x@nmat
   unco <- isTRUE(lavmodel_x@ceq.simple.only)
   dx <- numeric(if (unco) lavmodel_x@nx.unco else lavmodel_x@nx.free)
-  for (b in 1:2) {
+  for (l in 1:2) {
+    b <- 2L * (g - 1L) + l
     mm_in_block <- seq_len(nmat[b]) + cumsum(c(0, nmat))[b]
     # lavaan's omega is -2 dF/dSigma and its omega_mu is -dF/dmu
     dx_block <- lisrel_df_dmlist(
       glist[mm_in_block],
-      -2 * twolevel_sym_halve(d_sigma[[b]]),
-      matrix(-as.numeric(d_mu[[b]]), ncol = 1L)
+      -2 * twolevel_sym_halve(d_sigma[[l]]),
+      matrix(-as.numeric(d_mu[[l]]), ncol = 1L)
     )
     dx_block <- dx_block[names(glist[mm_in_block])]
     for (k in seq_along(mm_in_block)) {
@@ -347,11 +362,11 @@ twolevel_moments_to_x <- function(lavmodel_x, dmom) {
   dx
 }
 
-# lavaan's Delta of a two-level model (lav_model_delta(), the one group): the
+# lavaan's Delta of group g of a two-level model (lav_model_delta()): the
 # derivative of each unique moment, in the order c(Mu.W, vech(Sigma.W), Mu.B,
 # vech(Sigma.B)), with respect to each free parameter, one row per moment
-twolevel_delta <- function(lavmodel_x) {
-  implied <- lavaan::lav_model_implied(lavmodel_x)
+twolevel_delta <- function(lavmodel_x, g = 1L) {
+  implied <- twolevel_group_implied(lavaan::lav_model_implied(lavmodel_x), g)
   p_w <- length(implied$mean[[1L]])
   p_b <- length(implied$mean[[2L]])
   # A symmetric matrix with a one at the k-th unique element (column-wise
@@ -392,28 +407,38 @@ twolevel_delta <- function(lavmodel_x) {
     d$Sigma.B <- unit(p_b, k)
     rows[[length(rows) + 1L]] <- d
   }
-  do.call(rbind, lapply(rows, function(d) twolevel_moments_to_x(lavmodel_x, d)))
+  do.call(
+    rbind,
+    lapply(rows, function(d) twolevel_moments_to_x(lavmodel_x, d, g))
+  )
 }
 
 # The gradient of lavaan's fit function with respect to the free parameters
 # (unpacked under ceq.simple), as lav_model_grad() returns it for a two-level
 # model, or NULL when it is not defined. With `fiml_plan` (from
-# twolevel_fiml_plan()) the derivative with respect to the moments is that of
-# the FIML kernels.
+# twolevel_fiml_plans(), one plan per group) the derivative with respect to the
+# moments is that of the FIML kernels. The groups add.
 twolevel_kernel_grad <- function(
   lavmodel_x,
   lavsamplestats,
   lavdata,
-  fiml_plan = NULL
+  fiml_plans = NULL
 ) {
   implied <- lavaan::lav_model_implied(lavmodel_x)
-  dmom <- if (is.null(fiml_plan)) {
-    twolevel_dmoments(lavsamplestats, lavdata, implied)
-  } else {
-    twolevel_fiml_dmoments(fiml_plan, implied)
+  dx <- 0
+  for (g in seq_len(lavdata@ngroups)) {
+    dmom <- if (is.null(fiml_plans)) {
+      twolevel_dmoments(lavsamplestats, lavdata, implied, g)
+    } else {
+      twolevel_fiml_dmoments(
+        fiml_plans[[g]],
+        twolevel_group_implied(implied, g)
+      )
+    }
+    if (is.null(dmom) || anyNA(unlist(dmom))) {
+      return(NULL)
+    }
+    dx <- dx + twolevel_moments_to_x(lavmodel_x, dmom, g)
   }
-  if (is.null(dmom) || anyNA(unlist(dmom))) {
-    return(NULL)
-  }
-  twolevel_moments_to_x(lavmodel_x, dmom) / (2 * lavsamplestats@ntotal)
+  dx / (2 * lavsamplestats@ntotal)
 }

@@ -32,7 +32,6 @@
 twolevel_fiml_ok <- function(lavmodel, lavsamplestats, lavdata) {
   lavmodel@estimator == "ML" &&
     lavdata@nlevels == 2L &&
-    lavdata@ngroups == 1L &&
     isTRUE(lavsamplestats@missing.flag) &&
     !isTRUE(lavmodel@conditional.x) &&
     !has_random_slopes(lavmodel) &&
@@ -48,14 +47,21 @@ twolevel_fiml_ok <- function(lavmodel, lavsamplestats, lavdata) {
 
 # The missing-data patterns of level 1, the counts of each pattern in each
 # cluster, the patterns of the between-only variables, and the data, found
-# once per model
-twolevel_fiml_plan <- function(lavdata, lavsamplestats) {
+# once per model, for group g
+twolevel_fiml_plan <- function(lavdata, lavsamplestats, g = 1L) {
   twolevel_fiml_plan_raw(
-    lavdata@Lp[[1L]],
-    lavdata@Mp[[1L]],
-    lavdata@X[[1L]],
-    lavsamplestats@YLp[[1L]][[2L]]$Y2
+    lavdata@Lp[[g]],
+    lavdata@Mp[[g]],
+    lavdata@X[[g]],
+    lavsamplestats@YLp[[g]][[2L]]$Y2
   )
+}
+
+# The plans of all groups
+twolevel_fiml_plans <- function(lavdata, lavsamplestats) {
+  lapply(seq_len(lavdata@ngroups), function(g) {
+    twolevel_fiml_plan(lavdata, lavsamplestats, g)
+  })
 }
 
 # The same from lavaan's raw pieces: the cluster layout `lp`, the patterns
@@ -345,15 +351,32 @@ twolevel_fiml_loglik_plan <- function(
 }
 
 # The log-likelihood with the 2 pi terms of a fit's data, as lavaan's
-# lav_model_loglik() returns it for a two-level model with missing data
-twolevel_fiml_loglik <- function(plan, lavsamplestats, implied) {
+# lav_model_loglik() returns it for a two-level model with missing data, for
+# the plan of group g and the implied moments of that group
+twolevel_fiml_loglik <- function(plan, lavsamplestats, implied, g = 1L) {
   twolevel_fiml_loglik_plan(
     plan,
     implied,
     log2pi = TRUE,
-    loglik_x = lavsamplestats@YLp[[1L]][[2L]]$loglik.x,
+    loglik_x = lavsamplestats@YLp[[g]][[2L]]$loglik.x,
     minus_two = FALSE
   )
+}
+
+# The same summed over the groups, from the plans of twolevel_fiml_plans() and
+# the implied moments of all blocks
+twolevel_fiml_loglik_all <- function(plans, lavsamplestats, implied) {
+  out <- 0
+  for (g in seq_along(plans)) {
+    out <- out +
+      twolevel_fiml_loglik(
+        plans[[g]],
+        lavsamplestats,
+        twolevel_group_implied(implied, g),
+        g
+      )
+  }
+  out
 }
 
 ## ----- Gradient --------------------------------------------------------------

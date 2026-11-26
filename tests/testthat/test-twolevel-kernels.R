@@ -2,6 +2,23 @@
 # gradient against lavaan's two-level code and a numerical gradient.
 
 tlk_data <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:40, ]
+tlk_data$g <- ifelse(tlk_data$cluster %% 2 == 0, "a", "b")
+
+# Two groups, with the within loadings held equal across them
+tlk_model_mg <- "
+  group: a
+  level: 1
+    fw =~ y1 + l2*y2 + l3*y3
+    fw ~ x1
+  level: 2
+    fb =~ y1 + y2 + y3
+  group: b
+  level: 1
+    fw =~ y1 + l2*y2 + l3*y3
+    fw ~ x1
+  level: 2
+    fb =~ y1 + y2 + y3
+"
 
 tlk_models <- list(
   # One factor at each level
@@ -39,6 +56,15 @@ tlk_fits <- lapply(tlk_models, function(m) {
     se = "none"
   ))
 })
+
+tlk_fits$multigroup <- suppressWarnings(lavaan::sem(
+  tlk_model_mg,
+  data = tlk_data,
+  cluster = "cluster",
+  group = "g",
+  ceq.simple = TRUE,
+  se = "none"
+))
 
 tlk_lavaan <- list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
 
@@ -196,6 +222,14 @@ test_that("the per-cluster forms equal lavaan's with its flags", {
     tolerance = 1e-12,
     ignore_attr = TRUE
   )
+  # The second group of a multigroup model
+  lm <- tlk_fits$multigroup@Model
+  expect_equal(
+    twolevel_delta(lm, g = 2L),
+    lav_ns$lav_model_delta(lm)[[2L]],
+    tolerance = 1e-12,
+    ignore_attr = TRUE
+  )
 })
 
 ## ----- Missing data (R/twolevel-fiml-kernels.R) ------------------------------
@@ -237,6 +271,16 @@ tlk_fits_na <- lapply(
     ))
   }
 )
+
+tlk_fits_na$multigroup <- suppressWarnings(lavaan::sem(
+  tlk_model_mg,
+  data = tlk_data_na,
+  cluster = "cluster",
+  group = "g",
+  missing = "ml",
+  ceq.simple = TRUE,
+  se = "none"
+))
 
 test_that("the FIML kernels take two-level models with missing data", {
   for (fit in tlk_fits_na) {
