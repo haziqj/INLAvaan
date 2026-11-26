@@ -229,6 +229,20 @@ rs_baseline_fit <- function(object) {
     control = list(iter.max = 2000, eval.max = 4000, rel.tol = 1e-10)
   )
   ll_base <- -opt$objective
+  npar <- length(free)
+  # With fixed.x = FALSE the model also scores the covariates, so the
+  # reference does too, at their saturated maximum
+  rs_x <- rs_x_setup(
+    int$lavmodel,
+    int$lavdata,
+    int$lavsamplestats,
+    int$lavcache
+  )
+  if (!is.null(rs_x)) {
+    x_sat <- rs_x_saturated(rs_x)
+    ll_base <- ll_base + x_sat$loglik
+    npar <- npar + x_sat$npar
+  }
   ll_model <- inlav_model_loglik(
     lavaan::lav_model_get_parameters(object@Model),
     int$lavmodel,
@@ -252,5 +266,5 @@ rs_baseline_fit <- function(object) {
       class = "inlavaan_rs_bfit"
     )
   }
-  list(loglik = ll_base, npar = length(free), syntax = syn)
+  list(loglik = ll_base, npar = npar, syntax = syn)
 }

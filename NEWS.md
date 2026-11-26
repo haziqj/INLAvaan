@@ -63,6 +63,18 @@
   those of group 2, and so on. Random slopes cannot be combined with groups,
   as in lavaan.
 
+* Random-slope models (`rv()`) with `fixed.x = FALSE` now fit, and the
+  covariates are modelled. INLAvaan adds the two-level normal density of the
+  observed covariates, with their means, variances and covariances as
+  parameters, to the random-slope likelihood. The other parameters keep the
+  posterior they have under `fixed.x = TRUE`, and `loo()`, `waic()` and the
+  Bayesian fit indices score the covariates too. lavaan accepts these models
+  but leaves the covariate density out, so its covariate estimates stay at
+  their start values and it reports no standard errors. The slope must be on
+  an observed within-cluster covariate, each covariate without a slope must
+  be observed at one level only, and the covariates must be complete; other
+  `fixed.x = FALSE` random-slope fits are still refused, with the reason.
+
 * `predict(newdata = )` now works for two-level models, with or without
   random slopes, groups or missing values. Before, INLAvaan refused it. The
   new rows must hold the cluster variable (and the group variable of a

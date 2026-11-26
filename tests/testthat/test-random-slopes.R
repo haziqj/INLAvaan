@@ -79,10 +79,72 @@ test_that("Random slopes: the likelihood summaries exist", {
   expect_no_error(capture.output(summary(fit_rs)))
 })
 
-test_that("Random slopes: fixed.x = FALSE is refused", {
+test_that("Random slopes: fixed.x = FALSE models the covariates", {
+  skip_on_cran()
+  mod_x <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1 + x2
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ w1
+      s1 ~ w1
+  "
+  fit_args <- list(
+    cluster = "cluster",
+    silent = TRUE,
+    test = "none",
+    marginal_method = "gaussian",
+    vb_correction = FALSE,
+    nsamp = 3
+  )
+  fit_t <- do.call(asem, c(list(mod_x, d_rs, fixed.x = TRUE), fit_args))
+  fit_f <- do.call(asem, c(list(mod_x, d_rs, fixed.x = FALSE), fit_args))
+  # The covariate density is a separate factor, so the other parameters keep
+  # their posterior
+  shared <- names(coef(fit_t))
+  expect_equal(coef(fit_f)[shared], coef(fit_t), tolerance = 1e-3)
+  # The covariate moments are estimated, near their sample values
+  x_par <- setdiff(names(coef(fit_f)), shared)
+  expect_setequal(
+    x_par,
+    c(
+      "x1~~x1",
+      "x1~~x2",
+      "x2~~x2",
+      "x1~1",
+      "x2~1",
+      "w1~~w1.l2",
+      "w1~1.l2"
+    )
+  )
+  n <- nrow(d_rs)
+  expect_equal(
+    unname(coef(fit_f)["x1~~x1"]),
+    stats::var(d_rs$x1) * (n - 1) / n,
+    tolerance = 0.05
+  )
+  expect_equal(unname(coef(fit_f)["x1~1"]), mean(d_rs$x1), tolerance = 0.05)
+  # The LOO scores the covariates of each cluster too
+  loo_f <- loo(fit_f, second_order = FALSE)
+  loo_t <- loo(fit_t, second_order = FALSE)
+  expect_identical(loo_f$flavour, "joint")
+  expect_lt(loo_f$elpd_1, loo_t$elpd_1)
+})
+
+test_that("Random slopes: fixed.x = FALSE is refused where it is not exact", {
+  # A covariate with no slope at both levels
+  mod_split <- "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1 + x2
+    level: 2
+      fb =~ y1 + y2 + y3
+      fb ~ x2
+  "
   expect_error(
     asem(
-      mod_rs,
+      mod_split,
       d_rs,
       cluster = "cluster",
       fixed.x = FALSE,
@@ -90,6 +152,7 @@ test_that("Random slopes: fixed.x = FALSE is refused", {
       test = "none",
       nsamp = 3
     ),
+    "both levels",
     class = "inlavaan_rs_fixedx"
   )
 })

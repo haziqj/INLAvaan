@@ -505,18 +505,39 @@ loco_scores_theta <- function(theta, css, lavmodel, pt, units, cache = NULL) {
 # result without trimming the work.
 
 # Per-cluster log-likelihoods at one theta, in lavaan's cluster order
-loco_rs_loglik_all <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
+loco_rs_loglik_all <- function(
+  theta,
+  rs,
+  lavmodel,
+  pt,
+  units,
+  cache = NULL,
+  rs_x = NULL
+) {
   if (is.null(cache)) {
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
   }
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, cache$x)
-  rs_cluster_loglik(rs_any_plan(rs), lavmodel_x)[units]
+  out <- rs_cluster_loglik(rs_any_plan(rs), lavmodel_x)[units]
+  # The covariate term of a fit with fixed.x = FALSE
+  if (!is.null(rs_x)) {
+    out <- out + rs_x_cluster_term(rs_x, lavmodel_x, units)$loglik
+  }
+  out
 }
 
 # All-cluster theta-scores at one theta. lavaan returns the per-cluster
 # scores on the natural log-likelihood scale in lavaan-x order, which the
 # shared chain rule maps into the packed theta space.
-loco_rs_scores_theta <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
+loco_rs_scores_theta <- function(
+  theta,
+  rs,
+  lavmodel,
+  pt,
+  units,
+  cache = NULL,
+  rs_x = NULL
+) {
   if (is.null(cache)) {
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
   }
@@ -527,7 +548,12 @@ loco_rs_scores_theta <- function(theta, rs, lavmodel, pt, units, cache = NULL) {
   if (rs_grad_is_packed(ncol(G_x), lavmodel)) {
     G_x <- rs_unpack_grad(G_x, lavmodel)
   }
-  loo_chain_rule(G_x[units, , drop = FALSE], cache)
+  G_x <- G_x[units, , drop = FALSE]
+  # The covariate term of a fit with fixed.x = FALSE
+  if (!is.null(rs_x)) {
+    G_x <- G_x + rs_x_cluster_term(rs_x, lavmodel_x, units, grad = TRUE)$grad
+  }
+  loo_chain_rule(G_x, cache)
 }
 
 # Frozen log-density of the covariates a random-slope kernel scores with the
@@ -1016,8 +1042,12 @@ loo_flavour <- function(int) {
   # of the kernel's response vector instead and is scored jointly with the
   # outcomes, which the label does not say: comparability across fits is
   # enforced on the kernel's own response set in check_rs_comparable().
+  # With fixed.x = FALSE the covariates are scored too
+  # (R/random-slope-covariates.R).
   if (has_random_slopes(int$lavmodel)) {
-    return("conditional")
+    joint <- !isTRUE(int$lavmodel@fixed.x) &&
+      length(unlist(int$lavmodel@ov.x.dummy.ov.idx)) > 0L
+    return(if (joint) "joint" else "conditional")
   }
   if (
     isTRUE(int$lavmodel@fixed.x) &&
@@ -1678,13 +1708,30 @@ inlav_loo <- function(
     }
     units <- check_loo_units(units, spec$ncl, "clusters")
     cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
-    l_star <- loco_rs_loglik_all(theta, spec$rs, lavmodel, pt, units, cache) -
+    rs_x <- rs_x_setup(lavmodel, lavdata, int$lavsamplestats, int$lavcache)
+    l_star <- loco_rs_loglik_all(
+      theta,
+      spec$rs,
+      lavmodel,
+      pt,
+      units,
+      cache,
+      rs_x
+    ) -
       loco_rs_split_const(int, spec, units, cache$mom)
-    s_mat <- loco_rs_scores_theta(theta, spec$rs, lavmodel, pt, units, cache)
+    s_mat <- loco_rs_scores_theta(
+      theta,
+      spec$rs,
+      lavmodel,
+      pt,
+      units,
+      cache,
+      rs_x
+    )
     score_fn <- function(th_act) {
       th <- theta
       th[free] <- th_act
-      loco_rs_scores_theta(th, spec$rs, lavmodel, pt, units)[,
+      loco_rs_scores_theta(th, spec$rs, lavmodel, pt, units, rs_x = rs_x)[,
         free,
         drop = FALSE
       ]
