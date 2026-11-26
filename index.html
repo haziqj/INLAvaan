@@ -131,12 +131,11 @@
 <span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"PoliticalDemocracy"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/asem.html">asem</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">mod_poldem</span>, data <span class="op">=</span> <span class="va">PoliticalDemocracy</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 71 iterations [122ms]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.33σ [69ms]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 30 skew-normal marginals [259ms]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 71 iterations [62ms]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.33σ [30ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 30 skew-normal marginals [181ms]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ⠹ Computing fit indices (PPP/DIC).</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [308ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [240ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span></span>
@@ -152,12 +151,12 @@
 <span><span class="co">#&gt; Model Test (User Model):</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;    Marginal log-likelihood                   -1644.388 </span></span>
-<span><span class="co">#&gt;    PPP (Chi-square)                              0.483 </span></span>
+<span><span class="co">#&gt;    PPP (Chi-square)                              0.527 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Information Criteria:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;    Deviance (DIC)                             3174.513 </span></span>
-<span><span class="co">#&gt;    Effective parameters (pD)                    29.381 </span></span>
+<span><span class="co">#&gt;    Deviance (DIC)                             3173.068 </span></span>
+<span><span class="co">#&gt;    Effective parameters (pD)                    28.658 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Parameter Estimates:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -193,16 +192,16 @@
 <span><span class="co">#&gt; Covariances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior        </span></span>
 <span><span class="co">#&gt;  .y1 ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .y5                0.845    0.393    0.147    1.688    0.005        beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y5                0.840    0.394    0.156    1.699    0.005        beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y2 ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .y4                1.027    0.695   -0.227    2.503    0.004        beta(1,1)</span></span>
-<span><span class="co">#&gt;    .y6                2.193    0.740    0.833    3.740    0.011        beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                1.043    0.719   -0.260    2.563    0.004        beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y6                2.188    0.716    0.934    3.740    0.011        beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y3 ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .y7                1.028    0.652   -0.184    2.376    0.005        beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y7                1.073    0.643   -0.106    2.421    0.005        beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y8 ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .y4                0.258    0.470   -0.611    1.233    0.003        beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y4                0.249    0.441   -0.572    1.161    0.003        beta(1,1)</span></span>
 <span><span class="co">#&gt;  .y6 ~~                                                                         </span></span>
-<span><span class="co">#&gt;    .y8                1.320    0.570    0.305    2.542    0.005        beta(1,1)</span></span>
+<span><span class="co">#&gt;    .y8                1.282    0.576    0.243    2.505    0.005        beta(1,1)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Variances:</span></span>
 <span><span class="co">#&gt;                    Estimate       SD     2.5%    97.5%     NMAD    Prior        </span></span>

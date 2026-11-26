@@ -135,11 +135,11 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 71 iterations [257ms]</span></span>
-<span><span class="co">#&gt; ! VB mean correction, max shift 0.67σ, one-step check flagged [253ms]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 42 skew-normal marginals [402ms]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 71 iterations [334ms]</span></span>
+<span><span class="co">#&gt; ! VB mean correction, max shift 0.67σ, one-step check flagged [288ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 42 skew-normal marginals [470ms]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [497ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [640ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="co">#&gt; Warning: Fit diagnostics flagged 1 potential issue:</span></span>
@@ -189,13 +189,13 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">datmiss</span>, missing <span class="op">=</span> <span class="st">"ML"</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 91 iterations [405ms]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.89σ [220ms]</span></span>
-<span><span class="co">#&gt; ⠙ Fitting 16/42 skew-normal marginals</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 91 iterations [468ms]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.89σ [259ms]</span></span>
+<span><span class="co">#&gt; ⠙ Fitting 14/42 skew-normal marginals</span></span>
 <span><span class="co">#&gt; ⠙ Fitting 42/42 skew-normal marginals</span></span>
-<span><span class="co">#&gt; ✔ Fitted 42 skew-normal marginals [949ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 42 skew-normal marginals [1.1s]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [859ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [969ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit2</span><span class="op">)</span></span>

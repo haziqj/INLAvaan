@@ -483,12 +483,11 @@ fit <- inlavaan(
   auto.fix.first = TRUE,
   auto.cov.lv.x = TRUE
 )
-#> ✔ Found the posterior mode in 65 iterations [97ms]
+#> ✔ Found the posterior mode in 65 iterations [103ms]
 #> ✔ VB mean correction, max shift 0.54σ [48ms]
-#> ✔ Fitted 21 skew-normal marginals [217ms]
+#> ✔ Fitted 21 skew-normal marginals [257ms]
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [367ms]
+#> ✔ Summarise 1000 posterior draws. [452ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)

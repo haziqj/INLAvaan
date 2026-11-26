@@ -15,6 +15,19 @@
   two-level models with random intercepts. Random-slope fits do not
   change.
 
+- Fits of single-level models with missing data (`missing = "ml"`) are
+  faster. The log-likelihood and its gradient now take one inverse of
+  the model covariance matrix for all missing-data patterns, and work
+  the patterns with the same number of missing variables together, from
+  tables that are built once per model. On seven test models a fit takes
+  42% to 78% less time (from 18.9 to 4.1 seconds on a model with 40
+  variables and 169 parameters). The log-posterior equals the earlier
+  one up to rounding. On a model whose mode search takes many
+  iterations, the optimiser can then stop at a slightly different point,
+  and a posterior summary can move by about 0.00004 posterior SDs.
+  Patterns that miss many variables, as in planned missingness, keep the
+  earlier code.
+
 - New argument `silent` in
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),
   [`acfa()`](https://inlavaan.haziqj.ml/reference/acfa.md),

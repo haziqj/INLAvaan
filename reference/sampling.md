@@ -159,11 +159,11 @@ for Bayesian fit indices.
 ``` r
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
-#> ✔ Found the posterior mode in 25 iterations [33ms]
-#> ✔ VB mean correction, max shift 0.47σ [13ms]
-#> ✔ Fitted 6 skew-normal marginals [53ms]
+#> ✔ Found the posterior mode in 25 iterations [38ms]
+#> ✔ VB mean correction, max shift 0.47σ [15ms]
+#> ✔ Fitted 6 skew-normal marginals [62ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [255ms]
+#> ✔ Summarise 1000 posterior draws. [306ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 

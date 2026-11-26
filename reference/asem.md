@@ -383,11 +383,11 @@ model <- "
 utils::data("PoliticalDemocracy", package = "lavaan")
 
 fit <- asem(model, PoliticalDemocracy, test = "none")
-#> ✔ Found the posterior mode in 82 iterations [160ms]
-#> ✔ VB mean correction, max shift 0.55σ [75ms]
-#> ✔ Fitted 28 skew-normal marginals [354ms]
+#> ✔ Found the posterior mode in 82 iterations [180ms]
+#> ✔ VB mean correction, max shift 0.55σ [79ms]
+#> ✔ Fitted 28 skew-normal marginals [412ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [85ms]
+#> ✔ Summarise 1000 posterior draws. [117ms]
 #> 
 summary(fit)
 #> INLAvaan 0.3.99.9001 ended normally after 82 iterations
