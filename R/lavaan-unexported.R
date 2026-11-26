@@ -21,6 +21,7 @@ lavaan___lav_mvn_loglik_samp <- NULL
 lavaan___lav_mvn_mi_loglik_samp <- NULL
 lavaan___lav_mvn_sc_mu_sigma <- NULL
 lavaan___lav_mvn_cl_implied22l <- NULL
+lavaan___lav_mvn_cl_2l2implied <- NULL
 lavaan___lav_mvn_cl_loglik_samp_2l <- NULL
 lavaan___lav_mvn_cl_dlogl_2l_samp <- NULL
 lavaan___lav_mvn_cl_mi_loglik_samp_2l <- NULL
@@ -48,6 +49,7 @@ lavaan_internal_names <- c(
   "lav_mvn_mi_loglik_samp",
   "lav_mvn_sc_mu_sigma",
   "lav_mvn_cl_implied22l",
+  "lav_mvn_cl_2l2implied",
   "lav_mvn_cl_loglik_samp_2l",
   "lav_mvn_cl_dlogl_2l_samp",
   "lav_mvn_cl_mi_loglik_samp_2l",
