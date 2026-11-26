@@ -322,8 +322,7 @@ rs_cluster_terms <- function(plan, imp, per_cluster = FALSE) {
 
 # The log-likelihood with the 2 pi terms, as lavaan's lav_mvn_cl_rs_m2ll()
 # returns it with `log2pi = TRUE, minus_two = FALSE`, or -Inf when it is not
-# defined. With `per_cluster`, one value per cluster. NULL sends the call back
-# to lavaan (see rs_cluster_posterior()).
+# defined. With `per_cluster`, one value per cluster.
 rs_kernel_loglik <- function(plan, imp, per_cluster = FALSE) {
   if (is.null(imp)) {
     return(-Inf)
@@ -337,10 +336,7 @@ rs_kernel_loglik <- function(plan, imp, per_cluster = FALSE) {
   p_tilde <- ct$p - ad
   quad_d <- -2 * rowSums(ct$d * ct$p) + rowSums(ct$d * ad)
   post <- rs_cluster_posterior(ct$a, p_tilde, imp$sigma.v, pv)
-  if (post$status == "fallback") {
-    return(NULL)
-  }
-  if (post$status == "undefined") {
+  if (post$status != "ok") {
     return(-Inf)
   }
   if (per_cluster) {

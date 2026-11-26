@@ -174,8 +174,7 @@ rs_quad_plan <- function(rs, ntotal) {
 ## ----- Log-likelihood and gradient -----------------------------------------------
 
 # The log-likelihood of every cluster at every node plus the log-weight of the
-# node, one column per node, from the conditional pieces `cond`. NULL sends the
-# call back to lavaan.
+# node, one column per node, from the conditional pieces `cond`
 rs_quad_hmat <- function(plan, cond) {
   hmat <- matrix(-Inf, plan$n_cl, cond$nnodes)
   for (i in seq_len(cond$nnodes)) {
@@ -183,9 +182,6 @@ rs_quad_hmat <- function(plan, cond) {
       next
     }
     ll_i <- rs_kernel_loglik(plan, cond$imp[[i]], per_cluster = TRUE)
-    if (is.null(ll_i)) {
-      return(NULL)
-    }
     if (length(ll_i) == 1L && !is.finite(ll_i)) {
       next
     }
@@ -204,17 +200,14 @@ rs_quad_lse <- function(hmat) {
 }
 
 # The log-likelihood with the 2 pi terms, as lavaan's lav_mvn_cl_rs_m2ll()
-# returns it with `log2pi = TRUE, minus_two = FALSE` on route B, -Inf where
-# lavaan gives +Inf, or NULL to go back to lavaan
+# returns it with `log2pi = TRUE, minus_two = FALSE` on route B, or -Inf where
+# lavaan gives +Inf
 rs_quad_loglik <- function(plan, lavmodel_x, per_cluster = FALSE) {
   cond <- rs_cond(lavmodel_x, plan$quad$info, plan$quad$exo_b)
   if (is.null(cond)) {
     return(-Inf)
   }
   hmat <- rs_quad_hmat(plan, cond)
-  if (is.null(hmat)) {
-    return(NULL)
-  }
   if (any(!is.finite(apply(hmat, 1L, max)))) {
     return(-Inf)
   }
@@ -236,7 +229,7 @@ rs_quad_grad <- function(lavmodel_x, plan, h = 1e-6) {
     return(NULL)
   }
   hmat <- rs_quad_hmat(plan, cond0)
-  if (is.null(hmat) || any(!is.finite(apply(hmat, 1L, max)))) {
+  if (any(!is.finite(apply(hmat, 1L, max)))) {
     return(NULL)
   }
   pw <- exp(hmat - rs_quad_lse(hmat))

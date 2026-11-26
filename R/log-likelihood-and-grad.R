@@ -129,10 +129,17 @@ inlav_model_grad <- function(
   grad_F <- NULL
   if (fiml$grad) {
     grad_F <- fiml_grad_samp(lavmodel_x, lavsamplestats, fiml$plan)
-  } else if (!is.null(multilevel$rs$quad)) {
-    grad_F <- rs_quad_grad(lavmodel_x, multilevel$rs)
   } else if (!is.null(multilevel$rs)) {
-    grad_F <- rs_kernel_grad(lavmodel_x, multilevel$rs)
+    # Where the multilevel kernels are not defined (no Cholesky factor), the
+    # log-likelihood is -1e40 and flat, so the gradient is zero
+    grad_F <- if (!is.null(multilevel$rs$quad)) {
+      rs_quad_grad(lavmodel_x, multilevel$rs)
+    } else {
+      rs_kernel_grad(lavmodel_x, multilevel$rs)
+    }
+    if (is.null(grad_F)) {
+      grad_F <- numeric(lavmodel_x@nx.free)
+    }
   } else if (multilevel$twolevel || !is.null(multilevel$twolevel_fiml)) {
     grad_F <- twolevel_kernel_grad(
       lavmodel_x,
@@ -140,6 +147,15 @@ inlav_model_grad <- function(
       lavdata,
       multilevel$twolevel_fiml
     )
+    if (is.null(grad_F)) {
+      grad_F <- numeric(
+        if (isTRUE(lavmodel_x@ceq.simple.only)) {
+          lavmodel_x@nx.unco
+        } else {
+          lavmodel_x@nx.free
+        }
+      )
+    }
   }
   if (is.null(grad_F)) {
     grad_F <- lavaan___lav_model_grad(
