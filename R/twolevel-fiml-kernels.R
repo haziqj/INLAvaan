@@ -14,7 +14,7 @@
 #
 # Here A_j is one matrix product of the counts of each pattern in each
 # cluster with the pattern inverses, and the clusters are worked together with
-# the helpers of the random-slope kernels (rs_cluster_posterior(), with
+# the helpers of R/cluster-batch.R (rs_cluster_posterior(), with
 # Sigma_b in the place of Sigma_v). In the gradient, every sum over the cases
 # of a cluster is a sum over the patterns, so the within-level terms take one
 # p x p product per pattern and none per cluster.
