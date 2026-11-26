@@ -106,10 +106,6 @@ test_that("lavaan internals resolve to functions", {
       info = name
     )
   }
-  # The random-slope kernels are bound only from lavaan >= 0.7-2
-  expect_true(is.function(lavaan___lav_mvn_cl_rs_m2ll))
-  expect_true(is.function(lavaan___lav_mvn_cl_rs_scores))
-  expect_true(is.function(lavaan___lav_mvn_cl_rs_eb))
 })
 
 # Set LC_COLLATE, returning FALSE if the locale is not available

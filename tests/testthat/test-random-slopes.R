@@ -228,7 +228,7 @@ test_that("Random slopes: latent variables come from the EB kernel", {
   lm_x <- lavaan::lav_model_set_parameters(int$lavmodel, coef(fit_lav))
   f2 <- fit_lav
   f2@Model <- lm_x
-  eb <- lavaan___lav_mvn_cl_rs_eb(
+  eb <- asNamespace("lavaan")$lav_mvn_cl_rs_eb(
     lavmodel = lm_x,
     lavdata = int$lavdata,
     lavcache = int$lavcache
@@ -245,7 +245,7 @@ test_that("Random slopes: latent variables come from the EB kernel", {
   set.seed(4)
   p2_many <- predict(fit_rs, type = "lv", level = 2L, nsamp = 200)
   s1_draws <- vapply(p2_many, function(fs) fs[, "s1"], numeric(24L))
-  eb_se <- lavaan___lav_mvn_cl_rs_eb(
+  eb_se <- asNamespace("lavaan")$lav_mvn_cl_rs_eb(
     lavmodel = lavaan::lav_model_set_parameters(
       int$lavmodel,
       pars_to_x(int$theta_star, int$partable)

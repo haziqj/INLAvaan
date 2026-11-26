@@ -14,22 +14,10 @@ lavaan___lav_model_grad <- NULL
 lavaan___lav_model_lambda <- NULL
 lavaan___lav_model_veta <- NULL
 lavaan___lav_model_eeta <- NULL
-lavaan___lav_model_ey <- NULL
 lavaan___lav_model_delta <- NULL
-lavaan___lav_lisrel_df_dmlist <- NULL
 lavaan___lav_mvn_loglik_samp <- NULL
 lavaan___lav_mvn_mi_loglik_samp <- NULL
 lavaan___lav_mvn_sc_mu_sigma <- NULL
-lavaan___lav_mvn_cl_implied22l <- NULL
-lavaan___lav_mvn_cl_loglik_samp_2l <- NULL
-lavaan___lav_mvn_cl_dlogl_2l_samp <- NULL
-lavaan___lav_mvn_cl_mi_loglik_samp_2l <- NULL
-lavaan___lav_mvn_cl_mi_dlogl_2l_samp <- NULL
-lavaan___lav_mvn_cl_em_sat <- NULL
-lavaan___lav_mvn_cl_mi_em_sat <- NULL
-lavaan___lav_mvn_cl_rs_m2ll <- NULL
-lavaan___lav_mvn_cl_rs_scores <- NULL
-lavaan___lav_mvn_cl_rs_eb <- NULL
 lavaan___lav_data_mi_patterns <- NULL
 lavaan___lav_inspect_coef <- NULL
 
@@ -40,22 +28,10 @@ lavaan_internal_names <- c(
   "lav_model_lambda",
   "lav_model_veta",
   "lav_model_eeta",
-  "lav_model_ey",
   "lav_model_delta",
-  "lav_lisrel_df_dmlist",
   "lav_mvn_loglik_samp",
   "lav_mvn_mi_loglik_samp",
   "lav_mvn_sc_mu_sigma",
-  "lav_mvn_cl_implied22l",
-  "lav_mvn_cl_loglik_samp_2l",
-  "lav_mvn_cl_dlogl_2l_samp",
-  "lav_mvn_cl_mi_loglik_samp_2l",
-  "lav_mvn_cl_mi_dlogl_2l_samp",
-  "lav_mvn_cl_em_sat",
-  "lav_mvn_cl_mi_em_sat",
-  "lav_mvn_cl_rs_m2ll",
-  "lav_mvn_cl_rs_scores",
-  "lav_mvn_cl_rs_eb",
   "lav_data_mi_patterns",
   "lav_inspect_coef"
 )

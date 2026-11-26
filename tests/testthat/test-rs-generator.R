@@ -257,13 +257,13 @@ test_that("The B-index reference starts at the fitted model", {
   # Keep the start exactly at the nested point for this check
   free <- pt$free > 0L
   x <- pt$start[free][order(pt$free[free])]
-  ll_ref <- lavaan___lav_mvn_cl_rs_m2ll(
+  ll_ref <- asNamespace("lavaan")$lav_mvn_cl_rs_m2ll(
     lavmodel = lavaan::lav_model_set_parameters(b0@Model, x),
     rs = b0@Cache[[1L]]$rs,
     log2pi = TRUE,
     minus_two = FALSE
   )
-  ll_model <- lavaan___lav_mvn_cl_rs_m2ll(
+  ll_model <- asNamespace("lavaan")$lav_mvn_cl_rs_m2ll(
     lavmodel = fit@Model,
     rs = rs_spec(get_inlavaan_internal(fit))$rs,
     log2pi = TRUE,

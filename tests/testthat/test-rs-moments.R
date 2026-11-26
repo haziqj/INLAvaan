@@ -27,7 +27,7 @@ rs_stacked_loglik <- function(lavmodel, rs, lavdata) {
 }
 
 rs_kernel_loglik <- function(lavmodel, rs) {
-  ll <- lavaan___lav_mvn_cl_rs_m2ll(
+  ll <- asNamespace("lavaan")$lav_mvn_cl_rs_m2ll(
     lavmodel = lavmodel,
     rs = rs,
     log2pi = TRUE,

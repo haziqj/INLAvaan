@@ -149,7 +149,7 @@ test_that("the per-cluster scores are lavaan's analytic scores", {
     two_level = TRUE
   )
   lavmodel_x <- lavaan::lav_model_set_parameters(int$lavmodel, cache$x)
-  G_x <- INLAvaan:::lavaan___lav_mvn_cl_rs_scores(
+  G_x <- asNamespace("lavaan")$lav_mvn_cl_rs_scores(
     lavmodel = lavmodel_x,
     rs = spec$rs
   )
