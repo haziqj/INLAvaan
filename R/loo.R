@@ -20,10 +20,11 @@
 # Model-implied moments from a lavaan model whose parameters are already set.
 # Single-level: a list over groups, each holding that group's (mu, Sigma) --
 # lavaan's implied blocks are group-indexed there. Two-level: the flat
-# within/between view of the (single) group, whose blocks are the levels.
-loo_implied_moments <- function(lavmodel_x, two_level = FALSE) {
+# within/between view of group g, whose blocks are the levels.
+loo_implied_moments <- function(lavmodel_x, two_level = FALSE, g = 1L) {
   imp <- lavaan::lav_model_implied(lavmodel_x)
   if (two_level) {
+    imp <- twolevel_group_implied(imp, g)
     pw <- ncol(imp$cov[[1L]])
     pb <- ncol(imp$cov[[2L]])
     list(
@@ -59,7 +60,7 @@ loo_implied_moments <- function(lavmodel_x, two_level = FALSE) {
 # once, reuse for every unit. `theta` is in the packed space (as stored in
 # `theta_star`); equality constraints are unpacked with ceq.simple.K before
 # the transformation and scores are repacked in loo_chain_rule().
-loo_grad_cache <- function(theta, lavmodel, pt, two_level = FALSE) {
+loo_grad_cache <- function(theta, lavmodel, pt, two_level = FALSE, g = 1L) {
   K <- NULL
   if (isTRUE(lavmodel@ceq.simple.only)) {
     K <- lavmodel@ceq.simple.K
@@ -71,9 +72,9 @@ loo_grad_cache <- function(theta, lavmodel, pt, two_level = FALSE) {
   jcb_mat <- attr(x, "jcb_mat")
   list(
     x = x,
-    mom = loo_implied_moments(lavmodel_x, two_level),
+    mom = loo_implied_moments(lavmodel_x, two_level, g),
     Delta = if (two_level) {
-      list(twolevel_delta(lavmodel_x))
+      list(twolevel_delta(lavmodel_x, g))
     } else {
       lavaan___lav_model_delta(lavmodel_x, glist = lavmodel_x@GLIST)
     },
@@ -366,10 +367,10 @@ loso_scores_units <- function(theta, uv, dv, lavmodel, pt, cache = NULL) {
 
 # ---- LOCO (two level): per-cluster sufficient stats, loglik, theta-scores --
 
-loco_suff_stats <- function(lavdata) {
-  Lp <- lavdata@Lp[[1L]]
+loco_suff_stats <- function(lavdata, g = 1L) {
+  Lp <- lavdata@Lp[[g]]
   cluster_idx <- Lp$cluster.idx[[2L]]
-  X <- lavdata@X[[1L]]
+  X <- lavdata@X[[g]]
 
   J <- Lp$nclusters[[2L]]
   p <- ncol(X)
@@ -403,7 +404,8 @@ loco_suff_stats <- function(lavdata) {
     d = d,
     ybar = ybar,
     zy_idx = zy_idx,
-    cluster_idx = cluster_idx
+    cluster_idx = cluster_idx,
+    g = g
   )
 }
 
@@ -472,7 +474,7 @@ loco_grad_x_one <- function(j, css, mom, Delta) {
 # the per-cluster gradient kernel does not vectorise so loops over units
 loco_scores_theta <- function(theta, css, lavmodel, pt, units, cache = NULL) {
   if (is.null(cache)) {
-    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE, g = css$g)
   }
   q <- ncol(cache$Delta[[1L]])
   G_x <- t(vapply(
@@ -637,17 +639,17 @@ loco_missing_build_cj <- function(Y1j, Y2j, Lp, between_idx) {
 # data and maps needed by the per-row override (raw X, cluster index, and each
 # row's position within its cluster). The implied moments are passed in
 # lavaan's flat (mu_w, Sigma_w, mu_b, Sigma_b) view, which is cache$mom.
-loco_missing_info <- function(int) {
-  Lp <- int$lavdata@Lp[[1L]]
-  X <- int$lavdata@X[[1L]]
-  Y2 <- int$lavsamplestats@YLp[[1L]][[2L]]$Y2
+loco_missing_info <- function(int, g = 1L) {
+  Lp <- int$lavdata@Lp[[g]]
+  X <- int$lavdata@X[[g]]
+  Y2 <- int$lavsamplestats@YLp[[g]][[2L]]$Y2
   cl <- Lp$cluster.idx[[2L]]
   J <- Lp$nclusters[[2L]]
   between_idx <- Lp$between.idx[[2L]]
   # Covariates of a conditional score are conditioned on, not predicted, so
   # only the outcome columns decide whether a row or cluster has data to score.
   x_cols <- if (loo_flavour(int) == "conditional") {
-    int$lavsamplestats@x.idx[[1L]]
+    int$lavsamplestats@x.idx[[g]]
   } else {
     integer(0L)
   }
@@ -683,7 +685,8 @@ loco_missing_info <- function(int) {
     rows_by_cluster = rows_by_cluster,
     Lp = Lp,
     cl = cl,
-    between_idx = between_idx
+    between_idx = between_idx,
+    g = g
   )
 }
 
@@ -737,7 +740,7 @@ loco_missing_scores_theta <- function(
   cache = NULL
 ) {
   if (is.null(cache)) {
-    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE, g = minfo$g)
   }
   q <- ncol(cache$Delta[[1L]])
   G_x <- t(vapply(
@@ -807,7 +810,7 @@ loso2l_missing_scores_theta <- function(
   cache = NULL
 ) {
   if (is.null(cache)) {
-    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE, g = minfo$g)
   }
   q <- ncol(cache$Delta[[1L]])
   cl <- minfo$cl[units]
@@ -893,7 +896,7 @@ loso2l_scores_theta <- function(
   cache = NULL
 ) {
   if (is.null(cache)) {
-    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE, g = css$g)
   }
   q <- ncol(cache$Delta[[1L]])
   cl <- css$cluster_idx[units]
@@ -1184,11 +1187,11 @@ loso_t_jackknife <- function(X, h1, t_full, rc, pos) {
 # (with or without a between presence). Each v column is handled on its own:
 # its mean is mu_w plus mu_b when it has a between presence, and it enters the
 # between block B0 only then, so within-only and both-level covariates can mix.
-loo_fixedx_info_loco <- function(int, css, mom) {
-  ovn <- int$lavdata@ov.names[[1L]]
-  l1 <- int$lavdata@ov.names.l[[1L]][[1L]]
-  l2 <- int$lavdata@ov.names.l[[1L]][[2L]]
-  x_idx <- int$lavsamplestats@x.idx[[1L]]
+loo_fixedx_info_loco <- function(int, css, mom, g = css$g %||% 1L) {
+  ovn <- int$lavdata@ov.names[[g]]
+  l1 <- int$lavdata@ov.names.l[[g]][[1L]]
+  l2 <- int$lavdata@ov.names.l[[g]][[2L]]
+  x_idx <- int$lavsamplestats@x.idx[[g]]
   z_cols <- intersect(x_idx, css$Lp$between.idx[[2L]])
   v_cols <- setdiff(x_idx, z_cols)
   qz <- length(z_cols)
@@ -1365,16 +1368,150 @@ loo_fixedx_missing_rowdiff <- function(int, minfo, units, mom) {
   )
 }
 
+# The unit terms of a two-level model, group by group: per-row deletion
+# (type "loso") or per-cluster deletion (type "loco"), with the complete-data
+# or the missing-data kernels. The units of all groups are numbered in group
+# order, so `units` indexes the rows (or clusters) of group 1, then those of
+# group 2, and so on. With one group this is the numbering of the data. Returns
+# the scored units, the group of each, their log-likelihoods, scores and
+# observation counts at `theta`, and the score function at any theta.
+loo2l_groups <- function(int, type, units, theta, flavour, obs_what) {
+  lavdata <- int$lavdata
+  lavmodel <- int$lavmodel
+  pt <- int$partable
+  missing <- isTRUE(int$lavsamplestats@missing.flag)
+  groups <- seq_len(lavdata@ngroups)
+  info <- lapply(groups, function(g) {
+    if (missing) loco_missing_info(int, g) else loco_suff_stats(lavdata, g)
+  })
+  n_avail <- vapply(
+    groups,
+    function(g) {
+      if (type == "loso") {
+        if (missing) length(info[[g]]$cl) else nrow(lavdata@X[[g]])
+      } else {
+        info[[g]]$J
+      }
+    },
+    numeric(1)
+  )
+  offset <- cumsum(c(0, n_avail))
+  what <- if (type == "loso") "rows" else "clusters"
+  units <- check_loo_units(units, sum(n_avail), what)
+  grp <- findInterval(units - 1, offset[-1L]) + 1L
+  local <- units - offset[grp]
+  if (missing) {
+    keep <- vapply(
+      seq_along(units),
+      function(u) {
+        mi <- info[[grp[u]]]
+        if (type == "loso") {
+          mi$row_observed[local[u]]
+        } else {
+          mi$cluster_observed[local[u]]
+        }
+      },
+      logical(1)
+    )
+    reason <- if (type == "loso") {
+      paste("no observed within-level", obs_what)
+    } else {
+      paste("no observed", obs_what)
+    }
+    kept <- loo_drop_empty_units(
+      units,
+      keep,
+      if (type == "loso") "row" else "cluster",
+      reason
+    )
+    sel <- units %in% kept
+    units <- units[sel]
+    grp <- grp[sel]
+    local <- local[sel]
+  }
+  # The log-likelihoods and scores of the units of group g, at one theta
+  loglik_g <- function(g, u, cache) {
+    mom <- cache$mom
+    if (type == "loso" && missing) {
+      out <- loso2l_missing_loglik_all(u, info[[g]], mom)
+      if (flavour == "conditional") {
+        out <- out - loo_fixedx_missing_rowdiff(int, info[[g]], u, mom)
+      }
+    } else if (type == "loso") {
+      X <- lavdata@X[[g]]
+      out <- loso2l_loglik_all(u, info[[g]], X, mom)
+      if (flavour == "conditional") {
+        out <- out - loo_fixedx_rowdiff_loco(int, info[[g]], X, u, mom)
+      }
+    } else if (missing) {
+      out <- vapply(
+        u,
+        function(j) loco_missing_loglik_one(j, info[[g]], mom),
+        numeric(1)
+      )
+      if (flavour == "conditional") {
+        out <- out - loo_fixedx_missing_loco(int, info[[g]], u, mom)
+      }
+    } else {
+      out <- vapply(
+        u,
+        function(j) loco_loglik_one(j, info[[g]], mom),
+        numeric(1)
+      )
+      if (flavour == "conditional") {
+        out <- out - loo_fixedx_const_loco(int, info[[g]], u, mom)
+      }
+    }
+    out
+  }
+  scores_g <- function(g, u, th, cache) {
+    if (type == "loso" && missing) {
+      loso2l_missing_scores_theta(th, info[[g]], lavmodel, pt, u, cache)
+    } else if (type == "loso") {
+      X <- lavdata@X[[g]]
+      loso2l_scores_theta(th, info[[g]], X, lavmodel, pt, u, cache)
+    } else if (missing) {
+      loco_missing_scores_theta(th, info[[g]], lavmodel, pt, u, cache)
+    } else {
+      loco_scores_theta(th, info[[g]], lavmodel, pt, u, cache)
+    }
+  }
+  scores <- function(th) {
+    out <- matrix(0, length(units), length(th))
+    for (g in unique(grp)) {
+      rows <- which(grp == g)
+      cache <- loo_grad_cache(th, lavmodel, pt, two_level = TRUE, g = g)
+      out[rows, ] <- scores_g(g, local[rows], th, cache)
+    }
+    out
+  }
+  l_star <- numeric(length(units))
+  s_mat <- matrix(0, length(units), length(theta))
+  nobs <- rep(1L, length(units))
+  for (g in unique(grp)) {
+    rows <- which(grp == g)
+    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE, g = g)
+    l_star[rows] <- loglik_g(g, local[rows], cache)
+    s_mat[rows, ] <- scores_g(g, local[rows], theta, cache)
+    if (type == "loco") {
+      nobs[rows] <- info[[g]]$n_j[local[rows]]
+    }
+  }
+  list(
+    units = units,
+    unit_group = if (lavdata@ngroups > 1L) grp,
+    l_star = l_star,
+    s_mat = s_mat,
+    nobs = nobs,
+    scores = scores
+  )
+}
+
 # Shared validation gate for the casewise log-likelihood machinery
 check_loo_model <- function(int, fn = "loo") {
   lavmodel <- int$lavmodel
   lavdata <- int$lavdata
   lavsamplestats <- int$lavsamplestats
-  if (lavdata@ngroups > 1L && is_multilevel(lavdata)) {
-    cli_abort(
-      "{.fn {fn}} does not support multigroup two-level models yet."
-    )
-  }
   if (lavmodel@estimator != "ML" || isTRUE(lavmodel@categorical)) {
     cli_abort(
       "{.fn {fn}} requires a continuous-data model fitted with the
@@ -1490,61 +1627,13 @@ inlav_loo <- function(
       msg_done = "Compute unit log-likelihoods and scores."
     )
   }
-  unit_group <- NULL # group of each scored unit; multigroup LOSO only
+  unit_group <- NULL # group of each scored unit; multigroup fits only
+  res2l <- NULL # the unit terms of a two-level model (loo2l_groups())
   t_delta <- NULL # T-deletion term, single-level LOSO with composites only
-  if (type == "loso" && two_level && isTRUE(int$lavsamplestats@missing.flag)) {
-    # Per-row deletion under FIML: each row's conditional density via the
-    # missing kernel, dropping the raw row and rebuilding its pattern object
-    minfo <- loco_missing_info(int)
-    units <- check_loo_units(units, length(minfo$cl), "rows")
-    units <- loo_drop_empty_units(
-      units,
-      minfo$row_observed[units],
-      "row",
-      paste("no observed within-level", obs_what)
-    )
-    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
-    l_star <- loso2l_missing_loglik_all(units, minfo, cache$mom)
-    if (flavour == "conditional") {
-      l_star <- l_star -
-        loo_fixedx_missing_rowdiff(int, minfo, units, cache$mom)
-    }
-    s_mat <- loso2l_missing_scores_theta(
-      theta,
-      minfo,
-      lavmodel,
-      pt,
-      units,
-      cache
-    )
-    score_fn <- function(th_act) {
-      th <- theta
-      th[free] <- th_act
-      loso2l_missing_scores_theta(th, minfo, lavmodel, pt, units)[,
-        free,
-        drop = FALSE
-      ]
-    }
-    nobs <- rep(1L, length(units))
-  } else if (type == "loso" && two_level) {
-    X <- lavdata@X[[1L]]
-    css <- loco_suff_stats(lavdata)
-    units <- check_loo_units(units, nrow(X), "rows")
-    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
-    l_star <- loso2l_loglik_all(units, css, X, cache$mom)
-    if (flavour == "conditional") {
-      l_star <- l_star - loo_fixedx_rowdiff_loco(int, css, X, units, cache$mom)
-    }
-    s_mat <- loso2l_scores_theta(theta, css, X, lavmodel, pt, units, cache)
-    score_fn <- function(th_act) {
-      th <- theta
-      th[free] <- th_act
-      loso2l_scores_theta(th, css, X, lavmodel, pt, units)[,
-        free,
-        drop = FALSE
-      ]
-    }
-    nobs <- rep(1L, length(units))
+  if (type == "loso" && two_level) {
+    # Per-row deletion: each row's conditional density given the rest of its
+    # cluster, group by group (see loo2l_groups())
+    res2l <- loo2l_groups(int, "loso", units, theta, flavour, obs_what)
   } else if (type == "loso") {
     dv <- loso_data_view(lavmodel, lavdata, x_idx = int$lavsamplestats@x.idx)
     uv <- loso_resolve_units(lavdata, units)
@@ -1601,54 +1690,21 @@ inlav_loo <- function(
       ]
     }
     nobs <- spec$nobs[units]
-  } else if (isTRUE(int$lavsamplestats@missing.flag)) {
-    # Two-level FIML: per-cluster observed-data kernels
-    minfo <- loco_missing_info(int)
-    units <- check_loo_units(units, minfo$J, "clusters")
-    units <- loo_drop_empty_units(
-      units,
-      minfo$cluster_observed[units],
-      "cluster",
-      paste("no observed", obs_what)
-    )
-    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
-    l_star <- vapply(
-      units,
-      function(j) loco_missing_loglik_one(j, minfo, cache$mom),
-      numeric(1)
-    )
-    if (flavour == "conditional") {
-      l_star <- l_star - loo_fixedx_missing_loco(int, minfo, units, cache$mom)
-    }
-    s_mat <- loco_missing_scores_theta(theta, minfo, lavmodel, pt, units, cache)
-    score_fn <- function(th_act) {
-      th <- theta
-      th[free] <- th_act
-      loco_missing_scores_theta(th, minfo, lavmodel, pt, units)[,
-        free,
-        drop = FALSE
-      ]
-    }
-    nobs <- minfo$n_j[units]
   } else {
-    css <- loco_suff_stats(lavdata)
-    units <- check_loo_units(units, css$J, "clusters")
-    cache <- loo_grad_cache(theta, lavmodel, pt, two_level = TRUE)
-    l_star <- vapply(
-      units,
-      function(j) loco_loglik_one(j, css, cache$mom),
-      numeric(1)
-    )
-    if (flavour == "conditional") {
-      l_star <- l_star - loo_fixedx_const_loco(int, css, units, cache$mom)
-    }
-    s_mat <- loco_scores_theta(theta, css, lavmodel, pt, units, cache)
+    # Two-level clusters, with complete or missing data, group by group
+    res2l <- loo2l_groups(int, "loco", units, theta, flavour, obs_what)
+  }
+  if (!is.null(res2l)) {
+    units <- res2l$units
+    unit_group <- res2l$unit_group
+    l_star <- res2l$l_star
+    s_mat <- res2l$s_mat
+    nobs <- res2l$nobs
     score_fn <- function(th_act) {
       th <- theta
       th[free] <- th_act
-      loco_scores_theta(th, css, lavmodel, pt, units)[, free, drop = FALSE]
+      res2l$scores(th)[, free, drop = FALSE]
     }
-    nobs <- css$n_j[units]
   }
   s_mat <- s_mat[, free, drop = FALSE]
   n_units <- length(units)
