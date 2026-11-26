@@ -36,6 +36,8 @@ inlav_model_loglik <- function(
       out <- NULL
       if (fiml$loglik) {
         out <- fiml_loglik_samp(lavsamplestats, lavimplied, fiml$plan)
+      } else if (!is.null(multilevel$rs$quad)) {
+        out <- rs_quad_loglik(multilevel$rs, lavmodel_x)
       } else if (!is.null(multilevel$rs)) {
         out <- rs_kernel_loglik(
           multilevel$rs,
@@ -127,6 +129,8 @@ inlav_model_grad <- function(
   grad_F <- NULL
   if (fiml$grad) {
     grad_F <- fiml_grad_samp(lavmodel_x, lavsamplestats, fiml$plan)
+  } else if (!is.null(multilevel$rs$quad)) {
+    grad_F <- rs_quad_grad(lavmodel_x, multilevel$rs)
   } else if (!is.null(multilevel$rs)) {
     grad_F <- rs_kernel_grad(lavmodel_x, multilevel$rs)
   } else if (multilevel$twolevel || !is.null(multilevel$twolevel_fiml)) {
@@ -178,7 +182,12 @@ inlav_model_grad <- function(
 multilevel_setup <- function(lavmodel, lavsamplestats, lavdata, lavcache) {
   rs <- NULL
   if (rs_kernel_ok(lavmodel, lavdata, lavcache)) {
-    rs <- rs_kernel_plan(lavcache[[1L]]$rs, lavsamplestats@ntotal)
+    rs_cache <- lavcache[[1L]]$rs
+    rs <- if (isTRUE(rs_cache$info$nl.flag)) {
+      rs_quad_plan(rs_cache, lavsamplestats@ntotal)
+    } else {
+      rs_kernel_plan(rs_cache, lavsamplestats@ntotal)
+    }
   }
   twolevel_fiml <- NULL
   if (twolevel_fiml_ok(lavmodel, lavsamplestats, lavdata)) {

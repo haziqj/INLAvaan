@@ -1,7 +1,9 @@
 # Random-slope kernels: the log-likelihood of a two-level model with random
 # slopes (lavaan's rv() modifier) and its gradient, for lavaan's closed-form
-# route (rs_kernel_ok()), with complete data or with missing values at level
-# 1, and with or without between-only responses.
+# route A, with complete data or with missing values at level 1, and with or
+# without between-only responses. Route B (a slope on a latent or split
+# covariate) scores a route-A problem at each quadrature node with these
+# kernels (R/random-slope-quadrature.R).
 #
 # Given the covariates, the data of cluster j are
 #   y_ij = mu_y + P x_ij + Z_ij v_j + e_ij,  v_j ~ N(d_j, Sigma_v),
@@ -52,7 +54,6 @@ rs_kernel_ok <- function(lavmodel, lavdata, lavcache) {
   }
   rs <- lavcache[[1L]]$rs
   !is.null(rs) &&
-    !isTRUE(rs$info$nl.flag) &&
     !anyNA(rs$stats$zb)
 }
 

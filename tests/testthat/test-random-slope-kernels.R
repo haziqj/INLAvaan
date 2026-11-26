@@ -87,7 +87,7 @@ rsk_k <- function(fit) {
   if (length(K) == 0L) diag(fit@Model@nx.free) else K
 }
 
-test_that("the kernels take route A, and not the quadrature route", {
+test_that("the kernels take route A and the quadrature route", {
   for (fit in rsk_fits) {
     expect_true(rs_kernel_ok(fit@Model, fit@Data, fit@Cache))
   }
@@ -102,7 +102,15 @@ test_that("the kernels take route A, and not the quadrature route", {
     data = rsk_data,
     cluster = "cluster"
   ))
-  expect_false(rs_kernel_ok(split@Model, split@Data, split@Cache))
+  expect_true(rs_kernel_ok(split@Model, split@Data, split@Cache))
+  expect_false(is.null(
+    multilevel_setup(
+      split@Model,
+      split@SampleStats,
+      split@Data,
+      split@Cache
+    )$rs$quad
+  ))
 })
 
 test_that("the log-likelihood equals lavaan's", {
@@ -471,5 +479,61 @@ test_that("per-cluster log-likelihoods and weighted gradients equal lavaan's", {
       ),
       tolerance = 1e-10
     )
+  }
+})
+
+## ----- Quadrature route (R/random-slope-quadrature.R) -------------------------
+
+test_that("the quadrature route is scored as lavaan scores it", {
+  skip_if_not_installed("numDeriv")
+  lav_ns <- asNamespace("lavaan")
+  gh <- rs_gh_nodes(11L)
+  ref <- lav_ns$lav_integration_gauss_hermite(n = 11L, dnorm = TRUE)
+  expect_equal(gh$x, as.numeric(ref$x))
+  expect_equal(gh$w, as.numeric(ref$w))
+  lavaan_route <- list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
+  models <- list(
+    # A slope on the within part of a split covariate
+    split = "
+      level: 1
+        y1 ~ rv('s1')*x1
+      level: 2
+        y1 ~ x1
+        s1 ~~ s1
+    ",
+    # A slope on a latent covariate, with a between-level covariate
+    latent = "
+      level: 1
+        fw =~ y1 + y2 + y3
+        y4 ~ rv('s1')*fw
+      level: 2
+        fb =~ y1 + y2 + y3
+        y4 ~ w1
+        s1 ~ w1
+    "
+  )
+  for (m in models) {
+    fit <- suppressWarnings(lavaan::sem(
+      m,
+      data = rsk_data,
+      cluster = "cluster",
+      se = "none",
+      integration.ngh = 11L
+    ))
+    expect_true(isTRUE(fit@Cache[[1L]]$rs$info$nl.flag))
+    x <- rsk_point(fit, 1)
+    expect_equal(
+      rsk_loglik(fit, x),
+      rsk_loglik(fit, x, multilevel = lavaan_route),
+      tolerance = 1e-12
+    )
+    g <- rsk_grad(fit, x)
+    expect_equal(
+      g,
+      rsk_grad(fit, x, multilevel = lavaan_route),
+      tolerance = 1e-8
+    )
+    g_num <- numDeriv::grad(function(z) rsk_loglik(fit, z), x)
+    expect_equal(as.numeric(g %*% rsk_k(fit)), g_num, tolerance = 1e-6)
   }
 })
