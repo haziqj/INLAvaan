@@ -34,9 +34,10 @@
 # clusters are with complete data, pattern by pattern, and the gradient adds
 # the within-level terms of every pattern.
 #
-# The derivative with respect to lavaan's free parameters takes lavaan's
-# central differences of the implied pieces (lav_mvn_cl_rs_implied()), so it
-# is lavaan's gradient up to rounding.
+# The implied pieces come from rs_implied() (R/random-slope-implied.R), and the
+# derivative with respect to lavaan's free parameters goes through them by
+# the exact chain rule. lavaan differences them numerically instead, so the
+# two gradients agree to about 1e-10.
 
 # The models these kernels take. Everything else keeps lavaan's code.
 rs_kernel_ok <- function(lavmodel, lavdata, lavcache) {
@@ -294,9 +295,10 @@ rs_kernel_loglik <- function(plan, imp) {
 
 ## ----- Gradient --------------------------------------------------------------
 
-# The derivative of minus twice the log-likelihood with respect to lavaan's
-# implied pieces, in the order of lav_mvn_cl_rs_phi_vec(). It equals colSums()
-# of lavaan's lav_mvn_cl_rs_dfphi(). NULL when it is not defined.
+# The derivative of minus twice the log-likelihood with respect to each of the
+# implied pieces of rs_implied(), every element taken on its own, as a named
+# list. In the order of lav_mvn_cl_rs_phi_vec() (rs_dphi_vec()) it equals
+# colSums() of lavaan's lav_mvn_cl_rs_dfphi(). NULL when it is not defined.
 rs_kernel_dphi <- function(plan, imp) {
   pv <- imp$pv
   ct <- rs_cluster_terms(plan, imp)
@@ -354,16 +356,16 @@ rs_kernel_dphi <- function(plan, imp) {
     g_cc <- as.numeric(crossprod(g_d, ct$exo_c))
     g_me <- -as.numeric(t(imp$cc) %*% colSums(g_d))
   }
-  c(
-    as.numeric(gw_total$gsw),
-    gw_total$gmy,
-    gw_total$g_pmat,
-    as.numeric(gw_total$glm),
-    as.numeric(gw_total$gq0),
-    colSums(g_sv),
-    colSums(g_d),
-    g_cc,
-    g_me
+  list(
+    sigma_w = gw_total$gsw,
+    mu_y = gw_total$gmy,
+    P = matrix(gw_total$g_pmat, plan$p1, plan$nx),
+    lmat = gw_total$glm,
+    q0 = gw_total$gq0,
+    sigma.v = matrix(colSums(g_sv), pv, pv),
+    mu.v = colSums(g_d),
+    cc = matrix(g_cc, pv, plan$nexo),
+    mu.exo = g_me
   )
 }
 
@@ -468,56 +470,35 @@ rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
   list(gsw = gsw, gmy = gmy, g_pmat = g_pmat, glm = glm, gq0 = gq0)
 }
 
-# The implied pieces as one vector, in the order of lavaan's
+# The derivative of rs_kernel_dphi() as one vector, in the order of lavaan's
 # lav_mvn_cl_rs_phi_vec(). Between-only responses are outside these kernels,
 # so their pieces are empty.
-rs_phi_vec <- function(imp) {
+rs_dphi_vec <- function(g) {
   c(
-    as.numeric(imp$sigma_w),
-    imp$mu_y,
-    as.numeric(imp$P),
-    as.numeric(imp$lmat),
-    as.numeric(imp$q0),
-    as.numeric(imp$sigma.v),
-    imp$mu.v,
-    as.numeric(imp$cc),
-    imp$mu.exo
+    as.numeric(g$sigma_w),
+    g$mu_y,
+    as.numeric(g$P),
+    as.numeric(g$lmat),
+    as.numeric(g$q0),
+    as.numeric(g$sigma.v),
+    g$mu.v,
+    as.numeric(g$cc),
+    g$mu.exo
   )
 }
 
 # The gradient of lavaan's fit function with respect to the packed free
 # parameters, as lav_model_grad() returns it for a random-slope model, or NULL
-# when it is not defined (the caller then falls back to lavaan). The
-# derivative of the implied pieces takes lavaan's central differences.
-rs_kernel_grad <- function(lavmodel_x, plan, h = 1e-6) {
-  info <- plan$info
-  imp0 <- lavaan___lav_mvn_cl_rs_implied(lavmodel = lavmodel_x, rs_info = info)
-  if (is.null(imp0)) {
+# when it is not defined (the caller then falls back to lavaan). The chain
+# rule through the implied pieces is exact (rs_implied_back()).
+rs_kernel_grad <- function(lavmodel_x, plan) {
+  steps <- rs_implied_steps(lavmodel_x, plan$info)
+  if (is.null(steps)) {
     return(NULL)
   }
-  gphi <- rs_kernel_dphi(plan, imp0)
-  if (is.null(gphi)) {
+  g <- rs_kernel_dphi(plan, steps$imp)
+  if (is.null(g)) {
     return(NULL)
   }
-  x0 <- lavaan::lav_model_get_parameters(lavmodel_x)
-  jac <- matrix(0, length(gphi), length(x0))
-  for (k in seq_along(x0)) {
-    h_k <- h * max(1, abs(x0[k]))
-    x_right <- x_left <- x0
-    x_right[k] <- x0[k] + h_k
-    x_left[k] <- x0[k] - h_k
-    imp_r <- lavaan___lav_mvn_cl_rs_implied(
-      lavmodel = lavaan::lav_model_set_parameters(lavmodel_x, x = x_right),
-      rs_info = info
-    )
-    imp_l <- lavaan___lav_mvn_cl_rs_implied(
-      lavmodel = lavaan::lav_model_set_parameters(lavmodel_x, x = x_left),
-      rs_info = info
-    )
-    if (is.null(imp_r) || is.null(imp_l)) {
-      return(NULL)
-    }
-    jac[, k] <- (rs_phi_vec(imp_r) - rs_phi_vec(imp_l)) / (2 * h_k)
-  }
-  as.numeric(gphi %*% jac) / (2 * plan$ntotal)
+  rs_implied_back(lavmodel_x, steps, g) / (2 * plan$ntotal)
 }

@@ -39,10 +39,7 @@ inlav_model_loglik <- function(
       } else if (!is.null(multilevel$rs)) {
         out <- rs_kernel_loglik(
           multilevel$rs,
-          lavaan___lav_mvn_cl_rs_implied(
-            lavmodel = lavmodel_x,
-            rs_info = multilevel$rs$info
-          )
+          rs_implied(lavmodel_x, multilevel$rs$info)
         )
       } else if (multilevel$twolevel) {
         out <- twolevel_kernel_loglik(lavsamplestats, lavdata, lavimplied)

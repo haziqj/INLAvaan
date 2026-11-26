@@ -157,10 +157,7 @@ test_that("the kernels return -Inf, or NULL to fall back to lavaan", {
     fit@Data,
     fit@Cache
   )$rs
-  imp <- lavaan___lav_mvn_cl_rs_implied(
-    lavmodel = fit@Model,
-    rs_info = plan$info
-  )
+  imp <- rs_implied(fit@Model, plan$info)
   bad_w <- imp
   bad_w$sigma_w[] <- -1
   expect_identical(rs_kernel_loglik(plan, bad_w), -Inf)
@@ -182,10 +179,7 @@ test_that("an indefinite level-2 covariance is scored as lavaan scores it", {
       fit@Data,
       fit@Cache
     )$rs
-    imp <- lavaan___lav_mvn_cl_rs_implied(
-      lavmodel = fit@Model,
-      rs_info = plan$info
-    )
+    imp <- rs_implied(fit@Model, plan$info)
     sv <- diag(c(0.05, 0.3, rep(0.5, imp$pv - 2L)), imp$pv)
     sv[1, 2] <- sv[2, 1] <- 0.2
     imp$sigma.v <- sv
@@ -202,7 +196,7 @@ test_that("an indefinite level-2 covariance is scored as lavaan scores it", {
       tolerance = 1e-12
     )
     expect_equal(
-      rs_kernel_dphi(plan, imp),
+      rs_dphi_vec(rs_kernel_dphi(plan, imp)),
       colSums(lavaan:::lav_mvn_cl_rs_dfphi(
         rs_stats = plan_stats,
         imp = imp,
@@ -316,4 +310,86 @@ test_that("a missing-data pattern with one cell is scored as lavaan scores it", 
     rsk_grad(fit, x, multilevel = lavaan_route),
     tolerance = 1e-10
   )
+})
+
+test_that("the implied pieces equal lavaan's with a between-only response", {
+  fit <- suppressWarnings(lavaan::sem(
+    "
+    level: 1
+      fw =~ y1 + y2 + y3
+      fw ~ rv('s1')*x1
+    level: 2
+      fb =~ y1 + y2 + y3 + w2
+      fb ~ w1
+    ",
+    data = rsk_data,
+    cluster = "cluster",
+    se = "none"
+  ))
+  info <- fit@Cache[[1L]]$rs$info
+  expect_gt(info$kz, 0L)
+  expect_identical(
+    rs_implied(fit@Model, info),
+    asNamespace("lavaan")$lav_mvn_cl_rs_implied(
+      lavmodel = fit@Model,
+      rs_info = info
+    )
+  )
+})
+
+test_that("the implied pieces equal lavaan's and their chain rule is exact", {
+  lav_ns <- asNamespace("lavaan")
+  for (fit in c(rsk_fits, rsk_fits_na["factor"])) {
+    info <- fit@Cache[[1L]]$rs$info
+    x <- rsk_point(fit, 3)
+    lm <- lavaan::lav_model_set_parameters(fit@Model, x)
+    imp <- rs_implied(lm, info)
+    expect_identical(
+      imp,
+      lav_ns$lav_mvn_cl_rs_implied(lavmodel = lm, rs_info = info)
+    )
+    # A linear function of the pieces, F = sum(w * phi), has dF/dphi = w
+    set.seed(4)
+    w <- stats::rnorm(length(rs_dphi_vec(imp)))
+    shapes <- list(
+      sigma_w = dim(imp$sigma_w),
+      mu_y = NULL,
+      P = dim(imp$P),
+      lmat = dim(imp$lmat),
+      q0 = dim(imp$q0),
+      sigma.v = dim(imp$sigma.v),
+      mu.v = NULL,
+      cc = dim(imp$cc),
+      mu.exo = NULL
+    )
+    sizes <- vapply(
+      names(shapes),
+      function(nm) length(as.numeric(imp[[nm]])),
+      numeric(1)
+    )
+    off <- cumsum(c(0, sizes))
+    g <- lapply(seq_along(shapes), function(k) {
+      v <- w[off[k] + seq_len(sizes[k])]
+      if (is.null(shapes[[k]])) {
+        v
+      } else {
+        matrix(v, shapes[[k]][1L], shapes[[k]][2L])
+      }
+    })
+    names(g) <- names(shapes)
+    an <- rs_implied_back(lm, rs_implied_steps(lm, info), g)
+    num <- numDeriv::grad(
+      function(z) {
+        sum(
+          w *
+            rs_dphi_vec(rs_implied(
+              lavaan::lav_model_set_parameters(fit@Model, z),
+              info
+            ))
+        )
+      },
+      x
+    )
+    expect_equal(an, num, tolerance = 1e-7)
+  }
 })
