@@ -56,9 +56,7 @@
     `x3` fails it on the first 50 rows of `HolzingerSwineford1939`, and
     passes on all 301. `diagnostics()` gives
     `vb_lhat`, `vb_j0` and `vb_j1`, and `vb_solve`, which is 1 when the check
-    failed. The gain ratio of earlier development versions (`vb_gain_ratio`)
-    is gone, with its warning, and so is the iteration with capped steps
-    after a first step over 2.5 posterior SDs.
+    failed.
   - The volume correction of the skew-normal marginals is computed for all
     parameters at once. It is closer to the exact value, and moves the
     posterior summaries by up to 0.002 posterior SDs on these models.
