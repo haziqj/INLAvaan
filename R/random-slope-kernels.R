@@ -596,7 +596,9 @@ rs_dphi_within <- function(plan, set, imp, w_mat, ct, g_a, g_p) {
   ## ----- Sums over the cells -------------------------------------------------
   ga_n <- matrix(colSums(nj * g_a), pv, pv)
   sx_ga <- lapply(seq_len(npaths), function(r) {
-    colSums(set$sx[, path_x[r]] * g_a[, at(seq_len(pv), path_zcol[r])])
+    colSums(
+      set$sx[, path_x[r]] * g_a[, at(seq_len(pv), path_zcol[r]), drop = FALSE]
+    )
   })
   sxx_ga <- matrix(0, npaths, npaths)
   for (r in seq_len(npaths)) {

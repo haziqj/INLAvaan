@@ -284,3 +284,36 @@ test_that("with missing data the gradient equals lavaan's and a numerical one", 
     }
   }
 })
+
+test_that("a missing-data pattern with one cell is scored as lavaan scores it", {
+  dat <- rsk_data_na
+  # A pattern that only one case has
+  same <- is.na(dat$y1) & is.na(dat$y2) & !is.na(dat$y3)
+  dat$y1[same] <- 0.1
+  dat[2L, c("y1", "y2", "y3")] <- c(NA, NA, 0.5)
+  fit <- suppressWarnings(lavaan::sem(
+    rsk_models$factor,
+    data = dat,
+    cluster = "cluster",
+    missing = "ml",
+    se = "none"
+  ))
+  n_cells <- vapply(
+    fit@Cache[[1L]]$rs$stats$mp$pattern,
+    function(cell) length(cell$j1),
+    integer(1)
+  )
+  expect_true(any(n_cells == 1L))
+  x <- rsk_point(fit, 1)
+  lavaan_route <- list(rs = NULL, twolevel = FALSE, twolevel_fiml = NULL)
+  expect_equal(
+    rsk_loglik(fit, x),
+    rsk_loglik(fit, x, multilevel = lavaan_route),
+    tolerance = 1e-12
+  )
+  expect_equal(
+    rsk_grad(fit, x),
+    rsk_grad(fit, x, multilevel = lavaan_route),
+    tolerance = 1e-10
+  )
+})
