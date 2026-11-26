@@ -2,9 +2,11 @@
 # its gradient, for fits without covariates or weights (fiml_fast_path()).
 #
 # A missing-data pattern that observes the variables o and misses the variables
-# m is scored with the inverse of the block Sigma_oo. lavaan gets that inverse
-# by downdating the full inverse once per missing variable, under try(). Here
-# every pattern takes one of two routes, chosen once per model.
+# m is scored with the inverse of the block Sigma_oo. lavaan's log-likelihood
+# takes that inverse from the inverse of Sigma with one update for each
+# pattern, and its gradient factors the block of each pattern, both in a loop
+# over the patterns. Here every pattern takes one of two routes, chosen once
+# per model.
 #
 # Shared route, for patterns that miss few variables. With A = Sigma^-1 and
 # K = A[m, m],
