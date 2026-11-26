@@ -62,6 +62,7 @@ compute_chisq_dev <- function(
     loglik_sat <- compute_loglik_sat(object, lavsamplestats, lavdata)
   }
   fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
+  multilevel <- multilevel_setup(lavmodel, lavdata, lavcache)
   vapply(
     seq_len(nrow(x_samp)),
     function(i) {
@@ -73,7 +74,8 @@ compute_chisq_dev <- function(
         lavoptions,
         lavcache,
         marginalise_means = FALSE,
-        fiml = fiml
+        fiml = fiml,
+        multilevel = multilevel
       )
       2 * (loglik_sat - ll_i)
     },

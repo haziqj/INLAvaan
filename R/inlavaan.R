@@ -641,6 +641,7 @@ inlavaan <- function(
     prior_cache <- prepare_priors_for_optim(pt)
     x_map <- pars_to_x_map(pt)
     fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
+    multilevel <- multilevel_setup(lavmodel, lavdata, lavcache)
     inform_gamma_variance_scale(pt)
 
     # Saturated-means fast path (see saturated_mean_idx): along each free
@@ -672,7 +673,8 @@ inlavaan <- function(
         lavdata,
         lavoptions,
         lavcache,
-        fiml = fiml
+        fiml = fiml,
+        multilevel = multilevel
       )
       pld <- 0
       if (isTRUE(add_priors)) {
@@ -697,7 +699,8 @@ inlavaan <- function(
         lavsamplestats,
         lavdata,
         lavcache,
-        fiml = fiml
+        fiml = fiml,
+        multilevel = multilevel
       )
 
       # Jacobian adjustment: d/dθ log p(y|x(θ)) = d/dx log p(y|x) * dx/dθ (see
@@ -1076,7 +1079,8 @@ inlavaan <- function(
               lavdata,
               lavoptions,
               lavcache,
-              fiml = fiml
+              fiml = fiml,
+              multilevel = multilevel
             ) +
               loglik_x_adj
           },

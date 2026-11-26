@@ -6,7 +6,8 @@ inlav_model_loglik <- function(
   lavoptions,
   lavcache = NULL,
   marginalise_means = TRUE,
-  fiml = NULL
+  fiml = NULL,
+  multilevel = NULL
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
@@ -24,10 +25,23 @@ inlav_model_loglik <- function(
       if (is.null(fiml)) {
         fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
       }
-      out <- if (fiml$loglik) {
-        fiml_loglik_samp(lavsamplestats, lavimplied, fiml$plan)
-      } else {
-        lavaan___lav_model_loglik(
+      if (is.null(multilevel)) {
+        multilevel <- multilevel_setup(lavmodel, lavdata, lavcache)
+      }
+      out <- NULL
+      if (fiml$loglik) {
+        out <- fiml_loglik_samp(lavsamplestats, lavimplied, fiml$plan)
+      } else if (!is.null(multilevel$rs)) {
+        out <- rs_kernel_loglik(
+          multilevel$rs,
+          lavaan___lav_mvn_cl_rs_implied(
+            lavmodel = lavmodel_x,
+            rs_info = multilevel$rs$info
+          )
+        )
+      }
+      if (is.null(out)) {
+        out <- lavaan___lav_model_loglik(
           lavdata = lavdata,
           lavsamplestats = lavsamplestats,
           lavimplied = lavimplied,
@@ -75,11 +89,15 @@ inlav_model_grad <- function(
   lavsamplestats,
   lavdata,
   lavcache,
-  fiml = NULL
+  fiml = NULL,
+  multilevel = NULL
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   if (is.null(fiml)) {
     fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
+  }
+  if (is.null(multilevel)) {
+    multilevel <- multilevel_setup(lavmodel, lavdata, lavcache)
   }
 
   # Without a mean structure, the gradient of the marginalised log-likelihood
@@ -99,6 +117,8 @@ inlav_model_grad <- function(
   grad_F <- NULL
   if (fiml$grad) {
     grad_F <- fiml_grad_samp(lavmodel_x, lavsamplestats, fiml$plan)
+  } else if (!is.null(multilevel$rs)) {
+    grad_F <- rs_kernel_grad(lavmodel_x, multilevel$rs)
   }
   if (is.null(grad_F)) {
     grad_F <- lavaan___lav_model_grad(
