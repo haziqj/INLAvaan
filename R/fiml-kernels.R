@@ -20,7 +20,9 @@
 # the Cholesky factor of Sigma_oo itself, one pattern at a time.
 #
 # The two routes give the same log-likelihood up to rounding. Everything that
-# depends only on the data is in the plan of fiml_plan().
+# depends only on the data is in the plan of fiml_plan(). The direct route
+# keeps the arithmetic of the kernels before the plan, so a model whose
+# patterns are all direct gives the same bits as it did then.
 
 fiml_fast_path <- function(lavmodel, lavsamplestats, lavdata) {
   isTRUE(lavsamplestats@missing.flag) &&
@@ -380,11 +382,10 @@ fiml_shared <- function(plan, mu, Sigma, grad = FALSE) {
 
 ## ----- Direct route ----------------------------------------------------------
 
-# Log-likelihood of the given patterns, each from the Cholesky factor of its
-# observed block. Stops when a block has no factor.
-fiml_direct_loglik <- function(pats, mu, Sigma) {
+# Adds the log-likelihood of the given patterns to `out`, each from the
+# Cholesky factor of its observed block. Stops when a block has no factor.
+fiml_direct_loglik <- function(pats, mu, Sigma, out = 0) {
   log_2pi <- log(2 * pi)
-  out <- 0
   for (pat in pats) {
     o <- pat$o
     L <- chol(Sigma[o, o, drop = FALSE])
@@ -399,20 +400,22 @@ fiml_direct_loglik <- function(pats, mu, Sigma) {
   out
 }
 
-# Adds the given patterns to `omega` and `omega_mu`. The matrix of a pattern
-# is a a' + Sigma_oo^-1 S Sigma_oo^-1 - Sigma_oo^-1 with
+# Adds the given patterns to `omega` and `omega_mu`, each with the weight
+# freq / n_total of lavaan's Omega. The matrix of a pattern is
+# a a' + Sigma_oo^-1 S Sigma_oo^-1 - Sigma_oo^-1 with
 # a = Sigma_oo^-1 (ybar - mu), and S is zero for a pattern of one case.
-fiml_direct_omega <- function(pats, mu, Sigma, omega, omega_mu) {
+fiml_direct_omega <- function(pats, mu, Sigma, omega, omega_mu, n_total) {
   for (pat in pats) {
     o <- pat$o
     S_inv <- chol2inv(chol(Sigma[o, o, drop = FALSE]))
-    a <- as.numeric(S_inv %*% (pat$my - mu[o]))
+    a <- S_inv %*% (pat$my - mu[o])
     omega_o <- tcrossprod(a) - S_inv
     if (!is.null(pat$sy)) {
       omega_o <- omega_o + S_inv %*% pat$sy %*% S_inv
     }
-    omega[o, o] <- omega[o, o] + pat$freq * omega_o
-    omega_mu[o] <- omega_mu[o] + pat$freq * a
+    w <- pat$freq / n_total
+    omega[o, o] <- omega[o, o] + w * omega_o
+    omega_mu[o, 1L] <- omega_mu[o, 1L] + w * a
   }
   list(omega = omega, omega_mu = omega_mu)
 }
@@ -435,13 +438,16 @@ fiml_loglik_samp <- function(lavsamplestats, lavimplied, plan = NULL) {
         mu <- as.numeric(lavimplied$mean[[g]])
         Sigma <- lavimplied$cov[[g]]
         shared <- fiml_shared(plan_g, mu, Sigma)
-        out <- out +
-          if (is.null(shared)) {
-            fiml_direct_loglik(plan_g$pats, mu, Sigma)
-          } else {
-            shared$loglik +
-              fiml_direct_loglik(plan_g$pats[plan_g$direct], mu, Sigma)
-          }
+        out <- if (is.null(shared)) {
+          fiml_direct_loglik(plan_g$pats, mu, Sigma, out)
+        } else {
+          fiml_direct_loglik(
+            plan_g$pats[plan_g$direct],
+            mu,
+            Sigma,
+            out + shared$loglik
+          )
+        }
       }
       out
     },
@@ -461,27 +467,25 @@ fiml_omega_samp <- function(lavsamplestats, lavimplied, plan = NULL) {
     mu <- as.numeric(lavimplied$mean[[g]])
     Sigma <- lavimplied$cov[[g]]
     shared <- fiml_shared(plan_g, mu, Sigma, grad = TRUE)
-    om <- if (is.null(shared)) {
+    if (is.null(shared)) {
       fiml_direct_omega(
         plan_g$pats,
         mu,
         Sigma,
         matrix(0, plan_g$p, plan_g$p),
-        numeric(plan_g$p)
+        matrix(0, plan_g$p, 1L),
+        n_total
       )
     } else {
       fiml_direct_omega(
         plan_g$pats[plan_g$direct],
         mu,
         Sigma,
-        shared$omega,
-        shared$omega_mu
+        shared$omega / n_total,
+        matrix(shared$omega_mu / n_total, plan_g$p, 1L),
+        n_total
       )
     }
-    list(
-      omega = om$omega / n_total,
-      omega_mu = matrix(om$omega_mu / n_total, plan_g$p, 1L)
-    )
   })
 }
 
