@@ -119,13 +119,21 @@ engine_check_start <- function(joint_lp, init) {
 # of the one-step VB correction fails, the engine warns in its own words and
 # with its own class. That warning is muffled here: the fit records the failed
 # check in its diagnostics (vb_solve), and warn_fit_diagnostics() reports it in
-# INLAvaan's words, in the one warning at the end of the fit.
+# INLAvaan's words, in the one warning at the end of the fit. The engine's
+# checks of the gradient and of the Hessian at the mode warn in words that name
+# the arguments of inla_vanilla(), so engine_hessian_warning() raises them
+# again in INLAvaan's words, and the engine's warning is muffled.
 engine_call <- function(...) {
   tryCatch(
     withCallingHandlers(
       vanilla_core(...),
       inlavanilla_vb_check_warning = function(w) {
         tryInvokeRestart("muffleWarning")
+      },
+      inlavanilla_warning = function(w) {
+        if (engine_hessian_warning(warning_text(w))) {
+          tryInvokeRestart("muffleWarning")
+        }
       }
     ),
     inlavanilla_error = function(e) {
@@ -133,6 +141,65 @@ engine_call <- function(...) {
       stop(e)
     }
   )
+}
+
+# The engine checks the Hessian at the mode in three ways, and each failed
+# check warns with the class inlavanilla_warning only: the Jacobian of the
+# gradient is not symmetric, the Hessian that INLAvaan gives (hess_mode) is not
+# symmetric, or it differs from central differences of the gradient. In
+# INLAvaan the gradient and that Hessian are INLAvaan's own, so a failed check
+# is not about anything the user gave. The warnings are matched by their words
+# in the plain `text` of the engine's warning, and raised again in INLAvaan's
+# words with the engine's number, with the class inlavaan_hessian_warning.
+# Returns TRUE when it raised one, and FALSE for any other engine warning,
+# which then passes unchanged.
+engine_hessian_warning <- function(text) {
+  number <- function(pattern) {
+    hit <- regmatches(text, regexec(pattern, text))[[1]]
+    if (length(hit) < 2L) NA_character_ else hit[[2]]
+  }
+  is_grad <- grepl("does not look like the gradient of", text, fixed = TRUE)
+  is_hess <- grepl("does not look like the Hessian of", text, fixed = TRUE)
+  if (!is_grad && !is_hess) {
+    return(FALSE)
+  }
+  asymmetry <- number("relative asymmetry ([-+0-9.eE]+)")
+  discrepancy <- number("central differences of the gradient by ([-+0-9.eE]+)")
+  report <- paste(
+    "This may be a bug in INLAvaan. Please report it at",
+    "{.url https://github.com/haziqj/INLAvaan/issues}, with the model."
+  )
+  if (is_grad) {
+    msg <- c(
+      "INLAvaan's gradient of the log-posterior does not look right for this
+       model.",
+      "x" = "Its Jacobian at the mode is not symmetric (relative asymmetry
+             {asymmetry}), as the Hessian of a function must be.",
+      "i" = "A wrong gradient gives a wrong mode and wrong marginals.",
+      "i" = report
+    )
+  } else if (!is.na(asymmetry)) {
+    msg <- c(
+      "INLAvaan's Hessian at the mode does not look right for this model.",
+      "x" = "It is not symmetric (relative asymmetry {asymmetry}), as the
+             Hessian of a function must be.",
+      "i" = "The fit used its symmetric part. A wrong Hessian gives a wrong
+             covariance and wrong marginals.",
+      "i" = report
+    )
+  } else {
+    msg <- c(
+      "INLAvaan's Hessian at the mode does not look right for this model.",
+      "x" = "It differs from central differences of the gradient by
+             {discrepancy}, in units where the Hessian is the identity.",
+      "i" = "A wrong Hessian gives a wrong covariance and wrong marginals.",
+      "i" = "With {.code control = inlavaan_control(hessian = \"forward\")},
+             try {.code hessian = \"central\"}.",
+      "i" = report
+    )
+  }
+  cli_warn(msg, class = "inlavaan_hessian_warning")
+  TRUE
 }
 
 # The segments optim and vb of the timing of inlavaan(), from the engine's

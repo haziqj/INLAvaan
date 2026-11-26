@@ -261,6 +261,14 @@
   errors, so that tests can find old code. Their help has a "deprecated"
   badge.
 
+* When the check of the Hessian at the mode fails (the Jacobian of the
+  gradient is not symmetric, or the Hessian on the fast path of the
+  intercepts or from `inlavaan_control(hessian = "forward")` is not
+  symmetric or differs from central differences of the gradient), the
+  warning now says so in INLAvaan's words, with the class
+  `inlavaan_hessian_warning`. Before, it named the arguments of the engine
+  (`grad`, `logpost`, `hess`), which INLAvaan users never give.
+
 * `diagnostics()` now gives the engine's diagnostics, in the engine's order,
   and then INLAvaan's own: `nsamp`, `psi_npd_share` and `theta_npd_share`.
   Code that reads them by name still works, except for the changes below.

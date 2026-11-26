@@ -497,3 +497,53 @@ test_that("no INLAvaan file reads the old field Sigma_theta", {
   )
   expect_identical(unname(basename(files[reads])), character(0))
 })
+
+test_that("the engine's Hessian checks warn in INLAvaan's words", {
+  lp <- function(x) -sum(x^2) / 2
+  init <- c(a = 0.3, b = -0.2)
+  hessian_warnings <- function(...) {
+    ws <- list()
+    withCallingHandlers(
+      engine_call(
+        lp,
+        init = init,
+        vb_correction = "none",
+        marginals = "gaussian",
+        silent = TRUE,
+        ...
+      ),
+      warning = function(w) {
+        ws[[length(ws) + 1L]] <<- w
+        tryInvokeRestart("muffleWarning")
+      }
+    )
+    ws
+  }
+  expect_reworded <- function(ws, n, words) {
+    expect_length(ws, n)
+    for (w in ws) {
+      expect_s3_class(w, "inlavaan_hessian_warning")
+      expect_false(inherits(w, "inlavanilla_warning"))
+      msg <- cli::ansi_strip(conditionMessage(w))
+      expect_false(grepl("logpost|`grad`|`hess`", msg))
+    }
+    expect_match(cli::ansi_strip(conditionMessage(ws[[1]])), words)
+  }
+  # A gradient whose Jacobian is not symmetric
+  ws <- hessian_warnings(gr = function(x) c(-x[1] + 0.5 * x[2], -x[2]))
+  expect_reworded(ws, 1L, "gradient of the log-posterior")
+  # A Hessian at the mode that is not symmetric, and so also differs from the
+  # differences of the gradient
+  ws <- hessian_warnings(
+    gr = function(x) -x,
+    hess_mode = function(x) matrix(c(-1, 0, 0.5, -1), 2)
+  )
+  expect_reworded(ws, 2L, "relative asymmetry 0.5")
+  # A symmetric Hessian at the mode that is wrong
+  ws <- hessian_warnings(gr = function(x) -x, hess_mode = function(x) {
+    -2 * diag(2)
+  })
+  expect_reworded(ws, 1L, "central differences of the gradient by")
+  # Any other engine warning passes unchanged
+  expect_false(engine_hessian_warning("Some other warning of the engine."))
+})
