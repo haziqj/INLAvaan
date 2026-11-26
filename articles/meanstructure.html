@@ -34,7 +34,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,7 +90,7 @@
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/vignettes/articles/meanstructure.qmd" class="external-link"><code>vignettes/articles/meanstructure.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/vignettes/articles/meanstructure.qmd" class="external-link"><code>vignettes/articles/meanstructure.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -164,13 +164,13 @@
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">lavaan</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/lavaan/man/HolzingerSwineford1939.html" class="external-link">HolzingerSwineford1939</a></span></span>
 <span></span>
 <span><span class="va">fit_configural</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">dat</span>, group <span class="op">=</span> <span class="st">"school"</span>,</span>
-<span>                       meanstructure <span class="op">=</span> <span class="cn">FALSE</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>                       meanstructure <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">fit_metric</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">dat</span>, group <span class="op">=</span> <span class="st">"school"</span>,</span>
 <span>                   meanstructure <span class="op">=</span> <span class="cn">FALSE</span>, group.equal <span class="op">=</span> <span class="st">"loadings"</span>,</span>
-<span>                   silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>                   verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">fit_scalar</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">dat</span>, group <span class="op">=</span> <span class="st">"school"</span>,</span>
 <span>                   group.equal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loadings"</span>, <span class="st">"intercepts"</span><span class="op">)</span>,</span>
-<span>                   silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>                   verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level2"><h2 id="when-are-these-models-comparable">When are these models comparable?<a class="anchor" aria-label="anchor" href="#when-are-these-models-comparable"></a>
 </h2>
@@ -182,16 +182,16 @@
 <span><span class="co">#&gt; Models ordered by marginal log-likelihood</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;           Model npar Marg.Loglik   logBF      DIC     pD</span></span>
-<span><span class="co">#&gt;      fit_metric   36   -3828.323   0.000 7504.481 36.071</span></span>
-<span><span class="co">#&gt;  fit_configural   42   -3847.671 -19.348 7506.803 40.824</span></span></code></pre></div>
+<span><span class="co">#&gt;      fit_metric   36   -3828.331   0.000 7504.626 36.162</span></span>
+<span><span class="co">#&gt;  fit_configural   42   -3847.689 -19.358 7506.866 40.823</span></span></code></pre></div>
 </div>
 <p>Across the metric–scalar boundary they are <strong>not</strong>: an improper flat prior is only defined up to a constant <span class="math inline">\(c\)</span>, the marginal likelihood scales with <span class="math inline">\(c^{\,p}\)</span> per group, and against a model with proper-prior means that constant is orphaned — the “Bayes factor” becomes an artefact of a normalisation convention (and even proper-but-vague intercept priors leave it hostage to the prior width, the Lindley–Bartlett phenomenon). <code><a href="../reference/compare.html">compare()</a></code> warns when fits mix the two mean treatments.</p>
 <p>The leave-one-out conditionals, by contrast, are proper under both treatments — <span class="math inline">\(p(\mathbf{y}_i \mid \mathbf{Y}_{-i}) =
 p(\mathbf{Y})/p(\mathbf{Y}_{-i})\)</span> cancels the flat-prior constant — so ELPD comparisons are valid across the boundary, and <code>compare(..., loo = TRUE)</code> is the honest cross-treatment instrument (it still warns you to read only the ELPD columns, since the marginal log-likelihood columns remain in the table). This works for multigroup fits too — without a mean structure the exchangeability transformation applies within each group — which makes LOO the instrument that spans the <em>whole</em> measurement-invariance ladder; see the <a href="multigroup.html">multigroup article</a> for that workflow.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">dat</span>, meanstructure <span class="op">=</span> <span class="cn">FALSE</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">fit_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">dat</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">fit_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">dat</span>, meanstructure <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">fit_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/acfa.html">acfa</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">dat</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit_f</span>, <span class="va">fit_t</span>, loo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Comparing fits with and without a mean structure: marginal log-likelihoods,</span></span>
 <span><span class="co">#&gt; Bayes factors, and DIC are not comparable across the two mean treatments (the</span></span>
@@ -203,11 +203,11 @@ p(\mathbf{Y})/p(\mathbf{Y}_{-i})\)</span> cancels the flat-prior constant — so
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik   logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;  fit_f   21   -3830.485   0.000 7552.633 20.640 -3769.111 43.022 23.769</span></span>
-<span><span class="co">#&gt;  fit_t   30   -3870.056 -39.571 7535.557 29.827 -3769.122 43.027 32.576</span></span>
+<span><span class="co">#&gt;  fit_t   30   -3870.030 -39.521 7535.595 29.836 -3769.108 43.007 32.546</span></span>
+<span><span class="co">#&gt;  fit_f   21   -3830.509   0.000 7552.718 20.698 -3769.129 43.029 23.803</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
-<span><span class="co">#&gt;     -0.011   0.006</span></span></code></pre></div>
+<span><span class="co">#&gt;     -0.021   0.156</span></span></code></pre></div>
 </div>
 <p>The two ELPDs agree closely: both estimate <span class="math inline">\(\sum_i \log p(\mathbf{y}_i \mid \mathbf{Y}_{-i})\)</span>, and the models differ only in whether the means are estimated under proper priors or marginalised under flat ones.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">

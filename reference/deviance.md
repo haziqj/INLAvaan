@@ -71,13 +71,13 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
-            test = "standard", silent = TRUE)
+            test = "standard", verbose = FALSE)
 
 deviance(fit)
-#> Deviance: 7531.711
-#> # ℹ pD = 20.537, DIC = 7552.247
+#> Deviance: 7531.728
+#> # ℹ pD = 20.562, DIC = 7552.291
 #> 
 attr(deviance(fit), "DIC")
-#> [1] 7552.247
+#> [1] 7552.291
 # }
 ```

@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Fit a skew normal distribution to a sample</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/skew-normal.R" class="external-link"><code>R/skew-normal.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/skew-normal.R" class="external-link"><code>R/skew-normal.R</code></a></small>
       <div class="d-none name"><code>fit_skew_normal_samp.Rd</code></div>
     </div>
 
@@ -79,42 +79,19 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with the fitted parameters <code>xi</code> (location), <code>omega</code> (scale)
-and <code>alpha</code> (shape).</p>
+    <p>A list with fitted parameters:</p><ul><li><p><code>xi</code>: location parameter</p></li>
+<li><p><code>omega</code>: scale parameter</p></li>
+<li><p><code>alpha</code>: shape parameter</p></li>
+<li><p><code>logC</code>: log-normalization constant</p></li>
+<li><p><code>k</code>: temperature parameter</p></li>
+<li><p><code>rsq</code>: R-squared of the fit</p></li>
+</ul><p>Note that <code>logC</code> and <code>k</code> are not used when fitting from a sample.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Uses maximum likelihood estimation to fit a skew normal distribution
 to the provided numeric vector <code>x</code>. The fit is computed on standardised
-draws, so it does not depend on the scale of <code>x</code>. The optimiser,
-<code><a href="https://rdrr.io/r/stats/nlminb.html" class="external-link">stats::nlminb()</a></code>, uses the analytic gradient and Hessian of the
-log-likelihood.</p>
-<p>The fit runs from up to three starts and keeps the one with the largest
-likelihood. The first two starts are as in <code><a href="fit_skew_normal.html">fit_skew_normal()</a></code>. With
-\(\delta = \alpha / \sqrt{1 + \alpha^2}\), they are the moment-based
-values from the sample skewness of <code>x</code> and their mirror image, with the
-opposite skew. When the moment-based values give \(|\delta| &lt; 0.2\), that
-is, when the sample skewness of <code>x</code> is below about 0.0018 in absolute value,
-these two starts are \(\delta = \pm 0.5\). This is rare: for 1000 draws
-from a normal distribution, it happens in about 1 sample of 50, and in about
-1 sample of 17 for 10000 draws.</p>
-<p>The third start is the normal distribution with the median and the SD of
-<code>x</code>, so <code>alpha = 0</code>. The likelihood has a stationary point at <code>alpha = 0</code>
-(the normal fit), so a fit from this start alone can stall there when the
-skew is mild. The third start runs only when the first two fits end on the
-same side of <code>alpha = 0</code>, or when one of them is not finite. When they end
-on opposite sides, each side has been searched from a start on that side.
-This rests on an empirical assumption, not a proof: that the likelihood has
-at most one optimum on each side of <code>alpha = 0</code>. It held on every set of
-posterior draws checked. For small bimodal samples (100 draws), the
-likelihood can have a second, better optimum on the same side, with a
-larger \(|\alpha|\). No start finds it, so the fit misses it, as did the
-fits of earlier versions.</p>
-<p>When the draws have no finite maximum likelihood estimate, for example a
-small sample of heavy-tailed draws, the likelihood rises along a ridge
-towards \(|\alpha| = \infty\). The fit then stops somewhere on the
-ridge, at \(|\alpha|\) of about \(10^6\). This point depends on the
-optimiser, so it can differ from that of earlier versions.</p>
+draws, so it does not depend on the scale of <code>x</code>.</p>
     </div>
 
     <div class="section level2">
@@ -122,7 +99,7 @@ optimiser, so it can differ from that of earlier versions.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, mean <span class="op">=</span> <span class="fl">5</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu">fit_skew_normal_samp</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       xi    omega    alpha </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4.029467 1.366546 1.640869 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4.029466 1.366546 1.640869 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

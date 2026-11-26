@@ -36,7 +36,7 @@ mod <- "
   textual =~ x4 + x5 + x6
   speed   =~ x7 + x8 + x9
 "
-fit <- acfa(mod, dat, silent = TRUE)
+fit <- acfa(mod, dat, verbose = FALSE)
 yrep <- simulate(fit, nsim = 50)
 ```
 
@@ -88,7 +88,7 @@ that models the means:
 
 ``` r
 
-fit_ms <- acfa(mod, dat, meanstructure = TRUE, silent = TRUE)
+fit_ms <- acfa(mod, dat, meanstructure = TRUE, verbose = FALSE)
 
 yp_f <- simulate(fit,    nsim = 50, prior = TRUE, silent = TRUE)
 yp_t <- simulate(fit_ms, nsim = 50, prior = TRUE, silent = TRUE)
@@ -161,7 +161,7 @@ imp <- sampling(fit, type = "implied", nsamp = 2000, prior = TRUE)
 rho_def <- vapply(imp, \(m) cov2cor(m$cov)["x1", "x2"], numeric(1))
 
 fit_tight <- acfa(mod, dat, dp = priors_for(lambda = "normal(0,1)"),
-                  silent = TRUE)
+                  verbose = FALSE)
 imp <- sampling(fit_tight, type = "implied", nsamp = 2000, prior = TRUE)
 rho_tight <- vapply(imp, \(m) cov2cor(m$cov)["x1", "x2"], numeric(1))
 ```

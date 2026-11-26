@@ -104,6 +104,3 @@ Other contributors:
   (Statistical and computational methodology) \[contributor\]
 
 - Alvin Bong (Initial site build) \[contributor\]
-
-- Thomas Luu (Skew-normal quantile approximation (Apache License 2.0))
-  \[copyright holder\]

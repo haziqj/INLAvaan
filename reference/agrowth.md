@@ -7,34 +7,32 @@ Fit an Approximate Bayesian Growth Curve Model
 ``` r
 agrowth(
   model,
-  data = NULL,
+  data,
   dp = priors_for(),
   test = "standard",
-  vb_correction = c("onestep", "full", "none"),
-  n_qmc = NULL,
-  vb_method = NULL,
-  marginal_method = c("skewnorm", "gaussian"),
-  marginal_correction = NULL,
+  vb_correction = TRUE,
+  n_qmc = 64L,
+  vb_method = c("sobol", "gauss_hermite"),
+  marginal_method = c("skewnorm", "asymgaus", "marggaus", "sampling"),
+  marginal_correction = c("shortcut", "shortcut_fd", "hessian", "none"),
   nsamp = 1000,
-  samp_copula = NULL,
-  samp_norta = NULL,
+  samp_copula = TRUE,
+  samp_norta = FALSE,
   cov_as_cor = FALSE,
-  sn_fit_ngrid = NULL,
-  sn_fit_logthresh = NULL,
-  sn_fit_temp = NULL,
+  sn_fit_ngrid = 21,
+  sn_fit_logthresh = -6,
+  sn_fit_temp = 1,
   sn_fit_sample = TRUE,
   control = list(),
-  verbose = FALSE,
-  debug = NULL,
-  add_priors = NULL,
-  optim_method = NULL,
-  numerical_grad = NULL,
-  hessian_method = NULL,
+  verbose = TRUE,
+  debug = FALSE,
+  add_priors = TRUE,
+  optim_method = c("nlminb", "ucminf", "optim"),
+  numerical_grad = FALSE,
+  hessian_method = c("central", "forward"),
   cores = NULL,
   ppp_method = c("onestep", "em"),
   ppp_nsamp = 250L,
-  marginal_scan = c("linear", "exact", "laplace", "plain"),
-  silent = FALSE,
   ...
 )
 ```
@@ -60,9 +58,7 @@ agrowth(
   Default prior distributions for the different types of model
   parameters; a named character vector as returned by
   [`priors_for()`](https://inlavaan.haziqj.ml/reference/priors_for.md).
-  Types left out take their default priors. A name that is not a type,
-  such as a misspelt one, gives a warning. `dp = blavaan::dpriors()`
-  works too.
+  Types left out take their default priors.
 
 - test:
 
@@ -104,45 +100,49 @@ agrowth(
 
 - vb_correction:
 
-  The variational Bayes (VB) correction of the posterior mean of the
-  Laplace approximation. `"onestep"` (default) takes one step from the
-  mode and checks it. Where the check fails, the posterior is far from
-  Gaussian along the step: the fit then solves the VB equation instead,
-  and warns (see
-  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)).
-  `"full"` iterates the correction to its fixed point, and `"none"`
-  leaves it out. The correction moves the marginal log-likelihood, the
-  point at which the DIC is computed, the centre of the LOO and the
-  WAIC, and the Gaussian marginals of `marginal_method = "gaussian"` and
-  their draws. It does not move the skew-normal marginals or their
-  draws, which are scanned from the mode.
+  Logical indicating whether to apply a variational Bayes correction for
+  the posterior mean vector of estimates. Defaults to `TRUE`.
 
 - n_qmc:
 
-  **\[deprecated\]** Has no effect. The VB correction now takes a
-  deterministic step, with no quasi-Monte Carlo nodes.
+  Number of quasi-Monte Carlo nodes used by the VB mean correction.
+  Defaults to `64`; see the Details section of
+  [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md).
+  Values above `128` (the size of the stored Sobol table) require the
+  spacefillr package. Ignored when `vb_correction = FALSE` or
+  `vb_method = "gauss_hermite"`.
 
 - vb_method:
 
-  **\[deprecated\]** Has no effect. The VB correction now has one rule,
-  and `vb_correction = "full"` iterates it.
+  Integration rule for the VB mean correction. `"sobol"` (default)
+  averages over `n_qmc` scrambled Sobol nodes. `"gauss_hermite"` uses a
+  deterministic rule instead: a three-point Gauss-Hermite rule along
+  each principal axis of the Laplace covariance, `2m + 1` nodes in all
+  for `m` free parameters. It is exact whenever the log-posterior is
+  quartic in whitened coordinates, and it gives the same shift on every
+  run. Having no node sets to compare, it reports no quadrature error,
+  so `vb_mcse_sigma` in
+  [`diagnostics()`](https://inlavaan.haziqj.ml/reference/diagnostics.md)
+  is `NA`. Its cost grows with `m`: it is cheaper than the default below
+  about 30 free parameters and dearer above. Experimental.
 
 - marginal_method:
 
-  How the marginal posterior of each parameter is approximated.
-  `"skewnorm"` (default) fits a skew-normal distribution to a scan of
-  the log-posterior along the parameter (see `marginal_scan`).
-  `"gaussian"` takes the Gaussian marginal of the Laplace approximation,
-  centred at the VB mean, which is faster. **\[deprecated\]** The old
-  values warn: `"marggaus"` is the old name of `"gaussian"`, and
-  `"asymgaus"` now runs `"skewnorm"`. `"sampling"` is kept for a sampler
-  that is under development, and gives an error.
+  The method for approximating the marginal posterior distributions.
+  Options include `"skewnorm"` (skew-normal), `"asymgaus"` (two-piece
+  asymmetric Gaussian), `"marggaus"` (marginalising the Laplace
+  approximation), and `"sampling"` (sampling from the joint Laplace
+  approximation).
 
 - marginal_correction:
 
-  **\[deprecated\]** Use `marginal_scan`. `"none"` and `FALSE` are
-  `marginal_scan = "plain"`, which gives the same fit. `"shortcut"`,
-  `"shortcut_fd"` and `"hessian"` run `marginal_scan = "linear"`.
+  Which type of correction to use when fitting the skew-normal or
+  two-piece Gaussian marginals. `"shortcut"` (default) computes only
+  diagonals via central differences (full z-trace plus Schur complement
+  correction), `"shortcut_fd"` is the same formula using forward
+  differences (roughly half the cost, less accurate), `"hessian"`
+  computes the full Hessian-based correction (slow), and `"none"` (or
+  `FALSE`) applies no correction.
 
 - nsamp:
 
@@ -151,14 +151,21 @@ agrowth(
 
 - samp_copula:
 
-  **\[deprecated\]** Has no effect. The draws always couple the fitted
-  marginals by a Gaussian copula. With `marginal_method = "gaussian"`
-  they are the draws of the Laplace approximation.
+  Logical. When `TRUE` (default), posterior samples are drawn using the
+  copula method with the fitted marginals (e.g. skew-normal or
+  asymmetric Gaussian). When `FALSE`, samples are drawn from the
+  Gaussian (Laplace) approximation.
 
 - samp_norta:
 
-  **\[deprecated\]** Has no effect. The draws no longer adjust the
-  correlations of the copula.
+  Logical. When `TRUE`, the latent correlation matrix of the skew-normal
+  copula is adjusted by the NORmal-To-Anything (NORTA) scheme of Cario
+  and Nelson (1997) so that the Pearson correlations of the copula draws
+  match those of the Laplace approximation after the nonlinear quantile
+  transform. The adjustment never changes a marginal; it affects only
+  summaries that involve several parameters at once, and in practice
+  moves the correlations very little. Default `FALSE`. Only used when
+  `samp_copula = TRUE` and `marginal_method = "skewnorm"`.
 
 - cov_as_cor:
 
@@ -167,8 +174,8 @@ agrowth(
   the correlation scale internally (an `atanh` link, the same as for
   `std.ov`/`std.lv`-standardised parameters); by default their reported
   marginal is then re-derived on the covariance scale \\\sigma_i
-  \sigma_j \rho\\ from a posterior sample (see `nsamp`), because that is
-  the scale lavaan/blavaan report by default. When `TRUE`, that
+  \sigma_j \rho\\ from a posterior sample (see `samp_copula`), because
+  that is the scale lavaan/blavaan report by default. When `TRUE`, that
   re-derivation is skipped and each such parameter's own directly
   profiled correlation-scale marginal \\\rho \in (-1, 1)\\ is reported
   instead – useful for comparing the profiling machinery (skew-normal
@@ -190,18 +197,21 @@ agrowth(
 
 - sn_fit_ngrid:
 
-  **\[deprecated\]** Use `control = inlavaan_control(n_grid = )`, which
-  gives the same fit.
+  Number of grid points to lay out per dimension when fitting the
+  skew-normal marginals. A finer grid gives a better fit at the cost of
+  more joint-log-posterior evaluations. Defaults to `21`.
 
 - sn_fit_logthresh:
 
-  **\[deprecated\]** Use `control = inlavaan_control(log_threshold = )`,
-  which gives the same fit.
+  The log-threshold for fitting the skew-normal. Points with
+  log-posterior drop below this threshold (relative to the maximum) will
+  be excluded from the fit. Defaults to `-6`.
 
 - sn_fit_temp:
 
-  **\[deprecated\]** Has no effect. The skew-normal marginals are fitted
-  with temperature 1.
+  Temperature parameter for fitting the skew-normal. Defaults to `1`
+  (weights are the density values themselves). If `NA`, the temperature
+  is included as an additional optimisation parameter.
 
 - sn_fit_sample:
 
@@ -211,64 +221,55 @@ agrowth(
 
 - control:
 
-  A list of tuning settings, made by
-  [`inlavaan_control()`](https://inlavaan.haziqj.ml/reference/inlavaan_control.md),
-  or a plain list with some of its names: the limits of the search for
-  the posterior mode, of the VB correction and of the skew-normal scans,
-  and the settings `hessian`, `debug` and `add_priors`. The defaults
-  suit most fits. An unknown name gives an error. The controls of
-  [`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html) that
-  `control` took up to INLAvaan 0.3.5, such as `iter.max`, still work,
-  with a deprecation warning. See
-  [`inlavaan_control()`](https://inlavaan.haziqj.ml/reference/inlavaan_control.md).
+  A list of control parameters for the optimiser. For the default
+  `"nlminb"`, INLAvaan raises the stock iteration ceilings to
+  `iter.max = 1000` and `eval.max = 2000` (complex models can exhaust
+  [`nlminb()`](https://rdrr.io/r/stats/nlminb.html)'s own defaults of
+  150 and 200); any value supplied here overrides these.
 
 - verbose:
 
-  Logical. With `FALSE` (default) the fit prints one line per stage.
-  With `TRUE` it also prints the details of each stage of the fit on the
-  internal scale: the start, the mode search, the VB correction and the
-  marginals, with their checks. Use `silent = TRUE` to print nothing.
+  Logical indicating whether to print progress messages.
 
 - debug:
 
-  **\[deprecated\]** Use `control = inlavaan_control(debug = TRUE)`,
-  which gives the same fit.
+  Logical indicating whether to return debug information.
 
 - add_priors:
 
-  **\[deprecated\]** Use
-  `control = inlavaan_control(add_priors = FALSE)`, which gives the same
-  fit.
+  Logical indicating whether to include prior densities in the posterior
+  computation.
 
 - optim_method:
 
-  **\[deprecated\]** Has no effect. The posterior mode is always found
-  by [`stats::nlminb()`](https://rdrr.io/r/stats/nlminb.html).
+  The optimisation method to use for finding the posterior mode. Options
+  include `"nlminb"` (default), `"ucminf"`, and `"optim"` (BFGS).
 
 - numerical_grad:
 
-  **\[deprecated\]** Has no effect. The fit always uses the analytic
-  gradient.
+  Logical indicating whether to use numerical gradients for the
+  optimisation. Defaults to `FALSE` to use analytical gradients.
 
 - hessian_method:
 
-  **\[deprecated\]** Use `control = inlavaan_control(hessian = )`, which
-  gives the same fit.
+  How the Hessian at the posterior mode is differenced from the
+  analytical gradient. `"central"` (default) costs two gradient
+  evaluations per parameter. `"forward"` costs about half as much but is
+  less accurate, and suits models with many parameters and large
+  samples. Used only with `optim_method = "nlminb"` and
+  `numerical_grad = FALSE`.
 
 - cores:
 
-  A positive whole number or `NULL`. The number of cores. Other values,
-  such as `0`, `2.5` or `NA`, give an error. With `NULL` (default), the
-  scans of the skew-normal marginals follow
-  [`future::plan()`](https://future.futureverse.org/reference/plan.html),
-  which is serial unless a plan is set, and the LOO and the WAIC asked
-  for in `test` run serially. With `cores > 1`, the scans run in
-  parallel when the packages future and parallelly are installed, and
-  serially otherwise. The LOO and the WAIC are then forked via
+  Integer or `NULL`. Number of cores for parallel marginal fitting. When
+  `NULL` (default), serial execution is used unless the number of free
+  parameters exceeds 120, in which case parallelisation is enabled
+  automatically using all available physical cores. Set to `1L` to force
+  serial execution. If `cores > 1`, marginal fits are distributed across
+  cores – forked via
   [`parallel::mclapply()`](https://rdrr.io/r/parallel/mclapply.html)
-  where that is safe, or run over a PSOCK cluster (separate R processes)
-  inside IDE R sessions (RStudio, Positron) and on Windows. `1` is
-  serial.
+  where that is safe, or over a PSOCK cluster (separate R processes)
+  inside IDE R sessions (RStudio, Positron) and on Windows.
 
 - ppp_method:
 
@@ -288,28 +289,6 @@ agrowth(
   `nsamp`. Draws that cannot be scored are left out, with a warning.
   Ignored for single-level models.
 
-- marginal_scan:
-
-  How the scan behind each skew-normal marginal is taken. `"linear"`
-  (default) scans along a straight line through the mode, and adds a
-  linear correction for the changing volume of the other parameters.
-  `"exact"` computes that volume term exactly at each point of the scan.
-  `"laplace"` maximises the log-posterior over the other parameters at
-  each point of the scan, and takes the height and the volume there.
-  `"plain"` adds no volume correction. On the Holzinger and Swineford
-  and the Political Democracy models, `"exact"` and `"laplace"` take 10
-  to 25 times as long as `"linear"`. Ignored with
-  `marginal_method = "gaussian"`, which has no scan.
-
-- silent:
-
-  Logical. Print nothing at all, and muffle the warnings and messages
-  raised during the fit? Default `FALSE`. `verbose` and `silent` cannot
-  both be `TRUE`. Errors are still raised. Whether or not `silent` is
-  `TRUE`, the texts of the warnings raised during the fit are recorded
-  in the field `warnings` of
-  [`get_inlavaan_internal()`](https://inlavaan.haziqj.ml/reference/get_inlavaan_internal.md).
-
 - ...:
 
   Additional arguments to be passed to the
@@ -323,7 +302,8 @@ An S4 object of class `INLAvaan` which is a subclass of the
 
 ## Details
 
-The `agrowth()` function is a wrapper for the more general
+The [`asem()`](https://inlavaan.haziqj.ml/reference/asem.md) function is
+a wrapper for the more general
 [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md)
 function, using the following default arguments:
 
@@ -391,17 +371,21 @@ str(Demo.growth)
 #>  $ c4: num  -1.0064 1.2293 -0.3273 -1.0324 -0.0275 ...
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
-#> ✔ Found the posterior mode in 83 iterations [493ms]
-#> ✔ VB mean correction, max shift 0.11σ [210ms]
-#> ⠙ Fitting 16/17 skew-normal marginals
-#> ⠙ Fitting 17/17 skew-normal marginals
-#> ✔ Fitted 17 skew-normal marginals [801ms]
+#> ℹ Mode finding and Hessian computation.
+#> ✔ Posterior mode and Hessian. [349ms]
+#> 
+#> ℹ Performing VB correction.
+#> ✔ VB correction; mean |δ| = 0.031σ. [332ms]
+#> 
+#> ⠙ Fitting 0/17 skew-normal marginals.
+#> ✔ Fit 17/17 skew-normal marginals. [1.3s]
+#> 
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [211ms]
+#> ✔ Summarise 100 posterior draws. [177ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
-#> INLAvaan 0.3.99.9001 ended normally after 83 iterations
+#> INLAvaan 0.3.5 ended normally after 83 iterations
 #> 
 #>   Estimator                                      BAYES
 #>   Optimization method                           NLMINB
@@ -411,18 +395,18 @@ summary(fit)
 #> 
 #> Model Test (User Model):
 #> 
-#>    Marginal log-likelihood                   -2557.534 
+#>    Marginal log-likelihood                   -2557.535 
 #>    PPP (Chi-square)                              0.350 
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             4997.443 
-#>    Effective parameters (pD)                    17.553 
+#>    Deviance (DIC)                             4997.468 
+#>    Effective parameters (pD)                    17.567 
 #> 
 #> Parameter Estimates:
 #> 
 #>    Marginalisation method                     SKEWNORM
-#>    VB correction                               ONESTEP
+#>    VB correction                                  TRUE
 #> 
 #> Latent Variables:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
@@ -457,7 +441,7 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>  .i ~~                                                                         
-#>    .s                 0.069    0.045   -0.022    0.154    0.006       beta(1,1)
+#>    .s                 0.069    0.045   -0.019    0.158    0.006       beta(1,1)
 #> 
 #> Intercepts:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

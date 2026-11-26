@@ -21,7 +21,7 @@ marginal_method, nsamp) without retyping the whole call."><meta property="og:ima
 
     <a class="navbar-brand me-2" href="../index.html">INLAvaan</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.99.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@ marginal_method, nsamp) without retyping the whole call."><meta property="og:ima
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Update and re-fit an INLAvaan model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/main/R/method-update.R" class="external-link"><code>R/method-update.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/haziqj/INLAvaan/blob/v0.3.5/R/method-update.R" class="external-link"><code>R/method-update.R</code></a></small>
       <div class="d-none name"><code>update.Rd</code></div>
     </div>
 
@@ -125,47 +125,12 @@ then re-evaluates it. Because <a href="INLAvaan-package.html">INLAvaan</a> exten
 dedicated method is required: without it, <code>update()</code> would dispatch to
 <span class="pkg">lavaan</span>'s method and silently return a frequentist <span class="pkg">lavaan</span> fit
 instead of a Bayesian one.</p>
-<p>When the parameter structure and the data are preserved (no change to
-<code>model</code>, <code>add</code>, <code>model.type</code>, <code>data</code> or the sample statistics), the previous
-posterior mode is passed as the optimiser's starting value (a warm start),
-so mode-finding is typically much faster than a cold fit. This makes prior
-sweeps particularly cheap. The warm start changes the optimiser's starting
-point, so the mode it finds agrees with that of a fresh fit only up to the
-optimiser's tolerance (differences of order <code>1e-5</code> on the internal scale).
-A fit that fails the check of the one-step VB correction is the exception.
-The warm search for the mode costs less, and so lowers the cap that
-<code>vb_budget</code> sets on the VB solve (see <code><a href="inlavaan_control.html">inlavaan_control()</a></code>). The solve can
-then stop further short of the VB mean than in a fresh fit, and the VB mean
-and the log marginal likelihood differ more. Give <code>start = NULL</code> for the
-fit of a fresh call, or <code>control = list(vb_budget = Inf)</code> to lift the cap.
-It is used only when the refitted model has the same free parameters, by
-name and in the same order. Otherwise, as after <code>std.lv = TRUE</code> or
-<code>meanstructure = TRUE</code>, the fit starts from the usual values. It is not
-used when the recorded data are a function call, such as
-<code>lavaan::simulateData(...)</code> or <code>read.csv(...)</code>, which can give other data
-each time, rather than an object or a part of one (<code>dd</code>, <code>dd[dd$g == 1, ]</code>).
-Supply <code>start</code> explicitly to override it, or <code>start = NULL</code> to start from
-the usual values and get the fit of a fresh call.</p>
-<p>The refit needs the objects that the recorded call names: the data, the
-model, and the sample statistics of a fit to summary data (<code>sample.cov</code>,
-<code>sample.mean</code>, <code>sample.nobs</code>). When one of them is no longer found, as
-after <code>rm(dd)</code> or in a new session, <code>update()</code> stops with an error of class
-<code>inlavaan_update_data_not_found</code> that names it. Give it again, as in
-<code>update(fit, data = dd)</code> or <code>update(fit, model = mm)</code>, or fit the model
-again with <code><a href="inlavaan.html">inlavaan()</a></code>. An object named after a function, such as <code>df</code> or
-<code>data</code> in a new session, counts as not found. A data call, such as
-<code>simulateData(mm, sample.nobs = 100)</code>, is not run before the refit: only
-the object at its root (<code>mm</code>) is checked. An error inside the call is the
-error of the refit.</p>
-<p><code>update(fit, arg = NULL)</code> drops <code>arg</code> from the recorded call, as
-<code><a href="https://rdrr.io/r/stats/update.html" class="external-link">stats::update()</a></code> does. An argument given under another spelling that
-lavaan reads as the same, such as <code>std_ov</code> for <code>std.ov</code>, replaces the
-recorded one. An abbreviated argument name, such as <code>dat</code> for <code>data</code>, is
-not completed: <code>update()</code> stops with an error of class
-<code>inlavaan_update_abbreviated</code> that names the arguments it may mean.</p>
-<p><code>verbose = TRUE</code> and <code>silent = TRUE</code> cannot go together. So
-<code>update(fit, silent = TRUE)</code> drops <code>verbose</code> from the recorded call, and
-<code>update(fit, verbose = TRUE)</code> drops <code>silent</code>.</p>
+<p>When the parameter structure is preserved (no change to <code>model</code>, <code>add</code>, or
+<code>model.type</code>), the previous posterior mode is passed as the optimiser's
+starting value (a warm start), so mode-finding is typically much faster than
+a cold fit. This makes prior sweeps particularly cheap. The warm start only
+changes the optimiser's starting point, not the fitted result. Supply
+<code>start</code> explicitly to override it.</p>
 <p>Fits produced by INLAvaan versions that did not record their call cannot be
 updated; re-fit once with <code><a href="inlavaan.html">inlavaan()</a></code> (or <code><a href="acfa.html">acfa()</a></code>, <code><a href="asem.html">asem()</a></code>, <code><a href="agrowth.html">agrowth()</a></code>)
 and <code>update()</code> will work on the new object.</p>
@@ -189,7 +154,7 @@ and <code>update()</code> will work on the new object.</p>
 <span class="r-in"><span><span class="fu"><a href="compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Swap approximation settings only</span></span></span>
-<span class="r-in"><span><span class="va">fit4</span> <span class="op">&lt;-</span> <span class="fu">update</span><span class="op">(</span><span class="va">fit</span>, marginal_method <span class="op">=</span> <span class="st">"gaussian"</span>, nsamp <span class="op">=</span> <span class="fl">4000</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit4</span> <span class="op">&lt;-</span> <span class="fu">update</span><span class="op">(</span><span class="va">fit</span>, marginal_method <span class="op">=</span> <span class="st">"sampling"</span>, nsamp <span class="op">=</span> <span class="fl">4000</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
