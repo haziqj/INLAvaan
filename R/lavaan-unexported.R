@@ -19,6 +19,8 @@ lavaan___lav_mvn_loglik_samp <- NULL
 lavaan___lav_mvn_mi_loglik_samp <- NULL
 lavaan___lav_mvn_sc_mu_sigma <- NULL
 lavaan___lav_data_mi_patterns <- NULL
+lavaan___lav_data_cl_patterns <- NULL
+lavaan___lav_mvn_cl_rs_stats <- NULL
 lavaan___lav_inspect_coef <- NULL
 
 lavaan_internal_names <- c(
@@ -33,6 +35,8 @@ lavaan_internal_names <- c(
   "lav_mvn_mi_loglik_samp",
   "lav_mvn_sc_mu_sigma",
   "lav_data_mi_patterns",
+  "lav_data_cl_patterns",
+  "lav_mvn_cl_rs_stats",
   "lav_inspect_coef"
 )
 

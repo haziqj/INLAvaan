@@ -149,10 +149,25 @@ test_that("Multilevel predict yhat and ypred", {
   expect_false(any(is.na(m2)))
 })
 
-test_that("Multilevel predict errors for unsupported options", {
+test_that("Multilevel predict takes newdata with its clusters", {
+  dat <- lavaan::Demo.twolevel
+  # The fitted data again give the same draws
+  set.seed(10)
+  p_fit <- predict(fit_ml, type = "lv", level = 2L, nsamp = 3)
+  set.seed(10)
+  p_new <- predict(fit_ml, type = "lv", level = 2L, nsamp = 3, newdata = dat)
+  expect_identical(p_new, p_fit)
+  # Three clusters give three rows at level 2, and their rows at level 1
+  sub <- dat[dat$cluster %in% c(3, 7, 150), ]
+  p2 <- predict(fit_ml, type = "lv", level = 2L, nsamp = 2, newdata = sub)
+  expect_equal(nrow(p2[[1L]]), 3L)
+  p1 <- predict(fit_ml, type = "lv", level = 1L, nsamp = 2, newdata = sub)
+  expect_equal(nrow(p1[[1L]]), nrow(sub))
+  py <- predict(fit_ml, type = "yhat", nsamp = 2, newdata = sub)
+  expect_equal(nrow(py[[1L]]), nrow(sub))
   expect_error(
-    predict(fit_ml, type = "lv", newdata = lavaan::Demo.twolevel, nsamp = 3),
-    "not supported for multilevel"
+    predict(fit_ml, type = "lv", nsamp = 2, newdata = sub[, -12L]),
+    "must have the column"
   )
 })
 

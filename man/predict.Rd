@@ -41,7 +41,10 @@ observations, drawn from the conditional distribution
 
 \item{newdata}{An optional data frame of new observations. If supplied,
 predictions are computed for \code{newdata} rather than the original
-training data. Not supported for \code{type = "ymis"}.}
+training data. Not supported for \code{type = "ymis"}. For a two-level
+model \code{newdata} must hold the cluster variable (and the group
+variable of a multigroup fit), and its clusters are scored with the
+fitted parameters.}
 
 \item{level}{Integer; for \code{type = "lv"} in two-level models, specifies
 whether level 1 or level 2 latent variables are desired (default \code{1L}).

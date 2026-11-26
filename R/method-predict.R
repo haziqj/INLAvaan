@@ -213,6 +213,76 @@ build_newdata <- function(newdata, lavdata) {
   )
 }
 
+# The data of a two-level fit rebuilt for `newdata`: the rows of each group,
+# their clusters and their missing-data patterns, from lavaan's own set-up code
+# (as lavaan's lav_data_update() does), and the per-cluster statistics of a
+# random-slope model. Everything else is kept from the fit. The model is not
+# refitted, so the new clusters are scored with the fit's parameters.
+build_newdata_ml <- function(newdata, lavdata, lavcache = NULL) {
+  newdata <- as.data.frame(newdata)
+  cluster <- lavdata@cluster
+  grp <- lavdata@group
+  has_group <- length(grp) > 0L && nzchar(grp)
+  need <- c(cluster, if (has_group) grp)
+  absent <- setdiff(need, names(newdata))
+  if (length(absent) > 0L) {
+    cli_abort(
+      "{.arg newdata} must have the column{?s} {.field {absent}} of the fit."
+    )
+  }
+  for (g in seq_len(lavdata@ngroups)) {
+    rows <- if (has_group) {
+      which(as.character(newdata[[grp]]) == lavdata@group.label[g])
+    } else {
+      seq_len(nrow(newdata))
+    }
+    ov <- lavdata@ov.names[[g]]
+    absent <- setdiff(ov, names(newdata))
+    if (length(absent) > 0L) {
+      cli_abort(
+        "{.arg newdata} must have the variable{?s} {.field {absent}} of the
+         model."
+      )
+    }
+    X <- data.matrix(newdata[rows, ov, drop = FALSE])
+    clus <- data.matrix(newdata[rows, cluster, drop = FALSE])
+    lp <- lavaan___lav_data_cl_patterns(
+      y = X,
+      clus = clus,
+      cluster = cluster,
+      multilevel = TRUE,
+      ov_names = unique(c(ov, lavdata@ov.names.x[[g]])),
+      ov_names_x = lavdata@ov.names.x[[g]],
+      ov_names_l = lavdata@ov.names.l[[g]]
+    )
+    lavdata@X[[g]] <- X
+    lavdata@Lp[[g]] <- lp
+    lavdata@nobs[[g]] <- length(rows)
+    lavdata@norig[[g]] <- length(rows)
+    lavdata@case.idx[[g]] <- rows
+    if (!is.null(lavdata@Mp[[g]])) {
+      lavdata@Mp[[g]] <- lavaan___lav_data_mi_patterns(
+        X,
+        sort_freq = TRUE,
+        coverage = TRUE,
+        lp = lp
+      )
+    }
+    if (!is.null(lavdata@eXo[[g]])) {
+      x_names <- lavdata@ov.names.x[[g]]
+      lavdata@eXo[[g]] <- data.matrix(newdata[rows, x_names, drop = FALSE])
+    }
+  }
+  if (!is.null(lavcache) && !is.null(lavcache[[1L]]$rs)) {
+    lavcache[[1L]]$rs$stats <- lavaan___lav_mvn_cl_rs_stats(
+      y1 = lavdata@X[[1L]],
+      lp = lavdata@Lp[[1L]],
+      rs_info = lavcache[[1L]]$rs$info
+    )
+  }
+  list(lavdata = lavdata, lavcache = lavcache)
+}
+
 # Code ordinal columns 1, 2, ... by the categories seen when fitting, as lavaan
 # does, whether newdata holds factors or the original values.
 recode_ordinal <- function(newdata, lavdata) {
@@ -462,9 +532,6 @@ predict.inlavaan_internal <- function(
   # Multilevel restrictions
   if (is_multilevel(lavdata)) {
     # nocov start
-    if (!is.null(newdata)) {
-      cli_abort("{.arg newdata} is not supported for multilevel models.")
-    }
     if (!level %in% c(1L, 2L)) {
       cli_abort("{.arg level} must be {.val 1} or {.val 2}.")
     }
@@ -482,7 +549,16 @@ predict.inlavaan_internal <- function(
     }
   }
 
-  # Handle newdata: rebuild lavdata matrices
+  # Handle newdata: rebuild lavdata matrices. A two-level fit takes the whole
+  # data object of the new rows, with their clusters, and the code below runs
+  # on it unchanged.
+  if (!is.null(newdata) && is_multilevel(lavdata)) {
+    new_ml <- build_newdata_ml(newdata, lavdata, object$lavcache)
+    lavdata <- new_ml$lavdata
+    object$lavdata <- lavdata
+    object$lavcache <- new_ml$lavcache
+    newdata <- NULL
+  }
   if (!is.null(newdata)) {
     new_ld <- build_newdata(newdata, lavdata)
     y <- new_ld$X
@@ -1308,7 +1384,10 @@ print.summary.predict.inlavaan_internal <- function(
 #'   }
 #' @param newdata An optional data frame of new observations. If supplied,
 #'   predictions are computed for \code{newdata} rather than the original
-#'   training data. Not supported for \code{type = "ymis"}.
+#'   training data. Not supported for \code{type = "ymis"}. For a two-level
+#'   model \code{newdata} must hold the cluster variable (and the group
+#'   variable of a multigroup fit), and its clusters are scored with the
+#'   fitted parameters.
 #' @param level Integer; for \code{type = "lv"} in two-level models, specifies
 #'   whether level 1 or level 2 latent variables are desired (default \code{1L}).
 #'   Other types ignore it: for two-level models, \code{"yhat"} and

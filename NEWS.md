@@ -63,6 +63,14 @@
   those of group 2, and so on. Random slopes cannot be combined with groups,
   as in lavaan.
 
+* `predict(newdata = )` now works for two-level models, with or without
+  random slopes, groups or missing values. Before, INLAvaan refused it. The
+  new rows must hold the cluster variable (and the group variable of a
+  multigroup fit). lavaan's own set-up code finds their clusters and
+  missing-data patterns, and their clusters are scored with the fitted
+  parameters. Given the fitted data again, `predict()` returns the same
+  draws as without `newdata`.
+
 * New argument `silent` in `inlavaan()`, `acfa()`, `asem()` and `agrowth()`.
   `silent = TRUE` prints nothing and muffles the warnings and messages raised
   during the fit, for simulations and other repeated fits. Errors are still

@@ -258,6 +258,21 @@ test_that("Random slopes: latent variables come from the EB kernel", {
   expect_gt(stats::median(apply(s1_draws, 1L, stats::sd) / eb_se), 0.9)
 })
 
+test_that("Random slopes: newdata scores its own clusters", {
+  # The fitted data again give the same draws
+  set.seed(5)
+  p_fit <- predict(fit_rs, type = "lv", level = 2L, nsamp = 3)
+  set.seed(5)
+  p_new <- predict(fit_rs, type = "lv", level = 2L, nsamp = 3, newdata = d_rs)
+  expect_identical(p_new, p_fit)
+  cl <- unique(d_rs$cluster)[1:3]
+  sub <- d_rs[d_rs$cluster %in% cl, ]
+  p2 <- predict(fit_rs, type = "lv", level = 2L, nsamp = 2, newdata = sub)
+  expect_equal(nrow(p2[[1L]]), 3L)
+  py <- predict(fit_rs, type = "yhat", nsamp = 2, newdata = sub)
+  expect_equal(nrow(py[[1L]]), nrow(sub))
+})
+
 ## ----- Route B (Gauss-Hermite quadrature) ------------------------------------
 
 test_that("Random slopes: the closed-form route is silent", {
