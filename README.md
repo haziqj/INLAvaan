@@ -12,6 +12,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 coverage](https://codecov.io/gh/haziqj/INLAvaan/branch/main/graph/badge.svg)](https://app.codecov.io/gh/haziqj/INLAvaan?branch=main)
 [![CRAN_Status_Badge_version_ago](http://www.r-pkg.org/badges/version-ago/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
 [![Dependencies](https://tinyverse.netlify.app/badge/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
+[![inlavanilla](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhaziqj%2FINLAvaan%2Fmain%2F.github%2Finlavanilla-badge.json)](https://github.com/haziqj/inlavanilla)
 [![CRAN
 Downloads](http://cranlogs.r-pkg.org/badges/grand-total/INLAvaan)](https://cran.r-project.org/package=INLAvaan)
 ![GitHub Repo
