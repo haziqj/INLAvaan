@@ -327,14 +327,18 @@ compare_impl <- function(
       )
     } else {
       # nocov end
-      # One independence baseline, fitted on the first model's data, serves
-      # every model's incremental indices. FALSE skips the refit when none
-      # is requested.
+      # One independence baseline, of the first model's data, serves every
+      # model's incremental indices: the record kept with the first model (see
+      # independence_record()), so it is fitted only if no earlier call has.
+      # FALSE skips it when no incremental index is requested.
       need_incr <- identical(fit.measures, "all") ||
         any(c("BCFI", "BTLI", "BNFI") %in% fit.measures)
       baseline_obj <- if (need_incr) {
         tryCatch(
-          fit_independence_baseline(originals[[1]]),
+          independence_record(
+            originals[[1]],
+            originals[[1]]@external$inlavaan_internal$nsamp
+          ),
           error = function(e) NULL
         )
       } else {

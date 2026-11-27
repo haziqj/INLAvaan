@@ -284,3 +284,30 @@ test_that("The independence baseline is fitted once and kept with the fit", {
   expect_type(rec, "list")
   expect_lt(as.numeric(utils::object.size(rec)), 2e4)
 })
+
+test_that("compare() uses the baseline kept with its first model", {
+  fit <- fit_quick(hs_mod, hs)
+  fit_1f <- fit_quick("g =~ x1 + x2 + x3 + x4 + x5 + x6", hs)
+  n_fits <- 0L
+  baseline_original <- fit_independence_baseline
+  local_mocked_bindings(
+    fit_independence_baseline = function(object, nsamp = NULL) {
+      n_fits <<- n_fits + 1L
+      baseline_original(object, nsamp)
+    }
+  )
+  fm <- fitMeasures(fit, c("BCFI", "BTLI"))
+  cmp <- compare(fit, fit_1f, fit.measures = c("BCFI", "BTLI"))
+  expect_identical(n_fits, 1L)
+  expect_equal(cmp$BCFI[cmp$Model == "fit"], round(unname(fm[["BCFI"]]), 4))
+  # The second model is scaled against the same kept baseline
+  rec <- fit@external$cache$independence
+  expect_s3_class(rec, "inlavaan_baseline_record")
+  bf <- bfit_indices(fit_1f, baseline.model = rec)
+  expect_equal(
+    cmp$BCFI[cmp$Model == "fit_1f"],
+    round(mean(bf$indices$BCFI), 4)
+  )
+  compare(fit, fit_1f, fit.measures = "BCFI")
+  expect_identical(n_fits, 1L)
+})

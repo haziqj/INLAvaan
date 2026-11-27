@@ -309,10 +309,10 @@ fit_independence_baseline <- function(object, nsamp = NULL) {
 # draws (NULL for a fit that did not keep them), its saturated log-likelihood,
 # pD, number of free parameters, number of sample moments, number of
 # observations and number of groups. A few kilobytes, so it can be kept with
-# the fitted model.
+# the fitted model. compare() passes it to fitMeasures() as baseline.model.
 baseline_record <- function(baseline) {
   bint <- baseline@external$inlavaan_internal
-  list(
+  rec <- list(
     loglik_samp = bint$DIC$loglik_samp,
     loglik_sat = compute_loglik_sat(
       baseline,
@@ -325,6 +325,7 @@ baseline_record <- function(baseline) {
     N = bint$lavsamplestats@ntotal,
     Ngr = bint$lavdata@ngroups
   )
+  structure(rec, class = "inlavaan_baseline_record")
 }
 
 # The baseline record of the independence model of `object`, for nsamp draws.
@@ -351,8 +352,8 @@ independence_record <- function(object, nsamp) {
 
 # Resolve the `baseline.model` argument of bfit_indices(): NULL gives the
 # record of the independence model (none for a model that already is one, see
-# independence_record()), FALSE skips the incremental indices, and a supplied
-# fit is checked and returned.
+# independence_record()), FALSE skips the incremental indices, a supplied
+# fit is checked and returned, and so is a baseline record (from compare()).
 resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
   if (isFALSE(baseline.model)) {
     return(NULL)
@@ -372,6 +373,9 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
         NULL
       }
     ))
+  }
+  if (inherits(baseline.model, "inlavaan_baseline_record")) {
+    return(baseline.model)
   }
   if (!is(baseline.model, "INLAvaan")) {
     cli_abort(
@@ -701,7 +705,8 @@ inlav_fit_measures <- function(
   if (
     !is.null(baseline.model) &&
       !isFALSE(baseline.model) &&
-      !is(baseline.model, "INLAvaan")
+      !is(baseline.model, "INLAvaan") &&
+      !inherits(baseline.model, "inlavaan_baseline_record")
   ) {
     cli_abort(
       "{.arg baseline.model} must be an {.cls INLAvaan} object, or
