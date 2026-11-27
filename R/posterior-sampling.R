@@ -85,41 +85,41 @@ sample_params <- function(
   list(theta_samp = theta, x_samp = x)
 }
 
-# 1. Get correlation matrix R = cov2cor(Omega)
-# 2. Sample z ~ N(0, R)
-# 3. Compute u = Phi^{-1}(z)
-# 4. For each j, compute theta_j = F^{-1}_j(u_j) where F_j is the marginal posterior CDF for parameter j
-# 5. Get x = pars_to_x(theta)
-# 6. Compute implied covariance matrix Sigma(x)
-# 7. Sample Srep ~ Wishart(n - 1, Sigma(x))
-# 7. Repeat 1-6 and get samples of Sigma, and Srep
-#
-# Define F(S, Sigma) = log |Sigma| + trace(S Sigma^{-1}) - log |S| - p
-# and the test statistic is T(S, Sigma) = (n - 1) / 2 * F(S, Sigma)
-# Then ppp = P(T(Srep, Sigma) >= T(S, Sigma))
+## ----- PPP and DIC over the posterior draws ---------------------------------
 
-get_ppp <- function(
-  x_samp,
-  lavmodel,
-  lavsamplestats,
-  lavdata,
-  lavpartable = NULL,
-  h1 = NULL,
-  cli_env = NULL
-) {
-  # Single-level fits only: two-level fits go through get_ppp_twolevel()
+# The single-level PPP (after Levy 2011) and the DIC both score every posterior
+# draw x_s, and both need the implied moments of x_s. score_draws() therefore
+# goes over the draws once: per draw it sets the parameters and computes the
+# implied moments, then takes the PPP exceedance (ppp_draw()) and the
+# log-likelihood (implied_loglik()) from them.
+#
+# PPP. With Sigma_s the implied covariance of x_s and Srep_s one replicate
+# drawn from Wishart(n - 1, Sigma_s) / (n - 1), the discrepancy is
+#   F(S, Sigma) = log|Sigma| + tr(Sigma^{-1} S) - log|S| - p
+# and PPP = mean over s of 1{F(Srep_s, Sigma_s) >= F(S, Sigma_s)}.
+#
+# DIC (Spiegelhalter et al. 2002). D(x) = -2 log p(y | x), Dbar is the mean of
+# D(x_s) over the draws whose log-likelihood does not fail, Dhat = D(x_hat) at
+# the VB mean, pD = Dbar - Dhat and DIC = Dbar + pD.
+#
+# The log-likelihood of each draw without the term of the marginalised
+# saturated means is kept (loglik_samp), because the per-draw chi-square of
+# bfit_indices() is that log-likelihood (see compute_chisq_dev()).
+
+# The parts of the PPP that do not change across draws: per block the observed
+# covariance S with divisor n - 1, n, log|S| and the positions of the fixed
+# covariates, and the plan for composites whose indicator (co)variances are
+# fixed at the sample covariance (see ppp_composite_draw()).
+ppp_setup <- function(lavmodel, lavsamplestats, lavdata, lavpartable = NULL) {
   n_blocks <- lavmodel@nblocks
   has_missing <- isTRUE(lavsamplestats@missing.flag)
-
-  # Pre-compute per-block observed stats (S, n, logdet_S) — invariant across
-  # samples, so we avoid redundant extraction and determinant calls in the loop.
   block_obs <- vector("list", n_blocks)
   for (b in seq_len(n_blocks)) {
     g <- b
     n <- lavsamplestats@nobs[[g]]
     # The observed covariance: the EM (saturated) estimate under FIML,
     # the plain sample covariance otherwise. Both have divisor n, and
-    # the replicates below are Wishart(n - 1, Sigma) / (n - 1) objects,
+    # the replicates are Wishart(n - 1, Sigma) / (n - 1) objects,
     # so rescale to the unbiased (n - 1) form to match.
     S <- if (has_missing && !is.null(lavsamplestats@missing.h1[[g]]$sigma)) {
       lavsamplestats@missing.h1[[g]]$sigma
@@ -127,93 +127,173 @@ get_ppp <- function(
       lavsamplestats@cov[[g]]
     }
     S <- S * n / (n - 1)
-
-    logdet_S <- as.numeric(determinant(S, logarithm = TRUE)$modulus)
     block_obs[[b]] <- list(
       S = S,
       n = n,
-      logdet_S = logdet_S,
-      # Positions of the fixed covariates
+      logdet_S = as.numeric(determinant(S, logarithm = TRUE)$modulus),
       x_idx = lavsamplestats@x.idx[[g]]
     )
   }
-
-  # Composite indicator (co)variances fixed at the sample covariance change
-  # with the data, so they must change with each replicate too (see
-  # ppp_composite_draw()).
   t_fixed <- composite_fixed_t(lavmodel, lavpartable, lavdata)
-  if (!is.null(t_fixed)) {
-    scale_plan <- composite_scale_plan(lavmodel, lavpartable)
-  }
+  list(
+    block_obs = block_obs,
+    t_fixed = t_fixed,
+    scale_plan = if (!is.null(t_fixed)) {
+      composite_scale_plan(lavmodel, lavpartable)
+    }
+  )
+}
 
-  res <- vector("numeric", length = nrow(x_samp))
-  for (i in seq_len(nrow(x_samp))) {
+# The PPP exceedance of one draw xx: 1 when F(Srep, Sigma) >= F(S, Sigma) and
+# 0 otherwise. lavmodel_x is lavmodel at xx and lavimplied its implied
+# moments. plan comes from ppp_setup(). A block whose implied covariance is not
+# positive definite is left out of both discrepancies.
+ppp_draw <- function(xx, lavmodel_x, lavimplied, lavmodel, plan) {
+  block_obs <- plan$block_obs
+  if (!is.null(plan$t_fixed)) {
+    return(ppp_composite_draw(
+      xx,
+      lavmodel_x,
+      lavimplied,
+      lavmodel,
+      plan$t_fixed,
+      block_obs,
+      plan$scale_plan
+    ))
+  }
+  Tobs <- 0
+  Trep <- 0
+  for (b in seq_along(block_obs)) {
+    S <- block_obs[[b]]$S
+    n <- block_obs[[b]]$n
+    x_idx <- block_obs[[b]]$x_idx
+    Sigma <- implied_joint_moments(lavimplied, b, x_idx)$cov
+    if (is_bad_cov(Sigma)) {
+      next
+    }
+    p <- nrow(Sigma)
+
+    # One Cholesky factor for the log-determinant, the inverse and both
+    # discrepancies
+    L <- chol(Sigma)
+    logdet_Sigma <- 2 * sum(log(diag(L)))
+    Sigma_inv <- chol2inv(L)
+
+    W <- matrix(stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1], p, p)
+    Srep <- W / (n - 1)
+    logdet_Srep <- as.numeric(determinant(Srep, logarithm = TRUE)$modulus)
+    Tobs <- Tobs +
+      logdet_Sigma +
+      sum(Sigma_inv * S) -
+      block_obs[[b]]$logdet_S -
+      p
+    Trep <- Trep + logdet_Sigma + sum(Sigma_inv * Srep) - logdet_Srep - p
+
+    # Fixed covariates are conditioned on, not modelled, so the discrepancy
+    # is that of the outcomes given the covariates: F less its covariate
+    # block. The replicates vary that block too, and without this they
+    # would carry extra misfit and push the PPP up.
+    if (length(x_idx) > 0L) {
+      Sigma_xx <- Sigma[x_idx, x_idx, drop = FALSE]
+      Tobs <- Tobs - ml_discrepancy(S[x_idx, x_idx, drop = FALSE], Sigma_xx)
+      Trep <- Trep - ml_discrepancy(Srep[x_idx, x_idx, drop = FALSE], Sigma_xx)
+    }
+  }
+  as.numeric(Trep >= Tobs)
+}
+
+# One pass over the draws for the single-level PPP and the DIC. ppp_plan is
+# the result of ppp_setup(), or NULL for no PPP. With dic = TRUE the DIC is
+# computed with the plug-in at theta_star, and loglik_x_adj is added to every
+# log-likelihood (the fixed-x constant of two-level fits). fiml and multilevel
+# are the plans of the likelihood kernels. Returns list(ppp, dic), where dic is
+# list(dic, Dbar, Dhat, pD, loglik_samp) or NULL.
+score_draws <- function(
+  x_samp,
+  theta_star,
+  pt,
+  lavmodel,
+  lavsamplestats,
+  lavdata,
+  lavoptions,
+  lavcache,
+  fiml,
+  multilevel,
+  loglik_x_adj = 0,
+  ppp_plan = NULL,
+  dic = TRUE,
+  cli_env = NULL
+) {
+  nsamp <- nrow(x_samp)
+  do_ppp <- !is.null(ppp_plan)
+  exceed <- if (do_ppp) numeric(nsamp)
+  marg <- isTRUE(dic) &&
+    lavmodel@estimator == "ML" &&
+    marginalised_means_active(lavmodel)
+  ll_raw <- ll <- if (isTRUE(dic)) numeric(nsamp)
+
+  for (i in seq_len(nsamp)) {
     if (!is.null(cli_env)) {
       cli_progress_update(.envir = cli_env) # nocov
     }
-
     xx <- x_samp[i, ]
     lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, xx)
     lavimplied <- lavaan::lav_model_implied(lavmodel_x)
-
-    if (!is.null(t_fixed)) {
-      res[i] <- ppp_composite_draw(
-        xx,
+    if (do_ppp) {
+      exceed[i] <- ppp_draw(xx, lavmodel_x, lavimplied, lavmodel, ppp_plan)
+    }
+    if (isTRUE(dic)) {
+      out <- implied_loglik(
         lavmodel_x,
         lavimplied,
         lavmodel,
-        t_fixed,
-        block_obs,
-        scale_plan
+        lavsamplestats,
+        lavdata,
+        lavoptions,
+        lavcache,
+        fiml = fiml,
+        multilevel = multilevel
       )
-      next
-    }
-
-    Tobs <- 0
-    Trep <- 0
-
-    for (b in seq_len(n_blocks)) {
-      S <- block_obs[[b]]$S
-      n <- block_obs[[b]]$n
-      logdet_S <- block_obs[[b]]$logdet_S
-
-      Sigma <- implied_joint_moments(lavimplied, b, block_obs[[b]]$x_idx)$cov
-
-      if (!is_bad_cov(Sigma)) {
-        p <- nrow(Sigma)
-
-        # Cholesky of Sigma — shared for logdet, inverse, and both discrepancies
-        L <- chol(Sigma)
-        logdet_Sigma <- 2 * sum(log(diag(L)))
-        Sigma_inv <- chol2inv(L)
-
-        # Wishart draw for replicated data
-        W <- matrix(stats::rWishart(1, df = n - 1, Sigma = Sigma)[,, 1], p, p)
-        Srep <- W / (n - 1)
-        logdet_Srep <- as.numeric(determinant(Srep, logarithm = TRUE)$modulus)
-
-        # F(S, Sigma) = log|Sigma| + tr(Sigma^{-1} S) - log|S| - p
-        Tobs <- Tobs + logdet_Sigma + sum(Sigma_inv * S) - logdet_S - p
-        Trep <- Trep + logdet_Sigma + sum(Sigma_inv * Srep) - logdet_Srep - p
-
-        # Fixed covariates are conditioned on, not modelled, so the discrepancy
-        # is that of the outcomes given the covariates: F less its covariate
-        # block. The replicates vary that block too, and without this they
-        # would carry extra misfit and push the PPP up.
-        x_idx <- block_obs[[b]]$x_idx
-        if (length(x_idx) > 0L) {
-          Sigma_xx <- Sigma[x_idx, x_idx, drop = FALSE]
-          Tobs <- Tobs - ml_discrepancy(S[x_idx, x_idx, drop = FALSE], Sigma_xx)
-          Trep <- Trep -
-            ml_discrepancy(Srep[x_idx, x_idx, drop = FALSE], Sigma_xx)
-        }
+      ll_raw[i] <- out
+      if (marg && out != -1e40) {
+        out <- out + marginalised_means_loglik_corr(lavimplied, lavsamplestats)
       }
+      ll[i] <- out + loglik_x_adj
     }
-
-    res[i] <- as.numeric(Trep >= Tobs)
   }
 
-  mean(res)
+  dic_list <- NULL
+  if (isTRUE(dic)) {
+    xhat <- if (lavmodel@ceq.simple.only) {
+      pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt) # nocov
+    } else {
+      pars_to_x(theta_star, pt)
+    }
+    Dhat <- -2 *
+      (inlav_model_loglik(
+        xhat,
+        lavmodel,
+        lavsamplestats,
+        lavdata,
+        lavoptions,
+        lavcache,
+        fiml = fiml,
+        multilevel = multilevel
+      ) +
+        loglik_x_adj)
+    Dbar_samp <- -2 * ll
+    Dbar <- mean(Dbar_samp[Dbar_samp < 1e40])
+    pD <- Dbar - Dhat
+    dic_list <- list(
+      dic = Dbar + pD,
+      Dbar = Dbar,
+      Dhat = Dhat,
+      pD = pD,
+      loglik_samp = ll_raw
+    )
+  }
+
+  list(ppp = if (do_ppp) mean(exceed), dic = dic_list)
 }
 
 # One posterior draw of the PPP for a fit with composites. lavaan fixes the
@@ -425,7 +505,7 @@ composite_scale_plan <- function(lavmodel, pt) {
 }
 
 # F(S, Sigma) of the outcomes given the fixed covariates at x_idx, which is F
-# less its covariate block, as in get_ppp().
+# less its covariate block, as in ppp_draw().
 ppp_discrepancy <- function(S, Sigma, x_idx) {
   out <- ml_discrepancy(S, Sigma)
   if (length(x_idx) > 0L) {
@@ -720,36 +800,6 @@ summarise_samples_sn <- function(y) {
     pdf_data = data.frame(x = x, y = fx),
     sn_params = approx_data_row(list(xi = xi, omega = omega, alpha = alpha))
   )
-}
-
-get_dic <- function(
-  x_samp,
-  theta_star,
-  pt,
-  lavmodel,
-  loglik,
-  cli_env = NULL
-) {
-  if (lavmodel@ceq.simple.only) {
-    # nocov start
-    xhat <- pars_to_x(as.numeric(lavmodel@ceq.simple.K %*% theta_star), pt)
-  } else {
-    # nocov end
-    xhat <- pars_to_x(theta_star, pt)
-  }
-
-  Dhat <- -2 * loglik(xhat)
-  Dbar_samp <- sapply(seq_len(nrow(x_samp)), function(i) {
-    if (!is.null(cli_env)) {
-      cli_progress_update(.envir = cli_env)
-    }
-    xx <- x_samp[i, ]
-    -2 * loglik(xx)
-  })
-  Dbar <- mean(Dbar_samp[Dbar_samp < 1e40])
-  pD <- Dbar - Dhat
-
-  list(dic = Dbar + pD, Dbar = Dbar, Dhat = Dhat, pD = pD)
 }
 
 

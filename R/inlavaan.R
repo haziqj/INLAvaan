@@ -1063,38 +1063,34 @@ inlavaan <- function(
           skipped <- c(skipped, ppp = "No posterior draw could be scored.")
           ppp <- NULL
         }
-      } else if ("ppp" %in% test_req) {
-        ppp <- get_ppp(
-          x_samp = x_samp,
-          lavmodel = lavmodel,
-          lavsamplestats = lavsamplestats,
-          lavdata = lavdata,
-          lavpartable = lavpartable,
-          h1 = fit0@h1,
-          cli_env = samp_env
-        )
       }
-      if ("dic" %in% test_req) {
-        dic_list <- get_dic(
+      # The single-level PPP and the DIC take one pass over the draws (see
+      # score_draws()). The two-level PPP above has its own draws and fits.
+      ppp_plan <- NULL
+      if ("ppp" %in% test_req && lavdata@nlevels == 1L) {
+        ppp_plan <- ppp_setup(lavmodel, lavsamplestats, lavdata, lavpartable)
+      }
+      if (!is.null(ppp_plan) || "dic" %in% test_req) {
+        scored <- score_draws(
           x_samp = x_samp,
           theta_star = theta_star_vbc,
           pt = pt,
           lavmodel = lavmodel,
-          loglik = function(x) {
-            inlav_model_loglik(
-              x,
-              lavmodel,
-              lavsamplestats,
-              lavdata,
-              lavoptions,
-              lavcache,
-              fiml = fiml,
-              multilevel = multilevel
-            ) +
-              loglik_x_adj
-          },
+          lavsamplestats = lavsamplestats,
+          lavdata = lavdata,
+          lavoptions = lavoptions,
+          lavcache = lavcache,
+          fiml = fiml,
+          multilevel = multilevel,
+          loglik_x_adj = loglik_x_adj,
+          ppp_plan = ppp_plan,
+          dic = "dic" %in% test_req,
           cli_env = samp_env
         )
+        if (!is.null(ppp_plan)) {
+          ppp <- scored$ppp
+        }
+        dic_list <- scored$dic
       }
     }
     timing <- add_timing(timing, "test")

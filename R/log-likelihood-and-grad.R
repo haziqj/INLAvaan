@@ -11,6 +11,44 @@ inlav_model_loglik <- function(
 ) {
   lavmodel_x <- lavaan::lav_model_set_parameters(lavmodel, x)
   lavimplied <- lavaan::lav_model_implied(lavmodel_x)
+  out <- implied_loglik(
+    lavmodel_x,
+    lavimplied,
+    lavmodel,
+    lavsamplestats,
+    lavdata,
+    lavoptions,
+    lavcache,
+    fiml = fiml,
+    multilevel = multilevel
+  )
+  if (
+    out != -1e40 &&
+      lavmodel@estimator == "ML" &&
+      isTRUE(marginalise_means) &&
+      marginalised_means_active(lavmodel)
+  ) {
+    out <- out + marginalised_means_loglik_corr(lavimplied, lavsamplestats)
+  }
+  out
+}
+
+# The log-likelihood of inlav_model_loglik() at moments already computed:
+# lavmodel_x is lavmodel at the parameters and lavimplied its implied moments.
+# The term of the marginalised saturated means is left out, so that a caller
+# that needs the log-likelihood with and without it computes the moments once
+# (see score_draws()). Returns -1e40 when the log-likelihood fails.
+implied_loglik <- function(
+  lavmodel_x,
+  lavimplied,
+  lavmodel,
+  lavsamplestats,
+  lavdata,
+  lavoptions,
+  lavcache = NULL,
+  fiml = NULL,
+  multilevel = NULL
+) {
   Sigma <- implied_block_moments(lavimplied, 1L, lavmodel, lavsamplestats)$cov
 
   out <- -1e40
@@ -69,13 +107,6 @@ inlav_model_loglik <- function(
       # so a random-slope kernel can still return a non-finite value.
       if (!is.finite(out)) {
         out <- -1e40
-      }
-      if (
-        out != -1e40 &&
-          isTRUE(marginalise_means) &&
-          marginalised_means_active(lavmodel)
-      ) {
-        out <- out + marginalised_means_loglik_corr(lavimplied, lavsamplestats)
       }
     } else if (lavmodel@estimator == "PML") {
       # Pairwise log-likelihood
