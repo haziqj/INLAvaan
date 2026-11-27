@@ -283,6 +283,112 @@ complete_loglik <- function(lavimplied, plan) {
   out
 }
 
+# The plan of independence_loglik(). In an independence model every free
+# parameter is a variance or an intercept and Sigma is diagonal, so the
+# implied variances and means are linear in the free parameters: the implied
+# moments at x = 0 and at each unit vector give them, as v0 + x A and m0 + x B
+# per group. Per variable it keeps the data the log-likelihood needs: n, the
+# sample mean and variance (complete data), or the number, sum and sum of
+# squares of the observed values (missing data, which has a mean structure).
+# NULL where this does not apply: not an independence model, an estimator other
+# than ML, two levels, conditional.x, random slopes, fixed covariates, missing
+# data without a mean structure, or an implied covariance with an off-diagonal
+# entry.
+independence_loglik_setup <- function(lavmodel, lavsamplestats, lavdata, pt) {
+  if (
+    !is_independence_partable(pt) ||
+      lavmodel@estimator != "ML" ||
+      lavdata@nlevels > 1L ||
+      isTRUE(lavmodel@conditional.x) ||
+      has_random_slopes(lavmodel) ||
+      any(lengths(lavsamplestats@x.idx) > 0L) ||
+      (isTRUE(lavsamplestats@missing.flag) && !isTRUE(lavmodel@meanstructure))
+  ) {
+    return(NULL)
+  }
+  k <- lavmodel@nx.free
+  at <- rbind(0, diag(k))
+  implied <- lapply(seq_len(k + 1L), function(r) {
+    lavaan::lav_model_implied(lavaan::lav_model_set_parameters(
+      lavmodel,
+      at[r, ]
+    ))
+  })
+  missing <- isTRUE(lavsamplestats@missing.flag)
+  groups <- vector("list", lavdata@ngroups)
+  for (g in seq_along(groups)) {
+    covs <- lapply(implied, function(e) e$cov[[g]])
+    if (any(vapply(covs, function(m) any(m[row(m) != col(m)] != 0), NA))) {
+      return(NULL)
+    }
+    v0 <- diag(covs[[1]])
+    A <- do.call(rbind, lapply(covs[-1], function(m) diag(m) - v0))
+    grp <- list(v0 = v0, A = A, n = lavsamplestats@nobs[[g]])
+    if (isTRUE(lavmodel@meanstructure)) {
+      means <- lapply(implied, function(e) as.numeric(e$mean[[g]]))
+      grp$m0 <- means[[1]]
+      grp$B <- do.call(rbind, lapply(means[-1], function(m) m - means[[1]]))
+    }
+    if (missing) {
+      X <- lavdata@X[[g]]
+      obs <- !is.na(X)
+      X[!obs] <- 0
+      grp$n_obs <- colSums(obs)
+      grp$sum1 <- colSums(X)
+      grp$sum2 <- colSums(X^2)
+    } else {
+      grp$ybar <- as.numeric(lavsamplestats@mean[[g]])
+      grp$s2 <- diag(lavsamplestats@cov[[g]])
+    }
+    groups[[g]] <- grp
+  }
+  list(
+    groups = groups,
+    missing = missing,
+    meanstructure = isTRUE(lavmodel@meanstructure)
+  )
+}
+
+# The log-likelihood of every draw (rows of x_samp) of an independence model at
+# once, as the sum over variables of univariate normal log-likelihoods: with
+# complete data -n/2 [log(2 pi) + log(v) + (s2 + (ybar - m)^2) / v] per
+# variable, and with missing data the same over the observed values of each
+# variable. Without a mean structure m is the sample mean. Returns raw (the
+# log-likelihood, -1e40 where a variance is not positive) and corr (the term of
+# the marginalised saturated means, 0.5 log|Sigma| + 0.5 p log(2 pi / n) per
+# group, as marginalised_means_loglik_corr() computes it). plan comes from
+# independence_loglik_setup().
+independence_loglik <- function(x_samp, plan) {
+  raw <- corr <- numeric(nrow(x_samp))
+  for (grp in plan$groups) {
+    v <- sweep(x_samp %*% grp$A, 2L, grp$v0, "+")
+    m <- if (plan$meanstructure) {
+      sweep(x_samp %*% grp$B, 2L, grp$m0, "+")
+    }
+    log_v <- suppressWarnings(log(v))
+    if (plan$missing) {
+      n_obs <- rep(grp$n_obs, each = nrow(v))
+      ss <- rep(grp$sum2, each = nrow(v)) -
+        2 * m * rep(grp$sum1, each = nrow(v)) +
+        n_obs * m^2
+      raw <- raw - 0.5 * rowSums(n_obs * (log(2 * pi) + log_v) + ss / v)
+    } else {
+      dev <- rep(grp$s2, each = nrow(v))
+      if (!is.null(m)) {
+        dev <- dev + (rep(grp$ybar, each = nrow(v)) - m)^2
+      }
+      raw <- raw - grp$n / 2 * rowSums(log(2 * pi) + log_v + dev / v)
+    }
+    corr <- corr +
+      0.5 * rowSums(log_v) +
+      0.5 * ncol(v) * log(2 * pi / grp$n)
+  }
+  bad <- !is.finite(raw)
+  raw[bad] <- -1e40
+  corr[bad] <- 0
+  list(raw = raw, corr = corr)
+}
+
 # One pass over the draws for the single-level PPP and the DIC. ppp_plan is
 # the result of ppp_setup(), or NULL for no PPP. With dic = TRUE the DIC is
 # computed with the plug-in at theta_star, and loglik_x_adj is added to every
@@ -341,6 +447,25 @@ score_draws <- function(
       out <- out + marginalised_means_loglik_corr(lavimplied, lavsamplestats)
     }
     out + loglik_x_adj
+  }
+
+  # An independence model with no PPP (the baseline of bfit_indices()) is
+  # scored for all draws at once. The first draw is checked against the route
+  # of every other model, which is used where they disagree.
+  indep <- if (isTRUE(dic) && !do_ppp) {
+    independence_loglik_setup(lavmodel, lavsamplestats, lavdata, pt)
+  }
+  if (!is.null(indep)) {
+    vec <- independence_loglik(x_samp, indep)
+    lavmodel_1 <- lavaan::lav_model_set_parameters(lavmodel, x_samp[1, ])
+    implied_1 <- lavaan::lav_model_implied(lavmodel_1)
+    ll_1 <- full_loglik(draw_loglik(lavmodel_1, implied_1), implied_1)
+    full <- ifelse(vec$raw == -1e40, -1e40, vec$raw + marg * vec$corr)
+    if (abs(full[1] + loglik_x_adj - ll_1) <= 1e-8 * max(1, abs(ll_1))) {
+      ll_raw <- vec$raw
+      ll <- full + loglik_x_adj
+      n_loop <- 0L
+    }
   }
 
   for (i in seq_len(n_loop)) {
