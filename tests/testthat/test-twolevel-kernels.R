@@ -215,10 +215,21 @@ test_that("the per-cluster forms equal lavaan's with its flags", {
     do.call(lav_ns$lav_mvn_cl_dlogl_2l_samp, args),
     tolerance = 1e-12
   )
+  # From lavaan 0.7-3.3410 on, lav_model_delta() adds the within-level mean
+  # rows of shared variables to their between-level rows (fold_means = TRUE).
+  # The score of each cluster gives both rows the same value, so the product
+  # is the same. twolevel_delta() keeps the rows apart, as lavaan 0.7-3 does.
+  lav_delta <- function(lm) {
+    if ("fold_means" %in% names(formals(lav_ns$lav_model_delta))) {
+      lav_ns$lav_model_delta(lm, fold_means = FALSE)
+    } else {
+      lav_ns$lav_model_delta(lm)
+    }
+  }
   lm <- fit@Model
   expect_equal(
     twolevel_delta(lm),
-    lav_ns$lav_model_delta(lm)[[1L]],
+    lav_delta(lm)[[1L]],
     tolerance = 1e-12,
     ignore_attr = TRUE
   )
@@ -226,7 +237,7 @@ test_that("the per-cluster forms equal lavaan's with its flags", {
   lm <- tlk_fits$multigroup@Model
   expect_equal(
     twolevel_delta(lm, g = 2L),
-    lav_ns$lav_model_delta(lm)[[2L]],
+    lav_delta(lm)[[2L]],
     tolerance = 1e-12,
     ignore_attr = TRUE
   )
