@@ -75,7 +75,18 @@
 #' (see [waic()]) from the same Taylor pass, or afterwards with
 #' [add_loo()]; `loo(fit)` with default arguments then returns the stored
 #' result. Under the default `test = "standard"` nothing is stored and
-#' `loo(fit)` computes it on demand.
+#' `loo(fit)` computes it on demand. That pass is then kept with the fit, so
+#' a later `loo(fit)` or [waic()] with default arguments reuses it, with the
+#' same numbers and the same warnings.
+#'
+#' The Hessian \eqn{H_u} of a row of a single-level model, or of a cluster of
+#' a two-level model with complete data, is computed in closed form in the
+#' data, with only the second derivatives of the model-implied moments taken
+#' by finite differences, once for all units. For the other units (random
+#' slopes, two-level models with missing data, rows of a two-level model),
+#' \eqn{H_u} is a central difference of the analytic unit scores. Setting
+#' `options(inlavaan.loo_hessian = "differences")` uses the differences for
+#' every unit.
 #'
 #' The default `cores = NULL` runs serially, and `cores > 1` parallelises the
 #' Hessian stage. Supported models are continuous-indicator models fitted with

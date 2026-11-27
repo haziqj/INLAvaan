@@ -203,7 +203,18 @@ The LOO is stored with the fit when \code{\link[=inlavaan]{inlavaan()}}'s \code{
 (see \code{\link[=waic]{waic()}}) from the same Taylor pass, or afterwards with
 \code{\link[=add_loo]{add_loo()}}; \code{loo(fit)} with default arguments then returns the stored
 result. Under the default \code{test = "standard"} nothing is stored and
-\code{loo(fit)} computes it on demand.
+\code{loo(fit)} computes it on demand. That pass is then kept with the fit, so
+a later \code{loo(fit)} or \code{\link[=waic]{waic()}} with default arguments reuses it, with the
+same numbers and the same warnings.
+
+The Hessian \eqn{H_u} of a row of a single-level model, or of a cluster of
+a two-level model with complete data, is computed in closed form in the
+data, with only the second derivatives of the model-implied moments taken
+by finite differences, once for all units. For the other units (random
+slopes, two-level models with missing data, rows of a two-level model),
+\eqn{H_u} is a central difference of the analytic unit scores. Setting
+\code{options(inlavaan.loo_hessian = "differences")} uses the differences for
+every unit.
 
 The default \code{cores = NULL} runs serially, and \code{cores > 1} parallelises the
 Hessian stage. Supported models are continuous-indicator models fitted with

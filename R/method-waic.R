@@ -65,7 +65,8 @@
 #' then returns the stored result when called with default arguments, and
 #' [fitmeasures()] reports `waic`, `p_waic`, `se_waic` as part of `"all"`
 #' for free. Under the default `test = "standard"` nothing is stored and
-#' `waic(fit)` computes it on demand. If the `loo` package is attached it
+#' `waic(fit)` computes it on demand, or reuses the pass of an earlier
+#' `loo(fit)`, which is kept with the fit. If the `loo` package is attached it
 #' masks this generic, but dispatch on INLAvaan objects continues to work.
 #'
 #' @param x A fitted [INLAvaan] object (or its `inlavaan_internal` list).

@@ -138,7 +138,8 @@ pass as the LOO at no extra cost and stored with the fit: \code{waic(fit)}
 then returns the stored result when called with default arguments, and
 \code{\link[=fitmeasures]{fitmeasures()}} reports \code{waic}, \code{p_waic}, \code{se_waic} as part of \code{"all"}
 for free. Under the default \code{test = "standard"} nothing is stored and
-\code{waic(fit)} computes it on demand. If the \code{loo} package is attached it
+\code{waic(fit)} computes it on demand, or reuses the pass of an earlier
+\code{loo(fit)}, which is kept with the fit. If the \code{loo} package is attached it
 masks this generic, but dispatch on INLAvaan objects continues to work.
 }
 \examples{
