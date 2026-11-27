@@ -97,9 +97,10 @@ is_bad_cov <- function(mat) {
   )
 }
 
-# The upper Cholesky factor of mat, or NULL when mat is not finite or not
-# positive definite (is_bad_cov() without a second factorisation)
-chol_or_null <- function(mat) {
+# The upper Cholesky factor of a covariance matrix, or NULL when it is not
+# finite or not positive definite (is_bad_cov() without a second
+# factorisation). The engine copy has its own chol_or_null().
+cov_chol <- function(mat) {
   if (any(!is.finite(mat))) {
     return(NULL)
   }

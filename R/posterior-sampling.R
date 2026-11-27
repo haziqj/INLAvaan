@@ -170,7 +170,7 @@ ppp_draw <- function(xx, lavmodel_x, lavimplied, lavmodel, plan) {
     Sigma <- implied_joint_moments(lavimplied, b, x_idx)$cov
     # One Cholesky factor for the check, the log-determinant, the inverse and
     # both discrepancies
-    L <- chol_or_null(Sigma)
+    L <- cov_chol(Sigma)
     if (is.null(L)) {
       next
     }
@@ -263,7 +263,7 @@ complete_loglik <- function(lavimplied, plan) {
   out <- 0
   for (g in seq_along(plan$groups)) {
     grp <- plan$groups[[g]]
-    L <- chol_or_null(lavimplied$cov[[g]])
+    L <- cov_chol(lavimplied$cov[[g]])
     if (is.null(L)) {
       return(-1e40)
     }
