@@ -155,7 +155,9 @@ grad_sign_hint <- function(H, scales) {
 # a hundredth of it. R is NULL when the Hessian is not positive definite.
 # fd_scales() runs with `he` too, since its differences of `logpost` give
 # `grad_gap`, which compares a user gradient, and the diagonal of the Hessian,
-# with `logpost` there: NA without a gradient. `hessian` records the method and
+# with `logpost` there: NA without a gradient. With `he` its search starts from
+# the Hessian's diagonal, so it usually takes 2 calls per parameter, against 6
+# to 8 from its default start. `hessian` records the method and
 # its calls, those of fd_scales() counted apart. `gap_calls` counts the calls of
 # fd_scales() taken only for `grad_gap`, those with a supplied Hessian whose
 # diagonal gives the scales.
@@ -174,8 +176,8 @@ laplace_at <- function(
 ) {
   m <- length(mode)
   mode <- stats::setNames(mode, parnames)
-  fds <- fd_scales(lp, mode, lp_max)
   if (is.null(he)) {
+    fds <- fd_scales(lp, mode, lp_max)
     scales <- fds
     H <- if (is.null(gr)) {
       -fd_hessian(lp, mode, h = 0.01 * scales, f0 = lp_max)
@@ -188,6 +190,14 @@ laplace_at <- function(
     # the Hessian's own diagonal where it allows
     d <- diag(H)
     from_diag <- all(is.finite(d) & d > 0)
+    # The step search then serves grad_gap alone. The diagonal gives each
+    # conditional SD 1 / sqrt(H_jj), so the search starts at a tenth of it,
+    # where the drop is about 0.005, and a right diagonal ends the search at
+    # the first try: 2 calls per parameter. That is about where the search
+    # from its default start ends, so grad_gap reads the same. A coordinate
+    # whose diagonal is more than 5 times too large, or far too small, leaves
+    # the window and searches on.
+    fds <- fd_scales(lp, mode, lp_max, h0 = if (from_diag) 0.1 / sqrt(d))
     scales <- if (from_diag) {
       structure(1 / sqrt(d), ok = rep(TRUE, m))
     } else {
@@ -300,15 +310,17 @@ hess_discrepancy <- function(gr, mode, A, h = 1e-4) {
 # The attribute `ok` marks the coordinates where the search succeeded, `slope`
 # holds the central difference of `fn` on the last step tried, which
 # grad_gap() compares with a user gradient, and `calls` counts the calls of
-# `fn`.
-fd_scales <- function(fn, x, f0) {
+# `fn`. `h0` holds the first step of each coordinate, by default 1e-4 of the
+# parameter's size (at least 1e-4). A start near the scale itself, such as one
+# from a supplied Hessian's diagonal, usually ends the search at the first try.
+fd_scales <- function(fn, x, f0, h0 = NULL) {
   m <- length(x)
   s <- numeric(m)
   slope <- numeric(m)
   ok <- logical(m)
   calls <- 0L
   for (i in seq_len(m)) {
-    h <- 1e-4 * max(1, abs(x[[i]]))
+    h <- if (is.null(h0)) 1e-4 * max(1, abs(x[[i]])) else h0[[i]]
     drop <- NA_real_
     for (k in 1:30) {
       xp <- xm <- x

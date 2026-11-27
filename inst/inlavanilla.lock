@@ -1,8 +1,8 @@
 Upstream: https://github.com/haziqj/inlavanilla
-Release: v26.11.25-2
-Commit: 3a5e30e05ca95f796f38ee8566c5941f14c7a50a
-Version: 26.11.25-2
-Synced: 2026-11-25
+Release: v26.11.27
+Commit: caa6b2218312c579959e07aaab14409160db61da
+Version: 26.11.27
+Synced: 2026-11-27
 Hash: md5 of the text with LF line endings
 
 File: R/vanilla-control.R
@@ -15,7 +15,7 @@ File: R/vanilla-diagnostics.R
 MD5: 865d7e75605c15e58f7818c04f1f59fa
 
 File: R/vanilla-laplace.R
-MD5: 5a423e1060d8aab66f7cc6cd648cfb16
+MD5: 4862f07945e464ac145e9e5ae01adc54
 
 File: R/vanilla-marginals.R
 MD5: aef4769f2c0a499bfee3d54efd37b018

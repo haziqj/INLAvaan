@@ -30,6 +30,13 @@
   parameters), and 9% to 14% less on models with missing data and on
   two-level models with random intercepts. Random-slope fits do not change.
 
+* Fits that hand the engine a Hessian at the mode (a model on the
+  saturated-means fast path, or `hessian_method` other than `"central"`)
+  check the gradient at the mode with about 2m evaluations of the
+  log-posterior, where they took about 6m to 8m. The engine now takes the
+  steps of that check from the diagonal of the Hessian. The posterior is
+  unchanged.
+
 * Fits of single-level models with missing data (`missing = "ml"`) are
   faster. The log-likelihood and its gradient now take one inverse of the
   model covariance matrix for all missing-data patterns, and work the patterns
@@ -141,7 +148,7 @@
 
 * The installed file `inlavanilla.lock` names the release of the inlavanilla
   engine whose files INLAvaan copies, with a hash of each copy. INLAvaan now
-  copies the 13 engine files of inlavanilla v26.11.25-2, byte for byte, as
+  copies the 13 engine files of inlavanilla v26.11.27, byte for byte, as
   `R/vanilla-*.R`, and the lock lists them. Two of them,
   `R/vanilla-skew-normal.R` and `R/vanilla-qsnorm-fast.R`, hold the
   skew-normal functions, which INLAvaan defined itself before. The others
