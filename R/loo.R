@@ -1527,13 +1527,36 @@ loo2l_groups <- function(int, type, units, theta, flavour, obs_what) {
       nobs[rows] <- info[[g]]$n_j[local[rows]]
     }
   }
+  # The semi-analytic unit Hessians of clusters with complete data
+  # (R/loo-hessians.R), group by group; NULL for the other units
+  hessians <- NULL
+  if (type == "loco" && !missing) {
+    hessians <- function(th, free) {
+      out <- array(0, c(length(free), length(free), length(units)))
+      for (g in unique(grp)) {
+        rows <- which(grp == g)
+        cache <- loo_grad_cache(th, lavmodel, pt, two_level = TRUE, g = g)
+        out[,, rows] <- loco_unit_hessians(
+          th,
+          free,
+          local[rows],
+          info[[g]],
+          lavmodel,
+          pt,
+          cache
+        )
+      }
+      out
+    }
+  }
   list(
     units = units,
     unit_group = if (lavdata@ngroups > 1L) grp,
     l_star = l_star,
     s_mat = s_mat,
     nobs = nobs,
-    scores = scores
+    scores = scores,
+    hessians = hessians
   )
 }
 
@@ -1755,6 +1778,9 @@ inlav_loo <- function(
       th <- theta
       th[free] <- th_act
       res2l$scores(th)[, free, drop = FALSE]
+    }
+    if (!is.null(res2l$hessians)) {
+      hess_fn <- function() res2l$hessians(theta, free)
     }
   }
   s_mat <- s_mat[, free, drop = FALSE]

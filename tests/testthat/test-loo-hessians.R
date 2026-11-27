@@ -135,3 +135,64 @@ test_that("the first-order pass and the option keep the differences", {
     )
   )
 })
+
+## ----- Clusters of two-level models -------------------------------------------
+
+d2 <- lavaan::Demo.twolevel[lavaan::Demo.twolevel$cluster %in% 1:24, ]
+twolevel_model <- "
+  level: 1
+    fw =~ y1 + y2 + y3
+    fw ~ x1 + x2 + x3
+  level: 2
+    fb =~ y1 + y2 + y3
+    fb ~ w1 + w2
+"
+
+test_that("clusters, with between-only covariates, joint and conditional", {
+  for (fx in c(FALSE, TRUE)) {
+    fit <- quick(
+      asem,
+      twolevel_model,
+      d2,
+      cluster = "cluster",
+      fixed.x = fx
+    )
+    r <- both_routes(fit)
+    expect_identical(r$semi$type, "loco")
+    expect_same_terms(r)
+  }
+})
+
+test_that("clusters when the levels order the variables differently", {
+  model <- "
+    level: 1
+      y4 ~ y1 + y2 + y3
+    level: 2
+      y1 ~~ y2 + y3 + y4
+      y2 ~~ y3 + y4
+      y3 ~~ y4
+  "
+  fit <- quick(asem, model, d2, cluster = "cluster", fixed.x = FALSE)
+  expect_same_terms(both_routes(fit, units = c(3, 1, 20)))
+})
+
+test_that("clusters of a two-level model with two groups", {
+  d2g <- d2
+  d2g$g <- ifelse(d2g$cluster %% 2 == 0, "a", "b")
+  model <- "
+  group: a
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+  group: b
+    level: 1
+      fw =~ y1 + y2 + y3
+    level: 2
+      fb =~ y1 + y2 + y3
+  "
+  fit <- quick(acfa, model, d2g, cluster = "cluster", group = "g")
+  r <- both_routes(fit)
+  expect_identical(length(unique(r$semi$per_unit$group)), 2L)
+  expect_same_terms(r)
+})

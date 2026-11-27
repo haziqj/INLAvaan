@@ -213,3 +213,194 @@ loo_hessian_route <- function() {
   route <- getOption("inlavaan.loo_hessian", "auto")
   match.arg(route, c("auto", "differences"))
 }
+
+## ----- Semi-analytic unit Hessians of two-level LOO (clusters) ----------------
+
+# A cluster j with n_j rows, complete data, in lavaan's two-level form
+# (twolevel_implied22l()): the variables that are not between-only (y) with
+# within covariance Sigma_w and between covariance Sigma_b, and the
+# between-only variables (z). Up to a constant its log-likelihood is a within
+# term and a between term,
+#
+#   l_j = -[(n_j - 1) log|Sigma_w| + tr(Sigma_w^-1 S_j)] / 2
+#         - [log|Omega_j| + (v_j - mu_v)' Omega_j^-1 (v_j - mu_v)] / 2,
+#
+# with S_j the scatter of the cluster's y rows about their mean, v_j the
+# cluster mean of y and the values of z, and
+#
+#   Omega_j = [Sigma_b + Sigma_w / n_j, Sigma_yz; Sigma_zy, Sigma_zz].
+#
+# Its data part is that of a Gaussian row for the between term, and for the
+# within term, with A_w = Sigma_w^-1 and D_k = dSigma_w / dtheta_k,
+#
+#   (n_j - 1) tr(A_w D_j A_w D_k) / 2 - tr(A_w D_j A_w D_k A_w S_j).
+#
+# The map from lavaan's two-level moments to this form is linear, so the
+# derivative blocks of a parameter are the map applied to its column of M.
+
+# The blocks of the two-level form for each parameter (columns of `Mg`), as
+# lists of matrices over the parameters
+loco_blocks <- function(Mg, lp, p_w, p_b) {
+  ns_w <- p_w * (p_w + 1L) / 2L
+  r_mw <- seq_len(p_w)
+  r_sw <- p_w + seq_len(ns_w)
+  r_mb <- p_w + ns_w + seq_len(p_b)
+  r_sb <- p_w + ns_w + p_b + seq_len(p_b * (p_b + 1L) / 2L)
+  lapply(seq_len(ncol(Mg)), function(j) {
+    twolevel_implied22l(
+      lp,
+      Mg[r_mw, j],
+      Mg[r_mb, j],
+      vech_to_sym(Mg[r_sw, j], p_w),
+      vech_to_sym(Mg[r_sb, j], p_b)
+    )
+  })
+}
+
+# The between covariance Omega_j and mean of the two-level form, or of its
+# derivative blocks `b`, for a cluster of size nj
+loco_between <- function(b, nj) {
+  yy <- b$sigma_b + b$sigma_w / nj
+  list(
+    Sigma = rbind(
+      cbind(yy, b$sigma_yz),
+      cbind(t(b$sigma_yz), b$sigma_zz)
+    ),
+    mu = c(b$mu_y, b$mu_z)
+  )
+}
+
+# The data part of the clusters `units` of one group with statistics `css`
+# (loco_suff_stats()), at the moments `mom` with the moment Jacobian `Mg`.
+# Returns an m x m x length(units) array.
+loco_data_hessians <- function(units, css, mom, Mg) {
+  lp <- css$Lp
+  p_w <- length(mom$mu_w)
+  p_b <- length(mom$mu_b)
+  mf <- ncol(Mg)
+  form <- twolevel_implied22l(lp, mom$mu_w, mom$mu_b, mom$Sigma_w, mom$Sigma_b)
+  blocks <- loco_blocks(Mg, lp, p_w, p_b)
+  z_idx <- lp$between.idx[[2L]]
+  y_idx <- setdiff(seq_len(css$p), z_idx)
+  A_w <- chol2inv(chol(form$sigma_w))
+  Dw <- lapply(blocks, `[[`, "sigma_w")
+  # tr(A_w D_j A_w D_k), once
+  Ew <- vapply(Dw, function(D) as.numeric(A_w %*% D), numeric(length(A_w)))
+  Ewt <- vapply(Dw, function(D) as.numeric(t(A_w %*% D)), numeric(length(A_w)))
+  tr_w <- crossprod(matrix(Ew, ncol = mf), matrix(Ewt, ncol = mf))
+  out <- array(0, c(mf, mf, length(units)))
+  by_size <- split(seq_along(units), css$n_j[units])
+  for (sz in names(by_size)) {
+    nj <- as.integer(sz)
+    om <- loco_between(form, nj)
+    A_b <- chol2inv(chol(om$Sigma))
+    Db <- lapply(blocks, function(b) loco_between(b, nj))
+    E <- vapply(
+      Db,
+      function(d) as.numeric(A_b %*% d$Sigma),
+      numeric(length(A_b))
+    )
+    Et <- vapply(
+      Db,
+      function(d) as.numeric(t(A_b %*% d$Sigma)),
+      numeric(length(A_b))
+    )
+    C <- 0.5 *
+      (nj - 1) *
+      tr_w +
+      0.5 * crossprod(matrix(E, ncol = mf), matrix(Et, ncol = mf))
+    for (i in by_size[[sz]]) {
+      j <- units[i]
+      S <- css$S[[j]][y_idx, y_idx, drop = FALSE]
+      v <- css$ybar[j, c(y_idx, z_idx)]
+      a <- as.numeric(A_b %*% (v - om$mu))
+      # Within: tr(A_w D_j A_w D_k A_w S), from the vectors of A_w D_j and of
+      # the transpose of A_w D_k A_w S, which is S A_w D_k A_w
+      SA <- S %*% A_w
+      Fw <- vapply(
+        Dw,
+        function(D) as.numeric(SA %*% D %*% A_w),
+        numeric(length(A_w))
+      )
+      W <- crossprod(matrix(Ew, ncol = mf), matrix(Fw, ncol = mf))
+      B <- vapply(
+        Db,
+        function(d) as.numeric(d$Sigma %*% a + d$mu),
+        numeric(length(a))
+      )
+      B <- matrix(B, ncol = mf)
+      out[,, i] <- C - 0.5 * (W + t(W)) - crossprod(B, A_b %*% B)
+    }
+  }
+  out
+}
+
+# The moment scores of the clusters `units` of one group: the derivative of
+# l_j in lavaan's two-level moments, one row per cluster
+loco_moment_scores <- function(units, css, mom) {
+  t(vapply(
+    units,
+    function(j) {
+      us <- loco_unit_stats(j, css)
+      -0.5 *
+        as.numeric(twolevel_dlogl_samp(
+          us$YLp,
+          us$Lp,
+          mom$mu_w,
+          mom$Sigma_w,
+          mom$mu_b,
+          mom$Sigma_b
+        ))
+    },
+    numeric(
+      length(mom$mu_w) *
+        (length(mom$mu_w) + 3L) /
+        2L +
+        length(mom$mu_b) * (length(mom$mu_b) + 3L) / 2L
+    )
+  ))
+}
+
+# The unit Hessians of the clusters `units` (local numbers) of group `css$g`,
+# in the parameters `free`, symmetrised. `cache` is loo_grad_cache() at theta
+# for that group.
+loco_unit_hessians <- function(
+  theta,
+  free,
+  units,
+  css,
+  lavmodel,
+  pt,
+  cache,
+  h = 1e-5
+) {
+  g <- css$g %||% 1L
+  mf <- length(free)
+  Mg <- loo_chain_rule(cache$Delta[[1L]], cache)
+  H <- loco_data_hessians(units, css, cache$mom, Mg[, free, drop = FALSE])
+  G <- loco_moment_scores(units, css, cache$mom)
+  for (kk in seq_len(mf)) {
+    k <- free[kk]
+    tp <- theta
+    tm <- theta
+    tp[k] <- tp[k] + h
+    tm[k] <- tm[k] - h
+    cp <- loo_grad_cache(tp, lavmodel, pt, two_level = TRUE, g = g)
+    cm <- loo_grad_cache(tm, lavmodel, pt, two_level = TRUE, g = g)
+    dM <- (loo_chain_rule(cp$Delta[[1L]], cp)[, free, drop = FALSE] -
+      loo_chain_rule(cm$Delta[[1L]], cm)[, free, drop = FALSE]) /
+      (2 * h)
+    nz <- which(dM != 0, arr.ind = TRUE)
+    if (nrow(nz) == 0L) {
+      next
+    }
+    contrib <- G[, nz[, 1L], drop = FALSE] * rep(dM[nz], each = nrow(G))
+    by_j <- rowsum(t(contrib), nz[, 2L], reorder = TRUE)
+    js <- as.integer(rownames(by_j))
+    H[js, kk, ] <- H[js, kk, ] + by_j
+  }
+  for (u in seq_along(units)) {
+    H[,, u] <- 0.5 * (H[,, u] + t(H[,, u]))
+  }
+  H
+}
