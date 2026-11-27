@@ -15,9 +15,11 @@
   takes 16% to 74% less time (from 0.35 to 0.09 seconds on a one-factor
   model), and `fitMeasures()` alone 71% to 92% less. The PPP is unchanged and
   the DIC is unchanged up to rounding. The Bayesian fit indices change by
-  Monte Carlo noise once, and the absolute ones (BRMSEA, BGammaHat, adjusted
-  BGammaHat, BMc) no longer depend on the random seed at the time of the call.
-  With another `nsamp` than the fit's, `bfit_indices()` draws anew as before.
+  Monte Carlo noise once. The independence baseline is fitted at the first
+  call of `fitMeasures()` or `bfit_indices()` and kept with the fit (a few
+  kilobytes), so later calls take no time for it, and their indices are the
+  same and no longer depend on the random seed. A smaller `nsamp` than the
+  fit's takes the first draws of the fit, and a larger one draws anew.
 
 * Fits are faster, with the same results. The map from the internal
   parameters to lavaan's parameters, the chain rule of the gradient and the
