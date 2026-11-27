@@ -1660,6 +1660,7 @@ inlav_loo <- function(
   unit_group <- NULL # group of each scored unit; multigroup fits only
   res2l <- NULL # the unit terms of a two-level model (loo2l_groups())
   t_delta <- NULL # T-deletion term, single-level LOSO with composites only
+  hess_fn <- NULL # the semi-analytic unit Hessians, where a route has them
   if (type == "loso" && two_level) {
     # Per-row deletion: each row's conditional density given the rest of its
     # cluster, group by group (see loo2l_groups())
@@ -1692,6 +1693,9 @@ inlav_loo <- function(
       th <- theta
       th[free] <- th_act
       loso_scores_units(th, uv, dv, lavmodel, pt)[, free, drop = FALSE]
+    }
+    hess_fn <- function() {
+      loso_unit_hessians(theta, free, uv, dv, lavmodel, pt, cache)
     }
     units <- uv$ids
     unit_group <- uv$grp
@@ -1757,7 +1761,12 @@ inlav_loo <- function(
   n_units <- length(units)
 
   H_arr <- NULL
-  if (isTRUE(second_order)) {
+  if (
+    isTRUE(second_order) && !is.null(hess_fn) && loo_hessian_route() == "auto"
+  ) {
+    # Closed form in the data, differences only of the model (R/loo-hessians.R)
+    H_arr <- hess_fn()
+  } else if (isTRUE(second_order)) {
     # Budget gate (reached only when a caller passes a finite max_seconds;
     # inlavaan() itself no longer does, since the fit-time LOO now runs
     # without a budget whenever "loo"/"waic" is requested through `test`):
