@@ -168,14 +168,13 @@ ppp_draw <- function(xx, lavmodel_x, lavimplied, lavmodel, plan) {
     n <- block_obs[[b]]$n
     x_idx <- block_obs[[b]]$x_idx
     Sigma <- implied_joint_moments(lavimplied, b, x_idx)$cov
-    if (is_bad_cov(Sigma)) {
+    # One Cholesky factor for the check, the log-determinant, the inverse and
+    # both discrepancies
+    L <- chol_or_null(Sigma)
+    if (is.null(L)) {
       next
     }
     p <- nrow(Sigma)
-
-    # One Cholesky factor for the log-determinant, the inverse and both
-    # discrepancies
-    L <- chol(Sigma)
     logdet_Sigma <- 2 * sum(log(diag(L)))
     Sigma_inv <- chol2inv(L)
 
@@ -200,6 +199,88 @@ ppp_draw <- function(xx, lavmodel_x, lavimplied, lavmodel, plan) {
     }
   }
   as.numeric(Trep >= Tobs)
+}
+
+# The plan of complete_loglik(): per group the sample covariance and mean, n,
+# and the log-likelihood of the fixed covariates, which lavaan subtracts and
+# which does not change across draws. NULL where the closed form does not
+# apply: an estimator other than ML, two levels, missing data, conditional.x,
+# random slopes, or an exogenous categorical variable under fixed.x = FALSE
+# (lavaan has no log-likelihood there).
+complete_loglik_setup <- function(
+  lavmodel,
+  lavsamplestats,
+  lavdata,
+  lavoptions
+) {
+  exo_categorical <- !isTRUE(lavoptions$fixed.x) &&
+    any(lavdata@ov$exo == 1L & lavdata@ov$nlev > 1L)
+  if (
+    lavmodel@estimator != "ML" ||
+      lavdata@nlevels > 1L ||
+      isTRUE(lavsamplestats@missing.flag) ||
+      isTRUE(lavmodel@conditional.x) ||
+      has_random_slopes(lavmodel) ||
+      exo_categorical
+  ) {
+    return(NULL)
+  }
+  groups <- lapply(seq_len(lavdata@ngroups), function(g) {
+    x_idx <- lavsamplestats@x.idx[[g]]
+    mean_g <- as.numeric(lavsamplestats@mean[[g]])
+    cov_g <- lavsamplestats@cov[[g]]
+    loglik_x <- 0
+    if (length(x_idx) > 0L) {
+      # Positional arguments: their names differ across lavaan versions
+      loglik_x <- lavaan___lav_mvn_loglik_samp(
+        mean_g[x_idx],
+        cov_g[x_idx, x_idx, drop = FALSE],
+        lavsamplestats@nobs[[g]],
+        lavsamplestats@mean.x[[g]],
+        lavsamplestats@cov.x[[g]]
+      )
+    }
+    list(
+      S = cov_g,
+      ybar = mean_g,
+      n = lavsamplestats@nobs[[g]],
+      loglik_x = loglik_x
+    )
+  })
+  list(groups = groups, meanstructure = isTRUE(lavmodel@meanstructure))
+}
+
+# The multivariate normal log-likelihood of single-level complete data from the
+# sample statistics, as lavaan's lav_mvn_loglik_samp() computes it, but with a
+# Cholesky factor of Sigma in place of lavaan's eigen decomposition:
+#   sum over groups of -n/2 [p log(2 pi) + log|Sigma| + tr(Sigma^{-1} S)
+#                            + (ybar - mu)' Sigma^{-1} (ybar - mu)] - loglik_x.
+# Without a mean structure mu is the sample mean. The value agrees with
+# lavaan's to rounding. Returns -1e40 when an implied covariance is not
+# positive definite or the value is not finite. plan comes from
+# complete_loglik_setup().
+complete_loglik <- function(lavimplied, plan) {
+  out <- 0
+  for (g in seq_along(plan$groups)) {
+    grp <- plan$groups[[g]]
+    L <- chol_or_null(lavimplied$cov[[g]])
+    if (is.null(L)) {
+      return(-1e40)
+    }
+    Sigma_inv <- chol2inv(L)
+    dist <- sum(Sigma_inv * grp$S)
+    if (plan$meanstructure) {
+      d <- grp$ybar - as.numeric(lavimplied$mean[[g]])
+      dist <- dist + sum(as.numeric(crossprod(d, Sigma_inv)) * d)
+    }
+    logdet <- 2 * sum(log(diag(L)))
+    p <- length(grp$ybar)
+    out <- out + (-grp$n / 2 * (p * log(2 * pi) + logdet + dist) - grp$loglik_x)
+  }
+  if (!is.finite(out)) {
+    return(-1e40)
+  }
+  out
 }
 
 # One pass over the draws for the single-level PPP and the DIC. ppp_plan is
@@ -231,8 +312,38 @@ score_draws <- function(
     lavmodel@estimator == "ML" &&
     marginalised_means_active(lavmodel)
   ll_raw <- ll <- if (isTRUE(dic)) numeric(nsamp)
+  n_loop <- nsamp
 
-  for (i in seq_len(nsamp)) {
+  # The log-likelihood of one draw at its moments, without the term of the
+  # marginalised means: in closed form for single-level complete data (see
+  # complete_loglik()), and by implied_loglik() otherwise
+  complete <- if (isTRUE(dic)) {
+    complete_loglik_setup(lavmodel, lavsamplestats, lavdata, lavoptions)
+  }
+  draw_loglik <- function(lavmodel_x, lavimplied) {
+    if (!is.null(complete)) {
+      return(complete_loglik(lavimplied, complete))
+    }
+    implied_loglik(
+      lavmodel_x,
+      lavimplied,
+      lavmodel,
+      lavsamplestats,
+      lavdata,
+      lavoptions,
+      lavcache,
+      fiml = fiml,
+      multilevel = multilevel
+    )
+  }
+  full_loglik <- function(out, lavimplied) {
+    if (marg && out != -1e40) {
+      out <- out + marginalised_means_loglik_corr(lavimplied, lavsamplestats)
+    }
+    out + loglik_x_adj
+  }
+
+  for (i in seq_len(n_loop)) {
     if (!is.null(cli_env)) {
       cli_progress_update(.envir = cli_env) # nocov
     }
@@ -243,22 +354,8 @@ score_draws <- function(
       exceed[i] <- ppp_draw(xx, lavmodel_x, lavimplied, lavmodel, ppp_plan)
     }
     if (isTRUE(dic)) {
-      out <- implied_loglik(
-        lavmodel_x,
-        lavimplied,
-        lavmodel,
-        lavsamplestats,
-        lavdata,
-        lavoptions,
-        lavcache,
-        fiml = fiml,
-        multilevel = multilevel
-      )
-      ll_raw[i] <- out
-      if (marg && out != -1e40) {
-        out <- out + marginalised_means_loglik_corr(lavimplied, lavsamplestats)
-      }
-      ll[i] <- out + loglik_x_adj
+      ll_raw[i] <- draw_loglik(lavmodel_x, lavimplied)
+      ll[i] <- full_loglik(ll_raw[i], lavimplied)
     }
   }
 
@@ -269,18 +366,10 @@ score_draws <- function(
     } else {
       pars_to_x(theta_star, pt)
     }
+    lavmodel_hat <- lavaan::lav_model_set_parameters(lavmodel, xhat)
+    implied_hat <- lavaan::lav_model_implied(lavmodel_hat)
     Dhat <- -2 *
-      (inlav_model_loglik(
-        xhat,
-        lavmodel,
-        lavsamplestats,
-        lavdata,
-        lavoptions,
-        lavcache,
-        fiml = fiml,
-        multilevel = multilevel
-      ) +
-        loglik_x_adj)
+      full_loglik(draw_loglik(lavmodel_hat, implied_hat), implied_hat)
     Dbar_samp <- -2 * ll
     Dbar <- mean(Dbar_samp[Dbar_samp < 1e40])
     pD <- Dbar - Dhat
