@@ -252,3 +252,35 @@ test_that("The absolute fit indices use the draws of the fit, free of the seed",
   expect_identical(c1$details$nsamp, 30L)
   expect_false(identical(c1$indices$BRMSEA, c2$indices$BRMSEA))
 })
+
+test_that("The independence baseline is fitted once and kept with the fit", {
+  fit <- fit_quick(hs_mod, hs)
+  n_fits <- 0L
+  baseline_original <- fit_independence_baseline
+  local_mocked_bindings(
+    fit_independence_baseline = function(object, nsamp = NULL) {
+      n_fits <<- n_fits + 1L
+      baseline_original(object, nsamp)
+    }
+  )
+  set.seed(1)
+  a <- bfit_indices(fit)
+  set.seed(2)
+  b <- bfit_indices(fit)
+  set.seed(3)
+  fm <- fitMeasures(fit)
+  expect_identical(n_fits, 1L)
+  # So the incremental indices no longer depend on the seed either
+  expect_identical(a$indices, b$indices)
+  expect_equal(unname(fm["BCFI"]), mean(a$indices$BCFI))
+  # Fewer draws use the kept baseline, more draws fit a new one
+  fewer <- bfit_indices(fit, nsamp = 10)
+  expect_identical(n_fits, 1L)
+  expect_identical(fewer$indices$BCFI, a$indices$BCFI[1:10])
+  bfit_indices(fit, nsamp = 30)
+  expect_identical(n_fits, 2L)
+  # The kept record is small: no data, no fit object
+  rec <- fit@external$cache$independence
+  expect_type(rec, "list")
+  expect_lt(as.numeric(utils::object.size(rec)), 2e4)
+})

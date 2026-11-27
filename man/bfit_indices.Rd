@@ -26,9 +26,11 @@ indices (BCFI, BTLI, BNFI) are scaled against. \code{NULL} (default) fits the
 independence model on the same data and options automatically, as
 lavaan does: every observed variable keeps its variance (and intercept)
 and nothing correlates. That fit uses Gaussian marginals and no VB
-shift, since only its posterior draws and pD are needed, and takes a
-fraction of a second. Supply an \link{INLAvaan} object to use another
-baseline, or \code{FALSE} to skip the incremental indices.}
+shift, since only its posterior draws and pD are needed. It is fitted at
+the first call and kept with \code{object}, so later calls (and
+\code{\link[=fitmeasures]{fitmeasures()}}) reuse it and their incremental indices are the same.
+Supply an \link{INLAvaan} object to use another baseline, or \code{FALSE} to skip
+the incremental indices.}
 
 \item{rescale}{Character string controlling how the Bayesian chi-square
 is rescaled. \code{"devM"} (default) subtracts pD from the deviance at each

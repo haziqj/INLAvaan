@@ -191,10 +191,6 @@ compute_rescaled_quantities <- function(
   loglik_sat = NULL,
   loglik_samp = NULL
 ) {
-  N <- lavsamplestats@ntotal
-  Ngr <- lavdata@ngroups
-  npar <- object@Fit@npar
-
   chisq_dev <- compute_chisq_dev(
     object,
     x_samp,
@@ -206,9 +202,22 @@ compute_rescaled_quantities <- function(
     loglik_sat,
     loglik_samp
   )
+  rescale_chisq(
+    chisq_dev,
+    object@external$inlavaan_internal$DIC$pD,
+    object@Fit@npar,
+    p,
+    lavsamplestats@ntotal,
+    lavdata@ngroups,
+    rescale
+  )
+}
 
+# The rescaled quantities of compute_rescaled_quantities() from the per-draw
+# chi-squares chisq_dev of a model with pD, npar free parameters, p sample
+# moments, N observations and Ngr groups.
+rescale_chisq <- function(chisq_dev, pD, npar, p, N, Ngr, rescale) {
   if (rescale == "devM") {
-    pD <- object@external$inlavaan_internal$DIC$pD
     if (is.null(pD) || pD <= 0 || pD >= p) {
       pD <- npar
     } # nocov
@@ -296,9 +305,54 @@ fit_independence_baseline <- function(object, nsamp = NULL) {
   )
 }
 
-# Resolve the `baseline.model` argument of bfit_indices(): NULL fits the
-# independence model (none for a model that already is one), FALSE skips
-# the incremental indices, and a supplied fit is checked and used.
+# What bfit_indices() needs of a baseline fit: the log-likelihoods of its
+# draws (NULL for a fit that did not keep them), its saturated log-likelihood,
+# pD, number of free parameters, number of sample moments, number of
+# observations and number of groups. A few kilobytes, so it can be kept with
+# the fitted model.
+baseline_record <- function(baseline) {
+  bint <- baseline@external$inlavaan_internal
+  list(
+    loglik_samp = bint$DIC$loglik_samp,
+    loglik_sat = compute_loglik_sat(
+      baseline,
+      bint$lavsamplestats,
+      bint$lavdata
+    ),
+    pD = bint$DIC$pD,
+    npar = baseline@Fit@npar,
+    p = count_sample_moments(baseline@ParTable),
+    N = bint$lavsamplestats@ntotal,
+    Ngr = bint$lavdata@ngroups
+  )
+}
+
+# The baseline record of the independence model of `object`, for nsamp draws.
+# The baseline is fitted with as many draws as the fit has, and its record is
+# kept in the fit's cache (an environment, so that a call can fill it although
+# S4 objects are copied), so later calls neither fit nor score it again. More
+# draws than the fit has need a new baseline fit, which is not kept. Fits made
+# before the cache have none, and fit the baseline at each call.
+independence_record <- function(object, nsamp) {
+  cache <- object@external$cache
+  n_fit <- object@external$inlavaan_internal$nsamp %||% nsamp
+  if (nsamp > n_fit) {
+    return(baseline_record(fit_independence_baseline(object, nsamp)))
+  }
+  if (is.environment(cache) && !is.null(cache$independence)) {
+    return(cache$independence)
+  }
+  rec <- baseline_record(fit_independence_baseline(object, n_fit))
+  if (is.environment(cache)) {
+    cache$independence <- rec
+  }
+  rec
+}
+
+# Resolve the `baseline.model` argument of bfit_indices(): NULL gives the
+# record of the independence model (none for a model that already is one, see
+# independence_record()), FALSE skips the incremental indices, and a supplied
+# fit is checked and returned.
 resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
   if (isFALSE(baseline.model)) {
     return(NULL)
@@ -308,7 +362,7 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
       return(NULL)
     }
     return(tryCatch(
-      fit_independence_baseline(object, nsamp),
+      independence_record(object, nsamp),
       error = function(e) {
         cli_warn(c(
           "Could not fit the independence baseline, so BCFI, BTLI and BNFI
@@ -362,9 +416,11 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
 #'   independence model on the same data and options automatically, as
 #'   lavaan does: every observed variable keeps its variance (and intercept)
 #'   and nothing correlates. That fit uses Gaussian marginals and no VB
-#'   shift, since only its posterior draws and pD are needed, and takes a
-#'   fraction of a second. Supply an [INLAvaan] object to use another
-#'   baseline, or `FALSE` to skip the incremental indices.
+#'   shift, since only its posterior draws and pD are needed. It is fitted at
+#'   the first call and kept with `object`, so later calls (and
+#'   [fitmeasures()]) reuse it and their incremental indices are the same.
+#'   Supply an [INLAvaan] object to use another baseline, or `FALSE` to skip
+#'   the incremental indices.
 #' @param rescale Character string controlling how the Bayesian chi-square
 #'   is rescaled. `"devM"` (default) subtracts pD from the deviance at each
 #'   sample. `"MCMC"` uses the classical chi-square and classical df at each
@@ -496,36 +552,44 @@ bfit_indices <- function(
 
   # Incremental indices, scaled against the independence model unless the
   # caller supplies a baseline or asks to skip them
-  baseline.model <- resolve_baseline_model(object, baseline.model, nsamp)
-  if (!is.null(baseline.model)) {
-    bint <- baseline.model@external$inlavaan_internal
-
-    ll_null <- stored_draw_loglik(bint, nsamp)
-    x_samp_null <- NULL
-    if (is.null(ll_null)) {
+  baseline <- resolve_baseline_model(object, baseline.model, nsamp)
+  if (!is.null(baseline)) {
+    rec <- if (is(baseline, "INLAvaan")) baseline_record(baseline) else baseline
+    if (!is.null(rec$loglik_samp)) {
+      # The log-likelihoods the baseline fit kept, as for the model
+      n_use <- min(n_draws, length(rec$loglik_samp))
+      chisq_null <- 2 *
+        ((rs_ref$loglik %||% rec$loglik_sat) - rec$loglik_samp[seq_len(n_use)])
+      # The baseline's own moment count, which is larger than the model's when
+      # the model fixes composite indicator (co)variances at their sample
+      # values.
+      rq_null <- rescale_chisq(
+        chisq_null,
+        rec$pD,
+        rec$npar,
+        if (is.null(rs_ref)) rec$p else p,
+        rec$N,
+        rec$Ngr,
+        rescale
+      )
+    } else {
+      # A supplied baseline that kept no log-likelihoods: draw and score
+      bint <- baseline@external$inlavaan_internal
       x_samp_null <- sample_params_posterior(bint, nsamp)$x_samp
       n_use <- min(n_draws, nrow(x_samp_null))
-      x_samp_null <- x_samp_null[seq_len(n_use), , drop = FALSE]
-    } else {
-      n_use <- min(n_draws, length(ll_null))
-      ll_null <- ll_null[seq_len(n_use)]
+      rq_null <- compute_rescaled_quantities(
+        baseline,
+        x_samp_null[seq_len(n_use), , drop = FALSE],
+        bint$lavmodel,
+        bint$lavsamplestats,
+        bint$lavdata,
+        reconstruct_lavoptions(baseline),
+        baseline@Cache,
+        if (is.null(rs_ref)) rec$p else p,
+        rescale,
+        rs_ref$loglik
+      )
     }
-
-    # The baseline's own moment count, which is larger than the model's when the
-    # model fixes composite indicator (co)variances at their sample values.
-    rq_null <- compute_rescaled_quantities(
-      baseline.model,
-      x_samp_null,
-      bint$lavmodel,
-      bint$lavsamplestats,
-      bint$lavdata,
-      reconstruct_lavoptions(baseline.model),
-      baseline.model@Cache,
-      if (is.null(rs_ref)) count_sample_moments(baseline.model@ParTable) else p,
-      rescale,
-      rs_ref$loglik,
-      ll_null
-    )
 
     adj_dev_use <- rq$adj_dev[seq_len(n_use)]
     nonc_use <- rq$nonc[seq_len(n_use)]

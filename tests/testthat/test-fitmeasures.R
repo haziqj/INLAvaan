@@ -354,35 +354,11 @@ test_that("Each group's fixed composite moments are removed once", {
 
 test_that("The baseline is scaled by its own moment count", {
   p_used <- numeric(0)
-  rescale_original <- compute_rescaled_quantities
+  rescale_original <- rescale_chisq
   local_mocked_bindings(
-    compute_rescaled_quantities = function(
-      object,
-      x_samp,
-      lavmodel,
-      lavsamplestats,
-      lavdata,
-      lavoptions,
-      lavcache,
-      p,
-      rescale,
-      loglik_sat = NULL,
-      loglik_samp = NULL
-    ) {
+    rescale_chisq = function(chisq_dev, pD, npar, p, N, Ngr, rescale) {
       p_used <<- c(p_used, p)
-      rescale_original(
-        object,
-        x_samp,
-        lavmodel,
-        lavsamplestats,
-        lavdata,
-        lavoptions,
-        lavcache,
-        p,
-        rescale,
-        loglik_sat,
-        loglik_samp
-      )
+      rescale_original(chisq_dev, pD, npar, p, N, Ngr, rescale)
     }
   )
   fit_comp <- asem(

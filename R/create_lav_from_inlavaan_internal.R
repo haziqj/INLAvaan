@@ -180,8 +180,12 @@ create_lav_from_inlavaan_internal <- function(fit0, fit_inlv) {
   fit0@timing$total <- sum(unlist(fit0@timing))
 
   ## ----- Return --------------------------------------------------------------
+  # The cache is an environment, so that later calls can keep results in it
+  # (the independence baseline of bfit_indices()) although S4 objects are
+  # copied
   fit0@external <- list(
-    inlavaan_internal = fit_inlv #[!grepl("lav", names(fit_inlv))]
+    inlavaan_internal = fit_inlv, #[!grepl("lav", names(fit_inlv))]
+    cache = new.env(parent = emptyenv())
   )
   fit0
 }
