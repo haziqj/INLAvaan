@@ -17,8 +17,9 @@
   the DIC is unchanged up to rounding. The Bayesian fit indices change by
   Monte Carlo noise once. The independence baseline is fitted at the first
   call of `fitMeasures()` or `bfit_indices()` and kept with the fit (a few
-  kilobytes), so later calls take no time for it, and their indices are the
-  same and no longer depend on the random seed. A smaller `nsamp` than the
+  kilobytes), so later calls (and `compare()`, which uses the baseline of its
+  first model) take no time for it, and their indices are the same and no
+  longer depend on the random seed. A smaller `nsamp` than the
   fit's takes the first draws of the fit, and a larger one draws anew.
 
 * Fits are faster, with the same results. The map from the internal
