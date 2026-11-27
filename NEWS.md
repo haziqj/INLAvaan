@@ -4,6 +4,21 @@
   longer suggests spacefillr and ucminf, which only the Sobol nodes of the
   old VB correction and `optim_method = "ucminf"` used.
 
+* The posterior predictive p-value, the DIC and `fitMeasures()` are faster.
+  The PPP and the DIC now score each posterior draw in one pass, from one
+  computation of its implied moments, and with complete data the
+  log-likelihood of a draw is computed in closed form. The fit keeps the
+  log-likelihood of each draw, so `bfit_indices()` and `fitMeasures()` use the
+  draws of the fit (and of the independence baseline) and no longer draw and
+  score new ones, and the draws of the independence baseline are scored all
+  at once. On single-level test models, a fit followed by `fitMeasures()`
+  takes 16% to 74% less time (from 0.35 to 0.09 seconds on a one-factor
+  model), and `fitMeasures()` alone 71% to 92% less. The PPP is unchanged and
+  the DIC is unchanged up to rounding. The Bayesian fit indices change by
+  Monte Carlo noise once, and the absolute ones (BRMSEA, BGammaHat, adjusted
+  BGammaHat, BMc) no longer depend on the random seed at the time of the call.
+  With another `nsamp` than the fit's, `bfit_indices()` draws anew as before.
+
 * Fits are faster, with the same results. The map from the internal
   parameters to lavaan's parameters, the chain rule of the gradient and the
   prior now find their index tables once per model, and not on every
