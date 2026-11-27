@@ -235,15 +235,16 @@ compute_rescaled_quantities <- function(
   )
 }
 
-# The log-likelihoods of the posterior draws of a fit, as score_draws() keeps
-# them with its DIC, when there are nsamp of them. NULL otherwise: no DIC, a
-# fit made before they were kept, or another number of draws.
+# The log-likelihoods of the first nsamp posterior draws of a fit, as
+# score_draws() keeps them with its DIC. The draws are independent, so the
+# first nsamp of them are a sample of that size. NULL when the fit has fewer
+# than nsamp of them (or none: no DIC, or a fit made before they were kept).
 stored_draw_loglik <- function(int, nsamp) {
   ll <- int$DIC$loglik_samp
-  if (is.null(ll) || length(ll) != nsamp) {
+  if (is.null(ll) || length(ll) < nsamp) {
     return(NULL)
   }
-  ll
+  ll[seq_len(nsamp)]
 }
 
 # ---------------------------------------------------------------------------
@@ -368,11 +369,12 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
 #'   is rescaled. `"devM"` (default) subtracts pD from the deviance at each
 #'   sample. `"MCMC"` uses the classical chi-square and classical df at each
 #'   sample.
-#' @param nsamp Number of posterior samples. The default, the number of draws
-#'   of the fit, uses the draws of the fit itself: the fit keeps the
-#'   log-likelihood of each draw with its DIC, so nothing is drawn or scored
-#'   again and the indices do not depend on the random seed. The independence
-#'   baseline is used the same way. Another value draws that many new samples.
+#' @param nsamp Number of posterior samples, by default the number of draws
+#'   of the fit. The fit keeps the log-likelihood of each of its draws with
+#'   its DIC, so up to that number the indices use the first `nsamp` draws of
+#'   the fit: nothing is drawn or scored again, and the absolute indices do
+#'   not depend on the random seed. The independence baseline is used the same
+#'   way. A larger value draws that many new samples.
 #' @param samp_copula `r badge_deprecated()` Has no effect. The draws always
 #'   couple the fitted marginals by a Gaussian copula, as the draws of the fit
 #'   do.
@@ -436,8 +438,8 @@ bfit_indices <- function(
   }
 
   # The fit kept the log-likelihood of each of its draws (score_draws()), so
-  # the indices use those draws and score nothing. Another nsamp, or a fit made
-  # before they were kept, draws anew.
+  # the indices use the first nsamp of those draws and score nothing. More
+  # draws than the fit has, or a fit made before they were kept, draws anew.
   nsamp <- nsamp %||% int$nsamp %||% 500L
   ll_samp <- stored_draw_loglik(int, nsamp)
   x_samp <- if (is.null(ll_samp)) sample_params_posterior(int, nsamp)$x_samp

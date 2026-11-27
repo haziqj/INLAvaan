@@ -239,11 +239,16 @@ test_that("The absolute fit indices use the draws of the fit, free of the seed",
   expect_identical(a$indices[absolute], b$indices[absolute])
   expect_identical(a$details$chisq, b$details$chisq)
   expect_identical(a$details$nsamp, 20L)
-  # Another number of draws draws anew
+  # Fewer draws than the fit has take the first of them
+  set.seed(3)
+  fewer <- bfit_indices(fit, nsamp = 10)
+  expect_identical(fewer$details$nsamp, 10L)
+  expect_identical(fewer$details$chisq, a$details$chisq[1:10])
+  # More draws than the fit has draw anew
   set.seed(1)
-  c1 <- bfit_indices(fit, nsamp = 10)
+  c1 <- bfit_indices(fit, nsamp = 30)
   set.seed(2)
-  c2 <- bfit_indices(fit, nsamp = 10)
-  expect_identical(c1$details$nsamp, 10L)
+  c2 <- bfit_indices(fit, nsamp = 30)
+  expect_identical(c1$details$nsamp, 30L)
   expect_false(identical(c1$indices$BRMSEA, c2$indices$BRMSEA))
 })
