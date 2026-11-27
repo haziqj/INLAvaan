@@ -171,6 +171,17 @@ waic.inlavaan_internal <- function(
     return(x$waic)
   }
   check_fit_layout(x, "waic")
+  # The default reads the LOO pass kept with the fit, or runs and keeps it
+  if (type == "auto" && is.null(units) && isTRUE(second_order)) {
+    check_loo_model(x, fn = "waic")
+    res <- loo_default_pass(
+      x,
+      eff_cores = resolve_loo_cores(cores),
+      verbose = verbose,
+      caller = "waic"
+    )
+    return(waic_from_taylor(res))
+  }
   inlav_waic(
     int = x,
     type = type,

@@ -1207,6 +1207,8 @@ inlavaan <- function(
       ppp = ppp,
       loo = loo_res,
       waic = waic_res,
+      # The last default LOO pass, shared by loo() and waic() (R/loo-cache.R)
+      loo_cache = loo_cache_new(),
       test = test_rec,
       # Constants since 0.4.0, kept for code that reads them: the mode is
       # found by nlminb(), and the draws use the copula with no NORTA

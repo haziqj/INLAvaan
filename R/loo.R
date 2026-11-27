@@ -2077,10 +2077,13 @@ loo_drop_empty_units <- function(units, keep, what, reason) {
     )
   }
   dropped <- cli_vec(units[!keep], style = list("vec-trunc" = 10L))
-  cli_inform(c(
-    "i" = "Not scoring {n_drop} {what}{qty(n_drop)}{?s} with {reason}:
+  cli_inform(
+    c(
+      "i" = "Not scoring {n_drop} {what}{qty(n_drop)}{?s} with {reason}:
              {.val {dropped}}."
-  ))
+    ),
+    class = "inlavaan_loo_dropped_units"
+  )
   units[keep]
 }
 

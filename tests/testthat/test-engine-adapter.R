@@ -324,6 +324,7 @@ test_that("the layout of the internal list is that of the old stages", {
       "ppp",
       "loo",
       "waic",
+      "loo_cache",
       "test",
       "optim_method",
       "marginal_method",

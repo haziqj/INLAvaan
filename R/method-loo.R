@@ -223,6 +223,15 @@ loo.inlavaan_internal <- function(
     return(x$loo)
   }
 
+  # The default pass is kept with the fit, for waic() and later calls
+  if (all_defaults) {
+    return(loo_default_pass(
+      x,
+      eff_cores = resolve_loo_cores(cores),
+      verbose = verbose,
+      caller = "loo"
+    ))
+  }
   inlav_loo(
     int = x,
     type = type,
