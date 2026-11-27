@@ -140,9 +140,11 @@ see Details).</p></dd>
 <dt id="arg-units">units<a class="anchor" aria-label="anchor" href="#arg-units"></a></dt>
 <dd><p>Optional integer vector of unit indices to score; defaults
 to all units. For LOSO these are case numbers (row numbers of the
-analysed dataset); for LOCO, cluster positions. For a random-slope fit
-the per-cluster kernels return every cluster on each call, so this
-trims the reported table rather than the work.</p></dd>
+analysed dataset); for LOCO, cluster positions. A multigroup two-level
+fit numbers the clusters (or rows) of group 1 first, then those of group
+2, and so on. For a random-slope fit the per-cluster kernels return
+every cluster on each call, so this trims the reported table rather
+than the work.</p></dd>
 
 
 <dt id="arg-second-order">second_order<a class="anchor" aria-label="anchor" href="#arg-second-order"></a></dt>
@@ -311,11 +313,20 @@ a warning.</p>
 (see <code><a href="waic.html">waic()</a></code>) from the same Taylor pass, or afterwards with
 <code>add_loo()</code>; <code>loo(fit)</code> with default arguments then returns the stored
 result. Under the default <code>test = "standard"</code> nothing is stored and
-<code>loo(fit)</code> computes it on demand.</p>
+<code>loo(fit)</code> computes it on demand. That pass is then kept with the fit, so
+a later <code>loo(fit)</code> or <code><a href="waic.html">waic()</a></code> with default arguments reuses it, with the
+same numbers and the same warnings.</p>
+<p>The Hessian \(H_u\) of a row of a single-level model, or of a cluster of
+a two-level model with complete data, is computed in closed form in the
+data, with only the second derivatives of the model-implied moments taken
+by finite differences, once for all units. For the other units (random
+slopes, two-level models with missing data, rows of a two-level model),
+\(H_u\) is a central difference of the analytic unit scores. Setting
+<code>options(inlavaan.loo_hessian = "differences")</code> uses the differences for
+every unit.</p>
 <p>The default <code>cores = NULL</code> runs serially, and <code>cores &gt; 1</code> parallelises the
 Hessian stage. Supported models are continuous-indicator models fitted with
-the <code>ML</code> estimator, single- or two-level, single-group or multigroup
-(multigroup two-level models are not supported yet).</p>
+the <code>ML</code> estimator, single- or two-level, single-group or multigroup.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -342,11 +353,12 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="va">HS.model</span>, <span class="va">HolzingerSwineford1939</span>, meanstructure <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">105</span> iterations <span style="color: #555555;">[121ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.54σ</span> <span style="color: #555555;">[68ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">30</span> skew-normal marginals <span style="color: #555555;">[288ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">105</span> iterations <span style="color: #555555;">[192ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.54σ</span> <span style="color: #555555;">[96ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">30</span> skew-normal marginals <span style="color: #555555;">[350ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[476ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[324ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
@@ -423,14 +435,11 @@ latent variable models: Conditional versus marginal likelihoods.
 <span class="r-in"><span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="va">fit2l</span> <span class="op">&lt;-</span> <span class="fu"><a href="asem.html">asem</a></span><span class="op">(</span><span class="va">model2l</span>, <span class="va">Demo.twolevel</span>, cluster <span class="op">=</span> <span class="st">"cluster"</span>,</span></span>
 <span class="r-in"><span>              meanstructure <span class="op">=</span> <span class="cn">TRUE</span>, fixed.x <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">197</span> iterations <span style="color: #555555;">[974ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.61σ</span> <span style="color: #555555;">[407ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 12/34 skew-normal marginals</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Fitting 34/34 skew-normal marginals</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">34</span> skew-normal marginals <span style="color: #555555;">[1.4s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">193</span> iterations <span style="color: #555555;">[856ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.61σ</span> <span style="color: #555555;">[336ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">34</span> skew-normal marginals <span style="color: #555555;">[1.3s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> ⠹ Computing fit indices (PPP/DIC).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[2.2s]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[2.3s]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The two-level PPP is experimental.</span>

@@ -79,9 +79,9 @@ acfa(
   set. The LOO and the WAIC come from one Taylor pass, so asking for
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
-  data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. For a two-level model
-  the PPP follows blavaan: each of `ppp_nsamp` posterior draws generates
+  data, single-level `conditional.x = TRUE`) they are skipped with a
+  warning and the rest of the fit proceeds. For a two-level model the
+  PPP follows blavaan: each of `ppp_nsamp` posterior draws generates
   replicate data, which are scored against the saturated model (see
   `ppp_method`). The two-level PPP is experimental. The fit records what
   was requested and what was computed
@@ -277,9 +277,11 @@ acfa(
   Fisher-scoring step from the moments of each posterior draw towards
   the saturated fit, and fits by EM where the step would leave the valid
   covariance matrices (with few clusters or a small between variance).
-  `"em"` always fits the saturated model by EM, as blavaan does. Fits
-  with `missing = "ml"` always use `"em"`. Ignored for single-level
-  models.
+  With `missing = "ml"`, `"onestep"` instead finds the saturated fit of
+  each replicate by quasi-Newton steps from the moments of the posterior
+  draw, which reach the maximum that the EM finds, and fits by EM where
+  they do not converge. `"em"` always fits the saturated model by EM, as
+  blavaan does. Ignored for single-level models.
 
 - ppp_nsamp:
 
@@ -371,11 +373,11 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Fit a CFA model with standardised latent variables
 fit <- acfa(HS.model, data = HolzingerSwineford1939, std.lv = TRUE, nsamp = 100)
-#> ✔ Found the posterior mode in 66 iterations [98ms]
-#> ✔ VB mean correction, max shift 0.2σ [47ms]
-#> ✔ Fitted 21 skew-normal marginals [257ms]
+#> ✔ Found the posterior mode in 66 iterations [135ms]
+#> ✔ VB mean correction, max shift 0.2σ [79ms]
+#> ✔ Fitted 21 skew-normal marginals [323ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [101ms]
+#> ✔ Summarise 100 posterior draws. [93ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)

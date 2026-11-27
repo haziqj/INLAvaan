@@ -159,11 +159,11 @@ for Bayesian fit indices.
 ``` r
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
-#> ✔ Found the posterior mode in 25 iterations [38ms]
-#> ✔ VB mean correction, max shift 0.47σ [15ms]
-#> ✔ Fitted 6 skew-normal marginals [62ms]
+#> ✔ Found the posterior mode in 25 iterations [31ms]
+#> ✔ VB mean correction, max shift 0.47σ [20ms]
+#> ✔ Fitted 6 skew-normal marginals [81ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [306ms]
+#> ✔ Summarise 1000 posterior draws. [168ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -171,12 +171,12 @@ fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
 samps <- sampling(fit, nsamp = 500)
 head(samps)
 #>      visual=~x2 visual=~x3    x1~~x1    x2~~x2    x3~~x3 visual~~visual
-#> [1,]  0.8051145   1.331193 1.0722789 1.3121316 0.5288120      0.2994148
-#> [2,]  0.8821187   1.041379 0.8076991 1.0599461 0.7122129      0.4373219
-#> [3,]  0.7670896   1.190653 0.8543126 1.0010145 0.6375759      0.5259382
-#> [4,]  0.7265785   1.274846 0.8903637 1.0685634 0.6469123      0.5366774
-#> [5,]  0.7620023   1.067593 0.8661717 0.9071604 0.5912996      0.5203973
-#> [6,]  0.7450164   1.193717 1.0282496 1.2241559 0.5151260      0.4587178
+#> [1,]  0.6230616   1.157679 0.7990417 1.0506758 0.6065866      0.5421584
+#> [2,]  1.0526575   1.427034 1.0011012 0.9775302 0.6383505      0.3865216
+#> [3,]  0.7739586   1.468485 0.7700087 1.1502834 0.4025096      0.4274597
+#> [4,]  0.7659895   1.039219 0.8813794 1.0333941 0.6385786      0.4591295
+#> [5,]  0.8339261   1.140930 0.9654213 0.9993431 0.6858797      0.4441887
+#> [6,]  0.7927227   1.252339 0.9080699 0.9391684 0.4842898      0.4723880
 
 # Prior predictive samples
 y_prior <- sampling(fit, type = "observed", nsamp = 500, prior = TRUE)

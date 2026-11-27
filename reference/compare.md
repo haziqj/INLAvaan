@@ -152,13 +152,13 @@ utils::data("HolzingerSwineford1939", package = "lavaan")
 
 # Configural invariance
 fit1 <- acfa(HS.model, data = HolzingerSwineford1939, group = "school")
-#> ✔ Found the posterior mode in 138 iterations [367ms]
-#> ✔ VB mean correction, max shift 0.61σ [221ms]
-#> ⠙ Fitting 21/60 skew-normal marginals
+#> ✔ Found the posterior mode in 138 iterations [467ms]
+#> ✔ VB mean correction, max shift 0.61σ [281ms]
+#> ⠙ Fitting 18/60 skew-normal marginals
 #> ⠙ Fitting 60/60 skew-normal marginals
-#> ✔ Fitted 60 skew-normal marginals [1.1s]
+#> ✔ Fitted 60 skew-normal marginals [1.4s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [759ms]
+#> ✔ Summarise 1000 posterior draws. [617ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> Warning: Fit diagnostics flagged 1 potential issue:
@@ -177,13 +177,13 @@ fit2 <- acfa(
   group = "school",
   group.equal = "loadings"
 )
-#> ✔ Found the posterior mode in 121 iterations [340ms]
-#> ✔ VB mean correction, max shift 0.42σ [209ms]
-#> ⠙ Fitting 20/54 skew-normal marginals
+#> ✔ Found the posterior mode in 121 iterations [438ms]
+#> ✔ VB mean correction, max shift 0.42σ [240ms]
+#> ⠙ Fitting 18/54 skew-normal marginals
 #> ⠙ Fitting 54/54 skew-normal marginals
-#> ✔ Fitted 54 skew-normal marginals [1.1s]
+#> ✔ Fitted 54 skew-normal marginals [1.3s]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [776ms]
+#> ✔ Summarise 1000 posterior draws. [552ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -194,13 +194,13 @@ fit3 <- acfa(
   group = "school",
   group.equal = c("intercepts", "loadings")
 )
-#> ✔ Found the posterior mode in 120 iterations [313ms]
-#> ✔ VB mean correction, max shift 0.33σ [190ms]
-#> ⠙ Fitting 21/48 skew-normal marginals
+#> ✔ Found the posterior mode in 120 iterations [392ms]
+#> ✔ VB mean correction, max shift 0.33σ [216ms]
+#> ⠙ Fitting 17/48 skew-normal marginals
 #> ⠙ Fitting 48/48 skew-normal marginals
-#> ✔ Fitted 48 skew-normal marginals [825ms]
+#> ✔ Fitted 48 skew-normal marginals [995ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [785ms]
+#> ✔ Summarise 1000 posterior draws. [531ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -210,9 +210,9 @@ compare(fit1, fit2, fit3)
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD
-#>   fit3   48   -3889.775   0.000 7508.746 47.721
-#>   fit2   54   -3907.471 -17.696 7481.267 53.932
-#>   fit1   60   -3926.870 -37.095 7482.718 58.312
+#>   fit3   48   -3889.775   0.000 7508.596 47.646
+#>   fit2   54   -3907.471 -17.696 7480.774 53.686
+#>   fit1   60   -3926.870 -37.095 7483.259 58.582
 
 # With extra fit measures
 compare(fit1, fit2, fit.measures = c("BRMSEA", "BMc"))
@@ -220,8 +220,8 @@ compare(fit1, fit2, fit.measures = c("BRMSEA", "BMc"))
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD BRMSEA    BMc
-#>   fit1   60   -3926.870 -19.399 7482.718 58.312 0.0946 0.8943
-#>   fit2   54   -3907.471   0.000 7481.267 53.932 0.0930 0.8892
+#>   fit1   60   -3926.870 -19.399 7483.259 58.582 0.0954 0.8932
+#>   fit2   54   -3907.471   0.000 7480.774 53.686 0.0926 0.8896
 
 # With incremental indices (baseline = fit1, passed to fitMeasures())
 compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
@@ -229,8 +229,8 @@ compare(fit1, fit2, fit3, fit.measures = c("BCFI", "BTLI"))
 #> Models ordered by marginal log-likelihood
 #> 
 #>  Model npar Marg.Loglik   logBF      DIC     pD   BCFI   BTLI
-#>   fit1   60   -3926.870 -37.095 7482.718 58.312 0.9231 0.8888
-#>   fit2   54   -3907.471 -17.696 7481.267 53.932 0.9202 0.8939
-#>   fit3   48   -3889.775   0.000 7508.746 47.721 0.8823 0.8597
+#>   fit1   60   -3926.870 -37.095 7483.259 58.582 0.9231 0.8879
+#>   fit2   54   -3907.471 -17.696 7480.774 53.686 0.9204 0.8944
+#>   fit3   48   -3889.775   0.000 7508.596 47.646 0.8821 0.8593
 # }
 ```

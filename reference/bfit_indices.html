@@ -98,9 +98,11 @@ indices (BCFI, BTLI, BNFI) are scaled against. <code>NULL</code> (default) fits 
 independence model on the same data and options automatically, as
 lavaan does: every observed variable keeps its variance (and intercept)
 and nothing correlates. That fit uses Gaussian marginals and no VB
-shift, since only its posterior draws and pD are needed, and takes a
-fraction of a second. Supply an <a href="INLAvaan-package.html">INLAvaan</a> object to use another
-baseline, or <code>FALSE</code> to skip the incremental indices.</p></dd>
+shift, since only its posterior draws and pD are needed. It is fitted at
+the first call and kept with <code>object</code>, so later calls (and
+<code><a href="fitmeasures.html">fitmeasures()</a></code>) reuse it and their incremental indices are the same.
+Supply an <a href="INLAvaan-package.html">INLAvaan</a> object to use another baseline, or <code>FALSE</code> to skip
+the incremental indices.</p></dd>
 
 
 <dt id="arg-rescale">rescale<a class="anchor" aria-label="anchor" href="#arg-rescale"></a></dt>
@@ -111,8 +113,12 @@ sample.</p></dd>
 
 
 <dt id="arg-nsamp">nsamp<a class="anchor" aria-label="anchor" href="#arg-nsamp"></a></dt>
-<dd><p>Number of posterior samples to draw. Defaults to the value
-used when fitting the model.</p></dd>
+<dd><p>Number of posterior samples, by default the number of draws
+of the fit. The fit keeps the log-likelihood of each of its draws with
+its DIC, so up to that number the indices use the first <code>nsamp</code> draws of
+the fit: nothing is drawn or scored again, and the absolute indices do
+not depend on the random seed. The independence baseline is used the same
+way. A larger value draws that many new samples.</p></dd>
 
 
 <dt id="arg-samp-copula">samp_copula<a class="anchor" aria-label="anchor" href="#arg-samp-copula"></a></dt>
@@ -176,21 +182,21 @@ needs enough clusters for its parameters.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Posterior summary of devM-based Bayesian fit indices (nsamp = 100): </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       BRMSEA    BGammaHat adjBGammaHat          BMc         BCFI         BTLI </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        0.091        0.957        0.920        0.903        0.930        0.899 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.091        0.957        0.921        0.904        0.931        0.900 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         BNFI </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        0.906 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        0.907 </span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">bf</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Posterior summary of devM-based Bayesian fit indices (nsamp = 100):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BRMSEA       0.091 0.005 0.084 0.088 0.091 0.094  0.101 0.089</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BGammaHat    0.957 0.004 0.948 0.954 0.957 0.959  0.963 0.958</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> adjBGammaHat 0.920 0.008 0.904 0.915 0.921 0.926  0.933 0.923</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BMc          0.903 0.009 0.883 0.896 0.904 0.909  0.918 0.907</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BCFI         0.930 0.007 0.915 0.925 0.931 0.935  0.942 0.933</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BTLI         0.899 0.010 0.877 0.892 0.900 0.905  0.915 0.903</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> BNFI         0.906 0.007 0.892 0.901 0.907 0.911  0.917 0.909</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BRMSEA       0.091 0.005 0.081 0.087 0.090 0.094  0.102 0.090</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.965 0.958</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> adjBGammaHat 0.921 0.009 0.901 0.915 0.922 0.927  0.936 0.923</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BMc          0.904 0.011 0.879 0.897 0.905 0.911  0.922 0.906</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BCFI         0.931 0.008 0.912 0.926 0.932 0.937  0.945 0.933</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BTLI         0.900 0.012 0.873 0.893 0.902 0.909  0.921 0.904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> BNFI         0.907 0.008 0.889 0.902 0.908 0.913  0.920 0.909</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

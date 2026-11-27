@@ -117,34 +117,34 @@ single-observation draws from the predictive distribution
 ``` r
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa("visual =~ x1 + x2 + x3", HolzingerSwineford1939)
-#> ✔ Found the posterior mode in 25 iterations [24ms]
-#> ✔ VB mean correction, max shift 0.47σ [15ms]
-#> ✔ Fitted 6 skew-normal marginals [74ms]
+#> ✔ Found the posterior mode in 25 iterations [30ms]
+#> ✔ VB mean correction, max shift 0.47σ [20ms]
+#> ✔ Fitted 6 skew-normal marginals [81ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [310ms]
+#> ✔ Summarise 1000 posterior draws. [163ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
 # Simulate one replicate dataset from the posterior
 sims <- simulate(fit, nsim = 1)
 head(sims[[1]])                    # data frame
-#>         x1       x2       x3
-#> 1 5.555767 2.939660 3.565238
-#> 2 5.435979 5.660462 1.071958
-#> 3 5.925919 6.998072 2.639845
-#> 4 3.502717 8.775188 1.277392
-#> 5 6.512296 7.355982 3.647969
-#> 6 5.506838 5.417858 1.656728
+#>         x1       x2        x3
+#> 1 5.822496 7.321534 2.5584148
+#> 2 5.263489 5.169107 0.9618029
+#> 3 2.926991 4.197813 2.7674660
+#> 4 5.726640 5.786076 2.3055285
+#> 5 5.524801 7.941615 2.6414758
+#> 6 2.046853 4.935014 1.7986682
 attr(sims[[1]], "truth")           # true lavaan-side (x-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>      0.7794665      1.3239542      0.9189826      1.4817029      0.5567278 
+#>      0.8822129      1.2158317      0.8415333      1.1277521      0.5630948 
 #> visual~~visual 
-#>      0.4052003 
+#>      0.4512173 
 attr(sims[[1]], "truth_theta")     # corresponding unconstrained (theta-space) parameters
 #>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 
-#>     0.77946648     1.32395415    -0.08448809     0.39319204    -0.58567881 
+#>      0.8822129      1.2158317     -0.1725297      0.1202264     -0.5743074 
 #> visual~~visual 
-#>    -0.90337386 
+#>     -0.7958063 
 
 # Simulate from the prior (e.g., for SBC)
 sims_prior <- simulate(fit, nsim = 5, prior = TRUE)

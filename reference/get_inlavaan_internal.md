@@ -54,15 +54,15 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 int <- get_inlavaan_internal(fit)
 names(int)
 #>  [1] "coefficients"     "mloglik"          "DIC"              "summary"         
-#>  [5] "ppp"              "loo"              "waic"             "test"            
-#>  [9] "optim_method"     "marginal_method"  "cov_as_cor"       "samp_copula"     
-#> [13] "samp_norta"       "theta_star_novbc" "theta_star"       "Omega"           
-#> [17] "R_star"           "vcov_x"           "theta_star_trans" "approx_data"     
-#> [21] "nsamp"            "pdf_data"         "def_undefined"    "partable"        
-#> [25] "lavmodel"         "lavsamplestats"   "lavdata"          "lavcache"        
-#> [29] "opt"              "timing"           "visual_debug"     "vb"              
-#> [33] "cov_pd"           "call"             "version"          "engine"          
-#> [37] "warnings"        
+#>  [5] "ppp"              "loo"              "waic"             "loo_cache"       
+#>  [9] "test"             "optim_method"     "marginal_method"  "cov_as_cor"      
+#> [13] "samp_copula"      "samp_norta"       "theta_star_novbc" "theta_star"      
+#> [17] "Omega"            "R_star"           "vcov_x"           "theta_star_trans"
+#> [21] "approx_data"      "nsamp"            "pdf_data"         "def_undefined"   
+#> [25] "partable"         "lavmodel"         "lavsamplestats"   "lavdata"         
+#> [29] "lavcache"         "opt"              "timing"           "visual_debug"    
+#> [33] "vb"               "cov_pd"           "call"             "version"         
+#> [37] "engine"           "warnings"        
 
 # Extract a specific element
 get_inlavaan_internal(fit, "coefficients")

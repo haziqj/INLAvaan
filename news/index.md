@@ -6,6 +6,34 @@
   longer suggests spacefillr and ucminf, which only the Sobol nodes of
   the old VB correction and `optim_method = "ucminf"` used.
 
+- The posterior predictive p-value, the DIC and
+  [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html) are
+  faster. The PPP and the DIC now score each posterior draw in one pass,
+  from one computation of its implied moments, and with complete data
+  the log-likelihood of a draw is computed in closed form. The fit keeps
+  the log-likelihood of each draw, so
+  [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+  and [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+  use the draws of the fit (and of the independence baseline) and no
+  longer draw and score new ones, and the draws of the independence
+  baseline are scored all at once. On single-level test models, a fit
+  followed by
+  [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+  takes 16% to 74% less time (from 0.35 to 0.09 seconds on a one-factor
+  model), and
+  [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html)
+  alone 71% to 92% less. The PPP is unchanged and the DIC is unchanged
+  up to rounding. The Bayesian fit indices change by Monte Carlo noise
+  once. The independence baseline is fitted at the first call of
+  [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html) or
+  [`bfit_indices()`](https://inlavaan.haziqj.ml/reference/bfit_indices.md)
+  and kept with the fit (a few kilobytes), so later calls (and
+  [`compare()`](https://inlavaan.haziqj.ml/reference/compare.md), which
+  uses the baseline of its first model) take no time for it, and their
+  indices are the same and no longer depend on the random seed. A
+  smaller `nsamp` than the fit’s takes the first draws of the fit, and a
+  larger one draws anew.
+
 - Fits are faster, with the same results. The map from the internal
   parameters to lavaan’s parameters, the chain rule of the gradient and
   the prior now find their index tables once per model, and not on every
@@ -27,6 +55,118 @@
   and a posterior summary can move by about 0.00004 posterior SDs.
   Patterns that miss many variables, as in planned missingness, keep the
   earlier code.
+
+- Two-level fits are faster. Every two-level computation of INLAvaan is
+  now its own code, not lavaan’s: the log-likelihood and gradient of
+  random slopes (`rv()`) on observed and on latent or split covariates,
+  with or without between-only outcomes, and of random intercepts with
+  or without between-only variables, each with complete data and with
+  missing values (`missing = "ml"`); the per-cluster terms of
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md); the
+  empirical Bayes values of
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md); and
+  the saturated model of the two-level posterior predictive p-value. The
+  new code works all clusters at once and does the matrix algebra of the
+  gradient once, not once per cluster, and the derivative of the
+  random-slope pieces is exact. On four random-slope test models a fit
+  takes 91% to 93% less time (from 35.5 to 2.5 seconds on a two-level
+  factor model with a random slope and missing data), and 77% less with
+  a slope on a latent covariate, where the cluster effects are
+  integrated by quadrature;
+  [`fitMeasures()`](https://rdrr.io/pkg/lavaan/man/fitMeasures.html),
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) are faster
+  too. Two-level models with random intercepts take 30% to 32% less time
+  with complete data and 21% to 32% less with missing data. The
+  log-posterior equals the earlier one up to rounding, so a posterior
+  summary of a fit whose mode search takes many iterations can move by
+  about 0.0002 posterior SDs.
+
+- [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) are faster,
+  with the same results up to rounding. The Hessian of each unit’s
+  log-likelihood (a row, or a cluster of a two-level model with complete
+  data) is now computed in closed form in the data, and only the second
+  derivatives of the model-implied moments are taken by finite
+  differences, once for all units. Before, the scores of all units were
+  differenced in every direction. One LOO pass takes 2.6 to 3.8 times
+  less time on large single-level models (17.2 to 5.8 seconds on a model
+  with 40 variables, 169 parameters and missing data) and 4 to 6 times
+  less on two-level models with complete data. The estimates agree with
+  the earlier ones to 1e-7 or better.
+  `options(inlavaan.loo_hessian = "differences")` keeps the earlier
+  route.
+
+- [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) after
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) (or
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) after
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md)) with default
+  arguments no longer computes the Taylor pass again: the fit keeps its
+  last default pass. With the faster Hessians,
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md) and
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) together take
+  80% to 91% less time on models where they dominate.
+
+- The posterior predictive p-value (PPP) of two-level models with
+  missing data (`missing = "ml"`) is faster. Before, the saturated model
+  of each replicate data set was fitted by EM from a crude start. It is
+  now found by quasi-Newton steps from the moments of the posterior
+  draw, which reach the same maximum, and the EM is kept for replicates
+  whose maximum lies on the boundary. On three test models the PPP takes
+  2.1 to 8.7 seconds in place of 25 to 45, and the fit 71% to 87% less
+  time; over 20 seeds each the PPP is the same number as before.
+  `ppp_method = "em"` keeps the EM, as blavaan does.
+
+- Two-level models with `conditional.x = TRUE` now fit. Before, the fit
+  stopped with “subscript out of bounds”. INLAvaan fits them as the
+  joint model with `fixed.x = TRUE`, which has the same free parameters
+  and the same posterior: the log-likelihood of the outcomes given the
+  covariates is the joint log-likelihood less that of the covariates,
+  which holds no free parameter.
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md), the PPP and
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) work on
+  these fits. As in lavaan, missing data and random slopes cannot be
+  combined with two-level `conditional.x = TRUE`.
+
+- Multigroup two-level models (a `group:` block for each group, each
+  with its `level:` blocks) now fit, with complete data and with missing
+  values. Before, INLAvaan refused them. The log-likelihood and gradient
+  are INLAvaan’s own two-level code, summed over the groups, and
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md), the PPP,
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md),
+  [`sampling()`](https://inlavaan.haziqj.ml/reference/sampling.md) and
+  [`simulate()`](https://inlavaan.haziqj.ml/reference/simulate.md) work
+  on these fits. The coefficient names follow lavaan’s (`fb=~y2.g2.l2`).
+  In `loo(fit, units = )` the clusters (or rows) of group 1 come first,
+  then those of group 2, and so on. Random slopes cannot be combined
+  with groups, as in lavaan.
+
+- Random-slope models (`rv()`) with `fixed.x = FALSE` now fit, and the
+  covariates are modelled. INLAvaan adds the two-level normal density of
+  the observed covariates, with their means, variances and covariances
+  as parameters, to the random-slope likelihood. The other parameters
+  keep the posterior they have under `fixed.x = TRUE`, and
+  [`loo()`](https://inlavaan.haziqj.ml/reference/loo.md),
+  [`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) and the
+  Bayesian fit indices score the covariates too. lavaan accepts these
+  models but leaves the covariate density out, so its covariate
+  estimates stay at their start values and it reports no standard
+  errors. The slope must be on an observed within-cluster covariate,
+  each covariate without a slope must be observed at one level only, and
+  the covariates must be complete; other `fixed.x = FALSE` random-slope
+  fits are still refused, with the reason.
+
+- `predict(newdata = )` now works for two-level models, with or without
+  random slopes, groups or missing values. Before, INLAvaan refused it.
+  The new rows must hold the cluster variable (and the group variable of
+  a multigroup fit). lavaan’s own set-up code finds their clusters and
+  missing-data patterns, and their clusters are scored with the fitted
+  parameters. Given the fitted data again,
+  [`predict()`](https://inlavaan.haziqj.ml/reference/predict.md) returns
+  the same draws as without `newdata`.
 
 - New argument `silent` in
   [`inlavaan()`](https://inlavaan.haziqj.ml/reference/inlavaan.md),

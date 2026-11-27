@@ -172,34 +172,34 @@ distribution (prior/posterior predictive checks).</p></div>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="acfa.html">acfa</a></span><span class="op">(</span><span class="st">"visual =~ x1 + x2 + x3"</span>, <span class="va">HolzingerSwineford1939</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">25</span> iterations <span style="color: #555555;">[24ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.47σ</span> <span style="color: #555555;">[15ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">6</span> skew-normal marginals <span style="color: #555555;">[74ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">25</span> iterations <span style="color: #555555;">[30ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.47σ</span> <span style="color: #555555;">[20ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">6</span> skew-normal marginals <span style="color: #555555;">[81ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[310ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[163ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simulate one replicate dataset from the posterior</span></span></span>
 <span class="r-in"><span><span class="va">sims</span> <span class="op">&lt;-</span> <span class="fu">simulate</span><span class="op">(</span><span class="va">fit</span>, nsim <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sims</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>                    <span class="co"># data frame</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         x1       x2       x3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 5.555767 2.939660 3.565238</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 5.435979 5.660462 1.071958</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 5.925919 6.998072 2.639845</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 3.502717 8.775188 1.277392</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 6.512296 7.355982 3.647969</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 5.506838 5.417858 1.656728</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         x1       x2        x3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 5.822496 7.321534 2.5584148</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 5.263489 5.169107 0.9618029</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2.926991 4.197813 2.7674660</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 5.726640 5.786076 2.3055285</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 5.524801 7.941615 2.6414758</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2.046853 4.935014 1.7986682</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sims</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="st">"truth"</span><span class="op">)</span>           <span class="co"># true lavaan-side (x-space) parameters</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.7794665      1.3239542      0.9189826      1.4817029      0.5567278 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.8822129      1.2158317      0.8415333      1.1277521      0.5630948 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> visual~~visual </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4052003 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.4512173 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sims</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="st">"truth_theta"</span><span class="op">)</span>     <span class="co"># corresponding unconstrained (theta-space) parameters</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     visual=~x2     visual=~x3         x1~~x1         x2~~x2         x3~~x3 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     0.77946648     1.32395415    -0.08448809     0.39319204    -0.58567881 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0.8822129      1.2158317     -0.1725297      0.1202264     -0.5743074 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> visual~~visual </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    -0.90337386 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     -0.7958063 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simulate from the prior (e.g., for SBC)</span></span></span>
 <span class="r-in"><span><span class="va">sims_prior</span> <span class="op">&lt;-</span> <span class="fu">simulate</span><span class="op">(</span><span class="va">fit</span>, nsim <span class="op">=</span> <span class="fl">5</span>, prior <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

@@ -166,7 +166,7 @@ Aliases and atoms may be mixed and are unioned, so
 and the WAIC come from one Taylor pass, so asking for either stores
 both. They run only when asked for, with no time budget. On a model
 the casewise machinery does not support (PML or ordinal data,
-<code>conditional.x = TRUE</code>, multigroup two-level) they are skipped with a
+single-level <code>conditional.x = TRUE</code>) they are skipped with a
 warning and the rest of the fit proceeds. For a two-level model the PPP
 follows blavaan: each of <code>ppp_nsamp</code> posterior draws generates replicate
 data, which are scored against the saturated model (see <code>ppp_method</code>).
@@ -357,9 +357,11 @@ the replicate data against the saturated model. <code>"onestep"</code> (default)
 takes one Fisher-scoring step from the moments of each posterior draw
 towards the saturated fit, and fits by EM where the step would leave the
 valid covariance matrices (with few clusters or a small between
-variance). <code>"em"</code> always fits the saturated model by EM, as blavaan does.
-Fits with <code>missing = "ml"</code> always use <code>"em"</code>. Ignored for single-level
-models.</p></dd>
+variance). With <code>missing = "ml"</code>, <code>"onestep"</code> instead finds the saturated
+fit of each replicate by quasi-Newton steps from the moments of the
+posterior draw, which reach the maximum that the EM finds, and fits by EM
+where they do not converge. <code>"em"</code> always fits the saturated model by EM,
+as blavaan does. Ignored for single-level models.</p></dd>
 
 
 <dt id="arg-ppp-nsamp">ppp_nsamp<a class="anchor" aria-label="anchor" href="#arg-ppp-nsamp"></a></dt>
@@ -439,13 +441,18 @@ Gauss-Hermite quadrature instead; that route warns at fit time and is
 governed by <code>integration.ngh</code>, passed through to lavaan. The node count
 is an accuracy setting as much as a cost setting, so give every fit that
 is to be compared with another the same <code>integration.ngh</code>.</p>
-<p>A model with observed exogenous covariates requires <code>fixed.x = TRUE</code>
-(the default): the likelihood is the density of the outcomes <em>given</em>
-those covariates, so their own means and (co)variances are unidentified
-and would be reported back as their priors. A <code>fixed.x = FALSE</code> fit is
-refused. A model whose covariates are all latent or modelled has nothing
-to hold fixed, and lavaan reports <code>fixed.x = FALSE</code> for it of its own
-accord; such a fit is accepted as it stands.</p>
+<p>With <code>fixed.x = TRUE</code> (the default) the likelihood is the density of the
+outcomes <em>given</em> the observed exogenous covariates. With
+<code>fixed.x = FALSE</code> the covariates are modelled too: their two-level normal
+density, with their means, variances and covariances as parameters, is
+added to the likelihood, which lavaan itself does not do. The other
+parameters then have the same posterior as under <code>fixed.x = TRUE</code>. This
+needs a slope on an observed within-cluster covariate, every covariate
+without a slope observed at one level only, and complete covariates;
+other <code>fixed.x = FALSE</code> fits are refused. A model whose covariates are
+all latent has nothing to hold fixed, and lavaan reports
+<code>fixed.x = FALSE</code> for it of its own accord; such a fit is accepted as it
+stands.</p>
 <p>Equality constraints work as for other models, except that covariances
 cannot be held equal. Composites (<code>&lt;~</code>) cannot be combined with random
 slopes yet.</p>
@@ -510,11 +517,11 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span>  auto.fix.first <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  auto.cov.lv.x <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">65</span> iterations <span style="color: #555555;">[103ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.54σ</span> <span style="color: #555555;">[48ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">21</span> skew-normal marginals <span style="color: #555555;">[257ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">65</span> iterations <span style="color: #555555;">[159ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.54σ</span> <span style="color: #555555;">[70ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">21</span> skew-normal marginals <span style="color: #555555;">[319ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[452ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[317ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fit measures: PPP, DIC.</span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
@@ -533,8 +540,8 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Information Criteria:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Deviance (DIC)                             7552.828 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Effective parameters (pD)                    20.738 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Deviance (DIC)                             7552.375 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Effective parameters (pD)                    20.511 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter Estimates:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -559,10 +566,10 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-out co"><span class="r-pr">#&gt;</span> Covariances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   visual ~~                                                                    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.396    0.077    0.255    0.555    0.001       beta(1,1)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.248    0.053    0.149    0.356    0.011       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     textual           0.395    0.075    0.256    0.550    0.001       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.249    0.052    0.152    0.357    0.011       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   textual ~~                                                                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.167    0.047    0.077    0.263    0.003       beta(1,1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     speed             0.165    0.046    0.075    0.257    0.003       beta(1,1)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Variances:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       </span>

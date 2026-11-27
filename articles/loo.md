@@ -143,8 +143,8 @@ compare(fit, fit1f, loo = TRUE)
 #> elpd_diff/se_diff are paired differences vs the best model
 #> 
 #>  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo
-#>    fit   30   -3870.056    0.000 7535.226 29.662 -3769.122 43.027 32.576
-#>  fit1f   27   -3976.704 -106.648 7756.468 26.472 -3877.911 46.770 27.101
+#>    fit   30   -3870.056    0.000 7534.336 29.217 -3769.122 43.027 32.576
+#>  fit1f   27   -3976.704 -106.648 7755.765 26.120 -3877.911 46.770 27.101
 #>  elpd_diff se_diff
 #>       0.00   0.000
 #>    -108.79  17.027
@@ -354,9 +354,8 @@ the search logic is yours to design.
   same holes; see the [missing-data
   article](https://inlavaan.haziqj.ml/articles/missing.md).
 - **Scope and cost.** Supported are continuous-indicator `ML` fits,
-  single- or two-level, single-group or multigroup (not ordinal PML, not
-  multigroup two-level). Parallelism is opt-in via `cores`, and `units`
-  scores a subset.
+  single- or two-level, single-group or multigroup (not ordinal PML).
+  Parallelism is opt-in via `cores`, and `units` scores a subset.
 
 ## References
 

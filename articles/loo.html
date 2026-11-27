@@ -185,8 +185,8 @@
 <span><span class="co">#&gt; elpd_diff/se_diff are paired differences vs the best model</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik    logBF      DIC     pD      ELPD     SE  p_loo</span></span>
-<span><span class="co">#&gt;    fit   30   -3870.056    0.000 7535.226 29.662 -3769.122 43.027 32.576</span></span>
-<span><span class="co">#&gt;  fit1f   27   -3976.704 -106.648 7756.468 26.472 -3877.911 46.770 27.101</span></span>
+<span><span class="co">#&gt;    fit   30   -3870.056    0.000 7534.336 29.217 -3769.122 43.027 32.576</span></span>
+<span><span class="co">#&gt;  fit1f   27   -3976.704 -106.648 7755.765 26.120 -3877.911 46.770 27.101</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;       0.00   0.000</span></span>
 <span><span class="co">#&gt;    -108.79  17.027</span></span></code></pre></div>
@@ -346,7 +346,7 @@ waic(fit)
 <li>
 <strong>Missing data.</strong> FIML fits are scored on the observed entries, so two such fits are comparable only when they share the same data <em>and</em> the same holes; see the <a href="missing.html">missing-data article</a>.</li>
 <li>
-<strong>Scope and cost.</strong> Supported are continuous-indicator <code>ML</code> fits, single- or two-level, single-group or multigroup (not ordinal PML, not multigroup two-level). Parallelism is opt-in via <code>cores</code>, and <code>units</code> scores a subset.</li>
+<strong>Scope and cost.</strong> Supported are continuous-indicator <code>ML</code> fits, single- or two-level, single-group or multigroup (not ordinal PML). Parallelism is opt-in via <code>cores</code>, and <code>units</code> scores a subset.</li>
 </ul></section><section class="level2 unnumbered"><h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">

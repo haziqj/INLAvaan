@@ -173,8 +173,9 @@ when called with default arguments, and
 [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md)
 reports `waic`, `p_waic`, `se_waic` as part of `"all"` for free. Under
 the default `test = "standard"` nothing is stored and `waic(fit)`
-computes it on demand. If the `loo` package is attached it masks this
-generic, but dispatch on INLAvaan objects continues to work.
+computes it on demand, or reuses the pass of an earlier `loo(fit)`,
+which is kept with the fit. If the `loo` package is attached it masks
+this generic, but dispatch on INLAvaan objects continues to work.
 
 ## See also
 
@@ -192,11 +193,11 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
-#> ✔ Found the posterior mode in 105 iterations [138ms]
-#> ✔ VB mean correction, max shift 0.54σ [67ms]
-#> ✔ Fitted 30 skew-normal marginals [257ms]
+#> ✔ Found the posterior mode in 105 iterations [167ms]
+#> ✔ VB mean correction, max shift 0.54σ [97ms]
+#> ✔ Fitted 30 skew-normal marginals [364ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [470ms]
+#> ✔ Summarise 1000 posterior draws. [324ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 waic(fit)

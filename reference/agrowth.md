@@ -79,9 +79,9 @@ agrowth(
   set. The LOO and the WAIC come from one Taylor pass, so asking for
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
-  data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. For a two-level model
-  the PPP follows blavaan: each of `ppp_nsamp` posterior draws generates
+  data, single-level `conditional.x = TRUE`) they are skipped with a
+  warning and the rest of the fit proceeds. For a two-level model the
+  PPP follows blavaan: each of `ppp_nsamp` posterior draws generates
   replicate data, which are scored against the saturated model (see
   `ppp_method`). The two-level PPP is experimental. The fit records what
   was requested and what was computed
@@ -277,9 +277,11 @@ agrowth(
   Fisher-scoring step from the moments of each posterior draw towards
   the saturated fit, and fits by EM where the step would leave the valid
   covariance matrices (with few clusters or a small between variance).
-  `"em"` always fits the saturated model by EM, as blavaan does. Fits
-  with `missing = "ml"` always use `"em"`. Ignored for single-level
-  models.
+  With `missing = "ml"`, `"onestep"` instead finds the saturated fit of
+  each replicate by quasi-Newton steps from the moments of the posterior
+  draw, which reach the maximum that the EM finds, and fits by EM where
+  they do not converge. `"em"` always fits the saturated model by EM, as
+  blavaan does. Ignored for single-level models.
 
 - ppp_nsamp:
 
@@ -391,11 +393,11 @@ str(Demo.growth)
 #>  $ c4: num  -1.0064 1.2293 -0.3273 -1.0324 -0.0275 ...
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
-#> ✔ Found the posterior mode in 83 iterations [238ms]
-#> ✔ VB mean correction, max shift 0.11σ [101ms]
-#> ✔ Fitted 17 skew-normal marginals [513ms]
+#> ✔ Found the posterior mode in 83 iterations [321ms]
+#> ✔ VB mean correction, max shift 0.11σ [122ms]
+#> ✔ Fitted 17 skew-normal marginals [944ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [159ms]
+#> ✔ Summarise 100 posterior draws. [108ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)

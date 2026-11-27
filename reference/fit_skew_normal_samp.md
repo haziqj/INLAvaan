@@ -63,6 +63,6 @@ optimiser, so it can differ from that of earlier versions.
 ``` r
 x <- rnorm(100, mean = 5, sd = 1)
 unlist(fit_skew_normal_samp(x))
-#>       xi    omega    alpha 
-#> 4.029467 1.366546 1.640869 
+#>        xi     omega     alpha 
+#> 4.3173806 1.2821624 0.9900543 
 ```

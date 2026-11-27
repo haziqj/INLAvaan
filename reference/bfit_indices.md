@@ -36,8 +36,10 @@ print(x, ...)
   model on the same data and options automatically, as lavaan does:
   every observed variable keeps its variance (and intercept) and nothing
   correlates. That fit uses Gaussian marginals and no VB shift, since
-  only its posterior draws and pD are needed, and takes a fraction of a
-  second. Supply an
+  only its posterior draws and pD are needed. It is fitted at the first
+  call and kept with `object`, so later calls (and
+  [`fitmeasures()`](https://inlavaan.haziqj.ml/reference/fitmeasures.md))
+  reuse it and their incremental indices are the same. Supply an
   [INLAvaan](https://inlavaan.haziqj.ml/reference/INLAvaan-package.md)
   object to use another baseline, or `FALSE` to skip the incremental
   indices.
@@ -51,8 +53,12 @@ print(x, ...)
 
 - nsamp:
 
-  Number of posterior samples to draw. Defaults to the value used when
-  fitting the model.
+  Number of posterior samples, by default the number of draws of the
+  fit. The fit keeps the log-likelihood of each of its draws with its
+  DIC, so up to that number the indices use the first `nsamp` draws of
+  the fit: nothing is drawn or scored again, and the absolute indices do
+  not depend on the random seed. The independence baseline is used the
+  same way. A larger value draws that many new samples.
 
 - samp_copula:
 
@@ -121,20 +127,20 @@ bf
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 100): 
 #> 
 #>       BRMSEA    BGammaHat adjBGammaHat          BMc         BCFI         BTLI 
-#>        0.091        0.957        0.920        0.903        0.930        0.899 
+#>        0.091        0.957        0.921        0.904        0.931        0.900 
 #>         BNFI 
-#>        0.906 
+#>        0.907 
 summary(bf)
 #> 
 #> Posterior summary of devM-based Bayesian fit indices (nsamp = 100):
 #> 
 #>               Mean    SD X2.5.  X25.  X50.  X75. X97.5.  Mode
-#> BRMSEA       0.091 0.005 0.084 0.088 0.091 0.094  0.101 0.089
-#> BGammaHat    0.957 0.004 0.948 0.954 0.957 0.959  0.963 0.958
-#> adjBGammaHat 0.920 0.008 0.904 0.915 0.921 0.926  0.933 0.923
-#> BMc          0.903 0.009 0.883 0.896 0.904 0.909  0.918 0.907
-#> BCFI         0.930 0.007 0.915 0.925 0.931 0.935  0.942 0.933
-#> BTLI         0.899 0.010 0.877 0.892 0.900 0.905  0.915 0.903
-#> BNFI         0.906 0.007 0.892 0.901 0.907 0.911  0.917 0.909
+#> BRMSEA       0.091 0.005 0.081 0.087 0.090 0.094  0.102 0.090
+#> BGammaHat    0.957 0.005 0.946 0.954 0.957 0.960  0.965 0.958
+#> adjBGammaHat 0.921 0.009 0.901 0.915 0.922 0.927  0.936 0.923
+#> BMc          0.904 0.011 0.879 0.897 0.905 0.911  0.922 0.906
+#> BCFI         0.931 0.008 0.912 0.926 0.932 0.937  0.945 0.933
+#> BTLI         0.900 0.012 0.873 0.893 0.902 0.909  0.921 0.904
+#> BNFI         0.907 0.008 0.889 0.902 0.908 0.913  0.920 0.909
 # }
 ```

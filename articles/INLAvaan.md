@@ -117,11 +117,11 @@ mod <- "
   eta2 ~ eta1
 "
 fit <- asem(mod, dat)
-#> ✔ Found the posterior mode in 69 iterations [247ms]
-#> ✔ VB mean correction, max shift 0.1σ [58ms]
-#> ✔ Fitted 13 skew-normal marginals [177ms]
+#> ✔ Found the posterior mode in 69 iterations [265ms]
+#> ✔ VB mean correction, max shift 0.1σ [74ms]
+#> ✔ Fitted 13 skew-normal marginals [225ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [536ms]
+#> ✔ Summarise 1000 posterior draws. [331ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 ```
@@ -389,7 +389,7 @@ fitmeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
 #>           13    -8081.339        0.121    16069.236       13.061        0.032 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.997        0.992        0.996        0.996        0.992        0.992
+#>        0.997        0.992        0.995        0.996        0.992        0.992
 ```
 
 Definitions and worked examples are in the [Bayesian fit indices
@@ -438,7 +438,7 @@ identify bottlenecks when scaling to larger models.
 
 timing(fit)
 #>  total 
-#> 1.09 s
+#> 0.99 s
 ```
 
 ### Plot
@@ -471,11 +471,11 @@ mod2 <- "
   eta1 ~~ 0*eta2
 "
 fit2 <- asem(mod2, dat)
-#> ✔ Found the posterior mode in 68 iterations [80ms]
-#> ✔ VB mean correction, max shift 0.079σ [30ms]
-#> ✔ Fitted 12 skew-normal marginals [135ms]
+#> ✔ Found the posterior mode in 68 iterations [98ms]
+#> ✔ VB mean correction, max shift 0.079σ [71ms]
+#> ✔ Fitted 12 skew-normal marginals [175ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [419ms]
+#> ✔ Summarise 1000 posterior draws. [286ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 compare(fit, fit2)
@@ -484,7 +484,7 @@ compare(fit, fit2)
 #> 
 #>  Model npar Marg.Loglik  logBF      DIC     pD
 #>    fit   13   -8081.339   0.00 16069.24 13.061
-#>   fit2   12   -8108.789 -27.45 16133.18 11.937
+#>   fit2   12   -8108.789 -27.45 16132.95 11.823
 ```
 
 As a note, there have been several criticisms of the use of Bayes
@@ -537,7 +537,7 @@ compare(fit, fit2, loo = TRUE)
 #> 
 #>  Model npar Marg.Loglik  logBF      DIC     pD      ELPD     SE  p_loo
 #>    fit   13   -8081.339   0.00 16069.24 13.061 -8024.860 54.291 13.008
-#>   fit2   12   -8108.789 -27.45 16133.18 11.937 -8057.002 55.129 12.039
+#>   fit2   12   -8108.789 -27.45 16132.95 11.823 -8057.002 55.129 12.039
 #>  elpd_diff se_diff
 #>      0.000   0.000
 #>    -32.143   7.735

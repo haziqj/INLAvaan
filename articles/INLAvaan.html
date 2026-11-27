@@ -215,11 +215,11 @@
 <span><span class="st">  eta2 ~ eta1</span></span>
 <span><span class="st">"</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod</span>, <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 69 iterations [247ms]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.1σ [58ms]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 13 skew-normal marginals [177ms]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 69 iterations [265ms]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.1σ [74ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 13 skew-normal marginals [225ms]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [536ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [331ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span></code></pre></div>
 </div>
@@ -394,7 +394,7 @@
 <span><span class="co">#&gt;         npar   margloglik          ppp          dic        p_dic       BRMSEA </span></span>
 <span><span class="co">#&gt;           13    -8081.339        0.121    16069.236       13.061        0.032 </span></span>
 <span><span class="co">#&gt;    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI </span></span>
-<span><span class="co">#&gt;        0.997        0.992        0.996        0.996        0.992        0.992</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.997        0.992        0.995        0.996        0.992        0.992</span></span></code></pre></div>
 </div>
 <p>Definitions and worked examples are in the <a href="https://inlavaan.haziqj.ml/articles/fit-indices.html">Bayesian fit indices article</a>.</p>
 </section><section class="level3"><h3 id="diagnostics">Diagnostics<a class="anchor" aria-label="anchor" href="#diagnostics"></a>
@@ -425,7 +425,7 @@
 <div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/timing.html">timing</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  total </span></span>
-<span><span class="co">#&gt; 1.09 s</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.99 s</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h3 id="plot">Plot<a class="anchor" aria-label="anchor" href="#plot"></a>
 </h3>
@@ -452,11 +452,11 @@
 <span><span class="st">  eta1 ~~ 0*eta2</span></span>
 <span><span class="st">"</span></span>
 <span><span class="va">fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/asem.html">asem</a></span><span class="op">(</span><span class="va">mod2</span>, <span class="va">dat</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ✔ Found the posterior mode in 68 iterations [80ms]</span></span>
-<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.079σ [30ms]</span></span>
-<span><span class="co">#&gt; ✔ Fitted 12 skew-normal marginals [135ms]</span></span>
+<span><span class="co">#&gt; ✔ Found the posterior mode in 68 iterations [98ms]</span></span>
+<span><span class="co">#&gt; ✔ VB mean correction, max shift 0.079σ [71ms]</span></span>
+<span><span class="co">#&gt; ✔ Fitted 12 skew-normal marginals [175ms]</span></span>
 <span><span class="co">#&gt; ⠙ Posterior sampling and summarising.</span></span>
-<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [419ms]</span></span>
+<span><span class="co">#&gt; ✔ Summarise 1000 posterior draws. [286ms]</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ℹ Fit measures: PPP, DIC.</span></span>
 <span><span class="fu"><a href="../reference/compare.html">compare</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">fit2</span><span class="op">)</span></span>
@@ -465,7 +465,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik  logBF      DIC     pD</span></span>
 <span><span class="co">#&gt;    fit   13   -8081.339   0.00 16069.24 13.061</span></span>
-<span><span class="co">#&gt;   fit2   12   -8108.789 -27.45 16133.18 11.937</span></span></code></pre></div>
+<span><span class="co">#&gt;   fit2   12   -8108.789 -27.45 16132.95 11.823</span></span></code></pre></div>
 </div>
 <p>As a note, there have been several criticisms of the use of Bayes factors for model comparison, particularly in the context of SEMs <span class="citation" data-cites="tendeiro2019review schad2023workflow">(<a href="#ref-tendeiro2019review" role="doc-biblioref">Tendeiro and Kiers 2019</a>; <a href="#ref-schad2023workflow" role="doc-biblioref">Schad et al. 2023</a>)</span>. Leave-one-out cross-validation <span class="citation" data-cites="vehtari2017practical">(LOO, <a href="#ref-vehtari2017practical" role="doc-biblioref">Vehtari et al. 2017</a>)</span> and the widely applicable information criterion <span class="citation" data-cites="watanabe2010asymptotic">(WAIC, <a href="#ref-watanabe2010asymptotic" role="doc-biblioref">Watanabe 2010</a>)</span> are popular alternatives which compare models on out-of-sample predictive accuracy instead; see <span class="citation" data-cites="merkle2019bayesian">Merkle et al. (<a href="#ref-merkle2019bayesian" role="doc-biblioref">2019</a>)</span> for their use with latent variable models. Both are implemented in <a href="https://inlavaan.haziqj.ml/">INLAvaan</a>. The functions <code><a href="../reference/loo.html">loo()</a></code> and <code><a href="../reference/waic.html">waic()</a></code> require neither refitting nor sampling: both are computed in closed form from the same Taylor expansion around the fit’s Laplace summary.</p>
 <div class="cell">
@@ -497,7 +497,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Model npar Marg.Loglik  logBF      DIC     pD      ELPD     SE  p_loo</span></span>
 <span><span class="co">#&gt;    fit   13   -8081.339   0.00 16069.24 13.061 -8024.860 54.291 13.008</span></span>
-<span><span class="co">#&gt;   fit2   12   -8108.789 -27.45 16133.18 11.937 -8057.002 55.129 12.039</span></span>
+<span><span class="co">#&gt;   fit2   12   -8108.789 -27.45 16132.95 11.823 -8057.002 55.129 12.039</span></span>
 <span><span class="co">#&gt;  elpd_diff se_diff</span></span>
 <span><span class="co">#&gt;      0.000   0.000</span></span>
 <span><span class="co">#&gt;    -32.143   7.735</span></span></code></pre></div>

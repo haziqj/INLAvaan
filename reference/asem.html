@@ -138,7 +138,7 @@ Aliases and atoms may be mixed and are unioned, so
 and the WAIC come from one Taylor pass, so asking for either stores
 both. They run only when asked for, with no time budget. On a model
 the casewise machinery does not support (PML or ordinal data,
-<code>conditional.x = TRUE</code>, multigroup two-level) they are skipped with a
+single-level <code>conditional.x = TRUE</code>) they are skipped with a
 warning and the rest of the fit proceeds. For a two-level model the PPP
 follows blavaan: each of <code>ppp_nsamp</code> posterior draws generates replicate
 data, which are scored against the saturated model (see <code>ppp_method</code>).
@@ -319,9 +319,11 @@ the replicate data against the saturated model. <code>"onestep"</code> (default)
 takes one Fisher-scoring step from the moments of each posterior draw
 towards the saturated fit, and fits by EM where the step would leave the
 valid covariance matrices (with few clusters or a small between
-variance). <code>"em"</code> always fits the saturated model by EM, as blavaan does.
-Fits with <code>missing = "ml"</code> always use <code>"em"</code>. Ignored for single-level
-models.</p></dd>
+variance). With <code>missing = "ml"</code>, <code>"onestep"</code> instead finds the saturated
+fit of each replicate by quasi-Newton steps from the moments of the
+posterior draw, which reach the maximum that the EM finds, and fits by EM
+where they do not converge. <code>"em"</code> always fits the saturated model by EM,
+as blavaan does. Ignored for single-level models.</p></dd>
 
 
 <dt id="arg-ppp-nsamp">ppp_nsamp<a class="anchor" aria-label="anchor" href="#arg-ppp-nsamp"></a></dt>
@@ -408,11 +410,11 @@ model functions instead, including <code><a href="acfa.html">acfa()</a></code>, 
 <span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"PoliticalDemocracy"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">asem</span><span class="op">(</span><span class="va">model</span>, <span class="va">PoliticalDemocracy</span>, test <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">82</span> iterations <span style="color: #555555;">[180ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.55σ</span> <span style="color: #555555;">[79ms]</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">28</span> skew-normal marginals <span style="color: #555555;">[412ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Found the posterior mode in <span style="color: #D7875F;">82</span> iterations <span style="color: #555555;">[236ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> VB mean correction, max shift <span style="color: #D7875F;">0.55σ</span> <span style="color: #555555;">[109ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Fitted <span style="color: #D7875F;">28</span> skew-normal marginals <span style="color: #555555;">[505ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ⠙ Posterior sampling and summarising.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[117ms]</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Summarise 1000 posterior draws. <span style="color: #B2B2B2;">[114ms]</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="INLAvaan-class.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> INLAvaan 0.3.99.9001 ended normally after 82 iterations</span>

@@ -73,9 +73,11 @@ summary(object, ...)
 
   Optional integer vector of unit indices to score; defaults to all
   units. For LOSO these are case numbers (row numbers of the analysed
-  dataset); for LOCO, cluster positions. For a random-slope fit the
-  per-cluster kernels return every cluster on each call, so this trims
-  the reported table rather than the work.
+  dataset); for LOCO, cluster positions. A multigroup two-level fit
+  numbers the clusters (or rows) of group 1 first, then those of group
+  2, and so on. For a random-slope fit the per-cluster kernels return
+  every cluster on each call, so this trims the reported table rather
+  than the work.
 
 - second_order:
 
@@ -271,12 +273,23 @@ stores the WAIC (see
 Taylor pass, or afterwards with `add_loo()`; `loo(fit)` with default
 arguments then returns the stored result. Under the default
 `test = "standard"` nothing is stored and `loo(fit)` computes it on
-demand.
+demand. That pass is then kept with the fit, so a later `loo(fit)` or
+[`waic()`](https://inlavaan.haziqj.ml/reference/waic.md) with default
+arguments reuses it, with the same numbers and the same warnings.
+
+The Hessian \\H_u\\ of a row of a single-level model, or of a cluster of
+a two-level model with complete data, is computed in closed form in the
+data, with only the second derivatives of the model-implied moments
+taken by finite differences, once for all units. For the other units
+(random slopes, two-level models with missing data, rows of a two-level
+model), \\H_u\\ is a central difference of the analytic unit scores.
+Setting `options(inlavaan.loo_hessian = "differences")` uses the
+differences for every unit.
 
 The default `cores = NULL` runs serially, and `cores > 1` parallelises
 the Hessian stage. Supported models are continuous-indicator models
 fitted with the `ML` estimator, single- or two-level, single-group or
-multigroup (multigroup two-level models are not supported yet).
+multigroup.
 
 ## References
 
@@ -307,11 +320,12 @@ HS.model <- "
 "
 utils::data("HolzingerSwineford1939", package = "lavaan")
 fit <- acfa(HS.model, HolzingerSwineford1939, meanstructure = TRUE)
-#> ✔ Found the posterior mode in 105 iterations [121ms]
-#> ✔ VB mean correction, max shift 0.54σ [68ms]
-#> ✔ Fitted 30 skew-normal marginals [288ms]
+#> ✔ Found the posterior mode in 105 iterations [192ms]
+#> ✔ VB mean correction, max shift 0.54σ [96ms]
+#> ✔ Fitted 30 skew-normal marginals [350ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [476ms]
+#> ⠹ Computing fit indices (PPP/DIC).
+#> ✔ Summarise 1000 posterior draws. [324ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 
@@ -388,14 +402,11 @@ model2l <- "
 "
 fit2l <- asem(model2l, Demo.twolevel, cluster = "cluster",
               meanstructure = TRUE, fixed.x = FALSE)
-#> ✔ Found the posterior mode in 197 iterations [974ms]
-#> ✔ VB mean correction, max shift 0.61σ [407ms]
-#> ⠙ Fitting 12/34 skew-normal marginals
-#> ⠙ Fitting 34/34 skew-normal marginals
-#> ✔ Fitted 34 skew-normal marginals [1.4s]
+#> ✔ Found the posterior mode in 193 iterations [856ms]
+#> ✔ VB mean correction, max shift 0.61σ [336ms]
+#> ✔ Fitted 34 skew-normal marginals [1.3s]
 #> ⠙ Posterior sampling and summarising.
-#> ⠹ Computing fit indices (PPP/DIC).
-#> ✔ Summarise 1000 posterior draws. [2.2s]
+#> ✔ Summarise 1000 posterior draws. [2.3s]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 #> ℹ The two-level PPP is experimental.

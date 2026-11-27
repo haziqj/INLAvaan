@@ -99,9 +99,9 @@ inlavaan(
   set. The LOO and the WAIC come from one Taylor pass, so asking for
   either stores both. They run only when asked for, with no time budget.
   On a model the casewise machinery does not support (PML or ordinal
-  data, `conditional.x = TRUE`, multigroup two-level) they are skipped
-  with a warning and the rest of the fit proceeds. For a two-level model
-  the PPP follows blavaan: each of `ppp_nsamp` posterior draws generates
+  data, single-level `conditional.x = TRUE`) they are skipped with a
+  warning and the rest of the fit proceeds. For a two-level model the
+  PPP follows blavaan: each of `ppp_nsamp` posterior draws generates
   replicate data, which are scored against the saturated model (see
   `ppp_method`). The two-level PPP is experimental. The fit records what
   was requested and what was computed
@@ -307,9 +307,11 @@ inlavaan(
   Fisher-scoring step from the moments of each posterior draw towards
   the saturated fit, and fits by EM where the step would leave the valid
   covariance matrices (with few clusters or a small between variance).
-  `"em"` always fits the saturated model by EM, as blavaan does. Fits
-  with `missing = "ml"` always use `"em"`. Ignored for single-level
-  models.
+  With `missing = "ml"`, `"onestep"` instead finds the saturated fit of
+  each replicate by quasi-Newton steps from the moments of the posterior
+  draw, which reach the maximum that the EM finds, and fits by EM where
+  they do not converge. `"em"` always fits the saturated model by EM, as
+  blavaan does. Ignored for single-level models.
 
 - ppp_nsamp:
 
@@ -391,13 +393,18 @@ governed by `integration.ngh`, passed through to lavaan. The node count
 is an accuracy setting as much as a cost setting, so give every fit that
 is to be compared with another the same `integration.ngh`.
 
-A model with observed exogenous covariates requires `fixed.x = TRUE`
-(the default): the likelihood is the density of the outcomes *given*
-those covariates, so their own means and (co)variances are unidentified
-and would be reported back as their priors. A `fixed.x = FALSE` fit is
-refused. A model whose covariates are all latent or modelled has nothing
-to hold fixed, and lavaan reports `fixed.x = FALSE` for it of its own
-accord; such a fit is accepted as it stands.
+With `fixed.x = TRUE` (the default) the likelihood is the density of the
+outcomes *given* the observed exogenous covariates. With
+`fixed.x = FALSE` the covariates are modelled too: their two-level
+normal density, with their means, variances and covariances as
+parameters, is added to the likelihood, which lavaan itself does not do.
+The other parameters then have the same posterior as under
+`fixed.x = TRUE`. This needs a slope on an observed within-cluster
+covariate, every covariate without a slope observed at one level only,
+and complete covariates; other `fixed.x = FALSE` fits are refused. A
+model whose covariates are all latent has nothing to hold fixed, and
+lavaan reports `fixed.x = FALSE` for it of its own accord; such a fit is
+accepted as it stands.
 
 Equality constraints work as for other models, except that covariances
 cannot be held equal. Composites (`<~`) cannot be combined with random
@@ -483,11 +490,11 @@ fit <- inlavaan(
   auto.fix.first = TRUE,
   auto.cov.lv.x = TRUE
 )
-#> ✔ Found the posterior mode in 65 iterations [103ms]
-#> ✔ VB mean correction, max shift 0.54σ [48ms]
-#> ✔ Fitted 21 skew-normal marginals [257ms]
+#> ✔ Found the posterior mode in 65 iterations [159ms]
+#> ✔ VB mean correction, max shift 0.54σ [70ms]
+#> ✔ Fitted 21 skew-normal marginals [319ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 1000 posterior draws. [452ms]
+#> ✔ Summarise 1000 posterior draws. [317ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
@@ -506,8 +513,8 @@ summary(fit)
 #> 
 #> Information Criteria:
 #> 
-#>    Deviance (DIC)                             7552.828 
-#>    Effective parameters (pD)                    20.738 
+#>    Deviance (DIC)                             7552.375 
+#>    Effective parameters (pD)                    20.511 
 #> 
 #> Parameter Estimates:
 #> 
@@ -532,10 +539,10 @@ summary(fit)
 #> Covariances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       
 #>   visual ~~                                                                    
-#>     textual           0.396    0.077    0.255    0.555    0.001       beta(1,1)
-#>     speed             0.248    0.053    0.149    0.356    0.011       beta(1,1)
+#>     textual           0.395    0.075    0.256    0.550    0.001       beta(1,1)
+#>     speed             0.249    0.052    0.152    0.357    0.011       beta(1,1)
 #>   textual ~~                                                                   
-#>     speed             0.167    0.047    0.077    0.263    0.003       beta(1,1)
+#>     speed             0.165    0.046    0.075    0.257    0.003       beta(1,1)
 #> 
 #> Variances:
 #>                    Estimate       SD     2.5%    97.5%     NMAD    Prior       

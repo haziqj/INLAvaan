@@ -109,13 +109,13 @@ fit <- acfa(HS.model, HolzingerSwineford1939, std.lv = TRUE, nsamp = 100,
 # All available fit measures
 fitMeasures(fit)
 #>         npar   margloglik          ppp          dic        p_dic       BRMSEA 
-#>           21    -3838.101        0.000     7551.465       20.145        0.090 
+#>           21    -3838.101        0.000     7550.614       19.720        0.089 
 #>    BGammaHat adjBGammaHat          BMc         BCFI         BTLI         BNFI 
-#>        0.957        0.922        0.904        0.931        0.899        0.907 
+#>        0.957        0.924        0.905        0.932        0.903        0.907 
 
 # Specific measures
 fitMeasures(fit, c("npar", "dic", "p_dic", "ppp"))
 #>     npar      ppp      dic    p_dic 
-#>       21    0.000 7551.465   20.145 
+#>       21    0.000 7550.614   19.720 
 # }
 ```
