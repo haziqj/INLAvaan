@@ -1787,17 +1787,13 @@ inlav_loo <- function(
   n_units <- length(units)
 
   H_arr <- NULL
-  if (
-    isTRUE(second_order) && !is.null(hess_fn) && loo_hessian_route() == "auto"
-  ) {
-    # Closed form in the data, differences only of the model (R/loo-hessians.R)
-    H_arr <- hess_fn()
-  } else if (isTRUE(second_order)) {
+  if (isTRUE(second_order)) {
     # Budget gate (reached only when a caller passes a finite max_seconds;
     # inlavaan() itself no longer does, since the fit-time LOO now runs
     # without a budget whenever "loo"/"waic" is requested through `test`):
-    # the Hessian stage costs 2 * m_free score-matrix evaluations, so timing
-    # a single evaluation predicts the total before committing to it
+    # the differences cost 2 * m_free score-matrix evaluations, so timing
+    # a single evaluation predicts the total before committing to it. The
+    # semi-analytic route costs less, so the prediction is an upper bound.
     if (is.finite(max_seconds)) {
       t_one <- as.numeric(system.time(score_fn(theta[free]))["elapsed"])
       # floor at clock resolution so a fast evaluation never predicts zero
@@ -1810,13 +1806,19 @@ inlav_loo <- function(
         )
       }
     }
-    H_arr <- loo_batched_hessians(
-      theta[free],
-      score_fn,
-      n_units = n_units,
-      cores = eff_cores,
-      verbose = verbose
-    )
+    H_arr <- if (!is.null(hess_fn) && loo_hessian_route() == "auto") {
+      # Closed form in the data, differences only of the model
+      # (R/loo-hessians.R)
+      hess_fn()
+    } else {
+      loo_batched_hessians(
+        theta[free],
+        score_fn,
+        n_units = n_units,
+        cores = eff_cores,
+        verbose = verbose
+      )
+    }
   }
 
   # The per-unit terms come from the engine's Taylor layer (taylor_terms() in
