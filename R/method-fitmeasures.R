@@ -47,7 +47,8 @@ compute_loglik_sat <- function(object, lavsamplestats, lavdata) {
 
 # Per-sample deviance chi-square:  chisq_s = 2 * (loglik_sat - loglik(x_s))
 # This equals N * F_ML(x_s), so both logliks profile the saturated means of a
-# model without a mean structure.
+# model without a mean structure. With loglik_samp (the log-likelihoods of the
+# draws, as score_draws() keeps them) x_samp is not used and nothing is scored.
 compute_chisq_dev <- function(
   object,
   x_samp,
@@ -56,10 +57,14 @@ compute_chisq_dev <- function(
   lavdata,
   lavoptions,
   lavcache,
-  loglik_sat = NULL
+  loglik_sat = NULL,
+  loglik_samp = NULL
 ) {
   if (is.null(loglik_sat)) {
     loglik_sat <- compute_loglik_sat(object, lavsamplestats, lavdata)
+  }
+  if (!is.null(loglik_samp)) {
+    return(2 * (loglik_sat - loglik_samp))
   }
   fiml <- fiml_setup(lavmodel, lavsamplestats, lavdata)
   multilevel <- multilevel_setup(
@@ -183,7 +188,8 @@ compute_rescaled_quantities <- function(
   lavcache,
   p,
   rescale,
-  loglik_sat = NULL
+  loglik_sat = NULL,
+  loglik_samp = NULL
 ) {
   N <- lavsamplestats@ntotal
   Ngr <- lavdata@ngroups
@@ -197,7 +203,8 @@ compute_rescaled_quantities <- function(
     lavdata,
     lavoptions,
     lavcache,
-    loglik_sat
+    loglik_sat,
+    loglik_samp
   )
 
   if (rescale == "devM") {
@@ -226,6 +233,17 @@ compute_rescaled_quantities <- function(
     N_adj = N_adj,
     pD = pD
   )
+}
+
+# The log-likelihoods of the posterior draws of a fit, as score_draws() keeps
+# them with its DIC, when there are nsamp of them. NULL otherwise: no DIC, a
+# fit made before they were kept, or another number of draws.
+stored_draw_loglik <- function(int, nsamp) {
+  ll <- int$DIC$loglik_samp
+  if (is.null(ll) || length(ll) != nsamp) {
+    return(NULL)
+  }
+  ll
 }
 
 # ---------------------------------------------------------------------------
@@ -350,8 +368,11 @@ resolve_baseline_model <- function(object, baseline.model, nsamp = NULL) {
 #'   is rescaled. `"devM"` (default) subtracts pD from the deviance at each
 #'   sample. `"MCMC"` uses the classical chi-square and classical df at each
 #'   sample.
-#' @param nsamp Number of posterior samples to draw. Defaults to the value
-#'   used when fitting the model.
+#' @param nsamp Number of posterior samples. The default, the number of draws
+#'   of the fit, uses the draws of the fit itself: the fit keeps the
+#'   log-likelihood of each draw with its DIC, so nothing is drawn or scored
+#'   again and the indices do not depend on the random seed. The independence
+#'   baseline is used the same way. Another value draws that many new samples.
 #' @param samp_copula `r badge_deprecated()` Has no effect. The draws always
 #'   couple the fitted marginals by a Gaussian copula, as the draws of the fit
 #'   do.
@@ -414,8 +435,13 @@ bfit_indices <- function(
     rs_ref <- rs_baseline_fit(object)
   }
 
+  # The fit kept the log-likelihood of each of its draws (score_draws()), so
+  # the indices use those draws and score nothing. Another nsamp, or a fit made
+  # before they were kept, draws anew.
   nsamp <- nsamp %||% int$nsamp %||% 500L
-  x_samp <- sample_params_posterior(int, nsamp)$x_samp
+  ll_samp <- stored_draw_loglik(int, nsamp)
+  x_samp <- if (is.null(ll_samp)) sample_params_posterior(int, nsamp)$x_samp
+  n_draws <- if (is.null(ll_samp)) nrow(x_samp) else length(ll_samp)
 
   if (lavmodel@estimator != "ML") {
     # nocov
@@ -452,7 +478,8 @@ bfit_indices <- function(
     lavcache,
     p,
     rescale,
-    rs_ref$loglik
+    rs_ref$loglik,
+    ll_samp
   )
 
   indices <- list()
@@ -471,14 +498,22 @@ bfit_indices <- function(
   if (!is.null(baseline.model)) {
     bint <- baseline.model@external$inlavaan_internal
 
-    x_samp_null <- sample_params_posterior(bint, nsamp)$x_samp
-    n_use <- min(nrow(x_samp), nrow(x_samp_null))
+    ll_null <- stored_draw_loglik(bint, nsamp)
+    x_samp_null <- NULL
+    if (is.null(ll_null)) {
+      x_samp_null <- sample_params_posterior(bint, nsamp)$x_samp
+      n_use <- min(n_draws, nrow(x_samp_null))
+      x_samp_null <- x_samp_null[seq_len(n_use), , drop = FALSE]
+    } else {
+      n_use <- min(n_draws, length(ll_null))
+      ll_null <- ll_null[seq_len(n_use)]
+    }
 
     # The baseline's own moment count, which is larger than the model's when the
     # model fixes composite indicator (co)variances at their sample values.
     rq_null <- compute_rescaled_quantities(
       baseline.model,
-      x_samp_null[seq_len(n_use), , drop = FALSE],
+      x_samp_null,
       bint$lavmodel,
       bint$lavsamplestats,
       bint$lavdata,
@@ -486,7 +521,8 @@ bfit_indices <- function(
       baseline.model@Cache,
       if (is.null(rs_ref)) count_sample_moments(baseline.model@ParTable) else p,
       rescale,
-      rs_ref$loglik
+      rs_ref$loglik,
+      ll_null
     )
 
     adj_dev_use <- rq$adj_dev[seq_len(n_use)]
@@ -510,7 +546,7 @@ bfit_indices <- function(
         df = rq$df,
         pD = rq$pD,
         rescale = rescale,
-        nsamp = nrow(x_samp)
+        nsamp = n_draws
       )
     ),
     class = "bfit_indices"

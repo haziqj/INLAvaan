@@ -35,8 +35,11 @@ is rescaled. \code{"devM"} (default) subtracts pD from the deviance at each
 sample. \code{"MCMC"} uses the classical chi-square and classical df at each
 sample.}
 
-\item{nsamp}{Number of posterior samples to draw. Defaults to the value
-used when fitting the model.}
+\item{nsamp}{Number of posterior samples. The default, the number of draws
+of the fit, uses the draws of the fit itself: the fit keeps the
+log-likelihood of each draw with its DIC, so nothing is drawn or scored
+again and the indices do not depend on the random seed. The independence
+baseline is used the same way. Another value draws that many new samples.}
 
 \item{samp_copula}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Has no effect. The draws always
 couple the fitted marginals by a Gaussian copula, as the draws of the fit
