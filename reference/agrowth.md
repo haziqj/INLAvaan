@@ -393,11 +393,11 @@ str(Demo.growth)
 #>  $ c4: num  -1.0064 1.2293 -0.3273 -1.0324 -0.0275 ...
 
 fit <- agrowth(mod, data = Demo.growth, nsamp = 100)
-#> ✔ Found the posterior mode in 83 iterations [321ms]
-#> ✔ VB mean correction, max shift 0.11σ [122ms]
-#> ✔ Fitted 17 skew-normal marginals [944ms]
+#> ✔ Found the posterior mode in 83 iterations [269ms]
+#> ✔ VB mean correction, max shift 0.11σ [103ms]
+#> ✔ Fitted 17 skew-normal marginals [522ms]
 #> ⠙ Posterior sampling and summarising.
-#> ✔ Summarise 100 posterior draws. [108ms]
+#> ✔ Summarise 100 posterior draws. [101ms]
 #> 
 #> ℹ Fit measures: PPP, DIC.
 summary(fit)
