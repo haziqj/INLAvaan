@@ -44,6 +44,23 @@
   of a fit whose mode search takes many iterations can move by about 0.0002
   posterior SDs.
 
+* `loo()` and `waic()` are faster, with the same results up to rounding. The
+  Hessian of each unit's log-likelihood (a row, or a cluster of a two-level
+  model with complete data) is now computed in closed form in the data, and
+  only the second derivatives of the model-implied moments are taken by
+  finite differences, once for all units. Before, the scores of all units
+  were differenced in every direction. One LOO pass takes 2.6 to 3.8 times
+  less time on large single-level models (17.2 to 5.8 seconds on a model with
+  40 variables, 169 parameters and missing data) and 4 to 6 times less on
+  two-level models with complete data. The estimates agree with the earlier
+  ones to 1e-7 or better. `options(inlavaan.loo_hessian = "differences")`
+  keeps the earlier route.
+
+* `waic()` after `loo()` (or `loo()` after `waic()`) with default arguments no
+  longer computes the Taylor pass again: the fit keeps its last default pass.
+  With the faster Hessians, `loo()` and `waic()` together take 80% to 91%
+  less time on models where they dominate.
+
 * The posterior predictive p-value (PPP) of two-level models with missing
   data (`missing = "ml"`) is faster. Before, the saturated model of each
   replicate data set was fitted by EM from a crude start. It is now found by
